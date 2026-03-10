@@ -13,18 +13,18 @@
 
 <script type="module">
 
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm"
 
 const supabaseUrl = "https://mhhnmndnolhapaoqtbxo.supabase.co"
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1oaG5tbmRub2xoYXBhb3F0YnhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4Mzg4NTksImV4cCI6MjA4ODQxNDg1OX0.IMSp8vYiCln_iSuoT_H2qdeX_dP1WMhOOskDw20eJXw"
 
 const supabase = createClient(supabaseUrl, supabaseKey)
 
-async function test() {
+async function test(){
 
   const { data, error } = await supabase
-    .from('customers')
-    .select('*')
+    .from("customers")
+    .select("*")
 
   const result = document.getElementById("result")
 
@@ -35,12 +35,12 @@ async function test() {
 
   let table = `
   <table border="1" cellpadding="10">
-    <tr>
-      <th>ID</th>
-      <th>Name</th>
-      <th>Phone</th>
-      <th>Address</th>
-    </tr>
+  <tr>
+    <th>ID</th>
+    <th>Name</th>
+    <th>Phone</th>
+    <th>Address</th>
+  </tr>
   `
 
   data.forEach(customer => {
@@ -58,29 +58,6 @@ async function test() {
 
   result.innerHTML = table
 }
-
-test()
-
-</script>
-
-</body>
-</html>
-      <td>${customer.name}</td>
-      <td>${customer.phone}</td>
-      <td>${customer.address}</td>
-    </tr>
-    `
-  })
-
-  table += "</table>"
-
-  result.innerHTML = table
-
-}
-
-test()
-
-</script>
 
 test()
 
