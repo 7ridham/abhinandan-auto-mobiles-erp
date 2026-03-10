@@ -1,16 +1,3 @@
-<!DOCTYPE html>
-<html>
-
-<head>
-<title>Supabase Test</title>
-</head>
-
-<body>
-
-<h1>Supabase Connection Test</h1>
-
-<div id="result"></div>
-
 <script type="module">
 
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm"
@@ -33,7 +20,26 @@ async function test(){
     return
   }
 
-  let table = `
+  let table = "<table border='1' cellpadding='10'>"
+  table += "<tr><th>ID</th><th>Name</th><th>Phone</th><th>Address</th></tr>"
+
+  data.forEach(customer => {
+    table += "<tr>"
+    table += "<td>" + customer.id + "</td>"
+    table += "<td>" + customer.name + "</td>"
+    table += "<td>" + customer.phone + "</td>"
+    table += "<td>" + customer.address + "</td>"
+    table += "</tr>"
+  })
+
+  table += "</table>"
+
+  result.innerHTML = table
+}
+
+test()
+
+</script>
   <table border="1" cellpadding="10">
   <tr>
     <th>ID</th>
