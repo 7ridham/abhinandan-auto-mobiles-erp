@@ -8,6 +8,8 @@
 
 <h1>Supabase Connection Test</h1>
 
+<div id="result"></div>
+
 <script type="module">
 
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
@@ -23,7 +25,13 @@ async function test() {
     .from('customers')
     .select('*')
 
-  console.log(data)
+  const result = document.getElementById("result")
+
+  if(error){
+    result.innerHTML = "Error: " + error.message
+  } else {
+    result.innerHTML = "<pre>" + JSON.stringify(data, null, 2) + "</pre>"
+  }
 
 }
 
