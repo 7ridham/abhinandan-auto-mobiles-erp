@@ -141,8 +141,38 @@ table.innerHTML += `
 }
 
 loadProducts()
-
+//live search feature 
 </script>
 
 </body>
 </html>
+
+const searchInput = document.getElementById("search")
+
+searchInput.addEventListener("input", async function(){
+
+const searchText = searchInput.value
+
+const { data } = await supabase
+.from('inventory')
+.select('*')
+.ilike('item_name', `%${searchText}%`)
+.limit(20)
+
+const table = document.getElementById("productTable")
+
+table.innerHTML = ""
+
+data.forEach(product => {
+
+table.innerHTML += `
+<tr>
+<td>${product.id}</td>
+<td>${product.item_name}</td>
+<td>${product.quantity}</td>
+</tr>
+`
+
+})
+
+})
