@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>Products - Abhinandan Auto Mobiles ERP</title>
+
+<style>
+
+body{
+font-family:Arial;
+margin:0;
+display:flex;
+}
+
+.sidebar{
+width:220px;
+background:#1f2937;
+color:white;
+height:100vh;
+padding:20px;
+}
+
+.sidebar a{
+display:block;
+color:white;
+padding:10px;
+text-decoration:none;
+margin-bottom:5px;
+}
+
+.main{
+flex:1;
+padding:30px;
+}
+
+table{
+border-collapse:collapse;
+width:100%;
+}
+
+th,td{
+border:1px solid #ddd;
+padding:8px;
+}
+
+th{
+background:#f3f4f6;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="sidebar">
+
+<h2>Auto ERP</h2>
+
+<a href="dashboard.html">Dashboard</a>
+<a href="#">Billing</a>
+<a href="products.html">Products</a>
+<a href="#">Customers</a>
+
+</div>
+
+<div class="main">
+
+<h1>Product Inventory</h1>
+
+<input id="search" placeholder="Search product..." style="padding:10px;width:300px">
+
+<br><br>
+
+<table>
+
+<thead>
+
+<tr>
+<th>ID</th>
+<th>Product Name</th>
+<th>Stock</th>
+</tr>
+
+</thead>
+
+<tbody id="productTable"></tbody>
+
+</table>
+
+</div>
+
+<script type="module">
+
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+
+const supabaseUrl = "https://mhhnmndnolhapaoqtbxo.supabase.co"
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1oaG5tbmRub2xoYXBhb3F0YnhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4Mzg4NTksImV4cCI6MjA4ODQxNDg1OX0.IMSp8vYiCln_iSuoT_H2qdeX_dP1WMhOOskDw20eJXw"
+
+const supabase = createClient(supabaseUrl, supabaseKey)
+
+async function loadProducts(){
+
+const { data } = await supabase
+.from('inventory')
+.select('*')
+.limit(100)
+
+const table = document.getElementById("productTable")
+
+table.innerHTML=""
+
+data.forEach(product => {
+
+table.innerHTML += `
+<tr>
+<td>${product.id}</td>
+<td>${product.product_name}</td>
+<td>${product.stock}</td>
+</tr>
+`
+
+})
+
+}
+
+loadProducts()
+
+</script>
+
+</body>
+</html>
