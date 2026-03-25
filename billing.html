@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Billing</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<!-- Sidebar -->
+
+<div class="sidebar">
+<h2>Auto ERP</h2>
+
+<a href="dashboard.html">Dashboard</a>
+<a href="billing.html">Billing</a>
+<a href="products.html">Products</a>
+<a href="customers.html">Customers</a>
+
+</div>
+
+<!-- Main -->
+
+<div class="main">
+
+<h1>Billing</h1>
+
+<!-- Customer Search -->
+
+<div class="card">
+<h3>Select Customer</h3>
+
+<input id="customerSearch" placeholder="Search by name or phone">
+
+<ul id="customerList"></ul>
+
+</div>
+
+<!-- Product Search -->
+
+<div class="card">
+<h3>Add Products</h3>
+
+<input id="productSearch" placeholder="Search product...">
+
+<ul id="productList"></ul>
+
+</div>
+
+<!-- Bill Table -->
+
+<div class="card">
+
+<h3>Current Bill</h3>
+
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Qty</th>
+<th>Price</th>
+<th>Total</th>
+</tr>
+</thead>
+
+<tbody id="billTable"></tbody>
+
+</table>
+
+<h2>Total: ₹<span id="totalAmount">0</span></h2>
+
+<button onclick="saveBill()">Save Bill</button>
+
+</div>
+
+</div>
+
+<script type="module">
+
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+
+const supabaseUrl = "YOUR_URL"
+const supabaseKey = "YOUR_KEY"
+
+const supabase = createClient(supabaseUrl, supabaseKey)
+
+let selectedCustomer = null
+let billItems = []
+let totalAmount = 0
+
+
+// 🔎 CUSTOMER SEARCH
+
+const customerSearch = document.getElementById("customerSearch")
+
+customerSearch.addEventListener("input", async () => {
+
+const text = customerSearch.value
+
+const { data } = await supabase
+.from('customers')
+.select('*')
+.or(`name.ilike.%${text}%,phone.ilike.%${text}%`)
+.limit(5)
+
+const list = document.getElementById("customerList")
+list.innerHTML = ""
+
+data.forEach(c => {
+
+const li = document.createElement("li")
+li.innerText = c.name + " - " + c.phone
+
+li.onclick = () => {
+selectedCustomer = c
+customerSearch.value = c.name
+list.innerHTML = ""
+}
+
+list.appendChild(li)
+
+})
+
+})
+
+
+// 🔎 PRODUCT SEARCH
+
+const productSearch = document.getElementById("productSearch")
+
+productSearch.addEventListener("input", async () => {
+
+const text = productSearch.value
+
+const { data } = await supabase
+.from('inventory')
+.select('*')
+.ilike('item_name', `%${text}%`)
+.limit(5)
+
+const list = document.getElementById("productList")
+list.innerHTML = ""
+
+data.forEach(p => {
+
+const li = document.createElement("li")
+li.innerText = p.item_name + " (Stock: " + p.quantity + ")"
+
+li.onclick = () => addToBill(p)
+
+list.appendChild(li)
+
+})
+
+})
+
+
+// ➕ ADD ITEM TO BILL
+
+function addToBill(product){
+
+let item = billItems.find(i => i.id === product.id)
+
+if(item){
+item.qty++
+} else {
+billItems.push({
+id: product.id,
+name: product.item_name,
+price: product.selling_price,
+qty: 1
+})
+}
+
+renderBill()
+
+}
+
+
+// 🧾 RENDER BILL
+
+function renderBill(){
+
+const table = document.getElementById("billTable")
+table.innerHTML = ""
+
+totalAmount = 0
+
+billItems.forEach(item => {
+
+let total = item.qty * item.price
+totalAmount += total
+
+table.innerHTML += `
+<tr>
+<td>${item.name}</td>
+<td>${item.qty}</td>
+<td>${item.price}</td>
+<td>${total}</td>
+</tr>
+`
+
+})
+
+document.getElementById("totalAmount").innerText = totalAmount
+
+}
+
+
+// 💾 SAVE BILL
+
+async function saveBill(){
+
+if(!selectedCustomer){
+alert("Select customer first")
+return
+}
+
+// Insert into sales table
+const { data: sale } = await supabase
+.from('sales')
+.insert([
+{
+customer_id: selectedCustomer.id,
+total_amount: totalAmount
+}
+])
+.select()
+.single()
+
+
+// Insert bill items
+for(const item of billItems){
+
+await supabase.from('bill_items').insert([
+{
+sale_id: sale.id,
+product_id: item.id,
+quantity: item.qty,
+price: item.price
+}
+])
+
+// Reduce inventory
+await supabase
+.from('inventory')
+.update({
+quantity: supabase.raw(`quantity - ${item.qty}`)
+})
+.eq('id', item.id)
+
+}
+
+alert("Bill Saved ✅")
+
+billItems = []
+renderBill()
+
+}
+
+</script>
+
+</body>
+</html>
