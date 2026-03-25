@@ -10,32 +10,94 @@
 
 <div class="sidebar">
 
-<h2>Abhinandan Auto</h2>
+<h2>Auto ERP</h2>
 
 <a href="dashboard.html">Dashboard</a>
 <a href="billing.html">Billing</a>
 <a href="products.html">Products</a>
 <a href="customers.html">Customers</a>
-<a href="reports.html">Reports</a>
 
 </div>
-
 
 <div class="main">
 
 <h1>Dashboard</h1>
 
 <div class="card">
-<h3>Today Sales</h3>
-<p>₹0</p>
+<h3>Today's Sales</h3>
+<p id="todaySales">₹0</p>
 </div>
 
 <div class="card">
 <h3>Total Products</h3>
-<p>1000+</p>
+<p id="totalProducts">0</p>
+</div>
+
+<div class="card">
+<h3>Total Customers</h3>
+<p id="totalCustomers">0</p>
 </div>
 
 </div>
+
+<script type="module">
+
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+
+const supabaseUrl = "YOUR_URL"
+const supabaseKey = "YOUR_KEY"
+
+const supabase = createClient(supabaseUrl, supabaseKey)
+
+
+// TOTAL PRODUCTS
+async function loadProducts(){
+const { count } = await supabase
+.from('inventory')
+.select('*', { count: 'exact', head: true })
+
+document.getElementById("totalProducts").innerText = count
+}
+
+
+// TOTAL CUSTOMERS
+async function loadCustomers(){
+const { count } = await supabase
+.from('customers')
+.select('*', { count: 'exact', head: true })
+
+document.getElementById("totalCustomers").innerText = count
+}
+
+
+// TODAY SALES
+async function loadTodaySales(){
+
+const today = new Date().toISOString().split('T')[0]
+
+const { data } = await supabase
+.from('sales')
+.select('total_amount, created_at')
+
+let total = 0
+
+data.forEach(sale => {
+if(sale.created_at.startsWith(today)){
+total += sale.total_amount || 0
+}
+})
+
+document.getElementById("todaySales").innerText = "₹" + total
+
+}
+
+
+// LOAD ALL
+loadProducts()
+loadCustomers()
+loadTodaySales()
+
+</script>
 
 </body>
 </html>
