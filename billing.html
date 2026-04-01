@@ -95,9 +95,51 @@
 
 <button id="saveBtn">Save Bill</button>
 
+<button id="printBtn">Print Bill</button>
 
 
 </div>
+
+</div>
+<div id="printArea" style="display:none; color:black; background:white; padding:20px;">
+
+<h2>Abhinandan Auto Mobiles</h2>
+<p>Santalpur - Palanpur Highway</p>
+<p>Phone: +91 9870037002</p>
+
+<hr>
+
+<p><strong>Customer:</strong> <span id="printCustomer"></span></p>
+
+<table border="1" width="100%" style="border-collapse:collapse;">
+<thead>
+<tr>
+<th>Item</th>
+<th>Qty</th>
+<th>Price</th>
+<th>Total</th>
+</tr>
+</thead>
+
+<tbody id="printItems"></tbody>
+</table>
+
+<br>
+
+<p>Subtotal: ₹<span id="printSubtotal"></span></p>
+<p>GST: <span id="printGST"></span></p>
+<h3>Total: ₹<span id="printFinal"></span></h3>
+
+<br>
+
+<p>Payment:</p>
+<p>Cash: ₹<span id="printCash"></span></p>
+<p>UPI: ₹<span id="printUPI"></span></p>
+<p>Credit: ₹<span id="printCredit"></span></p>
+
+<br><br>
+
+<p>Signature: ____________________</p>
 
 </div>
 
@@ -412,6 +454,69 @@ renderBill()
 }
 document.getElementById("gstToggle").addEventListener("change", renderBill)
 
+function printBill(){
+
+if(!selectedCustomer){
+alert("Select customer first")
+return
+}
+
+// Fill customer
+document.getElementById("printCustomer").innerText = selectedCustomer.name
+
+// Fill items
+const tbody = document.getElementById("printItems")
+tbody.innerHTML = ""
+
+billItems.forEach(item => {
+
+tbody.innerHTML += `
+<tr>
+<td>${item.name}</td>
+<td>${item.qty}</td>
+<td>${item.price}</td>
+<td>${item.qty * item.price}</td>
+</tr>
+`
+
+})
+
+// Subtotal
+document.getElementById("printSubtotal").innerText = totalAmount
+
+// GST
+let gstText = "No"
+let final = totalAmount
+
+if(document.getElementById("gstToggle").checked){
+gstText = "18%"
+final = totalAmount * 1.18
+}
+
+document.getElementById("printGST").innerText = gstText
+document.getElementById("printFinal").innerText = Math.round(final)
+
+// Payment
+document.getElementById("printCash").innerText = document.getElementById("cash").value || 0
+document.getElementById("printUPI").innerText = document.getElementById("upi").value || 0
+document.getElementById("printCredit").innerText = document.getElementById("credit").value || 0
+
+
+// Show print area
+const printContent = document.getElementById("printArea").innerHTML
+
+const originalContent = document.body.innerHTML
+
+document.body.innerHTML = printContent
+
+window.print()
+
+document.body.innerHTML = originalContent
+
+location.reload()
+
+}
+document.getElementById("printBtn").addEventListener("click", printBill)
   
 </script>
 
