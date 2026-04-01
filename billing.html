@@ -74,7 +74,27 @@
 
 <h2>Total: ₹<span id="totalAmount">0</span></h2>
 
+<br>
+
+<label>
+<input type="checkbox" id="gstToggle"> Apply GST (18%)
+</label>
+
+<h3>Final Total: ₹<span id="finalTotal">0</span></h3>
+
+<br>
+<div class="card">
+
+<h3>Payment</h3>
+
+<input id="cash" placeholder="Cash" type="number"><br><br>
+<input id="upi" placeholder="UPI" type="number"><br><br>
+<input id="credit" placeholder="Credit" type="number">
+
+</div>
+
 <button id="saveBtn">Save Bill</button>
+
 
 
 </div>
@@ -220,6 +240,15 @@ class="qtyInput" data-index="${index}" style="width:60px;">
 
 document.getElementById("totalAmount").innerText = totalAmount
 
+let final = totalAmount
+
+const gstChecked = document.getElementById("gstToggle").checked
+
+if(gstChecked){
+final = totalAmount * 1.18
+}
+
+document.getElementById("finalTotal").innerText = Math.round(final)
 
 // 🔥 Attach quantity change event
 document.querySelectorAll(".qtyInput").forEach(input => {
@@ -266,7 +295,20 @@ const { data: sale, error: saleError } = await supabase
 .insert([
 {
 customer_id: selectedCustomer.id,
-total_amount: totalAmount
+const cash = parseFloat(document.getElementById("cash").value) || 0
+const upi = parseFloat(document.getElementById("upi").value) || 0
+const credit = parseFloat(document.getElementById("credit").value) || 0
+
+let final = totalAmount
+
+if(document.getElementById("gstToggle").checked){
+final = totalAmount * 1.18
+}
+total_amount: final,
+cash: cash,
+upi: upi,
+credit: credit
+
 }
 ])
 .select()
@@ -360,6 +402,7 @@ billItems.splice(index, 1)
 renderBill()
 
 }
+document.getElementById("gstToggle").addEventListener("change", renderBill)
 
   
 </script>
