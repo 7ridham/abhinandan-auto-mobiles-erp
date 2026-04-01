@@ -101,47 +101,71 @@
 </div>
 
 </div>
-<div id="printArea" style="display:none; color:black; background:white; padding:20px;">
+<div id="printArea" style="display:none; font-family: Arial; color:#000;">
 
-<h2>Abhinandan Auto Mobiles</h2>
-<p>Santalpur - Palanpur Highway</p>
-<p>Phone: +91 9870037002</p>
+<div style="max-width:800px; margin:auto; padding:20px; border:1px solid #ddd;">
+
+<!-- HEADER -->
+<div style="display:flex; justify-content:space-between; align-items:center;">
+
+<div>
+<img src="logo.png" style="height:80px;">
+</div>
+
+<div style="text-align:right;">
+<h2 style="margin:0;">Abhinandan Auto Mobiles</h2>
+<p style="margin:0;">Santalpur - Palanpur Highway</p>
+<p style="margin:0;">+91 9870037002</p>
+</div>
+
+</div>
 
 <hr>
 
+<!-- CUSTOMER -->
 <p><strong>Customer:</strong> <span id="printCustomer"></span></p>
+<p><strong>Date:</strong> <span id="printDate"></span></p>
 
-<table border="1" width="100%" style="border-collapse:collapse;">
-<thead>
+<!-- TABLE -->
+<table style="width:100%; border-collapse:collapse; margin-top:10px;">
+
+<thead style="background:#f5f5f5;">
 <tr>
-<th>Item</th>
-<th>Qty</th>
-<th>Price</th>
-<th>Total</th>
+<th style="padding:10px; border:1px solid #ddd;">Item</th>
+<th style="padding:10px; border:1px solid #ddd;">Qty</th>
+<th style="padding:10px; border:1px solid #ddd;">Price</th>
+<th style="padding:10px; border:1px solid #ddd;">Total</th>
 </tr>
 </thead>
 
 <tbody id="printItems"></tbody>
+
 </table>
 
-<br>
-
+<!-- TOTAL -->
+<div style="margin-top:20px; text-align:right;">
 <p>Subtotal: ₹<span id="printSubtotal"></span></p>
 <p>GST: <span id="printGST"></span></p>
-<h3>Total: ₹<span id="printFinal"></span></h3>
+<h2>Total: ₹<span id="printFinal"></span></h2>
+</div>
 
-<br>
-
-<p>Payment:</p>
+<!-- PAYMENT -->
+<div style="margin-top:20px;">
+<p><strong>Payment Details</strong></p>
 <p>Cash: ₹<span id="printCash"></span></p>
 <p>UPI: ₹<span id="printUPI"></span></p>
 <p>Credit: ₹<span id="printCredit"></span></p>
+</div>
 
-<br><br>
-
-<p>Signature: ____________________</p>
+<!-- FOOTER -->
+<div style="margin-top:40px; display:flex; justify-content:space-between;">
+<p>Thank you for your business 🙏</p>
+<p>Signature: __________</p>
+</div>
 
 </div>
+</div>
+
 
 <script type="module">
 
@@ -461,10 +485,20 @@ alert("Select customer first")
 return
 }
 
-// Fill customer
-document.getElementById("printCustomer").innerText = selectedCustomer.name
+// printbill() 
+async function printBill(){
 
-// Fill items
+// 👉 If not saved, save first
+if(billItems.length > 0){
+await saveBill()
+}
+
+// Fill data
+document.getElementById("printCustomer").innerText = selectedCustomer?.name || "Walk-in Customer"
+
+document.getElementById("printDate").innerText = new Date().toLocaleString()
+
+// Items
 const tbody = document.getElementById("printItems")
 tbody.innerHTML = ""
 
@@ -472,25 +506,24 @@ billItems.forEach(item => {
 
 tbody.innerHTML += `
 <tr>
-<td>${item.name}</td>
-<td>${item.qty}</td>
-<td>${item.price}</td>
-<td>${item.qty * item.price}</td>
+<td style="padding:10px; border:1px solid #ddd;">${item.name}</td>
+<td style="padding:10px; border:1px solid #ddd;">${item.qty}</td>
+<td style="padding:10px; border:1px solid #ddd;">${item.price}</td>
+<td style="padding:10px; border:1px solid #ddd;">${item.qty * item.price}</td>
 </tr>
 `
 
 })
 
-// Subtotal
+// Totals
 document.getElementById("printSubtotal").innerText = totalAmount
 
-// GST
-let gstText = "No"
 let final = totalAmount
+let gstText = "No"
 
 if(document.getElementById("gstToggle").checked){
-gstText = "18%"
 final = totalAmount * 1.18
+gstText = "18%"
 }
 
 document.getElementById("printGST").innerText = gstText
@@ -502,9 +535,8 @@ document.getElementById("printUPI").innerText = document.getElementById("upi").v
 document.getElementById("printCredit").innerText = document.getElementById("credit").value || 0
 
 
-// Show print area
+// PRINT
 const printContent = document.getElementById("printArea").innerHTML
-
 const originalContent = document.body.innerHTML
 
 document.body.innerHTML = printContent
@@ -512,10 +544,10 @@ document.body.innerHTML = printContent
 window.print()
 
 document.body.innerHTML = originalContent
-
 location.reload()
 
 }
+
 document.getElementById("printBtn").addEventListener("click", printBill)
   
 </script>
