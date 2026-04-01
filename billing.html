@@ -480,14 +480,18 @@ document.getElementById("gstToggle").addEventListener("change", renderBill)
 // printbill() 
 async function printBill(){
 
-// 👉 If not saved, save first
+if(!selectedCustomer){
+alert("Select customer first")
+return
+}
+
+// 👉 Save first (if items exist)
 if(billItems.length > 0){
 await saveBill()
 }
 
 // Fill data
 document.getElementById("printCustomer").innerText = selectedCustomer?.name || "Walk-in Customer"
-
 document.getElementById("printDate").innerText = new Date().toLocaleString()
 
 // Items
@@ -526,7 +530,6 @@ document.getElementById("printCash").innerText = document.getElementById("cash")
 document.getElementById("printUPI").innerText = document.getElementById("upi").value || 0
 document.getElementById("printCredit").innerText = document.getElementById("credit").value || 0
 
-
 // PRINT
 const printContent = document.getElementById("printArea").innerHTML
 const originalContent = document.body.innerHTML
@@ -537,8 +540,8 @@ window.print()
 
 document.body.innerHTML = originalContent
 location.reload()
-
 }
+
 
 document.getElementById("printBtn").addEventListener("click", printBill)
   
