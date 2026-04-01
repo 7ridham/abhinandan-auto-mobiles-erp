@@ -209,8 +209,10 @@ document.getElementById("totalAmount").innerText = totalAmount
 
 
 // 💾 SAVE BILL
-
 async function saveBill(){
+
+try {
+
 
 if(!selectedCustomer){
 alert("Select customer first")
@@ -243,12 +245,22 @@ price: item.price
 ])
 
 // Reduce inventory
+// Get current quantity
+const { data: productData } = await supabase
+.from('inventory')
+.select('quantity')
+.eq('id', item.id)
+.single()
+
+// Calculate new quantity
+let newQty = productData.quantity - item.qty
+
+// Update inventory
 await supabase
 .from('inventory')
-.update({
-quantity: supabase.raw(`quantity - ${item.qty}`)
-})
+.update({ quantity: newQty })
 .eq('id', item.id)
+
 
 }
 
@@ -256,8 +268,13 @@ alert("Bill Saved ✅")
 
 billItems = []
 renderBill()
-
+} catch (error) {
+console.log(error)
+alert("Error saving bill ❌")
 }
+}
+
+
 
 </script>
 
