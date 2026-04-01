@@ -101,7 +101,7 @@
 </div>
 
 </div>
-<div id="printArea" style="display:none; font-family: Arial; color:#000;">
+<div id="printArea" style="font-family: Arial; color:#000; display:none;"> 
 
 <div style="max-width:800px; margin:auto; padding:20px; border:1px solid #ddd;">
 
@@ -534,10 +534,17 @@ document.getElementById("printFinal").innerText = Math.round(tempFinal)
 document.getElementById("printCash").innerText = tempCash
 document.getElementById("printUPI").innerText = tempUpi
 document.getElementById("printCredit").innerText = tempCredit
+document.getElementById("printArea").style.display = "block"
 
+  
 // 🖨️ PRINT (correct way)
 window.print()
 
+setTimeout(() => {
+document.getElementById("printArea").style.display = "none"
+}, 500)
+
+  
 window.isPrinting = false
 }
 
