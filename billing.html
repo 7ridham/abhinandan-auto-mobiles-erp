@@ -55,14 +55,18 @@
 <h3>Current Bill</h3>
 
 <table>
+  
 <thead>
 <tr>
 <th>Item</th>
 <th>Qty</th>
 <th>Price</th>
 <th>Total</th>
+<th>Action</th>
 </tr>
 </thead>
+
+
 
 <tbody id="billTable"></tbody>
 
@@ -188,7 +192,7 @@ table.innerHTML = ""
 
 totalAmount = 0
 
-billItems.forEach(item => {
+billItems.forEach((item, index) => {
 
 let total = item.qty * item.price
 totalAmount += total
@@ -196,9 +200,20 @@ totalAmount += total
 table.innerHTML += `
 <tr>
 <td>${item.name}</td>
-<td>${item.qty}</td>
+
+<td>
+<input type="number" value="${item.qty}" min="1"
+onchange="updateQty(${index}, this.value)"
+style="width:60px;">
+</td>
+
 <td>${item.price}</td>
 <td>${total}</td>
+
+<td>
+<button onclick="removeItem(${index})">❌</button>
+</td>
+
 </tr>
 `
 
@@ -207,6 +222,7 @@ table.innerHTML += `
 document.getElementById("totalAmount").innerText = totalAmount
 
 }
+
 
 
 // 💾 SAVE BILL
@@ -305,7 +321,28 @@ alert("Error saving bill ❌")
 
 document.getElementById("saveBtn").addEventListener("click", saveBill)
 
+// ✏️ Update Quantity
+  
+function updateQty(index, value){
 
+billItems[index].qty = parseInt(value)
+
+renderBill()
+
+}
+
+
+// ❌ Remove Item
+  
+function removeItem(index){
+
+billItems.splice(index, 1)
+
+renderBill()
+
+}
+
+  
 </script>
 
 </body>
