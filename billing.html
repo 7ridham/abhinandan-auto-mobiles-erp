@@ -289,28 +289,36 @@ alert("Add products first")
 return
 }
 
-// Insert into sales
-const { data: sale, error: saleError } = await supabase
-.from('sales')
-.insert([
-{
-customer_id: selectedCustomer.id,
+// 💰 Get payment values
+  
 const cash = parseFloat(document.getElementById("cash").value) || 0
 const upi = parseFloat(document.getElementById("upi").value) || 0
 const credit = parseFloat(document.getElementById("credit").value) || 0
 
+// 🧮 Calculate final total
+  
 let final = totalAmount
 
 if(document.getElementById("gstToggle").checked){
 final = totalAmount * 1.18
 }
+
+// Insert into sales
+  
+const { data: sale, error: saleError } = await supabase
+.from('sales')
+.insert([
+{
+customer_id: selectedCustomer.id,
 total_amount: final,
 cash: cash,
 upi: upi,
 credit: credit
-
 }
 ])
+.select()
+.single()
+
 .select()
 .single()
 
