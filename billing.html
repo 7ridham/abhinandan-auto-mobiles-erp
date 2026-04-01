@@ -483,7 +483,10 @@ document.getElementById("gstToggle").addEventListener("change", renderBill)
   
 async function printBill(){
 
-// 🧾 Make a copy BEFORE saving
+// prevent alert
+window.isPrinting = true
+
+// copy data
 const tempItems = [...billItems]
 const tempCustomer = selectedCustomer
 const tempTotal = totalAmount
@@ -500,60 +503,45 @@ tempFinal = tempTotal * 1.18
 gstText = "18%"
 }
 
-// 👉 Save bill first
+// save first
 await saveBill()
 
-// 🧾 Now use saved copy for printing
-
+// fill data
 document.getElementById("printCustomer").innerText =
 tempCustomer?.name || "Walk-in Customer"
 
 document.getElementById("printDate").innerText =
 new Date().toLocaleString()
 
-// Items
 const tbody = document.getElementById("printItems")
 tbody.innerHTML = ""
 
 tempItems.forEach(item => {
-
 tbody.innerHTML += `
 <tr>
-<td style="padding:10px; border:1px solid #ddd;">${item.name}</td>
-<td style="padding:10px; border:1px solid #ddd;">${item.qty}</td>
-<td style="padding:10px; border:1px solid #ddd;">${item.price}</td>
-<td style="padding:10px; border:1px solid #ddd;">${item.qty * item.price}</td>
+<td>${item.name}</td>
+<td>${item.qty}</td>
+<td>${item.price}</td>
+<td>${item.qty * item.price}</td>
 </tr>
 `
-
 })
 
-// Totals
 document.getElementById("printSubtotal").innerText = tempTotal
 document.getElementById("printGST").innerText = gstText
 document.getElementById("printFinal").innerText = Math.round(tempFinal)
 
-// Payment
 document.getElementById("printCash").innerText = tempCash
 document.getElementById("printUPI").innerText = tempUpi
 document.getElementById("printCredit").innerText = tempCredit
 
-
-// 🖨️ PRINT
-const printContent = document.getElementById("printArea").innerHTML
-const originalContent = document.body.innerHTML
-
-document.body.innerHTML = printContent
-
+// 🖨️ PRINT (correct way)
 window.print()
 
-document.body.innerHTML = originalContent
-
 window.isPrinting = false
-  
-location.reload()
-
 }
+
+
 
 
 
