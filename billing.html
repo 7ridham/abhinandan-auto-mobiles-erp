@@ -443,8 +443,6 @@ return
 
 alert("Bill Saved ✅")
 
-billItems = []
-renderBill()
 
 } catch (error) {
 console.log(error)
@@ -478,27 +476,42 @@ document.getElementById("gstToggle").addEventListener("change", renderBill)
 
 
 // printbill() 
+  
 async function printBill(){
 
-if(!selectedCustomer){
-alert("Select customer first")
-return
+// 🧾 Make a copy BEFORE saving
+const tempItems = [...billItems]
+const tempCustomer = selectedCustomer
+const tempTotal = totalAmount
+
+const tempCash = document.getElementById("cash").value || 0
+const tempUpi = document.getElementById("upi").value || 0
+const tempCredit = document.getElementById("credit").value || 0
+
+let tempFinal = tempTotal
+let gstText = "No"
+
+if(document.getElementById("gstToggle").checked){
+tempFinal = tempTotal * 1.18
+gstText = "18%"
 }
 
-// 👉 Save first (if items exist)
-if(billItems.length > 0){
+// 👉 Save bill first
 await saveBill()
-}
 
-// Fill data
-document.getElementById("printCustomer").innerText = selectedCustomer?.name || "Walk-in Customer"
-document.getElementById("printDate").innerText = new Date().toLocaleString()
+// 🧾 Now use saved copy for printing
+
+document.getElementById("printCustomer").innerText =
+tempCustomer?.name || "Walk-in Customer"
+
+document.getElementById("printDate").innerText =
+new Date().toLocaleString()
 
 // Items
 const tbody = document.getElementById("printItems")
 tbody.innerHTML = ""
 
-billItems.forEach(item => {
+tempItems.forEach(item => {
 
 tbody.innerHTML += `
 <tr>
@@ -512,25 +525,17 @@ tbody.innerHTML += `
 })
 
 // Totals
-document.getElementById("printSubtotal").innerText = totalAmount
-
-let final = totalAmount
-let gstText = "No"
-
-if(document.getElementById("gstToggle").checked){
-final = totalAmount * 1.18
-gstText = "18%"
-}
-
+document.getElementById("printSubtotal").innerText = tempTotal
 document.getElementById("printGST").innerText = gstText
-document.getElementById("printFinal").innerText = Math.round(final)
+document.getElementById("printFinal").innerText = Math.round(tempFinal)
 
 // Payment
-document.getElementById("printCash").innerText = document.getElementById("cash").value || 0
-document.getElementById("printUPI").innerText = document.getElementById("upi").value || 0
-document.getElementById("printCredit").innerText = document.getElementById("credit").value || 0
+document.getElementById("printCash").innerText = tempCash
+document.getElementById("printUPI").innerText = tempUpi
+document.getElementById("printCredit").innerText = tempCredit
 
-// PRINT
+
+// 🖨️ PRINT
 const printContent = document.getElementById("printArea").innerHTML
 const originalContent = document.body.innerHTML
 
@@ -540,7 +545,9 @@ window.print()
 
 document.body.innerHTML = originalContent
 location.reload()
+
 }
+
 
 
 document.getElementById("printBtn").addEventListener("click", printBill)
