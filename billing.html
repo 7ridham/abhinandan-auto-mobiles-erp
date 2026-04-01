@@ -247,16 +247,16 @@ return
 // Insert items
 for(const item of billItems){
 
-const { error: itemError } = await supabase
-.from('bill_items')
-.insert([
+const { error: itemError } = await supabase.from('bill_items').insert([
 {
 sale_id: sale.id,
-product_id: item.id,
+item_id: item.id,
 quantity: item.qty,
-price: item.price
+price: item.price,
+total: item.qty * item.price
 }
 ])
+
 
 if(itemError){
 console.log("ITEM ERROR:", itemError)
