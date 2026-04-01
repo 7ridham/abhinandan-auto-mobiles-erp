@@ -101,40 +101,41 @@
 </div>
 
 </div>
-<div id="printArea" style="font-family: Arial; color:#000; display:none;"> 
+<div id="printArea" style="display:none; font-family: 'Segoe UI', sans-serif; color:#000;">
 
-<div style="max-width:800px; margin:auto; padding:20px; border:1px solid #ddd;">
+<div style="max-width:800px; margin:auto; padding:25px; border:1px solid #ddd; border-radius:12px;">
 
-<!-- HEADER -->
-<div style="display:flex; justify-content:space-between; align-items:center;">
+<!-- HEADER CENTERED -->
+<div style="text-align:center;">
 
-<div>
-<img src="logo.png" style="height:80px;">
+<img src="./logo.png" style="height:90px; margin-bottom:10px;">
+
+<h1 style="margin:5px 0; letter-spacing:1px;">
+Abhinandan Auto Mobiles
+</h1>
+
+<p style="margin:2px; color:#555;">Santalpur - Palanpur Highway</p>
+<p style="margin:2px; color:#555;">+91 9870037002</p>
+
 </div>
 
-<div style="text-align:right;">
-<h2 style="margin:0;">Abhinandan Auto Mobiles</h2>
-<p style="margin:0;">Santalpur - Palanpur Highway</p>
-<p style="margin:0;">+91 9870037002</p>
-</div>
-
-</div>
-
-<hr>
+<hr style="margin:20px 0;">
 
 <!-- CUSTOMER -->
+<div style="display:flex; justify-content:space-between;">
 <p><strong>Customer:</strong> <span id="printCustomer"></span></p>
 <p><strong>Date:</strong> <span id="printDate"></span></p>
+</div>
 
 <!-- TABLE -->
-<table style="width:100%; border-collapse:collapse; margin-top:10px;">
+<table style="width:100%; border-collapse:collapse; margin-top:15px;">
 
-<thead style="background:#f5f5f5;">
+<thead style="background:#111; color:#fff;">
 <tr>
-<th style="padding:10px; border:1px solid #ddd;">Item</th>
-<th style="padding:10px; border:1px solid #ddd;">Qty</th>
-<th style="padding:10px; border:1px solid #ddd;">Price</th>
-<th style="padding:10px; border:1px solid #ddd;">Total</th>
+<th style="padding:12px;">Item</th>
+<th style="padding:12px;">Qty</th>
+<th style="padding:12px;">Price</th>
+<th style="padding:12px;">Total</th>
 </tr>
 </thead>
 
@@ -143,14 +144,20 @@
 </table>
 
 <!-- TOTAL -->
-<div style="margin-top:20px; text-align:right;">
-<p>Subtotal: ₹<span id="printSubtotal"></span></p>
-<p>GST: <span id="printGST"></span></p>
-<h2>Total: ₹<span id="printFinal"></span></h2>
+<div style="margin-top:25px; text-align:right;">
+
+<p style="font-size:16px;">Subtotal: ₹<span id="printSubtotal"></span></p>
+
+<p style="font-size:16px;">GST: <span id="printGST"></span></p>
+
+<h2 style="margin-top:10px; color:#111;">
+Total: ₹<span id="printFinal"></span>
+</h2>
+
 </div>
 
 <!-- PAYMENT -->
-<div style="margin-top:20px;">
+<div style="margin-top:20px; border-top:1px dashed #ccc; padding-top:10px;">
 <p><strong>Payment Details</strong></p>
 <p>Cash: ₹<span id="printCash"></span></p>
 <p>UPI: ₹<span id="printUPI"></span></p>
@@ -158,13 +165,20 @@
 </div>
 
 <!-- FOOTER -->
-<div style="margin-top:40px; display:flex; justify-content:space-between;">
-<p>Thank you for your business 🙏</p>
-<p>Signature: __________</p>
+<div style="margin-top:40px; display:flex; justify-content:space-between; align-items:center;">
+
+<p style="color:#555;">Thank you for your business 🙏</p>
+
+<div style="text-align:right;">
+<p>For Abhinandan Auto Mobiles</p>
+<p style="margin-top:30px;">Authorized Signature</p>
+</div>
+
 </div>
 
 </div>
 </div>
+
 
 
 <script type="module">
@@ -518,11 +532,11 @@ tbody.innerHTML = ""
 
 tempItems.forEach(item => {
 tbody.innerHTML += `
-<tr>
-<td>${item.name}</td>
-<td>${item.qty}</td>
-<td>${item.price}</td>
-<td>${item.qty * item.price}</td>
+<tr style="border-bottom:1px solid #ddd;">
+<td style="padding:10px;">${item.name}</td>
+<td style="padding:10px; text-align:center;">${item.qty}</td>
+<td style="padding:10px; text-align:right;">₹${item.price}</td>
+<td style="padding:10px; text-align:right;">₹${item.qty * item.price}</td>
 </tr>
 `
 })
@@ -547,8 +561,6 @@ document.getElementById("printArea").style.display = "none"
   
 window.isPrinting = false
 }
-
-
 
 
 
