@@ -70,7 +70,8 @@
 
 <h2>Total: ₹<span id="totalAmount">0</span></h2>
 
-<button onclick="saveBill()">Save Bill</button>
+<button id="saveBtn">Save Bill</button>
+
 
 </div>
 
@@ -209,18 +210,23 @@ document.getElementById("totalAmount").innerText = totalAmount
 
 
 // 💾 SAVE BILL
+  
 async function saveBill(){
 
 try {
-
 
 if(!selectedCustomer){
 alert("Select customer first")
 return
 }
 
-// Insert into sales table
-const { data: sale } = await supabase
+if(billItems.length === 0){
+alert("Add products first")
+return
+}
+
+// Insert into sales
+const { data: sale, error: saleError } = await supabase
 .from('sales')
 .insert([
 {
@@ -231,11 +237,19 @@ total_amount: totalAmount
 .select()
 .single()
 
+if(saleError){
+console.log(saleError)
+alert("Error saving sale ❌")
+return
+}
 
-// Insert bill items
+
+// Insert items
 for(const item of billItems){
 
-await supabase.from('bill_items').insert([
+const { error: itemError } = await supabase
+.from('bill_items')
+.insert([
 {
 sale_id: sale.id,
 product_id: item.id,
@@ -244,23 +258,36 @@ price: item.price
 }
 ])
 
-// Reduce inventory
-// Get current quantity
-const { data: productData } = await supabase
+if(itemError){
+console.log(itemError)
+alert("Error saving items ❌")
+return
+}
+
+
+// Update inventory
+const { data: productData, error: fetchError } = await supabase
 .from('inventory')
 .select('quantity')
 .eq('id', item.id)
 .single()
 
-// Calculate new quantity
+if(fetchError){
+console.log(fetchError)
+return
+}
+
 let newQty = productData.quantity - item.qty
 
-// Update inventory
-await supabase
+const { error: updateError } = await supabase
 .from('inventory')
 .update({ quantity: newQty })
 .eq('id', item.id)
 
+if(updateError){
+console.log(updateError)
+return
+}
 
 }
 
@@ -268,12 +295,14 @@ alert("Bill Saved ✅")
 
 billItems = []
 renderBill()
+
 } catch (error) {
 console.log(error)
 alert("Error saving bill ❌")
 }
 }
 
+document.getElementById("saveBtn").addEventListener("click", saveBill)
 
 
 </script>
