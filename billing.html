@@ -211,7 +211,8 @@ style="width:60px;">
 <td>${total}</td>
 
 <td>
-<button onclick="removeItem(${index})">❌</button>
+<button class="removeBtn" data-index="${index}">❌</button>
+
 </td>
 
 </tr>
@@ -223,6 +224,14 @@ document.getElementById("totalAmount").innerText = totalAmount
 
 }
 
+// Attach remove events
+  
+document.querySelectorAll(".removeBtn").forEach(btn => {
+btn.addEventListener("click", function(){
+const index = this.getAttribute("data-index")
+removeItem(index)
+})
+})
 
 
 // 💾 SAVE BILL
