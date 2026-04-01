@@ -203,8 +203,7 @@ table.innerHTML += `
 
 <td>
 <input type="number" value="${item.qty}" min="1"
-onchange="updateQty(${index}, this.value)"
-style="width:60px;">
+class="qtyInput" data-index="${index}" style="width:60px;">
 </td>
 
 <td>${item.price}</td>
@@ -212,7 +211,6 @@ style="width:60px;">
 
 <td>
 <button class="removeBtn" data-index="${index}">❌</button>
-
 </td>
 
 </tr>
@@ -222,16 +220,28 @@ style="width:60px;">
 
 document.getElementById("totalAmount").innerText = totalAmount
 
-}
 
-// Attach remove events
-  
+// 🔥 Attach quantity change event
+document.querySelectorAll(".qtyInput").forEach(input => {
+input.addEventListener("change", function(){
+const index = this.getAttribute("data-index")
+billItems[index].qty = parseInt(this.value) || 1
+renderBill()
+})
+})
+
+
+// 🔥 Attach remove button event
 document.querySelectorAll(".removeBtn").forEach(btn => {
 btn.addEventListener("click", function(){
 const index = this.getAttribute("data-index")
-removeItem(index)
+billItems.splice(index, 1)
+renderBill()
 })
 })
+
+}
+
 
 
 // 💾 SAVE BILL
