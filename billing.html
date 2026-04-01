@@ -343,6 +343,8 @@ renderBill()
   
 async function saveBill(){
 
+  window.isPrinting = true
+  
 try {
 
 if(!selectedCustomer){
@@ -441,7 +443,9 @@ return
 
 }
 
+if(!window.isPrinting){
 alert("Bill Saved ✅")
+}
 
 
 } catch (error) {
@@ -544,6 +548,9 @@ document.body.innerHTML = printContent
 window.print()
 
 document.body.innerHTML = originalContent
+
+window.isPrinting = false
+  
 location.reload()
 
 }
