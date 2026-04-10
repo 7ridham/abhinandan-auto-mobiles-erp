@@ -511,21 +511,32 @@
 
     <!-- FOOTER -->
     <div class="bill-footer">
-      <div class="bill-footer-left">
-        <p class="thank-you">Thank you for your business 🙏</p>
-        <p>All disputes subject to local jurisdiction.</p>
-        <p>Goods once sold will not be taken back.</p>
-      </div>
-      <div class="bill-footer-right">
-        <div class="sig-line"></div>
-        <p class="sig-label">For Abhinandan Auto Mobiles</p>
-        <p class="sig-label" style="margin-top:4px;">Authorised Signatory</p>
-      </div>
+  <div class="bill-footer-left">
+    <p class="thank-you">Thank you for your business 🙏</p>
+    <p>All disputes subject to local jurisdiction.</p>
+    <p>Goods once sold will not be taken back.</p>
+  </div>
+
+  <div class="bill-footer-right" style="display:flex; gap:60px;">
+
+    <!-- Customer Signature -->
+    <div style="text-align:center;">
+      <div style="border-top:1px solid #000; width:150px; margin:auto;"></div>
+      <p class="sig-label">Customer Signature</p>
     </div>
 
-  </div><!-- /bill-paper -->
-</div><!-- /printArea -->
+    <!-- Shop Signature -->
+    <div style="text-align:center;">
+      <div style="border-top:1px solid #000; width:150px; margin:auto;"></div>
+      <p class="sig-label">For Abhinandan Auto Mobiles</p>
+      <p class="sig-label" style="margin-top:4px;">Authorised Signatory</p>
+    </div>
 
+  </div>
+</div>
+    
+</div><!-- /bill-paper --> 
+</div><!-- /printArea -->
 
 
 <script type="module">
@@ -818,7 +829,8 @@ async function printBill() {
   const payModeLabel = modes.length ? modes.join(" + ") : "—"
 
   // Save bill first
-  await saveBill()
+await saveBill()
+await new Promise(resolve => setTimeout(resolve, 300))
 
   // Populate print area
   document.getElementById("printBillType").innerText  = selectedBillType
@@ -827,8 +839,8 @@ async function printBill() {
     day:'2-digit', month:'short', year:'numeric',
     hour:'2-digit', minute:'2-digit'
   })
-  document.getElementById("printCustomer").innerText  = tempCustomer?.name  || "Walk-in Customer"
-  document.getElementById("printPhone").innerText     = tempCustomer?.phone || "—"
+  document.getElementById("printCustomer").innerText  = selectedCustomer?.name || "Walk-in Customer"
+  document.getElementById("printPhone").innerText     = selectedCustomer?.phone || "—"
   document.getElementById("printPayMode").innerText   = payModeLabel
 
   // Items table
