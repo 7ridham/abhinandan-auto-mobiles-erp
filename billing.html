@@ -693,10 +693,42 @@ function renderBill() {
 // ── SAVE BILL ───────────────────────────────────
 
 async function saveBill() {
-  window.isPrinting = true
+if (window.isSaving) return;
+  window.isSaving = true;
 
   try {
-    if (!selectedCustomer) { alert("Select customer first"); return }
+    let customerId = null;
+
+// If customer NOT selected → create new one
+if (!selectedCustomer) {
+  const name = document.getElementById("customerSearch").value.trim();
+
+  if (!name) {
+    alert("Enter customer name");
+    return;
+  }
+
+  const phone = prompt("Enter customer phone (optional):") || "";
+
+  const { data: newCustomer, error } = await supabase
+    .from("customers")
+    .insert([{ name, phone }])
+    .select()
+    .single();
+
+  if (error) {
+    console.log(error);
+    alert("Error creating customer ❌");
+    return;
+  }
+
+  customerId = newCustomer.id;
+  selectedCustomer = newCustomer;
+
+} else {
+  customerId = selectedCustomer.id;
+}
+
     if (billItems.length === 0) { alert("Add products first"); return }
 
     const cash   = parseFloat(document.getElementById("cash").value)   || 0
@@ -712,7 +744,7 @@ currentBillNumber = billNumber;
       .from('sales')
       .insert([{
   bill_number: billNumber, 
-  customer_id: selectedCustomer.id,
+  customer_id: customerId,
   total_amount: final,
   cash, upi, credit
 }])
@@ -743,11 +775,14 @@ currentBillNumber = billNumber;
     if (!window.isPrinting) alert("Bill Saved ✅")
 
   } catch (error) {
-    console.log(error)
-    alert("Error saving bill ❌")
-  }
-
+  console.log(error)
+  alert("Error saving bill ❌")
 }
+
+window.isSaving = false;
+}
+
+
 
 document.getElementById("saveBtn").addEventListener("click", saveBill)
 document.getElementById("gstToggle").addEventListener("change", renderBill)
