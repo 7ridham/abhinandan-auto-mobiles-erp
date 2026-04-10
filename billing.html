@@ -892,15 +892,17 @@ await new Promise(resolve => setTimeout(resolve, 300))
 document.getElementById("printBtn").addEventListener("click", printBill)
 
   // OPEN MODAL
-function openBillHistory() {
+window.openBillHistory = function () {
   document.getElementById("billHistoryModal").style.display = "block";
   loadBills();
 }
 
+
 // CLOSE MODAL
-function closeBillHistory() {
+fwindow.closeBillHistory = function () {
   document.getElementById("billHistoryModal").style.display = "none";
 }
+
 
 // LOAD BILLS FROM SUPABASE
 async function loadBills() {
@@ -932,15 +934,69 @@ async function loadBills() {
     )
     .forEach(bill => {
       const row = `
-        <tr>
-          <td>${bill.bill_number}</td>
-          <td>${new Date(bill.created_at).toLocaleDateString()}</td>
-          <td>${bill.customers?.name || "Walk-in"}</td>
-          <td>₹ ${bill.total_amount}</td>
-        </tr>
-      `;
+  <tr>
+    <td>${bill.bill_number}</td>
+    <td>${new Date(bill.created_at).toLocaleDateString()}</td>
+    <td>${bill.customers?.name || "Walk-in"}</td>
+    <td>₹ ${bill.total_amount}</td>
+    <td>
+      <button onclick="viewBill('${bill.bill_number}')">👁 View</button>
+      <button onclick="reprintBill('${bill.bill_number}')">🖨 Reprint</button>
+    </td>
+  </tr>
+`;
+
       tbody.innerHTML += row;
     });
+}
+window.viewBill = async function (billNo) {
+  const { data, error } = await supabase
+    .from("sales")
+    .select(`
+      *,
+      customers(name, phone),
+      bill_items (
+        quantity,
+        price,
+        total,
+        inventory(item_name)
+      )
+    `)
+    .eq("bill_number", billNo)
+    .single();
+
+  if (error) {
+    console.log(error);
+    alert("Error loading bill");
+    return;
+  }
+
+  alert("View coming next step 🚀");
+}
+
+  window.reprintBill = async function (billNo) {
+  const { data, error } = await supabase
+    .from("sales")
+    .select(`
+      *,
+      customers(name, phone),
+      bill_items (
+        quantity,
+        price,
+        total,
+        inventory(item_name)
+      )
+    `)
+    .eq("bill_number", billNo)
+    .single();
+
+  if (error) {
+    console.log(error);
+    alert("Error loading bill");
+    return;
+  }
+
+  alert("Reprint coming next step 🚀");
 }
 
 
@@ -963,6 +1019,8 @@ async function loadBills() {
           <th>Date</th>
           <th>Customer</th>
           <th>Total</th>
+          <th>Action</th>
+
         </tr>
       </thead>
       <tbody id="billHistoryBody"></tbody>
@@ -973,6 +1031,8 @@ async function loadBills() {
 
   </div>
 </div>
+
+  
 
 </body>
 </html>
