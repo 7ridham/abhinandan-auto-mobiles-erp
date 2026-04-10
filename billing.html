@@ -398,6 +398,8 @@
 
     <button id="saveBtn">Save Bill</button>
     <button id="printBtn">Print Bill</button>
+    <button onclick="openBillHistory()">📜 Bill History</button>
+
   </div>
 
 </div><!-- /main -->
@@ -889,9 +891,88 @@ await new Promise(resolve => setTimeout(resolve, 300))
 
 document.getElementById("printBtn").addEventListener("click", printBill)
 
-  
+  // OPEN MODAL
+function openBillHistory() {
+  document.getElementById("billHistoryModal").style.display = "block";
+  loadBills();
+}
+
+// CLOSE MODAL
+function closeBillHistory() {
+  document.getElementById("billHistoryModal").style.display = "none";
+}
+
+// LOAD BILLS FROM SUPABASE
+async function loadBills() {
+  const search = document.getElementById("searchBill").value.toLowerCase();
+
+  const { data, error } = await supabase
+    .from("sales")
+    .select(`
+      bill_number,
+      total_amount,
+      created_at,
+      customers(name)
+    `)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.log(error);
+    alert("Error loading bills");
+    return;
+  }
+
+  const tbody = document.getElementById("billHistoryBody");
+  tbody.innerHTML = "";
+
+  data
+    .filter(bill =>
+      bill.bill_number.toLowerCase().includes(search) ||
+      (bill.customers?.name && bill.customers.name.toLowerCase().includes(search))
+    )
+    .forEach(bill => {
+      const row = `
+        <tr>
+          <td>${bill.bill_number}</td>
+          <td>${new Date(bill.created_at).toLocaleDateString()}</td>
+          <td>${bill.customers?.name || "Walk-in"}</td>
+          <td>₹ ${bill.total_amount}</td>
+        </tr>
+      `;
+      tbody.innerHTML += row;
+    });
+}
+
+
 
 </script>
+  
+<!-- BILL HISTORY MODAL -->
+<div id="billHistoryModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:#00000088; z-index:9999;">
+
+  <div style="background:#fff; width:90%; max-width:900px; margin:40px auto; padding:20px; border-radius:10px; max-height:90%; overflow:auto;">
+
+    <h2>📜 Bill History</h2>
+
+    <input type="text" id="searchBill" placeholder="Search by name or bill no..." style="width:100%; padding:10px; margin-bottom:10px;" oninput="loadBills()" />
+
+    <table border="1" width="100%" cellpadding="10">
+      <thead>
+        <tr>
+          <th>Bill No</th>
+          <th>Date</th>
+          <th>Customer</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody id="billHistoryBody"></tbody>
+    </table>
+
+    <br>
+    <button onclick="closeBillHistory()">❌ Close</button>
+
+  </div>
+</div>
 
 </body>
 </html>
