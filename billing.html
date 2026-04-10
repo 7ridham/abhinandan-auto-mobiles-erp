@@ -699,6 +699,7 @@ async function saveBill() {
 
     let final = totalAmount
     if (document.getElementById("gstToggle").checked) final = totalAmount * 1.18
+const billNumber = generateBillNumber();
 
     const { data: sale, error: saleError } = await supabase
       .from('sales')
@@ -737,6 +738,7 @@ async function saveBill() {
     console.log(error)
     alert("Error saving bill ❌")
   }
+
 }
 
 document.getElementById("saveBtn").addEventListener("click", saveBill)
@@ -831,6 +833,18 @@ async function printBill() {
 }
 
 document.getElementById("printBtn").addEventListener("click", printBill)
+
+  function generateBillNumber() {
+  const now = new Date();
+
+  const year = now.getFullYear().toString().slice(-2); // last 2 digits
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+
+  const random = Math.floor(1000 + Math.random() * 9000);
+
+  return `AAM-${year}${month}${day}-${random}`;
+}
 
 </script>
 
