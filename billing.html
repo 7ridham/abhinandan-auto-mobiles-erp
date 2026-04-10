@@ -910,16 +910,11 @@ async function loadBills() {
 
   const { data, error } = await supabase
     .from("sales")
-    .select(`
-      bill_number,
-      total_amount,
-      created_at,
-      customers(name)
-    `)
+    .select("*")
     .order("created_at", { ascending: false });
 
   if (error) {
-    console.log(error);
+    console.log("LOAD ERROR:", error);
     alert("Error loading bills");
     return;
   }
@@ -927,68 +922,51 @@ async function loadBills() {
   const tbody = document.getElementById("billHistoryBody");
   tbody.innerHTML = "";
 
-  data
-    .filter(bill =>
-      bill.bill_number.toLowerCase().includes(search) ||
-      (bill.customers?.name && bill.customers.name.toLowerCase().includes(search))
-    )
-    .forEach(bill => {
-      const row = `
-  <tr>
-    <td>${bill.bill_number}</td>
-    <td>${new Date(bill.created_at).toLocaleDateString()}</td>
-    <td>${bill.customers?.name || "Walk-in"}</td>
-    <td>₹ ${bill.total_amount}</td>
-    <td>
-      <button onclick="viewBill('${bill.bill_number}')">👁 View</button>
-      <button onclick="reprintBill('${bill.bill_number}')">🖨 Reprint</button>
-    </td>
-  </tr>
-`;
+  for (const bill of data) {
 
-      tbody.innerHTML += row;
-    });
-}
-window.viewBill = async function (billNo) {
-  const { data, error } = await supabase
-    .from("sales")
-    .select(`
-      *,
-      customers(name, phone),
-      bill_items (
-        quantity,
-        price,
-        total,
-        inventory(item_name)
-      )
-    `)
-    .eq("bill_number", billNo)
-    .single();
+    // 🔥 fetch customer manually (safe)
+    let customerName = "Walk-in";
 
-  if (error) {
-    console.log(error);
-    alert("Error loading bill");
-    return;
+    if (bill.customer_id) {
+      const { data: cust } = await supabase
+        .from("customers")
+        .select("name")
+        .eq("id", bill.customer_id)
+        .single();
+
+      if (cust) customerName = cust.name;
+    }
+
+    // 🔍 filter
+    if (
+      !bill.bill_number.toLowerCase().includes(search) &&
+      !customerName.toLowerCase().includes(search)
+    ) continue;
+
+    const row = `
+      <tr>
+        <td>${bill.bill_number}</td>
+        <td>${new Date(bill.created_at).toLocaleDateString()}</td>
+        <td>${customerName}</td>
+        <td>₹ ${bill.total_amount}</td>
+        <td>
+          <button onclick="viewBill('${bill.bill_number}')">👁</button>
+          <button onclick="reprintBill('${bill.bill_number}')">🖨</button>
+        </td>
+      </tr>
+    `;
+
+    tbody.innerHTML += row;
   }
-
-  alert("View coming next step 🚀");
 }
 
+  //Reprint bill 
+  
   window.reprintBill = async function (billNo) {
-  const { data, error } = await supabase
-    .from("sales")
-    .select(`
-      *,
-      customers(name, phone),
-      bill_items (
-        quantity,
-        price,
-        total,
-        inventory(item_name)
-      )
-    `)
-    .eq("bill_number", billNo)
-    .single();
+  await viewBill(billNo);
+  window.print();
+}
+
 
   if (error) {
     console.log(error);
@@ -998,7 +976,90 @@ window.viewBill = async function (billNo) {
 
   alert("Reprint coming next step 🚀");
 }
+  //ViewBill 
 
+window.viewBill = async function (billNo) {
+
+  const { data: sale, error } = await supabase
+    .from("sales")
+    .select("*")
+    .eq("bill_number", billNo)
+    .single();
+
+  if (error) {
+    console.log(error);
+    alert("Error loading bill");
+    return;
+  }
+
+  // 🔥 Get customer
+  let customer = { name: "Walk-in", phone: "" };
+
+  if (sale.customer_id) {
+    const { data: cust } = await supabase
+      .from("customers")
+      .select("*")
+      .eq("id", sale.customer_id)
+      .single();
+
+    if (cust) customer = cust;
+  }
+
+  // 🔥 Get items
+  const { data: items } = await supabase
+    .from("bill_items")
+    .select("*")
+    .eq("sale_id", sale.id);
+
+  // 🔥 Fill print UI
+
+  document.getElementById("printInvoiceNo").innerText = sale.bill_number;
+  document.getElementById("printDate").innerText = new Date(sale.created_at).toLocaleString();
+
+  document.getElementById("printCustomer").innerText = customer.name;
+  document.getElementById("printPhone").innerText = customer.phone;
+
+  document.getElementById("printPayMode").innerText = "Saved Bill";
+
+  // items
+  const tbody = document.getElementById("printItems");
+  tbody.innerHTML = "";
+
+  let subtotal = 0;
+
+  for (let i = 0; i < items.length; i++) {
+
+    const { data: product } = await supabase
+      .from("inventory")
+      .select("item_name")
+      .eq("id", items[i].item_id)
+      .single();
+
+    const name = product?.item_name || "Item";
+
+    subtotal += items[i].total;
+
+    tbody.innerHTML += `
+      <tr>
+        <td>${i + 1}</td>
+        <td>${name}</td>
+        <td>${items[i].quantity}</td>
+        <td>₹${items[i].price}</td>
+        <td>₹${items[i].total}</td>
+      </tr>
+    `;
+  }
+
+  document.getElementById("printSubtotal").innerText = subtotal;
+  document.getElementById("printFinal").innerText = Math.round(sale.total_amount);
+
+  document.getElementById("printCash").innerText = sale.cash || 0;
+  document.getElementById("printUPI").innerText = sale.upi || 0;
+  document.getElementById("printCredit").innerText = sale.credit || 0;
+
+  // 🔥 SHOW INVOICE
+  document.getElementById("printArea").style.display = "block";
+}
 
 
 </script>
