@@ -6,7 +6,6 @@
 <link rel="stylesheet" href="style.css">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-  /* ── Bill Type Selector ── */
   .bill-type-row {
     display: flex;
     gap: 12px;
@@ -28,7 +27,6 @@
     border-color: #2563eb;
   }
 
-  /* ── PRINT AREA (hidden on screen, shown on print) ── */
   #printArea {
     display: none;
     font-family: 'DM Sans', sans-serif;
@@ -47,7 +45,6 @@
     box-shadow: 0 4px 32px rgba(0,0,0,0.10);
   }
 
-  /* ── HEADER ── */
   .bill-header {
     background: linear-gradient(135deg, #1e3a5f 0%, #2563eb 60%, #06b6d4 100%);
     color: white;
@@ -97,7 +94,6 @@
     opacity: 0.85;
     margin: 2px 0;
   }
-
   .bill-header-right {
     text-align: right;
     flex-shrink: 0;
@@ -126,7 +122,6 @@
     opacity: 0.85;
   }
 
-  /* ── META ROW ── */
   .bill-meta {
     display: flex;
     justify-content: space-between;
@@ -151,7 +146,6 @@
     color: #111827;
   }
 
-  /* ── TABLE ── */
   .bill-table-wrap {
     padding: 0 36px;
     margin-top: 18px;
@@ -172,40 +166,27 @@
     letter-spacing: 0.5px;
     font-size: 13px;
   }
-  .bill-table thead th:not(:first-child) {
-    text-align: center;
-  }
-  .bill-table thead th:last-child {
-    text-align: right;
-  }
-  .bill-table tbody tr {
-    border-bottom: 1px solid #e5e7eb;
-  }
-  .bill-table tbody tr:nth-child(even) {
-    background: #f8fafc;
-  }
+  .bill-table thead th:not(:first-child) { text-align: center; }
+  .bill-table thead th:last-child { text-align: right; }
+  .bill-table tbody tr { border-bottom: 1px solid #e5e7eb; }
+  .bill-table tbody tr:nth-child(even) { background: #f8fafc; }
   .bill-table tbody td {
     padding: 10px 14px;
     color: #374151;
   }
-  .bill-table tbody td:not(:first-child) {
-    text-align: center;
-  }
+  .bill-table tbody td:not(:first-child) { text-align: center; }
   .bill-table tbody td:last-child {
     text-align: right;
     font-weight: 600;
     color: #111827;
   }
 
-  /* ── TOTALS ── */
   .bill-totals {
     display: flex;
     justify-content: flex-end;
     padding: 18px 36px 0;
   }
-  .bill-totals-table {
-    min-width: 260px;
-  }
+  .bill-totals-table { min-width: 260px; }
   .bill-totals-row {
     display: flex;
     justify-content: space-between;
@@ -226,7 +207,6 @@
   .bill-totals-row .label { color: #6b7280; }
   .bill-totals-row .value { font-weight: 600; }
 
-  /* ── PAYMENT ── */
   .bill-payment {
     margin: 18px 36px 0;
     padding: 14px;
@@ -247,20 +227,10 @@
     gap: 24px;
     flex-wrap: wrap;
   }
-  .bill-payment-item {
-    font-size: 13px;
-    color: #374151;
-  }
-  .bill-payment-item .pm-label {
-    color: #6b7280;
-    margin-right: 4px;
-  }
-  .bill-payment-item .pm-val {
-    font-weight: 600;
-    color: #111827;
-  }
+  .bill-payment-item { font-size: 13px; color: #374151; }
+  .bill-payment-item .pm-label { color: #6b7280; margin-right: 4px; }
+  .bill-payment-item .pm-val { font-weight: 600; color: #111827; }
 
-  /* ── FOOTER ── */
   .bill-footer {
     margin: 20px 36px 28px;
     display: flex;
@@ -269,10 +239,7 @@
     padding-top: 16px;
     border-top: 1px solid #e5e7eb;
   }
-  .bill-footer-left {
-    font-size: 13px;
-    color: #6b7280;
-  }
+  .bill-footer-left { font-size: 13px; color: #6b7280; }
   .bill-footer-left .thank-you {
     font-size: 15px;
     font-weight: 600;
@@ -284,17 +251,8 @@
     font-size: 13px;
     color: #374151;
   }
-  .bill-footer-right .sig-line {
-    width: 160px;
-    border-top: 1.5px solid #374151;
-    margin: 28px 0 6px auto;
-  }
-  .bill-footer-right .sig-label {
-    font-size: 12px;
-    color: #6b7280;
-  }
+  .bill-footer-right .sig-label { font-size: 12px; color: #6b7280; }
 
-  /* ── B&W PRINT OVERRIDES ── */
   @media print {
     body * { visibility: hidden; }
     #printArea, #printArea * { visibility: visible; }
@@ -309,18 +267,9 @@
       -webkit-print-color-adjust: exact !important;
       print-color-adjust: exact !important;
     }
-    .bill-paper {
-      border: none;
-      box-shadow: none;
-      border-radius: 0;
-    }
-    /* B&W fallbacks: header strips color gracefully */
-    .bill-header {
-      background: #1e3a5f !important;
-    }
-    .bill-table thead tr {
-      background: #1e3a5f !important;
-    }
+    .bill-paper { border: none; box-shadow: none; border-radius: 0; }
+    .bill-header { background: #1e3a5f !important; }
+    .bill-table thead tr { background: #1e3a5f !important; }
   }
 </style>
 </head>
@@ -338,10 +287,8 @@
 
 <!-- Main -->
 <div class="main">
-
   <h1>Billing</h1>
 
-  <!-- Bill Type -->
   <div class="card">
     <h3>Bill Type</h3>
     <div class="bill-type-row">
@@ -351,31 +298,24 @@
     </div>
   </div>
 
-  <!-- Customer Search -->
   <div class="card">
     <h3>Select Customer</h3>
     <input id="customerSearch" placeholder="Search by name or phone">
     <ul id="customerList"></ul>
   </div>
 
-  <!-- Product Search -->
   <div class="card">
     <h3>Add Products</h3>
     <input id="productSearch" placeholder="Search product...">
     <ul id="productList"></ul>
   </div>
 
-  <!-- Bill Table -->
   <div class="card">
     <h3>Current Bill</h3>
     <table>
       <thead>
         <tr>
-          <th>Item</th>
-          <th>Qty</th>
-          <th>Price</th>
-          <th>Total</th>
-          <th>Action</th>
+          <th>Item</th><th>Qty</th><th>Price</th><th>Total</th><th>Action</th>
         </tr>
       </thead>
       <tbody id="billTable"></tbody>
@@ -387,7 +327,6 @@
       <input type="checkbox" id="gstToggle"> Apply GST (18%)
     </label>
     <h3>Final Total: ₹<span id="finalTotal">0</span></h3>
-
     <br>
     <div class="card">
       <h3>Payment</h3>
@@ -399,38 +338,25 @@
     <button id="saveBtn">Save Bill</button>
     <button id="printBtn">Print Bill</button>
     <button onclick="openBillHistory()">📜 Bill History</button>
-
   </div>
+</div>
 
-</div><!-- /main -->
 
-
-<!-- ══════════════════════════════════════════
-     PRINT AREA — hidden on screen, printed
-══════════════════════════════════════════ -->
+<!-- PRINT AREA -->
 <div id="printArea">
   <div class="bill-paper">
 
-    <!-- HEADER -->
     <div class="bill-header">
       <div class="bill-header-left">
-        <!-- Logo: uses relative path ./logo.png — works on any deployment -->
-        <img
-          src="./logo.png"
-          class="bill-logo"
-          id="billLogoImg"
-          onerror="this.style.display='none'; document.getElementById('billLogoFallback').style.display='flex';"
-          alt="Logo"
-        >
+        <img src="./logo.png" class="bill-logo" id="billLogoImg"
+          onerror="this.style.display='none'; document.getElementById('billLogoFallback').style.display='flex';" alt="Logo">
         <div class="bill-logo-fallback" id="billLogoFallback" style="display:none;">A</div>
-
         <div>
           <p class="bill-company-name">Abhinandan Auto Mobiles</p>
           <p class="bill-company-sub">Santalpur - Palanpur Highway</p>
           <p class="bill-company-sub">📞 +91 98700 37002</p>
         </div>
       </div>
-
       <div class="bill-header-right">
         <div class="bill-type-badge" id="printBillType">GST Invoice</div>
         <p class="bill-invoice-no">Invoice #<span id="printInvoiceNo"></span></p>
@@ -438,7 +364,6 @@
       </div>
     </div>
 
-    <!-- META: Customer + Date -->
     <div class="bill-meta">
       <div class="bill-meta-block">
         <label>Billed To</label>
@@ -454,23 +379,17 @@
       </div>
     </div>
 
-    <!-- ITEMS TABLE -->
     <div class="bill-table-wrap">
       <table class="bill-table">
         <thead>
           <tr>
-            <th>#</th>
-            <th>Item Description</th>
-            <th>Qty</th>
-            <th>Unit Price</th>
-            <th>Amount</th>
+            <th>#</th><th>Item Description</th><th>Qty</th><th>Unit Price</th><th>Amount</th>
           </tr>
         </thead>
         <tbody id="printItems"></tbody>
       </table>
     </div>
 
-    <!-- TOTALS -->
     <div class="bill-totals">
       <div class="bill-totals-table">
         <div class="bill-totals-row">
@@ -492,7 +411,6 @@
       </div>
     </div>
 
-    <!-- PAYMENT DETAILS -->
     <div class="bill-payment">
       <p class="bill-payment-title">Payment Breakdown</p>
       <div class="bill-payment-methods">
@@ -511,34 +429,46 @@
       </div>
     </div>
 
-    <!-- FOOTER -->
     <div class="bill-footer">
-  <div class="bill-footer-left">
-    <p class="thank-you">Thank you for your business 🙏</p>
-    <p>All disputes subject to local jurisdiction.</p>
-    <p>Goods once sold will not be taken back.</p>
-  </div>
-
-  <div class="bill-footer-right" style="display:flex; gap:60px;">
-
-    <!-- Customer Signature -->
-    <div style="text-align:center;">
-      <div style="border-top:1px solid #000; width:150px; margin:auto;"></div>
-      <p class="sig-label">Customer Signature</p>
-    </div>
-
-    <!-- Shop Signature -->
-    <div style="text-align:center;">
-      <div style="border-top:1px solid #000; width:150px; margin:auto;"></div>
-      <p class="sig-label">For Abhinandan Auto Mobiles</p>
-      <p class="sig-label" style="margin-top:4px;">Authorised Signatory</p>
+      <div class="bill-footer-left">
+        <p class="thank-you">Thank you for your business 🙏</p>
+        <p>All disputes subject to local jurisdiction.</p>
+        <p>Goods once sold will not be taken back.</p>
+      </div>
+      <div class="bill-footer-right" style="display:flex; gap:60px;">
+        <div style="text-align:center;">
+          <div style="border-top:1px solid #000; width:150px; margin:auto;"></div>
+          <p class="sig-label">Customer Signature</p>
+        </div>
+        <div style="text-align:center;">
+          <div style="border-top:1px solid #000; width:150px; margin:auto;"></div>
+          <p class="sig-label">For Abhinandan Auto Mobiles</p>
+          <p class="sig-label" style="margin-top:4px;">Authorised Signatory</p>
+        </div>
+      </div>
     </div>
 
   </div>
 </div>
-    
-</div><!-- /bill-paper --> 
-</div><!-- /printArea -->
+
+
+<!-- BILL HISTORY MODAL -->
+<div id="billHistoryModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:#00000088; z-index:9999;">
+  <div style="background:#fff; width:90%; max-width:900px; margin:40px auto; padding:20px; border-radius:10px; max-height:90%; overflow:auto;">
+    <h2>📜 Bill History</h2>
+    <input type="text" id="searchBill" placeholder="Search by name or bill no..." style="width:100%; padding:10px; margin-bottom:10px;" oninput="loadBills()" />
+    <table border="1" width="100%" cellpadding="10">
+      <thead>
+        <tr>
+          <th>Bill No</th><th>Date</th><th>Customer</th><th>Total</th><th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="billHistoryBody"></tbody>
+    </table>
+    <br>
+    <button onclick="closeBillHistory()">❌ Close</button>
+  </div>
+</div>
 
 
 <script type="module">
@@ -547,18 +477,16 @@ import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 
 const supabaseUrl = "https://mhhnmndnolhapaoqtbxo.supabase.co"
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1oaG5tbmRub2xoYXBhb3F0YnhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4Mzg4NTksImV4cCI6MjA4ODQxNDg1OX0.IMSp8vYiCln_iSuoT_H2qdeX_dP1WMhOOskDw20eJXw"
-
 const supabase = createClient(supabaseUrl, supabaseKey)
 
 let selectedCustomer = null
-let currentBillNumber = null;
+let currentBillNumber = null
 let billItems = []
 let totalAmount = 0
 let selectedBillType = "GST Invoice"
 
 
-// ── BILL TYPE SELECTOR ──────────────────────────
-
+// ── BILL TYPE ──
 document.querySelectorAll(".bill-type-btn").forEach(btn => {
   btn.addEventListener("click", function() {
     document.querySelectorAll(".bill-type-btn").forEach(b => b.classList.remove("active"))
@@ -568,28 +496,20 @@ document.querySelectorAll(".bill-type-btn").forEach(btn => {
 })
 
 
-// ── GENERATE INVOICE NUMBER ─────────────────────
-
+// ── INVOICE NUMBER ──
 function generateInvoiceNo() {
-  const now = new Date();
-
-  const yy = String(now.getFullYear()).slice(2);
-  const mm = String(now.getMonth() + 1).padStart(2, "0");
-  const dd = String(now.getDate()).padStart(2, "0");
-
-  const rand = Math.floor(1000 + Math.random() * 9000);
-
-  return `AAM-${yy}${mm}${dd}-${rand}`;
+  const now = new Date()
+  const yy = String(now.getFullYear()).slice(2)
+  const mm = String(now.getMonth() + 1).padStart(2, "0")
+  const dd = String(now.getDate()).padStart(2, "0")
+  const rand = Math.floor(1000 + Math.random() * 9000)
+  return `AAM-${yy}${mm}${dd}-${rand}`
 }
 
 
-
-// ── CUSTOMER SEARCH ─────────────────────────────
-
-const customerSearch = document.getElementById("customerSearch")
-
-customerSearch.addEventListener("input", async () => {
-  const text = customerSearch.value
+// ── CUSTOMER SEARCH ──
+document.getElementById("customerSearch").addEventListener("input", async () => {
+  const text = document.getElementById("customerSearch").value
   const { data } = await supabase
     .from('customers')
     .select('*')
@@ -598,13 +518,12 @@ customerSearch.addEventListener("input", async () => {
 
   const list = document.getElementById("customerList")
   list.innerHTML = ""
-
   data.forEach(c => {
     const li = document.createElement("li")
     li.innerText = c.name + " — " + c.phone
     li.onclick = () => {
       selectedCustomer = c
-      customerSearch.value = c.name
+      document.getElementById("customerSearch").value = c.name
       list.innerHTML = ""
     }
     list.appendChild(li)
@@ -612,12 +531,9 @@ customerSearch.addEventListener("input", async () => {
 })
 
 
-// ── PRODUCT SEARCH ──────────────────────────────
-
-const productSearch = document.getElementById("productSearch")
-
-productSearch.addEventListener("input", async () => {
-  const text = productSearch.value
+// ── PRODUCT SEARCH ──
+document.getElementById("productSearch").addEventListener("input", async () => {
+  const text = document.getElementById("productSearch").value
   const { data } = await supabase
     .from('inventory')
     .select('*')
@@ -626,7 +542,6 @@ productSearch.addEventListener("input", async () => {
 
   const list = document.getElementById("productList")
   list.innerHTML = ""
-
   data.forEach(p => {
     const li = document.createElement("li")
     li.innerText = p.item_name + " (Stock: " + p.quantity + ")"
@@ -636,26 +551,19 @@ productSearch.addEventListener("input", async () => {
 })
 
 
-// ── ADD ITEM TO BILL ────────────────────────────
-
+// ── ADD TO BILL ──
 function addToBill(product) {
   let item = billItems.find(i => i.id === product.id)
   if (item) {
     item.qty++
   } else {
-    billItems.push({
-      id: product.id,
-      name: product.item_name,
-      price: product.selling_price,
-      qty: 1
-    })
+    billItems.push({ id: product.id, name: product.item_name, price: product.selling_price, qty: 1 })
   }
   renderBill()
 }
 
 
-// ── RENDER BILL TABLE ───────────────────────────
-
+// ── RENDER BILL ──
 function renderBill() {
   const table = document.getElementById("billTable")
   table.innerHTML = ""
@@ -664,14 +572,10 @@ function renderBill() {
   billItems.forEach((item, index) => {
     let total = item.qty * item.price
     totalAmount += total
-
     table.innerHTML += `
       <tr>
         <td>${item.name}</td>
-        <td>
-          <input type="number" value="${item.qty}" min="1"
-            class="qtyInput" data-index="${index}" style="width:60px;">
-        </td>
+        <td><input type="number" value="${item.qty}" min="1" class="qtyInput" data-index="${index}" style="width:60px;"></td>
         <td>₹${item.price}</td>
         <td>₹${total}</td>
         <td><button class="removeBtn" data-index="${index}">❌</button></td>
@@ -680,11 +584,8 @@ function renderBill() {
   })
 
   document.getElementById("totalAmount").innerText = totalAmount
-
   let final = totalAmount
-  const gstChecked = document.getElementById("gstToggle").checked
-  if (gstChecked) final = totalAmount * 1.18
-
+  if (document.getElementById("gstToggle").checked) final = totalAmount * 1.18
   document.getElementById("finalTotal").innerText = Math.round(final)
 
   document.querySelectorAll(".qtyInput").forEach(input => {
@@ -693,7 +594,6 @@ function renderBill() {
       renderBill()
     })
   })
-
   document.querySelectorAll(".removeBtn").forEach(btn => {
     btn.addEventListener("click", function() {
       billItems.splice(this.getAttribute("data-index"), 1)
@@ -703,46 +603,28 @@ function renderBill() {
 }
 
 
-// ── SAVE BILL ───────────────────────────────────
-
+// ── SAVE BILL ──
 async function saveBill() {
-if (window.isSaving) return;
-  window.isSaving = true;
+  if (window.isSaving) return
+  window.isSaving = true
 
   try {
-    let customerId = null;
+    let customerId = null
 
-// If customer NOT selected → create new one
-if (!selectedCustomer) {
-  const name = document.getElementById("customerSearch").value.trim();
+    if (!selectedCustomer) {
+      const name = document.getElementById("customerSearch").value.trim()
+      if (!name) { alert("Enter customer name"); window.isSaving = false; return }
+      const phone = prompt("Enter customer phone (optional):") || ""
+      const { data: newCustomer, error } = await supabase
+        .from("customers").insert([{ name, phone }]).select().single()
+      if (error) { alert("Error creating customer ❌"); window.isSaving = false; return }
+      customerId = newCustomer.id
+      selectedCustomer = newCustomer
+    } else {
+      customerId = selectedCustomer.id
+    }
 
-  if (!name) {
-    alert("Enter customer name");
-    return;
-  }
-
-  const phone = prompt("Enter customer phone (optional):") || "";
-
-  const { data: newCustomer, error } = await supabase
-    .from("customers")
-    .insert([{ name, phone }])
-    .select()
-    .single();
-
-  if (error) {
-    console.log(error);
-    alert("Error creating customer ❌");
-    return;
-  }
-
-  customerId = newCustomer.id;
-  selectedCustomer = newCustomer;
-
-} else {
-  customerId = selectedCustomer.id;
-}
-
-    if (billItems.length === 0) { alert("Add products first"); return }
+    if (billItems.length === 0) { alert("Add products first"); window.isSaving = false; return }
 
     const cash   = parseFloat(document.getElementById("cash").value)   || 0
     const upi    = parseFloat(document.getElementById("upi").value)    || 0
@@ -750,102 +632,79 @@ if (!selectedCustomer) {
 
     let final = totalAmount
     if (document.getElementById("gstToggle").checked) final = totalAmount * 1.18
-const billNumber = generateInvoiceNo();
-currentBillNumber = billNumber;
+
+    const billNumber = generateInvoiceNo()
+    currentBillNumber = billNumber
 
     const { data: sale, error: saleError } = await supabase
       .from('sales')
-      .insert([{
-  bill_number: billNumber, 
-  customer_id: customerId,
-  total_amount: final,
-  cash, upi, credit
-}])
-      .select()
-      .single()
+      .insert([{ bill_number: billNumber, customer_id: customerId, total_amount: final, cash, upi, credit }])
+      .select().single()
 
-    if (saleError) { console.log(saleError); alert("Error saving sale ❌"); return }
+    if (saleError) { alert("Error saving sale ❌"); window.isSaving = false; return }
 
     for (const item of billItems) {
-      const { error: itemError } = await supabase.from('bill_items').insert([{
-        sale_id: sale.id,
-        item_id: item.id,
-        quantity: item.qty,
-        price: item.price,
-        total: item.qty * item.price
+      await supabase.from('bill_items').insert([{
+        sale_id: sale.id, item_id: item.id,
+        quantity: item.qty, price: item.price, total: item.qty * item.price
       }])
-      if (itemError) { console.log("ITEM ERROR:", itemError); alert(itemError.message); return }
-
-      const { data: productData, error: fetchError } = await supabase
+      const { data: productData } = await supabase
         .from('inventory').select('quantity').eq('id', item.id).single()
-      if (fetchError) { console.log(fetchError); return }
-
-      const { error: updateError } = await supabase
-        .from('inventory').update({ quantity: productData.quantity - item.qty }).eq('id', item.id)
-      if (updateError) { console.log(updateError); return }
+      await supabase.from('inventory')
+        .update({ quantity: productData.quantity - item.qty }).eq('id', item.id)
     }
 
     if (!window.isPrinting) alert("Bill Saved ✅")
 
-  } catch (error) {
-  console.log(error)
-  alert("Error saving bill ❌")
+  } catch (err) {
+    console.log(err)
+    alert("Error saving bill ❌")
+  }
+
+  window.isSaving = false
 }
-
-window.isSaving = false;
-}
-
-
 
 document.getElementById("saveBtn").addEventListener("click", saveBill)
 document.getElementById("gstToggle").addEventListener("change", renderBill)
 
 
-// ── PRINT BILL ──────────────────────────────────
-
+// ── PRINT BILL (new bill) ──
 async function printBill() {
   window.isPrinting = true
 
   const tempItems    = [...billItems]
-  const tempCustomer = selectedCustomer
   const tempTotal    = totalAmount
   const tempCash     = parseFloat(document.getElementById("cash").value)   || 0
   const tempUpi      = parseFloat(document.getElementById("upi").value)    || 0
   const tempCredit   = parseFloat(document.getElementById("credit").value) || 0
-
   const gstChecked   = document.getElementById("gstToggle").checked
-  let tempFinal      = tempTotal
-  let cgst = 0, sgst = 0
 
+  let tempFinal = tempTotal
+  let cgst = 0, sgst = 0
   if (gstChecked) {
     tempFinal = tempTotal * 1.18
     cgst = Math.round(tempTotal * 0.09)
     sgst = Math.round(tempTotal * 0.09)
   }
 
-  // Determine payment mode label
   const modes = []
   if (tempCash   > 0) modes.push("Cash")
   if (tempUpi    > 0) modes.push("UPI")
   if (tempCredit > 0) modes.push("Credit")
   const payModeLabel = modes.length ? modes.join(" + ") : "—"
 
-  // Save bill first
-await saveBill()
-await new Promise(resolve => setTimeout(resolve, 300))
+  await saveBill()
+  await new Promise(resolve => setTimeout(resolve, 300))
 
-  // Populate print area
   document.getElementById("printBillType").innerText  = selectedBillType
   document.getElementById("printInvoiceNo").innerText = currentBillNumber
-  document.getElementById("printDate").innerText       = new Date().toLocaleString('en-IN', {
-    day:'2-digit', month:'short', year:'numeric',
-    hour:'2-digit', minute:'2-digit'
+  document.getElementById("printDate").innerText = new Date().toLocaleString('en-IN', {
+    day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit'
   })
-  document.getElementById("printCustomer").innerText  = selectedCustomer?.name || "Walk-in Customer"
-  document.getElementById("printPhone").innerText     = selectedCustomer?.phone || "—"
-  document.getElementById("printPayMode").innerText   = payModeLabel
+  document.getElementById("printCustomer").innerText = selectedCustomer?.name || "Walk-in Customer"
+  document.getElementById("printPhone").innerText    = selectedCustomer?.phone || "—"
+  document.getElementById("printPayMode").innerText  = payModeLabel
 
-  // Items table
   const tbody = document.getElementById("printItems")
   tbody.innerHTML = ""
   tempItems.forEach((item, i) => {
@@ -860,26 +719,18 @@ await new Promise(resolve => setTimeout(resolve, 300))
     `
   })
 
-  // Totals
   document.getElementById("printSubtotal").innerText = tempTotal
   document.getElementById("printFinal").innerText    = Math.round(tempFinal)
-
+  document.getElementById("gstRow").style.display    = gstChecked ? "flex" : "none"
+  document.getElementById("sgstRow").style.display   = gstChecked ? "flex" : "none"
   if (gstChecked) {
-    document.getElementById("gstRow").style.display  = "flex"
-    document.getElementById("sgstRow").style.display = "flex"
-    document.getElementById("printCGST").innerText   = cgst
-    document.getElementById("printSGST").innerText   = sgst
-  } else {
-    document.getElementById("gstRow").style.display  = "none"
-    document.getElementById("sgstRow").style.display = "none"
+    document.getElementById("printCGST").innerText = cgst
+    document.getElementById("printSGST").innerText = sgst
   }
-
-  // Payment
   document.getElementById("printCash").innerText   = tempCash
   document.getElementById("printUPI").innerText    = tempUpi
   document.getElementById("printCredit").innerText = tempCredit
 
-  // Show & print
   document.getElementById("printArea").style.display = "block"
   window.print()
 
@@ -891,209 +742,134 @@ await new Promise(resolve => setTimeout(resolve, 300))
 
 document.getElementById("printBtn").addEventListener("click", printBill)
 
-  // OPEN MODAL
+
+// ── BILL HISTORY — OPEN / CLOSE ──
 window.openBillHistory = function () {
-  document.getElementById("billHistoryModal").style.display = "block";
-  loadBills();
+  document.getElementById("billHistoryModal").style.display = "block"
+  loadBills()
+}
+
+window.closeBillHistory = function () {
+  document.getElementById("billHistoryModal").style.display = "none"
 }
 
 
-// CLOSE MODAL
-fwindow.closeBillHistory = function () {
-  document.getElementById("billHistoryModal").style.display = "none";
-}
-
-
-// LOAD BILLS FROM SUPABASE
-async function loadBills() {
-  const search = document.getElementById("searchBill").value.toLowerCase();
+// ── LOAD BILLS ──
+window.loadBills = async function () {
+  const search = document.getElementById("searchBill").value.toLowerCase()
 
   const { data, error } = await supabase
     .from("sales")
     .select("*")
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: false })
 
-  if (error) {
-    console.log("LOAD ERROR:", error);
-    alert("Error loading bills");
-    return;
-  }
+  if (error) { alert("Error loading bills"); return }
 
-  const tbody = document.getElementById("billHistoryBody");
-  tbody.innerHTML = "";
+  const tbody = document.getElementById("billHistoryBody")
+  tbody.innerHTML = ""
 
   for (const bill of data) {
-
-    // 🔥 fetch customer manually (safe)
-    let customerName = "Walk-in";
+    let customerName = "Walk-in"
 
     if (bill.customer_id) {
       const { data: cust } = await supabase
-        .from("customers")
-        .select("name")
-        .eq("id", bill.customer_id)
-        .single();
-
-      if (cust) customerName = cust.name;
+        .from("customers").select("name").eq("id", bill.customer_id).single()
+      if (cust) customerName = cust.name
     }
 
-    // 🔍 filter
     if (
+      search &&
       !bill.bill_number.toLowerCase().includes(search) &&
       !customerName.toLowerCase().includes(search)
-    ) continue;
-
-    const row = `
-      <tr>
-        <td>${bill.bill_number}</td>
-        <td>${new Date(bill.created_at).toLocaleDateString()}</td>
-        <td>${customerName}</td>
-        <td>₹ ${bill.total_amount}</td>
-        <td>
-          <button onclick="viewBill('${bill.bill_number}')">👁</button>
-          <button onclick="reprintBill('${bill.bill_number}')">🖨</button>
-        </td>
-      </tr>
-    `;
-
-    tbody.innerHTML += row;
-  }
-}
-
-  //Reprint bill 
-  
-  window.reprintBill = async function (billNo) {
-  await viewBill(billNo);
-  window.print();
-}
-
-
-  if (error) {
-    console.log(error);
-    alert("Error loading bill");
-    return;
-  }
-
-  alert("Reprint coming next step 🚀");
-}
-  //ViewBill 
-
-window.viewBill = async function (billNo) {
-
-  const { data: sale, error } = await supabase
-    .from("sales")
-    .select("*")
-    .eq("bill_number", billNo)
-    .single();
-
-  if (error) {
-    console.log(error);
-    alert("Error loading bill");
-    return;
-  }
-
-  // 🔥 Get customer
-  let customer = { name: "Walk-in", phone: "" };
-
-  if (sale.customer_id) {
-    const { data: cust } = await supabase
-      .from("customers")
-      .select("*")
-      .eq("id", sale.customer_id)
-      .single();
-
-    if (cust) customer = cust;
-  }
-
-  // 🔥 Get items
-  const { data: items } = await supabase
-    .from("bill_items")
-    .select("*")
-    .eq("sale_id", sale.id);
-
-  // 🔥 Fill print UI
-
-  document.getElementById("printInvoiceNo").innerText = sale.bill_number;
-  document.getElementById("printDate").innerText = new Date(sale.created_at).toLocaleString();
-
-  document.getElementById("printCustomer").innerText = customer.name;
-  document.getElementById("printPhone").innerText = customer.phone;
-
-  document.getElementById("printPayMode").innerText = "Saved Bill";
-
-  // items
-  const tbody = document.getElementById("printItems");
-  tbody.innerHTML = "";
-
-  let subtotal = 0;
-
-  for (let i = 0; i < items.length; i++) {
-
-    const { data: product } = await supabase
-      .from("inventory")
-      .select("item_name")
-      .eq("id", items[i].item_id)
-      .single();
-
-    const name = product?.item_name || "Item";
-
-    subtotal += items[i].total;
+    ) continue
 
     tbody.innerHTML += `
       <tr>
-        <td>${i + 1}</td>
-        <td>${name}</td>
-        <td>${items[i].quantity}</td>
-        <td>₹${items[i].price}</td>
-        <td>₹${items[i].total}</td>
+        <td>${bill.bill_number}</td>
+        <td>${new Date(bill.created_at).toLocaleDateString('en-IN')}</td>
+        <td>${customerName}</td>
+        <td>₹ ${Math.round(bill.total_amount)}</td>
+        <td>
+          <button onclick="viewBill('${bill.bill_number}')">👁 View</button>
+          <button onclick="reprintBill('${bill.bill_number}')">🖨 Print</button>
+        </td>
       </tr>
-    `;
+    `
   }
-
-  document.getElementById("printSubtotal").innerText = subtotal;
-  document.getElementById("printFinal").innerText = Math.round(sale.total_amount);
-
-  document.getElementById("printCash").innerText = sale.cash || 0;
-  document.getElementById("printUPI").innerText = sale.upi || 0;
-  document.getElementById("printCredit").innerText = sale.credit || 0;
-
-  // 🔥 SHOW INVOICE
-  document.getElementById("printArea").style.display = "block";
 }
 
 
+// ── VIEW BILL ──
+window.viewBill = async function (billNo) {
+  const { data: sale, error } = await supabase
+    .from("sales").select("*").eq("bill_number", billNo).single()
+  if (error) { alert("Error loading bill"); return }
+
+  let customer = { name: "Walk-in", phone: "" }
+  if (sale.customer_id) {
+    const { data: cust } = await supabase
+      .from("customers").select("*").eq("id", sale.customer_id).single()
+    if (cust) customer = cust
+  }
+
+  const { data: items } = await supabase
+    .from("bill_items").select("*").eq("sale_id", sale.id)
+
+  document.getElementById("printBillType").innerText  = "GST Invoice"
+  document.getElementById("printInvoiceNo").innerText = sale.bill_number
+  document.getElementById("printDate").innerText      = new Date(sale.created_at).toLocaleString('en-IN')
+  document.getElementById("printCustomer").innerText  = customer.name
+  document.getElementById("printPhone").innerText     = customer.phone || "—"
+  document.getElementById("printPayMode").innerText   = [
+    sale.cash   > 0 ? "Cash"   : "",
+    sale.upi    > 0 ? "UPI"    : "",
+    sale.credit > 0 ? "Credit" : ""
+  ].filter(Boolean).join(" + ") || "—"
+
+  const tbody = document.getElementById("printItems")
+  tbody.innerHTML = ""
+  let subtotal = 0
+
+  for (let i = 0; i < items.length; i++) {
+    const { data: product } = await supabase
+      .from("inventory").select("item_name").eq("id", items[i].item_id).single()
+    const name = product?.item_name || "Item"
+    subtotal += items[i].total
+    tbody.innerHTML += `
+      <tr>
+        <td style="padding:10px 14px; color:#6b7280;">${i + 1}</td>
+        <td style="padding:10px 14px;">${name}</td>
+        <td style="padding:10px 14px; text-align:center;">${items[i].quantity}</td>
+        <td style="padding:10px 14px; text-align:center;">₹${items[i].price}</td>
+        <td style="padding:10px 14px; text-align:right; font-weight:600;">₹${items[i].total}</td>
+      </tr>
+    `
+  }
+
+  document.getElementById("printSubtotal").innerText = subtotal
+  document.getElementById("printFinal").innerText    = Math.round(sale.total_amount)
+  document.getElementById("gstRow").style.display    = "none"
+  document.getElementById("sgstRow").style.display   = "none"
+  document.getElementById("printCash").innerText     = sale.cash   || 0
+  document.getElementById("printUPI").innerText      = sale.upi    || 0
+  document.getElementById("printCredit").innerText   = sale.credit || 0
+
+  // Close modal and show invoice
+  document.getElementById("billHistoryModal").style.display = "none"
+  document.getElementById("printArea").style.display = "block"
+}
+
+
+// ── REPRINT BILL ──
+window.reprintBill = async function (billNo) {
+  await viewBill(billNo)
+  await new Promise(resolve => setTimeout(resolve, 300))
+  window.print()
+  setTimeout(() => {
+    document.getElementById("printArea").style.display = "none"
+  }, 600)
+}
+
 </script>
-  
-<!-- BILL HISTORY MODAL -->
-<div id="billHistoryModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:#00000088; z-index:9999;">
-
-  <div style="background:#fff; width:90%; max-width:900px; margin:40px auto; padding:20px; border-radius:10px; max-height:90%; overflow:auto;">
-
-    <h2>📜 Bill History</h2>
-
-    <input type="text" id="searchBill" placeholder="Search by name or bill no..." style="width:100%; padding:10px; margin-bottom:10px;" oninput="loadBills()" />
-
-    <table border="1" width="100%" cellpadding="10">
-      <thead>
-        <tr>
-          <th>Bill No</th>
-          <th>Date</th>
-          <th>Customer</th>
-          <th>Total</th>
-          <th>Action</th>
-
-        </tr>
-      </thead>
-      <tbody id="billHistoryBody"></tbody>
-    </table>
-
-    <br>
-    <button onclick="closeBillHistory()">❌ Close</button>
-
-  </div>
-</div>
-
-  
-
 </body>
 </html>
