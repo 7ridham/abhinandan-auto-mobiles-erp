@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Customer Ledger - Abhinandan Auto Mobiles</title>
+<link rel="stylesheet" href="style.css">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; }
+
+  .search-box {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+  .search-box input {
+    flex: 1;
+    min-width: 220px;
+    padding: 10px 16px;
+    border-radius: 8px;
+    border: 1.5px solid rgba(255,255,255,0.15);
+    background: rgba(255,255,255,0.07);
+    color: white;
+    font-size: 14px;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .search-box input::placeholder { color: rgba(255,255,255,0.4); }
+  .search-box input:focus { outline: none; border-color: #2563eb; }
+
+  .customer-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+  .customer-card {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    padding: 18px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .customer-card:hover {
+    background: rgba(255,255,255,0.1);
+    border-color: #2563eb;
+    transform: translateY(-2px);
+  }
+  .customer-card-name {
+    font-size: 16px;
+    font-weight: 600;
+    color: white;
+    margin-bottom: 4px;
+  }
+  .customer-card-phone {
+    font-size: 13px;
+    color: rgba(255,255,255,0.5);
+    margin-bottom: 12px;
+  }
+  .customer-card-stats {
+    display: flex;
+    justify-content: space-between;
+  }
+  .stat-block { text-align: center; }
+  .stat-label { font-size: 11px; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.5px; }
+  .stat-value { font-size: 15px; font-weight: 600; color: white; margin-top: 2px; }
+  .stat-value.red { color: #f87171; }
+  .stat-value.green { color: #34d399; }
+
+  /* MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.75);
+    z-index: 9999;
+    overflow-y: auto;
+    padding: 20px;
+  }
+  .modal-box {
+    background: #0f172a;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 16px;
+    max-width: 860px;
+    margin: 20px auto;
+    overflow: hidden;
+  }
+
+  /* MODAL HEADER */
+  .modal-header {
+    background: linear-gradient(135deg, #1e3a5f 0%, #2563eb 100%);
+    padding: 24px 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  .modal-header-left h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    color: white;
+    margin-bottom: 4px;
+  }
+  .modal-header-left p {
+    font-size: 13px;
+    color: rgba(255,255,255,0.7);
+  }
+  .modal-header-right {
+    display: flex;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+  .btn {
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: none;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    transition: all 0.2s;
+  }
+  .btn-white {
+    background: white;
+    color: #1e3a5f;
+  }
+  .btn-white:hover { background: #e0e7ff; }
+  .btn-outline {
+    background: rgba(255,255,255,0.15);
+    color: white;
+    border: 1px solid rgba(255,255,255,0.3);
+  }
+  .btn-outline:hover { background: rgba(255,255,255,0.25); }
+  .btn-red {
+    background: #dc2626;
+    color: white;
+  }
+
+  /* SUMMARY CARDS */
+  .summary-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: rgba(255,255,255,0.08);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  .summary-card {
+    background: #0f172a;
+    padding: 18px 24px;
+    text-align: center;
+  }
+  .summary-card .s-label {
+    font-size: 11px;
+    color: rgba(255,255,255,0.45);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+  }
+  .summary-card .s-value {
+    font-size: 22px;
+    font-weight: 700;
+    color: white;
+  }
+  .summary-card .s-value.red { color: #f87171; }
+  .summary-card .s-value.green { color: #34d399; }
+
+  /* TRANSACTIONS TABLE */
+  .modal-body { padding: 24px 28px; }
+  .section-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.5);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 14px;
+  }
+  .tx-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+  .tx-table thead tr {
+    background: #1e293b;
+  }
+  .tx-table thead th {
+    padding: 10px 14px;
+    color: rgba(255,255,255,0.5);
+    font-weight: 500;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    text-align: left;
+  }
+  .tx-table thead th:last-child { text-align: right; }
+  .tx-table tbody tr {
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    transition: background 0.15s;
+  }
+  .tx-table tbody tr:hover { background: rgba(255,255,255,0.04); }
+  .tx-table tbody td {
+    padding: 12px 14px;
+    color: rgba(255,255,255,0.8);
+  }
+  .tx-table tbody td:last-child { text-align: right; font-weight: 600; }
+
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .badge-cash { background: rgba(52,211,153,0.15); color: #34d399; }
+  .badge-upi  { background: rgba(96,165,250,0.15); color: #60a5fa; }
+  .badge-credit { background: rgba(248,113,113,0.15); color: #f87171; }
+  .badge-mixed { background: rgba(251,191,36,0.15); color: #fbbf24; }
+
+  .amount-positive { color: #34d399; }
+  .amount-negative { color: #f87171; }
+
+  .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: rgba(255,255,255,0.3);
+    font-size: 14px;
+  }
+
+  /* PRINT STATEMENT */
+  #statementArea { display: none; }
+  @media print {
+    body * { visibility: hidden; }
+    #statementArea, #statementArea * { visibility: visible; }
+    #statementArea {
+      display: block !important;
+      position: absolute;
+      left: 0; top: 0;
+      width: 100%;
+      background: white;
+      color: #111;
+      font-family: 'DM Sans', sans-serif;
+      padding: 32px;
+    }
+    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  }
+  .stmt-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding-bottom: 16px;
+    border-bottom: 2px solid #1e3a5f;
+    margin-bottom: 20px;
+  }
+  .stmt-company { font-family: 'Playfair Display', serif; font-size: 20px; color: #1e3a5f; font-weight: 700; }
+  .stmt-sub { font-size: 12px; color: #6b7280; margin-top: 2px; }
+  .stmt-title { font-size: 18px; font-weight: 700; color: #111; }
+  .stmt-period { font-size: 12px; color: #6b7280; margin-top: 2px; }
+  .stmt-customer-box {
+    background: #f8fafc;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-bottom: 20px;
+    display: flex;
+    gap: 40px;
+  }
+  .stmt-customer-box .lbl { font-size: 11px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px; }
+  .stmt-customer-box .val { font-size: 14px; font-weight: 600; color: #111; }
+  .stmt-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 20px; }
+  .stmt-table thead tr { background: #1e3a5f; color: white; }
+  .stmt-table thead th { padding: 9px 12px; text-align: left; font-weight: 600; }
+  .stmt-table thead th:last-child { text-align: right; }
+  .stmt-table tbody tr { border-bottom: 1px solid #e5e7eb; }
+  .stmt-table tbody tr:nth-child(even) { background: #f8fafc; }
+  .stmt-table tbody td { padding: 9px 12px; color: #374151; }
+  .stmt-table tbody td:last-child { text-align: right; font-weight: 600; }
+  .stmt-summary {
+    display: flex;
+    justify-content: flex-end;
+  }
+  .stmt-summary-box {
+    min-width: 240px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .stmt-summary-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 14px;
+    font-size: 13px;
+    border-bottom: 1px solid #e5e7eb;
+    color: #374151;
+  }
+  .stmt-summary-row:last-child {
+    border-bottom: none;
+    font-weight: 700;
+    font-size: 15px;
+    color: #dc2626;
+    background: #fef2f2;
+  }
+  .stmt-footer {
+    margin-top: 24px;
+    padding-top: 14px;
+    border-top: 1px solid #e5e7eb;
+    font-size: 12px;
+    color: #6b7280;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar">
+  <h2>Auto ERP</h2>
+  <a href="dashboard.html">Dashboard</a>
+  <a href="billing.html">Billing</a>
+  <a href="products.html">Products</a>
+  <a href="customers.html">Customers</a>
+  <a href="customer-ledger.html" class="active">Customer Ledger</a>
+</div>
+
+<!-- Main -->
+<div class="main">
+  <h1>Customer Ledger</h1>
+
+  <div class="card">
+    <h3>Search Customer</h3>
+    <div class="search-box">
+      <input id="searchInput" placeholder="Search by name or phone..." oninput="filterCustomers()">
+    </div>
+    <div class="customer-grid" id="customerGrid">
+      <div class="empty-state">Loading customers...</div>
+    </div>
+  </div>
+</div>
+
+<!-- CUSTOMER DETAIL MODAL -->
+<div class="modal-overlay" id="ledgerModal">
+  <div class="modal-box">
+
+    <div class="modal-header">
+      <div class="modal-header-left">
+        <h2 id="modalName">Customer Name</h2>
+        <p id="modalPhone">Phone</p>
+      </div>
+      <div class="modal-header-right">
+        <button class="btn btn-white" onclick="printStatement()">🖨 Print Statement</button>
+        <button class="btn btn-outline" onclick="closeModal()">✕ Close</button>
+      </div>
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-card">
+        <div class="s-label">Total Bills</div>
+        <div class="s-value" id="totalBills">0</div>
+      </div>
+      <div class="summary-card">
+        <div class="s-label">Total Purchased</div>
+        <div class="s-value green" id="totalPurchased">₹0</div>
+      </div>
+      <div class="summary-card">
+        <div class="s-label">Credit Due</div>
+        <div class="s-value red" id="creditDue">₹0</div>
+      </div>
+    </div>
+
+    <div class="modal-body">
+      <div class="section-title">Transaction History</div>
+      <table class="tx-table">
+        <thead>
+          <tr>
+            <th>Bill No</th>
+            <th>Date</th>
+            <th>Items</th>
+            <th>Payment</th>
+            <th>Amount</th>
+            <th>Credit</th>
+          </tr>
+        </thead>
+        <tbody id="txBody"></tbody>
+      </table>
+    </div>
+
+  </div>
+</div>
+
+<!-- PRINT STATEMENT AREA -->
+<div id="statementArea">
+  <div class="stmt-header">
+    <div>
+      <div class="stmt-company">Abhinandan Auto Mobiles</div>
+      <div class="stmt-sub">Santalpur - Palanpur Highway &nbsp;|&nbsp; +91 98700 37002</div>
+    </div>
+    <div style="text-align:right;">
+      <div class="stmt-title">Customer Statement</div>
+      <div class="stmt-period" id="stmtDate"></div>
+    </div>
+  </div>
+
+  <div class="stmt-customer-box">
+    <div>
+      <div class="lbl">Customer Name</div>
+      <div class="val" id="stmtName">—</div>
+    </div>
+    <div>
+      <div class="lbl">Phone</div>
+      <div class="val" id="stmtPhone">—</div>
+    </div>
+    <div>
+      <div class="lbl">Statement Date</div>
+      <div class="val" id="stmtGeneratedDate">—</div>
+    </div>
+  </div>
+
+  <table class="stmt-table">
+    <thead>
+      <tr>
+        <th>Bill No</th>
+        <th>Date</th>
+        <th>Total Amount</th>
+        <th>Cash Paid</th>
+        <th>UPI Paid</th>
+        <th>Credit</th>
+      </tr>
+    </thead>
+    <tbody id="stmtBody"></tbody>
+  </table>
+
+  <div class="stmt-summary">
+    <div class="stmt-summary-box">
+      <div class="stmt-summary-row"><span>Total Purchased</span><span id="stmtTotalPurchased">₹0</span></div>
+      <div class="stmt-summary-row"><span>Total Cash Paid</span><span id="stmtTotalCash">₹0</span></div>
+      <div class="stmt-summary-row"><span>Total UPI Paid</span><span id="stmtTotalUPI">₹0</span></div>
+      <div class="stmt-summary-row"><span>Total Credit Due</span><span id="stmtTotalCredit">₹0</span></div>
+    </div>
+  </div>
+
+  <div class="stmt-footer">
+    This is a computer-generated statement. For queries contact Abhinandan Auto Mobiles.
+  </div>
+</div>
+
+
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+
+const supabaseUrl = "https://mhhnmndnolhapaoqtbxo.supabase.co"
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1oaG5tbmRub2xoYXBhb3F0YnhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4Mzg4NTksImV4cCI6MjA4ODQxNDg1OX0.IMSp8vYiCln_iSuoT_H2qdeX_dP1WMhOOskDw20eJXw"
+const supabase = createClient(supabaseUrl, supabaseKey)
+
+let allCustomers = []
+let currentCustomerData = null
+
+
+// ── LOAD ALL CUSTOMERS ──
+async function loadCustomers() {
+  const { data: customers, error } = await supabase
+    .from('customers')
+    .select('*')
+    .order('name')
+
+  if (error) { console.log(error); return }
+
+  // For each customer get their total bills and credit due
+  const enriched = []
+  for (const c of customers) {
+    const { data: sales } = await supabase
+      .from('sales')
+      .select('total_amount, cash, upi, credit')
+      .eq('customer_id', c.id)
+
+    let totalBills = sales?.length || 0
+    let totalAmount = 0
+    let totalCredit = 0
+
+    sales?.forEach(s => {
+      totalAmount += s.total_amount || 0
+      totalCredit += s.credit || 0
+    })
+
+    enriched.push({ ...c, totalBills, totalAmount, totalCredit })
+  }
+
+  allCustomers = enriched
+  renderCustomerGrid(allCustomers)
+}
+
+
+// ── RENDER GRID ──
+function renderCustomerGrid(list) {
+  const grid = document.getElementById('customerGrid')
+
+  if (list.length === 0) {
+    grid.innerHTML = '<div class="empty-state">No customers found</div>'
+    return
+  }
+
+  grid.innerHTML = list.map(c => `
+    <div class="customer-card" onclick="openLedger('${c.id}')">
+      <div class="customer-card-name">${c.name}</div>
+      <div class="customer-card-phone">${c.phone || 'No phone'}</div>
+      <div class="customer-card-stats">
+        <div class="stat-block">
+          <div class="stat-label">Bills</div>
+          <div class="stat-value">${c.totalBills}</div>
+        </div>
+        <div class="stat-block">
+          <div class="stat-label">Purchased</div>
+          <div class="stat-value">₹${Math.round(c.totalAmount).toLocaleString('en-IN')}</div>
+        </div>
+        <div class="stat-block">
+          <div class="stat-label">Credit Due</div>
+          <div class="stat-value ${c.totalCredit > 0 ? 'red' : 'green'}">
+            ₹${Math.round(c.totalCredit).toLocaleString('en-IN')}
+          </div>
+        </div>
+      </div>
+    </div>
+  `).join('')
+}
+
+
+// ── FILTER ──
+window.filterCustomers = function() {
+  const q = document.getElementById('searchInput').value.toLowerCase()
+  const filtered = allCustomers.filter(c =>
+    c.name.toLowerCase().includes(q) ||
+    (c.phone || '').includes(q)
+  )
+  renderCustomerGrid(filtered)
+}
+
+
+// ── OPEN LEDGER MODAL ──
+window.openLedger = async function(customerId) {
+  const customer = allCustomers.find(c => c.id == customerId)
+  if (!customer) return
+
+  document.getElementById('modalName').innerText  = customer.name
+  document.getElementById('modalPhone').innerText = customer.phone || 'No phone'
+  document.getElementById('ledgerModal').style.display = 'block'
+  document.getElementById('txBody').innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;color:rgba(255,255,255,0.3);">Loading...</td></tr>'
+
+  // Load full sales details
+  const { data: sales } = await supabase
+    .from('sales')
+    .select('*')
+    .eq('customer_id', customerId)
+    .order('created_at', { ascending: false })
+
+  let totalPurchased = 0
+  let totalCredit = 0
+  const rows = []
+
+  for (const sale of sales || []) {
+    totalPurchased += sale.total_amount || 0
+    totalCredit    += sale.credit || 0
+
+    // Count items
+    const { data: items } = await supabase
+      .from('bill_items')
+      .select('quantity')
+      .eq('sale_id', sale.id)
+
+    const itemCount = items?.reduce((sum, i) => sum + i.quantity, 0) || 0
+
+    // Payment badge
+    const modes = []
+    if (sale.cash   > 0) modes.push('cash')
+    if (sale.upi    > 0) modes.push('upi')
+    if (sale.credit > 0) modes.push('credit')
+    const modeStr = modes.join('+')
+    let badgeClass = 'badge-mixed'
+    let badgeLabel = 'Mixed'
+    if (modeStr === 'cash')   { badgeClass = 'badge-cash';   badgeLabel = 'Cash' }
+    if (modeStr === 'upi')    { badgeClass = 'badge-upi';    badgeLabel = 'UPI' }
+    if (modeStr === 'credit') { badgeClass = 'badge-credit'; badgeLabel = 'Credit' }
+
+    rows.push(`
+      <tr>
+        <td style="color:rgba(255,255,255,0.5);font-size:12px;">${sale.bill_number}</td>
+        <td>${new Date(sale.created_at).toLocaleDateString('en-IN')}</td>
+        <td>${itemCount} items</td>
+        <td><span class="badge ${badgeClass}">${badgeLabel}</span></td>
+        <td class="amount-positive">₹${Math.round(sale.total_amount).toLocaleString('en-IN')}</td>
+        <td class="${sale.credit > 0 ? 'amount-negative' : ''}">${sale.credit > 0 ? '₹' + Math.round(sale.credit).toLocaleString('en-IN') : '—'}</td>
+      </tr>
+    `)
+  }
+
+  document.getElementById('totalBills').innerText     = sales?.length || 0
+  document.getElementById('totalPurchased').innerText = '₹' + Math.round(totalPurchased).toLocaleString('en-IN')
+  document.getElementById('creditDue').innerText      = '₹' + Math.round(totalCredit).toLocaleString('en-IN')
+
+  document.getElementById('txBody').innerHTML = rows.length
+    ? rows.join('')
+    : '<tr><td colspan="6" class="empty-state">No transactions found</td></tr>'
+
+  // Save for print
+  currentCustomerData = { customer, sales: sales || [], totalPurchased, totalCredit }
+}
+
+
+// ── CLOSE MODAL ──
+window.closeModal = function() {
+  document.getElementById('ledgerModal').style.display = 'none'
+  currentCustomerData = null
+}
+
+// Close on outside click
+document.getElementById('ledgerModal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal()
+})
+
+
+// ── PRINT STATEMENT ──
+window.printStatement = function() {
+  if (!currentCustomerData) return
+  const { customer, sales, totalPurchased, totalCredit } = currentCustomerData
+
+  document.getElementById('stmtName').innerText  = customer.name
+  document.getElementById('stmtPhone').innerText = customer.phone || '—'
+  document.getElementById('stmtDate').innerText  = 'As of ' + new Date().toLocaleDateString('en-IN', { day:'2-digit', month:'long', year:'numeric' })
+  document.getElementById('stmtGeneratedDate').innerText = new Date().toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' })
+
+  let totalCash = 0, totalUPI = 0
+  const stmtRows = sales.map((sale, i) => {
+    totalCash += sale.cash || 0
+    totalUPI  += sale.upi  || 0
+    return `
+      <tr>
+        <td>${sale.bill_number}</td>
+        <td>${new Date(sale.created_at).toLocaleDateString('en-IN')}</td>
+        <td>₹${Math.round(sale.total_amount).toLocaleString('en-IN')}</td>
+        <td>₹${Math.round(sale.cash || 0).toLocaleString('en-IN')}</td>
+        <td>₹${Math.round(sale.upi || 0).toLocaleString('en-IN')}</td>
+        <td style="color:#dc2626;font-weight:600;">${(sale.credit > 0) ? '₹' + Math.round(sale.credit).toLocaleString('en-IN') : '—'}</td>
+      </tr>
+    `
+  }).join('')
+
+  document.getElementById('stmtBody').innerHTML         = stmtRows
+  document.getElementById('stmtTotalPurchased').innerText = '₹' + Math.round(totalPurchased).toLocaleString('en-IN')
+  document.getElementById('stmtTotalCash').innerText      = '₹' + Math.round(totalCash).toLocaleString('en-IN')
+  document.getElementById('stmtTotalUPI').innerText       = '₹' + Math.round(totalUPI).toLocaleString('en-IN')
+  document.getElementById('stmtTotalCredit').innerText    = '₹' + Math.round(totalCredit).toLocaleString('en-IN')
+
+  document.getElementById('statementArea').style.display = 'block'
+  window.print()
+  setTimeout(() => {
+    document.getElementById('statementArea').style.display = 'none'
+  }, 800)
+}
+
+// Start
+loadCustomers()
+</script>
+</body>
+</html>
