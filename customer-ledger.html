@@ -361,30 +361,37 @@
 <div class="edit-modal-overlay" id="editModal">
   <div class="edit-modal-box">
     <h3>Edit Payment</h3>
-    <p id="editBillNo">Bill: —</p>
+    <p id="editBillNo" style="color:rgba(255,255,255,0.5); font-size:13px; margin-bottom:20px;">Bill: —</p>
+
     <div class="edit-total-preview">
       Bill Total: <span id="editBillTotal">₹0</span>
     </div>
+
     <div class="edit-field">
       <label>Cash (₹)</label>
-      <input type="number" id="editCash" placeholder="0" oninput="updateEditPreview()">
+      <input type="number" id="editCash" placeholder="0" min="0" oninput="updateEditPreview()">
     </div>
     <div class="edit-field">
       <label>UPI (₹)</label>
-      <input type="number" id="editUPI" placeholder="0" oninput="updateEditPreview()">
+      <input type="number" id="editUPI" placeholder="0" min="0" oninput="updateEditPreview()">
     </div>
     <div class="edit-field">
       <label>Credit (₹)</label>
-      <input type="number" id="editCredit" placeholder="0" oninput="updateEditPreview()">
+      <input type="number" id="editCredit" placeholder="0" min="0" oninput="updateEditPreview()">
     </div>
-    <div class="edit-total-preview">
-      New Credit Due: <span id="editNewCredit" style="color:#f87171;">₹0</span>
+
+    <div class="edit-total-preview" id="editValidationBox" style="border: 1.5px solid transparent;">
+      Entered Total: <span id="editEnteredTotal" style="color:white;">₹0</span>
+      &nbsp;|&nbsp; Remaining: <span id="editRemaining" style="color:#f87171;">₹0</span>
     </div>
+
+    <div id="editError" style="color:#f87171; font-size:13px; margin-bottom:10px; display:none;"></div>
+
     <div class="edit-actions">
       <button class="btn btn-green" style="flex:1;" onclick="saveEditedBill()">✅ Save Changes</button>
       <button class="btn btn-outline" onclick="closeEditModal()">Cancel</button>
     </div>
-  </div>
+  </div> 
 </div>
 
 
@@ -636,10 +643,36 @@ window.openEditModal = function(saleId, billNo, total, cash, upi, credit) {
   updateEditPreview()
   document.getElementById('editModal').style.display = 'flex'
 }
-
 window.updateEditPreview = function() {
+  const total  = parseFloat(document.getElementById('editBillTotal').innerText.replace('₹','').replace(/,/g,'')) || 0
+  const cash   = parseFloat(document.getElementById('editCash').value)   || 0
+  const upi    = parseFloat(document.getElementById('editUPI').value)    || 0
   const credit = parseFloat(document.getElementById('editCredit').value) || 0
-  document.getElementById('editNewCredit').innerText = '₹' + credit.toLocaleString('en-IN')
+  const entered    = cash + upi + credit
+  const remaining  = total - entered
+  const errorBox   = document.getElementById('editError')
+  const valBox     = document.getElementById('editValidationBox')
+
+  document.getElementById('editEnteredTotal').innerText = '₹' + entered.toLocaleString('en-IN')
+  document.getElementById('editRemaining').innerText    = '₹' + Math.abs(remaining).toLocaleString('en-IN')
+
+  if (entered > total) {
+    errorBox.innerText = '⚠️ Amount entered is MORE than bill total by ₹' + (entered - total).toLocaleString('en-IN')
+    errorBox.style.display = 'block'
+    valBox.style.borderColor = '#f87171'
+    document.getElementById('editRemaining').style.color = '#f87171'
+  } else if (entered < total) {
+    errorBox.innerText = 'ℹ️ ₹' + remaining.toLocaleString('en-IN') + ' will remain as Credit'
+    errorBox.style.color = '#fbbf24'
+    errorBox.style.display = 'block'
+    valBox.style.borderColor = '#fbbf24'
+    document.getElementById('editRemaining').style.color = '#fbbf24'
+  } else {
+    errorBox.style.display = 'none'
+    valBox.style.borderColor = '#34d399'
+    document.getElementById('editRemaining').style.color = '#34d399'
+    document.getElementById('editRemaining').innerText = '₹0 — Fully Paid ✅'
+  }
 }
 
 window.closeEditModal = function() {
@@ -649,9 +682,18 @@ window.closeEditModal = function() {
 
 window.saveEditedBill = async function() {
   if (!editingSaleId) return
+
+  const total  = parseFloat(document.getElementById('editBillTotal').innerText.replace('₹','').replace(/,/g,'')) || 0
   const cash   = parseFloat(document.getElementById('editCash').value)   || 0
   const upi    = parseFloat(document.getElementById('editUPI').value)    || 0
   const credit = parseFloat(document.getElementById('editCredit').value) || 0
+  const entered = cash + upi + credit
+
+  // Block if over-paid
+  if (entered > total) {
+    alert('❌ Total entered (₹' + entered + ') is more than bill amount (₹' + total + '). Please fix it.')
+    return
+  }
 
   const { error } = await supabase
     .from('sales')
@@ -662,12 +704,7 @@ window.saveEditedBill = async function() {
 
   alert('Payment updated ✅')
   closeEditModal()
-
-  // Reload the ledger to show updated values
-  if (currentCustomerData) {
-    openLedger(currentCustomerData.customer.id)
-  }
-  // Also refresh customer cards
+  if (currentCustomerData) openLedger(currentCustomerData.customer.id)
   loadCustomers()
 }
 
