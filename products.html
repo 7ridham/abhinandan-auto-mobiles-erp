@@ -1,191 +1,641 @@
 <!DOCTYPE html>
 <html>
 <head>
-
-<title>Products - Abhinandan Auto Mobiles ERP</title>
-
+<title>Products - Abhinandan Auto Mobiles</title>
+<link rel="stylesheet" href="style.css">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .page-header h1 { margin-bottom: 0; }
 
-body{
-font-family:Arial;
-margin:0;
-display:flex;
-}
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+  .stat-card {
+    background: linear-gradient(135deg, rgba(255,255,255,0.07), rgba(255,255,255,0.03));
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 14px;
+    padding: 18px 20px;
+    text-align: center;
+  }
+  .stat-card .s-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.4);
+    margin-bottom: 8px;
+  }
+  .stat-card .s-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: white;
+  }
+  .stat-card .s-value.blue   { color: #60a5fa; }
+  .stat-card .s-value.green  { color: #34d399; }
+  .stat-card .s-value.red    { color: #f87171; }
+  .stat-card .s-value.amber  { color: #fbbf24; }
 
-.sidebar{
-width:220px;
-background:#1f2937;
-color:white;
-height:100vh;
-padding:20px;
-}
+  .toolbar {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .toolbar input {
+    flex: 1;
+    min-width: 200px;
+    margin-bottom: 0;
+  }
+  .toolbar select {
+    width: auto;
+    min-width: 140px;
+    margin-bottom: 0;
+  }
 
-.sidebar a{
-display:block;
-color:white;
-padding:10px;
-text-decoration:none;
-margin-bottom:5px;
-}
+  .add-btn {
+    background: linear-gradient(135deg, #059669, #34d399) !important;
+    box-shadow: 0 4px 14px rgba(5,150,105,0.35) !important;
+    white-space: nowrap;
+    padding: 11px 20px !important;
+  }
+  .add-btn:hover {
+    background: linear-gradient(135deg, #047857, #059669) !important;
+  }
 
-.main{
-flex:1;
-padding:30px;
-}
+  /* Product Table */
+  .products-table-wrap {
+    overflow-x: auto;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+  .products-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 700px;
+  }
+  .products-table thead tr {
+    background: rgba(255,255,255,0.05);
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+  .products-table thead th {
+    padding: 12px 16px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.4);
+    text-align: left;
+    white-space: nowrap;
+    border-bottom: none;
+  }
+  .products-table tbody tr {
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    transition: background 0.15s;
+  }
+  .products-table tbody tr:hover {
+    background: rgba(255,255,255,0.04);
+  }
+  .products-table tbody td {
+    padding: 13px 16px;
+    font-size: 14px;
+    color: rgba(255,255,255,0.85);
+    border-bottom: none;
+    vertical-align: middle;
+  }
+  .products-table tbody tr:last-child { border-bottom: none; }
 
-<input 
-id="search"
-placeholder="Search product..."
-style="padding:10px;width:300px;margin-bottom:20px;"
->
+  .stock-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .stock-ok     { background: rgba(52,211,153,0.15); color: #34d399; }
+  .stock-low    { background: rgba(251,191,36,0.15);  color: #fbbf24; }
+  .stock-empty  { background: rgba(248,113,113,0.15); color: #f87171; }
 
-table{
-border-collapse:collapse;
-width:100%;
-}
+  .action-btn {
+    padding: 5px 12px !important;
+    font-size: 12px !important;
+    border-radius: 7px !important;
+    box-shadow: none !important;
+    margin-right: 4px;
+  }
+  .edit-btn   { background: rgba(37,99,235,0.25) !important; border: 1px solid rgba(37,99,235,0.4) !important; }
+  .delete-btn { background: rgba(220,38,38,0.2)  !important; border: 1px solid rgba(220,38,38,0.35) !important; }
+  .edit-btn:hover   { background: rgba(37,99,235,0.4)  !important; transform: none !important; }
+  .delete-btn:hover { background: rgba(220,38,38,0.35) !important; transform: none !important; }
 
-th,td{
-border:1px solid #ddd;
-padding:8px;
-}
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: rgba(255,255,255,0.25);
+    font-size: 15px;
+  }
 
-th{
-background:#f3f4f6;
-}
+  /* Pagination */
+  .pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 16px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .pagination-info {
+    font-size: 13px;
+    color: rgba(255,255,255,0.4);
+  }
+  .pagination-btns { display: flex; gap: 6px; }
+  .pg-btn {
+    padding: 7px 14px !important;
+    font-size: 13px !important;
+    background: rgba(255,255,255,0.07) !important;
+    border: 1px solid rgba(255,255,255,0.1) !important;
+    box-shadow: none !important;
+    border-radius: 8px !important;
+  }
+  .pg-btn:hover { background: rgba(255,255,255,0.12) !important; transform: none !important; }
+  .pg-btn.active { background: rgba(37,99,235,0.35) !important; border-color: rgba(37,99,235,0.5) !important; }
+  .pg-btn:disabled { opacity: 0.3; cursor: not-allowed; transform: none !important; }
 
+  /* ADD / EDIT MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.8);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-box {
+    background: #0f172a;
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 16px;
+    padding: 28px;
+    width: 90%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  .modal-box h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    color: white;
+    margin-bottom: 20px;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .form-field { margin-bottom: 14px; }
+  .form-field label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.45);
+    margin-bottom: 6px;
+  }
+  .form-field input,
+  .form-field select,
+  .form-field textarea {
+    margin-bottom: 0;
+    width: 100%;
+  }
+  .form-field textarea {
+    height: 70px;
+    resize: vertical;
+  }
+  .modal-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+  }
+  .save-btn {
+    flex: 1;
+    background: linear-gradient(135deg, #059669, #34d399) !important;
+    box-shadow: 0 4px 14px rgba(5,150,105,0.3) !important;
+  }
+  .cancel-btn {
+    background: rgba(255,255,255,0.08) !important;
+    border: 1px solid rgba(255,255,255,0.15) !important;
+    box-shadow: none !important;
+  }
+  .cancel-btn:hover { background: rgba(255,255,255,0.14) !important; transform: none !important; }
 </style>
-
 </head>
-
 <body>
 
 <div class="sidebar">
-
-<h2>Auto ERP</h2>
-
-<a href="dashboard.html">Dashboard</a>
-<a href="#">Billing</a>
-<a href="purchase-billing.html">Purchase Billing</a>
-<a href="products.html">Products</a>
-<a href="#">Customers</a>
-<a href="customer-ledger.html">Customer Ledger</a>
+  <h2>Auto ERP</h2>
+  <div class="sidebar-divider"></div>
+  <div class="sidebar-label">Main</div>
+  <a href="dashboard.html">🏠 Dashboard</a>
+  <a href="billing.html">🧾 Sales Billing</a>
+  <a href="purchase-billing.html">📦 Purchase Billing</a>
+  <div class="sidebar-label">Records</div>
+  <a href="products.html" class="active">🔧 Products</a>
+  <a href="customers.html">👥 Customers</a>
+  <a href="customer-ledger.html">📒 Customer Ledger</a>
+  <div class="sidebar-bottom">
+    <div class="sidebar-version">Auto ERP v1.0</div>
+  </div>
 </div>
 
 <div class="main">
 
-<h1>Product Inventory</h1>
+  <div class="page-header">
+    <h1>Products & Inventory</h1>
+    <button class="add-btn" onclick="openAddModal()">+ Add Product</button>
+  </div>
 
-<input id="search" placeholder="Search product..." style="padding:10px;width:300px">
+  <!-- Stats -->
+  <div class="stats-row" id="statsRow">
+    <div class="stat-card"><div class="s-label">Total Products</div><div class="s-value blue" id="statTotal">—</div></div>
+    <div class="stat-card"><div class="s-label">In Stock</div><div class="s-value green" id="statInStock">—</div></div>
+    <div class="stat-card"><div class="s-label">Low Stock</div><div class="s-value amber" id="statLow">—</div></div>
+    <div class="stat-card"><div class="s-label">Out of Stock</div><div class="s-value red" id="statOut">—</div></div>
+    <div class="stat-card"><div class="s-label">Inventory Value</div><div class="s-value" id="statValue">—</div></div>
+  </div>
 
-<br><br>
+  <!-- Toolbar -->
+  <div class="card">
+    <div class="toolbar">
+      <input id="searchInput" placeholder="Search by name, category, supplier..." oninput="filterAndRender()">
+      <select id="filterCategory" onchange="filterAndRender()">
+        <option value="">All Categories</option>
+      </select>
+      <select id="filterStock" onchange="filterAndRender()">
+        <option value="">All Stock</option>
+        <option value="ok">In Stock</option>
+        <option value="low">Low Stock (≤5)</option>
+        <option value="empty">Out of Stock</option>
+      </select>
+    </div>
 
-<table>
+    <div class="products-table-wrap">
+      <table class="products-table">
+        <thead>
+          <tr>
+            <th>Product Name</th>
+            <th>Category</th>
+            <th>Stock</th>
+            <th>Unit</th>
+            <th>Purchase ₹</th>
+            <th>Selling ₹</th>
+            <th>Supplier</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="productTableBody">
+          <tr><td colspan="8" class="empty-state">Loading products...</td></tr>
+        </tbody>
+      </table>
+    </div>
 
-<thead>
-<tr>
-<th>ID</th>
-<th>Item Name</th>
-<th>Category</th>
-<th>Quantity</th>
-<th>Purchase Price</th>
-<th>Selling Price</th>
-<th>Unit</th>
-<th>Supplier</th>
-<th>Notes</th>
-</tr>
-</thead>
-
-
-
-<tbody id="productTable"></tbody>
-
-</table>
+    <div class="pagination">
+      <div class="pagination-info" id="paginationInfo">—</div>
+      <div class="pagination-btns" id="paginationBtns"></div>
+    </div>
+  </div>
 
 </div>
 
-<script type="module">
 
+<!-- ADD / EDIT MODAL -->
+<div class="modal-overlay" id="productModal">
+  <div class="modal-box">
+    <h3 id="modalTitle">Add Product</h3>
+
+    <div class="form-field">
+      <label>Product Name *</label>
+      <input id="fName" placeholder="e.g. Brake Pad XR200">
+    </div>
+    <div class="form-row">
+      <div class="form-field">
+        <label>Category</label>
+        <input id="fCategory" placeholder="e.g. Brakes">
+      </div>
+      <div class="form-field">
+        <label>Unit Type</label>
+        <select id="fUnit">
+          <option value="">Select unit</option>
+          <option value="piece">Piece</option>
+          <option value="set">Set</option>
+          <option value="pair">Pair</option>
+          <option value="box">Box</option>
+          <option value="packet">Packet</option>
+          <option value="litre">Litre</option>
+          <option value="kg">KG</option>
+          <option value="metre">Metre</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-field">
+        <label>Purchase Price (₹)</label>
+        <input id="fPurchasePrice" type="number" placeholder="0">
+      </div>
+      <div class="form-field">
+        <label>Selling Price (₹)</label>
+        <input id="fSellingPrice" type="number" placeholder="0">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-field">
+        <label>Quantity</label>
+        <input id="fQuantity" type="number" placeholder="0">
+      </div>
+      <div class="form-field">
+        <label>Supplier</label>
+        <input id="fSupplier" placeholder="Supplier name">
+      </div>
+    </div>
+    <div class="form-field">
+      <label>Notes</label>
+      <textarea id="fNotes" placeholder="Any notes..."></textarea>
+    </div>
+
+    <div class="modal-actions">
+      <button class="save-btn" onclick="saveProduct()">✅ Save Product</button>
+      <button class="cancel-btn" onclick="closeModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+
+<script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
 const supabaseUrl = "https://mhhnmndnolhapaoqtbxo.supabase.co"
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1oaG5tbmRub2xoYXBhb3F0YnhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4Mzg4NTksImV4cCI6MjA4ODQxNDg1OX0.IMSp8vYiCln_iSuoT_H2qdeX_dP1WMhOOskDw20eJXw"
-
 const supabase = createClient(supabaseUrl, supabaseKey)
 
-async function loadProducts(){
-
-const { data } = await supabase
-.from('inventory')
-.select('*')
-.limit(100)
-
-const table = document.getElementById("productTable")
-
-table.innerHTML=""
-
-data.forEach(product => {
-
-table.innerHTML += `
-<tr>
-<td>${product.id}</td>
-<td>${product.item_name}</td>
-<td>${product.category}</td>
-<td>${product.quantity}</td>
-<td>${product.purchase_price}</td>
-<td>${product.selling_price}</td>
-<td>${product.unit_type}</td>
-<td>${product.suppliers}</td>
-<td>${product.notes}</td>
-</tr>
-`
+let allProducts  = []
+let filtered     = []
+let editingId    = null
+const PAGE_SIZE  = 25
+let currentPage  = 1
 
 
+// ── LOAD ALL PRODUCTS (single fast query) ──
+async function loadProducts() {
+  const { data, error } = await supabase
+    .from('inventory')
+    .select('*')
+    .order('item_name', { ascending: true })
 
-})
+  if (error) { console.log(error); return }
 
+  allProducts = data || []
+  updateStats()
+  buildCategoryFilter()
+  filterAndRender()
 }
 
+
+// ── STATS ──
+function updateStats() {
+  const total   = allProducts.length
+  const inStock = allProducts.filter(p => (p.quantity || 0) > 5).length
+  const low     = allProducts.filter(p => (p.quantity || 0) > 0 && (p.quantity || 0) <= 5).length
+  const out     = allProducts.filter(p => (p.quantity || 0) === 0).length
+  const value   = allProducts.reduce((sum, p) => sum + ((p.quantity || 0) * (p.purchase_price || 0)), 0)
+
+  document.getElementById('statTotal').innerText   = total
+  document.getElementById('statInStock').innerText = inStock
+  document.getElementById('statLow').innerText     = low
+  document.getElementById('statOut').innerText     = out
+  document.getElementById('statValue').innerText   = '₹' + Math.round(value).toLocaleString('en-IN')
+}
+
+
+// ── CATEGORY FILTER ──
+function buildCategoryFilter() {
+  const cats = [...new Set(allProducts.map(p => p.category).filter(Boolean))].sort()
+  const sel  = document.getElementById('filterCategory')
+  sel.innerHTML = '<option value="">All Categories</option>'
+  cats.forEach(c => {
+    const o = document.createElement('option')
+    o.value = c; o.innerText = c
+    sel.appendChild(o)
+  })
+}
+
+
+// ── FILTER + RENDER ──
+window.filterAndRender = function() {
+  const q     = document.getElementById('searchInput').value.toLowerCase()
+  const cat   = document.getElementById('filterCategory').value
+  const stock = document.getElementById('filterStock').value
+
+  filtered = allProducts.filter(p => {
+    const matchQ = !q ||
+      (p.item_name  || '').toLowerCase().includes(q) ||
+      (p.category   || '').toLowerCase().includes(q) ||
+      (p.supplier   || '').toLowerCase().includes(q)
+    const matchCat = !cat || p.category === cat
+    const qty = p.quantity || 0
+    const matchStock =
+      !stock ||
+      (stock === 'ok'    && qty > 5) ||
+      (stock === 'low'   && qty > 0 && qty <= 5) ||
+      (stock === 'empty' && qty === 0)
+    return matchQ && matchCat && matchStock
+  })
+
+  currentPage = 1
+  renderTable()
+}
+
+
+// ── RENDER TABLE (paginated) ──
+function renderTable() {
+  const tbody    = document.getElementById('productTableBody')
+  const total    = filtered.length
+  const pages    = Math.ceil(total / PAGE_SIZE)
+  const start    = (currentPage - 1) * PAGE_SIZE
+  const pageData = filtered.slice(start, start + PAGE_SIZE)
+
+  if (!pageData.length) {
+    tbody.innerHTML = '<tr><td colspan="8" class="empty-state">No products found</td></tr>'
+    document.getElementById('paginationInfo').innerText = '0 products'
+    document.getElementById('paginationBtns').innerHTML = ''
+    return
+  }
+
+  tbody.innerHTML = pageData.map(p => {
+    const qty = p.quantity || 0
+    let stockClass = 'stock-ok', stockLabel = qty + ' in stock'
+    if (qty === 0)       { stockClass = 'stock-empty'; stockLabel = 'Out of stock' }
+    else if (qty <= 5)   { stockClass = 'stock-low';   stockLabel = qty + ' — Low' }
+
+    return `
+      <tr>
+        <td style="font-weight:500; color:white;">${p.item_name}</td>
+        <td style="color:rgba(255,255,255,0.5); font-size:13px;">${p.category || '—'}</td>
+        <td><span class="stock-badge ${stockClass}">${stockLabel}</span></td>
+        <td style="color:rgba(255,255,255,0.5); font-size:13px;">${p.unit_type || '—'}</td>
+        <td style="color:rgba(255,255,255,0.7);">${p.purchase_price ? '₹' + p.purchase_price.toLocaleString('en-IN') : '—'}</td>
+        <td style="color:#34d399; font-weight:600;">${p.selling_price ? '₹' + p.selling_price.toLocaleString('en-IN') : '—'}</td>
+        <td style="color:rgba(255,255,255,0.5); font-size:13px;">${p.supplier || '—'}</td>
+        <td>
+          <button class="action-btn edit-btn" onclick="openEditModal(${p.id})">✏️ Edit</button>
+          <button class="action-btn delete-btn" onclick="deleteProduct(${p.id}, '${p.item_name.replace(/'/g,"\\'")}')">🗑</button>
+        </td>
+      </tr>
+    `
+  }).join('')
+
+  // Pagination info
+  document.getElementById('paginationInfo').innerText =
+    `Showing ${start + 1}–${Math.min(start + PAGE_SIZE, total)} of ${total} products`
+
+  // Pagination buttons
+  const btns = document.getElementById('paginationBtns')
+  btns.innerHTML = ''
+
+  const prevBtn = document.createElement('button')
+  prevBtn.className = 'pg-btn'
+  prevBtn.innerText = '← Prev'
+  prevBtn.disabled  = currentPage === 1
+  prevBtn.onclick   = () => { currentPage--; renderTable() }
+  btns.appendChild(prevBtn)
+
+  // Page numbers (max 5 shown)
+  const startP = Math.max(1, currentPage - 2)
+  const endP   = Math.min(pages, startP + 4)
+  for (let i = startP; i <= endP; i++) {
+    const b = document.createElement('button')
+    b.className = 'pg-btn' + (i === currentPage ? ' active' : '')
+    b.innerText = i
+    b.onclick   = ((pg) => () => { currentPage = pg; renderTable() })(i)
+    btns.appendChild(b)
+  }
+
+  const nextBtn = document.createElement('button')
+  nextBtn.className = 'pg-btn'
+  nextBtn.innerText = 'Next →'
+  nextBtn.disabled  = currentPage === pages
+  nextBtn.onclick   = () => { currentPage++; renderTable() }
+  btns.appendChild(nextBtn)
+}
+
+
+// ── ADD MODAL ──
+window.openAddModal = function() {
+  editingId = null
+  document.getElementById('modalTitle').innerText = 'Add Product'
+  clearForm()
+  document.getElementById('productModal').style.display = 'flex'
+}
+
+
+// ── EDIT MODAL ──
+window.openEditModal = function(id) {
+  const p = allProducts.find(x => x.id === id)
+  if (!p) return
+  editingId = id
+  document.getElementById('modalTitle').innerText = 'Edit Product'
+  document.getElementById('fName').value          = p.item_name       || ''
+  document.getElementById('fCategory').value      = p.category        || ''
+  document.getElementById('fUnit').value          = p.unit_type       || ''
+  document.getElementById('fPurchasePrice').value = p.purchase_price  || ''
+  document.getElementById('fSellingPrice').value  = p.selling_price   || ''
+  document.getElementById('fQuantity').value      = p.quantity        || ''
+  document.getElementById('fSupplier').value      = p.supplier        || ''
+  document.getElementById('fNotes').value         = p.notes           || ''
+  document.getElementById('productModal').style.display = 'flex'
+}
+
+
+// ── SAVE (add or edit) ──
+window.saveProduct = async function() {
+  const name = document.getElementById('fName').value.trim()
+  if (!name) { alert('Product name is required'); return }
+
+  const payload = {
+    item_name:      name,
+    category:       document.getElementById('fCategory').value.trim()      || null,
+    unit_type:      document.getElementById('fUnit').value                  || null,
+    purchase_price: parseFloat(document.getElementById('fPurchasePrice').value) || null,
+    selling_price:  parseFloat(document.getElementById('fSellingPrice').value)  || null,
+    quantity:       parseInt(document.getElementById('fQuantity').value)        || 0,
+    supplier:       document.getElementById('fSupplier').value.trim()      || null,
+    notes:          document.getElementById('fNotes').value.trim()         || null,
+  }
+
+  if (editingId) {
+    const { error } = await supabase.from('inventory').update(payload).eq('id', editingId)
+    if (error) { alert('Error updating ❌'); return }
+    // Update locally for instant UI
+    const idx = allProducts.findIndex(p => p.id === editingId)
+    if (idx !== -1) allProducts[idx] = { ...allProducts[idx], ...payload }
+  } else {
+    const { data, error } = await supabase.from('inventory').insert([payload]).select().single()
+    if (error) { alert('Error adding ❌'); return }
+    allProducts.unshift(data)
+  }
+
+  closeModal()
+  updateStats()
+  buildCategoryFilter()
+  filterAndRender()
+}
+
+
+// ── DELETE ──
+window.deleteProduct = async function(id, name) {
+  if (!confirm(`Delete "${name}"? This cannot be undone.`)) return
+  const { error } = await supabase.from('inventory').delete().eq('id', id)
+  if (error) { alert('Error deleting ❌'); return }
+  allProducts = allProducts.filter(p => p.id !== id)
+  updateStats()
+  filterAndRender()
+}
+
+
+// ── CLOSE / CLEAR ──
+window.closeModal = function() {
+  document.getElementById('productModal').style.display = 'none'
+  editingId = null
+  clearForm()
+}
+
+function clearForm() {
+  ['fName','fCategory','fPurchasePrice','fSellingPrice','fQuantity','fSupplier','fNotes'].forEach(id => {
+    document.getElementById(id).value = ''
+  })
+  document.getElementById('fUnit').value = ''
+}
+
+document.getElementById('productModal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal()
+})
+
+
+// Start
 loadProducts()
-//live search feature 
-
-
-
-const searchInput = document.getElementById("search")
-
-searchInput.addEventListener("input", async function(){
-
-const searchText = searchInput.value
-
-const { data } = await supabase
-.from('inventory')
-.select('*')
-.ilike('item_name', `%${searchText}%`)
-.limit(20)
-
-const table = document.getElementById("productTable")
-
-table.innerHTML = ""
-
-data.forEach(product => {
-
-table.innerHTML += `
-<tr>
-<td>${product.id}</td>
-<td>${product.item_name}</td>
-<td>${product.category}</td>
-<td>${product.quantity}</td>
-<td>${product.purchase_price}</td>
-<td>${product.selling_price}</td>
-<td>${product.unit_type}</td>
-<td>${product.suppliers}</td>
-<td>${product.notes}</td>
-</tr>
-`
-
-
-})
-
-})
 </script>
 </body>
 </html>
