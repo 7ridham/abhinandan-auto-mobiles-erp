@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Purchase Billing - Abhinandan Auto Mobiles</title>
+<link rel="stylesheet" href="style.css">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; }
+
+  .bill-type-row { display:flex; gap:12px; margin-bottom:10px; flex-wrap:wrap; }
+  .bill-type-btn {
+    padding:8px 18px; border-radius:20px;
+    border:2px solid rgba(255,255,255,0.2);
+    background:transparent; color:white;
+    font-size:14px; cursor:pointer; transition:all 0.2s;
+  }
+  .bill-type-btn.active { background:#f59e0b; border-color:#f59e0b; }
+
+  .new-product-box {
+    background: rgba(245,158,11,0.08);
+    border: 1.5px dashed rgba(245,158,11,0.4);
+    border-radius: 10px;
+    padding: 16px;
+    margin-top: 10px;
+  }
+  .new-product-box label {
+    font-size:12px; color:rgba(255,255,255,0.5);
+    text-transform:uppercase; letter-spacing:0.5px;
+    display:block; margin-bottom:6px; margin-top:10px;
+  }
+  .new-product-box input {
+    width:100%; padding:9px 14px;
+    border-radius:8px;
+    border:1.5px solid rgba(255,255,255,0.15);
+    background:rgba(255,255,255,0.07);
+    color:white; font-size:14px;
+    font-family:'DM Sans',sans-serif;
+  }
+  .new-product-box input:focus { outline:none; border-color:#f59e0b; }
+
+  .payment-summary {
+    margin-top:16px;
+    background:rgba(255,255,255,0.05);
+    border-radius:10px; padding:14px;
+    font-size:14px; line-height:2;
+  }
+
+  /* PRINT AREA */
+  #printArea { display:none; font-family:'DM Sans',sans-serif; background:#fff; color:#111; }
+  .pur-paper { max-width:800px; margin:auto; background:#fff; border:1px solid #e5e7eb; border-radius:12px; overflow:hidden; }
+  .pur-header {
+    background: linear-gradient(135deg, #78350f 0%, #f59e0b 60%, #fcd34d 100%);
+    color:white; padding:28px 36px 20px;
+    display:flex; align-items:center; justify-content:space-between; gap:20px;
+  }
+  .pur-company { font-family:'Playfair Display',serif; font-size:22px; font-weight:700; margin:0 0 4px; }
+  .pur-sub { font-size:13px; opacity:0.85; margin:2px 0; }
+  .pur-badge {
+    display:inline-block; background:rgba(255,255,255,0.18);
+    border:1.5px solid rgba(255,255,255,0.5);
+    color:white; font-size:12px; font-weight:600;
+    letter-spacing:2px; text-transform:uppercase;
+    padding:4px 14px; border-radius:20px; margin-bottom:8px;
+  }
+  .pur-invoice-no { font-size:15px; font-weight:600; color:white; margin:4px 0; }
+  .pur-date { font-size:13px; opacity:0.85; }
+  .pur-meta {
+    display:flex; justify-content:space-between;
+    padding:14px 36px; background:#fffbeb;
+    border-bottom:1px solid #e5e7eb; gap:20px; flex-wrap:wrap;
+  }
+  .pur-meta-block label { font-size:11px; font-weight:600; letter-spacing:1px; text-transform:uppercase; color:#6b7280; display:block; margin-bottom:3px; }
+  .pur-meta-block span { font-size:15px; font-weight:600; color:#111827; }
+  .pur-table-wrap { padding:0 36px; margin-top:18px; }
+  .pur-table { width:100%; border-collapse:collapse; font-size:14px; }
+  .pur-table thead tr { background:#78350f; color:white; }
+  .pur-table thead th { padding:11px 14px; text-align:left; font-weight:600; font-size:13px; }
+  .pur-table thead th:not(:first-child) { text-align:center; }
+  .pur-table thead th:last-child { text-align:right; }
+  .pur-table tbody tr { border-bottom:1px solid #e5e7eb; }
+  .pur-table tbody tr:nth-child(even) { background:#fffbeb; }
+  .pur-table tbody td { padding:10px 14px; color:#374151; }
+  .pur-table tbody td:not(:first-child) { text-align:center; }
+  .pur-table tbody td:last-child { text-align:right; font-weight:600; color:#111827; }
+  .pur-totals { display:flex; justify-content:flex-end; padding:18px 36px 0; }
+  .pur-totals-inner { min-width:260px; }
+  .pur-total-row { display:flex; justify-content:space-between; padding:5px 0; font-size:14px; color:#374151; border-bottom:1px dashed #e5e7eb; }
+  .pur-total-row:last-child { border-bottom:none; margin-top:6px; padding-top:10px; font-size:17px; font-weight:700; color:#111827; border-top:2px solid #78350f; }
+  .pur-payment { margin:18px 36px 0; padding:14px; background:#fffbeb; border:1px solid #e5e7eb; border-radius:8px; }
+  .pur-payment-title { font-size:11px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:#6b7280; margin-bottom:10px; }
+  .pur-payment-methods { display:flex; gap:24px; flex-wrap:wrap; }
+  .pur-payment-item { font-size:13px; color:#374151; }
+  .pur-payment-item .pm-label { color:#6b7280; margin-right:4px; }
+  .pur-payment-item .pm-val { font-weight:600; color:#111827; }
+  .pur-footer { margin:20px 36px 28px; display:flex; justify-content:space-between; align-items:flex-end; padding-top:16px; border-top:1px solid #e5e7eb; font-size:13px; color:#6b7280; }
+  .pur-footer .note { font-size:15px; font-weight:600; color:#78350f; margin-bottom:4px; }
+  .sig-line { width:160px; border-top:1.5px solid #374151; margin:28px 0 6px auto; }
+  .sig-label { font-size:12px; color:#6b7280; text-align:right; }
+
+  @media print {
+    body * { visibility:hidden; }
+    #printArea, #printArea * { visibility:visible; }
+    #printArea { position:absolute; left:0; top:0; width:100%; display:block !important; background:white; }
+    * { -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
+    .pur-paper { border:none; box-shadow:none; border-radius:0; }
+    .pur-header { background:#78350f !important; }
+    .pur-table thead tr { background:#78350f !important; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar">
+  <h2>Auto ERP</h2>
+  <a href="dashboard.html">Dashboard</a>
+  <a href="billing.html">Billing</a>
+  <a href="purchase-billing.html" class="active">Purchase Billing</a>
+  <a href="products.html">Products</a>
+  <a href="customers.html">Customers</a>
+  <a href="customer-ledger.html">Customer Ledger</a>
+</div>
+
+<div class="main">
+  <h1>Purchase Billing</h1>
+
+  <!-- Bill Type -->
+  <div class="card">
+    <h3>Bill Type</h3>
+    <div class="bill-type-row">
+      <button class="bill-type-btn active" data-type="Purchase Invoice">Purchase Invoice</button>
+      <button class="bill-type-btn" data-type="Purchase Order">Purchase Order</button>
+      <button class="bill-type-btn" data-type="Stock Entry">Stock Entry Only</button>
+    </div>
+  </div>
+
+  <!-- Merchant -->
+  <div class="card">
+    <h3>Merchant / Supplier</h3>
+    <input id="merchantName" placeholder="Merchant / Company name" style="margin-bottom:10px;">
+    <input id="merchantPhone" placeholder="Phone number (optional)">
+  </div>
+
+  <!-- Product Search -->
+  <div class="card">
+    <h3>Add Products</h3>
+    <input id="productSearch" placeholder="Search existing product...">
+    <ul id="productList"></ul>
+
+    <!-- New Product -->
+    <div style="margin-top:14px;">
+      <button id="toggleNewProduct" style="background:rgba(245,158,11,0.15); border:1.5px solid rgba(245,158,11,0.4); color:#f59e0b; padding:8px 18px; border-radius:8px; cursor:pointer; font-size:13px; font-weight:600; font-family:'DM Sans',sans-serif;">
+        + New Product (not in system)
+      </button>
+    </div>
+
+    <div class="new-product-box" id="newProductBox" style="display:none;">
+      <label>Product Name *</label>
+      <input id="newProductName" placeholder="e.g. Brake Pad XR200">
+      <label>Purchase Price (₹) *</label>
+      <input id="newProductBuyPrice" type="number" placeholder="Price you are paying">
+      <label>Selling Price (₹) — optional, can add later</label>
+      <input id="newProductSellPrice" type="number" placeholder="Leave blank if not decided">
+      <label>Quantity *</label>
+      <input id="newProductQty" type="number" placeholder="How many units">
+      <div style="margin-top:12px;">
+        <button onclick="addNewProduct()" style="background:#f59e0b; border:none; color:#111; padding:9px 20px; border-radius:8px; font-weight:600; cursor:pointer; font-family:'DM Sans',sans-serif;">
+          ✅ Add to Purchase Bill
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Purchase Bill Table -->
+  <div class="card">
+    <h3>Current Purchase Bill</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th>Qty</th>
+          <th>Purchase Price</th>
+          <th>Total</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="purchaseTable"></tbody>
+    </table>
+
+    <h2 style="margin-top:16px;">Total: ₹<span id="purchaseTotalAmount">0</span></h2>
+
+    <!-- Payment -->
+    <div class="card" style="margin-top:16px;">
+      <h3>Payment to Merchant</h3>
+      <input id="purCash"   placeholder="Cash"   type="number" oninput="renderPurchaseBill()"><br><br>
+      <input id="purUpi"    placeholder="UPI"    type="number" oninput="renderPurchaseBill()"><br><br>
+      <input id="purCredit" placeholder="Credit (pay later)" type="number" oninput="renderPurchaseBill()">
+      <div class="payment-summary" id="purPaymentSummary"></div>
+    </div>
+
+    <button id="savePurchaseBtn" style="margin-top:16px;">Save Purchase</button>
+    <button id="printPurchaseBtn" style="margin-top:16px;">Print Purchase Bill</button>
+  </div>
+</div>
+
+
+<!-- PRINT AREA -->
+<div id="printArea">
+  <div class="pur-paper">
+
+    <div class="pur-header">
+      <div>
+        <p class="pur-company">Abhinandan Auto Mobiles</p>
+        <p class="pur-sub">Santalpur - Palanpur Highway</p>
+        <p class="pur-sub">📞 +91 98700 37002</p>
+      </div>
+      <div style="text-align:right;">
+        <div class="pur-badge" id="printPurType">Purchase Invoice</div>
+        <p class="pur-invoice-no">Purchase # <span id="printPurNo"></span></p>
+        <p class="pur-date" id="printPurDate"></p>
+      </div>
+    </div>
+
+    <div class="pur-meta">
+      <div class="pur-meta-block">
+        <label>Supplier / Merchant</label>
+        <span id="printMerchant">—</span>
+      </div>
+      <div class="pur-meta-block">
+        <label>Phone</label>
+        <span id="printMerchantPhone">—</span>
+      </div>
+      <div class="pur-meta-block">
+        <label>Payment Mode</label>
+        <span id="printPurPayMode">—</span>
+      </div>
+    </div>
+
+    <div class="pur-table-wrap">
+      <table class="pur-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Item Description</th>
+            <th>Qty</th>
+            <th>Purchase Price</th>
+            <th>Amount</th>
+          </tr>
+        </thead>
+        <tbody id="printPurItems"></tbody>
+      </table>
+    </div>
+
+    <div class="pur-totals">
+      <div class="pur-totals-inner">
+        <div class="pur-total-row">
+          <span style="color:#6b7280;">Subtotal</span>
+          <span>₹<span id="printPurSubtotal"></span></span>
+        </div>
+        <div class="pur-total-row">
+          <span style="color:#6b7280;">Grand Total</span>
+          <span style="color:#78350f;">₹<span id="printPurFinal"></span></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="pur-payment">
+      <p class="pur-payment-title">Payment Breakdown</p>
+      <div class="pur-payment-methods">
+        <span class="pur-payment-item"><span class="pm-label">Cash</span><span class="pm-val">₹<span id="printPurCash">0</span></span></span>
+        <span class="pur-payment-item"><span class="pm-label">UPI</span><span class="pm-val">₹<span id="printPurUPI">0</span></span></span>
+        <span class="pur-payment-item"><span class="pm-label">Credit</span><span class="pm-val">₹<span id="printPurCredit">0</span></span></span>
+      </div>
+    </div>
+
+    <div class="pur-footer">
+      <div>
+        <p class="note">Stock received 🙏</p>
+        <p>This is a purchase record for internal use.</p>
+      </div>
+      <div>
+        <div class="sig-line"></div>
+        <p class="sig-label">Authorised Signatory</p>
+        <p class="sig-label">Abhinandan Auto Mobiles</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+
+const supabaseUrl  = "https://mhhnmndnolhapaoqtbxo.supabase.co"
+const supabaseKey  = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1oaG5tbmRub2xoYXBhb3F0YnhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4Mzg4NTksImV4cCI6MjA4ODQxNDg1OX0.IMSp8vYiCln_iSuoT_H2qdeX_dP1WMhOOskDw20eJXw"
+const supabase     = createClient(supabaseUrl, supabaseKey)
+
+let purchaseItems  = []
+let totalAmount    = 0
+let selectedBillType = "Purchase Invoice"
+let currentPurBillNo = null
+
+
+// ── BILL TYPE ──
+document.querySelectorAll(".bill-type-btn").forEach(btn => {
+  btn.addEventListener("click", function() {
+    document.querySelectorAll(".bill-type-btn").forEach(b => b.classList.remove("active"))
+    this.classList.add("active")
+    selectedBillType = this.getAttribute("data-type")
+  })
+})
+
+
+// ── TOGGLE NEW PRODUCT BOX ──
+document.getElementById("toggleNewProduct").addEventListener("click", () => {
+  const box = document.getElementById("newProductBox")
+  box.style.display = box.style.display === "none" ? "block" : "none"
+})
+
+
+// ── GENERATE PURCHASE BILL NUMBER ──
+function generatePurBillNo() {
+  const now  = new Date()
+  const yy   = String(now.getFullYear()).slice(2)
+  const mm   = String(now.getMonth() + 1).padStart(2, "0")
+  const dd   = String(now.getDate()).padStart(2, "0")
+  const rand = Math.floor(1000 + Math.random() * 9000)
+  return `PUR-${yy}${mm}${dd}-${rand}`
+}
+
+
+// ── PRODUCT SEARCH (existing inventory) ──
+document.getElementById("productSearch").addEventListener("input", async () => {
+  const text = document.getElementById("productSearch").value
+  if (!text) { document.getElementById("productList").innerHTML = ""; return }
+
+  const { data } = await supabase
+    .from('inventory')
+    .select('*')
+    .ilike('item_name', `%${text}%`)
+    .limit(6)
+
+  const list = document.getElementById("productList")
+  list.innerHTML = ""
+  ;(data || []).forEach(p => {
+    const li = document.createElement("li")
+    li.innerHTML = `${p.item_name} <span style="color:rgba(255,255,255,0.4);font-size:12px;">(Stock: ${p.quantity})</span>`
+    li.onclick = () => {
+      addExistingToBill(p)
+      document.getElementById("productSearch").value = ""
+      list.innerHTML = ""
+    }
+    list.appendChild(li)
+  })
+})
+
+
+// ── ADD EXISTING PRODUCT TO BILL ──
+function addExistingToBill(product) {
+  const buyPrice = parseFloat(prompt(`Enter purchase price for "${product.item_name}" (₹):`)) || 0
+  if (!buyPrice) return
+
+  const existing = purchaseItems.find(i => i.id === product.id)
+  if (existing) {
+    existing.qty++
+    existing.buyPrice = buyPrice
+  } else {
+    purchaseItems.push({
+      id:       product.id,
+      name:     product.item_name,
+      buyPrice: buyPrice,
+      qty:      1,
+      isNew:    false
+    })
+  }
+  renderPurchaseBill()
+}
+
+
+// ── ADD NEW PRODUCT TO BILL ──
+window.addNewProduct = function() {
+  const name      = document.getElementById("newProductName").value.trim()
+  const buyPrice  = parseFloat(document.getElementById("newProductBuyPrice").value) || 0
+  const sellPrice = parseFloat(document.getElementById("newProductSellPrice").value) || 0
+  const qty       = parseInt(document.getElementById("newProductQty").value) || 0
+
+  if (!name)     { alert("Enter product name");     return }
+  if (!buyPrice) { alert("Enter purchase price");   return }
+  if (!qty)      { alert("Enter quantity");          return }
+
+  purchaseItems.push({
+    id:        null,
+    name,
+    buyPrice,
+    sellPrice,
+    qty,
+    isNew:     true
+  })
+
+  // Clear form
+  document.getElementById("newProductName").value     = ""
+  document.getElementById("newProductBuyPrice").value = ""
+  document.getElementById("newProductSellPrice").value= ""
+  document.getElementById("newProductQty").value      = ""
+  document.getElementById("newProductBox").style.display = "none"
+
+  renderPurchaseBill()
+}
+
+
+// ── RENDER PURCHASE BILL TABLE ──
+function renderPurchaseBill() {
+  const table = document.getElementById("purchaseTable")
+  table.innerHTML = ""
+  totalAmount = 0
+
+  purchaseItems.forEach((item, index) => {
+    const total = item.qty * item.buyPrice
+    totalAmount += total
+
+    table.innerHTML += `
+      <tr>
+        <td>
+          ${item.name}
+          ${item.isNew ? '<span style="font-size:11px;background:rgba(245,158,11,0.2);color:#f59e0b;padding:2px 8px;border-radius:10px;margin-left:6px;">NEW</span>' : ''}
+        </td>
+        <td>
+          <input type="number" value="${item.qty}" min="1"
+            class="purQtyInput" data-index="${index}" style="width:60px;">
+        </td>
+        <td>₹${item.buyPrice}</td>
+        <td>₹${total}</td>
+        <td><button class="purRemoveBtn" data-index="${index}">❌</button></td>
+      </tr>
+    `
+  })
+
+  document.getElementById("purchaseTotalAmount").innerText = totalAmount.toLocaleString("en-IN")
+
+  // Payment summary
+  const cash   = parseFloat(document.getElementById("purCash").value)   || 0
+  const upi    = parseFloat(document.getElementById("purUpi").value)    || 0
+  const credit = parseFloat(document.getElementById("purCredit").value) || 0
+  const paid   = cash + upi + credit
+  const remaining = totalAmount - paid
+
+  let color = remaining === 0 ? "#34d399" : remaining > 0 ? "#f87171" : "#fbbf24"
+  let label = remaining === 0
+    ? "✅ Fully Paid"
+    : remaining > 0
+    ? "⚠️ Still Due: ₹" + remaining.toLocaleString("en-IN")
+    : "ℹ️ Extra: ₹" + Math.abs(remaining).toLocaleString("en-IN")
+
+  document.getElementById("purPaymentSummary").innerHTML = `
+    <div style="display:flex;justify-content:space-between;">
+      <span style="color:rgba(255,255,255,0.5);">Total Payable</span>
+      <span>₹${totalAmount.toLocaleString("en-IN")}</span>
+    </div>
+    <div style="display:flex;justify-content:space-between;border-top:1px solid rgba(255,255,255,0.1);margin-top:8px;padding-top:8px;font-weight:600;font-size:15px;">
+      <span>Amount Paid</span><span>₹${paid.toLocaleString("en-IN")}</span>
+    </div>
+    <div style="margin-top:6px;font-size:13px;color:${color};">${label}</div>
+  `
+
+  // Qty + remove listeners
+  document.querySelectorAll(".purQtyInput").forEach(input => {
+    input.addEventListener("change", function() {
+      purchaseItems[this.getAttribute("data-index")].qty = parseInt(this.value) || 1
+      renderPurchaseBill()
+    })
+  })
+  document.querySelectorAll(".purRemoveBtn").forEach(btn => {
+    btn.addEventListener("click", function() {
+      purchaseItems.splice(this.getAttribute("data-index"), 1)
+      renderPurchaseBill()
+    })
+  })
+}
+
+
+// ── SAVE PURCHASE ──
+async function savePurchase() {
+  if (window.isSavingPurchase) return
+  window.isSavingPurchase = true
+
+  try {
+    const merchantName  = document.getElementById("merchantName").value.trim()
+    const merchantPhone = document.getElementById("merchantPhone").value.trim()
+
+    if (!merchantName)          { alert("Enter merchant name"); window.isSavingPurchase = false; return }
+    if (purchaseItems.length === 0) { alert("Add products first"); window.isSavingPurchase = false; return }
+
+    const cash   = parseFloat(document.getElementById("purCash").value)   || 0
+    const upi    = parseFloat(document.getElementById("purUpi").value)    || 0
+    const credit = parseFloat(document.getElementById("purCredit").value) || 0
+    const paid   = cash + upi + credit
+
+    if (paid > totalAmount) {
+      alert(`❌ Amount paid (₹${paid}) is more than total (₹${totalAmount}). Please fix.`)
+      window.isSavingPurchase = false
+      return
+    }
+
+    const billNo = generatePurBillNo()
+    currentPurBillNo = billNo
+
+    // Save purchase header
+    const { data: purchase, error: purError } = await supabase
+      .from('purchases')
+      .insert([{
+        bill_number:    billNo,
+        merchant_name:  merchantName,
+        merchant_phone: merchantPhone,
+        total_amount:   totalAmount,
+        cash, upi, credit
+      }])
+      .select().single()
+
+    if (purError) { console.log(purError); alert("Error saving purchase ❌"); window.isSavingPurchase = false; return }
+
+    // Save each item + update inventory
+    for (const item of purchaseItems) {
+      let itemId = item.id
+
+      if (item.isNew) {
+        // Create new product in inventory
+        const { data: newProduct, error: newErr } = await supabase
+          .from('inventory')
+          .insert([{
+            item_name:     item.name,
+            quantity:      item.qty,
+            selling_price: item.sellPrice || 0
+          }])
+          .select().single()
+
+        if (newErr) { console.log(newErr); alert("Error creating product: " + item.name); continue }
+        itemId = newProduct.id
+
+      } else {
+        // Add to existing stock
+        const { data: existing } = await supabase
+          .from('inventory').select('quantity').eq('id', itemId).single()
+        const newQty = (existing?.quantity || 0) + item.qty
+        await supabase.from('inventory').update({ quantity: newQty }).eq('id', itemId)
+      }
+
+      // Save purchase item
+      await supabase.from('purchase_items').insert([{
+        purchase_id:    purchase.id,
+        item_id:        itemId,
+        quantity:       item.qty,
+        purchase_price: item.buyPrice,
+        total:          item.qty * item.buyPrice
+      }])
+    }
+
+    if (!window.isPrinting) alert("Purchase Saved ✅ Inventory Updated!")
+
+  } catch (err) {
+    console.log(err)
+    alert("Error saving purchase ❌")
+  }
+
+  window.isSavingPurchase = false
+}
+
+document.getElementById("savePurchaseBtn").addEventListener("click", savePurchase)
+
+
+// ── PRINT PURCHASE BILL ──
+async function printPurchase() {
+  window.isPrinting = true
+
+  const merchantName  = document.getElementById("merchantName").value.trim()
+  const merchantPhone = document.getElementById("merchantPhone").value.trim()
+  const cash   = parseFloat(document.getElementById("purCash").value)   || 0
+  const upi    = parseFloat(document.getElementById("purUpi").value)    || 0
+  const credit = parseFloat(document.getElementById("purCredit").value) || 0
+
+  const modes = []
+  if (cash   > 0) modes.push("Cash")
+  if (upi    > 0) modes.push("UPI")
+  if (credit > 0) modes.push("Credit")
+
+  await savePurchase()
+  await new Promise(resolve => setTimeout(resolve, 300))
+
+  document.getElementById("printPurType").innerText    = selectedBillType
+  document.getElementById("printPurNo").innerText      = currentPurBillNo
+  document.getElementById("printPurDate").innerText    = new Date().toLocaleString('en-IN', {
+    day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit'
+  })
+  document.getElementById("printMerchant").innerText      = merchantName || "—"
+  document.getElementById("printMerchantPhone").innerText = merchantPhone || "—"
+  document.getElementById("printPurPayMode").innerText    = modes.join(" + ") || "—"
+
+  const tbody = document.getElementById("printPurItems")
+  tbody.innerHTML = ""
+  purchaseItems.forEach((item, i) => {
+    tbody.innerHTML += `
+      <tr>
+        <td style="padding:10px 14px;color:#6b7280;">${i + 1}</td>
+        <td style="padding:10px 14px;">${item.name}</td>
+        <td style="padding:10px 14px;text-align:center;">${item.qty}</td>
+        <td style="padding:10px 14px;text-align:center;">₹${item.buyPrice}</td>
+        <td style="padding:10px 14px;text-align:right;font-weight:600;">₹${item.qty * item.buyPrice}</td>
+      </tr>
+    `
+  })
+
+  document.getElementById("printPurSubtotal").innerText = totalAmount.toLocaleString("en-IN")
+  document.getElementById("printPurFinal").innerText    = totalAmount.toLocaleString("en-IN")
+  document.getElementById("printPurCash").innerText     = cash
+  document.getElementById("printPurUPI").innerText      = upi
+  document.getElementById("printPurCredit").innerText   = credit
+
+  document.getElementById("printArea").style.display = "block"
+  window.print()
+
+  setTimeout(() => {
+    document.getElementById("printArea").style.display = "none"
+    window.isPrinting = false
+  }, 600)
+}
+
+document.getElementById("printPurchaseBtn").addEventListener("click", printPurchase)
+
+</script>
+</body>
+</html>
