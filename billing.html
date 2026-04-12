@@ -328,13 +328,29 @@
       <input type="checkbox" id="gstToggle"> Apply GST (18%)
     </label>
     <h3>Final Total: ₹<span id="finalTotal">0</span></h3>
-    <br>
-    <div class="card">
-      <h3>Payment</h3>
-      <input id="cash" placeholder="Cash" type="number"><br><br>
-      <input id="upi" placeholder="UPI" type="number"><br><br>
-      <input id="credit" placeholder="Credit" type="number">
-    </div>
+    <br><div class="card">
+  <h3>Payment</h3>
+  <input id="cash" placeholder="Cash" type="number" oninput="renderBill()"><br><br>
+  <input id="upi" placeholder="UPI" type="number" oninput="renderBill()"><br><br>
+  <input id="credit" placeholder="Credit" type="number" oninput="renderBill()"><br><br>
+
+  <hr style="border-color:rgba(255,255,255,0.1); margin: 10px 0;">
+
+  <label style="font-size:13px; color:rgba(255,255,255,0.6);">Discount</label><br><br>
+  <div style="display:flex; gap:10px; align-items:center; margin-bottom:14px;">
+    <input id="discountValue" placeholder="0" type="number" min="0" oninput="renderBill()" style="flex:1;">
+    <select id="discountType" onchange="renderBill()" style="padding:10px; border-radius:8px; border:1.5px solid rgba(255,255,255,0.15); background:rgba(255,255,255,0.07); color:white; font-family:'DM Sans',sans-serif; font-size:14px;">
+      <option value="amount">₹ Fixed</option>
+      <option value="percent">% Percent</option>
+    </select>
+  </div>
+
+  <label style="font-size:13px; color:rgba(255,255,255,0.6);">Advance Received (₹)</label><br><br>
+  <input id="advance" placeholder="0" type="number" min="0" oninput="renderBill()">
+
+  <div id="paymentSummary" style="margin-top:16px; background:rgba(255,255,255,0.05); border-radius:10px; padding:14px; font-size:14px; line-height:2;">
+  </div>
+</div>
 
     <button id="saveBtn">Save Bill</button>
     <button id="printBtn">Print Bill</button>
@@ -394,22 +410,30 @@
     <div class="bill-totals">
       <div class="bill-totals-table">
         <div class="bill-totals-row">
-          <span class="label">Subtotal</span>
-          <span class="value">₹<span id="printSubtotal"></span></span>
-        </div>
-        <div class="bill-totals-row" id="gstRow" style="display:none;">
-          <span class="label">CGST (9%)</span>
-          <span class="value">₹<span id="printCGST"></span></span>
-        </div>
-        <div class="bill-totals-row" id="sgstRow" style="display:none;">
-          <span class="label">SGST (9%)</span>
-          <span class="value">₹<span id="printSGST"></span></span>
-        </div>
-        <div class="bill-totals-row">
-          <span class="label">Grand Total</span>
-          <span class="value" style="color:#1e3a5f;">₹<span id="printFinal"></span></span>
-        </div>
-      </div>
+  <span class="label">Subtotal</span>
+  <span class="value">₹<span id="printSubtotal"></span></span>
+</div>
+  <div class="bill-totals-row" id="gstRow" style="display:none;">
+  <span class="label">CGST (9%)</span>
+  <span class="value">₹<span id="printCGST"></span></span>
+</div>
+<div class="bill-totals-row" id="sgstRow" style="display:none;">
+  <span class="label">SGST (9%)</span>
+  <span class="value">₹<span id="printSGST"></span></span>
+</div>
+<div class="bill-totals-row" id="discountRow" style="display:none;">
+  <span class="label" style="color:#059669;">Discount</span>
+  <span class="value" style="color:#059669;">- ₹<span id="printDiscount"></span></span>
+</div>
+<div class="bill-totals-row" id="advanceRow" style="display:none;">
+  <span class="label" style="color:#2563eb;">Advance Received</span>
+  <span class="value" style="color:#2563eb;">- ₹<span id="printAdvance"></span></span>
+</div>
+<div class="bill-totals-row">
+  <span class="label">Grand Total</span>
+  <span class="value" style="color:#1e3a5f;">₹<span id="printFinal"></span></span>
+       </div>
+     </div>
     </div>
 
     <div class="bill-payment">
@@ -569,6 +593,7 @@ function addToBill(product) {
 
 
 // ── RENDER BILL ──
+// ── RENDER BILL ──
 function renderBill() {
   const table = document.getElementById("billTable")
   table.innerHTML = ""
@@ -589,9 +614,57 @@ function renderBill() {
   })
 
   document.getElementById("totalAmount").innerText = totalAmount
-  let final = totalAmount
-  if (document.getElementById("gstToggle").checked) final = totalAmount * 1.18
-  document.getElementById("finalTotal").innerText = Math.round(final)
+
+  // GST
+  const gstChecked = document.getElementById("gstToggle").checked
+  let afterGST = totalAmount
+  if (gstChecked) afterGST = totalAmount * 1.18
+
+  // Discount
+  const discountVal  = parseFloat(document.getElementById("discountValue")?.value) || 0
+  const discountType = document.getElementById("discountType")?.value || "amount"
+  let discountAmount = 0
+  if (discountType === "percent") {
+    discountAmount = Math.round(afterGST * discountVal / 100)
+  } else {
+    discountAmount = discountVal
+  }
+  discountAmount = Math.min(discountAmount, afterGST)
+
+  // Advance
+  const advance = parseFloat(document.getElementById("advance")?.value) || 0
+
+  // Final
+  const afterDiscount = afterGST - discountAmount
+  const finalDue      = Math.max(afterDiscount - advance, 0)
+
+  document.getElementById("finalTotal").innerText = Math.round(afterDiscount)
+
+  // Payment summary box
+  const cash   = parseFloat(document.getElementById("cash")?.value)   || 0
+  const upi    = parseFloat(document.getElementById("upi")?.value)    || 0
+  const credit = parseFloat(document.getElementById("credit")?.value) || 0
+  const totalPaid = cash + upi + credit + advance
+  const remaining  = Math.round(afterDiscount - totalPaid)
+
+  let remainColor  = remaining === 0 ? "#34d399" : remaining > 0 ? "#f87171" : "#fbbf24"
+  let remainLabel  = remaining === 0
+    ? "✅ Fully Paid"
+    : remaining > 0
+    ? "⚠️ Still Due: ₹" + remaining.toLocaleString("en-IN")
+    : "ℹ️ Extra Paid: ₹" + Math.abs(remaining).toLocaleString("en-IN")
+
+  const summary = document.getElementById("paymentSummary")
+  if (summary) {
+    summary.innerHTML = `
+      <div style="display:flex;justify-content:space-between;"><span style="color:rgba(255,255,255,0.5);">Subtotal</span><span>₹${totalAmount.toLocaleString("en-IN")}</span></div>
+      ${gstChecked ? `<div style="display:flex;justify-content:space-between;"><span style="color:rgba(255,255,255,0.5);">GST (18%)</span><span>₹${Math.round(totalAmount * 0.18).toLocaleString("en-IN")}</span></div>` : ""}
+      ${discountAmount > 0 ? `<div style="display:flex;justify-content:space-between;"><span style="color:#34d399;">Discount</span><span style="color:#34d399;">- ₹${Math.round(discountAmount).toLocaleString("en-IN")}</span></div>` : ""}
+      ${advance > 0 ? `<div style="display:flex;justify-content:space-between;"><span style="color:#60a5fa;">Advance</span><span style="color:#60a5fa;">- ₹${advance.toLocaleString("en-IN")}</span></div>` : ""}
+      <div style="display:flex;justify-content:space-between;border-top:1px solid rgba(255,255,255,0.1);margin-top:8px;padding-top:8px;font-weight:600;font-size:15px;"><span>Final Due</span><span>₹${Math.round(afterDiscount).toLocaleString("en-IN")}</span></div>
+      <div style="margin-top:6px;font-size:13px;color:${remainColor};">${remainLabel}</div>
+    `
+  }
 
   document.querySelectorAll(".qtyInput").forEach(input => {
     input.addEventListener("change", function() {
@@ -640,11 +713,29 @@ async function saveBill() {
 
     const billNumber = generateInvoiceNo()
     currentBillNumber = billNumber
+const discountVal  = parseFloat(document.getElementById("discountValue").value) || 0
+const discountType = document.getElementById("discountType").value || "amount"
+const gstChecked   = document.getElementById("gstToggle").checked
+let afterGST = totalAmount
+if (gstChecked) afterGST = totalAmount * 1.18
+let discountAmount = discountType === "percent"
+  ? Math.round(afterGST * discountVal / 100)
+  : discountVal
+discountAmount = Math.min(discountAmount, afterGST)
+const advance  = parseFloat(document.getElementById("advance").value) || 0
+const finalAfterDiscount = Math.round(afterGST - discountAmount)
 
-    const { data: sale, error: saleError } = await supabase
-      .from('sales')
-      .insert([{ bill_number: billNumber, customer_id: customerId, total_amount: final, cash, upi, credit }])
-      .select().single()
+const { data: sale, error: saleError } = await supabase
+  .from('sales')
+  .insert([{
+    bill_number: billNumber,
+    customer_id: customerId,
+    total_amount: finalAfterDiscount,
+    cash, upi, credit,
+    discount: Math.round(discountAmount),
+    advance
+  }])
+  .select().single()
 
     if (saleError) { alert("Error saving sale ❌"); window.isSaving = false; return }
 
@@ -724,18 +815,30 @@ async function printBill() {
     `
   })
 
-  document.getElementById("printSubtotal").innerText = tempTotal
-  document.getElementById("printFinal").innerText    = Math.round(tempFinal)
-  document.getElementById("gstRow").style.display    = gstChecked ? "flex" : "none"
-  document.getElementById("sgstRow").style.display   = gstChecked ? "flex" : "none"
-  if (gstChecked) {
-    document.getElementById("printCGST").innerText = cgst
-    document.getElementById("printSGST").innerText = sgst
-  }
-  document.getElementById("printCash").innerText   = tempCash
-  document.getElementById("printUPI").innerText    = tempUpi
-  document.getElementById("printCredit").innerText = tempCredit
+ const discountVal  = parseFloat(document.getElementById("discountValue").value) || 0
+const discountType = document.getElementById("discountType").value || "amount"
+let discountAmount = discountType === "percent"
+  ? Math.round(tempFinal * discountVal / 100)
+  : discountVal
+discountAmount = Math.min(discountAmount, tempFinal)
+const advancePrint = parseFloat(document.getElementById("advance").value) || 0
+const finalAfterAll = Math.round(tempFinal - discountAmount)
 
+document.getElementById("printSubtotal").innerText = tempTotal
+document.getElementById("printFinal").innerText    = finalAfterAll
+document.getElementById("gstRow").style.display    = gstChecked ? "flex" : "none"
+document.getElementById("sgstRow").style.display   = gstChecked ? "flex" : "none"
+if (gstChecked) {
+  document.getElementById("printCGST").innerText = cgst
+  document.getElementById("printSGST").innerText = sgst
+}
+document.getElementById("discountRow").style.display = discountAmount > 0 ? "flex" : "none"
+document.getElementById("printDiscount").innerText   = Math.round(discountAmount)
+document.getElementById("advanceRow").style.display  = advancePrint > 0 ? "flex" : "none"
+document.getElementById("printAdvance").innerText    = advancePrint
+document.getElementById("printCash").innerText   = tempCash
+document.getElementById("printUPI").innerText    = tempUpi
+document.getElementById("printCredit").innerText = tempCredit
   document.getElementById("printArea").style.display = "block"
   window.print()
 
