@@ -335,41 +335,48 @@
     </label>
     <h3>Final Total: ₹<span id="finalTotal">0</span></h3>
     
-    <div class="card">
+  <div class="card">
   <h3>Payment</h3>
 
+  <!-- Cash / UPI / Credit -->
   <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin-bottom:16px;">
     <div>
-      <label style="font-size:11px; font-weight:600; letter-spacing:0.8px; text-transform:uppercase; color:rgba(255,255,255,0.4); display:block; margin-bottom:6px;">Cash (₹)</label>
+      <label style="font-size:11px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:rgba(255,255,255,0.4);display:block;margin-bottom:6px;">Cash (₹)</label>
       <input id="cash" placeholder="0" type="number" min="0" oninput="renderBill()" style="margin-bottom:0;">
     </div>
     <div>
-      <label style="font-size:11px; font-weight:600; letter-spacing:0.8px; text-transform:uppercase; color:rgba(255,255,255,0.4); display:block; margin-bottom:6px;">UPI (₹)</label>
+      <label style="font-size:11px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:rgba(255,255,255,0.4);display:block;margin-bottom:6px;">UPI (₹)</label>
       <input id="upi" placeholder="0" type="number" min="0" oninput="renderBill()" style="margin-bottom:0;">
     </div>
     <div>
-      <label style="font-size:11px; font-weight:600; letter-spacing:0.8px; text-transform:uppercase; color:rgba(255,255,255,0.4); display:block; margin-bottom:6px;">Credit (₹)</label>
+      <label style="font-size:11px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:rgba(255,255,255,0.4);display:block;margin-bottom:6px;">Credit (₹)</label>
       <input id="credit" placeholder="0" type="number" min="0" oninput="renderBill()" style="margin-bottom:0;">
     </div>
   </div>
 
-  <div style="display:grid; grid-template-columns:1fr auto; gap:10px; align-items:end; margin-bottom:16px;">
+  <!-- Discount row -->
+  <div style="display:grid; grid-template-columns:1fr 140px; gap:10px; align-items:end; margin-bottom:16px;">
     <div>
-      <label style="font-size:11px; font-weight:600; letter-spacing:0.8px; text-transform:uppercase; color:rgba(255,255,255,0.4); display:block; margin-bottom:6px;">Discount</label>
+      <label style="font-size:11px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:rgba(255,255,255,0.4);display:block;margin-bottom:6px;">
+        Discount
+        <span id="autoDiscountBadge" style="display:none;margin-left:8px;background:rgba(52,211,153,0.2);color:#34d399;font-size:10px;padding:2px 8px;border-radius:10px;letter-spacing:0;">AUTO</span>
+      </label>
       <input id="discountValue" placeholder="0" type="number" min="0" oninput="renderBill()" style="margin-bottom:0;">
     </div>
     <div>
-      <label style="font-size:11px; font-weight:600; letter-spacing:0.8px; text-transform:uppercase; color:rgba(255,255,255,0.4); display:block; margin-bottom:6px;">Type</label>
-      <select id="discountType" onchange="renderBill()" style="margin-bottom:0; width:120px;">
+      <label style="font-size:11px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:rgba(255,255,255,0.4);display:block;margin-bottom:6px;">Mode</label>
+      <select id="discountType" onchange="handleDiscountTypeChange()" style="margin-bottom:0;">
         <option value="amount">₹ Fixed</option>
         <option value="percent">% Percent</option>
+        <option value="auto">⚡ Auto</option>
       </select>
     </div>
   </div>
 
-  <div id="paymentSummary" style="background:rgba(255,255,255,0.05); border-radius:10px; padding:14px; font-size:14px; line-height:2;"></div>
+  <!-- Payment summary box -->
+  <div id="paymentSummary" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:16px;font-size:14px;"></div>
 </div>
-
+    
     <button id="saveBtn">Save Bill</button>
     <button id="printBtn">Print Bill</button>
     <button onclick="openBillHistory()">📜 Bill History</button>
@@ -618,20 +625,24 @@ function addToBill(product) {
 
 
 // ── RENDER BILL ──
-// ── RENDER BILL ──
-function renderBill() {
+
+  function renderBill() {
   const table = document.getElementById("billTable")
   table.innerHTML = ""
   totalAmount = 0
 
   billItems.forEach((item, index) => {
-    let total = item.qty * item.price
+    const total = item.qty * item.price
     totalAmount += total
     table.innerHTML += `
       <tr>
         <td>${item.name}</td>
-        <td><input type="number" value="${item.qty}" min="1" class="qtyInput" data-index="${index}" style="width:60px;"></td>
-        <td>₹${item.price}</td>
+        <td><input type="number" value="${item.qty}" min="1" class="qtyInput" data-index="${index}" style="width:60px;margin-bottom:0;"></td>
+        <td>
+          <input type="number" value="${item.price}" min="0" class="priceInput" data-index="${index}"
+            style="width:80px;margin-bottom:0;color:#34d399;font-weight:600;"
+            title="Click to edit selling price">
+        </td>
         <td>₹${total}</td>
         <td><button class="removeBtn" data-index="${index}">❌</button></td>
       </tr>
@@ -643,60 +654,104 @@ function renderBill() {
   // GST
   const gstChecked = document.getElementById("gstToggle").checked
   let afterGST = totalAmount
-  if (gstChecked) afterGST = totalAmount * 1.18
+  if (gstChecked) afterGST = Math.round(totalAmount * 1.18)
 
-  // Discount
-  const discountVal  = parseFloat(document.getElementById("discountValue")?.value) || 0
-  const discountType = document.getElementById("discountType")?.value || "amount"
+  // Discount type
+  const discountType = document.getElementById("discountType").value
+  const cash   = parseFloat(document.getElementById("cash").value)   || 0
+  const upi    = parseFloat(document.getElementById("upi").value)    || 0
+  const credit = parseFloat(document.getElementById("credit").value) || 0
+  const paid   = cash + upi + credit
+
   let discountAmount = 0
-  if (discountType === "percent") {
-    discountAmount = Math.round(afterGST * discountVal / 100)
+
+  if (discountType === "auto") {
+    // Auto: whatever is short of total is discount
+    discountAmount = Math.max(afterGST - paid, 0)
+    document.getElementById("discountValue").value = discountAmount
+    document.getElementById("discountValue").disabled = true
+    document.getElementById("autoDiscountBadge").style.display = "inline"
   } else {
-    discountAmount = discountVal
+    document.getElementById("discountValue").disabled = false
+    document.getElementById("autoDiscountBadge").style.display = "none"
+    const discountVal = parseFloat(document.getElementById("discountValue").value) || 0
+    if (discountType === "percent") {
+      discountAmount = Math.round(afterGST * discountVal / 100)
+    } else {
+      discountAmount = discountVal
+    }
+    discountAmount = Math.min(discountAmount, afterGST)
   }
-  discountAmount = Math.min(discountAmount, afterGST)
 
-  // Advance
-  const advance = parseFloat(document.getElementById("advance")?.value) || 0
-
-  // Final
   const afterDiscount = afterGST - discountAmount
-  const finalDue      = Math.max(afterDiscount - advance, 0)
-
   document.getElementById("finalTotal").innerText = Math.round(afterDiscount)
 
-  // Payment summary box
-  const cash   = parseFloat(document.getElementById("cash")?.value)   || 0
-  const upi    = parseFloat(document.getElementById("upi")?.value)    || 0
-  const credit = parseFloat(document.getElementById("credit")?.value) || 0
-  const totalPaid = cash + upi + credit + advance
-  const remaining  = Math.round(afterDiscount - totalPaid)
+  // Total paid including credit
+  const totalPaid   = paid
+  const remainingDue = Math.round(afterDiscount - totalPaid)
 
-  let remainColor  = remaining === 0 ? "#34d399" : remaining > 0 ? "#f87171" : "#fbbf24"
-  let remainLabel  = remaining === 0
-    ? "✅ Fully Paid"
-    : remaining > 0
-    ? "⚠️ Still Due: ₹" + remaining.toLocaleString("en-IN")
-    : "ℹ️ Extra Paid: ₹" + Math.abs(remaining).toLocaleString("en-IN")
-
+  // Build summary
   const summary = document.getElementById("paymentSummary")
-  if (summary) {
-    summary.innerHTML = `
-      <div style="display:flex;justify-content:space-between;"><span style="color:rgba(255,255,255,0.5);">Subtotal</span><span>₹${totalAmount.toLocaleString("en-IN")}</span></div>
-      ${gstChecked ? `<div style="display:flex;justify-content:space-between;"><span style="color:rgba(255,255,255,0.5);">GST (18%)</span><span>₹${Math.round(totalAmount * 0.18).toLocaleString("en-IN")}</span></div>` : ""}
-      ${discountAmount > 0 ? `<div style="display:flex;justify-content:space-between;"><span style="color:#34d399;">Discount</span><span style="color:#34d399;">- ₹${Math.round(discountAmount).toLocaleString("en-IN")}</span></div>` : ""}
-      ${advance > 0 ? `<div style="display:flex;justify-content:space-between;"><span style="color:#60a5fa;">Advance</span><span style="color:#60a5fa;">- ₹${advance.toLocaleString("en-IN")}</span></div>` : ""}
-      <div style="display:flex;justify-content:space-between;border-top:1px solid rgba(255,255,255,0.1);margin-top:8px;padding-top:8px;font-weight:600;font-size:15px;"><span>Final Due</span><span>₹${Math.round(afterDiscount).toLocaleString("en-IN")}</span></div>
-      <div style="margin-top:6px;font-size:13px;color:${remainColor};">${remainLabel}</div>
-    `
-  }
+  const row = (label, value, color) =>
+    `<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.06);">
+      <span style="color:${color || 'rgba(255,255,255,0.5)'};">${label}</span>
+      <span style="font-weight:600;color:${color || 'white'};">${value}</span>
+    </div>`
 
+  let summaryHTML = row("Subtotal", "₹" + totalAmount.toLocaleString("en-IN"))
+  if (gstChecked) summaryHTML += row("GST (18%)", "+ ₹" + Math.round(totalAmount * 0.18).toLocaleString("en-IN"))
+  if (discountAmount > 0) summaryHTML += row("Discount given", "- ₹" + Math.round(discountAmount).toLocaleString("en-IN"), "#34d399")
+  if (cash > 0)   summaryHTML += row("Cash paid", "₹" + cash.toLocaleString("en-IN"), "#60a5fa")
+  if (upi > 0)    summaryHTML += row("UPI paid", "₹" + upi.toLocaleString("en-IN"), "#a78bfa")
+  if (credit > 0) summaryHTML += row("Credit", "₹" + credit.toLocaleString("en-IN"), "#f87171")
+
+  // Final status row
+  let statusColor = "#34d399", statusText = "✅ Fully Settled"
+  if (remainingDue > 0)  { statusColor = "#f87171"; statusText = "⚠️ Still Due: ₹" + remainingDue.toLocaleString("en-IN") }
+  if (remainingDue < 0)  { statusColor = "#fbbf24"; statusText = "ℹ️ Extra Paid: ₹" + Math.abs(remainingDue).toLocaleString("en-IN") }
+
+  summaryHTML += `
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0 4px;margin-top:4px;">
+      <span style="font-size:15px;font-weight:600;color:white;">Final Bill Amount</span>
+      <span style="font-size:17px;font-weight:700;color:white;">₹${Math.round(afterDiscount).toLocaleString("en-IN")}</span>
+    </div>
+    <div style="font-size:13px;color:${statusColor};padding-bottom:2px;">${statusText}</div>
+  `
+  summary.innerHTML = summaryHTML
+
+  // Qty change listeners
   document.querySelectorAll(".qtyInput").forEach(input => {
     input.addEventListener("change", function() {
       billItems[this.getAttribute("data-index")].qty = parseInt(this.value) || 1
       renderBill()
     })
   })
+
+  // Price edit listeners
+  document.querySelectorAll(".priceInput").forEach(input => {
+    input.addEventListener("change", function() {
+      const idx   = parseInt(this.getAttribute("data-index"))
+      const newPrice = parseFloat(this.value) || 0
+      billItems[idx].price = newPrice
+
+      // Also update in Supabase inventory
+      const itemId = billItems[idx].id
+      if (itemId) {
+        supabase.from("inventory")
+          .update({ selling_price: newPrice })
+          .eq("id", itemId)
+          .then(({ error }) => {
+            if (!error) {
+              // Show tiny saved indicator
+              this.style.borderColor = "#34d399"
+              setTimeout(() => { this.style.borderColor = "" }, 1500)
+            }
+          })
+      }
+      renderBill()
+    })
+  })
+
   document.querySelectorAll(".removeBtn").forEach(btn => {
     btn.addEventListener("click", function() {
       billItems.splice(this.getAttribute("data-index"), 1)
@@ -704,7 +759,6 @@ function renderBill() {
     })
   })
 }
-
 
 // ── SAVE BILL ──
 async function saveBill() {
@@ -738,18 +792,28 @@ async function saveBill() {
 
     const billNumber = generateInvoiceNo()
     currentBillNumber = billNumber
-const discountVal  = parseFloat(document.getElementById("discountValue").value) || 0
 const discountType = document.getElementById("discountType").value || "amount"
 const gstChecked   = document.getElementById("gstToggle").checked
 let afterGST = totalAmount
-if (gstChecked) afterGST = totalAmount * 1.18
-let discountAmount = discountType === "percent"
-  ? Math.round(afterGST * discountVal / 100)
-  : discountVal
-discountAmount = Math.min(discountAmount, afterGST)
-  const advance = 0
-  const finalAfterDiscount = Math.round(afterGST - discountAmount)
+if (gstChecked) afterGST = Math.round(totalAmount * 1.18)
 
+const cash   = parseFloat(document.getElementById("cash").value)   || 0
+const upi    = parseFloat(document.getElementById("upi").value)    || 0
+const credit = parseFloat(document.getElementById("credit").value) || 0
+const paid   = cash + upi + credit
+
+let discountAmount = 0
+if (discountType === "auto") {
+  discountAmount = Math.max(afterGST - paid, 0)
+} else {
+  const discountVal = parseFloat(document.getElementById("discountValue").value) || 0
+  discountAmount = discountType === "percent"
+    ? Math.round(afterGST * discountVal / 100)
+    : discountVal
+  discountAmount = Math.min(discountAmount, afterGST)
+}
+const advance = 0
+const finalAfterDiscount = Math.round(afterGST - discountAmount) 
 const { data: sale, error: saleError } = await supabase
   .from('sales')
   .insert([{
@@ -1002,6 +1066,24 @@ window.reprintBill = async function (billNo) {
     document.getElementById("printArea").style.display = "none"
   }, 600)
 }
+
+  function handleDiscountTypeChange() {
+  const type = document.getElementById("discountType").value
+  if (type !== "auto") {
+    document.getElementById("discountValue").disabled = false
+    document.getElementById("discountValue").value = ""
+  }
+  renderBill()
+}
+  function handleDiscountTypeChange() {
+  const type = document.getElementById("discountType").value
+  if (type !== "auto") {
+    document.getElementById("discountValue").disabled = false
+    document.getElementById("discountValue").value = ""
+  }
+  renderBill()
+}
+  
 
 </script>
 </body>
