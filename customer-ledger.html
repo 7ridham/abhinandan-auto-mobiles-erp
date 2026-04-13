@@ -281,6 +281,96 @@
   .inv-pay-row strong { color: #111; }
   .inv-footer { margin: 16px 32px 24px; display: flex; justify-content: space-between; align-items: flex-end; padding-top: 14px; border-top: 1px solid #e5e7eb; font-size: 12px; color: #6b7280; }
   .inv-footer .thank-you { font-size: 14px; font-weight: 600; color: #1e3a5f; margin-bottom: 3px; }
+
+ .btn-green { background: #059669; color: white; }
+.btn-green:hover { background: #047857; }
+
+.pay-modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.85);
+  z-index: 11000;
+  align-items: center;
+  justify-content: center;
+}
+.pay-modal-box {
+  background: #0f172a;
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 16px;
+  padding: 28px;
+  width: 90%;
+  max-width: 440px;
+}
+.pay-modal-box h3 {
+  color: white;
+  font-family: 'Playfair Display', serif;
+  font-size: 20px;
+  margin-bottom: 6px;
+}
+.pay-modal-box .sub {
+  color: rgba(255,255,255,0.4);
+  font-size: 13px;
+  margin-bottom: 20px;
+}
+.pay-field { margin-bottom: 14px; }
+.pay-field label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.45);
+  margin-bottom: 6px;
+}
+.pay-field input,
+.pay-field select,
+.pay-field textarea {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1.5px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.07);
+  color: white;
+  font-size: 14px;
+  font-family: 'DM Sans', sans-serif;
+  outline: none;
+}
+.pay-field input:focus,
+.pay-field select:focus,
+.pay-field textarea:focus {
+  border-color: rgba(59,130,246,0.5);
+}
+.pay-field textarea { height: 70px; resize: vertical; }
+.pay-field select option { background: #1e293b; }
+.pay-actions { display: flex; gap: 10px; margin-top: 20px; }
+
+/* Receipt print */
+#receiptArea { display: none; }
+@media print {
+  #receiptArea, #receiptArea * { visibility: visible !important; }
+  #receiptArea {
+    display: block !important;
+    position: absolute !important;
+    left: 0 !important; top: 0 !important;
+    width: 100% !important;
+    background: white !important;
+    color: #111 !important;
+    font-family: 'DM Sans', sans-serif;
+    padding: 32px;
+  }
+}
+.rcpt-header { display:flex; justify-content:space-between; align-items:flex-start; padding-bottom:14px; border-bottom:2px solid #1e3a5f; margin-bottom:18px; }
+.rcpt-company { font-family:'Playfair Display',serif; font-size:18px; color:#1e3a5f; font-weight:700; }
+.rcpt-sub { font-size:11px; color:#6b7280; margin-top:2px; }
+.rcpt-title { font-size:16px; font-weight:700; color:#111; text-align:right; }
+.rcpt-body { background:#f8fafc; border:1px solid #e5e7eb; border-radius:8px; padding:16px 20px; margin-bottom:18px; }
+.rcpt-row { display:flex; justify-content:space-between; padding:5px 0; font-size:14px; color:#374151; border-bottom:1px dashed #e5e7eb; }
+.rcpt-row:last-child { border-bottom:none; font-weight:700; font-size:16px; color:#059669; padding-top:10px; }
+.rcpt-note { font-size:13px; color:#6b7280; font-style:italic; padding:10px 14px; background:#fffbeb; border:1px solid #fde68a; border-radius:8px; margin-bottom:16px; }
+.rcpt-footer { text-align:center; font-size:11px; color:#9ca3af; border-top:1px solid #e5e7eb; padding-top:14px; }
+ 
 </style>
 </head>
 <body>
@@ -318,10 +408,11 @@
         <p id="modalPhone">—</p>
       </div>
       <div class="modal-header-right">
-        <button class="btn btn-white" onclick="printStatement()">🖨 Print Statement</button>
-        <button class="btn btn-outline" onclick="closeModal()">✕ Close</button>
+       <button class="btn btn-green" onclick="openPaymentModal()">+ Record Payment</button>
+       <button class="btn btn-white" onclick="printStatement()">🖨 Statement</button>
+       <button class="btn btn-outline" onclick="closeModal()">✕ Close</button>
       </div>
-    </div>
+ </div>
 
     <div class="summary-row">
       <div class="summary-card">
@@ -805,8 +896,161 @@ window.printStatement = function() {
   setTimeout(() => { document.getElementById('statementArea').style.display = 'none' }, 800)
 }
 
+// ── RECORD PAYMENT MODAL ──
+window.openPaymentModal = function() {
+  if (!currentCustomerData) return
+  document.getElementById('payModalSub').innerText =
+    'Customer: ' + currentCustomerData.customer.name +
+    ' | Credit Due: ₹' + Math.round(currentCustomerData.totalCredit).toLocaleString('en-IN')
+  document.getElementById('payAmount').value = ''
+  document.getElementById('payMode').value   = 'Cash'
+  document.getElementById('payNote').value   = ''
+  document.getElementById('paymentModal').style.display = 'flex'
+}
 
+window.closePaymentModal = function() {
+  document.getElementById('paymentModal').style.display = 'none'
+}
+
+window.savePayment = async function(shouldPrint) {
+  const amount = parseFloat(document.getElementById('payAmount').value) || 0
+  const mode   = document.getElementById('payMode').value
+  const note   = document.getElementById('payNote').value.trim()
+
+  if (!amount) { alert('Enter payment amount'); return }
+  if (!currentCustomerData) return
+
+  const customer    = currentCustomerData.customer
+  const totalCredit = currentCustomerData.totalCredit
+
+  // We reduce credit from the most recent unpaid bills
+  let remaining = amount
+  const sales   = [...currentCustomerData.sales].sort(
+    (a, b) => new Date(a.created_at) - new Date(b.created_at)
+  )
+
+  for (const sale of sales) {
+    if (remaining <= 0) break
+    if ((sale.credit || 0) <= 0) continue
+
+    const reduce = Math.min(sale.credit, remaining)
+    const newCredit = sale.credit - reduce
+    remaining -= reduce
+
+    await supabase
+      .from('sales')
+      .update({ credit: Math.round(newCredit) })
+      .eq('id', sale.id)
+  }
+
+  const newTotalCredit = Math.max(totalCredit - amount, 0)
+
+  // Print receipt if needed
+  if (shouldPrint) {
+    document.getElementById('rcptName').innerText    = customer.name
+    document.getElementById('rcptPhone').innerText   = customer.phone || '—'
+    document.getElementById('rcptMode').innerText    = mode
+    document.getElementById('rcptAmount').innerText  = '₹' + amount.toLocaleString('en-IN')
+    document.getElementById('rcptPrevDue').innerText = '₹' + Math.round(totalCredit).toLocaleString('en-IN')
+    document.getElementById('rcptPaid').innerText    = '₹' + amount.toLocaleString('en-IN')
+    document.getElementById('rcptRemaining').innerText = '₹' + Math.round(newTotalCredit).toLocaleString('en-IN')
+    document.getElementById('rcptDate').innerText    = new Date().toLocaleString('en-IN')
+    document.getElementById('rcptDateVal').innerText = new Date().toLocaleDateString('en-IN', { day:'2-digit', month:'long', year:'numeric' })
+
+    if (note) {
+      document.getElementById('rcptNote').innerText    = note
+      document.getElementById('rcptNoteBox').style.display = 'block'
+    } else {
+      document.getElementById('rcptNoteBox').style.display = 'none'
+    }
+
+    document.getElementById('receiptArea').style.display = 'block'
+    window.print()
+    setTimeout(() => {
+      document.getElementById('receiptArea').style.display = 'none'
+    }, 800)
+  }
+
+  closePaymentModal()
+  alert(`✅ Payment of ₹${amount.toLocaleString('en-IN')} recorded!`)
+
+  // Reload ledger to show updated credit
+  openLedger(customer.id)
+  loadCustomers()
+}
+ 
 loadCustomers()
+ 
 </script>
+
+ <!-- RECORD PAYMENT MODAL -->
+<div class="pay-modal-overlay" id="paymentModal">
+  <div class="pay-modal-box">
+    <h3>Record Payment</h3>
+    <p class="sub" id="payModalSub">Customer: —</p>
+
+    <div class="pay-field">
+      <label>Amount Received (₹) *</label>
+      <input type="number" id="payAmount" placeholder="e.g. 5000" min="0">
+    </div>
+    <div class="pay-field">
+      <label>Payment Mode</label>
+      <select id="payMode">
+        <option value="Cash">Cash</option>
+        <option value="UPI">UPI</option>
+        <option value="Cheque">Cheque</option>
+        <option value="Bank Transfer">Bank Transfer</option>
+        <option value="Other">Other</option>
+      </select>
+    </div>
+    <div class="pay-field">
+      <label>Note (optional)</label>
+      <textarea id="payNote" placeholder="e.g. Received by Rahul, partial payment for March..."></textarea>
+    </div>
+
+    <div class="pay-actions">
+      <button class="btn btn-green" style="flex:1;" onclick="savePayment(false)">✅ Save</button>
+      <button class="btn btn-white" onclick="savePayment(true)">🖨 Save & Print</button>
+      <button class="btn btn-outline" onclick="closePaymentModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- RECEIPT PRINT AREA -->
+<div id="receiptArea">
+  <div class="rcpt-header">
+    <div>
+      <div class="rcpt-company">Abhinandan Auto Mobiles</div>
+      <div class="rcpt-sub">Santalpur - Palanpur Highway &nbsp;|&nbsp; +91 98700 37002</div>
+    </div>
+    <div>
+      <div class="rcpt-title">Payment Receipt</div>
+      <div class="rcpt-sub" id="rcptDate" style="text-align:right;"></div>
+    </div>
+  </div>
+
+  <div class="rcpt-body">
+    <div class="rcpt-row"><span>Received From</span><span id="rcptName">—</span></div>
+    <div class="rcpt-row"><span>Phone</span><span id="rcptPhone">—</span></div>
+    <div class="rcpt-row"><span>Payment Mode</span><span id="rcptMode">—</span></div>
+    <div class="rcpt-row"><span>Date</span><span id="rcptDateVal">—</span></div>
+    <div class="rcpt-row"><span>Amount Received</span><span id="rcptAmount">₹0</span></div>
+  </div>
+
+  <div class="rcpt-note" id="rcptNoteBox" style="display:none;">
+    📝 Note: <span id="rcptNote"></span>
+  </div>
+
+  <div class="rcpt-body" style="margin-bottom:16px;">
+    <div class="rcpt-row"><span>Previous Credit Due</span><span id="rcptPrevDue">₹0</span></div>
+    <div class="rcpt-row"><span>Amount Paid Now</span><span id="rcptPaid">₹0</span></div>
+    <div class="rcpt-row"><span style="color:#059669;">Remaining Due</span><span id="rcptRemaining">₹0</span></div>
+  </div>
+
+  <div class="rcpt-footer">
+    Thank you for your payment 🙏 &nbsp;—&nbsp; Abhinandan Auto Mobiles
+  </div>
+</div>
+ 
 </body>
 </html>
