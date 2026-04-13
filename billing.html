@@ -101,17 +101,17 @@
   @page { margin: 12mm 10mm; size: A4; }
 
   html, body {
-  background: white !important;
-  min-height: 0 !important;
-  height: auto !important;
-  overflow: hidden !important;
-}
+    background: white !important;
+    min-height: 0 !important;
+    height: auto !important;
+    overflow: hidden !important;
+  }
 
-.main-content, .page-wrapper, .content-area, 
-.container, main, .main, #main {
-  min-height: 0 !important;
-  height: auto !important;
-}
+  body::before, body::after {
+    display: none !important;
+    content: none !important;
+  }
+
   body > *:not(#printArea) {
     display: none !important;
   }
@@ -127,16 +127,17 @@
   #printArea * {
     visibility: visible !important;
   }
-}    
-    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-    .bill-paper { border:none !important; box-shadow:none !important; border-radius:0 !important; page-break-inside: auto; }
-    .bill-header { background:#1e3a5f !important; }
-    .bill-table thead tr { background:#1e3a5f !important; }
-    .bill-table { page-break-inside: auto; }
-    .bill-table tr { page-break-inside: avoid; page-break-after: auto; }
-    .bill-table thead { display: table-header-group; }
-    .bill-totals, .bill-payment, .bill-footer { page-break-inside: avoid; }
-  }
+
+  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  .bill-paper { border: none !important; box-shadow: none !important; border-radius: 0 !important; page-break-inside: auto; }
+  .bill-header { background: #1e3a5f !important; }
+  .bill-table thead tr { background: #1e3a5f !important; }
+  .bill-table { page-break-inside: auto; }
+  .bill-table tr { page-break-inside: avoid; page-break-after: auto; }
+  .bill-table thead { display: table-header-group; }
+  .bill-totals, .bill-payment, .bill-footer { page-break-inside: avoid; }
+}
+
 </style>
 </head>
 <body>
