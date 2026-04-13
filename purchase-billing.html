@@ -192,12 +192,39 @@
 
     <!-- Payment -->
     <div class="card" style="margin-top:16px;">
-      <h3>Payment to Merchant</h3>
-      <input id="purCash"   placeholder="Cash"   type="number" oninput="renderPurchaseBill()"><br><br>
-      <input id="purUpi"    placeholder="UPI"    type="number" oninput="renderPurchaseBill()"><br><br>
-      <input id="purCredit" placeholder="Credit (pay later)" type="number" oninput="renderPurchaseBill()">
-      <div class="payment-summary" id="purPaymentSummary"></div>
+  <h3>Payment to Merchant</h3>
+
+  <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin-bottom:16px;">
+    <div>
+      <label style="font-size:11px; font-weight:600; letter-spacing:0.8px; text-transform:uppercase; color:rgba(255,255,255,0.4); display:block; margin-bottom:6px;">Cash (₹)</label>
+      <input id="purCash" placeholder="0" type="number" min="0" oninput="renderPurchaseBill()" style="margin-bottom:0;">
     </div>
+    <div>
+      <label style="font-size:11px; font-weight:600; letter-spacing:0.8px; text-transform:uppercase; color:rgba(255,255,255,0.4); display:block; margin-bottom:6px;">UPI (₹)</label>
+      <input id="purUpi" placeholder="0" type="number" min="0" oninput="renderPurchaseBill()" style="margin-bottom:0;">
+    </div>
+    <div>
+      <label style="font-size:11px; font-weight:600; letter-spacing:0.8px; text-transform:uppercase; color:rgba(255,255,255,0.4); display:block; margin-bottom:6px;">Credit (₹)</label>
+      <input id="purCredit" placeholder="0" type="number" min="0" oninput="renderPurchaseBill()" style="margin-bottom:0;">
+    </div>
+  </div>
+
+  <div style="display:grid; grid-template-columns:1fr auto; gap:10px; align-items:end; margin-bottom:16px;">
+    <div>
+      <label style="font-size:11px; font-weight:600; letter-spacing:0.8px; text-transform:uppercase; color:rgba(255,255,255,0.4); display:block; margin-bottom:6px;">Discount from Merchant</label>
+      <input id="purDiscount" placeholder="0" type="number" min="0" oninput="renderPurchaseBill()" style="margin-bottom:0;">
+    </div>
+    <div>
+      <label style="font-size:11px; font-weight:600; letter-spacing:0.8px; text-transform:uppercase; color:rgba(255,255,255,0.4); display:block; margin-bottom:6px;">Type</label>
+      <select id="purDiscountType" onchange="renderPurchaseBill()" style="margin-bottom:0; width:120px;">
+        <option value="amount">₹ Fixed</option>
+        <option value="percent">% Percent</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="payment-summary" id="purPaymentSummary"></div>
+</div>
 
     <button id="savePurchaseBtn" style="margin-top:16px;">Save Purchase</button>
     <button id="printPurchaseBtn" style="margin-top:16px;">Print Purchase Bill</button>
@@ -440,11 +467,21 @@ function renderPurchaseBill() {
   document.getElementById("purchaseTotalAmount").innerText = totalAmount.toLocaleString("en-IN")
 
   // Payment summary
+  // Discount
+  const purDiscountVal  = parseFloat(document.getElementById("purDiscount")?.value) || 0
+  const purDiscountType = document.getElementById("purDiscountType")?.value || "amount"
+  let purDiscountAmt = purDiscountType === "percent"
+    ? Math.round(totalAmount * purDiscountVal / 100)
+    : purDiscountVal
+  purDiscountAmt = Math.min(purDiscountAmt, totalAmount)
+  const afterDiscount = totalAmount - purDiscountAmt
+
+  // Payment summary
   const cash   = parseFloat(document.getElementById("purCash").value)   || 0
   const upi    = parseFloat(document.getElementById("purUpi").value)    || 0
   const credit = parseFloat(document.getElementById("purCredit").value) || 0
   const paid   = cash + upi + credit
-  const remaining = totalAmount - paid
+  const remaining = afterDiscount - paid
 
   let color = remaining === 0 ? "#34d399" : remaining > 0 ? "#f87171" : "#fbbf24"
   let label = remaining === 0
@@ -455,15 +492,15 @@ function renderPurchaseBill() {
 
   document.getElementById("purPaymentSummary").innerHTML = `
     <div style="display:flex;justify-content:space-between;">
-      <span style="color:rgba(255,255,255,0.5);">Total Payable</span>
+      <span style="color:rgba(255,255,255,0.5);">Subtotal</span>
       <span>₹${totalAmount.toLocaleString("en-IN")}</span>
     </div>
+    ${purDiscountAmt > 0 ? `<div style="display:flex;justify-content:space-between;"><span style="color:#34d399;">Discount</span><span style="color:#34d399;">- ₹${purDiscountAmt.toLocaleString("en-IN")}</span></div>` : ""}
     <div style="display:flex;justify-content:space-between;border-top:1px solid rgba(255,255,255,0.1);margin-top:8px;padding-top:8px;font-weight:600;font-size:15px;">
-      <span>Amount Paid</span><span>₹${paid.toLocaleString("en-IN")}</span>
+      <span>Final Payable</span><span>₹${afterDiscount.toLocaleString("en-IN")}</span>
     </div>
     <div style="margin-top:6px;font-size:13px;color:${color};">${label}</div>
   `
-
   // Qty + remove listeners
   document.querySelectorAll(".purQtyInput").forEach(input => {
     input.addEventListener("change", function() {
