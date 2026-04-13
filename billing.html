@@ -329,28 +329,40 @@
       <input type="checkbox" id="gstToggle"> Apply GST (18%)
     </label>
     <h3>Final Total: ₹<span id="finalTotal">0</span></h3>
-    <br><div class="card">
+    
+    <div class="card">
   <h3>Payment</h3>
-  <input id="cash" placeholder="Cash" type="number" oninput="renderBill()"><br><br>
-  <input id="upi" placeholder="UPI" type="number" oninput="renderBill()"><br><br>
-  <input id="credit" placeholder="Credit" type="number" oninput="renderBill()"><br><br>
 
-  <hr style="border-color:rgba(255,255,255,0.1); margin: 10px 0;">
-
-  <label style="font-size:13px; color:rgba(255,255,255,0.6);">Discount</label><br><br>
-  <div style="display:flex; gap:10px; align-items:center; margin-bottom:14px;">
-    <input id="discountValue" placeholder="0" type="number" min="0" oninput="renderBill()" style="flex:1;">
-    <select id="discountType" onchange="renderBill()" style="padding:10px; border-radius:8px; border:1.5px solid rgba(255,255,255,0.15); background:rgba(255,255,255,0.07); color:white; font-family:'DM Sans',sans-serif; font-size:14px;">
-      <option value="amount">₹ Fixed</option>
-      <option value="percent">% Percent</option>
-    </select>
+  <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin-bottom:16px;">
+    <div>
+      <label style="font-size:11px; font-weight:600; letter-spacing:0.8px; text-transform:uppercase; color:rgba(255,255,255,0.4); display:block; margin-bottom:6px;">Cash (₹)</label>
+      <input id="cash" placeholder="0" type="number" min="0" oninput="renderBill()" style="margin-bottom:0;">
+    </div>
+    <div>
+      <label style="font-size:11px; font-weight:600; letter-spacing:0.8px; text-transform:uppercase; color:rgba(255,255,255,0.4); display:block; margin-bottom:6px;">UPI (₹)</label>
+      <input id="upi" placeholder="0" type="number" min="0" oninput="renderBill()" style="margin-bottom:0;">
+    </div>
+    <div>
+      <label style="font-size:11px; font-weight:600; letter-spacing:0.8px; text-transform:uppercase; color:rgba(255,255,255,0.4); display:block; margin-bottom:6px;">Credit (₹)</label>
+      <input id="credit" placeholder="0" type="number" min="0" oninput="renderBill()" style="margin-bottom:0;">
+    </div>
   </div>
 
-  <label style="font-size:13px; color:rgba(255,255,255,0.6);">Advance Received (₹)</label><br><br>
-  <input id="advance" placeholder="0" type="number" min="0" oninput="renderBill()">
-
-  <div id="paymentSummary" style="margin-top:16px; background:rgba(255,255,255,0.05); border-radius:10px; padding:14px; font-size:14px; line-height:2;">
+  <div style="display:grid; grid-template-columns:1fr auto; gap:10px; align-items:end; margin-bottom:16px;">
+    <div>
+      <label style="font-size:11px; font-weight:600; letter-spacing:0.8px; text-transform:uppercase; color:rgba(255,255,255,0.4); display:block; margin-bottom:6px;">Discount</label>
+      <input id="discountValue" placeholder="0" type="number" min="0" oninput="renderBill()" style="margin-bottom:0;">
+    </div>
+    <div>
+      <label style="font-size:11px; font-weight:600; letter-spacing:0.8px; text-transform:uppercase; color:rgba(255,255,255,0.4); display:block; margin-bottom:6px;">Type</label>
+      <select id="discountType" onchange="renderBill()" style="margin-bottom:0; width:120px;">
+        <option value="amount">₹ Fixed</option>
+        <option value="percent">% Percent</option>
+      </select>
+    </div>
   </div>
+
+  <div id="paymentSummary" style="background:rgba(255,255,255,0.05); border-radius:10px; padding:14px; font-size:14px; line-height:2;"></div>
 </div>
 
     <button id="saveBtn">Save Bill</button>
@@ -730,8 +742,8 @@ let discountAmount = discountType === "percent"
   ? Math.round(afterGST * discountVal / 100)
   : discountVal
 discountAmount = Math.min(discountAmount, afterGST)
-const advance  = parseFloat(document.getElementById("advance").value) || 0
-const finalAfterDiscount = Math.round(afterGST - discountAmount)
+  const advance = 0
+  const finalAfterDiscount = Math.round(afterGST - discountAmount)
 
 const { data: sale, error: saleError } = await supabase
   .from('sales')
@@ -829,8 +841,8 @@ let discountAmount = discountType === "percent"
   ? Math.round(tempFinal * discountVal / 100)
   : discountVal
 discountAmount = Math.min(discountAmount, tempFinal)
-const advancePrint = parseFloat(document.getElementById("advance").value) || 0
-const finalAfterAll = Math.round(tempFinal - discountAmount)
+  const advancePrint = 0
+  const finalAfterAll = Math.round(tempFinal - discountAmount)
 
 document.getElementById("printSubtotal").innerText = tempTotal
 document.getElementById("printFinal").innerText    = finalAfterAll
