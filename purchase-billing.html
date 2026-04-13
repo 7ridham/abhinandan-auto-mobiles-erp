@@ -97,16 +97,42 @@
   .pur-footer .note { font-size:15px; font-weight:600; color:#78350f; margin-bottom:4px; }
   .sig-line { width:160px; border-top:1.5px solid #374151; margin:28px 0 6px auto; }
   .sig-label { font-size:12px; color:#6b7280; text-align:right; }
+ 
+@media print {
+    @page { margin: 12mm 10mm; size: A4; }
 
-  @media print {
-    body * { visibility:hidden; }
-    #printArea, #printArea * { visibility:visible; }
-    #printArea { position:absolute; left:0; top:0; width:100%; display:block !important; background:white; }
-    * { -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
-    .pur-paper { border:none; box-shadow:none; border-radius:0; }
-    .pur-header { background:#78350f !important; }
-    .pur-table thead tr { background:#78350f !important; }
+    html, body {
+      background: white !important;
+      min-height: 0 !important;
+      height: auto !important;
+      overflow: hidden !important;
+    }
+
+    body::before, body::after {
+      display: none !important;
+      content: none !important;
+    }
+
+    body > *:not(#printArea) {
+      display: none !important;
+    }
+
+    #printArea {
+      display: block !important;
+      position: static !important;
+      width: 100% !important;
+      background: white !important;
+      visibility: visible !important;
+    }
+
+    #printArea * { visibility: visible !important; }
+
+    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+    .pur-paper { border: none !important; box-shadow: none !important; border-radius: 0 !important; }
+    .pur-header { background: #78350f !important; }
+    .pur-table thead tr { background: #78350f !important; }
   }
+ 
 </style>
 </head>
 <body>
@@ -210,9 +236,11 @@
       <input id="purUpi" placeholder="0" type="number" min="0" oninput="renderPurchaseBill()" style="margin-bottom:0;">
     </div>
     <div>
-      <label style="font-size:11px; font-weight:600; letter-spacing:0.8px; text-transform:uppercase; color:rgba(255,255,255,0.4); display:block; margin-bottom:6px;">Credit (₹)</label>
-      <input id="purCredit" placeholder="0" type="number" min="0" oninput="renderPurchaseBill()" style="margin-bottom:0;">
-    </div>
+      <label style="font-size:11px; font-weight:600; letter-spacing:0.8px; text-transform:uppercase; color:rgba(255,255,255,0.4); display:block; margin-bottom:6px;">
+            Discount from Merchant
+            <span id="purAutoDiscountBadge" style="display:none;margin-left:8px;background:rgba(52,211,153,0.2);color:#34d399;font-size:10px;padding:2px 8px;border-radius:10px;letter-spacing:0;">AUTO</span>
+          </label>
+          <input id="purDiscount" placeholder="0" type="number" min="0" oninput="renderPurchaseBill()" style="margin-bottom:0;">    </div>
   </div>
 
   <div style="display:grid; grid-template-columns:1fr auto; gap:10px; align-items:end; margin-bottom:16px;">
@@ -222,9 +250,10 @@
     </div>
     <div>
       <label style="font-size:11px; font-weight:600; letter-spacing:0.8px; text-transform:uppercase; color:rgba(255,255,255,0.4); display:block; margin-bottom:6px;">Type</label>
-      <select id="purDiscountType" onchange="renderPurchaseBill()" style="margin-bottom:0; width:120px;">
+      <select id="purDiscountType" onchange="handlePurDiscountTypeChange()" style="margin-bottom:0; width:120px;">
         <option value="amount">₹ Fixed</option>
         <option value="percent">% Percent</option>
+        <option value="auto">⚡ Auto</option>
       </select>
     </div>
   </div>
@@ -335,6 +364,15 @@ let totalAmount    = 0
 let selectedBillType = "Purchase Invoice"
 let currentPurBillNo = null
 
+ window.handlePurDiscountTypeChange = function() {
+  const type = document.getElementById("purDiscountType").value
+  if (type !== "auto") {
+    document.getElementById("purDiscount").disabled = false
+    document.getElementById("purDiscount").value = ""
+    document.getElementById("purAutoDiscountBadge").style.display = "none"
+  }
+  renderPurchaseBill()
+}
 
 // ── BILL TYPE ──
 document.querySelectorAll(".bill-type-btn").forEach(btn => {
@@ -473,21 +511,35 @@ function renderPurchaseBill() {
   document.getElementById("purchaseTotalAmount").innerText = totalAmount.toLocaleString("en-IN")
 
   // Payment summary
-  // Discount
-  const purDiscountVal  = parseFloat(document.getElementById("purDiscount")?.value) || 0
+ 
+ // Discount
+ 
   const purDiscountType = document.getElementById("purDiscountType")?.value || "amount"
-  let purDiscountAmt = purDiscountType === "percent"
-    ? Math.round(totalAmount * purDiscountVal / 100)
-    : purDiscountVal
-  purDiscountAmt = Math.min(purDiscountAmt, totalAmount)
-  const afterDiscount = totalAmount - purDiscountAmt
-
-  // Payment summary
   const cash   = parseFloat(document.getElementById("purCash").value)   || 0
   const upi    = parseFloat(document.getElementById("purUpi").value)    || 0
   const credit = parseFloat(document.getElementById("purCredit").value) || 0
   const paid   = cash + upi + credit
-  const remaining = afterDiscount - paid
+
+  let purDiscountAmt = 0
+  if (purDiscountType === "auto") {
+    purDiscountAmt = Math.max(totalAmount - paid, 0)
+    document.getElementById("purDiscount").value    = purDiscountAmt
+    document.getElementById("purDiscount").disabled = true
+    document.getElementById("purAutoDiscountBadge").style.display = "inline"
+  } else {
+    document.getElementById("purDiscount").disabled = false
+    document.getElementById("purAutoDiscountBadge").style.display = "none"
+    const purDiscountVal = parseFloat(document.getElementById("purDiscount")?.value) || 0
+    purDiscountAmt = purDiscountType === "percent"
+      ? Math.round(totalAmount * purDiscountVal / 100)
+      : purDiscountVal
+    purDiscountAmt = Math.min(purDiscountAmt, totalAmount)
+  }
+  const afterDiscount = totalAmount - purDiscountAmt
+
+  // Payment summary
+ 
+ const remaining = afterDiscount - paid
 
   let color = remaining === 0 ? "#34d399" : remaining > 0 ? "#f87171" : "#fbbf24"
   let label = remaining === 0
