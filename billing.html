@@ -407,15 +407,27 @@ document.querySelectorAll(".bill-type-btn").forEach(btn => {
 
 
 // ── INVOICE NUMBER ──
-function generateInvoiceNo() {
+async function generateInvoiceNo() {
   const now = new Date()
-  const yy  = String(now.getFullYear()).slice(2)
-  const mm  = String(now.getMonth() + 1).padStart(2, "0")
   const dd  = String(now.getDate()).padStart(2, "0")
-  const rand = Math.floor(1000 + Math.random() * 9000)
-  return `AAM-${yy}${mm}${dd}-${rand}`
-}
+  const mm  = String(now.getMonth() + 1).padStart(2, "0")
+  const yy  = String(now.getFullYear()).slice(2)
+  const datePrefix = `AAM-${dd}${mm}${yy}-`
 
+  // Count how many bills exist today already
+  const startOfDay = new Date()
+  startOfDay.setHours(0, 0, 0, 0)
+
+  const { data, error } = await supabase
+    .from("sales")
+    .select("bill_number")
+    .gte("created_at", startOfDay.toISOString())
+
+  const todayCount = (data || []).length
+  const nextNumber = String(todayCount + 1).padStart(4, "0")
+
+  return `${datePrefix}${nextNumber}`
+}
 
 // ── CUSTOMER SEARCH ──
 document.getElementById("customerSearch").addEventListener("input", async function() {
@@ -693,7 +705,7 @@ async function saveBill() {
     const discountAmount     = calcDiscount(afterGST)
     const finalAfterDiscount = afterGST - discountAmount
 
-    const billNumber = generateInvoiceNo()
+    const billNumber = await generateInvoiceNo() 
     currentBillNumber = billNumber
 
     const { data: sale, error: saleError } = await supabase
@@ -710,14 +722,19 @@ async function saveBill() {
 
     if (saleError) { console.log(saleError); alert("Error saving sale ❌"); window.isSaving = false; return }
 
+   let allItemsSaved = true
     for (const item of billItems) {
-      await supabase.from('bill_items').insert([{
+      const { error: itemError } = await supabase.from('bill_items').insert([{
         sale_id:  sale.id,
         item_id:  item.id,
         quantity: item.qty,
         price:    item.price,
         total:    item.qty * item.price
       }])
+      if (itemError) {
+        allItemsSaved = false
+        console.error("Failed to save item:", item.name, itemError)
+      }
       const { data: prod } = await supabase
         .from('inventory').select('quantity').eq('id', item.id).single()
       if (prod) {
@@ -727,7 +744,11 @@ async function saveBill() {
       }
     }
 
-    if (!window.isPrinting) alert("Bill Saved ✅")
+    if (!allItemsSaved) {
+      alert("⚠️ WARNING: Bill saved but some PRODUCT ITEMS failed to save!\nBill Number: " + billNumber + "\nPlease check your internet and contact support.")
+    } else {
+      if (!window.isPrinting) alert("Bill Saved ✅ — Bill No: " + billNumber)
+    }
 
   } catch (err) {
     console.log(err)
@@ -821,9 +842,12 @@ async function printBill() {
   }
 
   document.getElementById("printArea").style.display = "block"
+  const originalTitle = document.title
+  document.title = "Bill-" + currentBillNumber
   window.print()
 
   setTimeout(() => {
+    document.title = originalTitle
     document.getElementById("printArea").style.display = "none"
     window.isPrinting = false
   }, 800)
