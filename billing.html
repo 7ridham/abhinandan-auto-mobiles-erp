@@ -905,14 +905,15 @@ window.viewBill = async function(billNo) {
   ;(allCustomers || []).forEach(c => { custMap[c.id] = c })
   const customer = custMap[sale.customer_id] || { name: "Walk-in", phone: "" }
 
-  const { data: items } = await supabase.from("bill_items").select("*").eq("sale_id", sale.id)
-  const itemIds = (items || []).map(i => i.item_id)
-  const { data: products } = itemIds.length
-    ? await supabase.from("inventory").select("id, item_name").in("id", itemIds)
-    : { data: [] }
+ const { data: items } = await supabase.from("bill_items").select("*").eq("sale_id", sale.id)
   const prodMap = {}
-  ;(products || []).forEach(p => { prodMap[p.id] = p.item_name })
-
+  if (items && items.length > 0) {
+    const itemIds = items.map(i => i.item_id).filter(Boolean)
+    if (itemIds.length > 0) {
+      const { data: products } = await supabase.from("inventory").select("id, item_name").in("id", itemIds)
+      ;(products || []).forEach(p => { prodMap[p.id] = p.item_name })
+    }
+  }
   document.getElementById("printBillType").innerText  = "GST Invoice"
   document.getElementById("printInvoiceNo").innerText = sale.bill_number
   document.getElementById("printDate").innerText      = new Date(sale.created_at).toLocaleString('en-IN')
