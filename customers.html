@@ -5,311 +5,62 @@
 <link rel="stylesheet" href="style.css">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-
-/* ── STATS ROW ── */
-.stats-row {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
-  margin-bottom: 24px;
-}
-.stat-card {
-  background: linear-gradient(135deg, rgba(255,255,255,0.07), rgba(255,255,255,0.04));
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 16px;
-  padding: 20px 22px;
-  position: relative;
-  overflow: hidden;
-}
-.stat-card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 10%; right: 10%;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-}
-.stat-icon { font-size: 22px; margin-bottom: 10px; }
-.stat-label {
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  color: rgba(255,255,255,0.35);
-  margin-bottom: 6px;
-}
-.stat-value {
-  font-family: 'Playfair Display', serif;
-  font-size: 26px;
-  font-weight: 700;
-  color: white;
-}
-.stat-sub {
-  font-size: 12px;
-  color: rgba(255,255,255,0.35);
-  margin-top: 4px;
-}
-
-/* ── TOOLBAR ── */
-.toolbar {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  margin-bottom: 20px;
-  flex-wrap: wrap;
-}
-.toolbar input {
-  flex: 1;
-  min-width: 220px;
-  margin-bottom: 0;
-}
-.toolbar select {
-  width: 160px;
-  margin-bottom: 0;
-}
-.btn-add {
-  background: linear-gradient(135deg, #059669, #10b981) !important;
-  box-shadow: 0 4px 14px rgba(5,150,105,0.35) !important;
-  white-space: nowrap;
-}
-.btn-add:hover {
-  background: linear-gradient(135deg, #047857, #059669) !important;
-}
-
-/* ── TABLE ── */
-.table-wrap {
-  overflow-x: auto;
-}
-.cust-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-.cust-table thead tr {
-  background: rgba(37,99,235,0.15);
-  border-bottom: 1px solid rgba(255,255,255,0.1);
-}
-.cust-table th {
-  padding: 12px 16px;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  color: rgba(255,255,255,0.4);
-  text-align: left;
-  white-space: nowrap;
-}
-.cust-table td {
-  padding: 14px 16px;
-  border-bottom: 1px solid rgba(255,255,255,0.05);
-  font-size: 14px;
-  color: rgba(255,255,255,0.85);
-  vertical-align: middle;
-}
-.cust-table tr:hover td { background: rgba(255,255,255,0.03); }
-
-.cust-name {
-  font-weight: 600;
-  color: white;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.cust-avatar {
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #2563eb, #8b5cf6);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 13px;
-  font-weight: 700;
-  color: white;
-  flex-shrink: 0;
-  text-transform: uppercase;
-}
-.credit-badge {
-  display: inline-block;
-  padding: 3px 10px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 600;
-}
-.credit-zero  { background: rgba(52,211,153,0.12); color: #34d399; }
-.credit-low   { background: rgba(251,191,36,0.12);  color: #fbbf24; }
-.credit-high  { background: rgba(248,113,113,0.12); color: #f87171; }
-
-.action-btns { display: flex; gap: 8px; }
-.btn-sm {
-  padding: 6px 14px !important;
-  font-size: 12px !important;
-  border-radius: 8px !important;
-  box-shadow: none !important;
-}
-.btn-view   { background: rgba(37,99,235,0.25)  !important; border: 1px solid rgba(37,99,235,0.4)  !important; }
-.btn-edit   { background: rgba(139,92,246,0.25) !important; border: 1px solid rgba(139,92,246,0.4) !important; }
-.btn-delete { background: rgba(220,38,38,0.2)   !important; border: 1px solid rgba(220,38,38,0.35) !important; }
-
-.empty-state {
-  text-align: center;
-  padding: 60px 20px;
-  color: rgba(255,255,255,0.3);
-}
-.empty-state .empty-icon { font-size: 48px; margin-bottom: 12px; }
-.empty-state p { font-size: 15px; }
-
-/* ── PAGINATION ── */
-.pagination {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 20px;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-.pagination-info { font-size: 13px; color: rgba(255,255,255,0.4); }
-.page-btns { display: flex; gap: 8px; }
-.page-btn {
-  padding: 7px 14px !important;
-  font-size: 13px !important;
-  background: rgba(255,255,255,0.07) !important;
-  border: 1px solid rgba(255,255,255,0.12) !important;
-  box-shadow: none !important;
-  border-radius: 8px !important;
-}
-.page-btn.active {
-  background: rgba(37,99,235,0.35) !important;
-  border-color: rgba(37,99,235,0.5) !important;
-}
-.page-btn:disabled { opacity: 0.3; cursor: not-allowed; }
-
-/* ── MODAL ── */
-.modal-overlay {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.75);
-  z-index: 9999;
-  overflow-y: auto;
-  padding: 20px;
-  backdrop-filter: blur(4px);
-}
-.modal-box {
-  background: linear-gradient(135deg, #0f172a, #0d1524);
-  border: 1px solid rgba(255,255,255,0.12);
-  border-radius: 20px;
-  width: 95%;
-  max-width: 520px;
-  margin: 40px auto;
-  padding: 32px;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-}
-.modal-title {
-  font-family: 'Playfair Display', serif;
-  font-size: 20px;
-  color: white;
-  margin-bottom: 24px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.modal-footer {
-  display: flex;
-  gap: 12px;
-  margin-top: 24px;
-  justify-content: flex-end;
-}
-.btn-cancel {
-  background: rgba(255,255,255,0.08) !important;
-  border: 1px solid rgba(255,255,255,0.15) !important;
-  box-shadow: none !important;
-  color: rgba(255,255,255,0.7) !important;
-}
-.form-label {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  color: rgba(255,255,255,0.4);
-  margin-bottom: 6px;
-  display: block;
-}
-.form-group { margin-bottom: 16px; }
-.form-group input { margin-bottom: 0; }
-
-/* ── CUSTOMER DETAIL MODAL ── */
-.detail-modal {
-  max-width: 700px;
-}
-.detail-header {
-  display: flex;
-  align-items: center;
-  gap: 18px;
-  margin-bottom: 24px;
-  padding-bottom: 20px;
-  border-bottom: 1px solid rgba(255,255,255,0.08);
-}
-.detail-avatar {
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #2563eb, #8b5cf6);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 22px;
-  font-weight: 700;
-  color: white;
-  flex-shrink: 0;
-}
-.detail-name { font-size: 22px; font-weight: 700; color: white; }
-.detail-phone { font-size: 14px; color: rgba(255,255,255,0.45); margin-top: 4px; }
-.detail-stats {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  margin-bottom: 24px;
-}
-.detail-stat {
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 12px;
-  padding: 14px;
-  text-align: center;
-}
-.detail-stat-val {
-  font-size: 20px;
-  font-weight: 700;
-  color: white;
-  margin-bottom: 4px;
-}
-.detail-stat-lbl {
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  color: rgba(255,255,255,0.35);
-}
-.bills-mini-table { width: 100%; border-collapse: collapse; margin-top: 4px; }
-.bills-mini-table th {
-  padding: 8px 12px;
-  font-size: 10px;
-  color: rgba(255,255,255,0.35);
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  border-bottom: 1px solid rgba(255,255,255,0.07);
-}
-.bills-mini-table td {
-  padding: 10px 12px;
-  font-size: 13px;
-  border-bottom: 1px solid rgba(255,255,255,0.04);
-  color: rgba(255,255,255,0.8);
-}
-
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;}
+.stat-card{background:linear-gradient(135deg,rgba(255,255,255,0.07),rgba(255,255,255,0.04));border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:20px 22px;position:relative;overflow:hidden;}
+.stat-card::before{content:'';position:absolute;top:0;left:10%;right:10%;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.2),transparent);}
+.stat-icon{font-size:22px;margin-bottom:10px;}.stat-label{font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:6px;}
+.stat-value{font-family:'Playfair Display',serif;font-size:26px;font-weight:700;color:white;}.stat-sub{font-size:12px;color:rgba(255,255,255,0.35);margin-top:4px;}
+.toolbar{display:flex;gap:12px;align-items:center;margin-bottom:20px;flex-wrap:wrap;}
+.toolbar input{flex:1;min-width:220px;margin-bottom:0;}.toolbar select{width:170px;margin-bottom:0;}
+.btn-green{background:linear-gradient(135deg,#059669,#10b981)!important;box-shadow:0 4px 14px rgba(5,150,105,0.35)!important;white-space:nowrap;}
+.btn-green:hover{background:linear-gradient(135deg,#047857,#059669)!important;}
+.table-wrap{overflow-x:auto;}
+.cust-table{width:100%;border-collapse:collapse;}
+.cust-table thead tr{background:rgba(37,99,235,0.15);border-bottom:1px solid rgba(255,255,255,0.1);}
+.cust-table th{padding:12px 16px;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.4);text-align:left;white-space:nowrap;}
+.cust-table td{padding:14px 16px;border-bottom:1px solid rgba(255,255,255,0.05);font-size:14px;color:rgba(255,255,255,0.85);vertical-align:middle;}
+.cust-table tr:hover td{background:rgba(255,255,255,0.03);}
+.cust-name{font-weight:600;color:white;display:flex;align-items:center;gap:10px;}
+.cust-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#8b5cf6);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:white;flex-shrink:0;}
+.cust-sub{font-size:12px;color:rgba(255,255,255,0.35);margin-top:2px;}
+.credit-badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600;}
+.credit-zero{background:rgba(52,211,153,0.12);color:#34d399;}.credit-low{background:rgba(251,191,36,0.12);color:#fbbf24;}.credit-high{background:rgba(248,113,113,0.12);color:#f87171;}
+.action-btns{display:flex;gap:8px;flex-wrap:wrap;}
+.btn-sm{padding:6px 12px!important;font-size:12px!important;border-radius:8px!important;box-shadow:none!important;}
+.btn-view{background:rgba(37,99,235,0.25)!important;border:1px solid rgba(37,99,235,0.4)!important;}
+.btn-edit{background:rgba(139,92,246,0.25)!important;border:1px solid rgba(139,92,246,0.4)!important;}
+.btn-del{background:rgba(220,38,38,0.2)!important;border:1px solid rgba(220,38,38,0.35)!important;}
+.empty-state{text-align:center;padding:60px 20px;color:rgba(255,255,255,0.3);}
+.empty-state .ei{font-size:48px;margin-bottom:12px;}
+.pagination{display:flex;justify-content:space-between;align-items:center;margin-top:20px;flex-wrap:wrap;gap:12px;}
+.pagination-info{font-size:13px;color:rgba(255,255,255,0.4);}
+.page-btns{display:flex;gap:8px;flex-wrap:wrap;}
+.page-btn{padding:7px 14px!important;font-size:13px!important;background:rgba(255,255,255,0.07)!important;border:1px solid rgba(255,255,255,0.12)!important;box-shadow:none!important;border-radius:8px!important;}
+.page-btn.active{background:rgba(37,99,235,0.35)!important;border-color:rgba(37,99,235,0.5)!important;}
+.page-btn:disabled{opacity:0.3;cursor:not-allowed;transform:none!important;}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:9999;overflow-y:auto;padding:20px;backdrop-filter:blur(4px);}
+.modal-box{background:linear-gradient(135deg,#0f172a,#0d1524);border:1px solid rgba(255,255,255,0.12);border-radius:20px;width:95%;max-width:520px;margin:40px auto;padding:32px;box-shadow:0 20px 60px rgba(0,0,0,0.5);}
+.modal-title{font-family:'Playfair Display',serif;font-size:20px;color:white;margin-bottom:24px;}
+.modal-footer{display:flex;gap:12px;margin-top:24px;justify-content:flex-end;}
+.btn-cancel{background:rgba(255,255,255,0.08)!important;border:1px solid rgba(255,255,255,0.15)!important;box-shadow:none!important;color:rgba(255,255,255,0.7)!important;}
+.form-label{font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:6px;display:block;}
+.form-group{margin-bottom:16px;}.form-group input{margin-bottom:0;}
+.optional-tag{font-size:10px;color:rgba(255,255,255,0.25);margin-left:6px;font-weight:400;letter-spacing:0;text-transform:none;}
+.detail-modal{max-width:720px;}
+.detail-header{display:flex;align-items:center;gap:18px;margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid rgba(255,255,255,0.08);flex-wrap:wrap;}
+.detail-avatar{width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#8b5cf6);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;color:white;flex-shrink:0;}
+.detail-name{font-size:22px;font-weight:700;color:white;}.detail-sub{font-size:13px;color:rgba(255,255,255,0.4);margin-top:4px;line-height:1.8;}
+.detail-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px;}
+.detail-stat{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px;text-align:center;}
+.detail-stat-val{font-size:20px;font-weight:700;color:white;margin-bottom:4px;}
+.detail-stat-lbl{font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.35);}
+.mini-table{width:100%;border-collapse:collapse;}
+.mini-table th{padding:8px 12px;font-size:10px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid rgba(255,255,255,0.07);text-align:left;}
+.mini-table td{padding:10px 12px;font-size:13px;border-bottom:1px solid rgba(255,255,255,0.04);color:rgba(255,255,255,0.8);}
 </style>
 </head>
 <body>
 
-<!-- SIDEBAR -->
 <div class="sidebar">
   <h2>Auto ERP</h2>
   <div class="sidebar-divider"></div>
@@ -321,537 +72,359 @@
   <a href="products.html">🔧 Products</a>
   <a href="customers.html" class="active">👥 Customers</a>
   <a href="customer-ledger.html">📒 Customer Ledger</a>
-  <div class="sidebar-bottom">
-    <div class="sidebar-version">Auto ERP v1.0</div>
-  </div>
+  <a href="merchant-ledger.html">🏪 Merchant Ledger</a>
+  <div class="sidebar-bottom"><div class="sidebar-version">Auto ERP v1.0</div></div>
 </div>
 
-<!-- MAIN -->
 <div class="main">
   <h1>👥 Customers</h1>
 
-  <!-- STATS -->
   <div class="stats-row">
-    <div class="stat-card">
-      <div class="stat-icon">👥</div>
-      <div class="stat-label">Total Customers</div>
-      <div class="stat-value" id="statTotal">—</div>
-      <div class="stat-sub">All time</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-icon">✅</div>
-      <div class="stat-label">Clear Accounts</div>
-      <div class="stat-value" id="statClear" style="color:#34d399;">—</div>
-      <div class="stat-sub">No credit due</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-icon">⚠️</div>
-      <div class="stat-label">Credit Due</div>
-      <div class="stat-value" id="statCredit" style="color:#f87171;">—</div>
-      <div class="stat-sub">Customers with balance</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-icon">💰</div>
-      <div class="stat-label">Total Credit Outstanding</div>
-      <div class="stat-value" id="statOutstanding" style="color:#fbbf24; font-size:20px;">—</div>
-      <div class="stat-sub">All pending amounts</div>
-    </div>
+    <div class="stat-card"><div class="stat-icon">👥</div><div class="stat-label">Total Customers</div><div class="stat-value" id="statTotal">—</div><div class="stat-sub">All time</div></div>
+    <div class="stat-card"><div class="stat-icon">✅</div><div class="stat-label">Clear Accounts</div><div class="stat-value" id="statClear" style="color:#34d399;">—</div><div class="stat-sub">No credit due</div></div>
+    <div class="stat-card"><div class="stat-icon">⚠️</div><div class="stat-label">Credit Due</div><div class="stat-value" id="statCredit" style="color:#f87171;">—</div><div class="stat-sub">Has balance</div></div>
+    <div class="stat-card"><div class="stat-icon">💰</div><div class="stat-label">Total Outstanding</div><div class="stat-value" id="statOutstanding" style="color:#fbbf24;font-size:20px;">—</div><div class="stat-sub">All pending credit</div></div>
   </div>
 
-  <!-- TOOLBAR -->
   <div class="card">
     <div class="toolbar">
-      <input type="text" id="searchInput" placeholder="🔍  Search by name or phone..." oninput="filterAndRender()">
+      <input type="text" id="searchInput" placeholder="🔍  Search by name, phone or address..." oninput="filterAndRender()">
       <select id="filterCredit" onchange="filterAndRender()">
         <option value="all">All Customers</option>
         <option value="credit">Has Credit Due</option>
         <option value="clear">Fully Paid</option>
       </select>
-      <button class="btn-add" onclick="openAddModal()">➕ Add Customer</button>
+      <button class="btn-green" onclick="openAddModal()">➕ Add Customer</button>
     </div>
 
-    <!-- TABLE -->
     <div class="table-wrap">
       <table class="cust-table">
         <thead>
           <tr>
-            <th>#</th>
-            <th>Customer</th>
-            <th>Phone</th>
-            <th>Total Bills</th>
-            <th>Total Business</th>
-            <th>Credit Due</th>
-            <th>Actions</th>
+            <th>#</th><th>Customer</th><th>Phone</th><th>Address</th>
+            <th>Bills</th><th>Total Business</th><th>Credit Due</th><th>Actions</th>
           </tr>
         </thead>
         <tbody id="custTableBody">
-          <tr><td colspan="7"><div class="empty-state"><div class="empty-icon">⏳</div><p>Loading customers...</p></div></td></tr>
+          <tr><td colspan="8"><div class="empty-state"><div class="ei">⏳</div><p>Loading...</p></div></td></tr>
         </tbody>
       </table>
     </div>
-
-    <!-- PAGINATION -->
     <div class="pagination">
-      <div class="pagination-info" id="pageInfo">Showing 0 customers</div>
+      <div class="pagination-info" id="pageInfo">—</div>
       <div class="page-btns" id="pageBtns"></div>
     </div>
   </div>
 </div>
 
-
-<!-- ══════════════════════════════════════
-     ADD / EDIT CUSTOMER MODAL
-══════════════════════════════════════ -->
+<!-- ADD/EDIT MODAL -->
 <div class="modal-overlay" id="addModal">
   <div class="modal-box">
-    <div class="modal-title" id="addModalTitle">➕ Add New Customer</div>
-
+    <div class="modal-title" id="modalTitle">➕ Add New Customer</div>
     <div class="form-group">
-      <label class="form-label">Customer Name *</label>
+      <label class="form-label">Customer Name <span style="color:#f87171;">*</span></label>
       <input type="text" id="inputName" placeholder="Enter full name">
     </div>
     <div class="form-group">
-      <label class="form-label">Phone Number</label>
+      <label class="form-label">Phone Number <span class="optional-tag">(optional)</span></label>
       <input type="text" id="inputPhone" placeholder="Enter phone number">
     </div>
-
+    <div class="form-group">
+      <label class="form-label">Email <span class="optional-tag">(optional)</span></label>
+      <input type="email" id="inputEmail" placeholder="Enter email address">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Address <span class="optional-tag">(optional)</span></label>
+      <input type="text" id="inputAddress" placeholder="Village / City / Area">
+    </div>
     <div class="modal-footer">
       <button class="btn-cancel" onclick="closeAddModal()">✕ Cancel</button>
-      <button id="saveCustomerBtn" onclick="saveCustomer()">💾 Save Customer</button>
+      <button id="saveBtn" onclick="saveCustomer()">💾 Save Customer</button>
     </div>
   </div>
 </div>
 
-
-<!-- ══════════════════════════════════════
-     CUSTOMER DETAIL MODAL
-══════════════════════════════════════ -->
+<!-- DETAIL MODAL -->
 <div class="modal-overlay" id="detailModal">
   <div class="modal-box detail-modal">
-
     <div class="detail-header">
-      <div class="detail-avatar" id="detailAvatar">A</div>
-      <div>
-        <div class="detail-name" id="detailName">—</div>
-        <div class="detail-phone" id="detailPhone">—</div>
+      <div class="detail-avatar" id="dAvatar">A</div>
+      <div style="flex:1;">
+        <div class="detail-name" id="dName">—</div>
+        <div class="detail-sub" id="dSub">—</div>
       </div>
-      <button onclick="closeDetailModal()" style="margin-left:auto;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);box-shadow:none;padding:8px 14px;font-size:12px;">✕ Close</button>
+      <button onclick="closeDetailModal()" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);box-shadow:none;padding:8px 14px;font-size:12px;flex-shrink:0;">✕ Close</button>
     </div>
-
     <div class="detail-stats">
-      <div class="detail-stat">
-        <div class="detail-stat-val" id="detailBills">0</div>
-        <div class="detail-stat-lbl">Total Bills</div>
-      </div>
-      <div class="detail-stat">
-        <div class="detail-stat-val" id="detailTotal" style="color:#60a5fa;">₹0</div>
-        <div class="detail-stat-lbl">Total Business</div>
-      </div>
-      <div class="detail-stat">
-        <div class="detail-stat-val" id="detailCredit" style="color:#f87171;">₹0</div>
-        <div class="detail-stat-lbl">Credit Due</div>
-      </div>
+      <div class="detail-stat"><div class="detail-stat-val" id="dBills">0</div><div class="detail-stat-lbl">Total Bills</div></div>
+      <div class="detail-stat"><div class="detail-stat-val" id="dTotal" style="color:#60a5fa;">₹0</div><div class="detail-stat-lbl">Total Business</div></div>
+      <div class="detail-stat"><div class="detail-stat-val" id="dCredit">₹0</div><div class="detail-stat-lbl">Credit Due</div></div>
     </div>
-
     <h3 style="margin-bottom:12px;">Recent Bills</h3>
-    <div style="max-height:280px; overflow-y:auto; border-radius:10px; border:1px solid rgba(255,255,255,0.07);">
-      <table class="bills-mini-table">
-        <thead>
-          <tr>
-            <th>Bill No</th>
-            <th>Date</th>
-            <th>Amount</th>
-            <th>Cash</th>
-            <th>UPI</th>
-            <th>Credit</th>
-          </tr>
-        </thead>
-        <tbody id="detailBillsBody"></tbody>
+    <div style="max-height:260px;overflow-y:auto;border-radius:10px;border:1px solid rgba(255,255,255,0.07);">
+      <table class="mini-table">
+        <thead><tr><th>Bill No</th><th>Date</th><th>Amount</th><th>Cash</th><th>UPI</th><th>Credit</th></tr></thead>
+        <tbody id="dBillsBody"></tbody>
       </table>
     </div>
-
-    <div style="display:flex; gap:12px; margin-top:20px; flex-wrap:wrap;">
-      <button onclick="goToLedger()" style="background:rgba(37,99,235,0.25);border:1px solid rgba(37,99,235,0.4);box-shadow:none;">
-        📒 Open Full Ledger
-      </button>
-      <button onclick="goToBilling()" style="background:rgba(52,211,153,0.2);border:1px solid rgba(52,211,153,0.35);box-shadow:none;">
-        🧾 New Bill for This Customer
-      </button>
+    <div style="display:flex;gap:12px;margin-top:20px;flex-wrap:wrap;">
+      <button onclick="goToLedger()" style="background:rgba(37,99,235,0.25);border:1px solid rgba(37,99,235,0.4);box-shadow:none;">📒 Full Ledger</button>
+      <button onclick="goToBilling()" style="background:rgba(52,211,153,0.2);border:1px solid rgba(52,211,153,0.35);box-shadow:none;">🧾 New Bill</button>
+      <button onclick="editFromDetail()" style="background:rgba(139,92,246,0.25);border:1px solid rgba(139,92,246,0.4);box-shadow:none;">✏️ Edit Info</button>
     </div>
   </div>
 </div>
 
-
-<!-- ══════════════════════════════════════
-     DELETE CONFIRM MODAL
-══════════════════════════════════════ -->
+<!-- DELETE MODAL -->
 <div class="modal-overlay" id="deleteModal">
-  <div class="modal-box" style="max-width:400px;">
+  <div class="modal-box" style="max-width:420px;">
     <div class="modal-title" style="color:#f87171;">🗑️ Delete Customer</div>
-    <p style="color:rgba(255,255,255,0.65); font-size:15px; line-height:1.6;">
-      Are you sure you want to delete <strong id="deleteCustomerName" style="color:white;"></strong>?<br>
-      <span style="color:#f87171; font-size:13px;">⚠️ This will NOT delete their bills — only the customer record.</span>
-    </p>
+    <p style="color:rgba(255,255,255,0.65);font-size:15px;line-height:1.6;margin-bottom:8px;">Are you sure you want to delete <strong id="deleteCustomerName" style="color:white;"></strong>?</p>
+    <p style="color:rgba(248,113,113,0.8);font-size:13px;">⚠️ Their bills will NOT be deleted — only the customer record.</p>
     <div class="modal-footer">
       <button class="btn-cancel" onclick="closeDeleteModal()">✕ Cancel</button>
-      <button onclick="confirmDelete()" style="background:linear-gradient(135deg,#dc2626,#ef4444);box-shadow:0 4px 14px rgba(220,38,38,0.35);">
-        🗑️ Yes, Delete
-      </button>
+      <button onclick="confirmDelete()" style="background:linear-gradient(135deg,#dc2626,#ef4444);box-shadow:0 4px 14px rgba(220,38,38,0.35);">🗑️ Yes, Delete</button>
     </div>
   </div>
 </div>
 
-
-<script type="module">
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
-
-const supabase = createClient(
+<script>
+const _S = document.createElement('script')
+_S.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js'
+_S.onload = () => initApp(window.supabase.createClient(
   "https://mhhnmndnolhapaoqtbxo.supabase.co",
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1oaG5tbmRub2xoYXBhb3F0YnhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4Mzg4NTksImV4cCI6MjA4ODQxNDg1OX0.IMSp8vYiCln_iSuoT_H2qdeX_dP1WMhOOskDw20eJXw"
-)
+))
+document.head.appendChild(_S)
 
-// ── STATE ──
-let allCustomers  = []   // raw customer rows
-let salesMap      = {}   // customer_id → { bills, total, credit }
-let filteredList  = []   // after search/filter
-let currentPage   = 1
-const PAGE_SIZE   = 15
-let editingId     = null
-let deletingId    = null
-let detailCustId  = null
+function initApp(supabase) {
+  let allCustomers=[], salesMap={}, filteredList=[], currentPage=1, PAGE_SIZE=15
+  let editingId=null, deletingId=null, detailId=null
 
-window._supabase = supabase  // expose for ledger redirect
+  async function loadAll() {
+    const {data:customers} = await supabase.from('customers').select('*').order('name')
+    allCustomers = customers || []
+    const {data:sales} = await supabase.from('sales').select('id,customer_id,total_amount,cash,upi,credit,bill_number,created_at')
+    salesMap = {}
+    ;(sales||[]).forEach(s=>{
+      const cid=s.customer_id
+      if(!salesMap[cid]) salesMap[cid]={bills:0,total:0,credit:0,rows:[]}
+      salesMap[cid].bills++
+      salesMap[cid].total  += Number(s.total_amount)||0
+      salesMap[cid].credit += Number(s.credit)||0
+      salesMap[cid].rows.push(s)
+    })
+    updateStats(); filterAndRender()
+  }
 
+  function updateStats() {
+    let clear=0,creditCount=0,outstanding=0
+    allCustomers.forEach(c=>{
+      const due = salesMap[c.id] ? salesMap[c.id].credit : 0
+      if(due>0){creditCount++;outstanding+=due}else clear++
+    })
+    document.getElementById('statTotal').innerText       = allCustomers.length
+    document.getElementById('statClear').innerText       = clear
+    document.getElementById('statCredit').innerText      = creditCount
+    document.getElementById('statOutstanding').innerText = '₹'+Math.round(outstanding).toLocaleString('en-IN')
+  }
 
-// ════════════════════════════════════════
-//  LOAD ALL DATA
-// ════════════════════════════════════════
-async function loadAll() {
-  // 1. All customers
-  const { data: customers, error } = await supabase
-    .from('customers').select('*').order('name')
-  if (error) { console.error(error); return }
-  allCustomers = customers || []
+  window.filterAndRender = function() {
+    const search=(document.getElementById('searchInput').value||'').toLowerCase().trim()
+    const filter=document.getElementById('filterCredit').value
+    filteredList = allCustomers.filter(c=>{
+      const due = salesMap[c.id] ? salesMap[c.id].credit : 0
+      const ms = !search||(c.name||'').toLowerCase().includes(search)||(c.phone||'').includes(search)||(c.address||'').toLowerCase().includes(search)
+      const mf = filter==='all'?true:filter==='credit'?due>0:due<=0
+      return ms&&mf
+    })
+    currentPage=1; renderTable()
+  }
 
-  // 2. All sales (to compute per-customer stats)
-  const { data: sales } = await supabase
-    .from('sales').select('id, customer_id, total_amount, cash, upi, credit, bill_number, created_at')
+  function renderTable() {
+    const tbody=document.getElementById('custTableBody')
+    const total=filteredList.length, start=(currentPage-1)*PAGE_SIZE
+    const end=Math.min(start+PAGE_SIZE,total), page=filteredList.slice(start,end)
+    const totalPages=Math.ceil(total/PAGE_SIZE)||1
 
-  salesMap = {}
-  ;(sales || []).forEach(s => {
-    const cid = s.customer_id
-    if (!salesMap[cid]) salesMap[cid] = { bills: 0, total: 0, credit: 0, rows: [] }
-    salesMap[cid].bills++
-    salesMap[cid].total  += s.total_amount || 0
-    salesMap[cid].credit += s.credit       || 0
-    salesMap[cid].rows.push(s)
-  })
+    document.getElementById('pageInfo').innerText = total===0?'No customers found':`Showing ${start+1}–${end} of ${total} customers`
 
-  updateStats()
-  filterAndRender()
-}
-
-
-// ════════════════════════════════════════
-//  STATS
-// ════════════════════════════════════════
-function updateStats() {
-  const total   = allCustomers.length
-  let clear = 0, creditCount = 0, outstanding = 0
-
-  allCustomers.forEach(c => {
-    const s = salesMap[c.id]
-    const due = s ? s.credit : 0
-    if (due > 0) { creditCount++; outstanding += due }
-    else clear++
-  })
-
-  document.getElementById('statTotal').innerText       = total
-  document.getElementById('statClear').innerText       = clear
-  document.getElementById('statCredit').innerText      = creditCount
-  document.getElementById('statOutstanding').innerText = '₹' + Math.round(outstanding).toLocaleString('en-IN')
-}
-
-
-// ════════════════════════════════════════
-//  FILTER & RENDER
-// ════════════════════════════════════════
-window.filterAndRender = function() {
-  const search = (document.getElementById('searchInput').value || '').toLowerCase().trim()
-  const filter = document.getElementById('filterCredit').value
-
-  filteredList = allCustomers.filter(c => {
-    const s = salesMap[c.id]
-    const due = s ? s.credit : 0
-
-    const matchSearch = !search
-      || c.name.toLowerCase().includes(search)
-      || (c.phone || '').includes(search)
-
-    const matchFilter =
-      filter === 'all' ? true
-      : filter === 'credit' ? due > 0
-      : due <= 0
-
-    return matchSearch && matchFilter
-  })
-
-  currentPage = 1
-  renderTable()
-}
-
-
-// ════════════════════════════════════════
-//  RENDER TABLE
-// ════════════════════════════════════════
-function renderTable() {
-  const tbody  = document.getElementById('custTableBody')
-  const total  = filteredList.length
-  const start  = (currentPage - 1) * PAGE_SIZE
-  const end    = Math.min(start + PAGE_SIZE, total)
-  const page   = filteredList.slice(start, end)
-
-  // Pagination info
-  document.getElementById('pageInfo').innerText =
-    total === 0 ? 'No customers found'
-    : `Showing ${start + 1}–${end} of ${total} customers`
-
-  // Pagination buttons
-  const totalPages = Math.ceil(total / PAGE_SIZE)
-  const pageBtns   = document.getElementById('pageBtns')
-  pageBtns.innerHTML = ''
-  if (totalPages > 1) {
-    const prev = document.createElement('button')
-    prev.innerText = '← Prev'
-    prev.className = 'page-btn'
-    prev.disabled  = currentPage === 1
-    prev.onclick   = () => { currentPage--; renderTable() }
-    pageBtns.appendChild(prev)
-
-    for (let i = 1; i <= totalPages; i++) {
-      const btn = document.createElement('button')
-      btn.innerText = i
-      btn.className = 'page-btn' + (i === currentPage ? ' active' : '')
-      btn.onclick   = (function(p) { return () => { currentPage = p; renderTable() } })(i)
-      pageBtns.appendChild(btn)
+    const pb=document.getElementById('pageBtns'); pb.innerHTML=''
+    if(totalPages>1){
+      mkPageBtn(pb,'← Prev',currentPage===1,()=>{currentPage--;renderTable()})
+      for(let i=1;i<=totalPages;i++){const p=i;mkPageBtn(pb,String(i),false,()=>{currentPage=p;renderTable()},i===currentPage)}
+      mkPageBtn(pb,'Next →',currentPage===totalPages,()=>{currentPage++;renderTable()})
     }
 
-    const next = document.createElement('button')
-    next.innerText = 'Next →'
-    next.className = 'page-btn'
-    next.disabled  = currentPage === totalPages
-    next.onclick   = () => { currentPage++; renderTable() }
-    pageBtns.appendChild(next)
-  }
+    if(!page.length){tbody.innerHTML=`<tr><td colspan="8"><div class="empty-state"><div class="ei">👥</div><p>No customers found</p></div></td></tr>`;return}
 
-  if (page.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">👥</div><p>No customers found</p></div></td></tr>`
-    return
-  }
-
-  tbody.innerHTML = ''
-  page.forEach((c, idx) => {
-    const s       = salesMap[c.id] || { bills: 0, total: 0, credit: 0 }
-    const due     = Math.round(s.credit)
-    const initial = (c.name || '?')[0].toUpperCase()
-
-    let creditClass = 'credit-zero', creditText = '₹0 — Clear'
-    if (due > 0 && due <= 2000) { creditClass = 'credit-low';  creditText = '₹' + due.toLocaleString('en-IN') }
-    if (due > 2000)             { creditClass = 'credit-high'; creditText = '₹' + due.toLocaleString('en-IN') }
-
-    const tr = document.createElement('tr')
-    tr.innerHTML = `
-      <td style="color:rgba(255,255,255,0.3); font-size:13px;">${start + idx + 1}</td>
-      <td>
-        <div class="cust-name">
-          <div class="cust-avatar">${initial}</div>
-          ${escHtml(c.name)}
-        </div>
-      </td>
-      <td style="color:rgba(255,255,255,0.6);">${c.phone || '—'}</td>
-      <td style="text-align:center; color:rgba(255,255,255,0.7);">${s.bills}</td>
-      <td style="font-weight:600; color:#60a5fa;">₹${Math.round(s.total).toLocaleString('en-IN')}</td>
-      <td><span class="credit-badge ${creditClass}">${creditText}</span></td>
-      <td>
-        <div class="action-btns">
-          <button class="btn-sm btn-view"   onclick="openDetail('${c.id}')">👁 View</button>
-          <button class="btn-sm btn-edit"   onclick="openEditModal('${c.id}')">✏️ Edit</button>
-          <button class="btn-sm btn-delete removeBtn" onclick="openDeleteModal('${c.id}', '${escHtml(c.name)}')">🗑️</button>
-        </div>
-      </td>
-    `
-    tbody.appendChild(tr)
-  })
-}
-
-function escHtml(str) {
-  return (str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')
-}
-
-
-// ════════════════════════════════════════
-//  ADD / EDIT MODAL
-// ════════════════════════════════════════
-window.openAddModal = function() {
-  editingId = null
-  document.getElementById('addModalTitle').innerText = '➕ Add New Customer'
-  document.getElementById('inputName').value  = ''
-  document.getElementById('inputPhone').value = ''
-  document.getElementById('addModal').style.display = 'block'
-  setTimeout(() => document.getElementById('inputName').focus(), 100)
-}
-
-window.openEditModal = function(id) {
-  const c = allCustomers.find(x => x.id === id)
-  if (!c) return
-  editingId = id
-  document.getElementById('addModalTitle').innerText = '✏️ Edit Customer'
-  document.getElementById('inputName').value  = c.name  || ''
-  document.getElementById('inputPhone').value = c.phone || ''
-  document.getElementById('addModal').style.display = 'block'
-  setTimeout(() => document.getElementById('inputName').focus(), 100)
-}
-
-window.closeAddModal = function() {
-  document.getElementById('addModal').style.display = 'none'
-  editingId = null
-}
-
-window.saveCustomer = async function() {
-  const name  = document.getElementById('inputName').value.trim()
-  const phone = document.getElementById('inputPhone').value.trim()
-
-  if (!name) { alert('Please enter customer name'); return }
-
-  const btn = document.getElementById('saveCustomerBtn')
-  btn.disabled   = true
-  btn.innerText  = 'Saving...'
-
-  if (editingId) {
-    const { error } = await supabase
-      .from('customers').update({ name, phone }).eq('id', editingId)
-    if (error) { alert('Error updating customer ❌'); btn.disabled = false; btn.innerText = '💾 Save Customer'; return }
-  } else {
-    const { error } = await supabase
-      .from('customers').insert([{ name, phone }])
-    if (error) { alert('Error adding customer ❌'); btn.disabled = false; btn.innerText = '💾 Save Customer'; return }
-  }
-
-  btn.disabled  = false
-  btn.innerText = '💾 Save Customer'
-  closeAddModal()
-  await loadAll()
-}
-
-
-// ════════════════════════════════════════
-//  DELETE MODAL
-// ════════════════════════════════════════
-window.openDeleteModal = function(id, name) {
-  deletingId = id
-  document.getElementById('deleteCustomerName').innerText = name
-  document.getElementById('deleteModal').style.display = 'block'
-}
-
-window.closeDeleteModal = function() {
-  document.getElementById('deleteModal').style.display = 'none'
-  deletingId = null
-}
-
-window.confirmDelete = async function() {
-  if (!deletingId) return
-  const { error } = await supabase.from('customers').delete().eq('id', deletingId)
-  if (error) { alert('Error deleting customer ❌'); return }
-  closeDeleteModal()
-  await loadAll()
-}
-
-
-// ════════════════════════════════════════
-//  CUSTOMER DETAIL MODAL
-// ════════════════════════════════════════
-window.openDetail = function(id) {
-  const c = allCustomers.find(x => x.id === id)
-  if (!c) return
-  detailCustId = id
-
-  const s   = salesMap[id] || { bills: 0, total: 0, credit: 0, rows: [] }
-  const due = Math.round(s.credit)
-
-  document.getElementById('detailAvatar').innerText  = (c.name || '?')[0].toUpperCase()
-  document.getElementById('detailName').innerText    = c.name  || '—'
-  document.getElementById('detailPhone').innerText   = c.phone ? '📞 ' + c.phone : 'No phone'
-  document.getElementById('detailBills').innerText   = s.bills
-  document.getElementById('detailTotal').innerText   = '₹' + Math.round(s.total).toLocaleString('en-IN')
-  document.getElementById('detailCredit').innerText  = due > 0 ? '₹' + due.toLocaleString('en-IN') : '₹0 — Clear'
-  document.getElementById('detailCredit').style.color = due > 0 ? '#f87171' : '#34d399'
-
-  // Recent bills table (sorted newest first, max 10)
-  const tbody = document.getElementById('detailBillsBody')
-  tbody.innerHTML = ''
-  const rows = [...(s.rows || [])].sort((a,b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 10)
-
-  if (rows.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:rgba(255,255,255,0.3);padding:20px;">No bills yet</td></tr>`
-  } else {
-    rows.forEach(bill => {
-      const date = new Date(bill.created_at).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' })
-      tbody.innerHTML += `
-        <tr>
-          <td style="font-size:11px; color:rgba(255,255,255,0.4);">${bill.bill_number}</td>
-          <td>${date}</td>
-          <td style="font-weight:600; color:#60a5fa;">₹${Math.round(bill.total_amount).toLocaleString('en-IN')}</td>
-          <td style="color:#34d399;">${bill.cash > 0 ? '₹' + bill.cash : '—'}</td>
-          <td style="color:#a78bfa;">${bill.upi > 0 ? '₹' + bill.upi : '—'}</td>
-          <td style="color:${bill.credit > 0 ? '#f87171' : 'rgba(255,255,255,0.3)'};">${bill.credit > 0 ? '₹' + bill.credit : '—'}</td>
-        </tr>
-      `
+    tbody.innerHTML=''
+    page.forEach((c,idx)=>{
+      const s=salesMap[c.id]||{bills:0,total:0,credit:0}
+      const due=Math.round(s.credit), ini=(c.name||'?')[0].toUpperCase()
+      let bc='credit-zero',bt='✓ Clear'
+      if(due>0&&due<=2000){bc='credit-low';bt='₹'+due.toLocaleString('en-IN')}
+      if(due>2000){bc='credit-high';bt='₹'+due.toLocaleString('en-IN')}
+      const tr=document.createElement('tr')
+      tr.innerHTML=`
+        <td style="color:rgba(255,255,255,0.3);font-size:13px;">${start+idx+1}</td>
+        <td><div class="cust-name"><div class="cust-avatar">${ini}</div><div>
+          <div>${esc(c.name)}</div>
+          ${c.email?`<div class="cust-sub">✉️ ${esc(c.email)}</div>`:''}
+        </div></div></td>
+        <td style="color:rgba(255,255,255,0.65);">${c.phone||'—'}</td>
+        <td style="color:rgba(255,255,255,0.5);font-size:13px;">${c.address||'—'}</td>
+        <td style="text-align:center;color:rgba(255,255,255,0.7);">${s.bills}</td>
+        <td style="font-weight:600;color:#60a5fa;">₹${Math.round(s.total).toLocaleString('en-IN')}</td>
+        <td><span class="credit-badge ${bc}">${bt}</span></td>
+        <td><div class="action-btns">
+          <button class="btn-sm btn-view" data-id="${c.id}">👁 View</button>
+          <button class="btn-sm btn-edit" data-id="${c.id}">✏️ Edit</button>
+          <button class="btn-sm btn-del removeBtn" data-id="${c.id}" data-name="${esc(c.name)}">🗑️</button>
+        </div></td>`
+      tbody.appendChild(tr)
     })
+
+    // ✅ KEY FIX: attach events after DOM is built
+    tbody.querySelectorAll('.btn-view').forEach(b=>b.addEventListener('click',()=>openDetail(b.dataset.id)))
+    tbody.querySelectorAll('.btn-edit').forEach(b=>b.addEventListener('click',()=>openEditModal(b.dataset.id)))
+    tbody.querySelectorAll('.btn-del').forEach(b=>b.addEventListener('click',()=>openDeleteModal(b.dataset.id,b.dataset.name)))
   }
 
-  document.getElementById('detailModal').style.display = 'block'
+  function mkPageBtn(container,label,disabled,onClick,isActive){
+    const b=document.createElement('button')
+    b.innerText=label; b.className='page-btn'+(isActive?' active':'')
+    b.disabled=disabled; b.addEventListener('click',onClick); container.appendChild(b)
+  }
+
+  function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+
+  // ── ADD/EDIT ──
+  window.openAddModal = function(){
+    editingId=null
+    document.getElementById('modalTitle').innerText='➕ Add New Customer'
+    ;['inputName','inputPhone','inputEmail','inputAddress'].forEach(id=>document.getElementById(id).value='')
+    document.getElementById('addModal').style.display='block'
+    setTimeout(()=>document.getElementById('inputName').focus(),100)
+  }
+
+  function openEditModal(id){
+    const c=allCustomers.find(x=>String(x.id)===String(id))
+    if(!c)return
+    editingId=c.id
+    document.getElementById('modalTitle').innerText='✏️ Edit Customer'
+    document.getElementById('inputName').value    = c.name    ||''
+    document.getElementById('inputPhone').value   = c.phone   ||''
+    document.getElementById('inputEmail').value   = c.email   ||''
+    document.getElementById('inputAddress').value = c.address ||''
+    document.getElementById('addModal').style.display='block'
+    setTimeout(()=>document.getElementById('inputName').focus(),100)
+  }
+
+  window.closeAddModal = function(){document.getElementById('addModal').style.display='none';editingId=null}
+
+  window.saveCustomer = async function(){
+    const name=document.getElementById('inputName').value.trim()
+    if(!name){alert('Please enter customer name');return}
+    const phone=document.getElementById('inputPhone').value.trim()
+    const email=document.getElementById('inputEmail').value.trim()
+    const address=document.getElementById('inputAddress').value.trim()
+    const btn=document.getElementById('saveBtn')
+    btn.disabled=true; btn.innerText='Saving...'
+    let error
+    if(editingId){
+      ;({error}=await supabase.from('customers').update({name,phone,email,address}).eq('id',editingId))
+    }else{
+      ;({error}=await supabase.from('customers').insert([{name,phone,email,address}]))
+    }
+    btn.disabled=false; btn.innerText='💾 Save Customer'
+    if(error){alert('Error saving ❌\n'+error.message);return}
+    closeAddModal(); await loadAll()
+  }
+
+  // ── DELETE ──
+  function openDeleteModal(id,name){
+    deletingId=id
+    document.getElementById('deleteCustomerName').innerText=name
+    document.getElementById('deleteModal').style.display='block'
+  }
+  window.closeDeleteModal=function(){document.getElementById('deleteModal').style.display='none';deletingId=null}
+  window.confirmDelete=async function(){
+    if(!deletingId)return
+    const{error}=await supabase.from('customers').delete().eq('id',deletingId)
+    if(error){alert('Error ❌');return}
+    closeDeleteModal(); await loadAll()
+  }
+
+  // ── DETAIL ──
+  function openDetail(id){
+    const c=allCustomers.find(x=>String(x.id)===String(id))
+    if(!c)return
+    detailId=c.id
+    const s=salesMap[id]||{bills:0,total:0,credit:0,rows:[]}
+    const due=Math.round(s.credit)
+    document.getElementById('dAvatar').innerText=(c.name||'?')[0].toUpperCase()
+    document.getElementById('dName').innerText=c.name||'—'
+    const parts=[]
+    if(c.phone)parts.push('📞 '+c.phone)
+    if(c.email)parts.push('✉️ '+c.email)
+    if(c.address)parts.push('📍 '+c.address)
+    document.getElementById('dSub').innerText=parts.join('   |   ')||'No contact info'
+    document.getElementById('dBills').innerText=s.bills
+    document.getElementById('dTotal').innerText='₹'+Math.round(s.total).toLocaleString('en-IN')
+    document.getElementById('dCredit').innerText=due>0?'₹'+due.toLocaleString('en-IN'):'₹0 — Clear'
+    document.getElementById('dCredit').style.color=due>0?'#f87171':'#34d399'
+    const tbody=document.getElementById('dBillsBody'); tbody.innerHTML=''
+    const rows=[...(s.rows||[])].sort((a,b)=>new Date(b.created_at)-new Date(a.created_at)).slice(0,10)
+    if(!rows.length){
+      tbody.innerHTML=`<tr><td colspan="6" style="text-align:center;color:rgba(255,255,255,0.3);padding:20px;">No bills yet</td></tr>`
+    }else{
+      rows.forEach(bill=>{
+        const dt=new Date(bill.created_at).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})
+        tbody.innerHTML+=`<tr>
+          <td style="font-size:11px;color:rgba(255,255,255,0.4);">${bill.bill_number}</td>
+          <td>${dt}</td>
+          <td style="font-weight:600;color:#60a5fa;">₹${Math.round(bill.total_amount).toLocaleString('en-IN')}</td>
+          <td style="color:#34d399;">${bill.cash>0?'₹'+Number(bill.cash).toLocaleString('en-IN'):'—'}</td>
+          <td style="color:#a78bfa;">${bill.upi>0?'₹'+Number(bill.upi).toLocaleString('en-IN'):'—'}</td>
+          <td style="color:${bill.credit>0?'#f87171':'rgba(255,255,255,0.3)'};">${bill.credit>0?'₹'+Number(bill.credit).toLocaleString('en-IN'):'—'}</td>
+        </tr>`
+      })
+    }
+    document.getElementById('detailModal').style.display='block'
+  }
+
+  window.closeDetailModal=function(){document.getElementById('detailModal').style.display='none';detailId=null}
+  window.editFromDetail=function(){closeDetailModal();openEditModal(detailId)}
+  window.goToLedger=function(){
+    const c=allCustomers.find(x=>String(x.id)===String(detailId))
+    if(!c)return
+    localStorage.setItem('ledger_prefill_name',c.name||'')
+    localStorage.setItem('ledger_prefill_phone',c.phone||'')
+    window.location.href='customer-ledger.html'
+  }
+  window.goToBilling=function(){
+    const c=allCustomers.find(x=>String(x.id)===String(detailId))
+    if(!c)return
+    localStorage.setItem('billing_prefill_name',c.name||'')
+    localStorage.setItem('billing_prefill_phone',c.phone||'')
+    window.location.href='billing.html'
+  }
+
+  ;['addModal','detailModal','deleteModal'].forEach(id=>{
+    document.getElementById(id).addEventListener('click',function(e){
+      if(e.target===this){
+        if(id==='addModal')closeAddModal()
+        if(id==='detailModal')closeDetailModal()
+        if(id==='deleteModal')closeDeleteModal()
+      }
+    })
+  })
+
+  document.getElementById('inputAddress').addEventListener('keydown',e=>{if(e.key==='Enter')window.saveCustomer()})
+
+  loadAll()
 }
-
-window.closeDetailModal = function() {
-  document.getElementById('detailModal').style.display = 'none'
-  detailCustId = null
-}
-
-window.goToLedger = function() {
-  const c = allCustomers.find(x => x.id === detailCustId)
-  if (!c) return
-  localStorage.setItem('ledger_customer_name', c.name)
-  localStorage.setItem('ledger_customer_phone', c.phone || '')
-  window.location.href = 'customer-ledger.html'
-}
-
-window.goToBilling = function() {
-  const c = allCustomers.find(x => x.id === detailCustId)
-  if (!c) return
-  localStorage.setItem('billing_customer_name', c.name)
-  localStorage.setItem('billing_customer_phone', c.phone || '')
-  window.location.href = 'billing.html'
-}
-
-// Close modals on outside click
-document.getElementById('addModal').addEventListener('click', function(e) {
-  if (e.target === this) closeAddModal()
-})
-document.getElementById('detailModal').addEventListener('click', function(e) {
-  if (e.target === this) closeDetailModal()
-})
-document.getElementById('deleteModal').addEventListener('click', function(e) {
-  if (e.target === this) closeDeleteModal()
-})
-
-// Enter key in form
-document.getElementById('inputPhone').addEventListener('keydown', function(e) {
-  if (e.key === 'Enter') window.saveCustomer()
-})
-
-// ── INIT ──
-loadAll()
-
 </script>
 </body>
 </html>
