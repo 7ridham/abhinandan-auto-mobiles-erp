@@ -790,136 +790,217 @@ function calcPurDiscount () {
 // ══════════════════════════
 // GENERATE PURCHASE BILL NUMBER
 // ══════════════════════════
-async function generatePurBillNo () {
+async function generatePurBillNo() {
   const now = new Date()
   const dd  = String(now.getDate()).padStart(2, "0")
   const mm  = String(now.getMonth() + 1).padStart(2, "0")
   const yy  = String(now.getFullYear()).slice(2)
-  const datePrefix = `PUR-${dd}${mm}${yy}-`
 
-  const startOfDay = new Date(); startOfDay.setHours(0, 0, 0, 0)
+  const startOfDay = new Date()
+  startOfDay.setHours(0, 0, 0, 0)
+
   const { data } = await supabase
     .from("purchases")
     .select("bill_number")
     .gte("created_at", startOfDay.toISOString())
 
-  const todayCount = (data || []).length
-  return `${datePrefix}${String(todayCount + 1).padStart(4, "0")}`
+  const count = (data || []).length
+  const next  = String(count + 1).padStart(4, "0")
+  return `PUR-${dd}${mm}${yy}-${next}`
 }
-
 
 // ══════════════════════════
 // SAVE PURCHASE
 // ══════════════════════════
-async function savePurchase () {
+async function savePurchase() {
   if (window.isSavingPurchase) return
   window.isSavingPurchase = true
 
   try {
-    // ── Merchant ──
-    if (!selectedMerchant) {
-      const name = document.getElementById("merchantSearch").value.trim()
-      if (!name) { alert("Select or enter a merchant name ❌"); window.isSavingPurchase = false; return }
-      selectedMerchant = { id: null, name, phone: "" }
+    // ── Get merchant info ──
+    // Support both old plain inputs AND new merchant search system
+    let merchantName  = ""
+    let merchantPhone = ""
+
+    const merchantSearchEl = document.getElementById("merchantSearch")
+    const merchantNameEl   = document.getElementById("merchantName")
+
+    if (merchantSearchEl) {
+      // New system — merchant selected from search
+      merchantName  = document.getElementById("selectedMerchantName")?.innerText?.trim() || merchantSearchEl.value.trim()
+      merchantPhone = document.getElementById("selectedMerchantPhone")?.innerText?.trim() || ""
+    } else if (merchantNameEl) {
+      // Old system — plain input
+      merchantName  = merchantNameEl.value.trim()
+      merchantPhone = document.getElementById("merchantPhone")?.value?.trim() || ""
     }
 
-    if (purchaseItems.length === 0) { alert("Add at least one product ❌"); window.isSavingPurchase = false; return }
+    if (!merchantName) {
+      alert("❌ Please enter or select a merchant name")
+      window.isSavingPurchase = false
+      return
+    }
 
-    // ── Payment validation ──
-    const cash   = parseFloat(document.getElementById("purCash").value)   || 0
-    const upi    = parseFloat(document.getElementById("purUpi").value)    || 0
-    const credit = parseFloat(document.getElementById("purCredit").value) || 0
+    if (purchaseItems.length === 0) {
+      alert("❌ Add at least one product first")
+      window.isSavingPurchase = false
+      return
+    }
+
+    // ── Payment values ──
+    const cash   = parseFloat(document.getElementById("purCash")?.value)   || 0
+    const upi    = parseFloat(document.getElementById("purUpi")?.value)    || 0
+    const credit = parseFloat(document.getElementById("purCredit")?.value) || 0
     const paid   = cash + upi + credit
-    const discountAmount = calcPurDiscount()
-    const finalAmount    = totalAmount - discountAmount
 
+    // ── Discount ──
+    const discountType = document.getElementById("purDiscountType")?.value || "amount"
+    let discountAmt = 0
+    if (discountType === "auto") {
+      discountAmt = Math.max(totalAmount - paid, 0)
+    } else {
+      const dv = parseFloat(document.getElementById("purDiscount")?.value) || 0
+      discountAmt = discountType === "percent"
+        ? Math.round(totalAmount * dv / 100)
+        : dv
+      discountAmt = Math.min(discountAmt, totalAmount)
+    }
+    const finalAmount = totalAmount - discountAmt
+
+    // ── Overpayment check ──
     if (paid > finalAmount) {
-      alert("❌ Cannot Save!\n\nYou entered ₹" + paid.toLocaleString("en-IN") + " but bill total is only ₹" + finalAmount.toLocaleString("en-IN") + "\n\nExtra: ₹" + (paid - finalAmount).toLocaleString("en-IN") + "\n\nPlease correct the payment amounts.")
-      window.isSavingPurchase = false; return
+      alert("❌ Amount paid (₹" + paid + ") is more than total (₹" + finalAmount + "). Please fix.")
+      window.isSavingPurchase = false
+      return
     }
 
-    // ── Save or create merchant in DB ──
-    let merchantId = selectedMerchant.id
-    if (!merchantId) {
-      const { data: newMerchant, error: mErr } = await supabase
-        .from("merchants")
-        .insert([{ name: selectedMerchant.name, phone: selectedMerchant.phone || "" }])
-        .select().single()
-      if (!mErr && newMerchant) {
-        merchantId = newMerchant.id
-        selectedMerchant = newMerchant
-      }
-    }
-
+    // ── Generate bill number ──
     const billNo = await generatePurBillNo()
     currentPurBillNo = billNo
 
     // ── Save purchase header ──
     const { data: purchase, error: purError } = await supabase
-      .from("purchases")
+      .from('purchases')
       .insert([{
         bill_number:    billNo,
-        merchant_name:  selectedMerchant.name,
-        merchant_phone: selectedMerchant.phone || "",
-        merchant_id:    merchantId || null,
+        merchant_name:  merchantName,
+        merchant_phone: merchantPhone,
         total_amount:   finalAmount,
-        cash, upi, credit,
-        discount:       discountAmount
+        cash,
+        upi,
+        credit
       }])
-      .select().single()
+      .select()
+      .single()
 
-    if (purError) { console.error(purError); alert("Error saving purchase ❌"); window.isSavingPurchase = false; return }
+    if (purError) {
+      console.error("Purchase header error:", purError)
+      alert("❌ Error saving purchase: " + purError.message)
+      window.isSavingPurchase = false
+      return
+    }
 
-    // ── Save items + update inventory ──
+    // ── Save each item ──
     let allSaved = true
+
     for (const item of purchaseItems) {
       let itemId = item.id
 
       if (item.isNew) {
-        const { data: newProd, error: newErr } = await supabase
-          .from("inventory")
+        // ── Create NEW product in inventory with ALL columns ──
+        const { data: newProduct, error: newErr } = await supabase
+          .from('inventory')
           .insert([{
             item_name:      item.name,
+            category:       item.category    || null,
             quantity:       item.qty,
             purchase_price: item.buyPrice,
-            selling_price:  item.sellPrice || 0,
-            category:       item.category  || "",
-            unit_type:      item.unitType  || ""
+            selling_price:  item.sellPrice   || null,
+            supplier:       merchantName,
+            unit_type:      item.unit_type   || null,
+            notes:          null
           }])
-          .select().single()
+          .select()
+          .single()
 
-        if (newErr) { console.error(newErr); allSaved = false; continue }
-        itemId = newProd.id
+        if (newErr) {
+          console.error("New product save error:", newErr)
+          alert("❌ Error creating product '" + item.name + "': " + newErr.message)
+          allSaved = false
+          continue
+        }
+
+        itemId = newProduct.id
+        console.log("✅ New product created in inventory:", item.name, "ID:", itemId)
+
       } else {
-        // Add to existing stock
-        const { data: existing } = await supabase
-          .from("inventory").select("quantity").eq("id", itemId).single()
+        // ── Update EXISTING product stock + purchase_price ──
+        const { data: existing, error: fetchErr } = await supabase
+          .from('inventory')
+          .select('quantity, purchase_price')
+          .eq('id', itemId)
+          .single()
+
+        if (fetchErr) {
+          console.error("Fetch existing product error:", fetchErr)
+          allSaved = false
+          continue
+        }
+
         const newQty = (existing?.quantity || 0) + item.qty
-        await supabase.from("inventory").update({ quantity: newQty, purchase_price: item.buyPrice }).eq("id", itemId)
+
+        const { error: updateErr } = await supabase
+          .from('inventory')
+          .update({
+            quantity:       newQty,
+            purchase_price: item.buyPrice,  // update purchase price to latest
+            supplier:       merchantName    // update supplier to latest
+          })
+          .eq('id', itemId)
+
+        if (updateErr) {
+          console.error("Update stock error:", updateErr)
+          allSaved = false
+          continue
+        }
+
+        console.log("✅ Stock updated for:", item.name, "New qty:", newQty)
       }
 
-      await supabase.from("purchase_items").insert([{
-        purchase_id:    purchase.id,
-        item_id:        itemId,
-        quantity:       item.qty,
-        purchase_price: item.buyPrice,
-        total:          item.qty * item.buyPrice
-      }])
+      // ── Save to purchase_items table ──
+      const { error: itemErr } = await supabase
+        .from('purchase_items')
+        .insert([{
+          purchase_id:    purchase.id,
+          item_id:        itemId,
+          quantity:       item.qty,
+          purchase_price: item.buyPrice,
+          total:          item.qty * item.buyPrice
+        }])
+
+      if (itemErr) {
+        console.error("purchase_items save error:", itemErr)
+        allSaved = false
+      }
     }
 
     if (!allSaved) {
-      alert("⚠️ Purchase saved but some items failed. Bill No: " + billNo)
-    } else if (!window.isPrinting) {
-      alert("Purchase Saved ✅\nBill No: " + billNo)
+      alert("⚠️ Purchase saved but some items had errors. Check browser console (F12) for details.")
+    } else {
+      if (!window.isPrinting) {
+        alert("✅ Purchase Saved!\nBill: " + billNo + "\nInventory Updated!")
+      }
     }
 
   } catch (err) {
-    console.error(err); alert("Error saving purchase ❌")
+    console.error("savePurchase crash:", err)
+    alert("❌ Unexpected error: " + err.message)
   }
+
   window.isSavingPurchase = false
 }
-
-document.getElementById("savePurchaseBtn").addEventListener("click", savePurchase)
+  
+  document.getElementById("savePurchaseBtn").addEventListener("click", savePurchase)
 
 
 // ══════════════════════════
