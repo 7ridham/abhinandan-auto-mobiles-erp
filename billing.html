@@ -203,9 +203,10 @@
       <span style="font-size:16px;color:rgba(255,255,255,0.6);">Subtotal: </span>
       <span style="font-size:18px;font-weight:700;">₹<span id="totalAmount">0</span></span>
     </div>
-    <div style="margin-top:8px;">
-      <label style="display:flex;align-items:center;gap:8px;font-size:14px;cursor:pointer;">
-        <input type="checkbox" id="gstToggle"> Apply GST (18%)
+ <div style="margin-top:12px;">
+      <label style="display:flex;align-items:center;gap:10px;font-size:14px;cursor:pointer;color:rgba(255,255,255,0.85);font-family:'DM Sans',sans-serif;font-weight:500;">
+        <input type="checkbox" id="gstToggle" style="width:18px;height:18px;accent-color:#2563eb;cursor:pointer;flex-shrink:0;"> 
+        Apply GST (18%)
       </label>
     </div>
 
@@ -596,9 +597,9 @@ function renderBill() {
   if (credit > 0) html += row("Credit",      "₹" + credit.toLocaleString("en-IN"), "#f87171")
 
   let statusColor = "#34d399", statusText = "✅ Fully Settled"
-  if (remainingDue > 0) { statusColor = "#f87171"; statusText = "⚠️ Still Due: ₹" + remainingDue.toLocaleString("en-IN") }
-  if (remainingDue < 0) { statusColor = "#fbbf24"; statusText = "ℹ️ Extra Paid: ₹" + Math.abs(remainingDue).toLocaleString("en-IN") }
-
+  if (remainingDue > 0)  { statusColor = "#f87171"; statusText = "⚠️ Still Due: ₹" + remainingDue.toLocaleString("en-IN") }
+  if (remainingDue < 0)  { statusColor = "#fbbf24"; statusText = "⚠️ Extra Paid ₹" + Math.abs(remainingDue).toLocaleString("en-IN") + " — please correct!" }
+  
   html += `
     <div style="display:flex;justify-content:space-between;padding:10px 0 4px;margin-top:6px;border-top:1px solid rgba(255,255,255,0.1);">
       <span style="font-size:15px;font-weight:600;color:white;">Final Bill Amount</span>
@@ -694,6 +695,24 @@ async function saveBill() {
 
     if (billItems.length === 0) { alert("Add products first"); window.isSaving = false; return }
 
+    // ── PAYMENT VALIDATION ──
+    const _cashV   = parseFloat(document.getElementById("cash").value)   || 0
+    const _upiV    = parseFloat(document.getElementById("upi").value)    || 0
+    const _creditV = parseFloat(document.getElementById("credit").value) || 0
+    const _paidV   = _cashV + _upiV + _creditV
+
+    const _gstV    = document.getElementById("gstToggle").checked
+    let   _afterGSTv = totalAmount
+    if (_gstV) _afterGSTv = Math.round(totalAmount * 1.18)
+    const _discV   = calcDiscount(_afterGSTv)
+    const _finalV  = _afterGSTv - _discV
+
+    if (_paidV > _finalV) {
+      alert("❌ Cannot Save!\n\nYou entered ₹" + _paidV.toLocaleString("en-IN") + " but bill total is only ₹" + _finalV.toLocaleString("en-IN") + "\n\nExtra: ₹" + (_paidV - _finalV).toLocaleString("en-IN") + "\n\nPlease correct the payment amounts.")
+      window.isSaving = false
+      return
+    }
+
     const cash   = parseFloat(document.getElementById("cash").value)   || 0
     const upi    = parseFloat(document.getElementById("upi").value)    || 0
     const credit = parseFloat(document.getElementById("credit").value) || 0
@@ -764,6 +783,24 @@ document.getElementById("saveBtn").addEventListener("click", saveBill)
 // ── PRINT BILL ──
 async function printBill() {
   if (billItems.length === 0) { alert("Add products first"); return }
+
+  // ── PAYMENT VALIDATION ──
+  const _cashP   = parseFloat(document.getElementById("cash").value)   || 0
+  const _upiP    = parseFloat(document.getElementById("upi").value)    || 0
+  const _creditP = parseFloat(document.getElementById("credit").value) || 0
+  const _paidP   = _cashP + _upiP + _creditP
+
+  const _gstP    = document.getElementById("gstToggle").checked
+  let   _afterGSTP = totalAmount
+  if (_gstP) _afterGSTP = Math.round(totalAmount * 1.18)
+  const _discP   = calcDiscount(_afterGSTP)
+  const _finalP  = _afterGSTP - _discP
+
+  if (_paidP > _finalP) {
+    alert("❌ Cannot Print!\n\nYou entered ₹" + _paidP.toLocaleString("en-IN") + " but bill total is only ₹" + _finalP.toLocaleString("en-IN") + "\n\nExtra: ₹" + (_paidP - _finalP).toLocaleString("en-IN") + "\n\nPlease correct the payment amounts first.")
+    return
+  }
+  
   window.isPrinting = true
 
   const tempItems  = [...billItems]
