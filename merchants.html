@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Merchants - Abhinandan Auto Mobiles</title>
+<link rel="stylesheet" href="style.css">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;}
+.stat-card{background:linear-gradient(135deg,rgba(255,255,255,0.07),rgba(255,255,255,0.04));border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:20px 22px;position:relative;overflow:hidden;}
+.stat-card::before{content:'';position:absolute;top:0;left:10%;right:10%;height:1px;background:linear-gradient(90deg,transparent,rgba(167,139,250,0.3),transparent);}
+.stat-icon{font-size:22px;margin-bottom:10px;}.stat-label{font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:6px;}
+.stat-value{font-family:'Playfair Display',serif;font-size:26px;font-weight:700;color:white;}.stat-sub{font-size:12px;color:rgba(255,255,255,0.35);margin-top:4px;}
+.toolbar{display:flex;gap:12px;align-items:center;margin-bottom:20px;flex-wrap:wrap;}
+.toolbar input{flex:1;min-width:220px;margin-bottom:0;}.toolbar select{width:180px;margin-bottom:0;}
+.btn-purple{background:linear-gradient(135deg,#6d28d9,#8b5cf6)!important;box-shadow:0 4px 14px rgba(109,40,217,0.35)!important;white-space:nowrap;}
+.btn-purple:hover{background:linear-gradient(135deg,#5b21b6,#6d28d9)!important;}
+.table-wrap{overflow-x:auto;}
+.merch-table{width:100%;border-collapse:collapse;}
+.merch-table thead tr{background:rgba(109,40,217,0.15);border-bottom:1px solid rgba(255,255,255,0.1);}
+.merch-table th{padding:12px 16px;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.4);text-align:left;white-space:nowrap;}
+.merch-table td{padding:14px 16px;border-bottom:1px solid rgba(255,255,255,0.05);font-size:14px;color:rgba(255,255,255,0.85);vertical-align:middle;}
+.merch-table tr:hover td{background:rgba(255,255,255,0.03);}
+.merch-name{font-weight:600;color:white;display:flex;align-items:center;gap:10px;}
+.merch-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#6d28d9,#a78bfa);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:white;flex-shrink:0;}
+.merch-sub{font-size:12px;color:rgba(255,255,255,0.35);margin-top:2px;}
+.payable-badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600;}
+.payable-zero{background:rgba(52,211,153,0.12);color:#34d399;}
+.payable-low{background:rgba(251,191,36,0.12);color:#fbbf24;}
+.payable-high{background:rgba(248,113,113,0.12);color:#f87171;}
+.aging-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:middle;}
+.aging-dot.g{background:#34d399;}.aging-dot.y{background:#fbbf24;}.aging-dot.o{background:#fb923c;}.aging-dot.r{background:#f87171;box-shadow:0 0 5px #f87171;}
+.action-btns{display:flex;gap:8px;flex-wrap:wrap;}
+.btn-sm{padding:6px 12px!important;font-size:12px!important;border-radius:8px!important;box-shadow:none!important;}
+.btn-view{background:rgba(109,40,217,0.25)!important;border:1px solid rgba(109,40,217,0.4)!important;}
+.btn-edit{background:rgba(139,92,246,0.25)!important;border:1px solid rgba(139,92,246,0.4)!important;}
+.btn-pay{background:rgba(52,211,153,0.2)!important;border:1px solid rgba(52,211,153,0.35)!important;}
+.btn-del{background:rgba(220,38,38,0.2)!important;border:1px solid rgba(220,38,38,0.35)!important;}
+.empty-state{text-align:center;padding:60px 20px;color:rgba(255,255,255,0.3);}
+.empty-state .ei{font-size:48px;margin-bottom:12px;}
+.pagination{display:flex;justify-content:space-between;align-items:center;margin-top:20px;flex-wrap:wrap;gap:12px;}
+.pagination-info{font-size:13px;color:rgba(255,255,255,0.4);}
+.page-btns{display:flex;gap:8px;flex-wrap:wrap;}
+.page-btn{padding:7px 14px!important;font-size:13px!important;background:rgba(255,255,255,0.07)!important;border:1px solid rgba(255,255,255,0.12)!important;box-shadow:none!important;border-radius:8px!important;}
+.page-btn.active{background:rgba(109,40,217,0.35)!important;border-color:rgba(109,40,217,0.5)!important;}
+.page-btn:disabled{opacity:0.3;cursor:not-allowed;transform:none!important;}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:9999;overflow-y:auto;padding:20px;backdrop-filter:blur(4px);}
+.modal-box{background:linear-gradient(135deg,#0f172a,#0d1524);border:1px solid rgba(255,255,255,0.12);border-radius:20px;width:95%;max-width:540px;margin:40px auto;padding:32px;box-shadow:0 20px 60px rgba(0,0,0,0.5);}
+.modal-title{font-family:'Playfair Display',serif;font-size:20px;color:white;margin-bottom:24px;}
+.modal-footer{display:flex;gap:12px;margin-top:24px;justify-content:flex-end;}
+.btn-cancel{background:rgba(255,255,255,0.08)!important;border:1px solid rgba(255,255,255,0.15)!important;box-shadow:none!important;color:rgba(255,255,255,0.7)!important;}
+.form-label{font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:6px;display:block;}
+.form-group{margin-bottom:16px;}.form-group input,.form-group textarea{margin-bottom:0;}
+.optional-tag{font-size:10px;color:rgba(255,255,255,0.25);margin-left:6px;font-weight:400;letter-spacing:0;text-transform:none;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.detail-modal{max-width:760px;}
+.detail-header{display:flex;align-items:center;gap:18px;margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid rgba(255,255,255,0.08);flex-wrap:wrap;}
+.detail-avatar{width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#6d28d9,#a78bfa);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;color:white;flex-shrink:0;}
+.detail-name{font-size:22px;font-weight:700;color:white;}.detail-sub{font-size:13px;color:rgba(255,255,255,0.4);margin-top:4px;line-height:1.8;}
+.detail-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px;}
+.detail-stat{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px;text-align:center;}
+.detail-stat-val{font-size:18px;font-weight:700;color:white;margin-bottom:4px;}
+.detail-stat-lbl{font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.35);}
+.aging-section{background:rgba(109,40,217,0.08);border:1px solid rgba(109,40,217,0.2);border-radius:12px;padding:16px;margin-bottom:20px;}
+.aging-title{font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:rgba(167,139,250,0.7);margin-bottom:12px;}
+.aging-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+.aging-chip{padding:8px 10px;border-radius:8px;text-align:center;}
+.aging-chip .ac-val{font-size:14px;font-weight:700;margin-bottom:2px;}
+.aging-chip .ac-lbl{font-size:10px;color:rgba(255,255,255,0.45);}
+.aging-chip.g{background:rgba(52,211,153,0.1);}.aging-chip.g .ac-val{color:#34d399;}
+.aging-chip.y{background:rgba(251,191,36,0.1);}.aging-chip.y .ac-val{color:#fbbf24;}
+.aging-chip.o{background:rgba(251,146,60,0.1);}.aging-chip.o .ac-val{color:#fb923c;}
+.aging-chip.r{background:rgba(248,113,113,0.1);}.aging-chip.r .ac-val{color:#f87171;}
+.mini-table{width:100%;border-collapse:collapse;}
+.mini-table th{padding:8px 12px;font-size:10px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid rgba(255,255,255,0.07);text-align:left;}
+.mini-table td{padding:10px 12px;font-size:13px;border-bottom:1px solid rgba(255,255,255,0.04);color:rgba(255,255,255,0.8);}
+.notes-box{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:14px;font-size:13px;color:rgba(255,255,255,0.6);font-style:italic;margin-bottom:16px;min-height:48px;}
+textarea.form-input{width:100%;padding:10px 14px;border-radius:8px;border:1.5px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.07);color:white;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;resize:vertical;height:72px;margin-bottom:0;}
+textarea.form-input:focus{border-color:rgba(109,40,217,0.5);}
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+  <h2>Auto ERP</h2>
+  <div class="sidebar-divider"></div>
+  <div class="sidebar-label">Main</div>
+  <a href="dashboard.html">🏠 Dashboard</a>
+  <a href="billing.html">🧾 Sales Billing</a>
+  <a href="purchase-billing.html">📦 Purchase Billing</a>
+  <div class="sidebar-label">Records</div>
+  <a href="products.html">🔧 Products</a>
+  <a href="customers.html">👥 Customers</a>
+  <a href="customer-ledger.html">📒 Customer Ledger</a>
+  <a href="merchants.html" class="active">🏭 Merchants</a>
+  <a href="merchant-ledger.html">📒 Merchant Ledger</a>
+  <div class="sidebar-bottom"><div class="sidebar-version">Auto ERP v1.0</div></div>
+</div>
+
+<div class="main">
+  <h1>🏭 Merchants</h1>
+
+  <div class="stats-row">
+    <div class="stat-card"><div class="stat-icon">🏭</div><div class="stat-label">Total Merchants</div><div class="stat-value" id="statTotal">—</div><div class="stat-sub">All suppliers</div></div>
+    <div class="stat-card"><div class="stat-icon">✅</div><div class="stat-label">Clear Accounts</div><div class="stat-value" id="statClear" style="color:#34d399;">—</div><div class="stat-sub">Nothing payable</div></div>
+    <div class="stat-card"><div class="stat-icon">⚠️</div><div class="stat-label">Payable Due</div><div class="stat-value" id="statPayable" style="color:#f87171;">—</div><div class="stat-sub">Has balance</div></div>
+    <div class="stat-card"><div class="stat-icon">💰</div><div class="stat-label">Total Payable</div><div class="stat-value" id="statOutstanding" style="color:#fbbf24;font-size:20px;">—</div><div class="stat-sub">All pending</div></div>
+  </div>
+
+  <div class="card">
+    <div class="toolbar">
+      <input type="text" id="searchInput" placeholder="🔍  Search by name, phone, GSTIN or address..." oninput="filterAndRender()">
+      <select id="filterPayable" onchange="filterAndRender()">
+        <option value="all">All Merchants</option>
+        <option value="payable">Has Payable</option>
+        <option value="overdue">Overdue (30+ days)</option>
+        <option value="clear">Fully Paid</option>
+      </select>
+      <button class="btn-purple" onclick="openAddModal()">➕ Add Merchant</button>
+    </div>
+
+    <div class="table-wrap">
+      <table class="merch-table">
+        <thead>
+          <tr>
+            <th>#</th><th>Merchant</th><th>Phone</th><th>GSTIN</th>
+            <th>Bills</th><th>Total Bought</th><th>Payable Due</th><th>Max Age</th><th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="merchTableBody">
+          <tr><td colspan="9"><div class="empty-state"><div class="ei">⏳</div><p>Loading...</p></div></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="pagination">
+      <div class="pagination-info" id="pageInfo">—</div>
+      <div class="page-btns" id="pageBtns"></div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ADD/EDIT MODAL -->
+<div class="modal-overlay" id="addModal">
+  <div class="modal-box">
+    <div class="modal-title" id="modalTitle">➕ Add New Merchant</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Merchant / Supplier Name <span style="color:#f87171;">*</span></label>
+        <input type="text" id="inputName" placeholder="Enter business or person name">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Phone <span class="optional-tag">(optional)</span></label>
+        <input type="text" id="inputPhone" placeholder="Enter phone number">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Email <span class="optional-tag">(optional)</span></label>
+        <input type="email" id="inputEmail" placeholder="Supplier email">
+      </div>
+      <div class="form-group">
+        <label class="form-label">GSTIN <span class="optional-tag">(optional)</span></label>
+        <input type="text" id="inputGstin" placeholder="e.g. 22AAAAA0000A1Z5" style="text-transform:uppercase;">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Address <span class="optional-tag">(optional)</span></label>
+      <input type="text" id="inputAddress" placeholder="City / Area">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Notes <span class="optional-tag">(optional)</span></label>
+      <textarea class="form-input" id="inputNotes" placeholder="Payment terms, product types, any useful info..."></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeAddModal()">✕ Cancel</button>
+      <button id="saveBtn" onclick="saveMerchant()" style="background:linear-gradient(135deg,#6d28d9,#8b5cf6);box-shadow:0 4px 14px rgba(109,40,217,0.35);">💾 Save Merchant</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- DETAIL MODAL -->
+<div class="modal-overlay" id="detailModal">
+  <div class="modal-box detail-modal">
+    <div class="detail-header">
+      <div class="detail-avatar" id="dAvatar">M</div>
+      <div style="flex:1;">
+        <div class="detail-name" id="dName">—</div>
+        <div class="detail-sub" id="dSub">—</div>
+      </div>
+      <button onclick="closeDetailModal()" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);box-shadow:none;padding:8px 14px;font-size:12px;flex-shrink:0;">✕ Close</button>
+    </div>
+
+    <div class="detail-stats">
+      <div class="detail-stat"><div class="detail-stat-val" id="dBills">0</div><div class="detail-stat-lbl">Total Bills</div></div>
+      <div class="detail-stat"><div class="detail-stat-val" id="dTotal" style="color:#a78bfa;">₹0</div><div class="detail-stat-lbl">Total Bought</div></div>
+      <div class="detail-stat"><div class="detail-stat-val" id="dPaid" style="color:#34d399;">₹0</div><div class="detail-stat-lbl">Total Paid</div></div>
+      <div class="detail-stat"><div class="detail-stat-val" id="dPayable">₹0</div><div class="detail-stat-lbl">Payable Due</div></div>
+    </div>
+
+    <!-- Aging Analysis -->
+    <div class="aging-section" id="dAgingSection">
+      <div class="aging-title">📊 Outstanding Aging Analysis</div>
+      <div class="aging-grid">
+        <div class="aging-chip g"><div class="ac-val" id="dAge0">₹0</div><div class="ac-lbl">0–30 days</div></div>
+        <div class="aging-chip y"><div class="ac-val" id="dAge31">₹0</div><div class="ac-lbl">31–60 days</div></div>
+        <div class="aging-chip o"><div class="ac-val" id="dAge61">₹0</div><div class="ac-lbl">61–90 days</div></div>
+        <div class="aging-chip r"><div class="ac-val" id="dAge90">₹0</div><div class="ac-lbl">90+ days</div></div>
+      </div>
+    </div>
+
+    <!-- Notes -->
+    <div id="dNotesBox" style="display:none;margin-bottom:16px;">
+      <div style="font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:8px;">📝 Notes</div>
+      <div class="notes-box" id="dNotes"></div>
+    </div>
+
+    <h3 style="margin-bottom:12px;">Recent Purchases</h3>
+    <div style="max-height:260px;overflow-y:auto;border-radius:10px;border:1px solid rgba(255,255,255,0.07);">
+      <table class="mini-table">
+        <thead><tr><th>Bill No</th><th>Date</th><th>Total</th><th>Cash</th><th>UPI</th><th>Payable</th></tr></thead>
+        <tbody id="dBillsBody"></tbody>
+      </table>
+    </div>
+
+    <div style="display:flex;gap:12px;margin-top:20px;flex-wrap:wrap;">
+      <button onclick="goToLedger()" style="background:rgba(109,40,217,0.25);border:1px solid rgba(109,40,217,0.4);box-shadow:none;">📒 Full Ledger</button>
+      <button onclick="goToPurchase()" style="background:rgba(245,158,11,0.2);border:1px solid rgba(245,158,11,0.35);box-shadow:none;">📦 New Purchase</button>
+      <button onclick="editFromDetail()" style="background:rgba(139,92,246,0.25);border:1px solid rgba(139,92,246,0.4);box-shadow:none;">✏️ Edit Info</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- DELETE MODAL -->
+<div class="modal-overlay" id="deleteModal">
+  <div class="modal-box" style="max-width:420px;">
+    <div class="modal-title" style="color:#f87171;">🗑️ Delete Merchant</div>
+    <p style="color:rgba(255,255,255,0.65);font-size:15px;line-height:1.6;margin-bottom:8px;">Are you sure you want to delete <strong id="deleteMerchantName" style="color:white;"></strong>?</p>
+    <p style="color:rgba(248,113,113,0.8);font-size:13px;">⚠️ Purchase bills will NOT be deleted — only this merchant profile record.</p>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeDeleteModal()">✕ Cancel</button>
+      <button onclick="confirmDelete()" style="background:linear-gradient(135deg,#dc2626,#ef4444);box-shadow:0 4px 14px rgba(220,38,38,0.35);">🗑️ Yes, Delete</button>
+    </div>
+  </div>
+</div>
+
+
+<script>
+const _S = document.createElement('script')
+_S.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js'
+_S.onload = () => initApp(window.supabase.createClient(
+  "https://mhhnmndnolhapaoqtbxo.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1oaG5tbmRub2xoYXBhb3F0YnhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4Mzg4NTksImV4cCI6MjA4ODQxNDg1OX0.IMSp8vYiCln_iSuoT_H2qdeX_dP1WMhOOskDw20eJXw"
+))
+document.head.appendChild(_S)
+
+function initApp(supabase) {
+  const today = new Date()
+  let allMerchants=[], purchasesMap={}, paymentsMap={}, filteredList=[], currentPage=1, PAGE_SIZE=15
+  let editingId=null, deletingId=null, detailName=null
+
+  function daysSince(d){ return Math.floor((today - new Date(d))/(1000*60*60*24)) }
+
+  // ─── LOAD ALL ───
+  async function loadAll() {
+    const [
+      {data:merchants},
+      {data:purchases},
+      {data:mpayments}
+    ] = await Promise.all([
+      supabase.from('merchants').select('*').order('name'),
+      supabase.from('purchases').select('id,merchant_name,merchant_phone,total_amount,cash,upi,credit,bill_number,created_at'),
+      supabase.from('merchant_payments').select('merchant_name,amount')
+    ])
+
+    // Build purchases map keyed by merchant_name (lowercase)
+    purchasesMap = {}
+    ;(purchases||[]).forEach(p => {
+      const key = (p.merchant_name||'').trim().toLowerCase()
+      if (!key) return
+      if (!purchasesMap[key]) purchasesMap[key] = { bills:0, total:0, creditFromBills:0, rows:[], maxAge:0, phone: p.merchant_phone||'' }
+      purchasesMap[key].bills++
+      purchasesMap[key].total += Number(p.total_amount)||0
+      purchasesMap[key].creditFromBills += Number(p.credit)||0
+      purchasesMap[key].rows.push(p)
+      if (p.credit > 0) {
+        const age = daysSince(p.created_at)
+        if (age > purchasesMap[key].maxAge) purchasesMap[key].maxAge = age
+      }
+    })
+
+    // Build payments map
+    paymentsMap = {}
+    ;(mpayments||[]).forEach(p => {
+      const key = (p.merchant_name||'').trim().toLowerCase()
+      if (!paymentsMap[key]) paymentsMap[key] = 0
+      paymentsMap[key] += Number(p.amount)||0
+    })
+
+    // Enrich merchants with purchase data
+    // Also pick up merchants found in purchases but not in merchants table
+    const merchantNames = new Set((merchants||[]).map(m => m.name.toLowerCase()))
+    const extraFromPurchases = []
+    Object.keys(purchasesMap).forEach(key => {
+      if (!merchantNames.has(key)) {
+        extraFromPurchases.push({
+          id: null,
+          name: purchasesMap[key].rows[0]?.merchant_name || key,
+          phone: purchasesMap[key].phone,
+          email: null, address: null, gstin: null, notes: null,
+          _fromPurchases: true
+        })
+      }
+    })
+
+    allMerchants = [...(merchants||[]), ...extraFromPurchases].map(m => {
+      const key = m.name.trim().toLowerCase()
+      const ps  = purchasesMap[key] || { bills:0, total:0, creditFromBills:0, maxAge:0 }
+      const paid = paymentsMap[key] || 0
+      return {
+        ...m,
+        totalBills: ps.bills,
+        totalAmount: ps.total,
+        creditFromBills: ps.creditFromBills,
+        totalPaid: paid,
+        payable: Math.max(ps.creditFromBills - paid, 0),
+        maxAge: ps.maxAge
+      }
+    })
+
+    // Sort: highest payable first, then by name
+    allMerchants.sort((a,b) => b.payable - a.payable || a.name.localeCompare(b.name))
+    updateStats(); filterAndRender()
+  }
+
+  function updateStats() {
+    let clear=0, payableCount=0, outstanding=0
+    allMerchants.forEach(m => {
+      if (m.payable > 0) { payableCount++; outstanding += m.payable } else clear++
+    })
+    document.getElementById('statTotal').innerText       = allMerchants.length
+    document.getElementById('statClear').innerText       = clear
+    document.getElementById('statPayable').innerText     = payableCount
+    document.getElementById('statOutstanding').innerText = '₹'+Math.round(outstanding).toLocaleString('en-IN')
+  }
+
+  window.filterAndRender = function() {
+    const search = (document.getElementById('searchInput').value||'').toLowerCase().trim()
+    const filter = document.getElementById('filterPayable').value
+    filteredList = allMerchants.filter(m => {
+      const ms = !search ||
+        (m.name||'').toLowerCase().includes(search) ||
+        (m.phone||'').includes(search) ||
+        (m.gstin||'').toLowerCase().includes(search) ||
+        (m.address||'').toLowerCase().includes(search)
+      let mf = true
+      if (filter==='payable') mf = m.payable > 0
+      if (filter==='overdue') mf = m.payable > 0 && m.maxAge > 30
+      if (filter==='clear')   mf = m.payable <= 0
+      return ms && mf
+    })
+    currentPage=1; renderTable()
+  }
+
+  function agingDot(payable, maxAge) {
+    if (payable <= 0) return '<span class="aging-dot g"></span>'
+    if (maxAge <= 30)  return '<span class="aging-dot g"></span>'
+    if (maxAge <= 60)  return '<span class="aging-dot y"></span>'
+    if (maxAge <= 90)  return '<span class="aging-dot o"></span>'
+    return '<span class="aging-dot r"></span>'
+  }
+
+  function renderTable() {
+    const tbody = document.getElementById('merchTableBody')
+    const total = filteredList.length, start=(currentPage-1)*PAGE_SIZE
+    const end = Math.min(start+PAGE_SIZE, total), page = filteredList.slice(start, end)
+    const totalPages = Math.ceil(total/PAGE_SIZE)||1
+
+    document.getElementById('pageInfo').innerText = total===0 ? 'No merchants found' : `Showing ${start+1}–${end} of ${total} merchants`
+
+    const pb = document.getElementById('pageBtns'); pb.innerHTML=''
+    if (totalPages > 1) {
+      mkBtn(pb,'← Prev', currentPage===1, ()=>{currentPage--;renderTable()})
+      for(let i=1;i<=totalPages;i++){const p=i;mkBtn(pb,String(i),false,()=>{currentPage=p;renderTable()},i===currentPage)}
+      mkBtn(pb,'Next →', currentPage===totalPages, ()=>{currentPage++;renderTable()})
+    }
+
+    if (!page.length) { tbody.innerHTML=`<tr><td colspan="9"><div class="empty-state"><div class="ei">🏭</div><p>No merchants found</p></div></td></tr>`; return }
+
+    tbody.innerHTML=''
+    page.forEach((m, idx) => {
+      const ini = (m.name||'?')[0].toUpperCase()
+      const payable = Math.round(m.payable)
+      let bc='payable-zero', bt='✓ Clear'
+      if (payable>0 && payable<=5000)  { bc='payable-low';  bt='₹'+payable.toLocaleString('en-IN') }
+      if (payable>5000)                { bc='payable-high'; bt='₹'+payable.toLocaleString('en-IN') }
+
+      let ageText = '—'
+      if (m.payable > 0) {
+        if (m.maxAge <= 30)       ageText = `<span style="color:#34d399;">${m.maxAge}d</span>`
+        else if (m.maxAge <= 60)  ageText = `<span style="color:#fbbf24;">${m.maxAge}d</span>`
+        else if (m.maxAge <= 90)  ageText = `<span style="color:#fb923c;">${m.maxAge}d</span>`
+        else                      ageText = `<span style="color:#f87171;font-weight:700;">${m.maxAge}d ⚠️</span>`
+      }
+
+      const tr = document.createElement('tr')
+      tr.innerHTML=`
+        <td style="color:rgba(255,255,255,0.3);font-size:13px;">${start+idx+1}</td>
+        <td><div class="merch-name">${agingDot(m.payable,m.maxAge)}<div class="merch-avatar">${ini}</div><div>
+          <div>${esc(m.name)}</div>
+          ${m.gstin?`<div class="merch-sub">GSTIN: ${esc(m.gstin)}</div>`:''}
+        </div></div></td>
+        <td style="color:rgba(255,255,255,0.65);">${m.phone||'—'}</td>
+        <td style="color:rgba(255,255,255,0.5);font-size:13px;font-family:monospace;">${m.gstin||'—'}</td>
+        <td style="text-align:center;color:rgba(255,255,255,0.7);">${m.totalBills}</td>
+        <td style="font-weight:600;color:#a78bfa;">₹${Math.round(m.totalAmount).toLocaleString('en-IN')}</td>
+        <td><span class="payable-badge ${bc}">${bt}</span></td>
+        <td>${ageText}</td>
+        <td><div class="action-btns">
+          <button class="btn-sm btn-view" data-name="${esc(m.name)}">👁 View</button>
+          ${m.id ? `<button class="btn-sm btn-edit" data-id="${m.id}">✏️</button>` : ''}
+          ${m.payable > 0 ? `<button class="btn-sm btn-pay" data-name="${esc(m.name)}">💸 Pay</button>` : ''}
+          ${m.id ? `<button class="btn-sm btn-del removeBtn" data-id="${m.id}" data-name="${esc(m.name)}">🗑️</button>` : ''}
+        </div></td>`
+      tbody.appendChild(tr)
+    })
+
+    tbody.querySelectorAll('.btn-view').forEach(b=>b.addEventListener('click',()=>openDetail(b.dataset.name)))
+    tbody.querySelectorAll('.btn-edit').forEach(b=>b.addEventListener('click',()=>openEditModal(b.dataset.id)))
+    tbody.querySelectorAll('.btn-pay').forEach(b=>b.addEventListener('click',()=>{
+      localStorage.setItem('ledger_prefill_merchant', b.dataset.name)
+      window.location.href='merchant-ledger.html'
+    }))
+    tbody.querySelectorAll('.btn-del').forEach(b=>b.addEventListener('click',()=>openDeleteModal(b.dataset.id,b.dataset.name)))
+  }
+
+  function mkBtn(container,label,disabled,onClick,isActive){
+    const b=document.createElement('button')
+    b.innerText=label; b.className='page-btn'+(isActive?' active':'')
+    b.disabled=disabled; b.addEventListener('click',onClick); container.appendChild(b)
+  }
+
+  function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+
+  // ─── ADD/EDIT ───
+  window.openAddModal = function(){
+    editingId=null
+    document.getElementById('modalTitle').innerText='➕ Add New Merchant'
+    ;['inputName','inputPhone','inputEmail','inputGstin','inputAddress','inputNotes'].forEach(id=>document.getElementById(id).value='')
+    document.getElementById('addModal').style.display='block'
+    setTimeout(()=>document.getElementById('inputName').focus(),100)
+  }
+
+  function openEditModal(id){
+    const m=allMerchants.find(x=>String(x.id)===String(id))
+    if(!m) return
+    editingId=m.id
+    document.getElementById('modalTitle').innerText='✏️ Edit Merchant'
+    document.getElementById('inputName').value    = m.name    ||''
+    document.getElementById('inputPhone').value   = m.phone   ||''
+    document.getElementById('inputEmail').value   = m.email   ||''
+    document.getElementById('inputGstin').value   = m.gstin   ||''
+    document.getElementById('inputAddress').value = m.address ||''
+    document.getElementById('inputNotes').value   = m.notes   ||''
+    document.getElementById('addModal').style.display='block'
+    setTimeout(()=>document.getElementById('inputName').focus(),100)
+  }
+
+  window.closeAddModal = function(){document.getElementById('addModal').style.display='none'; editingId=null}
+
+  window.saveMerchant = async function(){
+    const name = document.getElementById('inputName').value.trim()
+    if(!name){alert('Please enter merchant name'); return}
+    const phone   = document.getElementById('inputPhone').value.trim()
+    const email   = document.getElementById('inputEmail').value.trim()
+    const gstin   = document.getElementById('inputGstin').value.trim().toUpperCase()
+    const address = document.getElementById('inputAddress').value.trim()
+    const notes   = document.getElementById('inputNotes').value.trim()
+    const btn = document.getElementById('saveBtn')
+    btn.disabled=true; btn.innerText='Saving...'
+    let error
+    if(editingId){
+      ;({error}=await supabase.from('merchants').update({name,phone,email,gstin,address,notes}).eq('id',editingId))
+    }else{
+      ;({error}=await supabase.from('merchants').insert([{name,phone,email,gstin,address,notes}]))
+    }
+    btn.disabled=false; btn.innerText='💾 Save Merchant'
+    if(error){alert('Error saving ❌\n'+error.message);return}
+    closeAddModal(); await loadAll()
+  }
+
+  // ─── DELETE ───
+  function openDeleteModal(id,name){
+    deletingId=id
+    document.getElementById('deleteMerchantName').innerText=name
+    document.getElementById('deleteModal').style.display='block'
+  }
+  window.closeDeleteModal=function(){document.getElementById('deleteModal').style.display='none';deletingId=null}
+  window.confirmDelete=async function(){
+    if(!deletingId) return
+    const{error}=await supabase.from('merchants').delete().eq('id',deletingId)
+    if(error){alert('Error ❌');return}
+    closeDeleteModal(); await loadAll()
+  }
+
+  // ─── DETAIL ───
+  function openDetail(name) {
+    const m = allMerchants.find(x=>x.name.toLowerCase()===name.toLowerCase())
+    if(!m) return
+    detailName = m.name
+    const key  = m.name.toLowerCase()
+    const ps   = purchasesMap[key] || {bills:0,total:0,creditFromBills:0,rows:[],maxAge:0}
+    const paid = paymentsMap[key]  || 0
+    const payable = Math.max(ps.creditFromBills - paid, 0)
+
+    document.getElementById('dAvatar').innerText=(m.name||'?')[0].toUpperCase()
+    document.getElementById('dName').innerText=m.name||'—'
+    const parts=[]
+    if(m.phone)   parts.push('📞 '+m.phone)
+    if(m.email)   parts.push('✉️ '+m.email)
+    if(m.address) parts.push('📍 '+m.address)
+    if(m.gstin)   parts.push('GSTIN: '+m.gstin)
+    document.getElementById('dSub').innerText=parts.join('   |   ')||'No contact info'
+    document.getElementById('dBills').innerText   = ps.bills
+    document.getElementById('dTotal').innerText   = '₹'+Math.round(ps.total).toLocaleString('en-IN')
+    document.getElementById('dPaid').innerText    = '₹'+Math.round(paid).toLocaleString('en-IN')
+    document.getElementById('dPayable').innerText = payable>0?'₹'+Math.round(payable).toLocaleString('en-IN'):'₹0 — Clear'
+    document.getElementById('dPayable').style.color = payable>0?'#f87171':'#34d399'
+
+    // Aging
+    let a0=0,a31=0,a61=0,a90=0
+    ;(ps.rows||[]).forEach(p=>{
+      if((p.credit||0)<=0) return
+      const d=daysSince(p.created_at)
+      if(d<=30) a0+=p.credit; else if(d<=60) a31+=p.credit; else if(d<=90) a61+=p.credit; else a90+=p.credit
+    })
+    document.getElementById('dAge0').innerText  = '₹'+Math.round(a0).toLocaleString('en-IN')
+    document.getElementById('dAge31').innerText = '₹'+Math.round(a31).toLocaleString('en-IN')
+    document.getElementById('dAge61').innerText = '₹'+Math.round(a61).toLocaleString('en-IN')
+    document.getElementById('dAge90').innerText = '₹'+Math.round(a90).toLocaleString('en-IN')
+    document.getElementById('dAgingSection').style.display = payable>0 ? 'block' : 'none'
+
+    // Notes
+    if(m.notes){
+      document.getElementById('dNotes').innerText=m.notes
+      document.getElementById('dNotesBox').style.display='block'
+    } else {
+      document.getElementById('dNotesBox').style.display='none'
+    }
+
+    // Recent purchases
+    const tbody=document.getElementById('dBillsBody'); tbody.innerHTML=''
+    const rows=[...(ps.rows||[])].sort((a,b)=>new Date(b.created_at)-new Date(a.created_at)).slice(0,10)
+    if(!rows.length){
+      tbody.innerHTML=`<tr><td colspan="6" style="text-align:center;color:rgba(255,255,255,0.3);padding:20px;">No purchases yet</td></tr>`
+    }else{
+      rows.forEach(p=>{
+        const dt=new Date(p.created_at).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})
+        tbody.innerHTML+=`<tr>
+          <td style="font-size:11px;color:rgba(255,255,255,0.4);">${p.bill_number}</td>
+          <td>${dt}</td>
+          <td style="font-weight:600;color:#a78bfa;">₹${Math.round(p.total_amount).toLocaleString('en-IN')}</td>
+          <td style="color:#34d399;">${p.cash>0?'₹'+Number(p.cash).toLocaleString('en-IN'):'—'}</td>
+          <td style="color:#60a5fa;">${p.upi>0?'₹'+Number(p.upi).toLocaleString('en-IN'):'—'}</td>
+          <td style="color:${p.credit>0?'#f87171':'rgba(255,255,255,0.3)'};">${p.credit>0?'₹'+Number(p.credit).toLocaleString('en-IN'):'—'}</td>
+        </tr>`
+      })
+    }
+    document.getElementById('detailModal').style.display='block'
+  }
+
+  window.closeDetailModal=function(){document.getElementById('detailModal').style.display='none';detailName=null}
+  window.editFromDetail=function(){
+    const m=allMerchants.find(x=>x.name.toLowerCase()===detailName?.toLowerCase())
+    if(m&&m.id){closeDetailModal();openEditModal(m.id)}
+    else alert('This merchant has no profile record yet.\nUse "Add Merchant" to create one.')
+  }
+  window.goToLedger=function(){
+    if(!detailName) return
+    localStorage.setItem('ledger_prefill_merchant', detailName)
+    window.location.href='merchant-ledger.html'
+  }
+  window.goToPurchase=function(){
+    if(!detailName) return
+    localStorage.setItem('purchase_prefill_merchant', detailName)
+    window.location.href='purchase-billing.html'
+  }
+
+  ;['addModal','detailModal','deleteModal'].forEach(id=>{
+    document.getElementById(id).addEventListener('click',function(e){
+      if(e.target===this){
+        if(id==='addModal')    closeAddModal()
+        if(id==='detailModal') closeDetailModal()
+        if(id==='deleteModal') closeDeleteModal()
+      }
+    })
+  })
+
+  loadAll()
+}
+</script>
+</body>
+</html>
