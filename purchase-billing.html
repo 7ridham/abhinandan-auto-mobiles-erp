@@ -1205,7 +1205,17 @@ window.reprintPurchase = async function (billNo) {
   window.print()
   setTimeout(() => { document.getElementById("printArea").style.display = "none" }, 800)
 }
-
+  
+// Auto-fill merchant if coming from merchants.html
+const prefillMerchant = localStorage.getItem('purchase_prefill_merchant')
+if (prefillMerchant) {
+  document.getElementById('merchantSearch').value = prefillMerchant
+  selectedMerchant = { id: null, name: prefillMerchant, phone: '' }
+  document.getElementById('selectedMerchantName').innerText = prefillMerchant
+  document.getElementById('selectedMerchantPhone').innerText = ''
+  document.getElementById('selectedMerchantBox').style.display = 'block'
+  localStorage.removeItem('purchase_prefill_merchant')
+}
 </script>
 </body>
 </html>
