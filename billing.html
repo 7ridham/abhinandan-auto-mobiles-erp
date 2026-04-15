@@ -743,24 +743,32 @@ async function saveBill() {
 
    let allItemsSaved = true
     for (const item of billItems) {
-      const { error: itemError } = await supabase.from('bill_items').insert([{
-        sale_id:  sale.id,
-        item_id:  item.id,
-        quantity: item.qty,
-        price:    item.price,
-        total:    item.qty * item.price
-      }])
-      if (itemError) {
-        allItemsSaved = false
-        console.error("Failed to save item:", item.name, itemError)
-      }
-      const { data: prod } = await supabase
-        .from('inventory').select('quantity').eq('id', item.id).single()
-      if (prod) {
-        await supabase.from('inventory')
-          .update({ quantity: prod.quantity - item.qty })
-          .eq('id', item.id)
-      }
+ // ── BULK INSERT all items in ONE query (prevents empty bill on network drop) ──
+    const itemsToInsert = billItems.map(item => ({
+      sale_id:  sale.id,
+      item_id:  item.id,
+      quantity: item.qty,
+      price:    item.price,
+      total:    item.qty * item.price
+    }))
+
+    const { error: itemsError } = await supabase.from('bill_items').insert(itemsToInsert)
+
+    if (itemsError) {
+      // ROLLBACK: delete the sale header so no orphan bill exists
+      await supabase.from('sales').delete().eq('id', sale.id)
+      alert('❌ Error saving bill items. Bill was NOT saved.\nPlease check your internet and try again.\n\nError: ' + itemsError.message)
+      window.isSaving = false
+      return
+    }
+
+    // ── ATOMIC inventory deduction (no race condition) ──
+    for (const item of billItems) {
+      await supabase.rpc('decrement_inventory', { p_item_id: item.id, p_qty: item.qty })
+    }
+
+    if (!window.isPrinting) alert('Bill Saved ✅ — Bill No: ' + billNumber)
+      
     }
 
     if (!allItemsSaved) {
