@@ -1,143 +1,91 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Billing - Abhinandan Auto Mobiles</title>
+<title>Sales — Abhinandan Auto Mobiles</title>
 <link rel="stylesheet" href="style.css">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-  .bill-type-row { display:flex; gap:12px; margin-bottom:10px; flex-wrap:wrap; }
-  .bill-type-btn {
-    padding:8px 18px; border-radius:20px;
-    border:2px solid rgba(255,255,255,0.2);
-    background:transparent; color:white;
-    font-size:14px; cursor:pointer; transition:all 0.2s;
-  }
-  .bill-type-btn.active { background:#2563eb; border-color:#2563eb; }
+  .page-mode-bar{display:flex;gap:10px;margin-bottom:20px;align-items:center;flex-wrap:wrap;}
+  .mode-btn{padding:10px 22px;border-radius:10px;border:2px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.55);font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;}
+  .mode-btn:hover{background:rgba(255,255,255,0.1);}
+  .mode-btn.active-sale{background:#2563eb;border-color:#2563eb;color:white;box-shadow:0 4px 14px rgba(37,99,235,0.4);}
+  .mode-btn.active-return{background:#dc2626;border-color:#dc2626;color:white;box-shadow:0 4px 14px rgba(220,38,38,0.4);}
 
-  #printArea { display:none; font-family:'DM Sans',sans-serif; background:#fff; padding:0; color:#111; }
+  #editModeBar{display:none;background:rgba(245,158,11,0.12);border:1.5px solid rgba(245,158,11,0.35);border-radius:10px;padding:12px 18px;margin-bottom:16px;}
+  #editModeBar .em-inner{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;}
+  #editModeBar .em-text{font-size:14px;color:#fbbf24;font-weight:600;}
+  #editModeBar .em-no{font-size:13px;color:rgba(245,158,11,0.75);margin-top:3px;}
 
-  .bill-paper {
-    max-width: 800px; margin: auto; background: #fff;
-    border: 1px solid #e5e7eb;
-  }
-  .bill-header {
-    background: linear-gradient(135deg,#1e3a5f 0%,#2563eb 60%,#06b6d4 100%);
-    color:white; padding:28px 36px 20px;
-    display:flex; align-items:center; justify-content:space-between; gap:20px;
-  }
-  .bill-header-left { display:flex; align-items:center; gap:18px; }
-  .bill-logo { height:70px; width:70px; object-fit:contain; background:white; border-radius:10px; padding:6px; flex-shrink:0; }
-  .bill-logo-fallback {
-    height:70px; width:70px; background:white; border-radius:10px;
-    display:flex; align-items:center; justify-content:center;
-    font-size:28px; font-weight:700; color:#1e3a5f; flex-shrink:0;
-    font-family:'Playfair Display',serif;
-  }
-  .bill-company-name { font-family:'Playfair Display',serif; font-size:22px; font-weight:700; letter-spacing:0.5px; margin:0 0 4px; }
-  .bill-company-sub { font-size:13px; opacity:0.85; margin:2px 0; }
-  .bill-header-right { text-align:right; flex-shrink:0; }
-  .bill-type-badge {
-    display:inline-block; background:rgba(255,255,255,0.18);
-    border:1.5px solid rgba(255,255,255,0.5); color:white;
-    font-size:12px; font-weight:600; letter-spacing:2px;
-    text-transform:uppercase; padding:4px 14px; border-radius:20px; margin-bottom:8px;
-  }
-  .bill-invoice-no { font-size:15px; font-weight:600; color:white; margin:4px 0; }
-  .bill-date { font-size:13px; opacity:0.85; }
+  .bill-type-row{display:flex;gap:12px;margin-bottom:10px;flex-wrap:wrap;}
+  .bill-type-btn{padding:8px 18px;border-radius:20px;border:2px solid rgba(255,255,255,0.2);background:transparent;color:white;font-size:14px;cursor:pointer;transition:all 0.2s;}
+  .bill-type-btn.active{background:#2563eb;border-color:#2563eb;}
 
-  .bill-meta {
-    display:flex; justify-content:space-between;
-    padding:14px 36px; background:#f8fafc;
-    border-bottom:1px solid #e5e7eb; gap:20px; flex-wrap:wrap;
+  .extra-fields-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px;}
+  @media(max-width:600px){.extra-fields-grid{grid-template-columns:1fr;}}
+
+  .field-label{font-size:11px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:rgba(255,255,255,0.4);display:block;margin-bottom:6px;}
+  .opt-tag{font-size:10px;color:rgba(255,255,255,0.25);margin-left:6px;font-weight:400;letter-spacing:0;text-transform:none;}
+
+  #printArea{display:none;font-family:'DM Sans',sans-serif;background:#fff;padding:0;color:#111;}
+  .bill-paper{max-width:800px;margin:auto;background:#fff;border:1px solid #e5e7eb;}
+  .bill-header{background:linear-gradient(135deg,#1e3a5f 0%,#2563eb 60%,#06b6d4 100%);color:white;padding:28px 36px 20px;display:flex;align-items:center;justify-content:space-between;gap:20px;}
+  .bill-header.return-style{background:linear-gradient(135deg,#7f1d1d 0%,#dc2626 60%,#f87171 100%) !important;}
+  .bill-header-left{display:flex;align-items:center;gap:18px;}
+  .bill-logo{height:70px;width:70px;object-fit:contain;background:white;border-radius:10px;padding:6px;flex-shrink:0;}
+  .bill-logo-fallback{height:70px;width:70px;background:white;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;color:#1e3a5f;flex-shrink:0;font-family:'Playfair Display',serif;}
+  .bill-company-name{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;letter-spacing:0.5px;margin:0 0 4px;}
+  .bill-company-sub{font-size:13px;opacity:0.85;margin:2px 0;}
+  .bill-header-right{text-align:right;flex-shrink:0;}
+  .bill-type-badge{display:inline-block;background:rgba(255,255,255,0.18);border:1.5px solid rgba(255,255,255,0.5);color:white;font-size:12px;font-weight:600;letter-spacing:2px;text-transform:uppercase;padding:4px 14px;border-radius:20px;margin-bottom:8px;}
+  .bill-invoice-no{font-size:15px;font-weight:600;color:white;margin:4px 0;}
+  .bill-date{font-size:13px;opacity:0.85;}
+  .bill-meta{display:flex;justify-content:space-between;padding:14px 36px;background:#f8fafc;border-bottom:1px solid #e5e7eb;gap:20px;flex-wrap:wrap;}
+  .bill-meta-block label{font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:#6b7280;display:block;margin-bottom:3px;}
+  .bill-meta-block span{font-size:15px;font-weight:600;color:#111827;}
+  .return-ref-bar{display:none;background:#fef2f2;border-bottom:1px solid #fecaca;padding:10px 36px;font-size:13px;color:#dc2626;font-weight:500;}
+  .bill-table-wrap{padding:0 36px;margin-top:18px;}
+  .bill-table{width:100%;border-collapse:collapse;font-size:14px;}
+  .bill-table thead tr{background:#1e3a5f;color:white;}
+  .bill-table thead th{padding:11px 14px;text-align:left;font-weight:600;font-size:13px;}
+  .bill-table thead th:not(:first-child){text-align:center;}
+  .bill-table thead th:last-child{text-align:right;}
+  .bill-table tbody tr{border-bottom:1px solid #e5e7eb;}
+  .bill-table tbody tr:nth-child(even){background:#f8fafc;}
+  .bill-table tbody td{padding:10px 14px;color:#374151;}
+  .bill-table tbody td:not(:first-child){text-align:center;}
+  .bill-table tbody td:last-child{text-align:right;font-weight:600;color:#111827;}
+  .bill-totals{display:flex;justify-content:flex-end;padding:18px 36px 0;}
+  .bill-totals-table{min-width:260px;}
+  .bill-totals-row{display:flex;justify-content:space-between;padding:5px 0;font-size:14px;color:#374151;border-bottom:1px dashed #e5e7eb;}
+  .bill-totals-row:last-child{border-bottom:none;margin-top:6px;padding-top:10px;font-size:17px;font-weight:700;color:#111827;border-top:2px solid #1e3a5f;}
+  .bill-totals-row .t-label{color:#6b7280;}.bill-totals-row .t-value{font-weight:600;}
+  .bill-payment{margin:18px 36px 0;padding:14px;background:#f8fafc;border:1px solid #e5e7eb;border-radius:8px;}
+  .bill-payment-title{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#6b7280;margin-bottom:10px;}
+  .bill-payment-methods{display:flex;gap:24px;flex-wrap:wrap;}
+  .bill-payment-item{font-size:13px;color:#374151;}
+  .pm-label{color:#6b7280;margin-right:4px;}.pm-val{font-weight:600;color:#111827;}
+  .bill-footer{margin:20px 36px 28px;display:flex;justify-content:space-between;align-items:flex-end;padding-top:16px;border-top:1px solid #e5e7eb;}
+  .bill-footer-left{font-size:13px;color:#6b7280;}
+  .bill-footer-left .thank-you{font-size:15px;font-weight:600;color:#1e3a5f;margin-bottom:4px;}
+  .sig-label{font-size:12px;color:#6b7280;}
+
+  @media print{
+    @page{margin:12mm 10mm;size:A4;}
+    html,body{background:white !important;min-height:0 !important;height:auto !important;overflow:hidden !important;}
+    body::before,body::after{display:none !important;content:none !important;}
+    body>*:not(#printArea){display:none !important;}
+    #printArea{display:block !important;position:static !important;width:100% !important;background:white !important;visibility:visible !important;}
+    #printArea *{visibility:visible !important;}
+    *{-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important;}
+    .bill-paper{border:none !important;box-shadow:none !important;border-radius:0 !important;page-break-inside:auto;}
+    .bill-header{background:#1e3a5f !important;}
+    .bill-header.return-style{background:#7f1d1d !important;}
+    .bill-table thead tr{background:#1e3a5f !important;}
+    .bill-table{page-break-inside:auto;}
+    .bill-table tr{page-break-inside:avoid;page-break-after:auto;}
+    .bill-table thead{display:table-header-group;}
+    .bill-totals,.bill-payment,.bill-footer{page-break-inside:avoid;}
   }
-  .bill-meta-block label { font-size:11px; font-weight:600; letter-spacing:1px; text-transform:uppercase; color:#6b7280; display:block; margin-bottom:3px; }
-  .bill-meta-block span { font-size:15px; font-weight:600; color:#111827; }
-
-  .bill-table-wrap { padding:0 36px; margin-top:18px; }
-  .bill-table { width:100%; border-collapse:collapse; font-size:14px; }
-  .bill-table thead tr { background:#1e3a5f; color:white; }
-  .bill-table thead th { padding:11px 14px; text-align:left; font-weight:600; font-size:13px; }
-  .bill-table thead th:not(:first-child) { text-align:center; }
-  .bill-table thead th:last-child { text-align:right; }
-  .bill-table tbody tr { border-bottom:1px solid #e5e7eb; }
-  .bill-table tbody tr:nth-child(even) { background:#f8fafc; }
-  .bill-table tbody td { padding:10px 14px; color:#374151; }
-  .bill-table tbody td:not(:first-child) { text-align:center; }
-  .bill-table tbody td:last-child { text-align:right; font-weight:600; color:#111827; }
-
-  .bill-totals { display:flex; justify-content:flex-end; padding:18px 36px 0; }
-  .bill-totals-table { min-width:260px; }
-  .bill-totals-row {
-    display:flex; justify-content:space-between;
-    padding:5px 0; font-size:14px; color:#374151; border-bottom:1px dashed #e5e7eb;
-  }
-  .bill-totals-row:last-child {
-    border-bottom:none; margin-top:6px; padding-top:10px;
-    font-size:17px; font-weight:700; color:#111827; border-top:2px solid #1e3a5f;
-  }
-  .bill-totals-row .t-label { color:#6b7280; }
-  .bill-totals-row .t-value { font-weight:600; }
-
-  .bill-payment {
-    margin:18px 36px 0; padding:14px;
-    background:#f8fafc; border:1px solid #e5e7eb; border-radius:8px;
-  }
-  .bill-payment-title { font-size:11px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:#6b7280; margin-bottom:10px; }
-  .bill-payment-methods { display:flex; gap:24px; flex-wrap:wrap; }
-  .bill-payment-item { font-size:13px; color:#374151; }
-  .pm-label { color:#6b7280; margin-right:4px; }
-  .pm-val { font-weight:600; color:#111827; }
-
-  .bill-footer {
-    margin:20px 36px 28px;
-    display:flex; justify-content:space-between; align-items:flex-end;
-    padding-top:16px; border-top:1px solid #e5e7eb;
-  }
-  .bill-footer-left { font-size:13px; color:#6b7280; }
-  .bill-footer-left .thank-you { font-size:15px; font-weight:600; color:#1e3a5f; margin-bottom:4px; }
-  .sig-label { font-size:12px; color:#6b7280; }
-
-@media print {
-  @page { margin: 12mm 10mm; size: A4; }
-
-  html, body {
-    background: white !important;
-    min-height: 0 !important;
-    height: auto !important;
-    overflow: hidden !important;
-  }
-
-  body::before, body::after {
-    display: none !important;
-    content: none !important;
-  }
-
-  body > *:not(#printArea) {
-    display: none !important;
-  }
-
-  #printArea {
-    display: block !important;
-    position: static !important;
-    width: 100% !important;
-    background: white !important;
-    visibility: visible !important;
-  }
-
-  #printArea * {
-    visibility: visible !important;
-  }
-
-  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-  .bill-paper { border: none !important; box-shadow: none !important; border-radius: 0 !important; page-break-inside: auto; }
-  .bill-header { background: #1e3a5f !important; }
-  .bill-table thead tr { background: #1e3a5f !important; }
-  .bill-table { page-break-inside: auto; }
-  .bill-table tr { page-break-inside: avoid; page-break-after: auto; }
-  .bill-table thead { display: table-header-group; }
-  .bill-totals, .bill-payment, .bill-footer { page-break-inside: avoid; }
-}
-
 </style>
 </head>
 <body>
@@ -154,121 +102,184 @@
   <a href="customers.html">👥 Customers</a>
   <a href="customer-ledger.html">📒 Customer Ledger</a>
   <a href="merchants.html">🏭 Merchants</a>
-   <a href="merchant-ledger.html" class="active">🏪 Merchant Ledger</a>
-  <div class="sidebar-bottom">
-    <div class="sidebar-version">Auto ERP v1.0</div>
-  </div>
+  <a href="merchant-ledger.html">🏪 Merchant Ledger</a>
+  <div class="sidebar-bottom"><div class="sidebar-version">Auto ERP v1.0</div></div>
 </div>
 
 <div class="main">
-  <h1>Billing</h1>
+  <h1>Sales</h1>
 
-  <!-- Bill Type -->
-  <div class="card">
-    <h3>Bill Type</h3>
-    <div class="bill-type-row">
-      <button class="bill-type-btn active" data-type="GST Invoice">GST Invoice</button>
-      <button class="bill-type-btn" data-type="Estimate">Estimate / Quotation</button>
-      <button class="bill-type-btn" data-type="Delivery Challan">Delivery Challan</button>
+  <!-- MODE TOGGLE -->
+  <div class="page-mode-bar">
+    <button class="mode-btn active-sale" id="modeSaleBtn"   onclick="setMode('sale')">📄 Sales Bill</button>
+    <button class="mode-btn"             id="modeReturnBtn" onclick="setMode('return')">↩️ Sales Return</button>
+  </div>
+
+  <!-- EDIT BANNER -->
+  <div id="editModeBar">
+    <div class="em-inner">
+      <div>
+        <div class="em-text">✏️ Editing Existing Bill</div>
+        <div class="em-no" id="editModeBillNo">—</div>
+      </div>
+      <button onclick="cancelEdit()" style="background:rgba(245,158,11,0.2);border:1px solid rgba(245,158,11,0.4);color:#fbbf24;padding:7px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;">✕ Cancel Edit</button>
     </div>
   </div>
 
-  <!-- Customer -->
-  <div class="card">
-    <h3>Select Customer</h3>
-    <input id="customerSearch" placeholder="Search by name or phone" autocomplete="off">
-    <ul id="customerList"></ul>
-  </div>
+  <!-- ════════════════ SALES BILL MODE ════════════════ -->
+  
+  <div id="salesBillMode">
 
-  <!-- Products -->
-  <div class="card">
-    <h3>Add Products</h3>
-    <input id="productSearch" placeholder="Search product..." autocomplete="off">
-    <ul id="productList"></ul>
-  </div>
-
-  <!-- Bill Table -->
-  <div class="card">
-    <h3>Current Bill</h3>
-    <table>
-      <thead>
-        <tr>
-          <th>Item</th><th>Qty</th>
-          <th>Price (editable)</th>
-          <th>Total</th><th>Remove</th>
-        </tr>
-      </thead>
-      <tbody id="billTable"></tbody>
-    </table>
-
-    <div style="margin-top:14px;">
-      <span style="font-size:16px;color:rgba(255,255,255,0.6);">Subtotal: </span>
-      <span style="font-size:18px;font-weight:700;">₹<span id="totalAmount">0</span></span>
-    </div>
- <div style="margin-top:12px;">
-      <label style="display:flex;align-items:center;gap:10px;font-size:14px;cursor:pointer;color:rgba(255,255,255,0.85);font-family:'DM Sans',sans-serif;font-weight:500;">
-        <input type="checkbox" id="gstToggle" style="width:18px;height:18px;accent-color:#2563eb;cursor:pointer;flex-shrink:0;"> 
-        Apply GST (18%)
-      </label>
+    <div class="card">
+      <h3>Bill Type</h3>
+      <div class="bill-type-row">
+        <button class="bill-type-btn active" data-type="GST Invoice">GST Invoice</button>
+        <button class="bill-type-btn" data-type="Estimate">Estimate / Quotation</button>
+        <button class="bill-type-btn" data-type="Delivery Challan">Delivery Challan</button>
+      </div>
     </div>
 
-    <!-- Payment Card -->
-    <div class="card" style="margin-top:16px;">
-      <h3>Payment</h3>
-
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px;">
+    <div class="card">
+      <h3>Customer Details</h3>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
         <div>
-          <label style="font-size:11px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:rgba(255,255,255,0.4);display:block;margin-bottom:6px;">Cash (₹)</label>
-          <input id="cash" placeholder="0" type="number" min="0" oninput="renderBill()" style="margin-bottom:0;">
+          <label class="field-label">Customer Name <span style="color:#f87171;">*</span></label>
+          <input id="customerSearch" placeholder="Search by name or phone" autocomplete="off" style="margin-bottom:0;">
+          <ul id="customerList"></ul>
         </div>
         <div>
-          <label style="font-size:11px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:rgba(255,255,255,0.4);display:block;margin-bottom:6px;">UPI (₹)</label>
-          <input id="upi" placeholder="0" type="number" min="0" oninput="renderBill()" style="margin-bottom:0;">
-        </div>
-        <div>
-          <label style="font-size:11px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:rgba(255,255,255,0.4);display:block;margin-bottom:6px;">Credit (₹)</label>
-          <input id="credit" placeholder="0" type="number" min="0" oninput="renderBill()" style="margin-bottom:0;">
+          <label class="field-label">Phone <span class="opt-tag">(auto-filled / override)</span></label>
+          <input id="billPhone" placeholder="Auto-filled from customer" style="margin-bottom:0;">
         </div>
       </div>
-
-      <div style="display:grid;grid-template-columns:1fr 150px;gap:10px;align-items:end;margin-bottom:16px;">
+      <div class="extra-fields-grid">
         <div>
-          <label style="font-size:11px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:rgba(255,255,255,0.4);display:block;margin-bottom:6px;">
-            Discount
-            <span id="autoDiscountBadge" style="display:none;margin-left:8px;background:rgba(52,211,153,0.2);color:#34d399;font-size:10px;padding:2px 8px;border-radius:10px;letter-spacing:0;">AUTO</span>
-          </label>
-          <input id="discountValue" placeholder="0" type="number" min="0" oninput="renderBill()" style="margin-bottom:0;">
+          <label class="field-label">Product Receiver Name <span class="opt-tag">(optional)</span></label>
+          <input id="receiverName" placeholder="If different from customer" style="margin-bottom:0;">
         </div>
         <div>
-          <label style="font-size:11px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:rgba(255,255,255,0.4);display:block;margin-bottom:6px;">Mode</label>
-          <select id="discountType" onchange="handleDiscountTypeChange()" style="margin-bottom:0;">
-            <option value="amount">₹ Fixed</option>
-            <option value="percent">% Percent</option>
-            <option value="auto">⚡ Auto</option>
-          </select>
+          <label class="field-label">Vehicle Number <span class="opt-tag">(optional — suggests from past)</span></label>
+          <input id="vehicleNumber" list="vehicleSuggestions" placeholder="e.g. GJ-12-AB-1234" style="margin-bottom:0;" oninput="this.value=this.value.toUpperCase()">
+          <datalist id="vehicleSuggestions"></datalist>
         </div>
       </div>
-
-      <div id="paymentSummary" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:16px;font-size:14px;"></div>
     </div>
 
-    <div style="display:flex;gap:12px;margin-top:16px;flex-wrap:wrap;">
-      <button id="saveBtn">💾 Save Bill</button>
-      <button id="printBtn">🖨 Print Bill</button>
-      <button onclick="openBillHistory()" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);">📜 Bill History</button>
+    <div class="card">
+      <h3>Add Products</h3>
+      <input id="productSearch" placeholder="Search product..." autocomplete="off">
+      <ul id="productList"></ul>
+    </div>
+
+    <div class="card">
+      <h3>Current Bill</h3>
+      <table>
+        <thead><tr><th>Item</th><th>Qty</th><th>Price (editable)</th><th>Total</th><th>Remove</th></tr></thead>
+        <tbody id="billTable"></tbody>
+      </table>
+      <div style="margin-top:14px;">
+        <span style="font-size:16px;color:rgba(255,255,255,0.6);">Subtotal: </span>
+        <span style="font-size:18px;font-weight:700;">₹<span id="totalAmount">0</span></span>
+      </div>
+      <div style="margin-top:12px;">
+        <label style="display:flex;align-items:center;gap:10px;font-size:14px;cursor:pointer;color:rgba(255,255,255,0.85);font-family:'DM Sans',sans-serif;font-weight:500;">
+          <input type="checkbox" id="gstToggle" style="width:18px;height:18px;accent-color:#2563eb;cursor:pointer;flex-shrink:0;"> Apply GST (18%)
+        </label>
+      </div>
+
+      <div class="card" style="margin-top:16px;">
+        <h3>Payment</h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px;">
+          <div><label class="field-label">Cash (₹)</label><input id="cash" placeholder="0" type="number" min="0" oninput="renderBill()" style="margin-bottom:0;"></div>
+          <div><label class="field-label">UPI (₹)</label><input id="upi" placeholder="0" type="number" min="0" oninput="renderBill()" style="margin-bottom:0;"></div>
+          <div><label class="field-label">Credit (₹)</label><input id="credit" placeholder="0" type="number" min="0" oninput="renderBill()" style="margin-bottom:0;"></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 150px;gap:10px;align-items:end;margin-bottom:16px;">
+          <div>
+            <label class="field-label">Discount <span id="autoDiscountBadge" style="display:none;margin-left:8px;background:rgba(52,211,153,0.2);color:#34d399;font-size:10px;padding:2px 8px;border-radius:10px;letter-spacing:0;">AUTO</span></label>
+            <input id="discountValue" placeholder="0" type="number" min="0" oninput="renderBill()" style="margin-bottom:0;">
+          </div>
+          <div>
+            <label class="field-label">Mode</label>
+            <select id="discountType" onchange="handleDiscountTypeChange()" style="margin-bottom:0;">
+              <option value="amount">₹ Fixed</option>
+              <option value="percent">% Percent</option>
+              <option value="auto">⚡ Auto</option>
+            </select>
+          </div>
+        </div>
+        <div id="paymentSummary" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:16px;font-size:14px;"></div>
+      </div>
+
+      <div style="display:flex;gap:12px;margin-top:16px;flex-wrap:wrap;">
+        <button id="saveBtn">💾 Save Bill</button>
+        <button id="printBtn">🖨 Print Bill</button>
+        <button onclick="openBillHistory()" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);">📜 Bill History</button>
+      </div>
     </div>
   </div>
+
+  <!-- ════════════════ SALES RETURN MODE ════════════════ -->
+  
+  <div id="salesReturnMode" style="display:none;">
+    <div class="card" style="border-color:rgba(220,38,38,0.2);">
+      <h3 style="color:#f87171;">↩️ Sales Return</h3>
+      <p style="font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:16px;">Search the original bill number, select items to return. Inventory will be automatically restored and customer credit adjusted.</p>
+      <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;">
+        <div style="flex:1;min-width:200px;">
+          <label class="field-label">Original Bill Number</label>
+          <input id="returnBillSearch" placeholder="e.g. AAM-140426-0001" style="margin-bottom:0;">
+        </div>
+        <button onclick="searchReturnBill()" style="background:#dc2626;border:none;color:white;padding:10px 20px;border-radius:8px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;margin-bottom:0;">🔍 Find Bill</button>
+      </div>
+    </div>
+
+    <div id="returnBillDetails" style="display:none;">
+      <div class="card" style="border-color:rgba(220,38,38,0.15);">
+        <div id="returnCustomerInfo" style="display:flex;gap:24px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,0.07);margin-bottom:16px;flex-wrap:wrap;"></div>
+        <div style="font-size:11px;font-weight:600;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">Select Items to Return</div>
+        <table style="width:100%;border-collapse:collapse;">
+          <thead>
+            <tr style="background:#1e293b;">
+              <th style="padding:10px 12px;text-align:center;font-size:11px;color:rgba(255,255,255,0.45);text-transform:uppercase;">✓</th>
+              <th style="padding:10px 12px;text-align:left;font-size:11px;color:rgba(255,255,255,0.45);text-transform:uppercase;">Item</th>
+              <th style="padding:10px 12px;text-align:center;font-size:11px;color:rgba(255,255,255,0.45);text-transform:uppercase;">Billed Qty</th>
+              <th style="padding:10px 12px;text-align:center;font-size:11px;color:rgba(255,255,255,0.45);text-transform:uppercase;">Return Qty</th>
+              <th style="padding:10px 12px;text-align:right;font-size:11px;color:rgba(255,255,255,0.45);text-transform:uppercase;">Price</th>
+              <th style="padding:10px 12px;text-align:right;font-size:11px;color:rgba(255,255,255,0.45);text-transform:uppercase;">Return Total</th>
+            </tr>
+          </thead>
+          <tbody id="returnItemsBody"></tbody>
+        </table>
+        <div style="margin-top:16px;display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;">
+          <div style="flex:1;min-width:200px;">
+            <label class="field-label">Reason for Return <span class="opt-tag">(optional)</span></label>
+            <input id="returnReason" placeholder="e.g. Defective part, Wrong item..." style="margin-bottom:0;">
+          </div>
+          <div style="background:rgba(220,38,38,0.1);border:1px solid rgba(220,38,38,0.25);border-radius:10px;padding:12px 20px;text-align:center;min-width:160px;">
+            <div style="font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Return Total</div>
+            <div style="font-size:20px;font-weight:700;color:#f87171;">₹<span id="returnTotalAmt">0</span></div>
+          </div>
+        </div>
+        <div style="display:flex;gap:12px;margin-top:16px;flex-wrap:wrap;">
+          <button onclick="processReturn(false)" style="background:#dc2626;border:none;color:white;padding:10px 22px;border-radius:8px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:14px;">↩️ Process Return</button>
+          <button onclick="processReturn(true)"  style="background:rgba(220,38,38,0.15);border:1px solid rgba(220,38,38,0.3);color:#f87171;padding:10px 18px;border-radius:8px;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;">🖨 Process & Print</button>
+          <button onclick="clearReturn()"        style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);padding:10px 16px;border-radius:8px;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;">✕ Clear</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 
-<!-- PRINT AREA -->
+<!-- ════════════ PRINT AREA ════════════ -->
+  
 <div id="printArea">
   <div class="bill-paper">
-
-    <div class="bill-header">
+    <div class="bill-header" id="printHeader">
       <div class="bill-header-left">
-        <img src="./logo.png" class="bill-logo" id="billLogoImg"
-          onerror="this.style.display='none';document.getElementById('billLogoFallback').style.display='flex';" alt="Logo">
+        <img src="./logo.png" class="bill-logo" id="billLogoImg" onerror="this.style.display='none';document.getElementById('billLogoFallback').style.display='flex';" alt="Logo">
         <div class="bill-logo-fallback" id="billLogoFallback" style="display:none;">A</div>
         <div>
           <p class="bill-company-name">Abhinandan Auto Mobiles</p>
@@ -283,104 +294,107 @@
       </div>
     </div>
 
+    <div class="return-ref-bar" id="printReturnRefBar">↩️ <strong>Sales Return</strong> — Original Invoice: <span id="printOriginalRef">—</span></div>
+
     <div class="bill-meta">
       <div class="bill-meta-block"><label>Billed To</label><span id="printCustomer">—</span></div>
       <div class="bill-meta-block"><label>Phone</label><span id="printPhone">—</span></div>
+      <div class="bill-meta-block" id="printReceiverBlock" style="display:none;"><label>Received By</label><span id="printReceiver">—</span></div>
+      <div class="bill-meta-block" id="printVehicleBlock" style="display:none;"><label>Vehicle No</label><span id="printVehicle">—</span></div>
       <div class="bill-meta-block"><label>Payment Mode</label><span id="printPayMode">—</span></div>
     </div>
 
     <div class="bill-table-wrap">
       <table class="bill-table">
-        <thead>
-          <tr><th>#</th><th>Item Description</th><th>Qty</th><th>Unit Price</th><th>Amount</th></tr>
-        </thead>
+        <thead><tr><th>#</th><th>Item Description</th><th>Qty</th><th>Unit Price</th><th>Amount</th></tr></thead>
         <tbody id="printItems"></tbody>
       </table>
     </div>
 
     <div class="bill-totals">
       <div class="bill-totals-table">
-        <div class="bill-totals-row">
-          <span class="t-label">Subtotal</span>
-          <span class="t-value">₹<span id="printSubtotal"></span></span>
-        </div>
-        <div class="bill-totals-row" id="gstRow" style="display:none;">
-          <span class="t-label">CGST (9%)</span>
-          <span class="t-value">₹<span id="printCGST"></span></span>
-        </div>
-        <div class="bill-totals-row" id="sgstRow" style="display:none;">
-          <span class="t-label">SGST (9%)</span>
-          <span class="t-value">₹<span id="printSGST"></span></span>
-        </div>
-        <div class="bill-totals-row" id="discountRow" style="display:none;">
-          <span class="t-label" style="color:#059669;">Discount</span>
-          <span class="t-value" style="color:#059669;">- ₹<span id="printDiscount"></span></span>
-        </div>
-        <div class="bill-totals-row">
-          <span class="t-label">Grand Total</span>
-          <span class="t-value" style="color:#1e3a5f;">₹<span id="printFinal"></span></span>
-        </div>
+        <div class="bill-totals-row"><span class="t-label">Subtotal</span><span class="t-value">₹<span id="printSubtotal"></span></span></div>
+        <div class="bill-totals-row" id="gstRow" style="display:none;"><span class="t-label">CGST (9%)</span><span class="t-value">₹<span id="printCGST"></span></span></div>
+        <div class="bill-totals-row" id="sgstRow" style="display:none;"><span class="t-label">SGST (9%)</span><span class="t-value">₹<span id="printSGST"></span></span></div>
+        <div class="bill-totals-row" id="discountRow" style="display:none;"><span class="t-label" style="color:#059669;">Discount</span><span class="t-value" style="color:#059669;">- ₹<span id="printDiscount"></span></span></div>
+        <div class="bill-totals-row"><span class="t-label" id="printFinalLabel">Grand Total</span><span class="t-value" style="color:#1e3a5f;">₹<span id="printFinal"></span></span></div>
       </div>
     </div>
 
     <div class="bill-payment">
-      <p class="bill-payment-title">Payment Breakdown</p>
+      <p class="bill-payment-title" id="printPayTitle">Payment Breakdown</p>
       <div class="bill-payment-methods">
         <span class="bill-payment-item"><span class="pm-label">Cash</span><span class="pm-val">₹<span id="printCash">0</span></span></span>
         <span class="bill-payment-item"><span class="pm-label">UPI</span><span class="pm-val">₹<span id="printUPI">0</span></span></span>
-        <span class="bill-payment-item"><span class="pm-label">Credit</span><span class="pm-val">₹<span id="printCredit">0</span></span></span>
+        <span class="bill-payment-item"><span class="pm-label" id="printCreditLabel">Credit</span><span class="pm-val">₹<span id="printCredit">0</span></span></span>
         <span class="bill-payment-item" id="printDiscountPayItem" style="display:none;"><span class="pm-label" style="color:#059669;">Discount</span><span class="pm-val" style="color:#059669;">₹<span id="printDiscountPay">0</span></span></span>
       </div>
     </div>
 
     <div class="bill-footer">
       <div class="bill-footer-left">
-        <p class="thank-you">Thank you for your business 🙏</p>
+        <p class="thank-you" id="printFooterMsg">Thank you for your business 🙏</p>
+        <p id="printReturnNoteLine" style="display:none;color:#dc2626;font-weight:600;margin-bottom:4px;">Return processed. Credit adjusted to account.</p>
         <p>All disputes subject to local jurisdiction.</p>
         <p>Goods once sold will not be taken back.</p>
       </div>
       <div style="display:flex;gap:60px;">
-        <div style="text-align:center;">
-          <div style="border-top:1px solid #000;width:150px;margin:auto;margin-top:28px;"></div>
-          <p class="sig-label">Customer Signature</p>
-        </div>
-        <div style="text-align:center;">
-          <div style="border-top:1px solid #000;width:150px;margin:auto;margin-top:28px;"></div>
-          <p class="sig-label">For Abhinandan Auto Mobiles</p>
-          <p class="sig-label" style="margin-top:4px;">Authorised Signatory</p>
-        </div>
+        <div style="text-align:center;"><div style="border-top:1px solid #000;width:150px;margin:auto;margin-top:28px;"></div><p class="sig-label" id="printCustSigLabel">Customer Signature</p></div>
+        <div style="text-align:center;"><div style="border-top:1px solid #000;width:150px;margin:auto;margin-top:28px;"></div><p class="sig-label">For Abhinandan Auto Mobiles</p><p class="sig-label" style="margin-top:4px;">Authorised Signatory</p></div>
       </div>
     </div>
-
   </div>
 </div>
 
 
-<!-- BILL HISTORY MODAL -->
+<!-- ════════════ BILL HISTORY MODAL ════════════ -->
+  
 <div id="billHistoryModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:9999;overflow-y:auto;padding:20px;">
-  <div style="background:#0f172a;border:1px solid rgba(255,255,255,0.1);width:95%;max-width:960px;margin:30px auto;padding:28px;border-radius:16px;">
-
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+  <div style="background:#0f172a;border:1px solid rgba(255,255,255,0.1);width:95%;max-width:1100px;margin:30px auto;padding:28px;border-radius:16px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
       <h2 style="font-family:'Playfair Display',serif;font-size:22px;color:white;margin:0;">📜 Bill History</h2>
-      <button onclick="closeBillHistory()" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);padding:8px 16px;font-size:13px;border-radius:8px;box-shadow:none;">✕ Close</button>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <select id="historyFilter" onchange="historyPage=1;loadBills()" style="padding:8px 12px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:8px;color:white;font-family:'DM Sans',sans-serif;font-size:13px;">
+          <option value="all">All Bills</option>
+          <option value="sale">Sales Only</option>
+          <option value="return">Returns Only</option>
+        </select>
+        <button onclick="closeBillHistory()" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);padding:8px 16px;font-size:13px;border-radius:8px;box-shadow:none;">✕ Close</button>
+      </div>
     </div>
-
-    <input type="text" id="searchBill" placeholder="Search by customer name or bill number..."
-      style="width:100%;padding:12px 16px;margin-bottom:16px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:10px;color:white;font-size:14px;font-family:'DM Sans',sans-serif;"
-      oninput="loadBills()">
-
+    <input type="text" id="searchBill" placeholder="Search by customer, bill number, or vehicle number..." style="width:100%;padding:12px 16px;margin-bottom:16px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:10px;color:white;font-size:14px;font-family:'DM Sans',sans-serif;" oninput="historyPage=1;loadBills()">
     <table style="width:100%;border-collapse:collapse;">
       <thead>
-        <tr style="background:rgba(37,99,235,0.3);border-bottom:1px solid rgba(255,255,255,0.1);">
-          <th style="padding:12px 14px;text-align:left;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.5);">Bill No</th>
-          <th style="padding:12px 14px;text-align:left;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.5);">Date</th>
-          <th style="padding:12px 14px;text-align:left;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.5);">Customer</th>
-          <th style="padding:12px 14px;text-align:left;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.5);">Total</th>
-          <th style="padding:12px 14px;text-align:left;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.5);">Action</th>
+        <tr style="background:rgba(37,99,235,0.18);border-bottom:1px solid rgba(255,255,255,0.08);">
+          <th style="padding:11px 14px;text-align:left;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.45);">Bill No</th>
+          <th style="padding:11px 14px;text-align:left;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.45);">Date</th>
+          <th style="padding:11px 14px;text-align:left;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.45);">Customer</th>
+          <th style="padding:11px 14px;text-align:left;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.45);">Vehicle No</th>
+          <th style="padding:11px 14px;text-align:left;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.45);">Total</th>
+          <th style="padding:11px 14px;text-align:left;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.45);">Type</th>
+          <th style="padding:11px 14px;text-align:left;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.45);">Actions</th>
         </tr>
       </thead>
       <tbody id="billHistoryBody"></tbody>
     </table>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:16px;flex-wrap:wrap;gap:10px;">
+      <div style="font-size:13px;color:rgba(255,255,255,0.4);" id="historyPageInfo">—</div>
+      <div style="display:flex;gap:8px;" id="historyPagination"></div>
+    </div>
+  </div>
+</div>
+
+<!-- DELETE CONFIRM MODAL -->
+  
+<div id="deleteModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:10000;align-items:center;justify-content:center;">
+  <div style="background:#0f172a;border:1px solid rgba(220,38,38,0.3);border-radius:16px;padding:28px;width:90%;max-width:420px;">
+    <div style="font-family:'Playfair Display',serif;font-size:20px;color:#f87171;margin-bottom:12px;">🗑️ Delete Bill</div>
+    <p style="color:rgba(255,255,255,0.7);font-size:14px;line-height:1.6;margin-bottom:8px;">Delete bill <strong id="deleteModalBillNo" style="color:white;"></strong>?</p>
+    <p style="color:rgba(248,113,113,0.8);font-size:13px;margin-bottom:20px;">⚠️ Inventory will be restored. This cannot be undone.</p>
+    <div style="display:flex;gap:10px;">
+      <button onclick="confirmDeleteBill()" style="flex:1;background:linear-gradient(135deg,#dc2626,#ef4444);border:none;color:white;padding:10px;border-radius:8px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;">🗑️ Yes, Delete</button>
+      <button onclick="closeDeleteModal()" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.7);padding:10px 20px;border-radius:8px;cursor:pointer;font-family:'DM Sans',sans-serif;">Cancel</button>
+    </div>
   </div>
 </div>
 
@@ -392,14 +406,35 @@ const supabaseUrl = "https://mhhnmndnolhapaoqtbxo.supabase.co"
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1oaG5tbmRub2xoYXBhb3F0YnhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4Mzg4NTksImV4cCI6MjA4ODQxNDg1OX0.IMSp8vYiCln_iSuoT_H2qdeX_dP1WMhOOskDw20eJXw"
 const supabase = createClient(supabaseUrl, supabaseKey)
 
-let selectedCustomer = null
-let currentBillNumber = null
-let billItems = []
-let totalAmount = 0
-let selectedBillType = "GST Invoice"
+// ── STATE ──
+  
+let selectedCustomer   = null
+let currentBillNumber  = null
+let billItems          = []
+let totalAmount        = 0
+let selectedBillType   = "GST Invoice"
+let editingBillId      = null
+let editingBillNumber  = null
+let deletingBillId     = null
+let deletingBillNo     = null
+let returnOriginalSale = null
+let returnBillItems    = []
+let historyPage        = 1
+const HIST_SIZE        = 20
+
+
+// ── MODE ──
+  
+window.setMode = function(mode) {
+  document.getElementById('salesBillMode').style.display   = mode === 'sale'   ? 'block' : 'none'
+  document.getElementById('salesReturnMode').style.display = mode === 'return' ? 'block' : 'none'
+  document.getElementById('modeSaleBtn').className   = 'mode-btn ' + (mode === 'sale'   ? 'active-sale'   : '')
+  document.getElementById('modeReturnBtn').className = 'mode-btn ' + (mode === 'return' ? 'active-return' : '')
+}
 
 
 // ── BILL TYPE ──
+  
 document.querySelectorAll(".bill-type-btn").forEach(btn => {
   btn.addEventListener("click", function() {
     document.querySelectorAll(".bill-type-btn").forEach(b => b.classList.remove("active"))
@@ -410,640 +445,504 @@ document.querySelectorAll(".bill-type-btn").forEach(btn => {
 
 
 // ── INVOICE NUMBER ──
+  
 async function generateInvoiceNo() {
   const now = new Date()
-  const dd  = String(now.getDate()).padStart(2, "0")
-  const mm  = String(now.getMonth() + 1).padStart(2, "0")
+  const dd  = String(now.getDate()).padStart(2,"0")
+  const mm  = String(now.getMonth()+1).padStart(2,"0")
   const yy  = String(now.getFullYear()).slice(2)
-  const datePrefix = `AAM-${dd}${mm}${yy}-`
-
-  // Count how many bills exist today already
-  const startOfDay = new Date()
-  startOfDay.setHours(0, 0, 0, 0)
-
-  const { data, error } = await supabase
-    .from("sales")
-    .select("bill_number")
-    .gte("created_at", startOfDay.toISOString())
-
-  const todayCount = (data || []).length
-  const nextNumber = String(todayCount + 1).padStart(4, "0")
-
-  return `${datePrefix}${nextNumber}`
+  const prefix = `AAM-${dd}${mm}${yy}-`
+  const startOfDay = new Date(); startOfDay.setHours(0,0,0,0)
+  const { data } = await supabase.from("sales").select("bill_number").gte("created_at", startOfDay.toISOString()).like("bill_number", `AAM-%`)
+  const count = (data||[]).length
+  return `${prefix}${String(count+1).padStart(4,"0")}`
 }
 
+async function generateReturnNo() {
+  const now = new Date()
+  const dd  = String(now.getDate()).padStart(2,"0")
+  const mm  = String(now.getMonth()+1).padStart(2,"0")
+  const yy  = String(now.getFullYear()).slice(2)
+  const startOfDay = new Date(); startOfDay.setHours(0,0,0,0)
+  const { data } = await supabase.from("sales").select("bill_number").eq("bill_type","return").gte("created_at", startOfDay.toISOString())
+  const count = (data||[]).length
+  return `RTN-AAM-${dd}${mm}${yy}-${String(count+1).padStart(4,"0")}`
+}
+
+
 // ── CUSTOMER SEARCH ──
+  
 document.getElementById("customerSearch").addEventListener("input", async function() {
   const text = this.value.trim()
-  if (!text) { document.getElementById("customerList").innerHTML = ""; return }
-
-  const { data, error } = await supabase
-    .from('customers')
-    .select('*')
-    .or(`name.ilike.%${text}%,phone.ilike.%${text}%`)
-    .limit(6)
-
-  const list = document.getElementById("customerList")
-  list.innerHTML = ""
-  if (error || !data) return
-
+  if (!text) { document.getElementById("customerList").innerHTML=""; return }
+  const { data } = await supabase.from('customers').select('*').or(`name.ilike.%${text}%,phone.ilike.%${text}%`).limit(6)
+  const list = document.getElementById("customerList"); list.innerHTML=""
+  if (!data) return
   data.forEach(c => {
     const li = document.createElement("li")
-    li.innerText = c.name + (c.phone ? " — " + c.phone : "")
+    li.innerText = c.name + (c.phone ? " — "+c.phone : "")
     li.onclick = () => {
       selectedCustomer = c
       document.getElementById("customerSearch").value = c.name
-      list.innerHTML = ""
+      document.getElementById("billPhone").value = c.phone||""
+      list.innerHTML=""
+      loadVehicleSuggestions(c.id)
     }
     list.appendChild(li)
   })
 })
 
+async function loadVehicleSuggestions(customerId) {
+  const { data } = await supabase.from('sales')
+    .select('vehicle_number')
+    .eq('customer_id', customerId)
+    .not('vehicle_number','is',null)
+    .order('created_at',{ascending:false})
+    .limit(40)
+  const dl = document.getElementById('vehicleSuggestions')
+  const unique = [...new Set((data||[]).map(s=>s.vehicle_number).filter(Boolean))]
+  dl.innerHTML = unique.map(v=>`<option value="${v}">`).join('')
+}
+
 
 // ── PRODUCT SEARCH ──
+  
 document.getElementById("productSearch").addEventListener("input", async function() {
   const text = this.value.trim()
-  if (!text) { document.getElementById("productList").innerHTML = ""; return }
-
-  const { data, error } = await supabase
-    .from('inventory')
-    .select('*')
-    .ilike('item_name', `%${text}%`)
-    .limit(6)
-
-  const list = document.getElementById("productList")
-  list.innerHTML = ""
-  if (error || !data) return
-
+  if (!text) { document.getElementById("productList").innerHTML=""; return }
+  const { data } = await supabase.from('inventory').select('*').ilike('item_name',`%${text}%`).limit(8)
+  const list = document.getElementById("productList"); list.innerHTML=""
+  if (!data) return
   data.forEach(p => {
     const li = document.createElement("li")
-    li.innerText = p.item_name + "  —  Stock: " + (p.quantity || 0) + "  |  ₹" + (p.selling_price || 0)
-    li.onclick = () => {
-      addToBill(p)
-      document.getElementById("productSearch").value = ""
-      list.innerHTML = ""
-    }
+    const sc = p.quantity<=0?'#f87171':p.quantity<=5?'#fbbf24':'#34d399'
+    li.innerHTML = `${p.item_name} <span style="color:rgba(255,255,255,0.4);font-size:12px;">— Stock: <span style="color:${sc};font-weight:600;">${p.quantity||0}</span> | ₹${p.selling_price||0}</span>`
+    li.onclick = () => { addToBill(p); document.getElementById("productSearch").value=""; list.innerHTML="" }
     list.appendChild(li)
   })
 })
 
 
 // ── ADD TO BILL ──
+  
 function addToBill(product) {
-  let item = billItems.find(i => i.id === product.id)
-  if (item) {
-    item.qty++
-  } else {
-    billItems.push({
-      id:    product.id,
-      name:  product.item_name,
-      price: product.selling_price || 0,
-      qty:   1
-    })
-  }
+  let item = billItems.find(i=>i.id===product.id)
+  if (item) item.qty++
+  else billItems.push({ id:product.id, name:product.item_name, price:product.selling_price||0, qty:1 })
   renderBill()
 }
 
 
-// ── DISCOUNT TYPE CHANGE ──
+// ── DISCOUNT CHANGE ──
+  
 window.handleDiscountTypeChange = function() {
   const type = document.getElementById("discountType").value
-  if (type !== "auto") {
-    document.getElementById("discountValue").disabled = false
-    document.getElementById("discountValue").value = ""
-    document.getElementById("autoDiscountBadge").style.display = "none"
-  }
+  if (type!=="auto") { document.getElementById("discountValue").disabled=false; document.getElementById("discountValue").value=""; document.getElementById("autoDiscountBadge").style.display="none" }
   renderBill()
 }
 
 
 // ── RENDER BILL ──
-function renderBill() {
-  const table = document.getElementById("billTable")
-  table.innerHTML = ""
-  totalAmount = 0
-
-  billItems.forEach((item, index) => {
-    const lineTotal = item.qty * item.price
-    totalAmount += lineTotal
-    table.innerHTML += `
-      <tr>
-        <td style="font-weight:500;">${item.name}</td>
-        <td>
-          <input type="number" value="${item.qty}" min="1"
-            class="qtyInput" data-index="${index}"
-            style="width:65px;margin-bottom:0;text-align:center;">
-        </td>
-        <td>
-          <input type="number" value="${item.price}" min="0"
-            class="priceInput" data-index="${index}"
-            style="width:90px;margin-bottom:0;color:#34d399;font-weight:600;text-align:center;"
-            title="Edit selling price">
-        </td>
-        <td style="font-weight:600;">₹${lineTotal.toLocaleString('en-IN')}</td>
-        <td><button class="removeBtn" data-index="${index}">✕</button></td>
-      </tr>
-    `
-  })
-
-  document.getElementById("totalAmount").innerText = totalAmount.toLocaleString('en-IN')
-
-  // GST
-  const gstChecked = document.getElementById("gstToggle").checked
-  let afterGST = totalAmount
-  if (gstChecked) afterGST = Math.round(totalAmount * 1.18)
-
-  // Payment amounts
-  const cash   = parseFloat(document.getElementById("cash").value)   || 0
-  const upi    = parseFloat(document.getElementById("upi").value)    || 0
-  const credit = parseFloat(document.getElementById("credit").value) || 0
-  const paid   = cash + upi + credit
-
-  // Discount
-  const discountType = document.getElementById("discountType").value
-  let discountAmount = 0
-
-  if (discountType === "auto") {
-    discountAmount = Math.max(afterGST - paid, 0)
-    document.getElementById("discountValue").value    = discountAmount
-    document.getElementById("discountValue").disabled = true
-    document.getElementById("autoDiscountBadge").style.display = "inline"
-  } else {
-    document.getElementById("discountValue").disabled = false
-    document.getElementById("autoDiscountBadge").style.display = "none"
-    const dv = parseFloat(document.getElementById("discountValue").value) || 0
-    discountAmount = discountType === "percent"
-      ? Math.round(afterGST * dv / 100)
-      : dv
-    discountAmount = Math.min(discountAmount, afterGST)
-  }
-
-  const afterDiscount  = afterGST - discountAmount
-  const remainingDue   = Math.round(afterDiscount - paid)
-
-  // Summary rows helper
-  const row = (label, value, color) =>
-    `<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
-      <span style="color:${color || 'rgba(255,255,255,0.5)'};">${label}</span>
-      <span style="font-weight:600;color:${color || 'white'};">${value}</span>
-    </div>`
-
-  let html = row("Subtotal", "₹" + totalAmount.toLocaleString("en-IN"))
-  if (gstChecked) {
-    html += row("CGST (9%)", "+ ₹" + Math.round(totalAmount * 0.09).toLocaleString("en-IN"))
-    html += row("SGST (9%)", "+ ₹" + Math.round(totalAmount * 0.09).toLocaleString("en-IN"))
-  }
-  if (discountAmount > 0) html += row("Discount", "- ₹" + Math.round(discountAmount).toLocaleString("en-IN"), "#34d399")
-  if (cash   > 0) html += row("Cash paid",   "₹" + cash.toLocaleString("en-IN"),   "#60a5fa")
-  if (upi    > 0) html += row("UPI paid",    "₹" + upi.toLocaleString("en-IN"),    "#a78bfa")
-  if (credit > 0) html += row("Credit",      "₹" + credit.toLocaleString("en-IN"), "#f87171")
-
-  let statusColor = "#34d399", statusText = "✅ Fully Settled"
-  if (remainingDue > 0)  { statusColor = "#f87171"; statusText = "⚠️ Still Due: ₹" + remainingDue.toLocaleString("en-IN") }
-  if (remainingDue < 0)  { statusColor = "#fbbf24"; statusText = "⚠️ Extra Paid ₹" + Math.abs(remainingDue).toLocaleString("en-IN") + " — please correct!" }
   
-  html += `
-    <div style="display:flex;justify-content:space-between;padding:10px 0 4px;margin-top:6px;border-top:1px solid rgba(255,255,255,0.1);">
-      <span style="font-size:15px;font-weight:600;color:white;">Final Bill Amount</span>
-      <span style="font-size:17px;font-weight:700;color:white;">₹${Math.round(afterDiscount).toLocaleString("en-IN")}</span>
-    </div>
-    <div style="font-size:13px;color:${statusColor};padding-bottom:2px;">${statusText}</div>
-  `
-  document.getElementById("paymentSummary").innerHTML = html
-
-  // Qty listeners
-  document.querySelectorAll(".qtyInput").forEach(input => {
-    input.addEventListener("change", function() {
-      billItems[+this.dataset.index].qty = parseInt(this.value) || 1
-      renderBill()
-    })
+function renderBill() {
+  const table = document.getElementById("billTable"); table.innerHTML=""; totalAmount=0
+  billItems.forEach((item,index)=>{
+    const lt=item.qty*item.price; totalAmount+=lt
+    table.innerHTML+=`<tr>
+      <td style="font-weight:500;">${item.name}</td>
+      <td><input type="number" value="${item.qty}" min="1" class="qtyInput" data-index="${index}" style="width:65px;margin-bottom:0;text-align:center;"></td>
+      <td><input type="number" value="${item.price}" min="0" class="priceInput" data-index="${index}" style="width:90px;margin-bottom:0;color:#34d399;font-weight:600;text-align:center;" title="Edit selling price"></td>
+      <td style="font-weight:600;">₹${lt.toLocaleString('en-IN')}</td>
+      <td><button class="removeBtn" data-index="${index}">✕</button></td>
+    </tr>`
   })
+  document.getElementById("totalAmount").innerText=totalAmount.toLocaleString('en-IN')
 
-  // Price edit listeners — saves to Supabase
-  document.querySelectorAll(".priceInput").forEach(input => {
-    input.addEventListener("change", function() {
-      const idx      = +this.dataset.index
-      const newPrice = parseFloat(this.value) || 0
-      billItems[idx].price = newPrice
-      const itemId = billItems[idx].id
-      if (itemId) {
-        supabase.from("inventory")
-          .update({ selling_price: newPrice })
-          .eq("id", itemId)
-          .then(({ error }) => {
-            if (!error) {
-              this.style.borderColor = "#34d399"
-              setTimeout(() => { this.style.borderColor = "" }, 1500)
-            }
-          })
-      }
-      renderBill()
-    })
-  })
+  const gst=document.getElementById("gstToggle").checked
+  let afterGST=totalAmount; if(gst) afterGST=Math.round(totalAmount*1.18)
+  const cash=parseFloat(document.getElementById("cash").value)||0
+  const upi =parseFloat(document.getElementById("upi").value)||0
+  const cred=parseFloat(document.getElementById("credit").value)||0
+  const paid=cash+upi+cred
+  const dt=document.getElementById("discountType").value
+  let disc=0
+  if(dt==="auto"){disc=Math.max(afterGST-paid,0);document.getElementById("discountValue").value=disc;document.getElementById("discountValue").disabled=true;document.getElementById("autoDiscountBadge").style.display="inline"}
+  else{document.getElementById("discountValue").disabled=false;document.getElementById("autoDiscountBadge").style.display="none";const dv=parseFloat(document.getElementById("discountValue").value)||0;disc=dt==="percent"?Math.round(afterGST*dv/100):dv;disc=Math.min(disc,afterGST)}
+  const after=afterGST-disc; const rem=Math.round(after-paid)
+  const row=(l,v,c)=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.05);"><span style="color:${c||'rgba(255,255,255,0.5)'};">${l}</span><span style="font-weight:600;color:${c||'white'};">${v}</span></div>`
+  let html=row("Subtotal","₹"+totalAmount.toLocaleString("en-IN"))
+  if(gst){html+=row("CGST (9%)","+ ₹"+Math.round(totalAmount*0.09).toLocaleString("en-IN"));html+=row("SGST (9%)","+ ₹"+Math.round(totalAmount*0.09).toLocaleString("en-IN"))}
+  if(disc>0)html+=row("Discount","- ₹"+Math.round(disc).toLocaleString("en-IN"),"#34d399")
+  if(cash>0)html+=row("Cash paid","₹"+cash.toLocaleString("en-IN"),"#60a5fa")
+  if(upi>0) html+=row("UPI paid","₹"+upi.toLocaleString("en-IN"),"#a78bfa")
+  if(cred>0)html+=row("Credit","₹"+cred.toLocaleString("en-IN"),"#f87171")
+  let sc="#34d399",st="✅ Fully Settled"
+  if(rem>0){sc="#f87171";st="⚠️ Still Due: ₹"+rem.toLocaleString("en-IN")}
+  if(rem<0){sc="#fbbf24";st="⚠️ Extra Paid ₹"+Math.abs(rem).toLocaleString("en-IN")+" — please correct!"}
+  html+=`<div style="display:flex;justify-content:space-between;padding:10px 0 4px;margin-top:6px;border-top:1px solid rgba(255,255,255,0.1);"><span style="font-size:15px;font-weight:600;color:white;">Final Bill Amount</span><span style="font-size:17px;font-weight:700;color:white;">₹${Math.round(after).toLocaleString("en-IN")}</span></div><div style="font-size:13px;color:${sc};padding-bottom:2px;">${st}</div>`
+  document.getElementById("paymentSummary").innerHTML=html
 
-  // Remove listeners
-  document.querySelectorAll(".removeBtn").forEach(btn => {
-    btn.addEventListener("click", function() {
-      billItems.splice(+this.dataset.index, 1)
-      renderBill()
-    })
-  })
+  document.querySelectorAll(".qtyInput").forEach(i=>i.addEventListener("change",function(){billItems[+this.dataset.index].qty=parseInt(this.value)||1;renderBill()}))
+  document.querySelectorAll(".priceInput").forEach(i=>i.addEventListener("change",function(){
+    const idx=+this.dataset.index;const np=parseFloat(this.value)||0;billItems[idx].price=np
+    const id=billItems[idx].id;if(id){supabase.from("inventory").update({selling_price:np}).eq("id",id).then(({error})=>{if(!error){this.style.borderColor="#34d399";setTimeout(()=>{this.style.borderColor=""},1500)}})}
+    renderBill()
+  }))
+  document.querySelectorAll(".removeBtn").forEach(b=>b.addEventListener("click",function(){billItems.splice(+this.dataset.index,1);renderBill()}))
 }
+document.getElementById("gstToggle").addEventListener("change",renderBill)
 
-document.getElementById("gstToggle").addEventListener("change", renderBill)
 
-
-// ── CALCULATE DISCOUNT (shared helper) ──
+// ── CALC DISCOUNT HELPER ──
+  
 function calcDiscount(afterGST) {
-  const discountType = document.getElementById("discountType").value
-  const cash   = parseFloat(document.getElementById("cash").value)   || 0
-  const upi    = parseFloat(document.getElementById("upi").value)    || 0
-  const credit = parseFloat(document.getElementById("credit").value) || 0
-  const paid   = cash + upi + credit
-
-  let discountAmount = 0
-  if (discountType === "auto") {
-    discountAmount = Math.max(afterGST - paid, 0)
-  } else {
-    const dv = parseFloat(document.getElementById("discountValue").value) || 0
-    discountAmount = discountType === "percent"
-      ? Math.round(afterGST * dv / 100) : dv
-    discountAmount = Math.min(discountAmount, afterGST)
-  }
-  return Math.round(discountAmount)
+  const dt=document.getElementById("discountType").value
+  const cash=parseFloat(document.getElementById("cash").value)||0
+  const upi =parseFloat(document.getElementById("upi").value)||0
+  const cred=parseFloat(document.getElementById("credit").value)||0
+  let disc=0
+  if(dt==="auto"){disc=Math.max(afterGST-(cash+upi+cred),0)}
+  else{const dv=parseFloat(document.getElementById("discountValue").value)||0;disc=dt==="percent"?Math.round(afterGST*dv/100):dv;disc=Math.min(disc,afterGST)}
+  return Math.round(disc)
 }
 
 
-// ── SAVE BILL ──
+// ── SAVE BILL (new + edit) ──
+  
 async function saveBill() {
   if (window.isSaving) return
-  window.isSaving = true
-
+  window.isSaving=true
   try {
-    // Customer
-    let customerId = null
+    // 1. Customer
+    let customerId=null
     if (!selectedCustomer) {
-      const name = document.getElementById("customerSearch").value.trim()
-      if (!name) { alert("Enter customer name"); window.isSaving = false; return }
-      const phone = prompt("Enter customer phone (optional):") || ""
-      const { data: newCust, error } = await supabase
-        .from("customers").insert([{ name, phone }]).select().single()
-      if (error) { alert("Error creating customer ❌"); window.isSaving = false; return }
-      selectedCustomer = newCust
-      customerId = newCust.id
-    } else {
-      customerId = selectedCustomer.id
+      const name=document.getElementById("customerSearch").value.trim()
+      if (!name){alert("Enter customer name");window.isSaving=false;return}
+      const phone=prompt("Enter customer phone (optional):")||""
+      const{data:nc,error}=await supabase.from("customers").insert([{name,phone}]).select().single()
+      if(error){alert("Error creating customer ❌");window.isSaving=false;return}
+      selectedCustomer=nc;customerId=nc.id
+    }else{customerId=selectedCustomer.id}
+
+    if (!billItems.length){alert("Add products first");window.isSaving=false;return}
+
+    // 2. Amounts
+    const cash=parseFloat(document.getElementById("cash").value)||0
+    const upi =parseFloat(document.getElementById("upi").value)||0
+    const cred=parseFloat(document.getElementById("credit").value)||0
+    const paid=cash+upi+cred
+    const gst =document.getElementById("gstToggle").checked
+    let afterGST=totalAmount;if(gst)afterGST=Math.round(totalAmount*1.18)
+    const disc=calcDiscount(afterGST)
+    const final=afterGST-disc
+    if(paid>final){alert("❌ Payment (₹"+paid.toLocaleString("en-IN")+") exceeds total (₹"+final.toLocaleString("en-IN")+"). Please correct.");window.isSaving=false;return}
+
+    const receiver=document.getElementById("receiverName").value.trim()
+    const vehicle =document.getElementById("vehicleNumber").value.trim()
+
+    const newItems=billItems.map(item=>({item_id:item.id,quantity:item.qty,price:item.price,total:item.qty*item.price}))
+
+    // ══ EDIT MODE ══
+    
+    if (editingBillId) {
+      const{data:oldItems}=await supabase.from('bill_items').select('*').eq('sale_id',editingBillId)
+      await supabase.from('bill_items').delete().eq('sale_id',editingBillId)
+      const{error:insertErr}=await supabase.from('bill_items').insert(newItems.map(i=>({...i,sale_id:editingBillId})))
+      if(insertErr){
+        // RECOVERY
+        if(oldItems?.length) await supabase.from('bill_items').insert(oldItems.map(({id,...r})=>r))
+        alert('❌ Edit failed — bill restored.\n'+insertErr.message);window.isSaving=false;return
+      }
+      const{error:upErr}=await supabase.from('sales').update({customer_id:customerId,total_amount:final,cash,upi,credit:cred,discount:disc,receiver_name:receiver||null,vehicle_number:vehicle||null}).eq('id',editingBillId)
+      if(upErr){alert('❌ Error updating record: '+upErr.message);window.isSaving=false;return}
+      for(const old of(oldItems||[])){if(old.item_id&&old.quantity>0)await supabase.rpc('increment_inventory',{p_item_id:old.item_id,p_qty:old.quantity})}
+      for(const item of billItems){if(item.id)await supabase.rpc('decrement_inventory',{p_item_id:item.id,p_qty:item.qty})}
+      if(!window.isPrinting)alert('✅ Bill Updated!\nBill No: '+editingBillNumber)
+      cancelEdit();window.isSaving=false;return
     }
 
-    if (billItems.length === 0) { alert("Add products first"); window.isSaving = false; return }
+    // ══ NEW BILL ══
+    
+    const billNumber=await generateInvoiceNo()
+    currentBillNumber=billNumber
+    const{data:sale,error:saleErr}=await supabase.from('sales').insert([{bill_number:billNumber,customer_id:customerId,total_amount:final,cash,upi,credit:cred,discount:disc,advance:0,receiver_name:receiver||null,vehicle_number:vehicle||null,bill_type:'sale'}]).select().single()
+    if(saleErr){alert("Error saving sale ❌\n"+saleErr.message);window.isSaving=false;return}
 
-    // ── PAYMENT VALIDATION ──
-    const _cashV   = parseFloat(document.getElementById("cash").value)   || 0
-    const _upiV    = parseFloat(document.getElementById("upi").value)    || 0
-    const _creditV = parseFloat(document.getElementById("credit").value) || 0
-    const _paidV   = _cashV + _upiV + _creditV
+    const{error:itemsErr}=await supabase.from('bill_items').insert(newItems.map(i=>({...i,sale_id:sale.id})))
+    if(itemsErr){await supabase.from('sales').delete().eq('id',sale.id);alert('❌ Bill items failed — bill rolled back.\n'+itemsErr.message);window.isSaving=false;return}
 
-    const _gstV    = document.getElementById("gstToggle").checked
-    let   _afterGSTv = totalAmount
-    if (_gstV) _afterGSTv = Math.round(totalAmount * 1.18)
-    const _discV   = calcDiscount(_afterGSTv)
-    const _finalV  = _afterGSTv - _discV
+    for(const item of billItems){if(item.id)await supabase.rpc('decrement_inventory',{p_item_id:item.id,p_qty:item.qty})}
+    if(!window.isPrinting)alert('✅ Bill Saved — '+billNumber)
 
-    if (_paidV > _finalV) {
-      alert("❌ Cannot Save!\n\nYou entered ₹" + _paidV.toLocaleString("en-IN") + " but bill total is only ₹" + _finalV.toLocaleString("en-IN") + "\n\nExtra: ₹" + (_paidV - _finalV).toLocaleString("en-IN") + "\n\nPlease correct the payment amounts.")
-      window.isSaving = false
-      return
-    }
+  }catch(err){console.error(err);alert("Error ❌\n"+err.message)}
+  window.isSaving=false
+}
+document.getElementById("saveBtn").addEventListener("click",saveBill)
 
-    const cash   = parseFloat(document.getElementById("cash").value)   || 0
-    const upi    = parseFloat(document.getElementById("upi").value)    || 0
-    const credit = parseFloat(document.getElementById("credit").value) || 0
 
-    const gstChecked = document.getElementById("gstToggle").checked
-    let afterGST = totalAmount
-    if (gstChecked) afterGST = Math.round(totalAmount * 1.18)
-
-    const discountAmount     = calcDiscount(afterGST)
-    const finalAfterDiscount = afterGST - discountAmount
-
-    const billNumber = await generateInvoiceNo() 
-    currentBillNumber = billNumber
-
-    const { data: sale, error: saleError } = await supabase
-      .from('sales')
-      .insert([{
-        bill_number:  billNumber,
-        customer_id:  customerId,
-        total_amount: finalAfterDiscount,
-        cash, upi, credit,
-        discount:     discountAmount,
-        advance:      0
-      }])
-      .select().single()
-
-    if (saleError) { console.log(saleError); alert("Error saving sale ❌"); window.isSaving = false; return }
-
-   let allItemsSaved = true
-    for (const item of billItems) {
- // ── BULK INSERT all items in ONE query (prevents empty bill on network drop) ──
-    const itemsToInsert = billItems.map(item => ({
-      sale_id:  sale.id,
-      item_id:  item.id,
-      quantity: item.qty,
-      price:    item.price,
-      total:    item.qty * item.price
-    }))
-
-    const { error: itemsError } = await supabase.from('bill_items').insert(itemsToInsert)
-
-    if (itemsError) {
-      // ROLLBACK: delete the sale header so no orphan bill exists
-      await supabase.from('sales').delete().eq('id', sale.id)
-      alert('❌ Error saving bill items. Bill was NOT saved.\nPlease check your internet and try again.\n\nError: ' + itemsError.message)
-      window.isSaving = false
-      return
-    }
-
-    // ── ATOMIC inventory deduction (no race condition) ──
-    for (const item of billItems) {
-      await supabase.rpc('decrement_inventory', { p_item_id: item.id, p_qty: item.qty })
-    }
-
-    if (!window.isPrinting) alert('Bill Saved ✅ — Bill No: ' + billNumber)
-      
-    }
-
-    if (!allItemsSaved) {
-      alert("⚠️ WARNING: Bill saved but some PRODUCT ITEMS failed to save!\nBill Number: " + billNumber + "\nPlease check your internet and contact support.")
-    } else {
-      if (!window.isPrinting) alert("Bill Saved ✅ — Bill No: " + billNumber)
-    }
-
-  } catch (err) {
-    console.log(err)
-    alert("Error saving bill ❌")
-  }
-
-  window.isSaving = false
+// ── CANCEL EDIT ──
+  
+window.cancelEdit=function(){
+  editingBillId=null;editingBillNumber=null;selectedCustomer=null;billItems=[];totalAmount=0
+  document.getElementById('editModeBar').style.display='none'
+  document.getElementById('saveBtn').innerText='💾 Save Bill'
+  ;['customerSearch','receiverName','vehicleNumber','billPhone'].forEach(id=>document.getElementById(id).value='')
+  ;['cash','upi','credit','discountValue'].forEach(id=>document.getElementById(id).value='')
+  renderBill()
 }
 
-document.getElementById("saveBtn").addEventListener("click", saveBill)
+
+// ── FILL PRINT AREA (shared helper) ──
+  
+function fillPrintArea({isReturn,billNo,date,customerName,phone,receiver,vehicle,originalRef,items,subtotal,final,gstEnabled,cgst,sgst,disc,cash,upi,credit,payMode}) {
+  document.getElementById('printHeader').className           = 'bill-header'+(isReturn?' return-style':'')
+  document.getElementById('printBillType').innerText         = isReturn?'SALES RETURN':selectedBillType||'GST Invoice'
+  document.getElementById('printInvoiceNo').innerText        = billNo
+  document.getElementById('printDate').innerText             = date
+  document.getElementById('printCustomer').innerText         = customerName
+  document.getElementById('printPhone').innerText            = phone||'—'
+  document.getElementById('printPayMode').innerText          = payMode||'—'
+  document.getElementById('printFinalLabel').innerText       = isReturn?'Return Total':'Grand Total'
+  document.getElementById('printFooterMsg').innerText        = isReturn?'Return processed. Thank you. 🙏':'Thank you for your business 🙏'
+  document.getElementById('printCustSigLabel').innerText     = isReturn?'Returned By':'Customer Signature'
+  document.getElementById('printReturnNoteLine').style.display= isReturn?'block':'none'
+  document.getElementById('printReturnRefBar').style.display = (isReturn&&originalRef)?'block':'none'
+  if(isReturn&&originalRef)document.getElementById('printOriginalRef').innerText=originalRef
+  if(receiver){document.getElementById('printReceiverBlock').style.display='block';document.getElementById('printReceiver').innerText=receiver}else{document.getElementById('printReceiverBlock').style.display='none'}
+  if(vehicle){document.getElementById('printVehicleBlock').style.display='block';document.getElementById('printVehicle').innerText=vehicle}else{document.getElementById('printVehicleBlock').style.display='none'}
+
+  const tbody=document.getElementById('printItems');tbody.innerHTML=''
+  items.forEach((item,i)=>{tbody.innerHTML+=`<tr><td style="padding:10px 14px;color:#6b7280;">${i+1}</td><td style="padding:10px 14px;">${item.name}</td><td style="padding:10px 14px;text-align:center;">${Math.abs(item.qty)}</td><td style="padding:10px 14px;text-align:center;">₹${item.price}</td><td style="padding:10px 14px;text-align:right;font-weight:600;">₹${Math.abs(item.qty*item.price).toLocaleString('en-IN')}</td></tr>`})
+
+  document.getElementById('printSubtotal').innerText         = Math.abs(subtotal).toLocaleString('en-IN')
+  document.getElementById('printFinal').innerText            = Math.abs(final).toLocaleString('en-IN')
+  document.getElementById('gstRow').style.display            = gstEnabled?'flex':'none'
+  document.getElementById('sgstRow').style.display           = gstEnabled?'flex':'none'
+  if(gstEnabled){document.getElementById('printCGST').innerText=Math.round(cgst).toLocaleString('en-IN');document.getElementById('printSGST').innerText=Math.round(sgst).toLocaleString('en-IN')}
+  document.getElementById('discountRow').style.display       = disc>0?'flex':'none'
+  if(disc>0)document.getElementById('printDiscount').innerText=disc.toLocaleString('en-IN')
+  document.getElementById('printCash').innerText             = Math.abs(cash||0)
+  document.getElementById('printUPI').innerText              = Math.abs(upi||0)
+  document.getElementById('printCredit').innerText           = Math.abs(credit||0)
+  document.getElementById('printCreditLabel').innerText      = isReturn?'Credit Adjusted':'Credit'
+  document.getElementById('printDiscountPayItem').style.display = (!isReturn&&disc>0)?'inline':'none'
+  if(!isReturn&&disc>0)document.getElementById('printDiscountPay').innerText=disc.toLocaleString('en-IN')
+}
 
 
 // ── PRINT BILL ──
-async function printBill() {
-  if (billItems.length === 0) { alert("Add products first"); return }
-
-  // ── PAYMENT VALIDATION ──
-  const _cashP   = parseFloat(document.getElementById("cash").value)   || 0
-  const _upiP    = parseFloat(document.getElementById("upi").value)    || 0
-  const _creditP = parseFloat(document.getElementById("credit").value) || 0
-  const _paidP   = _cashP + _upiP + _creditP
-
-  const _gstP    = document.getElementById("gstToggle").checked
-  let   _afterGSTP = totalAmount
-  if (_gstP) _afterGSTP = Math.round(totalAmount * 1.18)
-  const _discP   = calcDiscount(_afterGSTP)
-  const _finalP  = _afterGSTP - _discP
-
-  if (_paidP > _finalP) {
-    alert("❌ Cannot Print!\n\nYou entered ₹" + _paidP.toLocaleString("en-IN") + " but bill total is only ₹" + _finalP.toLocaleString("en-IN") + "\n\nExtra: ₹" + (_paidP - _finalP).toLocaleString("en-IN") + "\n\nPlease correct the payment amounts first.")
-    return
-  }
   
-  window.isPrinting = true
-
-  const tempItems  = [...billItems]
-  const tempTotal  = totalAmount
-  const cash       = parseFloat(document.getElementById("cash").value)   || 0
-  const upi        = parseFloat(document.getElementById("upi").value)    || 0
-  const credit     = parseFloat(document.getElementById("credit").value) || 0
-  const gstChecked = document.getElementById("gstToggle").checked
-
-  let afterGST = tempTotal
-  let cgst = 0, sgst = 0
-  if (gstChecked) {
-    afterGST = Math.round(tempTotal * 1.18)
-    cgst = Math.round(tempTotal * 0.09)
-    sgst = Math.round(tempTotal * 0.09)
-  }
-
-  const discountAmount = calcDiscount(afterGST)
-  const finalAmount    = afterGST - discountAmount
-
-  const modes = []
-  if (cash   > 0) modes.push("Cash")
-  if (upi    > 0) modes.push("UPI")
-  if (credit > 0) modes.push("Credit")
-
-  // Save first
-  await saveBill()
-  await new Promise(r => setTimeout(r, 300))
-
-  // Fill print area
-  document.getElementById("printBillType").innerText  = selectedBillType
-  document.getElementById("printInvoiceNo").innerText = currentBillNumber
-  document.getElementById("printDate").innerText = new Date().toLocaleString('en-IN', {
-    day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit'
-  })
-  document.getElementById("printCustomer").innerText = selectedCustomer?.name || "Walk-in Customer"
-  document.getElementById("printPhone").innerText    = selectedCustomer?.phone || "—"
-  document.getElementById("printPayMode").innerText  = modes.join(" + ") || "—"
-
-  // Items
-  const tbody = document.getElementById("printItems")
-  tbody.innerHTML = ""
-  tempItems.forEach((item, i) => {
-    tbody.innerHTML += `
-      <tr>
-        <td style="padding:10px 14px;color:#6b7280;">${i + 1}</td>
-        <td style="padding:10px 14px;">${item.name}</td>
-        <td style="padding:10px 14px;text-align:center;">${item.qty}</td>
-        <td style="padding:10px 14px;text-align:center;">₹${item.price.toLocaleString('en-IN')}</td>
-        <td style="padding:10px 14px;text-align:right;font-weight:600;">₹${(item.qty * item.price).toLocaleString('en-IN')}</td>
-      </tr>
-    `
-  })
-
-  // Totals
-  document.getElementById("printSubtotal").innerText = tempTotal.toLocaleString('en-IN')
-  document.getElementById("printFinal").innerText    = finalAmount.toLocaleString('en-IN')
-  document.getElementById("gstRow").style.display    = gstChecked ? "flex" : "none"
-  document.getElementById("sgstRow").style.display   = gstChecked ? "flex" : "none"
-  if (gstChecked) {
-    document.getElementById("printCGST").innerText = cgst.toLocaleString('en-IN')
-    document.getElementById("printSGST").innerText = sgst.toLocaleString('en-IN')
-  }
-  document.getElementById("discountRow").style.display = discountAmount > 0 ? "flex" : "none"
-  document.getElementById("printDiscount").innerText   = discountAmount.toLocaleString('en-IN')
-
-  // Payment
-  document.getElementById("printCash").innerText   = cash
-  document.getElementById("printUPI").innerText    = upi
-  document.getElementById("printCredit").innerText = credit
-  if (discountAmount > 0) {
-    document.getElementById("printDiscountPayItem").style.display = "inline"
-    document.getElementById("printDiscountPay").innerText = discountAmount.toLocaleString('en-IN')
-  } else {
-    document.getElementById("printDiscountPayItem").style.display = "none"
-  }
-
-  document.getElementById("printArea").style.display = "block"
-  const originalTitle = document.title
-  document.title = "Bill-" + currentBillNumber
-  window.print()
-
-  setTimeout(() => {
-    document.title = originalTitle
-    document.getElementById("printArea").style.display = "none"
-    window.isPrinting = false
-  }, 800)
+async function printBill() {
+  if(!billItems.length){alert("Add products first");return}
+  const cash=parseFloat(document.getElementById("cash").value)||0
+  const upi =parseFloat(document.getElementById("upi").value)||0
+  const cred=parseFloat(document.getElementById("credit").value)||0
+  const gst =document.getElementById("gstToggle").checked
+  let afterGST=totalAmount;if(gst)afterGST=Math.round(totalAmount*1.18)
+  const disc=calcDiscount(afterGST);const final=afterGST-disc
+  if((cash+upi+cred)>final){alert("❌ Payment exceeds total. Please correct.");return}
+  window.isPrinting=true
+  const tempItems=[...billItems];const tempTotal=totalAmount
+  const cgst=gst?Math.round(tempTotal*0.09):0;const sgst=cgst
+  const modes=[];if(cash>0)modes.push("Cash");if(upi>0)modes.push("UPI");if(cred>0)modes.push("Credit")
+  await saveBill();await new Promise(r=>setTimeout(r,300))
+  fillPrintArea({isReturn:false,billNo:currentBillNumber,date:new Date().toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}),customerName:selectedCustomer?.name||"Walk-in Customer",phone:document.getElementById("billPhone").value||selectedCustomer?.phone||"—",receiver:document.getElementById("receiverName").value.trim(),vehicle:document.getElementById("vehicleNumber").value.trim(),originalRef:null,items:tempItems,subtotal:tempTotal,final,gstEnabled:gst,cgst,sgst,disc,cash,upi,credit:cred,payMode:modes.join(" + ")||"—"})
+  document.getElementById("printArea").style.display="block"
+  const ot=document.title;document.title="Bill-"+currentBillNumber;window.print()
+  setTimeout(()=>{document.title=ot;document.getElementById("printArea").style.display="none";window.isPrinting=false},800)
 }
-
-document.getElementById("printBtn").addEventListener("click", printBill)
+document.getElementById("printBtn").addEventListener("click",printBill)
 
 
 // ── BILL HISTORY ──
-window.openBillHistory = function() {
-  document.getElementById("billHistoryModal").style.display = "block"
-  loadBills()
-}
+  
+window.openBillHistory=function(){document.getElementById("billHistoryModal").style.display="block";historyPage=1;loadBills()}
+window.closeBillHistory=function(){document.getElementById("billHistoryModal").style.display="none"}
 
-window.closeBillHistory = function() {
-  document.getElementById("billHistoryModal").style.display = "none"
-}
+window.loadBills=async function(){
+  const search=(document.getElementById("searchBill").value||"").toLowerCase().trim()
+  const filter=document.getElementById("historyFilter").value
+  const tbody=document.getElementById("billHistoryBody")
+  tbody.innerHTML=`<tr><td colspan="7" style="text-align:center;padding:20px;color:rgba(255,255,255,0.3);">Loading...</td></tr>`
 
-window.loadBills = async function() {
-  const search = (document.getElementById("searchBill").value || "").toLowerCase()
+  let query=supabase.from("sales").select("*",{count:'exact'}).order("created_at",{ascending:false})
+  if(filter==='sale')   query=query.or('bill_type.eq.sale,bill_type.is.null')
+  if(filter==='return') query=query.eq('bill_type','return')
+  const from=(historyPage-1)*HIST_SIZE
+  query=query.range(from,from+HIST_SIZE-1)
 
-  const { data, error } = await supabase
-    .from("sales").select("*").order("created_at", { ascending: false })
-  if (error) { alert("Error loading bills"); return }
+  const{data,count,error}=await query
+  if(error){tbody.innerHTML=`<tr><td colspan="7" style="text-align:center;padding:20px;color:#f87171;">Error loading</td></tr>`;return}
 
-  // Load all customers at once (fast)
-  const { data: allCustomers } = await supabase.from("customers").select("id, name")
-  const custMap = {}
-  ;(allCustomers || []).forEach(c => { custMap[c.id] = c.name })
+  const custIds=[...new Set((data||[]).map(b=>b.customer_id).filter(Boolean))]
+  const custMap={}
+  if(custIds.length){const{data:custs}=await supabase.from("customers").select("id,name").in("id",custIds);(custs||[]).forEach(c=>{custMap[c.id]=c.name})}
 
-  const tbody = document.getElementById("billHistoryBody")
-  tbody.innerHTML = ""
-
-  const filtered = (data || []).filter(bill => {
-    const custName = custMap[bill.customer_id] || "Walk-in"
-    if (!search) return true
-    return bill.bill_number.toLowerCase().includes(search) ||
-           custName.toLowerCase().includes(search)
+  const filtered=(data||[]).filter(bill=>{
+    if(!search)return true
+    const cn=custMap[bill.customer_id]||""
+    return (bill.bill_number||"").toLowerCase().includes(search)||cn.toLowerCase().includes(search)||(bill.vehicle_number||"").toLowerCase().includes(search)
   })
 
-  if (!filtered.length) {
-    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:30px;color:rgba(255,255,255,0.3);">No bills found</td></tr>`
-    return
-  }
+  tbody.innerHTML=""
+  if(!filtered.length){tbody.innerHTML=`<tr><td colspan="7" style="text-align:center;padding:30px;color:rgba(255,255,255,0.3);">No bills found</td></tr>`;return}
 
-  filtered.forEach(bill => {
-    const custName = custMap[bill.customer_id] || "Walk-in"
-    tbody.innerHTML += `
-      <tr style="border-bottom:1px solid rgba(255,255,255,0.05);"
-          onmouseover="this.style.background='rgba(255,255,255,0.04)'"
-          onmouseout="this.style.background='transparent'">
-        <td style="padding:12px 14px;font-size:12px;color:rgba(255,255,255,0.45);">${bill.bill_number}</td>
-        <td style="padding:12px 14px;color:rgba(255,255,255,0.8);">${new Date(bill.created_at).toLocaleDateString('en-IN')}</td>
-        <td style="padding:12px 14px;color:white;font-weight:500;">${custName}</td>
-        <td style="padding:12px 14px;color:#34d399;font-weight:600;">₹${Math.round(bill.total_amount).toLocaleString('en-IN')}</td>
-        <td style="padding:12px 14px;">
-          <button onclick="viewBill('${bill.bill_number}')"
-            style="padding:6px 14px;font-size:12px;background:rgba(37,99,235,0.3);border:1px solid rgba(37,99,235,0.4);border-radius:7px;margin-right:6px;box-shadow:none;">
-            👁 View
-          </button>
-          <button onclick="reprintBill('${bill.bill_number}')"
-            style="padding:6px 14px;font-size:12px;background:rgba(139,92,246,0.3);border:1px solid rgba(139,92,246,0.4);border-radius:7px;box-shadow:none;">
-            🖨 Print
-          </button>
-        </td>
-      </tr>
-    `
-  })
+  filtered.forEach(bill=>{
+    const cn=custMap[bill.customer_id]||"Walk-in"
+    const isRet=bill.bill_type==='return'
+    const typeLabel=isRet?'<span style="background:rgba(220,38,38,0.15);color:#f87171;padding:3px 8px;border-radius:10px;font-size:11px;font-weight:600;">↩ Return</span>':'<span style="background:rgba(37,99,235,0.15);color:#60a5fa;padding:3px 8px;border-radius:10px;font-size:11px;font-weight:600;
+      ">📄 Sale</span>'
+tbody.innerHTML+=       <tr style="border-bottom:1px solid rgba(255,255,255,0.05);" onmouseover="this.style.background='rgba(255,255,255,0.03)'" onmouseout="this.style.background='transparent'">         <td style="padding:11px 14px;font-size:12px;color:rgba(255,255,255,0.4);">${bill.bill_number}</td>         <td style="padding:11px 14px;color:rgba(255,255,255,0.75);">${new Date(bill.created_at).toLocaleDateString('en-IN')}</td>         <td style="padding:11px 14px;color:white;font-weight:500;">${cn}</td>         <td style="padding:11px 14px;color:rgba(255,255,255,0.5);font-size:12px;font-family:monospace;">${bill.vehicle_number||'—'}</td>         <td style="padding:11px 14px;color:${isRet?'#f87171':'#34d399'};font-weight:600;">${isRet?'-':''}₹${Math.round(Math.abs(bill.total_amount)).toLocaleString('en-IN')}</td>         <td style="padding:11px 14px;">${typeLabel}</td>         <td style="padding:11px 14px;">           <div style="display:flex;gap:6px;flex-wrap:wrap;">             <button onclick="viewBill('${bill.bill_number}')" style="padding:5px 10px;font-size:11px;background:rgba(37,99,235,0.25);border:1px solid rgba(37,99,235,0.4);border-radius:6px;box-shadow:none;">👁 View</button>             <button onclick="reprintBill('${bill.bill_number}')" style="padding:5px 10px;font-size:11px;background:rgba(139,92,246,0.25);border:1px solid rgba(139,92,246,0.4);border-radius:6px;box-shadow:none;">🖨 Print</button>             ${!isRet?<button onclick="openEditBill('${bill.bill_number}')" style="padding:5px 10px;font-size:11px;background:rgba(245,158,11,0.2);border:1px solid rgba(245,158,11,0.35);border-radius:6px;box-shadow:none;">✏️ Edit</button>:''}             <button onclick="openDeleteModal('${bill.id}','${bill.bill_number}')" style="padding:5px 10px;font-size:11px;background:rgba(220,38,38,0.2);border:1px solid rgba(220,38,38,0.3);border-radius:6px;box-shadow:none;">🗑️</button>           </div>         </td>       </tr>
+})
+const totalPages=Math.ceil((count||0)/HIST_SIZE)||1
+document.getElementById('historyPageInfo').innerText=Page ${historyPage} of ${totalPages} — ${count||0} bills
+const pg=document.getElementById('historyPagination');pg.innerHTML=''
+if(totalPages>1){
+const mkB=(l,d,fn)=>{const b=document.createElement('button');b.innerText=l;b.disabled=d;b.style.cssText='padding:6px 12px;font-size:12px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:7px;color:white;cursor:pointer;font-family:"DM Sans",sans-serif;';b.onclick=fn;pg.appendChild(b)}
+mkB('← Prev',historyPage===1,()=>{historyPage--;window.loadBills()})
+mkB('Next →',historyPage===totalPages,()=>{historyPage++;window.loadBills()})
 }
-
-
+}
+  
 // ── VIEW BILL ──
-window.viewBill = async function(billNo) {
-  const { data: sale } = await supabase.from("sales").select("*").eq("bill_number", billNo).single()
-  if (!sale) { alert("Bill not found"); return }
-
-  const { data: allCustomers } = await supabase.from("customers").select("id, name, phone")
-  const custMap = {}
-  ;(allCustomers || []).forEach(c => { custMap[c.id] = c })
-  const customer = custMap[sale.customer_id] || { name: "Walk-in", phone: "" }
-
- const { data: items } = await supabase.from("bill_items").select("*").eq("sale_id", sale.id)
-  const prodMap = {}
-  if (items && items.length > 0) {
-    const itemIds = items.map(i => i.item_id).filter(Boolean)
-    if (itemIds.length > 0) {
-      const { data: products } = await supabase.from("inventory").select("id, item_name").in("id", itemIds)
-      ;(products || []).forEach(p => { prodMap[p.id] = p.item_name })
-    }
-  }
-  document.getElementById("printBillType").innerText  = "GST Invoice"
-  document.getElementById("printInvoiceNo").innerText = sale.bill_number
-  document.getElementById("printDate").innerText      = new Date(sale.created_at).toLocaleString('en-IN')
-  document.getElementById("printCustomer").innerText  = customer.name
-  document.getElementById("printPhone").innerText     = customer.phone || "—"
-  document.getElementById("printPayMode").innerText   = [
-    sale.cash   > 0 ? "Cash"   : "",
-    sale.upi    > 0 ? "UPI"    : "",
-    sale.credit > 0 ? "Credit" : ""
-  ].filter(Boolean).join(" + ") || "—"
-
-  const tbody = document.getElementById("printItems")
-  tbody.innerHTML = ""
-  let subtotal = 0
-  ;(items || []).forEach((item, i) => {
-    subtotal += item.total || 0
-    tbody.innerHTML += `
-      <tr>
-        <td style="padding:10px 14px;color:#6b7280;">${i + 1}</td>
-        <td style="padding:10px 14px;">${prodMap[item.item_id] || "(Item #" + item.item_id + ")"}</td>
-        <td style="padding:10px 14px;text-align:center;">${item.quantity}</td>
-        <td style="padding:10px 14px;text-align:center;">₹${item.price}</td>
-        <td style="padding:10px 14px;text-align:right;font-weight:600;">₹${item.total}</td>
-      </tr>
-    `
-  })
-
-  const discount = sale.discount || 0
-  document.getElementById("printSubtotal").innerText   = subtotal.toLocaleString('en-IN')
-  document.getElementById("printFinal").innerText      = Math.round(sale.total_amount).toLocaleString('en-IN')
-  document.getElementById("gstRow").style.display      = "none"
-  document.getElementById("sgstRow").style.display     = "none"
-  document.getElementById("discountRow").style.display = discount > 0 ? "flex" : "none"
-  document.getElementById("printDiscount").innerText   = discount.toLocaleString('en-IN')
-  document.getElementById("printCash").innerText       = sale.cash   || 0
-  document.getElementById("printUPI").innerText        = sale.upi    || 0
-  document.getElementById("printCredit").innerText     = sale.credit || 0
-  if (discount > 0) {
-    document.getElementById("printDiscountPayItem").style.display = "inline"
-    document.getElementById("printDiscountPay").innerText = discount.toLocaleString('en-IN')
-  } else {
-    document.getElementById("printDiscountPayItem").style.display = "none"
-  }
-
-  document.getElementById("billHistoryModal").style.display = "none"
-  document.getElementById("printArea").style.display = "block"
+  
+window.viewBill=async function(billNo){
+const{data:sale}=await supabase.from("sales").select("").eq("bill_number",billNo).single()
+if(!sale){alert("Bill not found");return}
+const{data:custs}=await supabase.from("customers").select("id,name,phone")
+const cm={};(custs||[]).forEach(c=>{cm[c.id]=c});const cust=cm[sale.customer_id]||{name:"Walk-in",phone:""}
+const{data:items}=await supabase.from("bill_items").select("").eq("sale_id",sale.id)
+const ids=(items||[]).map(i=>i.item_id).filter(Boolean)
+const{data:prods}=ids.length?await supabase.from("inventory").select("id,item_name").in("id",ids):{data:[]}
+const pm={};(prods||[]).forEach(p=>{pm[p.id]=p.item_name})
+const modes=[];if(sale.cash>0)modes.push("Cash");if(sale.upi>0)modes.push("UPI");if(sale.credit>0)modes.push("Credit")
+const printItems=(items||[]).map(item=>({name:pm||"Item",qty:item.quantity,price:item.price}))
+let st=0;(items||[]).forEach(i=>{st+=i.total||0})
+fillPrintArea({isReturn:sale.bill_type==='return',billNo:sale.bill_number,date:new Date(sale.created_at).toLocaleString('en-IN'),customerName:cust.name,phone:cust.phone,receiver:sale.receiver_name,vehicle:sale.vehicle_number,originalRef:sale.original_bill_ref,items:printItems,subtotal:st,final:sale.total_amount,gstEnabled:false,cgst:0,sgst:0,disc:sale.discount||0,cash:sale.cash||0,upi:sale.upi||0,credit:sale.credit||0,payMode:modes.join(" + ")||"—"})
+document.getElementById("billHistoryModal").style.display="none"
+document.getElementById("printArea").style.display="block"
 }
+window.reprintBill=async function(billNo){await viewBill(billNo);await new Promise(r=>setTimeout(r,300));const ot=document.title;document.title="Bill-"+billNo;window.print();setTimeout(()=>{document.title=ot;document.getElementById("printArea").style.display="none"},800)}
 
-
-// ── REPRINT ──
-window.reprintBill = async function(billNo) {
-  await viewBill(billNo)
-  await new Promise(r => setTimeout(r, 300))
-  window.print()
-  setTimeout(() => {
-    document.getElementById("printArea").style.display = "none"
-  }, 800)
+  // ── EDIT BILL ──
+  
+window.openEditBill=async function(billNo){
+const{data:sale}=await supabase.from("sales").select("").eq("bill_number",billNo).single()
+if(!sale){alert("Bill not found");return}
+const{data:items}=await supabase.from("bill_items").select("").eq("sale_id",sale.id)
+const ids=(items||[]).map(i=>i.item_id).filter(Boolean)
+const{data:prods}=ids.length?await supabase.from("inventory").select("id,item_name,selling_price").in("id",ids):{data:[]}
+const pm={};(prods||[]).forEach(p=>{pm[p.id]=p})
+editingBillId=sale.id;editingBillNumber=sale.bill_number
+document.getElementById('editModeBar').style.display='block'
+document.getElementById('editModeBillNo').innerText='Bill: '+sale.bill_number+' — '+new Date(sale.created_at).toLocaleDateString('en-IN')
+document.getElementById('saveBtn').innerText='💾 Update Bill'
+// Load customer
+if(sale.customer_id){const{data:c}=await supabase.from('customers').select('*').eq('id',sale.customer_id).single();if(c){selectedCustomer=c;document.getElementById('customerSearch').value=c.name;document.getElementById('billPhone').value=c.phone||'';loadVehicleSuggestions(c.id)}}
+document.getElementById('receiverName').value=sale.receiver_name||''
+document.getElementById('vehicleNumber').value=sale.vehicle_number||''
+document.getElementById('cash').value=sale.cash||0
+document.getElementById('upi').value=sale.upi||0
+document.getElementById('credit').value=sale.credit||0
+billItems=(items||[]).map(item=>({id:item.item_id,name:(pm[item.item_id]?.item_name)||'Item',price:item.price,qty:item.quantity}))
+renderBill()
+document.getElementById('billHistoryModal').style.display='none'
+setMode('sale')
+window.scrollTo({top:0,behavior:'smooth'})
 }
-
+  
+// ── DELETE ──
+  
+window.openDeleteModal=function(id,billNo){deletingBillId=id;deletingBillNo=billNo;document.getElementById('deleteModalBillNo').innerText=billNo;document.getElementById('deleteModal').style.display='flex'}
+window.closeDeleteModal=function(){document.getElementById('deleteModal').style.display='none';deletingBillId=null;deletingBillNo=null}
+window.confirmDeleteBill=async function(){
+if(!deletingBillId)return
+const{data:items}=await supabase.from('bill_items').select('*').eq('sale_id',deletingBillId)
+// Restore inventory
+for(const item of(items||[])){if(item.item_id&&item.quantity>0)await supabase.rpc('increment_inventory',{p_item_id:item.item_id,p_qty:item.quantity})}
+await supabase.from('bill_items').delete().eq('sale_id',deletingBillId)
+await supabase.from('sales').delete().eq('id',deletingBillId)
+closeDeleteModal()
+alert('✅ Bill deleted & inventory restored')
+loadBills()
+}
+  
+// ── SALES RETURN ──
+  
+window.searchReturnBill=async function(){
+const billNo=document.getElementById('returnBillSearch').value.trim()
+if(!billNo){alert('Enter a bill number');return}
+const{data:sale}=await supabase.from('sales').select('').eq('bill_number',billNo).single()
+if(!sale){alert('Bill not found');return}
+if(sale.bill_type==='return'){alert('This is already a return bill — cannot return a return!');return}
+const{data:items}=await supabase.from('bill_items').select('').eq('sale_id',sale.id)
+const ids=(items||[]).map(i=>i.item_id).filter(Boolean)
+const{data:prods}=ids.length?await supabase.from('inventory').select('id,item_name').in('id',ids):{data:[]}
+const pm={};(prods||[]).forEach(p=>{pm[p.id]=p.item_name})
+const{data:cust}=sale.customer_id?await supabase.from('customers').select('name,phone').eq('id',sale.customer_id).single():{data:{name:'Walk-in',phone:''}}
+returnOriginalSale=sale;returnBillItems=items||[]
+document.getElementById('returnCustomerInfo').innerHTML=     <div><div style="font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Customer</div><div style="font-size:15px;font-weight:600;color:white;">${cust?.name||'Walk-in'}</div></div>     <div><div style="font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Original Bill</div><div style="font-size:13px;color:#fbbf24;font-weight:600;">${sale.bill_number}</div></div>     <div><div style="font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Original Total</div><div style="font-size:13px;color:#34d399;font-weight:600;">₹${Math.round(sale.total_amount).toLocaleString('en-IN')}</div></div>     <div><div style="font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Date</div><div style="font-size:13px;color:rgba(255,255,255,0.6);">${new Date(sale.created_at).toLocaleDateString('en-IN')}</div></div>
+const tbody=document.getElementById('returnItemsBody');tbody.innerHTML=''
+;(items||[]).forEach((item,idx)=>{
+tbody.innerHTML+=<tr style="border-bottom:1px solid rgba(255,255,255,0.05);">       <td style="padding:10px;text-align:center;"><input type="checkbox" class="returnChk" data-idx="${idx}" style="width:18px;height:18px;accent-color:#dc2626;cursor:pointer;" onchange="calcReturnTotal()"></td>       <td style="padding:10px;color:white;">${pm[item.item_id]||'Item'}</td>       <td style="padding:10px;text-align:center;color:rgba(255,255,255,0.7);">${item.quantity}</td>       <td style="padding:10px;text-align:center;"><input type="number" class="returnQtyInput" data-idx="${idx}" value="${item.quantity}" min="1" max="${item.quantity}" style="width:70px;margin-bottom:0;text-align:center;" oninput="calcReturnTotal()"></td>       <td style="padding:10px;text-align:right;color:rgba(255,255,255,0.7);">₹${item.price}</td>       <td style="padding:10px;text-align:right;font-weight:600;color:#f87171;" id="rtotal${idx}">₹0</td>     </tr>
+})
+calcReturnTotal()
+document.getElementById('returnBillDetails').style.display='block'
+}
+window.calcReturnTotal=function(){
+let t=0
+document.querySelectorAll('.returnChk').forEach(chk=>{
+const idx=+chk.dataset.idx;const qi=document.querySelector(.returnQtyInput[data-idx="${idx}"])
+const qty=chk.checked?(parseInt(qi?.value)||0):0
+const price=(returnBillItems[idx]?.price)||0;const sub=qty*price;t+=sub
+const el=document.getElementById('rtotal'+idx);if(el)el.innerText=chk.checked?'₹'+sub.toLocaleString('en-IN'):'₹0'
+})
+document.getElementById('returnTotalAmt').innerText=t.toLocaleString('en-IN')
+}
+window.processReturn=async function(shouldPrint){
+const checkedItems=[]
+document.querySelectorAll('.returnChk').forEach(chk=>{
+if(!chk.checked)return
+const idx=+chk.dataset.idx;const qi=document.querySelector(.returnQtyInput[data-idx="${idx}"])
+const qty=parseInt(qi?.value)||0;if(qty<=0)return
+const orig=returnBillItems[idx];if(!orig)return
+if(qty>orig.quantity){alert(Return qty (${qty}) exceeds billed qty (${orig.quantity}) for item);return}
+checkedItems.push({item_id:orig.item_id,qty,price:orig.price,orig_quantity:orig.quantity})
+})
+if(!checkedItems.length){alert('Select at least one item to return');return}
+const returnTotal=checkedItems.reduce((s,i)=>s+(i.qty*i.price),0)
+const returnNo=await generateReturnNo()
+const{data:rSale,error:rErr}=await supabase.from('sales').insert([{
+bill_number:returnNo,customer_id:returnOriginalSale.customer_id,
+total_amount:-returnTotal,cash:0,upi:0,credit:-returnTotal,discount:0,advance:0,
+bill_type:'return',original_bill_ref:returnOriginalSale.bill_number,
+receiver_name:returnOriginalSale.receiver_name,vehicle_number:returnOriginalSale.vehicle_number
+}]).select().single()
+if(rErr){alert('❌ Error creating return: '+rErr.message);return}
+const returnItemsInsert=checkedItems.map(i=>({sale_id:rSale.id,item_id:i.item_id,quantity:-i.qty,price:i.price,total:-(i.qty*i.price)}))
+const{error:riErr}=await supabase.from('bill_items').insert(returnItemsInsert)
+if(riErr){await supabase.from('sales').delete().eq('id',rSale.id);alert('❌ Return items failed: '+riErr.message);return}
+for(const item of checkedItems){if(item.item_id)await supabase.rpc('increment_inventory',{p_item_id:item.item_id,p_qty:item.qty})}
+if(shouldPrint){
+const{data:cust}=returnOriginalSale.customer_id?await supabase.from('customers').select('name,phone').eq('id',returnOriginalSale.customer_id).single():{data:{name:'Walk-in',phone:''}}
+const ids=checkedItems.map(i=>i.item_id).filter(Boolean)
+const{data:prods}=ids.length?await supabase.from('inventory').select('id,item_name').in('id',ids):{data:[]}
+const pm={};(prods||[]).forEach(p=>{pm[p.id]=p.item_name})
+const printReturnItems=checkedItems.map(i=>({name:pm||'Item',qty:i.qty,price:i.price}))
+fillPrintArea({isReturn:true,billNo:returnNo,date:new Date().toLocaleString('en-IN'),customerName:cust?.name||'Walk-in',phone:cust?.phone||'',receiver:'',vehicle:'',originalRef:returnOriginalSale.bill_number,items:printReturnItems,subtotal:returnTotal,final:returnTotal,gstEnabled:false,cgst:0,sgst:0,disc:0,cash:0,upi:0,credit:returnTotal,payMode:'Credit Adjusted'})
+document.getElementById('printArea').style.display='block'
+const ot=document.title;document.title='Return-'+returnNo;window.print()
+setTimeout(()=>{document.title=ot;document.getElementById('printArea').style.display='none'},800)
+}
+alert('✅ Return processed!\nReturn No: '+returnNo+'\nInventory Restored!\nCredit ₹'+returnTotal.toLocaleString('en-IN')+' added to customer account.')
+clearReturn()
+}
+window.clearReturn=function(){returnOriginalSale=null;returnBillItems=[];document.getElementById('returnBillDetails').style.display='none';document.getElementById('returnBillSearch').value='';document.getElementById('returnReason').value=''}
+// ── Prefill from customer page ──
+const pn=localStorage.getItem('billing_prefill_name');const pp=localStorage.getItem('billing_prefill_phone')
+if(pn){document.getElementById('customerSearch').value=pn;if(pp)document.getElementById('billPhone').value=pp;localStorage.removeItem('billing_prefill_name');localStorage.removeItem('billing_prefill_phone')}
 </script>
 </body>
 </html>
+````
+      
