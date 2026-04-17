@@ -1,179 +1,102 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Purchase Billing - Abhinandan Auto Mobiles</title>
+<title>Purchase — Abhinandan Auto Mobiles</title>
 <link rel="stylesheet" href="style.css">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-  .bill-type-row { display:flex; gap:12px; margin-bottom:10px; flex-wrap:wrap; }
-  .bill-type-btn {
-    padding:8px 18px; border-radius:20px;
-    border:2px solid rgba(255,255,255,0.2);
-    background:transparent; color:white;
-    font-size:14px; cursor:pointer; transition:all 0.2s;
-  }
-  .bill-type-btn.active { background:#f59e0b; border-color:#f59e0b; }
+  .page-mode-bar{display:flex;gap:10px;margin-bottom:20px;align-items:center;flex-wrap:wrap;}
+  .mode-btn{padding:10px 22px;border-radius:10px;border:2px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.55);font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;}
+  .mode-btn:hover{background:rgba(255,255,255,0.1);}
+  .mode-btn.active-purchase{background:#d97706;border-color:#d97706;color:white;box-shadow:0 4px 14px rgba(217,119,6,0.4);}
+  .mode-btn.active-return{background:#dc2626;border-color:#dc2626;color:white;box-shadow:0 4px 14px rgba(220,38,38,0.4);}
 
-  /* ── PRINT AREA ── */
-  #printArea {
-    display: none;
-    font-family: 'DM Sans', sans-serif;
-    background: #fff;
-    padding: 0;
-    color: #111;
-  }
+  #editModeBar{display:none;background:rgba(245,158,11,0.12);border:1.5px solid rgba(245,158,11,0.35);border-radius:10px;padding:12px 18px;margin-bottom:16px;}
+  #editModeBar .em-inner{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;}
+  #editModeBar .em-text{font-size:14px;color:#fbbf24;font-weight:600;}
+  #editModeBar .em-no{font-size:13px;color:rgba(245,158,11,0.7);margin-top:3px;}
 
-  .pur-paper {
-    max-width: 800px;
-    margin: auto;
-    background: #fff;
-    border: 1px solid #e5e7eb;
-  }
+  .bill-type-row{display:flex;gap:12px;margin-bottom:10px;flex-wrap:wrap;}
+  .bill-type-btn{padding:8px 18px;border-radius:20px;border:2px solid rgba(255,255,255,0.2);background:transparent;color:white;font-size:14px;cursor:pointer;transition:all 0.2s;}
+  .bill-type-btn.active{background:#d97706;border-color:#d97706;}
 
-  .pur-header {
-    background: linear-gradient(135deg, #78350f 0%, #d97706 60%, #fcd34d 100%);
-    color: white;
-    padding: 28px 36px 20px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 20px;
-  }
-  .pur-header-left { display: flex; align-items: center; gap: 18px; }
-  .pur-logo {
-    height: 70px; width: 70px; object-fit: contain;
-    background: white; border-radius: 10px; padding: 6px; flex-shrink: 0;
-  }
-  .pur-logo-fallback {
-    height: 70px; width: 70px; background: white; border-radius: 10px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 28px; font-weight: 700; color: #78350f; flex-shrink: 0;
-    font-family: 'Playfair Display', serif;
-  }
-  .pur-company-name {
-    font-family: 'Playfair Display', serif;
-    font-size: 22px; font-weight: 700;
-    letter-spacing: 0.5px; margin: 0 0 4px;
-  }
-  .pur-company-sub { font-size: 13px; opacity: 0.85; margin: 2px 0; }
-  .pur-header-right { text-align: right; flex-shrink: 0; }
-  .pur-type-badge {
-    display: inline-block;
-    background: rgba(255,255,255,0.18);
-    border: 1.5px solid rgba(255,255,255,0.5);
-    color: white; font-size: 12px; font-weight: 600;
-    letter-spacing: 2px; text-transform: uppercase;
-    padding: 4px 14px; border-radius: 20px; margin-bottom: 8px;
-  }
-  .pur-invoice-no { font-size: 15px; font-weight: 600; color: white; margin: 4px 0; }
-  .pur-date { font-size: 13px; opacity: 0.85; }
+  .field-label{font-size:11px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:rgba(255,255,255,0.4);display:block;margin-bottom:6px;}
+  .opt-tag{font-size:10px;color:rgba(255,255,255,0.25);margin-left:6px;font-weight:400;letter-spacing:0;text-transform:none;}
 
-  .pur-meta {
-    display: flex; justify-content: space-between;
-    padding: 14px 36px; background: #fffbeb;
-    border-bottom: 1px solid #e5e7eb;
-    gap: 20px; flex-wrap: wrap;
-  }
-  .pur-meta-block label {
-    font-size: 11px; font-weight: 600; letter-spacing: 1px;
-    text-transform: uppercase; color: #6b7280;
-    display: block; margin-bottom: 3px;
-  }
-  .pur-meta-block span { font-size: 15px; font-weight: 600; color: #111827; }
+  .new-product-box{background:rgba(245,158,11,0.08);border:1.5px dashed rgba(245,158,11,0.4);border-radius:10px;padding:16px;margin-top:10px;}
 
-  .pur-table-wrap { padding: 0 36px; margin-top: 18px; }
-  .pur-table { width: 100%; border-collapse: collapse; font-size: 14px; }
-  .pur-table thead tr { background: #78350f; color: white; }
-  .pur-table thead th { padding: 11px 14px; text-align: left; font-weight: 600; font-size: 13px; }
-  .pur-table thead th:not(:first-child) { text-align: center; }
-  .pur-table thead th:last-child { text-align: right; }
-  .pur-table tbody tr { border-bottom: 1px solid #e5e7eb; }
-  .pur-table tbody tr:nth-child(even) { background: #fffbeb; }
-  .pur-table tbody td { padding: 10px 14px; color: #374151; }
-  .pur-table tbody td:not(:first-child) { text-align: center; }
-  .pur-table tbody td:last-child { text-align: right; font-weight: 600; color: #111827; }
+  /* PRINT */
+  #printArea{display:none;font-family:'DM Sans',sans-serif;background:#fff;padding:0;color:#111;}
+  .pur-paper{max-width:800px;margin:auto;background:#fff;border:1px solid #e5e7eb;}
+  .pur-header{background:linear-gradient(135deg,#78350f 0%,#d97706 60%,#fcd34d 100%);color:white;padding:28px 36px 20px;display:flex;align-items:center;justify-content:space-between;gap:20px;}
+  .pur-header.return-style{background:linear-gradient(135deg,#7f1d1d 0%,#dc2626 60%,#f87171 100%) !important;}
+  .pur-header-left{display:flex;align-items:center;gap:18px;}
+  .pur-logo{height:70px;width:70px;object-fit:contain;background:white;border-radius:10px;padding:6px;flex-shrink:0;}
+  .pur-logo-fallback{height:70px;width:70px;background:white;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;color:#78350f;flex-shrink:0;font-family:'Playfair Display',serif;}
+  .pur-company-name{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;letter-spacing:0.5px;margin:0 0 4px;}
+  .pur-company-sub{font-size:13px;opacity:0.85;margin:2px 0;}
+  .pur-header-right{text-align:right;flex-shrink:0;}
+  .pur-type-badge{display:inline-block;background:rgba(255,255,255,0.18);border:1.5px solid rgba(255,255,255,0.5);color:white;font-size:12px;font-weight:600;letter-spacing:2px;text-transform:uppercase;padding:4px 14px;border-radius:20px;margin-bottom:8px;}
+  .pur-invoice-no{font-size:15px;font-weight:600;color:white;margin:4px 0;}
+  .pur-date{font-size:13px;opacity:0.85;}
 
-  .pur-totals { display: flex; justify-content: flex-end; padding: 18px 36px 0; }
-  .pur-totals-table { min-width: 260px; }
-  .pur-totals-row {
-    display: flex; justify-content: space-between;
-    padding: 5px 0; font-size: 14px; color: #374151;
-    border-bottom: 1px dashed #e5e7eb;
-  }
-  .pur-totals-row:last-child {
-    border-bottom: none; margin-top: 6px; padding-top: 10px;
-    font-size: 17px; font-weight: 700; color: #111827;
-    border-top: 2px solid #78350f;
-  }
-  .pur-totals-row .t-label { color: #6b7280; }
-  .pur-totals-row .t-value { font-weight: 600; }
+  .pur-meta{display:flex;justify-content:space-between;padding:14px 36px;background:#fffbeb;border-bottom:1px solid #e5e7eb;gap:20px;flex-wrap:wrap;}
+  .pur-meta-block label{font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:#6b7280;display:block;margin-bottom:3px;}
+  .pur-meta-block span{font-size:15px;font-weight:600;color:#111827;}
 
-  .pur-payment-box {
-    margin: 18px 36px 0; padding: 14px;
-    background: #fffbeb; border: 1px solid #e5e7eb; border-radius: 8px;
-  }
-  .pur-payment-title {
-    font-size: 11px; font-weight: 700; letter-spacing: 1.5px;
-    text-transform: uppercase; color: #6b7280; margin-bottom: 10px;
-  }
-  .pur-payment-methods { display: flex; gap: 24px; flex-wrap: wrap; }
-  .pur-payment-item { font-size: 13px; color: #374151; }
-  .pm-label { color: #6b7280; margin-right: 4px; }
-  .pm-val { font-weight: 600; color: #111827; }
+  .return-ref-bar{display:none;background:#fef2f2;border-bottom:1px solid #fecaca;padding:10px 36px;font-size:13px;color:#dc2626;font-weight:500;}
 
-  .pur-footer {
-    margin: 20px 36px 28px;
-    display: flex; justify-content: space-between; align-items: flex-end;
-    padding-top: 16px; border-top: 1px solid #e5e7eb;
-  }
-  .pur-footer-left { font-size: 13px; color: #6b7280; }
-  .pur-footer-left .note-text { font-size: 15px; font-weight: 600; color: #78350f; margin-bottom: 4px; }
-  .sig-label { font-size: 12px; color: #6b7280; }
+  .pur-table-wrap{padding:0 36px;margin-top:18px;}
+  .pur-table{width:100%;border-collapse:collapse;font-size:14px;}
+  .pur-table thead tr{background:#78350f;color:white;}
+  .pur-table thead th{padding:11px 14px;text-align:left;font-weight:600;font-size:13px;}
+  .pur-table thead th:not(:first-child){text-align:center;}
+  .pur-table thead th:last-child{text-align:right;}
+  .pur-table tbody tr{border-bottom:1px solid #e5e7eb;}
+  .pur-table tbody tr:nth-child(even){background:#fffbeb;}
+  .pur-table tbody td{padding:10px 14px;color:#374151;}
+  .pur-table tbody td:not(:first-child){text-align:center;}
+  .pur-table tbody td:last-child{text-align:right;font-weight:600;color:#111827;}
 
-  /* ── NEW PRODUCT BOX ── */
-  .new-product-box {
-    background: rgba(245,158,11,0.08);
-    border: 1.5px dashed rgba(245,158,11,0.4);
-    border-radius: 10px; padding: 16px; margin-top: 10px;
-  }
+  .pur-totals{display:flex;justify-content:flex-end;padding:18px 36px 0;}
+  .pur-totals-table{min-width:260px;}
+  .pur-totals-row{display:flex;justify-content:space-between;padding:5px 0;font-size:14px;color:#374151;border-bottom:1px dashed #e5e7eb;}
+  .pur-totals-row:last-child{border-bottom:none;margin-top:6px;padding-top:10px;font-size:17px;font-weight:700;color:#111827;border-top:2px solid #78350f;}
+  .pur-totals-row .t-label{color:#6b7280;}.pur-totals-row .t-value{font-weight:600;}
 
-  @media print {
-    @page { margin: 12mm 10mm; size: A4; }
+  .pur-payment-box{margin:18px 36px 0;padding:14px;background:#fffbeb;border:1px solid #e5e7eb;border-radius:8px;}
+  .pur-payment-title{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#6b7280;margin-bottom:10px;}
+  .pur-payment-methods{display:flex;gap:24px;flex-wrap:wrap;}
+  .pur-payment-item{font-size:13px;color:#374151;}
+  .pm-label{color:#6b7280;margin-right:4px;}.pm-val{font-weight:600;color:#111827;}
 
-    html, body {
-      background: white !important;
-      min-height: 0 !important;
-      height: auto !important;
-      overflow: hidden !important;
-    }
+  .pur-merchant-box{margin:0 36px;padding:14px;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;margin-top:14px;}
+  .pur-merchant-title{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#92400e;margin-bottom:10px;}
+  .pur-merchant-row{display:flex;gap:40px;flex-wrap:wrap;}
+  .pur-merchant-item label{font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:#6b7280;display:block;margin-bottom:2px;}
+  .pur-merchant-item span{font-size:14px;font-weight:600;color:#111827;}
 
-    body::before, body::after {
-      display: none !important;
-      content: none !important;
-    }
+  .pur-footer{margin:20px 36px 28px;display:flex;justify-content:space-between;align-items:flex-end;padding-top:16px;border-top:1px solid #e5e7eb;}
+  .pur-footer-left{font-size:13px;color:#6b7280;}
+  .pur-footer-left .note-text{font-size:15px;font-weight:600;color:#78350f;margin-bottom:4px;}
+  .sig-label{font-size:12px;color:#6b7280;}
 
-    body > *:not(#printArea) {
-      display: none !important;
-    }
-
-    #printArea {
-      display: block !important;
-      position: static !important;
-      width: 100% !important;
-      background: white !important;
-      visibility: visible !important;
-    }
-
-    #printArea * { visibility: visible !important; }
-
-    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-    .pur-paper { border: none !important; box-shadow: none !important; border-radius: 0 !important; page-break-inside: auto; }
-    .pur-header { background: #78350f !important; }
-    .pur-table thead tr { background: #78350f !important; }
-    .pur-table { page-break-inside: auto; }
-    .pur-table tr { page-break-inside: avoid; page-break-after: auto; }
-    .pur-table thead { display: table-header-group; }
-    .pur-totals, .pur-payment-box, .pur-footer { page-break-inside: avoid; }
+  @media print{
+    @page{margin:12mm 10mm;size:A4;}
+    html,body{background:white !important;min-height:0 !important;height:auto !important;overflow:hidden !important;}
+    body::before,body::after{display:none !important;content:none !important;}
+    body>*:not(#printArea){display:none !important;}
+    #printArea{display:block !important;position:static !important;width:100% !important;background:white !important;visibility:visible !important;}
+    #printArea *{visibility:visible !important;}
+    *{-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important;}
+    .pur-paper{border:none !important;box-shadow:none !important;border-radius:0 !important;page-break-inside:auto;}
+    .pur-header{background:#78350f !important;}
+    .pur-header.return-style{background:#7f1d1d !important;}
+    .pur-table thead tr{background:#78350f !important;}
+    .pur-table{page-break-inside:auto;}
+    .pur-table tr{page-break-inside:avoid;page-break-after:auto;}
+    .pur-table thead{display:table-header-group;}
+    .pur-totals,.pur-payment-box,.pur-merchant-box,.pur-footer{page-break-inside:avoid;}
   }
 </style>
 </head>
@@ -185,178 +108,212 @@
   <div class="sidebar-label">Main</div>
   <a href="dashboard.html">🏠 Dashboard</a>
   <a href="billing.html">🧾 Sales Billing</a>
-  <a href="purchase-billing.html">📦 Purchase Billing</a>
+  <a href="purchase-billing.html" class="active">📦 Purchase Billing</a>
   <div class="sidebar-label">Records</div>
   <a href="products.html">🔧 Products</a>
   <a href="customers.html">👥 Customers</a>
   <a href="customer-ledger.html">📒 Customer Ledger</a>
   <a href="merchants.html">🏭 Merchants</a>
   <a href="merchant-ledger.html">🏪 Merchant Ledger</a>
-  <div class="sidebar-bottom">
-   <div class="sidebar-version">Auto ERP v1.0</div>
-  </div>
+  <div class="sidebar-bottom"><div class="sidebar-version">Auto ERP v1.0</div></div>
 </div>
 
 <div class="main">
-  <h1>Purchase Billing</h1>
+  <h1>Purchase</h1>
 
-  <!-- Bill Type -->
-  <div class="card">
-    <h3>Bill Type</h3>
-    <div class="bill-type-row">
-      <button class="bill-type-btn active" data-type="Purchase Invoice">Purchase Invoice</button>
-      <button class="bill-type-btn" data-type="Purchase Order">Purchase Order</button>
-      <button class="bill-type-btn" data-type="Stock Entry">Stock Entry Only</button>
+  <!-- MODE TOGGLE -->
+  <div class="page-mode-bar">
+    <button class="mode-btn active-purchase" id="modePurchaseBtn" onclick="setMode('purchase')">📦 Purchase Bill</button>
+    <button class="mode-btn"                 id="modeReturnBtn"   onclick="setMode('return')">↩️ Purchase Return</button>
+  </div>
+
+  <!-- EDIT BANNER -->
+  <div id="editModeBar">
+    <div class="em-inner">
+      <div>
+        <div class="em-text">✏️ Editing Existing Purchase Bill</div>
+        <div class="em-no" id="editModeBillNo">—</div>
+      </div>
+      <button onclick="cancelEdit()" style="background:rgba(245,158,11,0.2);border:1px solid rgba(245,158,11,0.4);color:#fbbf24;padding:7px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;">✕ Cancel Edit</button>
     </div>
   </div>
 
-  <!-- Merchant Search (like customer search in billing.html) -->
-  <div class="card">
-    <h3>Select Merchant / Supplier</h3>
-    <input id="merchantSearch" placeholder="Search by merchant name or phone" autocomplete="off">
-    <ul id="merchantList"></ul>
-    <div id="selectedMerchantBox" style="display:none; margin-top:12px; padding:12px 16px; background:rgba(245,158,11,0.1); border:1.5px solid rgba(245,158,11,0.3); border-radius:10px;">
-      <div style="display:flex; justify-content:space-between; align-items:center;">
+  <!-- ════════════ PURCHASE BILL MODE ════════════ -->
+  <div id="purchaseBillMode">
+
+    <div class="card">
+      <h3>Bill Type</h3>
+      <div class="bill-type-row">
+        <button class="bill-type-btn active" data-type="Purchase Invoice">Purchase Invoice</button>
+        <button class="bill-type-btn" data-type="Purchase Order">Purchase Order</button>
+        <button class="bill-type-btn" data-type="Stock Entry">Stock Entry Only</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Merchant / Supplier</h3>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
         <div>
-          <div id="selectedMerchantName" style="font-weight:600; color:white; font-size:15px;"></div>
-          <div id="selectedMerchantPhone" style="font-size:13px; color:rgba(255,255,255,0.5); margin-top:2px;"></div>
+          <label class="field-label">Merchant Name <span style="color:#f87171;">*</span></label>
+          <input id="merchantSearch" placeholder="Search by name or phone" autocomplete="off" style="margin-bottom:0;">
+          <ul id="merchantList"></ul>
         </div>
-        <button onclick="clearMerchant()" style="background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); padding:5px 12px; font-size:12px; border-radius:8px; box-shadow:none;">✕ Clear</button>
+        <div>
+          <label class="field-label">Phone <span class="opt-tag">(auto-filled)</span></label>
+          <input id="merchantPhone" placeholder="Auto-filled from merchant" style="margin-bottom:0;">
+        </div>
+      </div>
+      <div id="selectedMerchantBox" style="display:none;margin-top:12px;padding:12px 16px;background:rgba(245,158,11,0.1);border:1.5px solid rgba(245,158,11,0.3);border-radius:10px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <div id="selectedMerchantName" style="font-weight:600;color:white;font-size:15px;"></div>
+            <div id="selectedMerchantSub" style="font-size:12px;color:rgba(255,255,255,0.45);margin-top:3px;"></div>
+          </div>
+          <button onclick="clearMerchant()" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);padding:5px 12px;font-size:12px;border-radius:8px;box-shadow:none;">✕ Clear</button>
+        </div>
+      </div>
+      <!-- Address field — shown after merchant selected or can be typed -->
+      <div style="margin-top:12px;">
+        <label class="field-label">Merchant Address <span class="opt-tag">(for printable bill)</span></label>
+        <input id="merchantAddress" placeholder="Auto-filled or enter manually" style="margin-bottom:0;">
+      </div>
+      <!-- GSTIN field -->
+      <div style="margin-top:12px;">
+        <label class="field-label">GSTIN <span class="opt-tag">(optional)</span></label>
+        <input id="merchantGstin" placeholder="e.g. 22AAAAA0000A1Z5" style="margin-bottom:0;text-transform:uppercase;" oninput="this.value=this.value.toUpperCase()">
+      </div>
+      <!-- Invoice ref from merchant -->
+      <div style="margin-top:12px;">
+        <label class="field-label">Merchant's Invoice / Challan No <span class="opt-tag">(optional)</span></label>
+        <input id="merchantInvoiceRef" placeholder="e.g. INV-2024-001" style="margin-bottom:0;">
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Add Products</h3>
+      <input id="productSearch" placeholder="Search existing product..." autocomplete="off">
+      <ul id="productList"></ul>
+      <div style="margin-top:14px;">
+        <button id="toggleNewProduct" style="background:rgba(245,158,11,0.15);border:1.5px solid rgba(245,158,11,0.4);color:#f59e0b;padding:8px 18px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;font-family:'DM Sans',sans-serif;">+ New Product (not in system)</button>
+      </div>
+      <div class="new-product-box" id="newProductBox" style="display:none;">
+        <div style="font-size:13px;font-weight:600;color:#f59e0b;margin-bottom:12px;">📦 Add New Product to System</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div><label class="field-label">Product Name *</label><input id="newProductName" placeholder="e.g. Brake Pad XR200" style="margin-bottom:0;"></div>
+          <div><label class="field-label">Category</label><input id="newProductCategory" placeholder="e.g. Brakes, Oil, Tyres" style="margin-bottom:0;"></div>
+          <div><label class="field-label">Purchase Price (₹) *</label><input id="newProductBuyPrice" type="number" placeholder="What you are paying" style="margin-bottom:0;"></div>
+          <div><label class="field-label">Selling Price (₹) <span class="opt-tag">(optional)</span></label><input id="newProductSellPrice" type="number" placeholder="Leave blank if not set" style="margin-bottom:0;"></div>
+          <div><label class="field-label">Quantity *</label><input id="newProductQty" type="number" placeholder="How many units" style="margin-bottom:0;"></div>
+          <div><label class="field-label">Unit Type</label><input id="newProductUnit" placeholder="e.g. Pcs, Litre, Set" style="margin-bottom:0;"></div>
+        </div>
+        <div style="margin-top:14px;display:flex;gap:10px;">
+          <button onclick="addNewProduct()" style="background:#f59e0b;border:none;color:#111;padding:9px 20px;border-radius:8px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;box-shadow:0 4px 12px rgba(245,158,11,0.3);">✅ Add to Bill</button>
+          <button onclick="document.getElementById('newProductBox').style.display='none'" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);padding:9px 16px;border-radius:8px;font-size:13px;box-shadow:none;">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Current Purchase Bill</h3>
+      <table>
+        <thead><tr><th>Item</th><th>Qty</th><th>Purchase Price (editable)</th><th>Total</th><th>Remove</th></tr></thead>
+        <tbody id="purchaseTable"></tbody>
+      </table>
+      <div style="margin-top:14px;">
+        <span style="font-size:16px;color:rgba(255,255,255,0.6);">Subtotal: </span>
+        <span style="font-size:18px;font-weight:700;">₹<span id="purchaseTotalAmount">0</span></span>
+      </div>
+
+      <div class="card" style="margin-top:16px;">
+        <h3>Payment to Merchant</h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px;">
+          <div><label class="field-label">Cash (₹)</label><input id="purCash" placeholder="0" type="number" min="0" oninput="renderPurchaseBill()" style="margin-bottom:0;"></div>
+          <div><label class="field-label">UPI (₹)</label><input id="purUpi" placeholder="0" type="number" min="0" oninput="renderPurchaseBill()" style="margin-bottom:0;"></div>
+          <div><label class="field-label">Credit (₹)</label><input id="purCredit" placeholder="0" type="number" min="0" oninput="renderPurchaseBill()" style="margin-bottom:0;"></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 150px;gap:10px;align-items:end;margin-bottom:16px;">
+          <div>
+            <label class="field-label">Discount from Merchant <span id="purAutoDiscountBadge" style="display:none;margin-left:8px;background:rgba(52,211,153,0.2);color:#34d399;font-size:10px;padding:2px 8px;border-radius:10px;letter-spacing:0;">AUTO</span></label>
+            <input id="purDiscount" placeholder="0" type="number" min="0" oninput="renderPurchaseBill()" style="margin-bottom:0;">
+          </div>
+          <div>
+            <label class="field-label">Mode</label>
+            <select id="purDiscountType" onchange="handlePurDiscountTypeChange()" style="margin-bottom:0;">
+              <option value="amount">₹ Fixed</option>
+              <option value="percent">% Percent</option>
+              <option value="auto">⚡ Auto</option>
+            </select>
+          </div>
+        </div>
+        <div id="purPaymentSummary" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:16px;font-size:14px;"></div>
+      </div>
+
+      <div style="display:flex;gap:12px;margin-top:16px;flex-wrap:wrap;">
+        <button id="savePurchaseBtn">💾 Save Purchase</button>
+        <button id="printPurchaseBtn">🖨 Print Bill</button>
+        <button onclick="openPurchaseHistory()" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);">📜 Purchase History</button>
       </div>
     </div>
   </div>
 
-  <!-- Products -->
-  <div class="card">
-    <h3>Add Products</h3>
-    <input id="productSearch" placeholder="Search existing product..." autocomplete="off">
-    <ul id="productList"></ul>
-
-    <div style="margin-top:14px;">
-      <button id="toggleNewProduct" style="background:rgba(245,158,11,0.15); border:1.5px solid rgba(245,158,11,0.4); color:#f59e0b; padding:8px 18px; border-radius:8px; cursor:pointer; font-size:13px; font-weight:600; font-family:'DM Sans',sans-serif;">
-        + New Product (not in system)
-      </button>
-    </div>
-
-    <div class="new-product-box" id="newProductBox" style="display:none;">
-      <div style="font-size:13px; font-weight:600; color:#f59e0b; margin-bottom:12px;">📦 Add New Product to System</div>
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
-        <div>
-          <label style="font-size:11px; color:rgba(255,255,255,0.5); text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:6px;">Product Name *</label>
-          <input id="newProductName" placeholder="e.g. Brake Pad XR200" style="margin-bottom:0;">
+  <!-- ════════════ PURCHASE RETURN MODE ════════════ -->
+  <div id="purchaseReturnMode" style="display:none;">
+    <div class="card" style="border-color:rgba(220,38,38,0.2);">
+      <h3 style="color:#f87171;">↩️ Purchase Return</h3>
+      <p style="font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:16px;">Search the original purchase bill. Select items to return. Inventory will be automatically deducted and merchant payable adjusted.</p>
+      <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;">
+        <div style="flex:1;min-width:200px;">
+          <label class="field-label">Original Purchase Bill Number</label>
+          <input id="returnBillSearch" placeholder="e.g. PUR-140426-0001" style="margin-bottom:0;">
         </div>
-        <div>
-          <label style="font-size:11px; color:rgba(255,255,255,0.5); text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:6px;">Category</label>
-          <input id="newProductCategory" placeholder="e.g. Brakes, Oil, Tyres" style="margin-bottom:0;">
-        </div>
-        <div>
-          <label style="font-size:11px; color:rgba(255,255,255,0.5); text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:6px;">Purchase Price (₹) *</label>
-          <input id="newProductBuyPrice" type="number" placeholder="What you are paying" style="margin-bottom:0;">
-        </div>
-        <div>
-          <label style="font-size:11px; color:rgba(255,255,255,0.5); text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:6px;">Selling Price (₹)</label>
-          <input id="newProductSellPrice" type="number" placeholder="Leave blank if not set" style="margin-bottom:0;">
-        </div>
-        <div>
-          <label style="font-size:11px; color:rgba(255,255,255,0.5); text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:6px;">Quantity *</label>
-          <input id="newProductQty" type="number" placeholder="How many units" style="margin-bottom:0;">
-        </div>
-        <div>
-          <label style="font-size:11px; color:rgba(255,255,255,0.5); text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:6px;">Unit Type</label>
-          <input id="newProductUnit" placeholder="e.g. Pcs, Litre, Set" style="margin-bottom:0;">
-        </div>
-      </div>
-      <div style="margin-top:14px; display:flex; gap:10px;">
-        <button onclick="addNewProduct()" style="background:#f59e0b; border:none; color:#111; padding:9px 20px; border-radius:8px; font-weight:600; cursor:pointer; font-family:'DM Sans',sans-serif; box-shadow:0 4px 12px rgba(245,158,11,0.3);">
-          ✅ Add to Purchase Bill
-        </button>
-        <button onclick="document.getElementById('newProductBox').style.display='none'" style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); padding:9px 16px; border-radius:8px; font-size:13px; box-shadow:none;">
-          Cancel
-        </button>
+        <button onclick="searchReturnBill()" style="background:#dc2626;border:none;color:white;padding:10px 20px;border-radius:8px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;margin-bottom:0;">🔍 Find Bill</button>
       </div>
     </div>
-  </div>
 
-  <!-- Purchase Bill Table -->
-  <div class="card">
-    <h3>Current Purchase Bill</h3>
-    <table>
-      <thead>
-        <tr>
-          <th>Item</th>
-          <th>Qty</th>
-          <th>Purchase Price (editable)</th>
-          <th>Total</th>
-          <th>Remove</th>
-        </tr>
-      </thead>
-      <tbody id="purchaseTable"></tbody>
-    </table>
-
-    <div style="margin-top:14px;">
-      <span style="font-size:16px; color:rgba(255,255,255,0.6);">Subtotal: </span>
-      <span style="font-size:18px; font-weight:700;">₹<span id="purchaseTotalAmount">0</span></span>
-    </div>
-
-    <!-- Payment Card -->
-    <div class="card" style="margin-top:16px;">
-      <h3>Payment to Merchant</h3>
-
-      <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin-bottom:16px;">
-        <div>
-          <label style="font-size:11px; font-weight:600; letter-spacing:0.8px; text-transform:uppercase; color:rgba(255,255,255,0.4); display:block; margin-bottom:6px;">Cash (₹)</label>
-          <input id="purCash" placeholder="0" type="number" min="0" oninput="renderPurchaseBill()" style="margin-bottom:0;">
+    <div id="returnBillDetails" style="display:none;">
+      <div class="card" style="border-color:rgba(220,38,38,0.15);">
+        <div id="returnMerchantInfo" style="display:flex;gap:24px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,0.07);margin-bottom:16px;flex-wrap:wrap;"></div>
+        <div style="font-size:11px;font-weight:600;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">Select Items to Return</div>
+        <table style="width:100%;border-collapse:collapse;">
+          <thead>
+            <tr style="background:#1e293b;">
+              <th style="padding:10px 12px;text-align:center;font-size:11px;color:rgba(255,255,255,0.45);text-transform:uppercase;">✓</th>
+              <th style="padding:10px 12px;text-align:left;font-size:11px;color:rgba(255,255,255,0.45);text-transform:uppercase;">Item</th>
+              <th style="padding:10px 12px;text-align:center;font-size:11px;color:rgba(255,255,255,0.45);text-transform:uppercase;">Purchased Qty</th>
+              <th style="padding:10px 12px;text-align:center;font-size:11px;color:rgba(255,255,255,0.45);text-transform:uppercase;">Return Qty</th>
+              <th style="padding:10px 12px;text-align:right;font-size:11px;color:rgba(255,255,255,0.45);text-transform:uppercase;">Price</th>
+              <th style="padding:10px 12px;text-align:right;font-size:11px;color:rgba(255,255,255,0.45);text-transform:uppercase;">Return Total</th>
+            </tr>
+          </thead>
+          <tbody id="returnItemsBody"></tbody>
+        </table>
+        <div style="margin-top:16px;display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;">
+          <div style="flex:1;min-width:200px;">
+            <label class="field-label">Reason for Return <span class="opt-tag">(optional)</span></label>
+            <input id="returnReason" placeholder="e.g. Wrong part, Damaged in delivery..." style="margin-bottom:0;">
+          </div>
+          <div style="background:rgba(220,38,38,0.1);border:1px solid rgba(220,38,38,0.25);border-radius:10px;padding:12px 20px;text-align:center;min-width:160px;">
+            <div style="font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Return Total</div>
+            <div style="font-size:20px;font-weight:700;color:#f87171;">₹<span id="returnTotalAmt">0</span></div>
+          </div>
         </div>
-        <div>
-          <label style="font-size:11px; font-weight:600; letter-spacing:0.8px; text-transform:uppercase; color:rgba(255,255,255,0.4); display:block; margin-bottom:6px;">UPI (₹)</label>
-          <input id="purUpi" placeholder="0" type="number" min="0" oninput="renderPurchaseBill()" style="margin-bottom:0;">
-        </div>
-        <div>
-          <label style="font-size:11px; font-weight:600; letter-spacing:0.8px; text-transform:uppercase; color:rgba(255,255,255,0.4); display:block; margin-bottom:6px;">Credit (₹)</label>
-          <input id="purCredit" placeholder="0" type="number" min="0" oninput="renderPurchaseBill()" style="margin-bottom:0;">
+        <div style="display:flex;gap:12px;margin-top:16px;flex-wrap:wrap;">
+          <button onclick="processReturn(false)" style="background:#dc2626;border:none;color:white;padding:10px 22px;border-radius:8px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:14px;">↩️ Process Return</button>
+          <button onclick="processReturn(true)"  style="background:rgba(220,38,38,0.15);border:1px solid rgba(220,38,38,0.3);color:#f87171;padding:10px 18px;border-radius:8px;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;">🖨 Process & Print</button>
+          <button onclick="clearReturn()"        style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);padding:10px 16px;border-radius:8px;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;">✕ Clear</button>
         </div>
       </div>
-
-      <div style="display:grid; grid-template-columns:1fr 150px; gap:10px; align-items:end; margin-bottom:16px;">
-        <div>
-          <label style="font-size:11px; font-weight:600; letter-spacing:0.8px; text-transform:uppercase; color:rgba(255,255,255,0.4); display:block; margin-bottom:6px;">
-            Discount from Merchant
-            <span id="purAutoDiscountBadge" style="display:none; margin-left:8px; background:rgba(52,211,153,0.2); color:#34d399; font-size:10px; padding:2px 8px; border-radius:10px; letter-spacing:0;">AUTO</span>
-          </label>
-          <input id="purDiscount" placeholder="0" type="number" min="0" oninput="renderPurchaseBill()" style="margin-bottom:0;">
-        </div>
-        <div>
-          <label style="font-size:11px; font-weight:600; letter-spacing:0.8px; text-transform:uppercase; color:rgba(255,255,255,0.4); display:block; margin-bottom:6px;">Mode</label>
-          <select id="purDiscountType" onchange="handlePurDiscountTypeChange()" style="margin-bottom:0;">
-            <option value="amount">₹ Fixed</option>
-            <option value="percent">% Percent</option>
-            <option value="auto">⚡ Auto</option>
-          </select>
-        </div>
-      </div>
-
-      <div id="purPaymentSummary" style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:16px; font-size:14px;"></div>
-    </div>
-
-    <div style="display:flex; gap:12px; margin-top:16px; flex-wrap:wrap;">
-      <button id="savePurchaseBtn">💾 Save Purchase</button>
-      <button id="printPurchaseBtn">🖨 Print Bill</button>
-      <button onclick="openPurchaseHistory()" style="background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2);">📜 Purchase History</button>
     </div>
   </div>
 </div>
 
 
-<!-- ══════════════════════════════════════
-     PRINT AREA — only shows on Ctrl+P
-══════════════════════════════════════ -->
+<!-- ════════════ PRINT AREA ════════════ -->
 <div id="printArea">
   <div class="pur-paper">
-
-    <div class="pur-header">
+    <div class="pur-header" id="purPrintHeader">
       <div class="pur-header-left">
-        <img src="./logo.png" class="pur-logo" id="purLogoImg"
-          onerror="this.style.display='none'; document.getElementById('purLogoFallback').style.display='flex';" alt="Logo">
+        <img src="./logo.png" class="pur-logo" id="purLogoImg" onerror="this.style.display='none';document.getElementById('purLogoFallback').style.display='flex';" alt="Logo">
         <div class="pur-logo-fallback" id="purLogoFallback" style="display:none;">A</div>
         <div>
           <p class="pur-company-name">Abhinandan Auto Mobiles</p>
@@ -366,110 +323,119 @@
       </div>
       <div class="pur-header-right">
         <div class="pur-type-badge" id="printPurType">Purchase Invoice</div>
-        <p class="pur-invoice-no">Purchase # <span id="printPurNo"></span></p>
+        <p class="pur-invoice-no">Bill # <span id="printPurNo"></span></p>
         <p class="pur-date" id="printPurDate"></p>
       </div>
     </div>
+
+    <div class="return-ref-bar" id="printReturnRefBar">↩️ <strong>Purchase Return</strong> — Original Bill: <span id="printOriginalRef">—</span></div>
 
     <div class="pur-meta">
       <div class="pur-meta-block"><label>Supplier / Merchant</label><span id="printMerchant">—</span></div>
       <div class="pur-meta-block"><label>Phone</label><span id="printMerchantPhone">—</span></div>
       <div class="pur-meta-block"><label>Payment Mode</label><span id="printPurPayMode">—</span></div>
+      <div class="pur-meta-block" id="printMerchRefBlock" style="display:none;"><label>Merchant Invoice Ref</label><span id="printMerchRef">—</span></div>
+    </div>
+
+    <!-- Merchant detail box — address & GSTIN -->
+    <div class="pur-merchant-box" id="printMerchantDetailBox" style="display:none;">
+      <div class="pur-merchant-title">Supplier Details</div>
+      <div class="pur-merchant-row">
+        <div class="pur-merchant-item" id="printAddrBlock" style="display:none;"><label>Address</label><span id="printMerchantAddress">—</span></div>
+        <div class="pur-merchant-item" id="printGstinBlock" style="display:none;"><label>GSTIN</label><span id="printMerchantGstin" style="font-family:monospace;">—</span></div>
+      </div>
     </div>
 
     <div class="pur-table-wrap">
       <table class="pur-table">
-        <thead>
-          <tr><th>#</th><th>Item Description</th><th>Qty</th><th>Purchase Price</th><th>Amount</th></tr>
-        </thead>
+        <thead><tr><th>#</th><th>Item Description</th><th>Qty</th><th>Purchase Price</th><th>Amount</th></tr></thead>
         <tbody id="printPurItems"></tbody>
       </table>
     </div>
 
     <div class="pur-totals">
       <div class="pur-totals-table">
-        <div class="pur-totals-row">
-          <span class="t-label">Subtotal</span>
-          <span class="t-value">₹<span id="printPurSubtotal"></span></span>
-        </div>
-        <div class="pur-totals-row" id="purDiscountRow" style="display:none;">
-          <span class="t-label" style="color:#059669;">Discount</span>
-          <span class="t-value" style="color:#059669;">- ₹<span id="printPurDiscount"></span></span>
-        </div>
-        <div class="pur-totals-row">
-          <span class="t-label">Grand Total</span>
-          <span class="t-value" style="color:#78350f;">₹<span id="printPurFinal"></span></span>
-        </div>
+        <div class="pur-totals-row"><span class="t-label">Subtotal</span><span class="t-value">₹<span id="printPurSubtotal"></span></span></div>
+        <div class="pur-totals-row" id="purDiscountRow" style="display:none;"><span class="t-label" style="color:#059669;">Discount</span><span class="t-value" style="color:#059669;">- ₹<span id="printPurDiscount"></span></span></div>
+        <div class="pur-totals-row"><span class="t-label" id="printPurFinalLabel">Grand Total</span><span class="t-value" style="color:#78350f;">₹<span id="printPurFinal"></span></span></div>
       </div>
     </div>
 
     <div class="pur-payment-box">
-      <p class="pur-payment-title">Payment Breakdown</p>
+      <p class="pur-payment-title" id="printPurPayTitle">Payment Breakdown</p>
       <div class="pur-payment-methods">
         <span class="pur-payment-item"><span class="pm-label">Cash</span><span class="pm-val">₹<span id="printPurCash">0</span></span></span>
         <span class="pur-payment-item"><span class="pm-label">UPI</span><span class="pm-val">₹<span id="printPurUPI">0</span></span></span>
-        <span class="pur-payment-item"><span class="pm-label">Credit</span><span class="pm-val">₹<span id="printPurCredit">0</span></span></span>
+        <span class="pur-payment-item"><span class="pm-label" id="printPurCreditLabel">Credit</span><span class="pm-val">₹<span id="printPurCredit">0</span></span></span>
         <span class="pur-payment-item" id="purDiscountPayItem" style="display:none;"><span class="pm-label" style="color:#059669;">Discount</span><span class="pm-val" style="color:#059669;">₹<span id="printPurDiscountPay">0</span></span></span>
       </div>
     </div>
 
     <div class="pur-footer">
       <div class="pur-footer-left">
-        <p class="note-text">Stock Received 🙏</p>
+        <p class="note-text" id="printPurFooterMsg">Stock Received 🙏</p>
+        <p id="printReturnNote" style="display:none;color:#dc2626;font-weight:600;margin-bottom:4px;">Return processed. Payable adjusted.</p>
         <p>This is an internal purchase record.</p>
         <p>Abhinandan Auto Mobiles</p>
       </div>
-      <div style="display:flex; gap:60px;">
-        <div style="text-align:center;">
-          <div style="border-top:1px solid #000; width:150px; margin:auto; margin-top:28px;"></div>
-          <p class="sig-label">Supplier Signature</p>
-        </div>
-        <div style="text-align:center;">
-          <div style="border-top:1px solid #000; width:150px; margin:auto; margin-top:28px;"></div>
-          <p class="sig-label">For Abhinandan Auto Mobiles</p>
-          <p class="sig-label" style="margin-top:4px;">Authorised Signatory</p>
-        </div>
+      <div style="display:flex;gap:60px;">
+        <div style="text-align:center;"><div style="border-top:1px solid #000;width:150px;margin:auto;margin-top:28px;"></div><p class="sig-label" id="printPurSigLabel">Supplier Signature</p></div>
+        <div style="text-align:center;"><div style="border-top:1px solid #000;width:150px;margin:auto;margin-top:28px;"></div><p class="sig-label">For Abhinandan Auto Mobiles</p><p class="sig-label" style="margin-top:4px;">Authorised Signatory</p></div>
       </div>
     </div>
-
   </div>
 </div>
 
 
-<!-- ══════════════════════════════════════
-     PURCHASE HISTORY MODAL
-══════════════════════════════════════ -->
-<div id="purchaseHistoryModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; overflow-y:auto; padding:20px;">
-  <div style="background:#0f172a; border:1px solid rgba(255,255,255,0.1); width:95%; max-width:960px; margin:30px auto; padding:28px; border-radius:16px;">
-
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-      <h2 style="font-family:'Playfair Display',serif; font-size:22px; color:white; margin:0;">📜 Purchase History</h2>
-      <button onclick="closePurchaseHistory()" style="background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.15); padding:8px 16px; font-size:13px; border-radius:8px; box-shadow:none;">✕ Close</button>
+<!-- ════════════ PURCHASE HISTORY MODAL ════════════ -->
+<div id="purchaseHistoryModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:9999;overflow-y:auto;padding:20px;">
+  <div style="background:#0f172a;border:1px solid rgba(255,255,255,0.1);width:95%;max-width:1100px;margin:30px auto;padding:28px;border-radius:16px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
+      <h2 style="font-family:'Playfair Display',serif;font-size:22px;color:white;margin:0;">📜 Purchase History</h2>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <select id="historyFilter" onchange="historyPage=1;loadPurchaseHistory()" style="padding:8px 12px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:8px;color:white;font-family:'DM Sans',sans-serif;font-size:13px;">
+          <option value="all">All Bills</option>
+          <option value="purchase">Purchases Only</option>
+          <option value="return">Returns Only</option>
+        </select>
+        <button onclick="closePurchaseHistory()" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);padding:8px 16px;font-size:13px;border-radius:8px;box-shadow:none;">✕ Close</button>
+      </div>
     </div>
-
-    <input type="text" id="searchPurchase" placeholder="Search by merchant name or purchase number..."
-      style="width:100%; padding:12px 16px; margin-bottom:16px; background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.12); border-radius:10px; color:white; font-size:14px; font-family:'DM Sans',sans-serif;"
-      oninput="loadPurchaseHistory()">
-
-    <table style="width:100%; border-collapse:collapse;">
+    <input type="text" id="searchPurchase" placeholder="Search by merchant name or bill number..." style="width:100%;padding:12px 16px;margin-bottom:16px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:10px;color:white;font-size:14px;font-family:'DM Sans',sans-serif;" oninput="historyPage=1;loadPurchaseHistory()">
+    <table style="width:100%;border-collapse:collapse;">
       <thead>
-        <tr style="background:rgba(245,158,11,0.2); border-bottom:1px solid rgba(255,255,255,0.1);">
-          <th style="padding:12px 14px; text-align:left; font-size:11px; font-weight:600; letter-spacing:1px; text-transform:uppercase; color:rgba(255,255,255,0.5);">Bill No</th>
-          <th style="padding:12px 14px; text-align:left; font-size:11px; font-weight:600; letter-spacing:1px; text-transform:uppercase; color:rgba(255,255,255,0.5);">Date</th>
-          <th style="padding:12px 14px; text-align:left; font-size:11px; font-weight:600; letter-spacing:1px; text-transform:uppercase; color:rgba(255,255,255,0.5);">Merchant</th>
-          <th style="padding:12px 14px; text-align:left; font-size:11px; font-weight:600; letter-spacing:1px; text-transform:uppercase; color:rgba(255,255,255,0.5);">Total</th>
-          <th style="padding:12px 14px; text-align:left; font-size:11px; font-weight:600; letter-spacing:1px; text-transform:uppercase; color:rgba(255,255,255,0.5);">Action</th>
+        <tr style="background:rgba(245,158,11,0.15);border-bottom:1px solid rgba(255,255,255,0.08);">
+          <th style="padding:11px 14px;text-align:left;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.45);">Bill No</th>
+          <th style="padding:11px 14px;text-align:left;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.45);">Date</th>
+          <th style="padding:11px 14px;text-align:left;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.45);">Merchant</th>
+          <th style="padding:11px 14px;text-align:left;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.45);">Total</th>
+          <th style="padding:11px 14px;text-align:left;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.45);">Type</th>
+          <th style="padding:11px 14px;text-align:left;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.45);">Actions</th>
         </tr>
       </thead>
       <tbody id="purchaseHistoryBody"></tbody>
     </table>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:16px;flex-wrap:wrap;gap:10px;">
+      <div style="font-size:13px;color:rgba(255,255,255,0.4);" id="historyPageInfo">—</div>
+      <div style="display:flex;gap:8px;" id="historyPagination"></div>
+    </div>
+  </div>
+</div>
+
+<!-- DELETE CONFIRM MODAL -->
+<div id="deleteModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:10000;align-items:center;justify-content:center;">
+  <div style="background:#0f172a;border:1px solid rgba(220,38,38,0.3);border-radius:16px;padding:28px;width:90%;max-width:420px;">
+    <div style="font-family:'Playfair Display',serif;font-size:20px;color:#f87171;margin-bottom:12px;">🗑️ Delete Purchase Bill</div>
+    <p style="color:rgba(255,255,255,0.7);font-size:14px;line-height:1.6;margin-bottom:8px;">Delete bill <strong id="deleteModalBillNo" style="color:white;"></strong>?</p>
+    <p style="color:rgba(248,113,113,0.8);font-size:13px;margin-bottom:20px;">⚠️ Inventory quantities added by this purchase will be reversed. This cannot be undone.</p>
+    <div style="display:flex;gap:10px;">
+      <button onclick="confirmDeleteBill()" style="flex:1;background:linear-gradient(135deg,#dc2626,#ef4444);border:none;color:white;padding:10px;border-radius:8px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;">🗑️ Yes, Delete</button>
+      <button onclick="closeDeleteModal()" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.7);padding:10px 20px;border-radius:8px;cursor:pointer;font-family:'DM Sans',sans-serif;">Cancel</button>
+    </div>
   </div>
 </div>
 
 
-<!-- ══════════════════════════════════════
-     JAVASCRIPT
-══════════════════════════════════════ -->
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
@@ -478,742 +444,592 @@ const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 const supabase = createClient(supabaseUrl, supabaseKey)
 
 // ── STATE ──
-let selectedMerchant = null   // { id, name, phone } if from DB — else null
-let currentPurBillNo = null
-let purchaseItems    = []
-let totalAmount      = 0
-let selectedBillType = "Purchase Invoice"
+let selectedMerchant    = null
+let currentPurBillNo    = null
+let purchaseItems       = []
+let totalAmount         = 0
+let selectedBillType    = "Purchase Invoice"
+let editingBillId       = null
+let editingBillNumber   = null
+let deletingBillId      = null
+let deletingBillNo      = null
+let returnOriginalBill  = null
+let returnBillItems     = []
+let historyPage         = 1
+const HIST_SIZE         = 20
 
 
-// ── BILL TYPE BUTTONS ──
+// ── MODE ──
+window.setMode = function(mode) {
+  document.getElementById('purchaseBillMode').style.display  = mode==='purchase' ? 'block' : 'none'
+  document.getElementById('purchaseReturnMode').style.display= mode==='return'   ? 'block' : 'none'
+  document.getElementById('modePurchaseBtn').className = 'mode-btn '+(mode==='purchase'?'active-purchase':'')
+  document.getElementById('modeReturnBtn').className   = 'mode-btn '+(mode==='return'?'active-return':'')
+}
+
+
+// ── BILL TYPE ──
 document.querySelectorAll(".bill-type-btn").forEach(btn => {
-  btn.addEventListener("click", function () {
-    document.querySelectorAll(".bill-type-btn").forEach(b => b.classList.remove("active"))
+  btn.addEventListener("click", function() {
+    document.querySelectorAll(".bill-type-btn").forEach(b=>b.classList.remove("active"))
     this.classList.add("active")
     selectedBillType = this.getAttribute("data-type")
   })
 })
 
 
-// ── TOGGLE NEW PRODUCT BOX ──
-document.getElementById("toggleNewProduct").addEventListener("click", () => {
-  const box = document.getElementById("newProductBox")
-  box.style.display = box.style.display === "none" ? "block" : "none"
-})
-
-
-// ══════════════════════════
-// MERCHANT SEARCH
-// (same pattern as customer search in billing.html)
-// ══════════════════════════
-document.getElementById("merchantSearch").addEventListener("input", async function () {
-  const text = this.value.trim()
-  if (!text) { document.getElementById("merchantList").innerHTML = ""; return }
-
-  const { data } = await supabase
-    .from("merchants")
-    .select("*")
-    .or(`name.ilike.%${text}%,phone.ilike.%${text}%`)
-    .limit(6)
-
-  const list = document.getElementById("merchantList")
-  list.innerHTML = ""
-  if (!data || !data.length) {
-    // Show option to add as new merchant
-    const li = document.createElement("li")
-    li.innerHTML = `<span style="color:#f59e0b;">+ Add "${text}" as new merchant</span>`
-    li.style.cursor = "pointer"
-    li.onclick = () => {
-      selectedMerchant = { id: null, name: text, phone: "" }
-      showSelectedMerchant()
-      list.innerHTML = ""
-      document.getElementById("merchantSearch").value = ""
-    }
-    list.appendChild(li)
-    return
-  }
-
-  data.forEach(m => {
-    const li = document.createElement("li")
-    li.innerText = m.name + (m.phone ? " — " + m.phone : "")
-    li.onclick = () => {
-      selectedMerchant = m
-      showSelectedMerchant()
-      list.innerHTML = ""
-      document.getElementById("merchantSearch").value = ""
-    }
-    list.appendChild(li)
-  })
-})
-
-function showSelectedMerchant () {
-  if (!selectedMerchant) return
-  document.getElementById("selectedMerchantBox").style.display = "block"
-  document.getElementById("selectedMerchantName").innerText  = selectedMerchant.name
-  document.getElementById("selectedMerchantPhone").innerText = selectedMerchant.phone || "No phone"
-}
-
-window.clearMerchant = function () {
-  selectedMerchant = null
-  document.getElementById("selectedMerchantBox").style.display = "none"
-  document.getElementById("merchantSearch").value = ""
-}
-
-
-// ══════════════════════════
-// PRODUCT SEARCH (existing inventory)
-// ══════════════════════════
-document.getElementById("productSearch").addEventListener("input", async function () {
-  const text = this.value.trim()
-  if (!text) { document.getElementById("productList").innerHTML = ""; return }
-
-  const { data } = await supabase
-    .from("inventory")
-    .select("*")
-    .ilike("item_name", `%${text}%`)
-    .limit(6)
-
-  const list = document.getElementById("productList")
-  list.innerHTML = ""
-  if (!data) return
-
-  data.forEach(p => {
-    const li = document.createElement("li")
-    li.innerHTML = `${p.item_name} <span style="color:rgba(255,255,255,0.4); font-size:12px;">— Stock: ${p.quantity || 0} | Buy: ₹${p.purchase_price || 0}</span>`
-    li.onclick = () => {
-      addExistingToBill(p)
-      document.getElementById("productSearch").value = ""
-      list.innerHTML = ""
-    }
-    list.appendChild(li)
-  })
-})
-
-
-// ── ADD EXISTING PRODUCT ──
-function addExistingToBill (product) {
-  const buyPriceInput = prompt(`Purchase price for "${product.item_name}" (₹):\n(Press OK to use last price: ₹${product.purchase_price || 0})`)
-  if (buyPriceInput === null) return  // user cancelled
-  const buyPrice = parseFloat(buyPriceInput) || parseFloat(product.purchase_price) || 0
-
-  const existing = purchaseItems.find(i => i.id === product.id)
-  if (existing) {
-    existing.qty++
-    existing.buyPrice = buyPrice
-  } else {
-    purchaseItems.push({
-      id:       product.id,
-      name:     product.item_name,
-      buyPrice: buyPrice,
-      qty:      1,
-      isNew:    false
-    })
-  }
-  renderPurchaseBill()
-}
-
-
-// ── ADD NEW PRODUCT ──
-window.addNewProduct = function () {
-  const name      = document.getElementById("newProductName").value.trim()
-  const buyPrice  = parseFloat(document.getElementById("newProductBuyPrice").value) || 0
-  const sellPrice = parseFloat(document.getElementById("newProductSellPrice").value) || 0
-  const qty       = parseInt(document.getElementById("newProductQty").value) || 0
-  const category  = document.getElementById("newProductCategory").value.trim()
-  const unitType  = document.getElementById("newProductUnit").value.trim()
-
-  if (!name)     { alert("Enter product name ❌");   return }
-  if (!buyPrice) { alert("Enter purchase price ❌"); return }
-  if (!qty)      { alert("Enter quantity ❌");       return }
-
-  purchaseItems.push({ id: null, name, buyPrice, sellPrice, qty, category, unitType, isNew: true })
-
-  // Clear form
-  ;["newProductName","newProductBuyPrice","newProductSellPrice",
-    "newProductQty","newProductCategory","newProductUnit"].forEach(id => {
-    document.getElementById(id).value = ""
-  })
-  document.getElementById("newProductBox").style.display = "none"
-  renderPurchaseBill()
-}
-
-
-// ══════════════════════════
-// DISCOUNT TYPE CHANGE
-// ══════════════════════════
-window.handlePurDiscountTypeChange = function () {
-  const type = document.getElementById("purDiscountType").value
-  if (type !== "auto") {
-    document.getElementById("purDiscount").disabled = false
-    document.getElementById("purDiscount").value    = ""
-    document.getElementById("purAutoDiscountBadge").style.display = "none"
-  }
-  renderPurchaseBill()
-}
-
-
-// ══════════════════════════
-// RENDER TABLE + PAYMENT SUMMARY
-// ══════════════════════════
-function renderPurchaseBill () {
-  const table = document.getElementById("purchaseTable")
-  table.innerHTML = ""
-  totalAmount = 0
-
-  purchaseItems.forEach((item, index) => {
-    const lineTotal = item.qty * item.buyPrice
-    totalAmount += lineTotal
-    table.innerHTML += `
-      <tr>
-        <td style="font-weight:500;">
-          ${item.name}
-          ${item.isNew ? '<span style="font-size:11px; background:rgba(245,158,11,0.2); color:#f59e0b; padding:2px 8px; border-radius:10px; margin-left:6px;">NEW</span>' : ''}
-        </td>
-        <td>
-          <input type="number" value="${item.qty}" min="1"
-            class="purQtyInput" data-index="${index}"
-            style="width:65px; margin-bottom:0; text-align:center;">
-        </td>
-        <td>
-          <input type="number" value="${item.buyPrice}" min="0"
-            class="purPriceInput" data-index="${index}"
-            style="width:100px; margin-bottom:0; color:#fbbf24; font-weight:600; text-align:center;"
-            title="Edit purchase price">
-        </td>
-        <td style="font-weight:600;">₹${lineTotal.toLocaleString('en-IN')}</td>
-        <td><button class="purRemoveBtn" data-index="${index}">✕</button></td>
-      </tr>`
-  })
-
-  document.getElementById("purchaseTotalAmount").innerText = totalAmount.toLocaleString('en-IN')
-
-  // Payment values
-  const cash   = parseFloat(document.getElementById("purCash").value)   || 0
-  const upi    = parseFloat(document.getElementById("purUpi").value)    || 0
-  const credit = parseFloat(document.getElementById("purCredit").value) || 0
-  const paid   = cash + upi + credit
-
-  // Discount
-  const discountType = document.getElementById("purDiscountType").value
-  let discountAmount = 0
-  if (discountType === "auto") {
-    discountAmount = Math.max(totalAmount - paid, 0)
-    document.getElementById("purDiscount").value    = discountAmount
-    document.getElementById("purDiscount").disabled = true
-    document.getElementById("purAutoDiscountBadge").style.display = "inline"
-  } else {
-    document.getElementById("purDiscount").disabled = false
-    document.getElementById("purAutoDiscountBadge").style.display = "none"
-    const dv = parseFloat(document.getElementById("purDiscount").value) || 0
-    discountAmount = discountType === "percent"
-      ? Math.round(totalAmount * dv / 100) : dv
-    discountAmount = Math.min(discountAmount, totalAmount)
-  }
-
-  const afterDiscount = totalAmount - discountAmount
-  const remaining     = Math.round(afterDiscount - paid)
-
-  // Build summary HTML
-  const row = (label, value, color) =>
-    `<div style="display:flex; justify-content:space-between; align-items:center; padding:6px 0; border-bottom:1px solid rgba(255,255,255,0.05);">
-      <span style="color:${color || 'rgba(255,255,255,0.5)'};">${label}</span>
-      <span style="font-weight:600; color:${color || 'white'};">${value}</span>
-    </div>`
-
-  let html = row("Subtotal", "₹" + totalAmount.toLocaleString("en-IN"))
-  if (discountAmount > 0) html += row("Merchant Discount", "- ₹" + Math.round(discountAmount).toLocaleString("en-IN"), "#34d399")
-  if (cash   > 0) html += row("Cash paid",   "₹" + cash.toLocaleString("en-IN"),   "#60a5fa")
-  if (upi    > 0) html += row("UPI paid",    "₹" + upi.toLocaleString("en-IN"),    "#a78bfa")
-  if (credit > 0) html += row("Credit",      "₹" + credit.toLocaleString("en-IN"), "#f87171")
-
-  let statusColor = "#34d399", statusText = "✅ Fully Settled"
-  if (remaining > 0) { statusColor = "#f87171"; statusText = "⚠️ Still Due: ₹" + remaining.toLocaleString("en-IN") }
-  if (remaining < 0) { statusColor = "#fbbf24"; statusText = "⚠️ Extra Paid ₹" + Math.abs(remaining).toLocaleString("en-IN") + " — please correct!" }
-
-  html += `
-    <div style="display:flex; justify-content:space-between; padding:10px 0 4px; margin-top:6px; border-top:1px solid rgba(255,255,255,0.1);">
-      <span style="font-size:15px; font-weight:600; color:white;">Final Bill Amount</span>
-      <span style="font-size:17px; font-weight:700; color:white;">₹${Math.round(afterDiscount).toLocaleString("en-IN")}</span>
-    </div>
-    <div style="font-size:13px; color:${statusColor}; padding-bottom:2px;">${statusText}</div>`
-
-  document.getElementById("purPaymentSummary").innerHTML = html
-
-  // Qty listeners
-  document.querySelectorAll(".purQtyInput").forEach(input => {
-    input.addEventListener("change", function () {
-      purchaseItems[+this.dataset.index].qty = parseInt(this.value) || 1
-      renderPurchaseBill()
-    })
-  })
-
-  // Price edit listeners
-  document.querySelectorAll(".purPriceInput").forEach(input => {
-    input.addEventListener("change", function () {
-      purchaseItems[+this.dataset.index].buyPrice = parseFloat(this.value) || 0
-      renderPurchaseBill()
-    })
-  })
-
-  // Remove listeners
-  document.querySelectorAll(".purRemoveBtn").forEach(btn => {
-    btn.addEventListener("click", function () {
-      purchaseItems.splice(+this.dataset.index, 1)
-      renderPurchaseBill()
-    })
-  })
-}
-
-
-// ══════════════════════════
-// CALCULATE DISCOUNT (shared helper)
-// ══════════════════════════
-function calcPurDiscount () {
-  const discountType = document.getElementById("purDiscountType").value
-  const cash   = parseFloat(document.getElementById("purCash").value)   || 0
-  const upi    = parseFloat(document.getElementById("purUpi").value)    || 0
-  const credit = parseFloat(document.getElementById("purCredit").value) || 0
-  const paid   = cash + upi + credit
-
-  let discountAmount = 0
-  if (discountType === "auto") {
-    discountAmount = Math.max(totalAmount - paid, 0)
-  } else {
-    const dv = parseFloat(document.getElementById("purDiscount").value) || 0
-    discountAmount = discountType === "percent"
-      ? Math.round(totalAmount * dv / 100) : dv
-    discountAmount = Math.min(discountAmount, totalAmount)
-  }
-  return Math.round(discountAmount)
-}
-
-
-// ══════════════════════════
-// GENERATE PURCHASE BILL NUMBER
-// ══════════════════════════
+// ── BILL NUMBER GENERATORS ──
 async function generatePurBillNo() {
-  const now = new Date()
-  const dd  = String(now.getDate()).padStart(2, "0")
-  const mm  = String(now.getMonth() + 1).padStart(2, "0")
-  const yy  = String(now.getFullYear()).slice(2)
-
-  const startOfDay = new Date()
-  startOfDay.setHours(0, 0, 0, 0)
-
-  const { data } = await supabase
-    .from("purchases")
-    .select("bill_number")
-    .gte("created_at", startOfDay.toISOString())
-
-  const count = (data || []).length
-  const next  = String(count + 1).padStart(4, "0")
-  return `PUR-${dd}${mm}${yy}-${next}`
+  const now=new Date()
+  const dd=String(now.getDate()).padStart(2,"0")
+  const mm=String(now.getMonth()+1).padStart(2,"0")
+  const yy=String(now.getFullYear()).slice(2)
+  const startOfDay=new Date(); startOfDay.setHours(0,0,0,0)
+  const{data}=await supabase.from("purchases").select("bill_number").gte("created_at",startOfDay.toISOString()).like("bill_number","PUR-%")
+  const count=(data||[]).length
+  return `PUR-${dd}${mm}${yy}-${String(count+1).padStart(4,"0")}`
 }
 
-// ══════════════════════════
-// SAVE PURCHASE
-// ══════════════════════════
-async function savePurchase() {
-  if (window.isSavingPurchase) return
-  window.isSavingPurchase = true
-
-  try {
-    // ── Get merchant info ──
-    // Support both old plain inputs AND new merchant search system
-    let merchantName  = ""
-    let merchantPhone = ""
-
-    const merchantSearchEl = document.getElementById("merchantSearch")
-    const merchantNameEl   = document.getElementById("merchantName")
-
-    if (merchantSearchEl) {
-      // New system — merchant selected from search
-      merchantName  = document.getElementById("selectedMerchantName")?.innerText?.trim() || merchantSearchEl.value.trim()
-      merchantPhone = document.getElementById("selectedMerchantPhone")?.innerText?.trim() || ""
-    } else if (merchantNameEl) {
-      // Old system — plain input
-      merchantName  = merchantNameEl.value.trim()
-      merchantPhone = document.getElementById("merchantPhone")?.value?.trim() || ""
-    }
-
-    if (!merchantName) {
-      alert("❌ Please enter or select a merchant name")
-      window.isSavingPurchase = false
-      return
-    }
-
-    if (purchaseItems.length === 0) {
-      alert("❌ Add at least one product first")
-      window.isSavingPurchase = false
-      return
-    }
-
-    // ── Payment values ──
-    const cash   = parseFloat(document.getElementById("purCash")?.value)   || 0
-    const upi    = parseFloat(document.getElementById("purUpi")?.value)    || 0
-    const credit = parseFloat(document.getElementById("purCredit")?.value) || 0
-    const paid   = cash + upi + credit
-
-    // ── Discount ──
-    const discountType = document.getElementById("purDiscountType")?.value || "amount"
-    let discountAmt = 0
-    if (discountType === "auto") {
-      discountAmt = Math.max(totalAmount - paid, 0)
-    } else {
-      const dv = parseFloat(document.getElementById("purDiscount")?.value) || 0
-      discountAmt = discountType === "percent"
-        ? Math.round(totalAmount * dv / 100)
-        : dv
-      discountAmt = Math.min(discountAmt, totalAmount)
-    }
-    const finalAmount = totalAmount - discountAmt
-
-    // ── Overpayment check ──
-    if (paid > finalAmount) {
-      alert("❌ Amount paid (₹" + paid + ") is more than total (₹" + finalAmount + "). Please fix.")
-      window.isSavingPurchase = false
-      return
-    }
-
-    // ── Generate bill number ──
-    const billNo = await generatePurBillNo()
-    currentPurBillNo = billNo
-
-    // ── Save purchase header ──
-    const { data: purchase, error: purError } = await supabase
-      .from('purchases')
-      .insert([{
-        bill_number:    billNo,
-        merchant_name:  merchantName,
-        merchant_phone: merchantPhone,
-        total_amount:   finalAmount,
-        cash,
-        upi,
-        credit
-      }])
-      .select()
-      .single()
-
-    if (purError) {
-      console.error("Purchase header error:", purError)
-      alert("❌ Error saving purchase: " + purError.message)
-      window.isSavingPurchase = false
-      return
-    }
-
-    // ── Save each item ──
-    let allSaved = true
-
-    for (const item of purchaseItems) {
-      let itemId = item.id
-
-      if (item.isNew) {
-        // ── Create NEW product in inventory with ALL columns ──
-        const { data: newProduct, error: newErr } = await supabase
-          .from('inventory')
-          .insert([{
-            item_name:      item.name,
-            category:       item.category    || null,
-            quantity:       item.qty,
-            purchase_price: item.buyPrice,
-            selling_price:  item.sellPrice   || null,
-            supplier:       merchantName,
-            unit_type:      item.unit_type   || null,
-            notes:          null
-          }])
-          .select()
-          .single()
-
-        if (newErr) {
-          console.error("New product save error:", newErr)
-          alert("❌ Error creating product '" + item.name + "': " + newErr.message)
-          allSaved = false
-          continue
-        }
-
-        itemId = newProduct.id
-        console.log("✅ New product created in inventory:", item.name, "ID:", itemId)
-
-      } else {
-        // ── Update EXISTING product stock + purchase_price ──
-        const { data: existing, error: fetchErr } = await supabase
-          .from('inventory')
-          .select('quantity, purchase_price')
-          .eq('id', itemId)
-          .single()
-
-        if (fetchErr) {
-          console.error("Fetch existing product error:", fetchErr)
-          allSaved = false
-          continue
-        }
-
-        const newQty = (existing?.quantity || 0) + item.qty
-
-        const { error: updateErr } = await supabase
-          .from('inventory')
-          .update({
-            quantity:       newQty,
-            purchase_price: item.buyPrice,  // update purchase price to latest
-            supplier:       merchantName    // update supplier to latest
-          })
-          .eq('id', itemId)
-
-        if (updateErr) {
-          console.error("Update stock error:", updateErr)
-          allSaved = false
-          continue
-        }
-
-        console.log("✅ Stock updated for:", item.name, "New qty:", newQty)
-      }
-
-      // ── Save to purchase_items table ──
-      const { error: itemErr } = await supabase
-        .from('purchase_items')
-        .insert([{
-          purchase_id:    purchase.id,
-          item_id:        itemId,
-          quantity:       item.qty,
-          purchase_price: item.buyPrice,
-          total:          item.qty * item.buyPrice
-        }])
-
-      if (itemErr) {
-        console.error("purchase_items save error:", itemErr)
-        allSaved = false
-      }
-    }
-
-    if (!allSaved) {
-      alert("⚠️ Purchase saved but some items had errors. Check browser console (F12) for details.")
-    } else {
-      if (!window.isPrinting) {
-        alert("✅ Purchase Saved!\nBill: " + billNo + "\nInventory Updated!")
-      }
-    }
-
-  } catch (err) {
-    console.error("savePurchase crash:", err)
-    alert("❌ Unexpected error: " + err.message)
-  }
-
-  window.isSavingPurchase = false
+async function generateReturnNo() {
+  const now=new Date()
+  const dd=String(now.getDate()).padStart(2,"0")
+  const mm=String(now.getMonth()+1).padStart(2,"0")
+  const yy=String(now.getFullYear()).slice(2)
+  const startOfDay=new Date(); startOfDay.setHours(0,0,0,0)
+  const{data}=await supabase.from("purchases").select("bill_number").gte("created_at",startOfDay.toISOString()).like("bill_number","RPUR-%")
+  const count=(data||[]).length
+  return `RPUR-${dd}${mm}${yy}-${String(count+1).padStart(4,"0")}`
 }
-  
-  document.getElementById("savePurchaseBtn").addEventListener("click", savePurchase)
 
 
-// ══════════════════════════
-// PRINT PURCHASE BILL
-// ══════════════════════════
-async function printPurchaseBill () {
-  if (purchaseItems.length === 0) { alert("Add products first ❌"); return }
-
-  const cash   = parseFloat(document.getElementById("purCash").value)   || 0
-  const upi    = parseFloat(document.getElementById("purUpi").value)    || 0
-  const credit = parseFloat(document.getElementById("purCredit").value) || 0
-  const paid   = cash + upi + credit
-  const discountAmount = calcPurDiscount()
-  const finalAmount    = totalAmount - discountAmount
-
-  if (paid > finalAmount) {
-    alert("❌ Cannot Print!\n\nPayment entered exceeds bill total.\nPlease correct first.")
-    return
+// ── MERCHANT SEARCH ──
+document.getElementById("merchantSearch").addEventListener("input", async function() {
+  const text=this.value.trim()
+  if(!text){document.getElementById("merchantList").innerHTML="";return}
+  const{data}=await supabase.from("merchants").select("*").or(`name.ilike.%${text}%,phone.ilike.%${text}%`).limit(6)
+  const list=document.getElementById("merchantList"); list.innerHTML=""
+  if(!data||!data.length){
+    const li=document.createElement("li")
+    li.innerHTML=`<span style="color:#f59e0b;">+ Use "${text}" as merchant (not in directory)</span>`
+    li.onclick=()=>{selectedMerchant={id:null,name:text,phone:"",address:"",gstin:""};showSelectedMerchant();list.innerHTML="";this.value=""}
+    list.appendChild(li);return
   }
-
-  window.isPrinting = true
-
-  const tempItems = [...purchaseItems]
-  const tempTotal = totalAmount
-  const modes = []
-  if (cash   > 0) modes.push("Cash")
-  if (upi    > 0) modes.push("UPI")
-  if (credit > 0) modes.push("Credit")
-
-  await savePurchase()
-  await new Promise(r => setTimeout(r, 300))
-
-  // Fill print area
-  document.getElementById("printPurType").innerText    = selectedBillType
-  document.getElementById("printPurNo").innerText      = currentPurBillNo
-  document.getElementById("printPurDate").innerText    = new Date().toLocaleString("en-IN", {
-    day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit"
+  data.forEach(m=>{
+    const li=document.createElement("li")
+    li.innerText=m.name+(m.phone?" — "+m.phone:"")+(m.address?" | "+m.address:"")
+    li.onclick=()=>{selectedMerchant=m;showSelectedMerchant();list.innerHTML="";this.value=""}
+    list.appendChild(li)
   })
-  document.getElementById("printMerchant").innerText      = selectedMerchant?.name || "—"
-  document.getElementById("printMerchantPhone").innerText = selectedMerchant?.phone || "—"
-  document.getElementById("printPurPayMode").innerText    = modes.join(" + ") || "—"
+})
 
-  // Items
-  const tbody = document.getElementById("printPurItems")
-  tbody.innerHTML = ""
-  tempItems.forEach((item, i) => {
-    tbody.innerHTML += `
-      <tr>
-        <td style="padding:10px 14px; color:#6b7280;">${i + 1}</td>
-        <td style="padding:10px 14px;">${item.name}</td>
-        <td style="padding:10px 14px; text-align:center;">${item.qty}</td>
-        <td style="padding:10px 14px; text-align:center;">₹${item.buyPrice.toLocaleString("en-IN")}</td>
-        <td style="padding:10px 14px; text-align:right; font-weight:600;">₹${(item.qty * item.buyPrice).toLocaleString("en-IN")}</td>
+function showSelectedMerchant() {
+  if(!selectedMerchant)return
+  const box=document.getElementById("selectedMerchantBox");box.style.display="block"
+  document.getElementById("selectedMerchantName").innerText=selectedMerchant.name
+  const subs=[];if(selectedMerchant.phone)subs.push("📞 "+selectedMerchant.phone);if(selectedMerchant.gstin)subs.push("GSTIN: "+selectedMerchant.gstin)
+  document.getElementById("selectedMerchantSub").innerText=subs.join("  |  ")||""
+  document.getElementById("merchantPhone").value=selectedMerchant.phone||""
+  document.getElementById("merchantAddress").value=selectedMerchant.address||""
+  document.getElementById("merchantGstin").value=selectedMerchant.gstin||""
+}
+
+window.clearMerchant=function(){
+  selectedMerchant=null
+  document.getElementById("selectedMerchantBox").style.display="none"
+  document.getElementById("merchantSearch").value=""
+  document.getElementById("merchantPhone").value=""
+  document.getElementById("merchantAddress").value=""
+  document.getElementById("merchantGstin").value=""
+}
+
+
+// ── TOGGLE NEW PRODUCT BOX ──
+document.getElementById("toggleNewProduct").addEventListener("click",()=>{
+  const box=document.getElementById("newProductBox");box.style.display=box.style.display==="none"?"block":"none"
+})
+
+
+// ── PRODUCT SEARCH ──
+document.getElementById("productSearch").addEventListener("input", async function() {
+  const text=this.value.trim()
+  if(!text){document.getElementById("productList").innerHTML="";return}
+  const{data}=await supabase.from("inventory").select("*").ilike("item_name",`%${text}%`).limit(8)
+  const list=document.getElementById("productList"); list.innerHTML=""
+  if(!data)return
+  data.forEach(p=>{
+    const li=document.createElement("li")
+    const sc=p.quantity<=0?'#f87171':p.quantity<=5?'#fbbf24':'#34d399'
+    li.innerHTML=`${p.item_name} <span style="color:rgba(255,255,255,0.4);font-size:12px;">— Stock: <span style="color:${sc};font-weight:600;">${p.quantity||0}</span> | Buy: ₹${p.purchase_price||0}</span>`
+    li.onclick=()=>{addExistingToBill(p);this.value="";list.innerHTML=""}
+    list.appendChild(li)
+  })
+})
+
+function addExistingToBill(product) {
+  const ans=prompt(`Purchase price for "${product.item_name}" (₹):\n(Press OK to use: ₹${product.purchase_price||0})`)
+  if(ans===null)return
+  const bp=parseFloat(ans)||parseFloat(product.purchase_price)||0
+  const ex=purchaseItems.find(i=>i.id===product.id)
+  if(ex){ex.qty++;ex.buyPrice=bp}
+  else purchaseItems.push({id:product.id,name:product.item_name,buyPrice:bp,qty:1,isNew:false})
+  renderPurchaseBill()
+}
+
+window.addNewProduct=function(){
+  const name=document.getElementById("newProductName").value.trim()
+  const bp  =parseFloat(document.getElementById("newProductBuyPrice").value)||0
+  const sp  =parseFloat(document.getElementById("newProductSellPrice").value)||0
+  const qty =parseInt(document.getElementById("newProductQty").value)||0
+  const cat =document.getElementById("newProductCategory").value.trim()
+  const unit=document.getElementById("newProductUnit").value.trim()
+  if(!name){alert("Enter product name ❌");return}
+  if(!bp)  {alert("Enter purchase price ❌");return}
+  if(!qty) {alert("Enter quantity ❌");return}
+  purchaseItems.push({id:null,name,buyPrice:bp,sellPrice:sp,qty,category:cat,unitType:unit,isNew:true})
+  ;["newProductName","newProductBuyPrice","newProductSellPrice","newProductQty","newProductCategory","newProductUnit"].forEach(id=>{document.getElementById(id).value=""})
+  document.getElementById("newProductBox").style.display="none"
+  renderPurchaseBill()
+}
+
+
+// ── DISCOUNT TYPE CHANGE ──
+window.handlePurDiscountTypeChange=function(){
+  const t=document.getElementById("purDiscountType").value
+  if(t!=="auto"){document.getElementById("purDiscount").disabled=false;document.getElementById("purDiscount").value="";document.getElementById("purAutoDiscountBadge").style.display="none"}
+  renderPurchaseBill()
+}
+
+
+// ── RENDER BILL ──
+function renderPurchaseBill() {
+  const table=document.getElementById("purchaseTable");table.innerHTML="";totalAmount=0
+  purchaseItems.forEach((item,idx)=>{
+    const lt=item.qty*item.buyPrice;totalAmount+=lt
+    table.innerHTML+=`<tr>
+      <td style="font-weight:500;">${item.name}${item.isNew?'<span style="font-size:11px;background:rgba(245,158,11,0.2);color:#f59e0b;padding:2px 8px;border-radius:10px;margin-left:6px;">NEW</span>':''}</td>
+      <td><input type="number" value="${item.qty}" min="1" class="purQtyInput" data-index="${idx}" style="width:65px;margin-bottom:0;text-align:center;"></td>
+      <td><input type="number" value="${item.buyPrice}" min="0" class="purPriceInput" data-index="${idx}" style="width:100px;margin-bottom:0;color:#fbbf24;font-weight:600;text-align:center;"></td>
+      <td style="font-weight:600;">₹${lt.toLocaleString('en-IN')}</td>
+      <td><button class="purRemoveBtn" data-index="${idx}">✕</button></td>
+    </tr>`
+  })
+  document.getElementById("purchaseTotalAmount").innerText=totalAmount.toLocaleString('en-IN')
+
+  const cash=parseFloat(document.getElementById("purCash").value)||0
+  const upi =parseFloat(document.getElementById("purUpi").value)||0
+  const cred=parseFloat(document.getElementById("purCredit").value)||0
+  const paid=cash+upi+cred
+  const dt=document.getElementById("purDiscountType").value
+  let disc=0
+  if(dt==="auto"){disc=Math.max(totalAmount-paid,0);document.getElementById("purDiscount").value=disc;document.getElementById("purDiscount").disabled=true;document.getElementById("purAutoDiscountBadge").style.display="inline"}
+  else{document.getElementById("purDiscount").disabled=false;document.getElementById("purAutoDiscountBadge").style.display="none";const dv=parseFloat(document.getElementById("purDiscount").value)||0;disc=dt==="percent"?Math.round(totalAmount*dv/100):dv;disc=Math.min(disc,totalAmount)}
+  const after=totalAmount-disc;const rem=Math.round(after-paid)
+  const row=(l,v,c)=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.05);"><span style="color:${c||'rgba(255,255,255,0.5)'};">${l}</span><span style="font-weight:600;color:${c||'white'};">${v}</span></div>`
+  let html=row("Subtotal","₹"+totalAmount.toLocaleString("en-IN"))
+  if(disc>0)html+=row("Merchant Discount","- ₹"+Math.round(disc).toLocaleString("en-IN"),"#34d399")
+  if(cash>0)html+=row("Cash paid","₹"+cash.toLocaleString("en-IN"),"#60a5fa")
+  if(upi>0) html+=row("UPI paid","₹"+upi.toLocaleString("en-IN"),"#a78bfa")
+  if(cred>0)html+=row("Credit","₹"+cred.toLocaleString("en-IN"),"#f87171")
+  let sc="#34d399",st="✅ Fully Settled"
+  if(rem>0){sc="#f87171";st="⚠️ Still Due: ₹"+rem.toLocaleString("en-IN")}
+  if(rem<0){sc="#fbbf24";st="⚠️ Extra Paid ₹"+Math.abs(rem).toLocaleString("en-IN")+" — please correct!"}
+  html+=`<div style="display:flex;justify-content:space-between;padding:10px 0 4px;margin-top:6px;border-top:1px solid rgba(255,255,255,0.1);"><span style="font-size:15px;font-weight:600;color:white;">Final Bill Amount</span><span style="font-size:17px;font-weight:700;color:white;">₹${Math.round(after).toLocaleString("en-IN")}</span></div><div style="font-size:13px;color:${sc};padding-bottom:2px;">${st}</div>`
+  document.getElementById("purPaymentSummary").innerHTML=html
+
+  document.querySelectorAll(".purQtyInput").forEach(i=>i.addEventListener("change",function(){purchaseItems[+this.dataset.index].qty=parseInt(this.value)||1;renderPurchaseBill()}))
+  document.querySelectorAll(".purPriceInput").forEach(i=>i.addEventListener("change",function(){purchaseItems[+this.dataset.index].buyPrice=parseFloat(this.value)||0;renderPurchaseBill()}))
+  document.querySelectorAll(".purRemoveBtn").forEach(b=>b.addEventListener("click",function(){purchaseItems.splice(+this.dataset.index,1);renderPurchaseBill()}))
+}
+
+
+// ── CALC DISCOUNT HELPER ──
+function calcPurDiscount() {
+  const dt=document.getElementById("purDiscountType").value
+  const cash=parseFloat(document.getElementById("purCash").value)||0
+  const upi =parseFloat(document.getElementById("purUpi").value)||0
+  const cred=parseFloat(document.getElementById("purCredit").value)||0
+  let disc=0
+  if(dt==="auto"){disc=Math.max(totalAmount-(cash+upi+cred),0)}
+  else{const dv=parseFloat(document.getElementById("purDiscount").value)||0;disc=dt==="percent"?Math.round(totalAmount*dv/100):dv;disc=Math.min(disc,totalAmount)}
+  return Math.round(disc)
+}
+
+
+// ── GET MERCHANT INFO FROM FORM ──
+function getMerchantInfo() {
+  const name   = (selectedMerchant?.name || document.getElementById("merchantSearch").value || "").trim()
+  const phone  = document.getElementById("merchantPhone").value.trim()
+  const address= document.getElementById("merchantAddress").value.trim()
+  const gstin  = document.getElementById("merchantGstin").value.trim()
+  const invRef = document.getElementById("merchantInvoiceRef").value.trim()
+  return { name, phone, address, gstin, invRef }
+}
+
+
+// ── FILL PRINT AREA (shared helper) ──
+function fillPrintArea({isReturn,billNo,date,merchantName,merchantPhone,merchantAddress,merchantGstin,merchantInvRef,originalRef,items,subtotal,final,disc,cash,upi,credit,payMode}) {
+  document.getElementById('purPrintHeader').className         = 'pur-header'+(isReturn?' return-style':'')
+  document.getElementById('printPurType').innerText           = isReturn?'PURCHASE RETURN':selectedBillType||'Purchase Invoice'
+  document.getElementById('printPurNo').innerText             = billNo
+  document.getElementById('printPurDate').innerText           = date
+  document.getElementById('printMerchant').innerText          = merchantName||'—'
+  document.getElementById('printMerchantPhone').innerText     = merchantPhone||'—'
+  document.getElementById('printPurPayMode').innerText        = payMode||'—'
+  document.getElementById('printPurFinalLabel').innerText     = isReturn?'Return Total':'Grand Total'
+  document.getElementById('printPurFooterMsg').innerText      = isReturn?'Return Processed 🙏':'Stock Received 🙏'
+  document.getElementById('printReturnNote').style.display    = isReturn?'block':'none'
+  document.getElementById('printPurSigLabel').innerText       = isReturn?'Returned By':'Supplier Signature'
+  document.getElementById('printReturnRefBar').style.display  = (isReturn&&originalRef)?'block':'none'
+  if(isReturn&&originalRef)document.getElementById('printOriginalRef').innerText=originalRef
+
+  if(merchantInvRef){document.getElementById('printMerchRefBlock').style.display='block';document.getElementById('printMerchRef').innerText=merchantInvRef}
+  else document.getElementById('printMerchRefBlock').style.display='none'
+
+  // Merchant detail box
+  const showDetail=merchantAddress||merchantGstin
+  document.getElementById('printMerchantDetailBox').style.display=showDetail?'block':'none'
+  if(merchantAddress){document.getElementById('printAddrBlock').style.display='block';document.getElementById('printMerchantAddress').innerText=merchantAddress}else document.getElementById('printAddrBlock').style.display='none'
+  if(merchantGstin)  {document.getElementById('printGstinBlock').style.display='block';document.getElementById('printMerchantGstin').innerText=merchantGstin}else document.getElementById('printGstinBlock').style.display='none'
+
+  const tbody=document.getElementById('printPurItems');tbody.innerHTML=''
+  items.forEach((item,i)=>{tbody.innerHTML+=`<tr><td style="padding:10px 14px;color:#6b7280;">${i+1}</td><td style="padding:10px 14px;">${item.name}</td><td style="padding:10px 14px;text-align:center;">${Math.abs(item.qty)}</td><td style="padding:10px 14px;text-align:center;">₹${item.price}</td><td style="padding:10px 14px;text-align:right;font-weight:600;">₹${Math.abs(item.qty*item.price).toLocaleString('en-IN')}</td></tr>`})
+
+  document.getElementById('printPurSubtotal').innerText       = Math.abs(subtotal).toLocaleString('en-IN')
+  document.getElementById('printPurFinal').innerText          = Math.abs(final).toLocaleString('en-IN')
+  document.getElementById('purDiscountRow').style.display     = (!isReturn&&disc>0)?'flex':'none'
+  if(!isReturn&&disc>0)document.getElementById('printPurDiscount').innerText=disc.toLocaleString('en-IN')
+  document.getElementById('printPurCash').innerText           = Math.abs(cash||0)
+  document.getElementById('printPurUPI').innerText            = Math.abs(upi||0)
+  document.getElementById('printPurCredit').innerText         = Math.abs(credit||0)
+  document.getElementById('printPurCreditLabel').innerText    = isReturn?'Payable Reduced':'Credit'
+  document.getElementById('purDiscountPayItem').style.display = (!isReturn&&disc>0)?'inline':'none'
+  if(!isReturn&&disc>0)document.getElementById('printPurDiscountPay').innerText=disc.toLocaleString('en-IN')
+  document.getElementById('printPurPayTitle').innerText       = isReturn?'Return Breakdown':'Payment Breakdown'
+}
+
+
+// ── SAVE PURCHASE ──
+async function savePurchase() {
+  if(window.isSavingPurchase)return
+  window.isSavingPurchase=true
+  try {
+    const m=getMerchantInfo()
+    if(!m.name){alert("❌ Please enter or select a merchant name");window.isSavingPurchase=false;return}
+    if(!purchaseItems.length){alert("❌ Add at least one product first");window.isSavingPurchase=false;return}
+
+    const cash=parseFloat(document.getElementById("purCash").value)||0
+    const upi =parseFloat(document.getElementById("purUpi").value)||0
+    const cred=parseFloat(document.getElementById("purCredit").value)||0
+    const paid=cash+upi+cred
+    const discAmt=calcPurDiscount()
+    const final=totalAmount-discAmt
+    if(paid>final){alert("❌ Payment (₹"+paid.toLocaleString('en-IN')+") exceeds total (₹"+final.toLocaleString('en-IN')+"). Please fix.");window.isSavingPurchase=false;return}
+
+    // ══ EDIT MODE ══
+    if(editingBillId) {
+      const{data:oldItems}=await supabase.from('purchase_items').select('*').eq('purchase_id',editingBillId)
+      await supabase.from('purchase_items').delete().eq('purchase_id',editingBillId)
+
+      const newItems=purchaseItems.map(item=>({purchase_id:editingBillId,item_id:item.id,quantity:item.qty,purchase_price:item.buyPrice,total:item.qty*item.buyPrice}))
+      const{error:insertErr}=await supabase.from('purchase_items').insert(newItems)
+      if(insertErr){
+        if(oldItems?.length)await supabase.from('purchase_items').insert(oldItems.map(({id,...r})=>r))
+        alert('❌ Edit failed — items restored.\n'+insertErr.message);window.isSavingPurchase=false;return
+      }
+
+      const{error:upErr}=await supabase.from('purchases').update({merchant_name:m.name,merchant_phone:m.phone||null,total_amount:final,cash,upi,credit:cred,discount:discAmt,merchant_address:m.address||null,merchant_gstin:m.gstin||null,merchant_invoice_ref:m.invRef||null}).eq('id',editingBillId)
+      if(upErr){alert('❌ Error updating: '+upErr.message);window.isSavingPurchase=false;return}
+
+      // Reverse old stock, apply new stock
+      for(const old of(oldItems||[])){if(old.item_id)await supabase.rpc('decrement_inventory',{p_item_id:old.item_id,p_qty:old.quantity})}
+      for(const item of purchaseItems){
+        if(item.isNew){
+          await supabase.from('inventory').insert([{item_name:item.name,category:item.category||null,quantity:item.qty,purchase_price:item.buyPrice,selling_price:item.sellPrice||null,supplier:m.name,unit_type:item.unitType||null,notes:null}])
+        }else if(item.id){
+          await supabase.rpc('increment_inventory',{p_item_id:item.id,p_qty:item.qty})
+          await supabase.from('inventory').update({purchase_price:item.buyPrice,supplier:m.name}).eq('id',item.id)
+        }
+      }
+      if(!window.isPrinting)alert('✅ Purchase Updated!\nBill: '+editingBillNumber)
+      cancelEdit();window.isSavingPurchase=false;return
+    }
+
+    // ══ NEW PURCHASE ══
+    const billNo=await generatePurBillNo()
+    currentPurBillNo=billNo
+    const{data:purchase,error:purErr}=await supabase.from('purchases').insert([{bill_number:billNo,merchant_name:m.name,merchant_phone:m.phone||null,total_amount:final,cash,upi,credit:cred,discount:discAmt,merchant_address:m.address||null,merchant_gstin:m.gstin||null,merchant_invoice_ref:m.invRef||null,bill_type:'purchase'}]).select().single()
+    if(purErr){alert("❌ Error saving purchase: "+purErr.message);window.isSavingPurchase=false;return}
+
+    // Save items + update inventory
+    let allSaved=true
+    for(const item of purchaseItems){
+      let itemId=item.id
+      if(item.isNew){
+        const{data:newProd,error:newErr}=await supabase.from('inventory').insert([{item_name:item.name,category:item.category||null,quantity:item.qty,purchase_price:item.buyPrice,selling_price:item.sellPrice||null,supplier:m.name,unit_type:item.unitType||null,notes:null}]).select().single()
+        if(newErr){console.error("New product error:",newErr);allSaved=false;continue}
+        itemId=newProd.id
+      }else{
+        const{error:updErr}=await supabase.rpc('increment_inventory',{p_item_id:itemId,p_qty:item.qty})
+        if(!updErr)await supabase.from('inventory').update({purchase_price:item.buyPrice,supplier:m.name}).eq('id',itemId)
+        else{console.error("Stock update error:",updErr);allSaved=false;continue}
+      }
+      const{error:piErr}=await supabase.from('purchase_items').insert([{purchase_id:purchase.id,item_id:itemId,quantity:item.qty,purchase_price:item.buyPrice,total:item.qty*item.buyPrice}])
+      if(piErr){console.error("purchase_items error:",piErr);allSaved=false}
+    }
+
+    if(!allSaved)alert("⚠️ Purchase saved but some items had errors. Check F12 console.")
+    else if(!window.isPrinting)alert("✅ Purchase Saved!\nBill: "+billNo+"\nInventory Updated!")
+
+  }catch(err){console.error(err);alert("❌ Unexpected error: "+err.message)}
+  window.isSavingPurchase=false
+}
+document.getElementById("savePurchaseBtn").addEventListener("click",savePurchase)
+
+
+// ── PRINT ──
+async function printPurchaseBill() {
+  if(!purchaseItems.length){alert("Add products first ❌");return}
+  const cash=parseFloat(document.getElementById("purCash").value)||0
+  const upi =parseFloat(document.getElementById("purUpi").value)||0
+  const cred=parseFloat(document.getElementById("purCredit").value)||0
+  const disc=calcPurDiscount();const final=totalAmount-disc
+  if((cash+upi+cred)>final){alert("❌ Payment exceeds total. Please correct.");return}
+  window.isPrinting=true
+  const tempItems=[...purchaseItems];const tempTotal=totalAmount
+  const m=getMerchantInfo()
+  const modes=[];if(cash>0)modes.push("Cash");if(upi>0)modes.push("UPI");if(cred>0)modes.push("Credit")
+  await savePurchase();await new Promise(r=>setTimeout(r,300))
+  fillPrintArea({isReturn:false,billNo:currentPurBillNo,date:new Date().toLocaleString("en-IN",{day:"2-digit",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"}),merchantName:m.name,merchantPhone:m.phone,merchantAddress:m.address,merchantGstin:m.gstin,merchantInvRef:m.invRef,originalRef:null,items:tempItems.map(i=>({name:i.name,qty:i.qty,price:i.buyPrice})),subtotal:tempTotal,final,disc,cash,upi,credit:cred,payMode:modes.join(" + ")||"—"})
+  document.getElementById("printArea").style.display="block"
+  const ot=document.title;document.title="Purchase-"+currentPurBillNo;window.print()
+  setTimeout(()=>{document.title=ot;document.getElementById("printArea").style.display="none";window.isPrinting=false},800)
+}
+document.getElementById("printPurchaseBtn").addEventListener("click",printPurchaseBill)
+
+
+// ── CANCEL EDIT ──
+window.cancelEdit=function(){
+  editingBillId=null;editingBillNumber=null;selectedMerchant=null;purchaseItems=[];totalAmount=0
+  document.getElementById('editModeBar').style.display='none'
+  document.getElementById('savePurchaseBtn').innerText='💾 Save Purchase'
+  window.clearMerchant()
+  ;['purCash','purUpi','purCredit','purDiscount','merchantInvoiceRef'].forEach(id=>document.getElementById(id).value='')
+  renderPurchaseBill()
+}
+
+
+// ── PURCHASE HISTORY ──
+window.openPurchaseHistory=function(){document.getElementById("purchaseHistoryModal").style.display="block";historyPage=1;loadPurchaseHistory()}
+window.closePurchaseHistory=function(){document.getElementById("purchaseHistoryModal").style.display="none"}
+
+window.loadPurchaseHistory=async function(){
+  const search=(document.getElementById("searchPurchase").value||"").toLowerCase().trim()
+  const filter=document.getElementById("historyFilter").value
+  const tbody=document.getElementById("purchaseHistoryBody")
+  tbody.innerHTML=`<tr><td colspan="6" style="text-align:center;padding:20px;color:rgba(255,255,255,0.3);">Loading...</td></tr>`
+
+  let query=supabase.from("purchases").select("*",{count:'exact'}).order("created_at",{ascending:false})
+  if(filter==='purchase')query=query.or('bill_type.eq.purchase,bill_type.is.null')
+  if(filter==='return')  query=query.eq('bill_type','return')
+  const from=(historyPage-1)*HIST_SIZE
+  query=query.range(from,from+HIST_SIZE-1)
+  const{data,count,error}=await query
+  if(error){tbody.innerHTML=`<tr><td colspan="6" style="text-align:center;padding:20px;color:#f87171;">Error loading</td></tr>`;return}
+
+  const filtered=(data||[]).filter(p=>{
+    if(!search)return true
+    return (p.bill_number||"").toLowerCase().includes(search)||(p.merchant_name||"").toLowerCase().includes(search)
+  })
+
+  tbody.innerHTML=""
+  if(!filtered.length){tbody.innerHTML=`<tr><td colspan="6" style="text-align:center;padding:30px;color:rgba(255,255,255,0.3);">No bills found</td></tr>`;return}
+
+  filtered.forEach(p=>{
+    const isRet=p.bill_type==='return'
+    const typeLabel=isRet?'<span style="background:rgba(220,38,38,0.15);color:#f87171;padding:3px 8px;border-radius:10px;font-size:11px;font-weight:600;">↩ Return</span>':'<span style="background:rgba(245,158,11,0.15);color:#fbbf24;padding:3px 8px;border-radius:10px;font-size:11px;font-weight:600;">📦 Purchase</span>'
+    tbody.innerHTML+=`
+      <tr style="border-bottom:1px solid rgba(255,255,255,0.05);" onmouseover="this.style.background='rgba(255,255,255,0.03)'" onmouseout="this.style.background='transparent'">
+        <td style="padding:11px 14px;font-size:12px;color:rgba(255,255,255,0.4);">${p.bill_number}</td>
+        <td style="padding:11px 14px;color:rgba(255,255,255,0.75);">${new Date(p.created_at).toLocaleDateString('en-IN')}</td>
+        <td style="padding:11px 14px;color:white;font-weight:500;">${p.merchant_name||'—'}</td>
+        <td style="padding:11px 14px;color:${isRet?'#f87171':'#fbbf24'};font-weight:600;">${isRet?'-':''}₹${Math.round(Math.abs(p.total_amount)).toLocaleString('en-IN')}</td>
+        <td style="padding:11px 14px;">${typeLabel}</td>
+        <td style="padding:11px 14px;">
+          <div style="display:flex;gap:6px;flex-wrap:wrap;">
+            <button onclick="viewPurchase('${p.bill_number}')" style="padding:5px 10px;font-size:11px;background:rgba(245,158,11,0.2);border:1px solid rgba(245,158,11,0.35);border-radius:6px;box-shadow:none;">👁 View</button>
+            <button onclick="reprintPurchase('${p.bill_number}')" style="padding:5px 10px;font-size:11px;background:rgba(139,92,246,0.25);border:1px solid rgba(139,92,246,0.4);border-radius:6px;box-shadow:none;">🖨 Print</button>
+            ${!isRet?`<button onclick="openEditBill('${p.bill_number}')" style="padding:5px 10px;font-size:11px;background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.3);border-radius:6px;box-shadow:none;">✏️ Edit</button>`:''}
+            <button onclick="openDeleteModal('${p.id}','${p.bill_number}')" style="padding:5px 10px;font-size:11px;background:rgba(220,38,38,0.2);border:1px solid rgba(220,38,38,0.3);border-radius:6px;box-shadow:none;">🗑️</button>
+          </div>
+        </td>
       </tr>`
   })
 
-  // Totals
-  document.getElementById("printPurSubtotal").innerText  = tempTotal.toLocaleString("en-IN")
-  document.getElementById("printPurFinal").innerText     = finalAmount.toLocaleString("en-IN")
-  document.getElementById("purDiscountRow").style.display  = discountAmount > 0 ? "flex" : "none"
-  document.getElementById("printPurDiscount").innerText    = discountAmount.toLocaleString("en-IN")
-
-  // Payment breakdown
-  document.getElementById("printPurCash").innerText   = cash
-  document.getElementById("printPurUPI").innerText    = upi
-  document.getElementById("printPurCredit").innerText = credit
-  if (discountAmount > 0) {
-    document.getElementById("purDiscountPayItem").style.display = "inline"
-    document.getElementById("printPurDiscountPay").innerText    = discountAmount.toLocaleString("en-IN")
-  } else {
-    document.getElementById("purDiscountPayItem").style.display = "none"
+  const totalPages=Math.ceil((count||0)/HIST_SIZE)||1
+  document.getElementById('historyPageInfo').innerText=`Page ${historyPage} of ${totalPages} — ${count||0} bills`
+  const pg=document.getElementById('historyPagination');pg.innerHTML=''
+  if(totalPages>1){
+    const mkB=(l,d,fn)=>{const b=document.createElement('button');b.innerText=l;b.disabled=d;b.style.cssText='padding:6px 12px;font-size:12px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:7px;color:white;cursor:pointer;font-family:"DM Sans",sans-serif;';b.onclick=fn;pg.appendChild(b)}
+    mkB('← Prev',historyPage===1,()=>{historyPage--;window.loadPurchaseHistory()})
+    mkB('Next →',historyPage===totalPages,()=>{historyPage++;window.loadPurchaseHistory()})
   }
-
-  document.getElementById("printArea").style.display = "block"
-  const originalTitle = document.title
-  document.title = "Purchase-" + currentPurBillNo
-  window.print()
-
-  setTimeout(() => {
-    document.title = originalTitle
-    document.getElementById("printArea").style.display = "none"
-    window.isPrinting = false
-  }, 800)
 }
 
-document.getElementById("printPurchaseBtn").addEventListener("click", printPurchaseBill)
+
+// ── VIEW / REPRINT ──
+window.viewPurchase=async function(billNo){
+  const{data:pur}=await supabase.from("purchases").select("*").eq("bill_number",billNo).single()
+  if(!pur){alert("Bill not found");return}
+  const{data:items}=await supabase.from("purchase_items").select("*").eq("purchase_id",pur.id)
+  const ids=(items||[]).map(i=>i.item_id).filter(Boolean)
+  const{data:prods}=ids.length?await supabase.from("inventory").select("id,item_name").in("id",ids):{data:[]}
+  const pm={};(prods||[]).forEach(p=>{pm[p.id]=p.item_name})
+  const modes=[];if(pur.cash>0)modes.push("Cash");if(pur.upi>0)modes.push("UPI");if(pur.credit>0)modes.push("Credit")
+  fillPrintArea({isReturn:pur.bill_type==='return',billNo:pur.bill_number,date:new Date(pur.created_at).toLocaleString('en-IN'),merchantName:pur.merchant_name,merchantPhone:pur.merchant_phone,merchantAddress:pur.merchant_address||"",merchantGstin:pur.merchant_gstin||"",merchantInvRef:pur.merchant_invoice_ref||"",originalRef:pur.original_bill_ref,items:(items||[]).map(i=>({name:pm[i.item_id]||"Item",qty:i.quantity,price:i.purchase_price})),subtotal:(items||[]).reduce((s,i)=>s+(i.total||0),0),final:pur.total_amount,disc:pur.discount||0,cash:pur.cash||0,upi:pur.upi||0,credit:pur.credit||0,payMode:modes.join(" + ")||"—"})
+  document.getElementById("purchaseHistoryModal").style.display="none"
+  document.getElementById("printArea").style.display="block"
+}
+
+window.reprintPurchase=async function(billNo){await viewPurchase(billNo);await new Promise(r=>setTimeout(r,300));const ot=document.title;document.title="Purchase-"+billNo;window.print();setTimeout(()=>{document.title=ot;document.getElementById("printArea").style.display="none"},800)}
 
 
-// ══════════════════════════
-// PURCHASE HISTORY
-// ══════════════════════════
-window.openPurchaseHistory = function () {
-  document.getElementById("purchaseHistoryModal").style.display = "block"
+// ── EDIT BILL ──
+window.openEditBill=async function(billNo){
+  const{data:pur}=await supabase.from("purchases").select("*").eq("bill_number",billNo).single()
+  if(!pur){alert("Bill not found");return}
+  const{data:items}=await supabase.from("purchase_items").select("*").eq("purchase_id",pur.id)
+  const ids=(items||[]).map(i=>i.item_id).filter(Boolean)
+  const{data:prods}=ids.length?await supabase.from("inventory").select("id,item_name,purchase_price").in("id",ids):{data:[]}
+  const pm={};(prods||[]).forEach(p=>{pm[p.id]=p})
+
+  editingBillId=pur.id;editingBillNumber=pur.bill_number
+  document.getElementById('editModeBar').style.display='block'
+  document.getElementById('editModeBillNo').innerText='Bill: '+pur.bill_number+' — '+new Date(pur.created_at).toLocaleDateString('en-IN')
+  document.getElementById('savePurchaseBtn').innerText='💾 Update Purchase'
+
+  selectedMerchant={id:null,name:pur.merchant_name,phone:pur.merchant_phone||"",address:pur.merchant_address||"",gstin:pur.merchant_gstin||""}
+  showSelectedMerchant()
+  document.getElementById('merchantInvoiceRef').value=pur.merchant_invoice_ref||""
+  document.getElementById('purCash').value=pur.cash||0
+  document.getElementById('purUpi').value=pur.upi||0
+  document.getElementById('purCredit').value=pur.credit||0
+
+  purchaseItems=(items||[]).map(item=>({id:item.item_id,name:(pm[item.item_id]?.item_name)||"Item",buyPrice:item.purchase_price,qty:item.quantity,isNew:false}))
+  renderPurchaseBill()
+  document.getElementById('purchaseHistoryModal').style.display='none'
+  setMode('purchase')
+  window.scrollTo({top:0,behavior:'smooth'})
+}
+
+
+// ── DELETE ──
+window.openDeleteModal=function(id,billNo){deletingBillId=id;deletingBillNo=billNo;document.getElementById('deleteModalBillNo').innerText=billNo;document.getElementById('deleteModal').style.display='flex'}
+window.closeDeleteModal=function(){document.getElementById('deleteModal').style.display='none';deletingBillId=null;deletingBillNo=null}
+window.confirmDeleteBill=async function(){
+  if(!deletingBillId)return
+  const{data:items}=await supabase.from('purchase_items').select('*').eq('purchase_id',deletingBillId)
+  // Reverse inventory that was added by this purchase
+  for(const item of(items||[])){if(item.item_id&&item.quantity>0)await supabase.rpc('decrement_inventory',{p_item_id:item.item_id,p_qty:item.quantity})}
+  await supabase.from('purchase_items').delete().eq('purchase_id',deletingBillId)
+  await supabase.from('purchases').delete().eq('id',deletingBillId)
+  closeDeleteModal()
+  alert('✅ Purchase bill deleted & inventory reversed')
   loadPurchaseHistory()
 }
 
-window.closePurchaseHistory = function () {
-  document.getElementById("purchaseHistoryModal").style.display = "none"
+
+// ── PURCHASE RETURN ──
+window.searchReturnBill=async function(){
+  const billNo=document.getElementById('returnBillSearch').value.trim()
+  if(!billNo){alert('Enter a bill number');return}
+  const{data:pur}=await supabase.from('purchases').select('*').eq('bill_number',billNo).single()
+  if(!pur){alert('Bill not found');return}
+  if(pur.bill_type==='return'){alert('This is already a return bill — cannot return a return!');return}
+  const{data:items}=await supabase.from('purchase_items').select('*').eq('purchase_id',pur.id)
+  const ids=(items||[]).map(i=>i.item_id).filter(Boolean)
+  const{data:prods}=ids.length?await supabase.from('inventory').select('id,item_name').in('id',ids):{data:[]}
+  const pm={};(prods||[]).forEach(p=>{pm[p.id]=p.item_name})
+  returnOriginalBill=pur;returnBillItems=items||[]
+
+  document.getElementById('returnMerchantInfo').innerHTML=`
+    <div><div style="font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Merchant</div><div style="font-size:15px;font-weight:600;color:white;">${pur.merchant_name||'—'}</div></div>
+    <div><div style="font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Original Bill</div><div style="font-size:13px;color:#fbbf24;font-weight:600;">${pur.bill_number}</div></div>
+    <div><div style="font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Original Total</div><div style="font-size:13px;color:#a78bfa;font-weight:600;">₹${Math.round(pur.total_amount).toLocaleString('en-IN')}</div></div>
+    <div><div style="font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Date</div><div style="font-size:13px;color:rgba(255,255,255,0.6);">${new Date(pur.created_at).toLocaleDateString('en-IN')}</div></div>`
+
+  const tbody=document.getElementById('returnItemsBody');tbody.innerHTML=''
+  ;(items||[]).forEach((item,idx)=>{
+    tbody.innerHTML+=`<tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
+      <td style="padding:10px;text-align:center;"><input type="checkbox" class="returnChk" data-idx="${idx}" style="width:18px;height:18px;accent-color:#dc2626;cursor:pointer;" onchange="calcReturnTotal()"></td>
+      <td style="padding:10px;color:white;">${pm[item.item_id]||'Item'}</td>
+      <td style="padding:10px;text-align:center;color:rgba(255,255,255,0.7);">${item.quantity}</td>
+      <td style="padding:10px;text-align:center;"><input type="number" class="returnQtyInput" data-idx="${idx}" value="${item.quantity}" min="1" max="${item.quantity}" style="width:70px;margin-bottom:0;text-align:center;" oninput="calcReturnTotal()"></td>
+      <td style="padding:10px;text-align:right;color:rgba(255,255,255,0.7);">₹${item.purchase_price}</td>
+      <td style="padding:10px;text-align:right;font-weight:600;color:#f87171;" id="rtotal${idx}">₹0</td>
+    </tr>`
+  })
+  calcReturnTotal()
+  document.getElementById('returnBillDetails').style.display='block'
 }
 
-window.loadPurchaseHistory = async function () {
-  const search = (document.getElementById("searchPurchase").value || "").toLowerCase()
-
-  const { data, error } = await supabase
-    .from("purchases").select("*").order("created_at", { ascending: false })
-  if (error) { alert("Error loading history"); return }
-
-  const tbody = document.getElementById("purchaseHistoryBody")
-  tbody.innerHTML = ""
-
-  const filtered = (data || []).filter(p => {
-    if (!search) return true
-    return (p.bill_number || "").toLowerCase().includes(search) ||
-           (p.merchant_name || "").toLowerCase().includes(search)
+window.calcReturnTotal=function(){
+  let t=0
+  document.querySelectorAll('.returnChk').forEach(chk=>{
+    const idx=+chk.dataset.idx;const qi=document.querySelector(`.returnQtyInput[data-idx="${idx}"]`)
+    const qty=chk.checked?(parseInt(qi?.value)||0):0
+    const price=(returnBillItems[idx]?.purchase_price)||0;const sub=qty*price;t+=sub
+    const el=document.getElementById('rtotal'+idx);if(el)el.innerText=chk.checked?'₹'+sub.toLocaleString('en-IN'):'₹0'
   })
+  document.getElementById('returnTotalAmt').innerText=t.toLocaleString('en-IN')
+}
 
-  if (!filtered.length) {
-    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:30px; color:rgba(255,255,255,0.3);">No purchases found</td></tr>`
-    return
+window.processReturn=async function(shouldPrint){
+  const checkedItems=[]
+  document.querySelectorAll('.returnChk').forEach(chk=>{
+    if(!chk.checked)return
+    const idx=+chk.dataset.idx;const qi=document.querySelector(`.returnQtyInput[data-idx="${idx}"]`)
+    const qty=parseInt(qi?.value)||0;if(qty<=0)return
+    const orig=returnBillItems[idx];if(!orig)return
+    if(qty>orig.quantity){alert(`Return qty (${qty}) exceeds purchased qty (${orig.quantity})`);return}
+    checkedItems.push({item_id:orig.item_id,qty,price:orig.purchase_price})
+  })
+  if(!checkedItems.length){alert('Select at least one item to return');return}
+  const returnTotal=checkedItems.reduce((s,i)=>s+(i.qty*i.price),0)
+  const returnNo=await generateReturnNo()
+  const pur=returnOriginalBill
+
+  const{data:rBill,error:rErr}=await supabase.from('purchases').insert([{bill_number:returnNo,merchant_name:pur.merchant_name,merchant_phone:pur.merchant_phone||null,merchant_address:pur.merchant_address||null,merchant_gstin:pur.merchant_gstin||null,total_amount:-returnTotal,cash:0,upi:0,credit:-returnTotal,discount:0,bill_type:'return',original_bill_ref:pur.bill_number}]).select().single()
+  if(rErr){alert('❌ Error creating return: '+rErr.message);return}
+
+  const retItems=checkedItems.map(i=>({purchase_id:rBill.id,item_id:i.item_id,quantity:-i.qty,purchase_price:i.price,total:-(i.qty*i.price)}))
+  const{error:riErr}=await supabase.from('purchase_items').insert(retItems)
+  if(riErr){await supabase.from('purchases').delete().eq('id',rBill.id);alert('❌ Return items failed: '+riErr.message);return}
+
+  // Deduct inventory (items are going back to supplier)
+  for(const item of checkedItems){if(item.item_id)await supabase.rpc('decrement_inventory',{p_item_id:item.item_id,p_qty:item.qty})}
+
+  if(shouldPrint){
+    const ids=checkedItems.map(i=>i.item_id).filter(Boolean)
+    const{data:prods}=ids.length?await supabase.from('inventory').select('id,item_name').in('id',ids):{data:[]}
+    const pm={};(prods||[]).forEach(p=>{pm[p.id]=p.item_name})
+    fillPrintArea({isReturn:true,billNo:returnNo,date:new Date().toLocaleString('en-IN'),merchantName:pur.merchant_name,merchantPhone:pur.merchant_phone||"",merchantAddress:pur.merchant_address||"",merchantGstin:pur.merchant_gstin||"",merchantInvRef:"",originalRef:pur.bill_number,items:checkedItems.map(i=>({name:pm[i.item_id]||'Item',qty:i.qty,price:i.price})),subtotal:returnTotal,final:returnTotal,disc:0,cash:0,upi:0,credit:returnTotal,payMode:'Payable Adjusted'})
+    document.getElementById('printArea').style.display='block'
+    const ot=document.title;document.title='Return-'+returnNo;window.print()
+    setTimeout(()=>{document.title=ot;document.getElementById('printArea').style.display='none'},800)
   }
 
-  filtered.forEach(p => {
-    tbody.innerHTML += `
-      <tr style="border-bottom:1px solid rgba(255,255,255,0.05);"
-          onmouseover="this.style.background='rgba(255,255,255,0.04)'"
-          onmouseout="this.style.background='transparent'">
-        <td style="padding:12px 14px; font-size:12px; color:rgba(255,255,255,0.45);">${p.bill_number}</td>
-        <td style="padding:12px 14px; color:rgba(255,255,255,0.8);">${new Date(p.created_at).toLocaleDateString("en-IN")}</td>
-        <td style="padding:12px 14px; color:white; font-weight:500;">${p.merchant_name || "—"}</td>
-        <td style="padding:12px 14px; color:#fbbf24; font-weight:600;">₹${Math.round(p.total_amount).toLocaleString("en-IN")}</td>
-        <td style="padding:12px 14px;">
-          <button onclick="reprintPurchase('${p.bill_number}')"
-            style="padding:6px 14px; font-size:12px; background:rgba(245,158,11,0.3); border:1px solid rgba(245,158,11,0.4); border-radius:7px; box-shadow:none;">
-            🖨 Print
-          </button>
-        </td>
-      </tr>`
-  })
+  alert('✅ Purchase Return processed!\nReturn No: '+returnNo+'\nInventory Deducted!\nPayable reduced by ₹'+returnTotal.toLocaleString('en-IN'))
+  clearReturn()
 }
 
+window.clearReturn=function(){returnOriginalBill=null;returnBillItems=[];document.getElementById('returnBillDetails').style.display='none';document.getElementById('returnBillSearch').value='';document.getElementById('returnReason').value=''}
 
-// ── REPRINT from history ──
-window.reprintPurchase = async function (billNo) {
-  const { data: purchase } = await supabase.from("purchases").select("*").eq("bill_number", billNo).single()
-  if (!purchase) { alert("Purchase not found"); return }
 
-  const { data: items } = await supabase.from("purchase_items").select("*").eq("purchase_id", purchase.id)
-  const itemIds = (items || []).map(i => i.item_id).filter(Boolean)
-  const { data: products } = itemIds.length
-    ? await supabase.from("inventory").select("id, item_name").in("id", itemIds)
-    : { data: [] }
-  const prodMap = {}
-  ;(products || []).forEach(p => { prodMap[p.id] = p.item_name })
-
-  const modes = []
-  if (purchase.cash   > 0) modes.push("Cash")
-  if (purchase.upi    > 0) modes.push("UPI")
-  if (purchase.credit > 0) modes.push("Credit")
-
-  document.getElementById("printPurType").innerText       = "Purchase Invoice"
-  document.getElementById("printPurNo").innerText         = purchase.bill_number
-  document.getElementById("printPurDate").innerText       = new Date(purchase.created_at).toLocaleString("en-IN")
-  document.getElementById("printMerchant").innerText      = purchase.merchant_name || "—"
-  document.getElementById("printMerchantPhone").innerText = purchase.merchant_phone || "—"
-  document.getElementById("printPurPayMode").innerText    = modes.join(" + ") || "—"
-
-  const tbody = document.getElementById("printPurItems")
-  tbody.innerHTML = ""
-  let subtotal = 0
-  ;(items || []).forEach((item, i) => {
-    subtotal += item.total || 0
-    tbody.innerHTML += `
-      <tr>
-        <td style="padding:10px 14px; color:#6b7280;">${i + 1}</td>
-        <td style="padding:10px 14px;">${prodMap[item.item_id] || "Item"}</td>
-        <td style="padding:10px 14px; text-align:center;">${item.quantity}</td>
-        <td style="padding:10px 14px; text-align:center;">₹${item.purchase_price}</td>
-        <td style="padding:10px 14px; text-align:right; font-weight:600;">₹${item.total}</td>
-      </tr>`
-  })
-
-  const discount = purchase.discount || 0
-  document.getElementById("printPurSubtotal").innerText  = subtotal.toLocaleString("en-IN")
-  document.getElementById("printPurFinal").innerText     = Math.round(purchase.total_amount).toLocaleString("en-IN")
-  document.getElementById("purDiscountRow").style.display  = discount > 0 ? "flex" : "none"
-  document.getElementById("printPurDiscount").innerText    = discount.toLocaleString("en-IN")
-  document.getElementById("printPurCash").innerText        = purchase.cash   || 0
-  document.getElementById("printPurUPI").innerText         = purchase.upi    || 0
-  document.getElementById("printPurCredit").innerText      = purchase.credit || 0
-  if (discount > 0) {
-    document.getElementById("purDiscountPayItem").style.display = "inline"
-    document.getElementById("printPurDiscountPay").innerText    = discount.toLocaleString("en-IN")
-  } else {
-    document.getElementById("purDiscountPayItem").style.display = "none"
-  }
-
-  document.getElementById("purchaseHistoryModal").style.display = "none"
-  document.getElementById("printArea").style.display = "block"
-
-  await new Promise(r => setTimeout(r, 300))
-  window.print()
-  setTimeout(() => { document.getElementById("printArea").style.display = "none" }, 800)
-}
-  
-// Auto-fill merchant if coming from merchants.html
-const prefillMerchant = localStorage.getItem('purchase_prefill_merchant')
-if (prefillMerchant) {
-  document.getElementById('merchantSearch').value = prefillMerchant
-  selectedMerchant = { id: null, name: prefillMerchant, phone: '' }
-  document.getElementById('selectedMerchantName').innerText = prefillMerchant
-  document.getElementById('selectedMerchantPhone').innerText = ''
-  document.getElementById('selectedMerchantBox').style.display = 'block'
+// ── Prefill merchant from merchants.html ──
+const pf=localStorage.getItem('purchase_prefill_merchant')
+if(pf){
+  selectedMerchant={id:null,name:pf,phone:'',address:'',gstin:''}
+  showSelectedMerchant()
   localStorage.removeItem('purchase_prefill_merchant')
 }
 </script>
