@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Reports — Abhinandan Auto Mobiles</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+  <style>
+    /* ── Reports-specific styles ── */
+    .report-tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+    .report-tab {
+      padding: 8px 20px;
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.04);
+      color: var(--text-muted);
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+    .report-tab:hover { background: rgba(255,255,255,0.08); color: var(--text-primary); }
+    .report-tab.active {
+      background: linear-gradient(135deg, #2563eb, #7c3aed);
+      border-color: transparent;
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(37,99,235,0.4);
+    }
+    .report-section { display: none; }
+    .report-section.active { display: block; }
+
+    .filter-bar {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+    .filter-bar label {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-family: 'DM Sans', sans-serif;
+    }
+    .filter-bar select,
+    .filter-bar input[type="date"] {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 8px;
+      color: var(--text-primary);
+      padding: 7px 12px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+    }
+    .filter-bar select option { background: #0f1623; }
+
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .kpi-card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px;
+      padding: 18px 20px;
+      position: relative;
+      overflow: hidden;
+    }
+    .kpi-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: var(--kpi-color, linear-gradient(90deg,#2563eb,#7c3aed));
+    }
+    .kpi-card .kpi-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      font-family: 'DM Sans', sans-serif;
+      margin-bottom: 6px;
+    }
+    .kpi-card .kpi-value {
+      font-size: 22px;
+      font-weight: 700;
+      font-family: 'Playfair Display', serif;
+      color: var(--text-primary);
+    }
+    .kpi-card .kpi-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 4px;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    .report-table-wrap {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px;
+      overflow: hidden;
+    }
+    .report-table-wrap table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .report-table-wrap th {
+      background: rgba(255,255,255,0.05);
+      padding: 11px 16px;
+      text-align: left;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-family: 'DM Sans', sans-serif;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+    }
+    .report-table-wrap td {
+      padding: 11px 16px;
+      font-size: 13px;
+      font-family: 'DM Sans', sans-serif;
+      color: var(--text-primary);
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .report-table-wrap tr:last-child td { border-bottom: none; }
+    .report-table-wrap tr:hover td { background: rgba(255,255,255,0.03); }
+    .report-table-wrap .total-row td {
+      background: rgba(37,99,235,0.08);
+      font-weight: 600;
+      border-top: 1px solid rgba(37,99,235,0.2);
+    }
+
+    .profit-positive { color: #22c55e; }
+    .profit-negative { color: #ef4444; }
+    .text-right { text-align: right; }
+    .text-center { text-align: center; }
+
+    .export-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 9px 18px;
+      background: linear-gradient(135deg,#16a34a,#15803d);
+      border: none;
+      border-radius: 10px;
+      color: #fff;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(22,163,74,0.3);
+      transition: all 0.2s;
+    }
+    .export-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(22,163,74,0.4); }
+
+    .loading-overlay {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 60px;
+      color: var(--text-muted);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      gap: 12px;
+    }
+    .spinner {
+      width: 20px; height: 20px;
+      border: 2px solid rgba(255,255,255,0.1);
+      border-top-color: #2563eb;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .bar-chart-wrap { padding: 20px; }
+    .bar-chart { display: flex; align-items: flex-end; gap: 6px; height: 160px; }
+    .bar-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+    .bar-fill {
+      width: 100%;
+      border-radius: 4px 4px 0 0;
+      min-height: 4px;
+      transition: height 0.4s ease;
+    }
+    .bar-label { font-size: 10px; color: var(--text-muted); font-family: 'DM Sans', sans-serif; }
+    .bar-val { font-size: 10px; color: var(--text-muted); font-family: 'DM Sans', sans-serif; }
+
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 16px;
+      color: var(--text-primary);
+      margin-bottom: 14px;
+      margin-top: 28px;
+    }
+    .section-title:first-child { margin-top: 0; }
+
+    .mode-pills { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+    .mode-pill {
+      padding: 5px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 500;
+      border: 1px solid transparent;
+    }
+    .pill-cash   { background: rgba(34,197,94,0.12);  color: #22c55e;  border-color: rgba(34,197,94,0.2); }
+    .pill-upi    { background: rgba(99,102,241,0.12); color: #818cf8; border-color: rgba(99,102,241,0.2); }
+    .pill-credit { background: rgba(239,68,68,0.12);  color: #f87171; border-color: rgba(239,68,68,0.2); }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     SIDEBAR  (matches every other page exactly)
+════════════════════════════════════════════ -->
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="logo-mark">A</div>
+    <div>
+      <div class="brand-name">Abhinandan</div>
+      <div class="brand-sub">Auto Mobiles</div>
+    </div>
+  </div>
+  <ul class="nav-links">
+    <li><a href="dashboard.html"><span class="nav-icon">⊞</span> Dashboard</a></li>
+    <li><a href="billing.html"><span class="nav-icon">🧾</span> Sales Billing</a></li>
+    <li><a href="purchase-billing.html"><span class="nav-icon">📦</span> Purchase Billing</a></li>
+    <li><a href="products.html"><span class="nav-icon">🔧</span> Products</a></li>
+    <li><a href="customers.html"><span class="nav-icon">👥</span> Customers</a></li>
+    <li><a href="customer-ledger.html"><span class="nav-icon">📒</span> Customer Ledger</a></li>
+    <li><a href="merchants.html"><span class="nav-icon">🏪</span> Merchants</a></li>
+    <li><a href="merchant-ledger.html"><span class="nav-icon">📗</span> Merchant Ledger</a></li>
+    <li class="active"><a href="reports.html"><span class="nav-icon">📊</span> Reports</a></li>
+  </ul>
+</nav>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+<!-- ═══════════════════════════════════════════
+     MAIN CONTENT
+════════════════════════════════════════════ -->
+<main class="main-content">
+  <div class="page-header">
+    <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+    <div>
+      <h1 class="page-title">Reports</h1>
+      <p class="page-subtitle">Business analytics and financial summaries</p>
+    </div>
+  </div>
+
+  <!-- FILTER BAR -->
+  <div class="filter-bar">
+    <label>Period:</label>
+    <select id="periodSelect" onchange="onPeriodChange()">
+      <option value="this_month">This Month</option>
+      <option value="last_month">Last Month</option>
+      <option value="this_quarter">This Quarter</option>
+      <option value="this_year">This Financial Year</option>
+      <option value="custom">Custom Range</option>
+    </select>
+    <span id="customDateFields" style="display:none; gap:8px; align-items:center; display:none;">
+      <input type="date" id="dateFrom" onchange="loadActiveReport()"/>
+      <span style="color:var(--text-muted); font-size:12px;">to</span>
+      <input type="date" id="dateTo" onchange="loadActiveReport()"/>
+    </span>
+  </div>
+
+  <!-- TABS -->
+  <div class="report-tabs">
+    <button class="report-tab active" onclick="switchTab('sales')">📈 Sales</button>
+    <button class="report-tab" onclick="switchTab('purchases')">📦 Purchases</button>
+    <button class="report-tab" onclick="switchTab('pnl')">💰 Profit & Loss</button>
+    <button class="report-tab" onclick="switchTab('payments')">💳 Payment Modes</button>
+    <button class="report-tab" onclick="switchTab('products')">🔧 Top Products</button>
+    <button class="report-tab" onclick="switchTab('customers')">👥 Top Customers</button>
+  </div>
+
+  <!-- ─── TAB: SALES ─── -->
+  <div class="report-section active" id="section-sales">
+    <div id="salesKpis" class="kpi-row"></div>
+    <p class="section-title">Monthly Trend (Sales)</p>
+    <div class="report-table-wrap bar-chart-wrap" id="salesChartWrap">
+      <div class="loading-overlay"><div class="spinner"></div> Loading…</div>
+    </div>
+    <p class="section-title" style="margin-top:24px;">Detailed Breakdown</p>
+    <div style="margin-bottom:12px; display:flex; justify-content:flex-end;">
+      <button class="export-btn" onclick="exportCSV('sales')">⬇ Export CSV</button>
+    </div>
+    <div class="report-table-wrap" id="salesTable">
+      <div class="loading-overlay"><div class="spinner"></div> Loading…</div>
+    </div>
+  </div>
+
+  <!-- ─── TAB: PURCHASES ─── -->
+  <div class="report-section" id="section-purchases">
+    <div id="purchasesKpis" class="kpi-row"></div>
+    <p class="section-title">Detailed Breakdown</p>
+    <div style="margin-bottom:12px; display:flex; justify-content:flex-end;">
+      <button class="export-btn" onclick="exportCSV('purchases')">⬇ Export CSV</button>
+    </div>
+    <div class="report-table-wrap" id="purchasesTable">
+      <div class="loading-overlay"><div class="spinner"></div> Loading…</div>
+    </div>
+  </div>
+
+  <!-- ─── TAB: PROFIT & LOSS ─── -->
+  <div class="report-section" id="section-pnl">
+    <div id="pnlKpis" class="kpi-row"></div>
+    <p class="section-title">Profit & Loss Statement</p>
+    <div style="margin-bottom:12px; display:flex; justify-content:flex-end;">
+      <button class="export-btn" onclick="exportCSV('pnl')">⬇ Export CSV</button>
+    </div>
+    <div class="report-table-wrap" id="pnlTable">
+      <div class="loading-overlay"><div class="spinner"></div> Loading…</div>
+    </div>
+  </div>
+
+  <!-- ─── TAB: PAYMENT MODES ─── -->
+  <div class="report-section" id="section-payments">
+    <p class="section-title">Sales Payment Mode Analysis</p>
+    <div id="paymentKpis" class="kpi-row"></div>
+    <div class="report-table-wrap" id="paymentTable">
+      <div class="loading-overlay"><div class="spinner"></div> Loading…</div>
+    </div>
+    <p class="section-title">Purchase Payment Mode Analysis</p>
+    <div id="purchasePaymentKpis" class="kpi-row"></div>
+    <div class="report-table-wrap" id="purchasePaymentTable">
+      <div class="loading-overlay"><div class="spinner"></div> Loading…</div>
+    </div>
+  </div>
+
+  <!-- ─── TAB: TOP PRODUCTS ─── -->
+  <div class="report-section" id="section-products">
+    <div id="productsKpis" class="kpi-row"></div>
+    <p class="section-title">Top 20 Products by Revenue</p>
+    <div style="margin-bottom:12px; display:flex; justify-content:flex-end;">
+      <button class="export-btn" onclick="exportCSV('products')">⬇ Export CSV</button>
+    </div>
+    <div class="report-table-wrap" id="productsTable">
+      <div class="loading-overlay"><div class="spinner"></div> Loading…</div>
+    </div>
+  </div>
+
+  <!-- ─── TAB: TOP CUSTOMERS ─── -->
+  <div class="report-section" id="section-customers">
+    <div id="customersKpis" class="kpi-row"></div>
+    <p class="section-title">Top 20 Customers by Revenue</p>
+    <div style="margin-bottom:12px; display:flex; justify-content:flex-end;">
+      <button class="export-btn" onclick="exportCSV('customers')">⬇ Export CSV</button>
+    </div>
+    <div class="report-table-wrap" id="customersTable">
+      <div class="loading-overlay"><div class="spinner"></div> Loading…</div>
+    </div>
+  </div>
+
+</main>
+
+<!-- ═══════════════════════════════════════════
+     JAVASCRIPT
+════════════════════════════════════════════ -->
+<script>
+const SUPA_URL = 'https://mhhnmndnolhapaoqtbxo.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1oaG5tbmRub2xoYXBhb3F0YnhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4Mzg4NTksImV4cCI6MjA4ODQxNDg1OX0.IMSp8vYiCln_iSuoT_H2qdeX_dP1WMhOOskDw20eJXw';
+const { createClient } = supabase;
+const db = createClient(SUPA_URL, SUPA_KEY);
+
+// ─── State ───────────────────────────────────
+let activeTab = 'sales';
+let reportCache = {};   // cache data per tab+period to avoid re-fetching
+
+// ─── Utility: Date ranges ────────────────────
+function getDateRange() {
+  const period = document.getElementById('periodSelect').value;
+  const now = new Date();
+  let from, to;
+
+  if (period === 'this_month') {
+    from = new Date(now.getFullYear(), now.getMonth(), 1);
+    to   = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+  } else if (period === 'last_month') {
+    from = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    to   = new Date(now.getFullYear(), now.getMonth(), 0);
+  } else if (period === 'this_quarter') {
+    const q = Math.floor(now.getMonth() / 3);
+    from = new Date(now.getFullYear(), q * 3, 1);
+    to   = new Date(now.getFullYear(), q * 3 + 3, 0);
+  } else if (period === 'this_year') {
+    // Indian financial year: Apr 1 – Mar 31
+    const yr = now.getMonth() >= 3 ? now.getFullYear() : now.getFullYear() - 1;
+    from = new Date(yr, 3, 1);        // April 1
+    to   = new Date(yr + 1, 2, 31);  // March 31
+  } else if (period === 'custom') {
+    const f = document.getElementById('dateFrom').value;
+    const t = document.getElementById('dateTo').value;
+    if (!f || !t) return null;
+    from = new Date(f);
+    to   = new Date(t);
+  }
+
+  return {
+    from: from.toISOString().slice(0, 10),
+    to:   to.toISOString().slice(0, 10)
+  };
+}
+
+function onPeriodChange() {
+  const isCustom = document.getElementById('periodSelect').value === 'custom';
+  const el = document.getElementById('customDateFields');
+  el.style.display = isCustom ? 'flex' : 'none';
+  reportCache = {};   // clear cache when period changes
+  loadActiveReport();
+}
+
+// ─── Tab switching ────────────────────────────
+function switchTab(tab) {
+  activeTab = tab;
+  document.querySelectorAll('.report-tab').forEach((btn, i) => {
+    const tabs = ['sales','purchases','pnl','payments','products','customers'];
+    btn.classList.toggle('active', tabs[i] === tab);
+  });
+  document.querySelectorAll('.report-section').forEach(s => s.classList.remove('active'));
+  document.getElementById('section-' + tab).classList.add('active');
+  loadActiveReport();
+}
+
+function loadActiveReport() {
+  const range = getDateRange();
+  if (!range) return;
+  const cacheKey = activeTab + range.from + range.to;
+  if (reportCache[cacheKey]) return;   // already loaded
+  reportCache[cacheKey] = true;
+
+  if (activeTab === 'sales')     loadSalesReport(range);
+  if (activeTab === 'purchases') loadPurchasesReport(range);
+  if (activeTab === 'pnl')       loadPnLReport(range);
+  if (activeTab === 'payments')  loadPaymentsReport(range);
+  if (activeTab === 'products')  loadProductsReport(range);
+  if (activeTab === 'customers') loadCustomersReport(range);
+}
+
+// ─── Formatters ──────────────────────────────
+const fmt = n => '₹' + Number(n || 0).toLocaleString('en-IN', { maximumFractionDigits: 0 });
+const fmtN = n => Number(n || 0).toLocaleString('en-IN', { maximumFractionDigits: 0 });
+
+function kpiHtml(label, value, sub, colorVar) {
+  return `<div class="kpi-card" style="--kpi-color:${colorVar||'linear-gradient(90deg,#2563eb,#7c3aed)'}">
+    <div class="kpi-label">${label}</div>
+    <div class="kpi-value">${value}</div>
+    ${sub ? `<div class="kpi-sub">${sub}</div>` : ''}
+  </div>`;
+}
+
+// ═══════════════════════════════════
+// SALES REPORT
+// ═══════════════════════════════════
+async function loadSalesReport(range) {
+  // Fetch all sales bills (not returns) in range
+  const { data: sales } = await db
+    .from('sales')
+    .select('id, bill_number, created_at, total_amount, cash, upi, credit, discount, customer_id, bill_type')
+    .eq('bill_type', 'sale')
+    .gte('created_at', range.from + 'T00:00:00')
+    .lte('created_at', range.to + 'T23:59:59')
+    .order('created_at', { ascending: false });
+
+  const { data: returns } = await db
+    .from('sales')
+    .select('id, total_amount, created_at')
+    .eq('bill_type', 'return')
+    .gte('created_at', range.from + 'T00:00:00')
+    .lte('created_at', range.to + 'T23:59:59');
+
+  const totalSales   = (sales || []).reduce((s, r) => s + Number(r.total_amount), 0);
+  const totalReturns = (returns || []).reduce((s, r) => s + Number(r.total_amount), 0);
+  const netSales     = totalSales - totalReturns;
+  const totalCash    = (sales || []).reduce((s, r) => s + Number(r.cash || 0), 0);
+  const totalUpi     = (sales || []).reduce((s, r) => s + Number(r.upi  || 0), 0);
+  const totalCredit  = (sales || []).reduce((s, r) => s + Number(r.credit|| 0), 0);
+  const totalDisc    = (sales || []).reduce((s, r) => s + Number(r.discount|| 0), 0);
+  const avgBillVal   = sales && sales.length ? (totalSales / sales.length) : 0;
+
+  // KPIs
+  document.getElementById('salesKpis').innerHTML =
+    kpiHtml('Net Sales', fmt(netSales), `${(sales||[]).length} bills`, 'linear-gradient(90deg,#2563eb,#06b6d4)') +
+    kpiHtml('Gross Sales', fmt(totalSales), 'before returns', 'linear-gradient(90deg,#2563eb,#7c3aed)') +
+    kpiHtml('Returns', fmt(totalReturns), `${(returns||[]).length} returns`, 'linear-gradient(90deg,#dc2626,#f97316)') +
+    kpiHtml('Total Discount', fmt(totalDisc), 'given to customers', 'linear-gradient(90deg,#d97706,#f59e0b)') +
+    kpiHtml('Avg Bill Value', fmt(avgBillVal), 'per invoice', 'linear-gradient(90deg,#7c3aed,#a855f7)');
+
+  // Monthly bar chart — group by month
+  const monthMap = {};
+  (sales || []).forEach(s => {
+    const mo = s.created_at.slice(0, 7); // "2025-04"
+    monthMap[mo] = (monthMap[mo] || 0) + Number(s.total_amount);
+  });
+  const months = Object.keys(monthMap).sort();
+  const maxVal  = Math.max(...Object.values(monthMap), 1);
+
+  const bars = months.map(m => {
+    const val = monthMap[m];
+    const pct = Math.round((val / maxVal) * 100);
+    const label = new Date(m + '-01').toLocaleDateString('en-IN', { month: 'short', year: '2-digit' });
+    return `<div class="bar-item">
+      <div class="bar-val">${fmt(val)}</div>
+      <div class="bar-fill" style="height:${pct}%;background:linear-gradient(180deg,#2563eb,#7c3aed);"></div>
+      <div class="bar-label">${label}</div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('salesChartWrap').innerHTML = months.length
+    ? `<div class="bar-chart">${bars}</div>`
+    : `<div class="loading-overlay">No data for this period</div>`;
+
+  // Table
+  const rows = (sales || []).map(s =>
+    `<tr>
+      <td>${s.bill_number}</td>
+      <td>${new Date(s.created_at).toLocaleDateString('en-IN')}</td>
+      <td class="text-right">${fmt(s.total_amount)}</td>
+      <td class="text-right" style="color:#22c55e">${fmt(s.cash)}</td>
+      <td class="text-right" style="color:#818cf8">${fmt(s.upi)}</td>
+      <td class="text-right" style="color:#f87171">${fmt(s.credit)}</td>
+      <td class="text-right" style="color:#f59e0b">${fmt(s.discount)}</td>
+    </tr>`
+  ).join('');
+
+  document.getElementById('salesTable').innerHTML = `
+    <table>
+      <thead><tr>
+        <th>Bill No</th><th>Date</th>
+        <th class="text-right">Amount</th>
+        <th class="text-right">Cash</th>
+        <th class="text-right">UPI</th>
+        <th class="text-right">Credit</th>
+        <th class="text-right">Discount</th>
+      </tr></thead>
+      <tbody>${rows || '<tr><td colspan="7" class="text-center" style="padding:30px;color:var(--text-muted)">No sales in this period</td></tr>'}</tbody>
+      <tfoot><tr class="total-row">
+        <td colspan="2"><strong>TOTAL</strong></td>
+        <td class="text-right"><strong>${fmt(totalSales)}</strong></td>
+        <td class="text-right"><strong>${fmt(totalCash)}</strong></td>
+        <td class="text-right"><strong>${fmt(totalUpi)}</strong></td>
+        <td class="text-right"><strong>${fmt(totalCredit)}</strong></td>
+        <td class="text-right"><strong>${fmt(totalDisc)}</strong></td>
+      </tr></tfoot>
+    </table>`;
+
+  // Store for export
+  window._exportData = window._exportData || {};
+  window._exportData.sales = { headers: ['Bill No','Date','Amount','Cash','UPI','Credit','Discount'], rows: (sales||[]).map(s=>[s.bill_number, new Date(s.created_at).toLocaleDateString('en-IN'), s.total_amount, s.cash||0, s.upi||0, s.credit||0, s.discount||0]) };
+}
+
+// ═══════════════════════════════════
+// PURCHASES REPORT
+// ═══════════════════════════════════
+async function loadPurchasesReport(range) {
+  const { data: purchases } = await db
+    .from('purchases')
+    .select('id, bill_number, created_at, total_amount, cash, upi, credit, discount, merchant_name, bill_type')
+    .eq('bill_type', 'purchase')
+    .gte('created_at', range.from + 'T00:00:00')
+    .lte('created_at', range.to + 'T23:59:59')
+    .order('created_at', { ascending: false });
+
+  const { data: returns } = await db
+    .from('purchases')
+    .select('id, total_amount')
+    .eq('bill_type', 'return')
+    .gte('created_at', range.from + 'T00:00:00')
+    .lte('created_at', range.to + 'T23:59:59');
+
+  const total    = (purchases||[]).reduce((s,r)=>s+Number(r.total_amount),0);
+  const retTotal = (returns||[]).reduce((s,r)=>s+Number(r.total_amount),0);
+  const net      = total - retTotal;
+  const disc     = (purchases||[]).reduce((s,r)=>s+Number(r.discount||0),0);
+
+  document.getElementById('purchasesKpis').innerHTML =
+    kpiHtml('Net Purchases', fmt(net), `${(purchases||[]).length} bills`, 'linear-gradient(90deg,#d97706,#f59e0b)') +
+    kpiHtml('Gross Purchases', fmt(total), 'before returns', 'linear-gradient(90deg,#d97706,#f97316)') +
+    kpiHtml('Purchase Returns', fmt(retTotal), `${(returns||[]).length} returns`, 'linear-gradient(90deg,#dc2626,#f97316)') +
+    kpiHtml('Discount Received', fmt(disc), 'from merchants', 'linear-gradient(90deg,#16a34a,#22c55e)');
+
+  const rows = (purchases||[]).map(p =>
+    `<tr>
+      <td>${p.bill_number}</td>
+      <td>${new Date(p.created_at).toLocaleDateString('en-IN')}</td>
+      <td>${p.merchant_name || '—'}</td>
+      <td class="text-right">${fmt(p.total_amount)}</td>
+      <td class="text-right" style="color:#22c55e">${fmt(p.cash)}</td>
+      <td class="text-right" style="color:#818cf8">${fmt(p.upi)}</td>
+      <td class="text-right" style="color:#f87171">${fmt(p.credit)}</td>
+    </tr>`
+  ).join('');
+
+  const tCash   = (purchases||[]).reduce((s,r)=>s+Number(r.cash||0),0);
+  const tUpi    = (purchases||[]).reduce((s,r)=>s+Number(r.upi||0),0);
+  const tCredit = (purchases||[]).reduce((s,r)=>s+Number(r.credit||0),0);
+
+  document.getElementById('purchasesTable').innerHTML = `
+    <table>
+      <thead><tr>
+        <th>Bill No</th><th>Date</th><th>Merchant</th>
+        <th class="text-right">Amount</th>
+        <th class="text-right">Cash</th>
+        <th class="text-right">UPI</th>
+        <th class="text-right">Credit</th>
+      </tr></thead>
+      <tbody>${rows || '<tr><td colspan="7" class="text-center" style="padding:30px;color:var(--text-muted)">No purchases in this period</td></tr>'}</tbody>
+      <tfoot><tr class="total-row">
+        <td colspan="3"><strong>TOTAL</strong></td>
+        <td class="text-right"><strong>${fmt(total)}</strong></td>
+        <td class="text-right"><strong>${fmt(tCash)}</strong></td>
+        <td class="text-right"><strong>${fmt(tUpi)}</strong></td>
+        <td class="text-right"><strong>${fmt(tCredit)}</strong></td>
+      </tr></tfoot>
+    </table>`;
+
+  window._exportData = window._exportData || {};
+  window._exportData.purchases = { headers:['Bill No','Date','Merchant','Amount','Cash','UPI','Credit'], rows:(purchases||[]).map(p=>[p.bill_number,new Date(p.created_at).toLocaleDateString('en-IN'),p.merchant_name||'',p.total_amount,p.cash||0,p.upi||0,p.credit||0]) };
+}
+
+// ═══════════════════════════════════
+// PROFIT & LOSS REPORT
+// ═══════════════════════════════════
+async function loadPnLReport(range) {
+  // Sales grouped by month
+  const { data: sales } = await db
+    .from('sales')
+    .select('created_at, total_amount, bill_type')
+    .gte('created_at', range.from + 'T00:00:00')
+    .lte('created_at', range.to + 'T23:59:59');
+
+  const { data: purchases } = await db
+    .from('purchases')
+    .select('created_at, total_amount, bill_type')
+    .gte('created_at', range.from + 'T00:00:00')
+    .lte('created_at', range.to + 'T23:59:59');
+
+  // Group by month
+  const monthSales = {}, monthPurchases = {};
+  (sales||[]).forEach(s => {
+    const mo = s.created_at.slice(0,7);
+    const amt = Number(s.total_amount);
+    if (s.bill_type === 'sale')   monthSales[mo]      = (monthSales[mo]||0) + amt;
+    if (s.bill_type === 'return') monthSales[mo]      = (monthSales[mo]||0) - amt;
+  });
+  (purchases||[]).forEach(p => {
+    const mo = p.created_at.slice(0,7);
+    const amt = Number(p.total_amount);
+    if (p.bill_type === 'purchase') monthPurchases[mo] = (monthPurchases[mo]||0) + amt;
+    if (p.bill_type === 'return')   monthPurchases[mo] = (monthPurchases[mo]||0) - amt;
+  });
+
+  const allMonths = [...new Set([...Object.keys(monthSales), ...Object.keys(monthPurchases)])].sort();
+
+  let grandSales = 0, grandPurch = 0, grandProfit = 0;
+  const rows = allMonths.map(mo => {
+    const s = monthSales[mo] || 0;
+    const p = monthPurchases[mo] || 0;
+    const profit = s - p;
+    const margin = s > 0 ? ((profit/s)*100).toFixed(1) : '0.0';
+    grandSales += s; grandPurch += p; grandProfit += profit;
+    const cls = profit >= 0 ? 'profit-positive' : 'profit-negative';
+    const label = new Date(mo+'-01').toLocaleDateString('en-IN',{month:'long',year:'numeric'});
+    return `<tr>
+      <td>${label}</td>
+      <td class="text-right">${fmt(s)}</td>
+      <td class="text-right">${fmt(p)}</td>
+      <td class="text-right ${cls}"><strong>${fmt(profit)}</strong></td>
+      <td class="text-right ${cls}">${margin}%</td>
+    </tr>`;
+  }).join('');
+
+  const grandMargin = grandSales > 0 ? ((grandProfit/grandSales)*100).toFixed(1) : '0.0';
+  const profitCls = grandProfit >= 0 ? 'profit-positive' : 'profit-negative';
+
+  document.getElementById('pnlKpis').innerHTML =
+    kpiHtml('Total Revenue', fmt(grandSales), 'net of returns', 'linear-gradient(90deg,#2563eb,#06b6d4)') +
+    kpiHtml('Total Cost', fmt(grandPurch), 'net of returns', 'linear-gradient(90deg,#d97706,#f59e0b)') +
+    kpiHtml('Gross Profit', fmt(grandProfit), `${grandMargin}% margin`, grandProfit >= 0 ? 'linear-gradient(90deg,#16a34a,#22c55e)' : 'linear-gradient(90deg,#dc2626,#f97316)');
+
+  document.getElementById('pnlTable').innerHTML = `
+    <table>
+      <thead><tr>
+        <th>Month</th>
+        <th class="text-right">Net Sales</th>
+        <th class="text-right">Net Purchases</th>
+        <th class="text-right">Gross Profit</th>
+        <th class="text-right">Margin %</th>
+      </tr></thead>
+      <tbody>${rows || '<tr><td colspan="5" class="text-center" style="padding:30px;color:var(--text-muted)">No data for this period</td></tr>'}</tbody>
+      <tfoot><tr class="total-row">
+        <td><strong>TOTAL</strong></td>
+        <td class="text-right"><strong>${fmt(grandSales)}</strong></td>
+        <td class="text-right"><strong>${fmt(grandPurch)}</strong></td>
+        <td class="text-right ${profitCls}"><strong>${fmt(grandProfit)}</strong></td>
+        <td class="text-right ${profitCls}"><strong>${grandMargin}%</strong></td>
+      </tr></tfoot>
+    </table>`;
+
+  window._exportData = window._exportData || {};
+  window._exportData.pnl = { headers:['Month','Net Sales','Net Purchases','Gross Profit','Margin %'], rows: allMonths.map(mo=>{ const s=monthSales[mo]||0; const p=monthPurchases[mo]||0; return [new Date(mo+'-01').toLocaleDateString('en-IN',{month:'long',year:'numeric'}), s, p, s-p, s>0?(((s-p)/s)*100).toFixed(1)+'%':'0%']; }) };
+}
+
+// ═══════════════════════════════════
+// PAYMENT MODES REPORT
+// ═══════════════════════════════════
+async function loadPaymentsReport(range) {
+  const { data: sales } = await db
+    .from('sales')
+    .select('cash, upi, credit, bill_type')
+    .eq('bill_type', 'sale')
+    .gte('created_at', range.from + 'T00:00:00')
+    .lte('created_at', range.to + 'T23:59:59');
+
+  const { data: purch } = await db
+    .from('purchases')
+    .select('cash, upi, credit, bill_type')
+    .eq('bill_type', 'purchase')
+    .gte('created_at', range.from + 'T00:00:00')
+    .lte('created_at', range.to + 'T23:59:59');
+
+  const calc = (rows) => ({
+    cash:   (rows||[]).reduce((s,r)=>s+Number(r.cash||0),0),
+    upi:    (rows||[]).reduce((s,r)=>s+Number(r.upi||0),0),
+    credit: (rows||[]).reduce((s,r)=>s+Number(r.credit||0),0),
+  });
+
+  const s = calc(sales), p = calc(purch);
+  const sTotal = s.cash + s.upi + s.credit || 1;
+  const pTotal = p.cash + p.upi + p.credit || 1;
+
+  const modeTable = (data, total) => `
+    <table>
+      <thead><tr><th>Payment Mode</th><th class="text-right">Amount</th><th class="text-right">Share</th></tr></thead>
+      <tbody>
+        <tr><td><span class="mode-pill pill-cash">💵 Cash</span></td><td class="text-right">${fmt(data.cash)}</td><td class="text-right">${((data.cash/total)*100).toFixed(1)}%</td></tr>
+        <tr><td><span class="mode-pill pill-upi">📱 UPI</span></td><td class="text-right">${fmt(data.upi)}</td><td class="text-right">${((data.upi/total)*100).toFixed(1)}%</td></tr>
+        <tr><td><span class="mode-pill pill-credit">🔴 Credit</span></td><td class="text-right">${fmt(data.credit)}</td><td class="text-right">${((data.credit/total)*100).toFixed(1)}%</td></tr>
+      </tbody>
+      <tfoot><tr class="total-row"><td><strong>Total</strong></td><td class="text-right"><strong>${fmt(total)}</strong></td><td class="text-right"><strong>100%</strong></td></tr></tfoot>
+    </table>`;
+
+  document.getElementById('paymentKpis').innerHTML =
+    kpiHtml('Cash Collected', fmt(s.cash), `${((s.cash/sTotal)*100).toFixed(0)}% of sales`, 'linear-gradient(90deg,#16a34a,#22c55e)') +
+    kpiHtml('UPI Collected', fmt(s.upi), `${((s.upi/sTotal)*100).toFixed(0)}% of sales`, 'linear-gradient(90deg,#4f46e5,#818cf8)') +
+    kpiHtml('On Credit', fmt(s.credit), `${((s.credit/sTotal)*100).toFixed(0)}% of sales`, 'linear-gradient(90deg,#dc2626,#f87171)');
+
+  document.getElementById('paymentTable').innerHTML = modeTable(s, sTotal);
+
+  document.getElementById('purchasePaymentKpis').innerHTML =
+    kpiHtml('Cash Paid', fmt(p.cash), `${((p.cash/pTotal)*100).toFixed(0)}% of purchases`, 'linear-gradient(90deg,#16a34a,#22c55e)') +
+    kpiHtml('UPI Paid', fmt(p.upi), `${((p.upi/pTotal)*100).toFixed(0)}% of purchases`, 'linear-gradient(90deg,#4f46e5,#818cf8)') +
+    kpiHtml('Credit Payable', fmt(p.credit), `${((p.credit/pTotal)*100).toFixed(0)}% of purchases`, 'linear-gradient(90deg,#dc2626,#f87171)');
+
+  document.getElementById('purchasePaymentTable').innerHTML = modeTable(p, pTotal);
+}
+
+// ═══════════════════════════════════
+// TOP PRODUCTS REPORT
+// ═══════════════════════════════════
+async function loadProductsReport(range) {
+  // Join bill_items → inventory for item names
+  const { data: items } = await db
+    .from('bill_items')
+    .select('item_id, quantity, total, sale_id, sales!inner(created_at, bill_type)')
+    .eq('sales.bill_type', 'sale')
+    .gte('sales.created_at', range.from + 'T00:00:00')
+    .lte('sales.created_at', range.to + 'T23:59:59');
+
+  // Get inventory names
+  const { data: inv } = await db.from('inventory').select('id, item_name, category');
+  const invMap = {};
+  (inv||[]).forEach(i => { invMap[i.id] = i; });
+
+  // Aggregate by item_id
+  const productMap = {};
+  (items||[]).forEach(row => {
+    const id = row.item_id;
+    if (!productMap[id]) productMap[id] = { name: invMap[id]?.item_name || 'Unknown', category: invMap[id]?.category || '', qty: 0, revenue: 0 };
+    productMap[id].qty     += Number(row.quantity);
+    productMap[id].revenue += Number(row.total);
+  });
+
+  const sorted = Object.values(productMap).sort((a,b) => b.revenue - a.revenue).slice(0, 20);
+  const totalRev = sorted.reduce((s,p) => s + p.revenue, 0) || 1;
+
+  document.getElementById('productsKpis').innerHTML =
+    kpiHtml('Unique Products Sold', fmtN(Object.keys(productMap).length), 'in this period', 'linear-gradient(90deg,#7c3aed,#a855f7)') +
+    kpiHtml('Total Units Sold', fmtN(sorted.reduce((s,p)=>s+p.qty,0)), 'pieces / units', 'linear-gradient(90deg,#2563eb,#06b6d4)') +
+    kpiHtml('Top Product Revenue', fmt(sorted[0]?.revenue || 0), sorted[0]?.name || '—', 'linear-gradient(90deg,#d97706,#f59e0b)');
+
+  const rows = sorted.map((p, i) => {
+    const share = ((p.revenue / totalRev)*100).toFixed(1);
+    return `<tr>
+      <td style="color:var(--text-muted);font-weight:600">#${i+1}</td>
+      <td><strong>${p.name}</strong></td>
+      <td style="color:var(--text-muted)">${p.category}</td>
+      <td class="text-right">${fmtN(p.qty)}</td>
+      <td class="text-right">${fmt(p.revenue)}</td>
+      <td class="text-right">${share}%</td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('productsTable').innerHTML = `
+    <table>
+      <thead><tr><th>#</th><th>Product</th><th>Category</th><th class="text-right">Qty Sold</th><th class="text-right">Revenue</th><th class="text-right">Share</th></tr></thead>
+      <tbody>${rows || '<tr><td colspan="6" class="text-center" style="padding:30px;color:var(--text-muted)">No data for this period</td></tr>'}</tbody>
+    </table>`;
+
+  window._exportData = window._exportData || {};
+  window._exportData.products = { headers:['Rank','Product','Category','Qty Sold','Revenue','Share%'], rows: sorted.map((p,i)=>[i+1, p.name, p.category, p.qty, p.revenue, ((p.revenue/totalRev)*100).toFixed(1)+'%']) };
+}
+
+// ═══════════════════════════════════
+// TOP CUSTOMERS REPORT
+// ═══════════════════════════════════
+async function loadCustomersReport(range) {
+  const { data: sales } = await db
+    .from('sales')
+    .select('customer_id, total_amount, discount, customers(name, phone)')
+    .eq('bill_type', 'sale')
+    .gte('created_at', range.from + 'T00:00:00')
+    .lte('created_at', range.to + 'T23:59:59');
+
+  const custMap = {};
+  (sales||[]).forEach(s => {
+    const id = s.customer_id || 'walk-in';
+    const name = s.customers?.name || 'Walk-in / Unknown';
+    const phone = s.customers?.phone || '—';
+    if (!custMap[id]) custMap[id] = { name, phone, bills: 0, total: 0, discount: 0 };
+    custMap[id].bills++;
+    custMap[id].total   += Number(s.total_amount);
+    custMap[id].discount+= Number(s.discount||0);
+  });
+
+  const sorted = Object.values(custMap).sort((a,b) => b.total - a.total).slice(0, 20);
+  const grandTotal = sorted.reduce((s,c) => s + c.total, 0) || 1;
+
+  document.getElementById('customersKpis').innerHTML =
+    kpiHtml('Unique Customers', fmtN(Object.keys(custMap).length), 'made purchases', 'linear-gradient(90deg,#2563eb,#7c3aed)') +
+    kpiHtml('Total Bills', fmtN(sales?.length||0), 'in period', 'linear-gradient(90deg,#2563eb,#06b6d4)') +
+    kpiHtml('Top Customer', fmt(sorted[0]?.total||0), sorted[0]?.name||'—', 'linear-gradient(90deg,#d97706,#f59e0b)');
+
+  const rows = sorted.map((c,i) => {
+    const share = ((c.total/grandTotal)*100).toFixed(1);
+    const avg   = c.bills ? (c.total/c.bills).toFixed(0) : 0;
+    return `<tr>
+      <td style="color:var(--text-muted);font-weight:600">#${i+1}</td>
+      <td><strong>${c.name}</strong></td>
+      <td style="color:var(--text-muted)">${c.phone}</td>
+      <td class="text-center">${c.bills}</td>
+      <td class="text-right">${fmt(c.total)}</td>
+      <td class="text-right">${fmt(avg)}</td>
+      <td class="text-right">${share}%</td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('customersTable').innerHTML = `
+    <table>
+      <thead><tr><th>#</th><th>Customer</th><th>Phone</th><th class="text-center">Bills</th><th class="text-right">Total Revenue</th><th class="text-right">Avg Bill</th><th class="text-right">Share</th></tr></thead>
+      <tbody>${rows || '<tr><td colspan="7" class="text-center" style="padding:30px;color:var(--text-muted)">No data for this period</td></tr>'}</tbody>
+    </table>`;
+
+  window._exportData = window._exportData || {};
+  window._exportData.customers = { headers:['Rank','Customer','Phone','Bills','Total Revenue','Avg Bill','Share%'], rows: sorted.map((c,i)=>[i+1,c.name,c.phone,c.bills,c.total,(c.bills?c.total/c.bills:0).toFixed(0),((c.total/grandTotal)*100).toFixed(1)+'%']) };
+}
+
+// ═══════════════════════════════════
+// EXPORT TO CSV
+// ═══════════════════════════════════
+function exportCSV(tab) {
+  const data = (window._exportData || {})[tab];
+  if (!data) { alert('Please wait for data to load first.'); return; }
+
+  const range = getDateRange();
+  const period = document.getElementById('periodSelect').options[document.getElementById('periodSelect').selectedIndex].text;
+
+  // Build CSV string
+  const escape = v => `"${String(v).replace(/"/g,'""')}"`;
+  const lines = [
+    `"Abhinandan Auto Mobiles — ${tab.toUpperCase()} Report"`,
+    `"Period: ${period} (${range.from} to ${range.to})"`,
+    '',
+    data.headers.map(escape).join(','),
+    ...data.rows.map(r => r.map(escape).join(','))
+  ];
+
+  const csv  = lines.join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = `AAM-${tab}-report-${range.from}-to-${range.to}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ─── Sidebar toggle ───────────────────────────
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebarOverlay').classList.toggle('active');
+}
+
+// ─── Init ─────────────────────────────────────
+loadActiveReport();
+</script>
+</body>
+</html>
