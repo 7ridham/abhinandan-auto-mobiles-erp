@@ -7,348 +7,97 @@
 <link rel="stylesheet" href="style.css">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-/* ══════════════════════════════════════
-   REPORTS PAGE — INLINE STYLES
-   Matches dashboard.html pattern exactly
-══════════════════════════════════════ */
+.period-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:22px;}
+.period-btn{padding:7px 16px;border-radius:20px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.5);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.18s;white-space:nowrap;}
+.period-btn:hover{background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.85);}
+.period-btn.active{background:linear-gradient(135deg,#2563eb,#7c3aed);border-color:transparent;color:#fff;box-shadow:0 3px 12px rgba(37,99,235,0.4);}
+.custom-range{display:none;align-items:center;gap:8px;flex-wrap:wrap;}
+.custom-range.show{display:flex;}
+.custom-range input[type="date"]{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;color:#fff;padding:6px 10px;font-family:'DM Sans',sans-serif;font-size:12px;outline:none;}
+.custom-range input[type="date"]::-webkit-calendar-picker-indicator{filter:invert(0.7);}
 
-/* ─ Period Selector Bar ─ */
-.period-bar {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin-bottom: 22px;
-}
-.period-btn {
-  padding: 7px 16px;
-  border-radius: 20px;
-  border: 1px solid rgba(255,255,255,0.1);
-  background: rgba(255,255,255,0.05);
-  color: rgba(255,255,255,0.5);
-  font-family: 'DM Sans', sans-serif;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.18s;
-  white-space: nowrap;
-}
-.period-btn:hover { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.85); }
-.period-btn.active {
-  background: linear-gradient(135deg, #2563eb, #7c3aed);
-  border-color: transparent;
-  color: #fff;
-  box-shadow: 0 3px 12px rgba(37,99,235,0.4);
-}
-.custom-range {
-  display: none;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-.custom-range.show { display: flex; }
-.custom-range input[type="date"] {
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.12);
-  border-radius: 8px;
-  color: #fff;
-  padding: 6px 10px;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 12px;
-  outline: none;
-}
-.custom-range input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(0.7); }
+.report-tabs{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:22px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:14px;padding:6px;}
+.r-tab{padding:9px 18px;border-radius:10px;border:none;background:transparent;color:rgba(255,255,255,0.45);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.18s;white-space:nowrap;}
+.r-tab:hover{color:rgba(255,255,255,0.8);background:rgba(255,255,255,0.06);}
+.r-tab.active{background:linear-gradient(135deg,rgba(37,99,235,0.25),rgba(124,58,237,0.25));color:#fff;border:1px solid rgba(37,99,235,0.3);}
+.r-section{display:none;}
+.r-section.active{display:block;}
 
-/* ─ Report Tabs ─ */
-.report-tabs {
-  display: flex;
-  gap: 4px;
-  flex-wrap: wrap;
-  margin-bottom: 22px;
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.07);
-  border-radius: 14px;
-  padding: 6px;
-}
-.r-tab {
-  padding: 9px 18px;
-  border-radius: 10px;
-  border: none;
-  background: transparent;
-  color: rgba(255,255,255,0.45);
-  font-family: 'DM Sans', sans-serif;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.18s;
-  white-space: nowrap;
-}
-.r-tab:hover { color: rgba(255,255,255,0.8); background: rgba(255,255,255,0.06); }
-.r-tab.active {
-  background: linear-gradient(135deg, rgba(37,99,235,0.25), rgba(124,58,237,0.25));
-  color: #fff;
-  border: 1px solid rgba(37,99,235,0.3);
-}
-.r-section { display: none; }
-.r-section.active { display: block; }
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;}
+@media(max-width:1100px){.kpi-grid{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:600px){.kpi-grid{grid-template-columns:1fr 1fr;}}
+.kpi-card{background:linear-gradient(135deg,rgba(255,255,255,0.07),rgba(255,255,255,0.03));border:1px solid rgba(255,255,255,0.09);border-radius:14px;padding:16px 18px;position:relative;overflow:hidden;transition:transform 0.2s;}
+.kpi-card:hover{transform:translateY(-2px);}
+.kpi-card::before{content:'';position:absolute;top:0;left:10%;right:10%;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.18),transparent);}
+.kpi-accent{position:absolute;top:0;left:0;right:0;height:2px;border-radius:14px 14px 0 0;}
+.kpi-icon{font-size:20px;margin-bottom:8px;}
+.kpi-label{font-size:10px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:rgba(255,255,255,0.32);margin-bottom:5px;font-family:'DM Sans',sans-serif;}
+.kpi-value{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:#fff;line-height:1.1;}
+.kpi-sub{font-size:11px;color:rgba(255,255,255,0.3);margin-top:4px;font-family:'DM Sans',sans-serif;}
 
-/* ─ KPI Grid ─ */
-.kpi-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 14px;
-  margin-bottom: 20px;
-}
-@media(max-width:1100px){ .kpi-grid { grid-template-columns: repeat(2,1fr); } }
-@media(max-width:600px){  .kpi-grid { grid-template-columns: 1fr 1fr; } }
+.report-card{background:linear-gradient(135deg,rgba(255,255,255,0.07),rgba(255,255,255,0.03));border:1px solid rgba(255,255,255,0.09);border-radius:16px;overflow:hidden;margin-bottom:20px;position:relative;}
+.report-card::before{content:'';position:absolute;top:0;left:10%;right:10%;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.18),transparent);}
+.report-card-header{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid rgba(255,255,255,0.07);flex-wrap:wrap;gap:10px;}
+.report-card-title{font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.35);}
+.rtbl{width:100%;border-collapse:collapse;}
+.rtbl thead th{padding:10px 16px;font-size:10px;font-weight:600;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid rgba(255,255,255,0.07);text-align:left;font-family:'DM Sans',sans-serif;white-space:nowrap;}
+.rtbl td{padding:10px 16px;font-size:13px;font-family:'DM Sans',sans-serif;color:rgba(255,255,255,0.8);border-bottom:1px solid rgba(255,255,255,0.04);}
+.rtbl tr:last-child td{border-bottom:none;}
+.rtbl tbody tr:hover td{background:rgba(255,255,255,0.03);}
+.rtbl tfoot tr td{background:rgba(37,99,235,0.07);font-weight:700;color:#fff;border-top:1px solid rgba(37,99,235,0.2);}
+.tr{text-align:right;}.tc{text-align:center;}
+.green{color:#34d399!important;}.red{color:#f87171!important;}.amber{color:#fbbf24!important;}.blue{color:#60a5fa!important;}.purple{color:#a78bfa!important;}
 
-.kpi-card {
-  background: linear-gradient(135deg, rgba(255,255,255,0.07), rgba(255,255,255,0.03));
-  border: 1px solid rgba(255,255,255,0.09);
-  border-radius: 14px;
-  padding: 16px 18px;
-  position: relative;
-  overflow: hidden;
-  transition: transform 0.2s;
-}
-.kpi-card:hover { transform: translateY(-2px); }
-.kpi-card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 10%; right: 10%; height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent);
-}
-.kpi-accent {
-  position: absolute;
-  top: 0; left: 0; right: 0; height: 2px;
-  border-radius: 14px 14px 0 0;
-}
-.kpi-icon { font-size: 20px; margin-bottom: 8px; }
-.kpi-label {
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 1.2px;
-  text-transform: uppercase;
-  color: rgba(255,255,255,0.32);
-  margin-bottom: 5px;
-  font-family: 'DM Sans', sans-serif;
-}
-.kpi-value {
-  font-family: 'Playfair Display', serif;
-  font-size: 22px;
-  font-weight: 700;
-  color: #fff;
-  line-height: 1.1;
-}
-.kpi-sub {
-  font-size: 11px;
-  color: rgba(255,255,255,0.3);
-  margin-top: 4px;
-  font-family: 'DM Sans', sans-serif;
-}
+.rank-badge{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:6px;font-size:11px;font-weight:700;font-family:'DM Sans',sans-serif;}
+.rank-1{background:rgba(251,191,36,0.2);color:#fbbf24;}
+.rank-2{background:rgba(148,163,184,0.2);color:#94a3b8;}
+.rank-3{background:rgba(180,83,9,0.2);color:#b45309;}
+.rank-n{background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.35);}
 
-/* ─ Report Table ─ */
-.report-card {
-  background: linear-gradient(135deg, rgba(255,255,255,0.07), rgba(255,255,255,0.03));
-  border: 1px solid rgba(255,255,255,0.09);
-  border-radius: 16px;
-  overflow: hidden;
-  margin-bottom: 20px;
-  position: relative;
-}
-.report-card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 10%; right: 10%; height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent);
-}
-.report-card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 16px 20px;
-  border-bottom: 1px solid rgba(255,255,255,0.07);
-  flex-wrap: wrap;
-  gap: 10px;
-}
-.report-card-title {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  color: rgba(255,255,255,0.35);
-}
-.rtbl {
-  width: 100%;
-  border-collapse: collapse;
-}
-.rtbl thead th {
-  padding: 10px 16px;
-  font-size: 10px;
-  font-weight: 600;
-  color: rgba(255,255,255,0.3);
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  border-bottom: 1px solid rgba(255,255,255,0.07);
-  text-align: left;
-  font-family: 'DM Sans', sans-serif;
-  white-space: nowrap;
-}
-.rtbl td {
-  padding: 10px 16px;
-  font-size: 13px;
-  font-family: 'DM Sans', sans-serif;
-  color: rgba(255,255,255,0.8);
-  border-bottom: 1px solid rgba(255,255,255,0.04);
-}
-.rtbl tr:last-child td { border-bottom: none; }
-.rtbl tbody tr:hover td { background: rgba(255,255,255,0.03); }
-.rtbl .tfoot-row td {
-  background: rgba(37,99,235,0.07);
-  font-weight: 700;
-  color: #fff;
-  border-top: 1px solid rgba(37,99,235,0.2);
-}
-.tr { text-align: right; }
-.tc { text-align: center; }
-.num { font-family: 'DM Sans', sans-serif; font-variant-numeric: tabular-nums; }
-.green { color: #34d399 !important; }
-.red   { color: #f87171 !important; }
-.amber { color: #fbbf24 !important; }
-.blue  { color: #60a5fa !important; }
-.purple{ color: #a78bfa !important; }
+.bar-chart-wrap{padding:16px 20px 8px;overflow-x:auto;}
+.bar-chart-inner{display:flex;align-items:flex-end;gap:8px;height:130px;min-width:300px;}
+.bc-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;min-width:36px;}
+.bc-bar{width:100%;border-radius:4px 4px 0 0;min-height:4px;transition:height 0.4s ease;}
+.bc-label{font-size:10px;color:rgba(255,255,255,0.3);font-family:'DM Sans',sans-serif;text-align:center;}
+.bc-val{font-size:9px;color:rgba(255,255,255,0.4);font-family:'DM Sans',sans-serif;white-space:nowrap;}
 
-/* ─ Rank badge ─ */
-.rank-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px; height: 24px;
-  border-radius: 6px;
-  font-size: 11px;
-  font-weight: 700;
-  font-family: 'DM Sans', sans-serif;
-}
-.rank-1 { background: rgba(251,191,36,0.2); color: #fbbf24; }
-.rank-2 { background: rgba(148,163,184,0.2); color: #94a3b8; }
-.rank-3 { background: rgba(180,83,9,0.2);   color: #b45309; }
-.rank-n { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.35); }
+.mode-pill{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;font-family:'DM Sans',sans-serif;}
+.pill-cash{background:rgba(52,211,153,0.12);color:#34d399;border:1px solid rgba(52,211,153,0.2);}
+.pill-upi{background:rgba(96,165,250,0.12);color:#60a5fa;border:1px solid rgba(96,165,250,0.2);}
+.pill-credit{background:rgba(248,113,113,0.12);color:#f87171;border:1px solid rgba(248,113,113,0.2);}
 
-/* ─ Bar chart ─ */
-.bar-chart-wrap {
-  padding: 16px 20px 8px;
-  overflow-x: auto;
-}
-.bar-chart-inner {
-  display: flex;
-  align-items: flex-end;
-  gap: 8px;
-  height: 130px;
-  min-width: 300px;
-}
-.bc-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; min-width: 36px; }
-.bc-bar {
-  width: 100%;
-  border-radius: 4px 4px 0 0;
-  min-height: 4px;
-  transition: height 0.4s ease;
-}
-.bc-label { font-size: 10px; color: rgba(255,255,255,0.3); font-family:'DM Sans',sans-serif; text-align:center; }
-.bc-val   { font-size: 9px;  color: rgba(255,255,255,0.4); font-family:'DM Sans',sans-serif; white-space:nowrap; }
+.profit-meter{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:20px;}
+@media(max-width:600px){.profit-meter{grid-template-columns:1fr;}}
+.pm-card{background:linear-gradient(135deg,rgba(255,255,255,0.07),rgba(255,255,255,0.03));border:1px solid rgba(255,255,255,0.09);border-radius:14px;padding:20px;text-align:center;}
+.pm-label{font-size:10px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:rgba(255,255,255,0.32);margin-bottom:8px;font-family:'DM Sans',sans-serif;}
+.pm-value{font-family:'Playfair Display',serif;font-size:28px;font-weight:700;}
+.profit-bar-wrap{margin:12px 0 6px;height:8px;border-radius:4px;background:rgba(255,255,255,0.08);overflow:hidden;}
+.profit-bar-fill{height:100%;border-radius:4px;transition:width 0.6s ease;}
+.profit-split{display:flex;justify-content:space-between;font-size:11px;color:rgba(255,255,255,0.3);font-family:'DM Sans',sans-serif;margin-top:4px;}
 
-/* ─ Mode pills ─ */
-.mode-pill {
-  display: inline-block;
-  padding: 3px 10px;
-  border-radius: 20px;
-  font-size: 11px;
-  font-weight: 600;
-  font-family: 'DM Sans', sans-serif;
-}
-.pill-cash   { background:rgba(52,211,153,0.12); color:#34d399; border:1px solid rgba(52,211,153,0.2); }
-.pill-upi    { background:rgba(96,165,250,0.12); color:#60a5fa; border:1px solid rgba(96,165,250,0.2); }
-.pill-credit { background:rgba(248,113,113,0.12);color:#f87171; border:1px solid rgba(248,113,113,0.2); }
+.export-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 16px;background:rgba(52,211,153,0.12);border:1px solid rgba(52,211,153,0.25);border-radius:20px;color:#34d399;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.18s;}
+.export-btn:hover{background:rgba(52,211,153,0.2);transform:translateY(-1px);}
 
-/* ─ Profit meter ─ */
-.profit-meter {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 14px;
-  margin-bottom: 20px;
-}
-@media(max-width:600px){ .profit-meter { grid-template-columns: 1fr; } }
-.pm-card {
-  background: linear-gradient(135deg,rgba(255,255,255,0.07),rgba(255,255,255,0.03));
-  border: 1px solid rgba(255,255,255,0.09);
-  border-radius: 14px;
-  padding: 20px;
-  text-align: center;
-}
-.pm-label { font-size:10px; font-weight:600; letter-spacing:1.2px; text-transform:uppercase; color:rgba(255,255,255,0.32); margin-bottom:8px; font-family:'DM Sans',sans-serif; }
-.pm-value { font-family:'Playfair Display',serif; font-size:28px; font-weight:700; }
-.profit-bar-wrap { margin: 12px 0 6px; height:8px; border-radius:4px; background:rgba(255,255,255,0.08); overflow:hidden; }
-.profit-bar-fill { height:100%; border-radius:4px; background:linear-gradient(90deg,#059669,#34d399); transition:width 0.6s ease; }
-.profit-split { display:flex; justify-content:space-between; font-size:11px; color:rgba(255,255,255,0.3); font-family:'DM Sans',sans-serif; margin-top:4px; }
-
-/* ─ Export button ─ */
-.export-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 7px 16px;
-  background: rgba(52,211,153,0.12);
-  border: 1px solid rgba(52,211,153,0.25);
-  border-radius: 20px;
-  color: #34d399;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.18s;
-}
-.export-btn:hover { background: rgba(52,211,153,0.2); transform: translateY(-1px); }
-
-/* ─ Skeleton loader ─ */
-.skel {
-  background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.4s infinite;
-  border-radius: 6px;
-}
-@keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
-.skel-kpi { height: 80px; border-radius: 14px; }
-.skel-row { height: 40px; margin-bottom: 4px; }
-
-/* ─ Empty state ─ */
-.empty-state {
-  text-align: center;
-  padding: 40px 20px;
-  color: rgba(255,255,255,0.3);
-  font-family: 'DM Sans', sans-serif;
-  font-size: 13px;
-}
-
-/* ─ Two-col layout matching dashboard ─ */
-.rep-two-col { display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:20px; }
-@media(max-width:900px){ .rep-two-col { grid-template-columns:1fr; } }
-
-/* ─ Progress bar inside table ─ */
-.tbl-bar-wrap { display:flex; align-items:center; gap:8px; }
-.tbl-bar { flex:1; height:5px; border-radius:3px; background:rgba(255,255,255,0.07); overflow:hidden; min-width:60px; }
-.tbl-bar-fill { height:100%; border-radius:3px; }
-
-/* ─ Page-level scroll on mobile ─ */
-@media(max-width:600px){
-  .report-tabs { gap: 4px; padding: 5px; }
-  .r-tab { padding: 8px 12px; font-size: 12px; }
-  .kpi-value { font-size: 18px; }
-  .rtbl td, .rtbl th { padding: 9px 10px; font-size: 12px; }
-}
+.skel{background:linear-gradient(90deg,rgba(255,255,255,0.05) 25%,rgba(255,255,255,0.1) 50%,rgba(255,255,255,0.05) 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:6px;}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.skel-kpi{height:80px;border-radius:14px;}
+.skel-row{height:40px;margin-bottom:4px;}
+.empty-state{text-align:center;padding:40px 20px;color:rgba(255,255,255,0.3);font-family:'DM Sans',sans-serif;font-size:13px;}
+.rep-two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px;}
+@media(max-width:900px){.rep-two-col{grid-template-columns:1fr;}}
+.tbl-bar-wrap{display:flex;align-items:center;gap:8px;}
+.tbl-bar{flex:1;height:5px;border-radius:3px;background:rgba(255,255,255,0.07);overflow:hidden;min-width:60px;}
+.tbl-bar-fill{height:100%;border-radius:3px;}
+.pay-row-item{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
+.pay-bar-wrap{flex:1;}
+.pay-bar-nums{display:flex;justify-content:space-between;margin-bottom:4px;}
+.pay-bar-num{font-size:13px;font-family:'DM Sans',sans-serif;color:rgba(255,255,255,0.8);}
+.pay-bar-pct{font-size:11px;color:rgba(255,255,255,0.35);}
+@media(max-width:600px){.r-tab{padding:8px 12px;font-size:12px;}.kpi-value{font-size:18px;}.rtbl td,.rtbl th{padding:9px 10px;font-size:12px;}}
 </style>
 </head>
 <body>
 
-<!-- ═══════════════ SIDEBAR (exact same as dashboard.html) ═══════════════ -->
 <div class="sidebar">
   <h2>Auto ERP</h2>
   <div class="sidebar-divider"></div>
@@ -366,17 +115,11 @@
   <div class="sidebar-bottom"><div class="sidebar-version">Auto ERP v1.0</div></div>
 </div>
 
-<!-- ═══════════════ MAIN ═══════════════ -->
 <div class="main">
-
-  <!-- PAGE HEADER — same style as dashboard -->
   <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;flex-wrap:wrap;gap:10px;">
     <div>
       <h1>Reports</h1>
-      <div style="font-size:13px;color:rgba(255,255,255,0.35);margin-top:3px;">Business analytics & financial summaries</div>
-    </div>
-    <div id="exportAllBtn" style="display:none;">
-      <button class="export-btn" onclick="exportCurrentTab()" style="padding:9px 20px;font-size:13px;">⬇ Export CSV</button>
+      <div style="font-size:13px;color:rgba(255,255,255,0.35);margin-top:3px;">Business analytics &amp; financial summaries</div>
     </div>
   </div>
 
@@ -400,81 +143,63 @@
   <div class="report-tabs">
     <button class="r-tab active" onclick="switchTab('sales',this)">📈 Sales</button>
     <button class="r-tab" onclick="switchTab('purchases',this)">📦 Purchases</button>
-    <button class="r-tab" onclick="switchTab('pnl',this)">💹 Profit & Loss</button>
+    <button class="r-tab" onclick="switchTab('pnl',this)">💹 Profit &amp; Loss</button>
     <button class="r-tab" onclick="switchTab('payments',this)">💳 Payments</button>
     <button class="r-tab" onclick="switchTab('products',this)">🔧 Top Products</button>
     <button class="r-tab" onclick="switchTab('customers',this)">👥 Top Customers</button>
   </div>
 
-  <!-- ─────────────────────────── TAB: SALES ─────────────────────────── -->
+  <!-- TAB: SALES -->
   <div class="r-section active" id="tab-sales">
     <div class="kpi-grid" id="salesKpis">
-      <div class="skel skel-kpi"></div><div class="skel skel-kpi"></div>
-      <div class="skel skel-kpi"></div><div class="skel skel-kpi"></div>
+      <div class="skel skel-kpi"></div><div class="skel skel-kpi"></div><div class="skel skel-kpi"></div><div class="skel skel-kpi"></div>
     </div>
     <div class="rep-two-col">
       <div class="report-card">
-        <div class="report-card-header">
-          <div class="report-card-title">📊 Monthly Sales Trend</div>
-        </div>
-        <div class="bar-chart-wrap">
-          <div class="bar-chart-inner" id="salesChart">
-            <div style="color:rgba(255,255,255,0.3);font-size:13px;padding:20px;">Loading chart…</div>
-          </div>
-        </div>
+        <div class="report-card-header"><div class="report-card-title">📊 Sales Trend by Month</div></div>
+        <div class="bar-chart-wrap"><div class="bar-chart-inner" id="salesChart"><div style="color:rgba(255,255,255,0.3);font-size:13px;">Loading…</div></div></div>
       </div>
       <div class="report-card">
-        <div class="report-card-header">
-          <div class="report-card-title">💳 Payment Split</div>
-        </div>
-        <div style="padding:20px;" id="salesPaySplit">
-          <div class="skel skel-row"></div><div class="skel skel-row"></div><div class="skel skel-row"></div>
-        </div>
+        <div class="report-card-header"><div class="report-card-title">💳 Payment Split</div></div>
+        <div style="padding:20px;" id="salesPaySplit"><div class="skel skel-row"></div><div class="skel skel-row" style="margin-top:8px;"></div><div class="skel skel-row" style="margin-top:8px;"></div></div>
       </div>
     </div>
     <div class="report-card">
       <div class="report-card-header">
         <div class="report-card-title">🧾 All Sales Bills</div>
-        <button class="export-btn" onclick="exportCSV('sales')">⬇ Export</button>
+        <button class="export-btn" onclick="exportCSV('sales')">⬇ Export CSV</button>
       </div>
       <div style="overflow-x:auto;">
         <table class="rtbl" id="salesTable">
-          <thead><tr>
-            <th>Bill No</th><th>Date</th><th>Customer</th>
-            <th class="tr">Amount</th><th class="tr">Cash</th>
-            <th class="tr">UPI</th><th class="tr">Credit</th><th class="tr">Discount</th>
-          </tr></thead>
+          <thead><tr><th>Bill No</th><th>Date</th><th>Customer</th><th class="tr">Amount</th><th class="tr">Cash</th><th class="tr">UPI</th><th class="tr">Credit</th><th class="tr">Discount</th></tr></thead>
           <tbody id="salesBody"><tr><td colspan="8"><div class="skel skel-row"></div></td></tr></tbody>
+          <tfoot id="salesFoot"></tfoot>
         </table>
       </div>
     </div>
   </div>
 
-  <!-- ─────────────────────────── TAB: PURCHASES ─────────────────────────── -->
+  <!-- TAB: PURCHASES -->
   <div class="r-section" id="tab-purchases">
     <div class="kpi-grid" id="purchKpis">
-      <div class="skel skel-kpi"></div><div class="skel skel-kpi"></div>
-      <div class="skel skel-kpi"></div><div class="skel skel-kpi"></div>
+      <div class="skel skel-kpi"></div><div class="skel skel-kpi"></div><div class="skel skel-kpi"></div><div class="skel skel-kpi"></div>
     </div>
     <div class="report-card">
       <div class="report-card-header">
         <div class="report-card-title">📦 All Purchase Bills</div>
-        <button class="export-btn" onclick="exportCSV('purchases')">⬇ Export</button>
+        <button class="export-btn" onclick="exportCSV('purchases')">⬇ Export CSV</button>
       </div>
       <div style="overflow-x:auto;">
         <table class="rtbl">
-          <thead><tr>
-            <th>Bill No</th><th>Date</th><th>Merchant</th>
-            <th class="tr">Amount</th><th class="tr">Cash</th>
-            <th class="tr">UPI</th><th class="tr">Credit</th><th class="tr">Discount</th>
-          </tr></thead>
+          <thead><tr><th>Bill No</th><th>Date</th><th>Merchant</th><th class="tr">Amount</th><th class="tr">Cash</th><th class="tr">UPI</th><th class="tr">Credit</th><th class="tr">Discount</th></tr></thead>
           <tbody id="purchBody"><tr><td colspan="8"><div class="skel skel-row"></div></td></tr></tbody>
+          <tfoot id="purchFoot"></tfoot>
         </table>
       </div>
     </div>
   </div>
 
-  <!-- ─────────────────────────── TAB: P&L ─────────────────────────── -->
+  <!-- TAB: P&L -->
   <div class="r-section" id="tab-pnl">
     <div class="profit-meter" id="pnlMeter">
       <div class="skel" style="height:110px;border-radius:14px;"></div>
@@ -483,41 +208,38 @@
     </div>
     <div class="report-card">
       <div class="report-card-header">
-        <div class="report-card-title">💹 Month-by-Month Profit & Loss</div>
-        <button class="export-btn" onclick="exportCSV('pnl')">⬇ Export</button>
+        <div class="report-card-title">💹 Month-by-Month Profit &amp; Loss</div>
+        <button class="export-btn" onclick="exportCSV('pnl')">⬇ Export CSV</button>
       </div>
       <div style="overflow-x:auto;">
         <table class="rtbl">
-          <thead><tr>
-            <th>Month</th>
-            <th class="tr">Net Sales</th><th class="tr">Net Purchases</th>
-            <th class="tr">Gross Profit</th><th class="tr">Margin %</th>
-          </tr></thead>
+          <thead><tr><th>Month</th><th class="tr">Net Sales</th><th class="tr">Net Purchases</th><th class="tr">Gross Profit</th><th class="tr">Margin %</th></tr></thead>
           <tbody id="pnlBody"><tr><td colspan="5"><div class="skel skel-row"></div></td></tr></tbody>
+          <tfoot id="pnlFoot"></tfoot>
         </table>
       </div>
     </div>
   </div>
 
-  <!-- ─────────────────────────── TAB: PAYMENTS ─────────────────────────── -->
+  <!-- TAB: PAYMENTS -->
   <div class="r-section" id="tab-payments">
     <div class="kpi-grid" id="payKpis" style="grid-template-columns:repeat(3,1fr);">
       <div class="skel skel-kpi"></div><div class="skel skel-kpi"></div><div class="skel skel-kpi"></div>
     </div>
     <div class="rep-two-col">
       <div class="report-card">
-        <div class="report-card-header"><div class="report-card-title">📤 Sales — Collection Analysis</div></div>
+        <div class="report-card-header"><div class="report-card-title">📤 Sales — Collection Breakdown</div></div>
         <div style="padding:20px;" id="salesCollect"><div class="skel skel-row"></div></div>
       </div>
       <div class="report-card">
-        <div class="report-card-header"><div class="report-card-title">📥 Purchase — Payment Analysis</div></div>
+        <div class="report-card-header"><div class="report-card-title">📥 Purchases — Payment Breakdown</div></div>
         <div style="padding:20px;" id="purchCollect"><div class="skel skel-row"></div></div>
       </div>
     </div>
     <div class="report-card">
       <div class="report-card-header">
         <div class="report-card-title">🧾 Customer Payment Receipts</div>
-        <button class="export-btn" onclick="exportCSV('receipts')">⬇ Export</button>
+        <button class="export-btn" onclick="exportCSV('receipts')">⬇ Export CSV</button>
       </div>
       <div style="overflow-x:auto;">
         <table class="rtbl">
@@ -528,7 +250,7 @@
     </div>
   </div>
 
-  <!-- ─────────────────────────── TAB: TOP PRODUCTS ─────────────────────────── -->
+  <!-- TAB: TOP PRODUCTS -->
   <div class="r-section" id="tab-products">
     <div class="kpi-grid" id="prodKpis" style="grid-template-columns:repeat(3,1fr);">
       <div class="skel skel-kpi"></div><div class="skel skel-kpi"></div><div class="skel skel-kpi"></div>
@@ -536,22 +258,18 @@
     <div class="report-card">
       <div class="report-card-header">
         <div class="report-card-title">🏆 Top Products by Revenue</div>
-        <button class="export-btn" onclick="exportCSV('products')">⬇ Export</button>
+        <button class="export-btn" onclick="exportCSV('products')">⬇ Export CSV</button>
       </div>
       <div style="overflow-x:auto;">
         <table class="rtbl">
-          <thead><tr>
-            <th class="tc">#</th><th>Product</th><th>Category</th>
-            <th class="tr">Qty Sold</th><th class="tr">Revenue</th>
-            <th class="tr" style="min-width:120px;">Revenue Share</th>
-          </tr></thead>
-          <tbody id="prodBody"><tr><td colspan="6"><div class="skel skel-row"></div></td></tr></tbody>
+          <thead><tr><th class="tc">#</th><th>Product</th><th class="tr">Qty Sold</th><th class="tr">Revenue</th><th class="tr" style="min-width:130px;">Revenue Share</th></tr></thead>
+          <tbody id="prodBody"><tr><td colspan="5"><div class="skel skel-row"></div></td></tr></tbody>
         </table>
       </div>
     </div>
   </div>
 
-  <!-- ─────────────────────────── TAB: TOP CUSTOMERS ─────────────────────────── -->
+  <!-- TAB: TOP CUSTOMERS -->
   <div class="r-section" id="tab-customers">
     <div class="kpi-grid" id="custKpis" style="grid-template-columns:repeat(3,1fr);">
       <div class="skel skel-kpi"></div><div class="skel skel-kpi"></div><div class="skel skel-kpi"></div>
@@ -559,24 +277,19 @@
     <div class="report-card">
       <div class="report-card-header">
         <div class="report-card-title">🏆 Top Customers by Revenue</div>
-        <button class="export-btn" onclick="exportCSV('customers')">⬇ Export</button>
+        <button class="export-btn" onclick="exportCSV('customers')">⬇ Export CSV</button>
       </div>
       <div style="overflow-x:auto;">
         <table class="rtbl">
-          <thead><tr>
-            <th class="tc">#</th><th>Customer</th><th>Phone</th>
-            <th class="tc">Bills</th><th class="tr">Total Revenue</th>
-            <th class="tr">Avg Bill</th><th class="tr" style="min-width:110px;">Share</th>
-          </tr></thead>
+          <thead><tr><th class="tc">#</th><th>Customer</th><th>Phone</th><th class="tc">Bills</th><th class="tr">Total Revenue</th><th class="tr">Avg Bill</th><th class="tr" style="min-width:110px;">Share</th></tr></thead>
           <tbody id="custBody"><tr><td colspan="7"><div class="skel skel-row"></div></td></tr></tbody>
         </table>
       </div>
     </div>
   </div>
 
-</div><!-- end .main -->
+</div>
 
-<!-- ═══════════════ JAVASCRIPT ═══════════════ -->
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
@@ -585,20 +298,20 @@ const supabase = createClient(
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1oaG5tbmRub2xoYXBhb3F0YnhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4Mzg4NTksImV4cCI6MjA4ODQxNDg1OX0.IMSp8vYiCln_iSuoT_H2qdeX_dP1WMhOOskDw20eJXw'
 )
 
-// ══════════════════════════════════════════════════
-//  GLOBALS
-// ══════════════════════════════════════════════════
+// ═══════════════════════════════════════
+// GLOBALS
+// ═══════════════════════════════════════
 let currentPeriod = 'today'
 let customFrom = '', customTo = ''
 let activeTab = 'sales'
-// Cache: key = tab+from+to → data stored, prevents re-fetching same period
-const cache = {}
-// Store current export data
-const exportStore = {}
+const cache = {}        // key → true, prevents double-fetch
+const exportStore = {}  // key → {headers, rows} for CSV
 
-// ══════════════════════════════════════════════════
-//  DATE HELPERS
-// ══════════════════════════════════════════════════
+// ═══════════════════════════════════════
+// DATE RANGE CALCULATOR
+// WHY: All queries use server-side date filters so we never
+// download all 20,000 rows — only the rows in the selected period.
+// ═══════════════════════════════════════
 function getRange() {
   const now = new Date()
   const pad = n => String(n).padStart(2,'0')
@@ -609,26 +322,26 @@ function getRange() {
     return { from: customFrom, to: customTo }
   }
 
-  let from, to
   const y = now.getFullYear(), m = now.getMonth(), d = now.getDate()
+  let from, to
 
   if (currentPeriod === 'today') {
     from = to = fmt(now)
   } else if (currentPeriod === 'week') {
-    const day = now.getDay() || 7
-    const mon = new Date(now); mon.setDate(d - day + 1)
+    const dayOfWeek = now.getDay() || 7
+    const mon = new Date(now); mon.setDate(d - dayOfWeek + 1)
     from = fmt(mon); to = fmt(now)
   } else if (currentPeriod === 'month') {
     from = `${y}-${pad(m+1)}-01`; to = fmt(now)
   } else if (currentPeriod === 'last_month') {
-    const lm = new Date(y, m, 0)         // last day of prev month
-    const lmStart = new Date(y, m-1, 1)
-    from = fmt(lmStart); to = fmt(lm)
+    const lastDay  = new Date(y, m, 0)
+    const firstDay = new Date(y, m-1, 1)
+    from = fmt(firstDay); to = fmt(lastDay)
   } else if (currentPeriod === 'quarter') {
-    const q = Math.floor(m / 3)
+    const q = Math.floor(m/3)
     from = fmt(new Date(y, q*3, 1)); to = fmt(now)
   } else if (currentPeriod === 'year') {
-    // Indian FY: Apr 1 → Mar 31
+    // Indian Financial Year: Apr 1 – Mar 31
     const fy = m >= 3 ? y : y - 1
     from = `${fy}-04-01`; to = fmt(now)
   }
@@ -636,27 +349,31 @@ function getRange() {
   return { from, to }
 }
 
-const cacheKey = (tab) => {
+function cacheKey(tab) {
   const r = getRange()
   return r ? `${tab}|${r.from}|${r.to}` : null
 }
 
-// ══════════════════════════════════════════════════
-//  FORMATTERS
-// ══════════════════════════════════════════════════
-const fmtAmt  = n => '₹' + (Math.round(Number(n)||0)).toLocaleString('en-IN')
-const fmtNum  = n => (Number(n)||0).toLocaleString('en-IN')
-const fmtDate = s => new Date(s).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'2-digit'})
-const fmtPct  = (n,t) => t > 0 ? ((n/t)*100).toFixed(1)+'%' : '0%'
-
-function rankBadge(i) {
-  const cls = i===0?'rank-1':i===1?'rank-2':i===2?'rank-3':'rank-n'
-  return `<span class="rank-badge ${cls}">${i+1}</span>`
+// ═══════════════════════════════════════
+// FORMATTERS
+// ═══════════════════════════════════════
+const fmtAmt  = n => '₹' + (Math.round(Number(n) || 0)).toLocaleString('en-IN')
+const fmtNum  = n => (Number(n) || 0).toLocaleString('en-IN')
+const fmtDate = s => {
+  if (!s) return '—'
+  const d = new Date(s)
+  return d.toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'2-digit' })
+}
+const shortAmt = n => {
+  n = Math.round(Number(n) || 0)
+  if (n >= 100000) return '₹' + (n/100000).toFixed(1) + 'L'
+  if (n >= 1000)   return '₹' + (n/1000).toFixed(0) + 'k'
+  return '₹' + n
 }
 
-function kpiCard(icon, label, value, sub, accentColor) {
+function kpiCard(icon, label, value, sub, accent) {
   return `<div class="kpi-card">
-    <div class="kpi-accent" style="background:${accentColor}"></div>
+    <div class="kpi-accent" style="background:${accent}"></div>
     <div class="kpi-icon">${icon}</div>
     <div class="kpi-label">${label}</div>
     <div class="kpi-value">${value}</div>
@@ -664,45 +381,57 @@ function kpiCard(icon, label, value, sub, accentColor) {
   </div>`
 }
 
-function barBlock(pct, color, label, val) {
-  return `<div class="bc-item">
-    <div class="bc-val">${val}</div>
-    <div class="bc-bar" style="height:${pct}%;background:${color};"></div>
-    <div class="bc-label">${label}</div>
-  </div>`
-}
-
-function payRow(icon, label, cls, amount, total) {
-  const pct = total > 0 ? ((amount/total)*100) : 0
-  const color = cls==='pill-cash'?'#34d399':cls==='pill-upi'?'#60a5fa':'#f87171'
-  return `<div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+function payBlock(icon, label, cls, amount, total) {
+  const pct = total > 0 ? (amount / total * 100) : 0
+  const col  = cls==='pill-cash'?'#34d399': cls==='pill-upi'?'#60a5fa':'#f87171'
+  return `<div class="pay-row-item">
     <span class="mode-pill ${cls}">${icon} ${label}</span>
-    <div style="flex:1;">
-      <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
-        <span style="font-size:13px;font-family:'DM Sans',sans-serif;color:rgba(255,255,255,0.8);">${fmtAmt(amount)}</span>
-        <span style="font-size:11px;color:rgba(255,255,255,0.35);">${pct.toFixed(1)}%</span>
+    <div class="pay-bar-wrap">
+      <div class="pay-bar-nums">
+        <span class="pay-bar-num">${fmtAmt(amount)}</span>
+        <span class="pay-bar-pct">${pct.toFixed(1)}%</span>
       </div>
-      <div class="tbl-bar"><div class="tbl-bar-fill" style="width:${pct}%;background:${color};"></div></div>
+      <div class="tbl-bar"><div class="tbl-bar-fill" style="width:${pct}%;background:${col};"></div></div>
     </div>
   </div>`
 }
 
-// ══════════════════════════════════════════════════
-//  PERIOD & TAB CONTROLS
-// ══════════════════════════════════════════════════
+function rankBadge(i) {
+  const cls = i===0?'rank-1':i===1?'rank-2':i===2?'rank-3':'rank-n'
+  return `<span class="rank-badge ${cls}">${i+1}</span>`
+}
+
+// ═══════════════════════════════════════
+// CUSTOMER NAME LOOKUP (no FK → manual join)
+// WHY: sales.customer_id has NO foreign key constraint to
+// customers.id, so Supabase cannot auto-join them.
+// We fetch customer names separately and merge in JS.
+// ═══════════════════════════════════════
+async function getCustomerNames(customerIds) {
+  const ids = [...new Set(customerIds.filter(Boolean))]
+  if (!ids.length) return {}
+  const { data } = await supabase
+    .from('customers')
+    .select('id,name,phone')
+    .in('id', ids)
+  const map = {}
+  ;(data || []).forEach(c => { map[c.id] = c })
+  return map
+}
+
+// ═══════════════════════════════════════
+// PERIOD & TAB CONTROLS
+// ═══════════════════════════════════════
 window.setPeriod = function(period, btn) {
   currentPeriod = period
   document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'))
   btn.classList.add('active')
   const cr = document.getElementById('customRange')
-  if (period === 'custom') {
-    cr.classList.add('show')
-    return // wait for date inputs
-  }
+  if (period === 'custom') { cr.classList.add('show'); return }
   cr.classList.remove('show')
-  // Clear cache for active tab to force reload
-  const key = cacheKey(activeTab)
-  if (key) delete cache[key]
+  // Invalidate cache for active tab so it reloads with new period
+  const k = cacheKey(activeTab)
+  if (k) delete cache[k]
   loadTab(activeTab)
 }
 
@@ -710,8 +439,8 @@ window.onCustomChange = function() {
   customFrom = document.getElementById('dateFrom').value
   customTo   = document.getElementById('dateTo').value
   if (customFrom && customTo && customFrom <= customTo) {
-    const key = cacheKey(activeTab)
-    if (key) delete cache[key]
+    const k = cacheKey(activeTab)
+    if (k) delete cache[k]
     loadTab(activeTab)
   }
 }
@@ -725,15 +454,11 @@ window.switchTab = function(tab, btn) {
   loadTab(tab)
 }
 
-// ══════════════════════════════════════════════════
-//  ROUTE TO CORRECT LOADER
-// ══════════════════════════════════════════════════
 function loadTab(tab) {
   const range = getRange()
   if (!range) return
-  const key = cacheKey(tab)
-  if (cache[key]) return   // already loaded — instant!
-
+  const k = cacheKey(tab)
+  if (cache[k]) return   // cached — instant switch, zero queries
   if (tab === 'sales')     loadSales(range)
   if (tab === 'purchases') loadPurchases(range)
   if (tab === 'pnl')       loadPnL(range)
@@ -742,467 +467,495 @@ function loadTab(tab) {
   if (tab === 'customers') loadCustomers(range)
 }
 
-// ══════════════════════════════════════════════════
-//  TAB: SALES
-//  Strategy: Single query with server-side date filter
-//  Supabase returns only the rows in range — NOT all rows
-// ══════════════════════════════════════════════════
+// ═══════════════════════════════════════
+// TAB: SALES
+// ═══════════════════════════════════════
 async function loadSales(range) {
-  const key = cacheKey('sales')
+  const k = cacheKey('sales')
 
-  // Parallel fetch: sales bills + returns simultaneously
+  // PARALLEL fetch — both queries fire at the same time
   const [salesRes, retRes] = await Promise.all([
     supabase.from('sales')
-      .select('id,bill_number,created_at,total_amount,cash,upi,credit,discount,customers(name)')
+      .select('id,bill_number,created_at,total_amount,cash,upi,credit,discount,customer_id')
       .eq('bill_type','sale')
-      .gte('created_at', range.from+'T00:00:00')
-      .lte('created_at', range.to+'T23:59:59')
-      .order('created_at',{ascending:false}),
+      .gte('created_at', range.from + 'T00:00:00')
+      .lte('created_at', range.to   + 'T23:59:59')
+      .order('created_at', { ascending: false }),
     supabase.from('sales')
-      .select('id,total_amount,created_at')
+      .select('total_amount')
       .eq('bill_type','return')
-      .gte('created_at', range.from+'T00:00:00')
-      .lte('created_at', range.to+'T23:59:59')
+      .gte('created_at', range.from + 'T00:00:00')
+      .lte('created_at', range.to   + 'T23:59:59')
   ])
 
-  const sales   = salesRes.data  || []
-  const returns = retRes.data    || []
+  const sales   = salesRes.data || []
+  const returns = retRes.data   || []
 
-  // Compute in JS (small set after server-side filter)
-  const totalSales   = sales.reduce((s,r)=>s+Number(r.total_amount),0)
-  const totalReturns = returns.reduce((s,r)=>s+Number(r.total_amount),0)
+  // Manual customer name lookup (no FK exists)
+  const custMap = await getCustomerNames(sales.map(s => s.customer_id))
+
+  // Compute totals
+  const totalSales   = sales.reduce((s,r)   => s + Number(r.total_amount), 0)
+  const totalReturns = returns.reduce((s,r) => s + Number(r.total_amount), 0)
   const netSales     = totalSales - totalReturns
-  const totalCash    = sales.reduce((s,r)=>s+Number(r.cash||0),0)
-  const totalUpi     = sales.reduce((s,r)=>s+Number(r.upi||0),0)
-  const totalCredit  = sales.reduce((s,r)=>s+Number(r.credit||0),0)
-  const totalDisc    = sales.reduce((s,r)=>s+Number(r.discount||0),0)
+  const tCash        = sales.reduce((s,r) => s + Number(r.cash    || 0), 0)
+  const tUpi         = sales.reduce((s,r) => s + Number(r.upi     || 0), 0)
+  const tCredit      = sales.reduce((s,r) => s + Number(r.credit  || 0), 0)
+  const tDisc        = sales.reduce((s,r) => s + Number(r.discount|| 0), 0)
   const avgBill      = sales.length ? totalSales / sales.length : 0
 
-  // ── KPIs ──
+  // KPIs
   document.getElementById('salesKpis').innerHTML =
-    kpiCard('💰','Net Sales',    fmtAmt(netSales),     `${sales.length} bills`, 'linear-gradient(90deg,#2563eb,#06b6d4)') +
-    kpiCard('↩️','Returns',      fmtAmt(totalReturns), `${returns.length} returns`, 'linear-gradient(90deg,#dc2626,#f97316)') +
-    kpiCard('💸','Total Discount',fmtAmt(totalDisc),   'given to customers','linear-gradient(90deg,#d97706,#f59e0b)') +
-    kpiCard('📊','Avg Bill Value',fmtAmt(avgBill),      'per invoice','linear-gradient(90deg,#7c3aed,#a855f7)')
+    kpiCard('💰','Net Sales',     fmtAmt(netSales),     `${sales.length} bills`,       'linear-gradient(90deg,#2563eb,#06b6d4)') +
+    kpiCard('↩️','Returns',       fmtAmt(totalReturns), `${returns.length} returns`,    'linear-gradient(90deg,#dc2626,#f97316)') +
+    kpiCard('💸','Total Discount',fmtAmt(tDisc),        'given to customers',           'linear-gradient(90deg,#d97706,#f59e0b)') +
+    kpiCard('📊','Avg Bill Value',fmtAmt(avgBill),      'per invoice',                  'linear-gradient(90deg,#7c3aed,#a855f7)')
 
-  // ── Monthly Trend Chart ──
-  const monthMap = {}
+  // Monthly bar chart — group by month
+  const mMap = {}
   sales.forEach(s => {
     const mo = s.created_at.slice(0,7)
-    monthMap[mo] = (monthMap[mo]||0) + Number(s.total_amount)
+    mMap[mo] = (mMap[mo] || 0) + Number(s.total_amount)
   })
-  const months = Object.keys(monthMap).sort()
+  const months = Object.keys(mMap).sort()
   const chartEl = document.getElementById('salesChart')
   chartEl.innerHTML = ''
   if (months.length) {
-    const maxV = Math.max(...Object.values(monthMap), 1)
+    const maxV = Math.max(...Object.values(mMap), 1)
     months.forEach(mo => {
-      const val = monthMap[mo]
-      const pct = Math.max(Math.round((val/maxV)*100), 3)
-      const lbl = new Date(mo+'-15').toLocaleDateString('en-IN',{month:'short',year:'2-digit'})
-      chartEl.innerHTML += barBlock(pct,'linear-gradient(180deg,#2563eb,rgba(37,99,235,0.4))', lbl,
-        val >= 100000 ? '₹'+Math.round(val/100000)+'L' : val >= 1000 ? '₹'+Math.round(val/1000)+'k' : fmtAmt(val))
+      const val = mMap[mo]
+      const pct = Math.max(Math.round((val / maxV) * 100), 3)
+      const lbl = new Date(mo + '-15').toLocaleDateString('en-IN', { month:'short', year:'2-digit' })
+      chartEl.innerHTML += `<div class="bc-item">
+        <div class="bc-val">${shortAmt(val)}</div>
+        <div class="bc-bar" style="height:${pct}%;background:linear-gradient(180deg,#2563eb,rgba(37,99,235,0.4));"></div>
+        <div class="bc-label">${lbl}</div>
+      </div>`
     })
   } else {
-    chartEl.innerHTML = '<div class="empty-state">No sales data for this period</div>'
+    chartEl.innerHTML = '<div class="empty-state">No data for this period</div>'
   }
 
-  // ── Payment Split ──
-  const sp = totalCash+totalUpi+totalCredit || 1
+  // Payment split bars
+  const sp = tCash + tUpi + tCredit || 1
   document.getElementById('salesPaySplit').innerHTML =
-    payRow('💵','Cash',    'pill-cash',   totalCash,   sp) +
-    payRow('📱','UPI',     'pill-upi',    totalUpi,    sp) +
-    payRow('🔴','Credit',  'pill-credit', totalCredit, sp)
+    payBlock('💵','Cash',   'pill-cash',   tCash,   sp) +
+    payBlock('📱','UPI',    'pill-upi',    tUpi,    sp) +
+    payBlock('🔴','Credit', 'pill-credit', tCredit, sp)
 
-  // ── Sales Table ──
-  const salesRows = sales.map(s => `<tr>
-    <td style="font-family:monospace;font-size:12px;color:rgba(255,255,255,0.5);">${s.bill_number}</td>
-    <td>${fmtDate(s.created_at)}</td>
-    <td>${s.customers?.name || '<span style="color:rgba(255,255,255,0.3);">Walk-in</span>'}</td>
-    <td class="tr num green">${fmtAmt(s.total_amount)}</td>
-    <td class="tr num">${fmtAmt(s.cash)}</td>
-    <td class="tr num blue">${fmtAmt(s.upi)}</td>
-    <td class="tr num red">${fmtAmt(s.credit)}</td>
-    <td class="tr num amber">${fmtAmt(s.discount)}</td>
-  </tr>`).join('')
+  // Sales table rows
+  const rows = sales.map(s => {
+    const cust = custMap[s.customer_id]
+    const name = cust ? cust.name : (s.customer_id ? `ID:${s.customer_id}` : 'Walk-in')
+    return `<tr>
+      <td style="font-family:monospace;font-size:12px;color:rgba(255,255,255,0.5);">${s.bill_number}</td>
+      <td>${fmtDate(s.created_at)}</td>
+      <td>${name}</td>
+      <td class="tr green">${fmtAmt(s.total_amount)}</td>
+      <td class="tr">${fmtAmt(s.cash)}</td>
+      <td class="tr blue">${fmtAmt(s.upi)}</td>
+      <td class="tr red">${fmtAmt(s.credit)}</td>
+      <td class="tr amber">${fmtAmt(s.discount)}</td>
+    </tr>`
+  }).join('')
 
-  document.getElementById('salesBody').innerHTML = salesRows ||
+  document.getElementById('salesBody').innerHTML = rows ||
     `<tr><td colspan="8"><div class="empty-state">No sales in this period</div></td></tr>`
+  document.getElementById('salesFoot').innerHTML = sales.length ? `<tr>
+    <td colspan="3"><strong>TOTAL (${sales.length} bills)</strong></td>
+    <td class="tr"><strong>${fmtAmt(totalSales)}</strong></td>
+    <td class="tr"><strong>${fmtAmt(tCash)}</strong></td>
+    <td class="tr"><strong>${fmtAmt(tUpi)}</strong></td>
+    <td class="tr"><strong>${fmtAmt(tCredit)}</strong></td>
+    <td class="tr"><strong>${fmtAmt(tDisc)}</strong></td>
+  </tr>` : ''
 
-  // Add totals footer
-  document.getElementById('salesTable').querySelector('thead').insertAdjacentHTML('afterend',
-    `<tfoot><tr class="tfoot-row">
-      <td colspan="3">TOTAL (${sales.length} bills)</td>
-      <td class="tr num">${fmtAmt(totalSales)}</td>
-      <td class="tr num">${fmtAmt(totalCash)}</td>
-      <td class="tr num">${fmtAmt(totalUpi)}</td>
-      <td class="tr num">${fmtAmt(totalCredit)}</td>
-      <td class="tr num">${fmtAmt(totalDisc)}</td>
-    </tr></tfoot>`)
-
-  // Store for export
   exportStore.sales = {
     headers: ['Bill No','Date','Customer','Amount','Cash','UPI','Credit','Discount'],
-    rows: sales.map(s=>[s.bill_number, fmtDate(s.created_at), s.customers?.name||'Walk-in',
-      s.total_amount, s.cash||0, s.upi||0, s.credit||0, s.discount||0])
+    rows: sales.map(s => {
+      const n = custMap[s.customer_id]?.name || 'Walk-in'
+      return [s.bill_number, fmtDate(s.created_at), n, s.total_amount, s.cash||0, s.upi||0, s.credit||0, s.discount||0]
+    })
   }
 
-  cache[key] = true
+  cache[k] = true
 }
 
-// ══════════════════════════════════════════════════
-//  TAB: PURCHASES
-// ══════════════════════════════════════════════════
+// ═══════════════════════════════════════
+// TAB: PURCHASES
+// ═══════════════════════════════════════
 async function loadPurchases(range) {
-  const key = cacheKey('purchases')
+  const k = cacheKey('purchases')
 
   const [purRes, retRes] = await Promise.all([
     supabase.from('purchases')
       .select('id,bill_number,created_at,total_amount,cash,upi,credit,discount,merchant_name')
       .eq('bill_type','purchase')
-      .gte('created_at', range.from+'T00:00:00')
-      .lte('created_at', range.to+'T23:59:59')
-      .order('created_at',{ascending:false}),
+      .gte('created_at', range.from + 'T00:00:00')
+      .lte('created_at', range.to   + 'T23:59:59')
+      .order('created_at', { ascending: false }),
     supabase.from('purchases')
       .select('total_amount')
       .eq('bill_type','return')
-      .gte('created_at', range.from+'T00:00:00')
-      .lte('created_at', range.to+'T23:59:59')
+      .gte('created_at', range.from + 'T00:00:00')
+      .lte('created_at', range.to   + 'T23:59:59')
   ])
 
-  const purch   = purRes.data || []
-  const returns = retRes.data || []
-
-  const total   = purch.reduce((s,r)=>s+Number(r.total_amount),0)
-  const retTot  = returns.reduce((s,r)=>s+Number(r.total_amount),0)
-  const net     = total - retTot
-  const tCash   = purch.reduce((s,r)=>s+Number(r.cash||0),0)
-  const tUpi    = purch.reduce((s,r)=>s+Number(r.upi||0),0)
-  const tCred   = purch.reduce((s,r)=>s+Number(r.credit||0),0)
-  const tDisc   = purch.reduce((s,r)=>s+Number(r.discount||0),0)
+  const purch  = purRes.data || []
+  const rets   = retRes.data || []
+  const total  = purch.reduce((s,r) => s + Number(r.total_amount), 0)
+  const retTot = rets.reduce((s,r)  => s + Number(r.total_amount), 0)
+  const net    = total - retTot
+  const tCash  = purch.reduce((s,r) => s + Number(r.cash    || 0), 0)
+  const tUpi   = purch.reduce((s,r) => s + Number(r.upi     || 0), 0)
+  const tCred  = purch.reduce((s,r) => s + Number(r.credit  || 0), 0)
+  const tDisc  = purch.reduce((s,r) => s + Number(r.discount|| 0), 0)
 
   document.getElementById('purchKpis').innerHTML =
-    kpiCard('📦','Net Purchases',   fmtAmt(net),     `${purch.length} bills`,          'linear-gradient(90deg,#d97706,#f59e0b)') +
-    kpiCard('↩️','Purchase Returns',fmtAmt(retTot),  `${returns.length} returns`,       'linear-gradient(90deg,#dc2626,#f97316)') +
-    kpiCard('🎁','Discount Received',fmtAmt(tDisc),  'from merchants',                  'linear-gradient(90deg,#16a34a,#34d399)') +
-    kpiCard('💳','On Credit',       fmtAmt(tCred),   fmtPct(tCred,total)+' of total',  'linear-gradient(90deg,#7c3aed,#a855f7)')
+    kpiCard('📦','Net Purchases',    fmtAmt(net),    `${purch.length} bills`,     'linear-gradient(90deg,#d97706,#f59e0b)') +
+    kpiCard('↩️','Purchase Returns', fmtAmt(retTot), `${rets.length} returns`,    'linear-gradient(90deg,#dc2626,#f97316)') +
+    kpiCard('🎁','Discount Received',fmtAmt(tDisc),  'from merchants',            'linear-gradient(90deg,#16a34a,#34d399)') +
+    kpiCard('💳','On Credit',        fmtAmt(tCred),  total>0?(tCred/total*100).toFixed(0)+'% of total':'0%', 'linear-gradient(90deg,#7c3aed,#a855f7)')
 
-  const rows = purch.map(p=>`<tr>
+  const rows = purch.map(p => `<tr>
     <td style="font-family:monospace;font-size:12px;color:rgba(255,255,255,0.5);">${p.bill_number}</td>
     <td>${fmtDate(p.created_at)}</td>
-    <td>${p.merchant_name||'—'}</td>
-    <td class="tr num amber">${fmtAmt(p.total_amount)}</td>
-    <td class="tr num">${fmtAmt(p.cash)}</td>
-    <td class="tr num blue">${fmtAmt(p.upi)}</td>
-    <td class="tr num red">${fmtAmt(p.credit)}</td>
-    <td class="tr num green">${fmtAmt(p.discount)}</td>
+    <td>${p.merchant_name || '—'}</td>
+    <td class="tr amber">${fmtAmt(p.total_amount)}</td>
+    <td class="tr">${fmtAmt(p.cash)}</td>
+    <td class="tr blue">${fmtAmt(p.upi)}</td>
+    <td class="tr red">${fmtAmt(p.credit)}</td>
+    <td class="tr green">${fmtAmt(p.discount)}</td>
   </tr>`).join('')
 
   document.getElementById('purchBody').innerHTML = rows ||
     `<tr><td colspan="8"><div class="empty-state">No purchases in this period</div></td></tr>`
+  document.getElementById('purchFoot').innerHTML = purch.length ? `<tr>
+    <td colspan="3"><strong>TOTAL (${purch.length} bills)</strong></td>
+    <td class="tr"><strong>${fmtAmt(total)}</strong></td>
+    <td class="tr"><strong>${fmtAmt(tCash)}</strong></td>
+    <td class="tr"><strong>${fmtAmt(tUpi)}</strong></td>
+    <td class="tr"><strong>${fmtAmt(tCred)}</strong></td>
+    <td class="tr"><strong>${fmtAmt(tDisc)}</strong></td>
+  </tr>` : ''
 
   exportStore.purchases = {
     headers: ['Bill No','Date','Merchant','Amount','Cash','UPI','Credit','Discount'],
-    rows: purch.map(p=>[p.bill_number, fmtDate(p.created_at), p.merchant_name||'', p.total_amount,
-      p.cash||0, p.upi||0, p.credit||0, p.discount||0])
+    rows: purch.map(p => [p.bill_number, fmtDate(p.created_at), p.merchant_name||'', p.total_amount, p.cash||0, p.upi||0, p.credit||0, p.discount||0])
   }
 
-  cache[key] = true
+  cache[k] = true
 }
 
-// ══════════════════════════════════════════════════
-//  TAB: PROFIT & LOSS
-// ══════════════════════════════════════════════════
+// ═══════════════════════════════════════
+// TAB: PROFIT & LOSS
+// ═══════════════════════════════════════
 async function loadPnL(range) {
-  const key = cacheKey('pnl')
+  const k = cacheKey('pnl')
 
   const [sRes, pRes] = await Promise.all([
     supabase.from('sales')
       .select('created_at,total_amount,bill_type')
-      .gte('created_at', range.from+'T00:00:00')
-      .lte('created_at', range.to+'T23:59:59'),
+      .gte('created_at', range.from + 'T00:00:00')
+      .lte('created_at', range.to   + 'T23:59:59'),
     supabase.from('purchases')
       .select('created_at,total_amount,bill_type')
-      .gte('created_at', range.from+'T00:00:00')
-      .lte('created_at', range.to+'T23:59:59')
+      .gte('created_at', range.from + 'T00:00:00')
+      .lte('created_at', range.to   + 'T23:59:59')
   ])
 
-  const allS = sRes.data || [], allP = pRes.data || []
-
-  // Aggregate by month
   const mS = {}, mP = {}
-  allS.forEach(r => {
-    const mo = r.created_at.slice(0,7)
-    const sign = r.bill_type==='return' ? -1 : 1
-    mS[mo] = (mS[mo]||0) + sign * Number(r.total_amount)
+  ;(sRes.data || []).forEach(r => {
+    const mo   = r.created_at.slice(0,7)
+    const sign = r.bill_type === 'return' ? -1 : 1
+    mS[mo] = (mS[mo] || 0) + sign * Number(r.total_amount)
   })
-  allP.forEach(r => {
-    const mo = r.created_at.slice(0,7)
-    const sign = r.bill_type==='return' ? -1 : 1
-    mP[mo] = (mP[mo]||0) + sign * Number(r.total_amount)
+  ;(pRes.data || []).forEach(r => {
+    const mo   = r.created_at.slice(0,7)
+    const sign = r.bill_type === 'return' ? -1 : 1
+    mP[mo] = (mP[mo] || 0) + sign * Number(r.total_amount)
   })
 
-  const months = [...new Set([...Object.keys(mS),...Object.keys(mP)])].sort()
-  let gS=0, gP=0
+  const months = [...new Set([...Object.keys(mS), ...Object.keys(mP)])].sort()
+  let gS = 0, gP = 0
 
   const rows = months.map(mo => {
-    const s = mS[mo]||0, p = mP[mo]||0, profit = s - p
+    const s = mS[mo] || 0, p = mP[mo] || 0, profit = s - p
     gS += s; gP += p
-    const margin = s>0 ? ((profit/s)*100).toFixed(1) : '0.0'
-    const col = profit>=0 ? 'green' : 'red'
-    const lbl = new Date(mo+'-15').toLocaleDateString('en-IN',{month:'long',year:'numeric'})
+    const margin  = s > 0 ? ((profit/s)*100).toFixed(1) : '0.0'
+    const col     = profit >= 0 ? 'green' : 'red'
+    const lbl     = new Date(mo + '-15').toLocaleDateString('en-IN', { month:'long', year:'numeric' })
     return `<tr>
       <td>${lbl}</td>
-      <td class="tr num green">${fmtAmt(s)}</td>
-      <td class="tr num amber">${fmtAmt(p)}</td>
-      <td class="tr num ${col}"><strong>${fmtAmt(profit)}</strong></td>
-      <td class="tr num ${col}">${margin}%</td>
+      <td class="tr green">${fmtAmt(s)}</td>
+      <td class="tr amber">${fmtAmt(p)}</td>
+      <td class="tr ${col}"><strong>${fmtAmt(profit)}</strong></td>
+      <td class="tr ${col}">${margin}%</td>
     </tr>`
   }).join('')
 
   const gProfit  = gS - gP
-  const gMargin  = gS>0 ? ((gProfit/gS)*100).toFixed(1) : '0.0'
-  const profitCol= gProfit>=0?'#34d399':'#f87171'
-  const pct      = gS>0 ? Math.min((gProfit/gS)*100,100) : 0
+  const gMargin  = gS > 0 ? ((gProfit/gS)*100).toFixed(1) : '0.0'
+  const profCol  = gProfit >= 0 ? '#34d399' : '#f87171'
+  const pct      = gS > 0 ? Math.min((gProfit/gS)*100, 100) : 0
+  const barGrad  = gProfit >= 0
+    ? 'linear-gradient(90deg,#059669,#34d399)'
+    : 'linear-gradient(90deg,#dc2626,#f87171)'
 
-  // Three big metric cards
   document.getElementById('pnlMeter').innerHTML = `
     <div class="pm-card">
       <div class="pm-label">Total Revenue</div>
       <div class="pm-value" style="color:#34d399;">${fmtAmt(gS)}</div>
-      <div style="font-size:11px;color:rgba(255,255,255,0.3);margin-top:4px;font-family:'DM Sans',sans-serif;">Net of sales returns</div>
+      <div style="font-size:11px;color:rgba(255,255,255,0.3);margin-top:6px;font-family:'DM Sans',sans-serif;">Net of sales returns</div>
     </div>
     <div class="pm-card">
       <div class="pm-label">Total Cost</div>
       <div class="pm-value" style="color:#f87171;">${fmtAmt(gP)}</div>
-      <div style="font-size:11px;color:rgba(255,255,255,0.3);margin-top:4px;font-family:'DM Sans',sans-serif;">Net of purchase returns</div>
+      <div style="font-size:11px;color:rgba(255,255,255,0.3);margin-top:6px;font-family:'DM Sans',sans-serif;">Net of purchase returns</div>
     </div>
     <div class="pm-card">
       <div class="pm-label">Gross Profit</div>
-      <div class="pm-value" style="color:${profitCol};">${fmtAmt(gProfit)}</div>
-      <div class="profit-bar-wrap"><div class="profit-bar-fill" style="width:${Math.max(pct,0)}%;background:${gProfit>=0?'linear-gradient(90deg,#059669,#34d399)':'linear-gradient(90deg,#dc2626,#f87171)'};"></div></div>
-      <div class="profit-split"><span>${gMargin}% margin</span><span>${fmtAmt(gS)} sales</span></div>
+      <div class="pm-value" style="color:${profCol};">${fmtAmt(gProfit)}</div>
+      <div class="profit-bar-wrap"><div class="profit-bar-fill" style="width:${Math.max(pct,0)}%;background:${barGrad};"></div></div>
+      <div class="profit-split"><span>${gMargin}% margin</span><span>on ${fmtAmt(gS)}</span></div>
     </div>`
 
   document.getElementById('pnlBody').innerHTML = rows ||
     `<tr><td colspan="5"><div class="empty-state">No data for this period</div></td></tr>`
-
-  // Add tfoot
-  const pnlTbl = document.getElementById('pnlBody').closest('table')
-  pnlTbl.querySelector('tfoot')?.remove()
-  pnlTbl.insertAdjacentHTML('beforeend',
-    `<tfoot><tr class="tfoot-row">
-      <td>TOTAL</td>
-      <td class="tr num">${fmtAmt(gS)}</td>
-      <td class="tr num">${fmtAmt(gP)}</td>
-      <td class="tr num ${gProfit>=0?'green':'red'}">${fmtAmt(gProfit)}</td>
-      <td class="tr num ${gProfit>=0?'green':'red'}">${gMargin}%</td>
-    </tr></tfoot>`)
+  document.getElementById('pnlFoot').innerHTML = months.length ? `<tr>
+    <td><strong>TOTAL</strong></td>
+    <td class="tr"><strong>${fmtAmt(gS)}</strong></td>
+    <td class="tr"><strong>${fmtAmt(gP)}</strong></td>
+    <td class="tr ${gProfit>=0?'green':'red'}"><strong>${fmtAmt(gProfit)}</strong></td>
+    <td class="tr ${gProfit>=0?'green':'red'}"><strong>${gMargin}%</strong></td>
+  </tr>` : ''
 
   exportStore.pnl = {
     headers: ['Month','Net Sales','Net Purchases','Gross Profit','Margin%'],
-    rows: months.map(mo=>{
-      const s=mS[mo]||0,p=mP[mo]||0
-      return [new Date(mo+'-15').toLocaleDateString('en-IN',{month:'long',year:'numeric'}),s,p,s-p,s>0?(((s-p)/s)*100).toFixed(1)+'%':'0%']
+    rows: months.map(mo => {
+      const s=mS[mo]||0, p=mP[mo]||0
+      return [new Date(mo+'-15').toLocaleDateString('en-IN',{month:'long',year:'numeric'}), s, p, s-p, s>0?(((s-p)/s)*100).toFixed(1)+'%':'0%']
     })
   }
 
-  cache[key] = true
+  cache[k] = true
 }
 
-// ══════════════════════════════════════════════════
-//  TAB: PAYMENTS
-// ══════════════════════════════════════════════════
+// ═══════════════════════════════════════
+// TAB: PAYMENTS
+// ═══════════════════════════════════════
 async function loadPayments(range) {
-  const key = cacheKey('payments')
+  const k = cacheKey('payments')
 
   const [sRes, pRes, recRes] = await Promise.all([
     supabase.from('sales')
       .select('cash,upi,credit')
       .eq('bill_type','sale')
-      .gte('created_at', range.from+'T00:00:00')
-      .lte('created_at', range.to+'T23:59:59'),
+      .gte('created_at', range.from + 'T00:00:00')
+      .lte('created_at', range.to   + 'T23:59:59'),
     supabase.from('purchases')
       .select('cash,upi,credit')
       .eq('bill_type','purchase')
-      .gte('created_at', range.from+'T00:00:00')
-      .lte('created_at', range.to+'T23:59:59'),
+      .gte('created_at', range.from + 'T00:00:00')
+      .lte('created_at', range.to   + 'T23:59:59'),
     supabase.from('payments')
-      .select('receipt_no,created_at,amount,mode,note,customers(name)')
-      .gte('created_at', range.from+'T00:00:00')
-      .lte('created_at', range.to+'T23:59:59')
-      .order('created_at',{ascending:false})
+      .select('receipt_no,created_at,amount,mode,note,customer_id')
+      .gte('created_at', range.from + 'T00:00:00')
+      .lte('created_at', range.to   + 'T23:59:59')
+      .order('created_at', { ascending: false })
   ])
 
-  const sales = sRes.data||[], purch = pRes.data||[], receipts = recRes.data||[]
+  const sales    = sRes.data   || []
+  const purch    = pRes.data   || []
+  const receipts = recRes.data || []
 
-  const sc = { cash:0, upi:0, credit:0 }, pc = { cash:0, upi:0, credit:0 }
-  sales.forEach(r=>{ sc.cash+=Number(r.cash||0); sc.upi+=Number(r.upi||0); sc.credit+=Number(r.credit||0) })
-  purch.forEach(r=>{ pc.cash+=Number(r.cash||0); pc.upi+=Number(r.upi||0); pc.credit+=Number(r.credit||0) })
+  // Manual customer lookup for receipts
+  const custMap = await getCustomerNames(receipts.map(r => r.customer_id))
 
-  const sTotal = sc.cash+sc.upi+sc.credit || 1
-  const pTotal = pc.cash+pc.upi+pc.credit || 1
-  const recTotal = receipts.reduce((s,r)=>s+Number(r.amount),0)
+  const sc = { cash:0, upi:0, credit:0 }
+  const pc = { cash:0, upi:0, credit:0 }
+  sales.forEach(r => { sc.cash+=Number(r.cash||0); sc.upi+=Number(r.upi||0); sc.credit+=Number(r.credit||0) })
+  purch.forEach(r => { pc.cash+=Number(r.cash||0); pc.upi+=Number(r.upi||0); pc.credit+=Number(r.credit||0) })
+
+  const sTotal   = sc.cash + sc.upi + sc.credit || 1
+  const pTotal   = pc.cash + pc.upi + pc.credit || 1
+  const recTotal = receipts.reduce((s,r) => s + Number(r.amount), 0)
 
   document.getElementById('payKpis').innerHTML =
-    kpiCard('💵','Total Cash (Sales)', fmtAmt(sc.cash),   fmtPct(sc.cash,sTotal)+' of sales',    'linear-gradient(90deg,#059669,#34d399)') +
-    kpiCard('📱','Total UPI (Sales)',  fmtAmt(sc.upi),    fmtPct(sc.upi,sTotal)+' of sales',     'linear-gradient(90deg,#4f46e5,#60a5fa)') +
-    kpiCard('💸','Receipts Collected', fmtAmt(recTotal),  `${receipts.length} payment receipts`, 'linear-gradient(90deg,#7c3aed,#a855f7)')
+    kpiCard('💵','Cash Collected (Sales)', fmtAmt(sc.cash),  (sc.cash/sTotal*100).toFixed(0)+'% of sales',    'linear-gradient(90deg,#059669,#34d399)') +
+    kpiCard('📱','UPI Collected (Sales)',  fmtAmt(sc.upi),   (sc.upi/sTotal*100).toFixed(0)+'% of sales',     'linear-gradient(90deg,#4f46e5,#60a5fa)') +
+    kpiCard('💸','Payment Receipts',       fmtAmt(recTotal), `${receipts.length} receipts recorded`,          'linear-gradient(90deg,#7c3aed,#a855f7)')
 
   document.getElementById('salesCollect').innerHTML =
-    payRow('💵','Cash',   'pill-cash',   sc.cash,   sTotal) +
-    payRow('📱','UPI',    'pill-upi',    sc.upi,    sTotal) +
-    payRow('🔴','Credit', 'pill-credit', sc.credit, sTotal)
+    payBlock('💵','Cash',   'pill-cash',   sc.cash,   sTotal) +
+    payBlock('📱','UPI',    'pill-upi',    sc.upi,    sTotal) +
+    payBlock('🔴','Credit', 'pill-credit', sc.credit, sTotal)
 
   document.getElementById('purchCollect').innerHTML =
-    payRow('💵','Cash',   'pill-cash',   pc.cash,   pTotal) +
-    payRow('📱','UPI',    'pill-upi',    pc.upi,    pTotal) +
-    payRow('🔴','Credit', 'pill-credit', pc.credit, pTotal)
+    payBlock('💵','Cash',   'pill-cash',   pc.cash,   pTotal) +
+    payBlock('📱','UPI',    'pill-upi',    pc.upi,    pTotal) +
+    payBlock('🔴','Credit', 'pill-credit', pc.credit, pTotal)
 
-  // Receipts table
-  const recRows = receipts.map(r=>`<tr>
-    <td style="font-family:monospace;font-size:12px;color:rgba(255,255,255,0.5);">${r.receipt_no||'—'}</td>
-    <td>${fmtDate(r.created_at)}</td>
-    <td>${r.customers?.name||'—'}</td>
-    <td><span class="mode-pill ${r.mode==='cash'?'pill-cash':r.mode==='upi'?'pill-upi':'pill-credit'}">${r.mode||'—'}</span></td>
-    <td class="tr num green">${fmtAmt(r.amount)}</td>
-    <td style="color:rgba(255,255,255,0.4);font-size:12px;">${r.note||''}</td>
-  </tr>`).join('')
+  const recRows = receipts.map(r => {
+    const name = custMap[r.customer_id]?.name || '—'
+    const pillCls = r.mode==='cash'?'pill-cash': r.mode==='upi'?'pill-upi':'pill-credit'
+    return `<tr>
+      <td style="font-family:monospace;font-size:12px;color:rgba(255,255,255,0.5);">${r.receipt_no || '—'}</td>
+      <td>${fmtDate(r.created_at)}</td>
+      <td>${name}</td>
+      <td><span class="mode-pill ${pillCls}">${r.mode || '—'}</span></td>
+      <td class="tr green">${fmtAmt(r.amount)}</td>
+      <td style="color:rgba(255,255,255,0.4);font-size:12px;">${r.note || ''}</td>
+    </tr>`
+  }).join('')
 
   document.getElementById('receiptsBody').innerHTML = recRows ||
     `<tr><td colspan="6"><div class="empty-state">No payment receipts in this period</div></td></tr>`
 
   exportStore.receipts = {
     headers: ['Receipt No','Date','Customer','Mode','Amount','Note'],
-    rows: receipts.map(r=>[r.receipt_no||'', fmtDate(r.created_at), r.customers?.name||'', r.mode||'', r.amount, r.note||''])
+    rows: receipts.map(r => [r.receipt_no||'', fmtDate(r.created_at), custMap[r.customer_id]?.name||'', r.mode||'', r.amount, r.note||''])
   }
 
-  cache[key] = true
+  cache[k] = true
 }
 
-// ══════════════════════════════════════════════════
-//  TAB: TOP PRODUCTS
-//  Uses bill_items joined with sales for date filter
-//  + inventory for names
-// ══════════════════════════════════════════════════
+// ═══════════════════════════════════════
+// TAB: TOP PRODUCTS
+// WHY: bill_items already stores item_name directly —
+// no join to inventory needed. This makes the query
+// much faster even with 100,000 bill_item rows.
+// ═══════════════════════════════════════
 async function loadProducts(range) {
-  const key = cacheKey('products')
+  const k = cacheKey('products')
 
-  // Fetch bill_items with sales join for date filtering on server
-  // This means Supabase filters in SQL — only matching rows come back
-  const [itemsRes, invRes] = await Promise.all([
-    supabase.from('bill_items')
-      .select('item_id,quantity,total,sales!inner(created_at,bill_type)')
-      .eq('sales.bill_type','sale')
-      .gte('sales.created_at', range.from+'T00:00:00')
-      .lte('sales.created_at', range.to+'T23:59:59'),
-    supabase.from('inventory')
-      .select('id,item_name,category')
-  ])
+  // Get sale IDs in range first, then fetch their bill_items
+  // This is faster than a join filter for large datasets
+  const { data: salesInRange } = await supabase.from('sales')
+    .select('id')
+    .eq('bill_type','sale')
+    .gte('created_at', range.from + 'T00:00:00')
+    .lte('created_at', range.to   + 'T23:59:59')
 
-  const items = itemsRes.data || []
-  const invMap = {}
-  ;(invRes.data||[]).forEach(i => { invMap[i.id] = i })
+  const saleIds = (salesInRange || []).map(s => s.id)
 
-  // Aggregate by item_id in JS (fast after server-side date filter)
+  if (!saleIds.length) {
+    document.getElementById('prodKpis').innerHTML =
+      kpiCard('📦','Unique Products','0','no sales in period','linear-gradient(90deg,#7c3aed,#a855f7)') +
+      kpiCard('🔢','Units Sold',     '0','pieces / units',    'linear-gradient(90deg,#2563eb,#06b6d4)') +
+      kpiCard('🏆','Top Product',    '—','no data',           'linear-gradient(90deg,#d97706,#f59e0b)')
+    document.getElementById('prodBody').innerHTML =
+      `<tr><td colspan="5"><div class="empty-state">No product sales in this period</div></td></tr>`
+    cache[k] = true
+    return
+  }
+
+  const { data: items } = await supabase.from('bill_items')
+    .select('item_id,item_name,quantity,total')
+    .in('sale_id', saleIds)
+
+  // Aggregate by item_id in JS
   const prodMap = {}
-  items.forEach(row => {
-    const id = row.item_id
-    if (!prodMap[id]) prodMap[id] = {
-      name: invMap[id]?.item_name || 'Unknown Product',
-      category: invMap[id]?.category || '—',
-      qty: 0, revenue: 0
-    }
+  ;(items || []).forEach(row => {
+    const id = row.item_id || row.item_name // fallback key
+    if (!prodMap[id]) prodMap[id] = { name: row.item_name || 'Unknown', qty: 0, revenue: 0 }
     prodMap[id].qty     += Number(row.quantity)
     prodMap[id].revenue += Number(row.total)
   })
 
-  const sorted   = Object.values(prodMap).sort((a,b)=>b.revenue-a.revenue).slice(0,25)
-  const grandRev = sorted.reduce((s,p)=>s+p.revenue,0) || 1
-  const grandQty = sorted.reduce((s,p)=>s+p.qty,0)
+  const sorted   = Object.values(prodMap).sort((a,b) => b.revenue - a.revenue).slice(0,25)
+  const grandRev = sorted.reduce((s,p) => s + p.revenue, 0) || 1
+  const grandQty = sorted.reduce((s,p) => s + p.qty,     0)
 
   document.getElementById('prodKpis').innerHTML =
-    kpiCard('📦','Unique Products Sold', fmtNum(Object.keys(prodMap).length), 'different SKUs sold',   'linear-gradient(90deg,#7c3aed,#a855f7)') +
-    kpiCard('🔢','Total Units Sold',     fmtNum(grandQty),                    'pieces / units',         'linear-gradient(90deg,#2563eb,#06b6d4)') +
-    kpiCard('🏆','Top Product Revenue',  fmtAmt(sorted[0]?.revenue||0),       sorted[0]?.name||'—',    'linear-gradient(90deg,#d97706,#f59e0b)')
+    kpiCard('📦','Unique Products', fmtNum(Object.keys(prodMap).length), 'different SKUs',          'linear-gradient(90deg,#7c3aed,#a855f7)') +
+    kpiCard('🔢','Total Units Sold',fmtNum(grandQty),                    'pieces / units',          'linear-gradient(90deg,#2563eb,#06b6d4)') +
+    kpiCard('🏆','Top Product Rev', fmtAmt(sorted[0]?.revenue || 0),     sorted[0]?.name || '—',   'linear-gradient(90deg,#d97706,#f59e0b)')
 
   const rows = sorted.map((p,i) => {
-    const share = ((p.revenue/grandRev)*100).toFixed(1)
-    const barPct = ((p.revenue/grandRev)*100)
-    const barColor = i===0?'#fbbf24':i===1?'#94a3b8':i===2?'#b45309':'#2563eb'
+    const share  = ((p.revenue / grandRev)*100).toFixed(1)
+    const barPct = ((p.revenue / grandRev)*100)
+    const barCol = i===0?'#fbbf24': i===1?'#94a3b8': i===2?'#b45309':'#2563eb'
     return `<tr>
       <td class="tc">${rankBadge(i)}</td>
       <td><strong style="color:#fff;">${p.name}</strong></td>
-      <td style="color:rgba(255,255,255,0.4);">${p.category}</td>
-      <td class="tr num">${fmtNum(p.qty)}</td>
-      <td class="tr num green">${fmtAmt(p.revenue)}</td>
+      <td class="tr">${fmtNum(p.qty)}</td>
+      <td class="tr green">${fmtAmt(p.revenue)}</td>
       <td class="tr">
         <div class="tbl-bar-wrap">
-          <span style="font-size:12px;color:rgba(255,255,255,0.5);min-width:36px;text-align:right;">${share}%</span>
-          <div class="tbl-bar"><div class="tbl-bar-fill" style="width:${barPct}%;background:${barColor};"></div></div>
+          <span style="font-size:12px;color:rgba(255,255,255,0.5);min-width:38px;text-align:right;">${share}%</span>
+          <div class="tbl-bar"><div class="tbl-bar-fill" style="width:${barPct}%;background:${barCol};"></div></div>
         </div>
       </td>
     </tr>`
   }).join('')
 
   document.getElementById('prodBody').innerHTML = rows ||
-    `<tr><td colspan="6"><div class="empty-state">No product sales data for this period</div></td></tr>`
+    `<tr><td colspan="5"><div class="empty-state">No product data</div></td></tr>`
 
   exportStore.products = {
-    headers: ['Rank','Product','Category','Qty Sold','Revenue','Share%'],
-    rows: sorted.map((p,i)=>[i+1, p.name, p.category, p.qty, p.revenue, ((p.revenue/grandRev)*100).toFixed(1)+'%'])
+    headers: ['Rank','Product','Qty Sold','Revenue','Share%'],
+    rows: sorted.map((p,i) => [i+1, p.name, p.qty, p.revenue, ((p.revenue/grandRev)*100).toFixed(1)+'%'])
   }
 
-  cache[key] = true
+  cache[k] = true
 }
 
-// ══════════════════════════════════════════════════
-//  TAB: TOP CUSTOMERS
-// ══════════════════════════════════════════════════
+// ═══════════════════════════════════════
+// TAB: TOP CUSTOMERS
+// ═══════════════════════════════════════
 async function loadCustomers(range) {
-  const key = cacheKey('customers')
+  const k = cacheKey('customers')
 
   const { data: sales } = await supabase.from('sales')
-    .select('customer_id,total_amount,discount,bill_number,customers(name,phone)')
+    .select('customer_id,total_amount,discount')
     .eq('bill_type','sale')
-    .gte('created_at', range.from+'T00:00:00')
-    .lte('created_at', range.to+'T23:59:59')
+    .gte('created_at', range.from + 'T00:00:00')
+    .lte('created_at', range.to   + 'T23:59:59')
 
   const allSales = sales || []
-  const custMap  = {}
 
+  // Manual customer name lookup
+  const custMap = await getCustomerNames(allSales.map(s => s.customer_id))
+
+  const aggMap = {}
   allSales.forEach(s => {
     const id   = s.customer_id || '__walkin__'
-    const name = s.customers?.name  || 'Walk-in / Cash'
-    const phone= s.customers?.phone || '—'
-    if (!custMap[id]) custMap[id] = { name, phone, bills:0, total:0, discount:0 }
-    custMap[id].bills++
-    custMap[id].total    += Number(s.total_amount)
-    custMap[id].discount += Number(s.discount||0)
+    const cust = custMap[s.customer_id]
+    if (!aggMap[id]) aggMap[id] = {
+      name:     cust?.name  || 'Walk-in / Cash',
+      phone:    cust?.phone || '—',
+      bills:    0,
+      total:    0,
+      discount: 0
+    }
+    aggMap[id].bills++
+    aggMap[id].total    += Number(s.total_amount)
+    aggMap[id].discount += Number(s.discount || 0)
   })
 
-  const sorted   = Object.values(custMap).sort((a,b)=>b.total-a.total).slice(0,25)
-  const grandTot = sorted.reduce((s,c)=>s+c.total,0) || 1
+  const sorted   = Object.values(aggMap).sort((a,b) => b.total - a.total).slice(0,25)
+  const grandTot = sorted.reduce((s,c) => s + c.total, 0) || 1
 
   document.getElementById('custKpis').innerHTML =
-    kpiCard('👥','Unique Customers',  fmtNum(Object.keys(custMap).length), 'made purchases',          'linear-gradient(90deg,#2563eb,#7c3aed)') +
-    kpiCard('🧾','Total Bills',       fmtNum(allSales.length),              'in selected period',      'linear-gradient(90deg,#2563eb,#06b6d4)') +
-    kpiCard('🏆','Top Customer',      fmtAmt(sorted[0]?.total||0),          sorted[0]?.name||'—',     'linear-gradient(90deg,#d97706,#f59e0b)')
+    kpiCard('👥','Unique Customers', fmtNum(Object.keys(aggMap).length), 'made purchases',        'linear-gradient(90deg,#2563eb,#7c3aed)') +
+    kpiCard('🧾','Total Bills',      fmtNum(allSales.length),            'in selected period',    'linear-gradient(90deg,#2563eb,#06b6d4)') +
+    kpiCard('🏆','Top Customer',     fmtAmt(sorted[0]?.total || 0),      sorted[0]?.name || '—', 'linear-gradient(90deg,#d97706,#f59e0b)')
 
   const rows = sorted.map((c,i) => {
-    const share  = ((c.total/grandTot)*100).toFixed(1)
-    const avgBill = c.bills ? Math.round(c.total/c.bills) : 0
-    const barPct  = ((c.total/grandTot)*100)
+    const share   = ((c.total / grandTot)*100).toFixed(1)
+    const avgBill = c.bills ? Math.round(c.total / c.bills) : 0
+    const barPct  = ((c.total / grandTot)*100)
     return `<tr>
       <td class="tc">${rankBadge(i)}</td>
       <td><strong style="color:#fff;">${c.name}</strong></td>
       <td style="color:rgba(255,255,255,0.4);">${c.phone}</td>
       <td class="tc" style="color:rgba(255,255,255,0.6);">${c.bills}</td>
-      <td class="tr num green">${fmtAmt(c.total)}</td>
-      <td class="tr num">${fmtAmt(avgBill)}</td>
+      <td class="tr green">${fmtAmt(c.total)}</td>
+      <td class="tr">${fmtAmt(avgBill)}</td>
       <td class="tr">
         <div class="tbl-bar-wrap">
-          <span style="font-size:12px;color:rgba(255,255,255,0.5);min-width:36px;text-align:right;">${share}%</span>
+          <span style="font-size:12px;color:rgba(255,255,255,0.5);min-width:38px;text-align:right;">${share}%</span>
           <div class="tbl-bar"><div class="tbl-bar-fill" style="width:${barPct}%;background:#2563eb;"></div></div>
         </div>
       </td>
@@ -1214,33 +967,32 @@ async function loadCustomers(range) {
 
   exportStore.customers = {
     headers: ['Rank','Customer','Phone','Bills','Total Revenue','Avg Bill','Share%'],
-    rows: sorted.map((c,i)=>[i+1, c.name, c.phone, c.bills, c.total,
+    rows: sorted.map((c,i) => [i+1, c.name, c.phone, c.bills, c.total,
       c.bills?Math.round(c.total/c.bills):0, ((c.total/grandTot)*100).toFixed(1)+'%'])
   }
 
-  cache[key] = true
+  cache[k] = true
 }
 
-// ══════════════════════════════════════════════════
-//  CSV EXPORT — pure browser, no server needed
-// ══════════════════════════════════════════════════
+// ═══════════════════════════════════════
+// CSV EXPORT
+// ═══════════════════════════════════════
 window.exportCSV = function(tab) {
   const data = exportStore[tab]
-  if (!data || !data.rows.length) { alert('No data to export. Please wait for the tab to load.'); return }
-
+  if (!data || !data.rows.length) {
+    alert('No data to export. Load the tab first.')
+    return
+  }
   const range = getRange()
-  const periodLabel = currentPeriod.replace('_',' ')
-  const esc = v => `"${String(v==null?'':v).replace(/"/g,'""')}"`
-
+  const esc   = v => `"${String(v == null ? '' : v).replace(/"/g,'""')}"`
   const lines = [
     `"Abhinandan Auto Mobiles — ${tab.toUpperCase()} Report"`,
-    `"Period: ${periodLabel} | From: ${range.from} To: ${range.to}"`,
+    `"Period: ${range.from} to ${range.to}"`,
     `"Generated: ${new Date().toLocaleString('en-IN')}"`,
     '',
     data.headers.map(esc).join(','),
     ...data.rows.map(r => r.map(esc).join(','))
   ]
-
   const blob = new Blob([lines.join('\n')], { type:'text/csv;charset=utf-8;' })
   const url  = URL.createObjectURL(blob)
   const a    = document.createElement('a')
@@ -1250,13 +1002,11 @@ window.exportCSV = function(tab) {
   URL.revokeObjectURL(url)
 }
 
-window.exportCurrentTab = function() { window.exportCSV(activeTab) }
-
-// ══════════════════════════════════════════════════
-//  INIT — load first tab immediately
-// ══════════════════════════════════════════════════
+// ═══════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════
 loadTab('sales')
-document.getElementById('exportAllBtn').style.display = 'block'
 </script>
 </body>
 </html>
+
