@@ -10,19 +10,23 @@
   .mode-btn:hover{background:rgba(255,255,255,0.1);}
   .mode-btn.active-sale{background:#2563eb;border-color:#2563eb;color:white;box-shadow:0 4px 14px rgba(37,99,235,0.4);}
   .mode-btn.active-return{background:#dc2626;border-color:#dc2626;color:white;box-shadow:0 4px 14px rgba(220,38,38,0.4);}
-  #editModeBar{display:none;background:rgba(245,158,11,0.12);border:1.5px solid rgba(245,158,11,0.35);border-radius:10px;padding:12px 18px;margin-bottom:16px;}
+
+  #editModeBar{display:none;background:rgba(245,158,11,0.1);border:1.5px solid rgba(245,158,11,0.3);border-radius:10px;padding:12px 18px;margin-bottom:16px;}
   #editModeBar .em-inner{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;}
   #editModeBar .em-text{font-size:14px;color:#fbbf24;font-weight:600;}
-  #editModeBar .em-no{font-size:13px;color:rgba(245,158,11,0.75);margin-top:3px;}
+  #editModeBar .em-no{font-size:13px;color:rgba(245,158,11,0.65);margin-top:3px;}
+
   .bill-type-row{display:flex;gap:12px;margin-bottom:10px;flex-wrap:wrap;}
   .bill-type-btn{padding:8px 18px;border-radius:20px;border:2px solid rgba(255,255,255,0.2);background:transparent;color:white;font-size:14px;cursor:pointer;transition:all 0.2s;}
   .bill-type-btn.active{background:#2563eb;border-color:#2563eb;}
-  .extra-fields-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px;}
-  @media(max-width:600px){.extra-fields-grid{grid-template-columns:1fr;}}
+
   .field-label{font-size:11px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:rgba(255,255,255,0.4);display:block;margin-bottom:6px;}
   .opt-tag{font-size:10px;color:rgba(255,255,255,0.25);margin-left:6px;font-weight:400;letter-spacing:0;text-transform:none;}
-  .delivery-box{display:none;background:rgba(6,182,212,0.07);border:1.5px dashed rgba(6,182,212,0.3);border-radius:12px;padding:16px;margin-top:14px;}
+
+  .delivery-box{display:none;background:rgba(6,182,212,0.06);border:1.5px dashed rgba(6,182,212,0.3);border-radius:12px;padding:16px;margin-top:14px;}
   .delivery-box.visible{display:block;}
+
+  /* ── PRINT ── */
   #printArea{display:none;font-family:'DM Sans',sans-serif;background:#fff;padding:0;color:#111;}
   .bill-paper{max-width:800px;margin:auto;background:#fff;border:1px solid #e5e7eb;}
   .bill-header{background:linear-gradient(135deg,#1e3a5f 0%,#2563eb 60%,#06b6d4 100%);color:white;padding:28px 36px 20px;display:flex;align-items:center;justify-content:space-between;gap:20px;}
@@ -65,6 +69,7 @@
   .bill-footer-left{font-size:13px;color:#6b7280;}
   .bill-footer-left .thank-you{font-size:15px;font-weight:600;color:#1e3a5f;margin-bottom:4px;}
   .sig-label{font-size:12px;color:#6b7280;}
+
   @media print{
     @page{margin:12mm 10mm;size:A4;}
     html,body{background:white!important;min-height:0!important;height:auto!important;overflow:hidden!important;}
@@ -98,7 +103,7 @@
   <a href="customers.html">👥 Customers</a>
   <a href="customer-ledger.html">📒 Customer Ledger</a>
   <a href="merchants.html">🏭 Merchants</a>
-  <a href="reports.html">📊 Reports</a>
+  <a href="merchant-ledger.html">🏪 Merchant Ledger</a>
   <div class="sidebar-bottom"><div class="sidebar-version">Auto ERP v1.0</div></div>
 </div>
 
@@ -120,7 +125,7 @@
     </div>
   </div>
 
-  <!-- SALES BILL MODE -->
+  <!-- ═══════════ SALES BILL MODE ═══════════ -->
   <div id="salesBillMode">
 
     <div class="card">
@@ -145,13 +150,13 @@
           <input id="billPhone" placeholder="Auto-filled from customer" style="margin-bottom:0;">
         </div>
       </div>
-      <div class="extra-fields-grid">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px;">
         <div>
           <label class="field-label">Product Receiver Name <span class="opt-tag">(optional)</span></label>
           <input id="receiverName" placeholder="If different from customer" style="margin-bottom:0;">
         </div>
         <div>
-          <label class="field-label">Vehicle Number <span class="opt-tag">(optional)</span></label>
+          <label class="field-label">Vehicle Number <span class="opt-tag">(optional — suggests from past)</span></label>
           <input id="vehicleNumber" list="vehicleSuggestions" placeholder="e.g. GJ-12-AB-1234" style="margin-bottom:0;" oninput="this.value=this.value.toUpperCase()">
           <datalist id="vehicleSuggestions"></datalist>
         </div>
@@ -160,7 +165,7 @@
 
     <div class="card">
       <h3>Add Products</h3>
-      <input id="productSearch" placeholder="Search product..." autocomplete="off">
+      <input id="productSearch" placeholder="Search product by name..." autocomplete="off">
       <ul id="productList"></ul>
     </div>
 
@@ -181,22 +186,22 @@
         </label>
       </div>
 
-      <!-- DELIVERY CHARGES BOX — shows for all bill types -->
+      <!-- DELIVERY CHARGES -->
       <div class="delivery-box" id="deliveryBox">
         <div style="font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:rgba(6,182,212,0.8);margin-bottom:12px;">🚚 Delivery / Extra Charges</div>
         <div style="display:grid;grid-template-columns:180px 1fr;gap:12px;align-items:end;">
           <div>
-            <label class="field-label">Delivery Charges (₹) <span class="opt-tag">(0 = Free)</span></label>
+            <label class="field-label">Charges (₹) <span class="opt-tag">(0 = Free)</span></label>
             <input type="number" id="deliveryCharges" placeholder="0" min="0" oninput="renderBill()" style="margin-bottom:0;">
           </div>
           <div>
-            <label class="field-label">Note <span class="opt-tag">(optional)</span></label>
-            <input type="text" id="deliveryNote" placeholder="e.g. Express delivery, Fragile items" style="margin-bottom:0;">
+            <label class="field-label">Delivery Note <span class="opt-tag">(optional)</span></label>
+            <input type="text" id="deliveryNote" placeholder="e.g. Express delivery, Fragile" style="margin-bottom:0;">
           </div>
         </div>
       </div>
       <div style="margin-top:10px;">
-        <button onclick="toggleDeliveryBox()" id="deliveryToggleBtn" style="background:rgba(6,182,212,0.12);border:1px solid rgba(6,182,212,0.3);color:rgba(6,182,212,0.9);padding:7px 16px;border-radius:8px;font-size:13px;font-weight:600;box-shadow:none;">+ Add Delivery / Extra Charges</button>
+        <button onclick="toggleDeliveryBox()" id="deliveryToggleBtn" style="background:rgba(6,182,212,0.1);border:1px solid rgba(6,182,212,0.3);color:rgba(6,182,212,0.9);padding:7px 16px;border-radius:8px;font-size:13px;font-weight:600;box-shadow:none;">+ Add Delivery / Extra Charges</button>
       </div>
 
       <div class="card" style="margin-top:16px;">
@@ -208,7 +213,9 @@
         </div>
         <div style="display:grid;grid-template-columns:1fr 150px;gap:10px;align-items:end;margin-bottom:16px;">
           <div>
-            <label class="field-label">Discount <span id="autoDiscountBadge" style="display:none;margin-left:8px;background:rgba(52,211,153,0.2);color:#34d399;font-size:10px;padding:2px 8px;border-radius:10px;letter-spacing:0;">AUTO</span></label>
+            <label class="field-label">Discount
+              <span id="autoDiscountBadge" style="display:none;margin-left:8px;background:rgba(52,211,153,0.2);color:#34d399;font-size:10px;padding:2px 8px;border-radius:10px;letter-spacing:0;">AUTO</span>
+            </label>
             <input id="discountValue" placeholder="0" type="number" min="0" oninput="renderBill()" style="margin-bottom:0;">
           </div>
           <div>
@@ -220,7 +227,7 @@
             </select>
           </div>
         </div>
-        <div id="paymentSummary" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:16px;font-size:14px;"></div>
+        <div id="paymentSummary" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:16px;font-size:14px;"></div>
       </div>
 
       <div style="display:flex;gap:12px;margin-top:16px;flex-wrap:wrap;">
@@ -231,11 +238,11 @@
     </div>
   </div>
 
-  <!-- SALES RETURN MODE -->
+  <!-- ═══════════ SALES RETURN MODE ═══════════ -->
   <div id="salesReturnMode" style="display:none;">
     <div class="card" style="border-color:rgba(220,38,38,0.2);">
       <h3 style="color:#f87171;">↩️ Sales Return</h3>
-      <p style="font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:16px;">Search the original bill number, select items to return. Inventory will be restored and customer credit adjusted.</p>
+      <p style="font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:16px;">Search the original bill. Select items to return. Inventory will be restored and customer credit adjusted.</p>
       <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;">
         <div style="flex:1;min-width:200px;">
           <label class="field-label">Original Bill Number</label>
@@ -244,27 +251,24 @@
         <button id="findReturnBillBtn" style="background:#dc2626;border:none;color:white;padding:10px 20px;border-radius:8px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;margin-bottom:0;">🔍 Find Bill</button>
       </div>
     </div>
-
     <div id="returnBillDetails" style="display:none;">
-      <div class="card" style="border-color:rgba(220,38,38,0.15);">
+      <div class="card" style="border-color:rgba(220,38,38,0.12);">
         <div id="returnCustomerInfo" style="display:flex;gap:24px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,0.07);margin-bottom:16px;flex-wrap:wrap;"></div>
         <div style="font-size:11px;font-weight:600;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">Select Items to Return</div>
         <table style="width:100%;border-collapse:collapse;">
-          <thead>
-            <tr style="background:#1e293b;">
-              <th style="padding:10px 12px;text-align:center;font-size:11px;color:rgba(255,255,255,0.45);text-transform:uppercase;">✓</th>
-              <th style="padding:10px 12px;text-align:left;font-size:11px;color:rgba(255,255,255,0.45);text-transform:uppercase;">Item</th>
-              <th style="padding:10px 12px;text-align:center;font-size:11px;color:rgba(255,255,255,0.45);text-transform:uppercase;">Billed Qty</th>
-              <th style="padding:10px 12px;text-align:center;font-size:11px;color:rgba(255,255,255,0.45);text-transform:uppercase;">Return Qty</th>
-              <th style="padding:10px 12px;text-align:right;font-size:11px;color:rgba(255,255,255,0.45);text-transform:uppercase;">Price</th>
-              <th style="padding:10px 12px;text-align:right;font-size:11px;color:rgba(255,255,255,0.45);text-transform:uppercase;">Return Total</th>
-            </tr>
-          </thead>
+          <thead><tr style="background:#1e293b;">
+            <th style="padding:10px 12px;text-align:center;font-size:11px;color:rgba(255,255,255,0.45);text-transform:uppercase;">✓</th>
+            <th style="padding:10px 12px;text-align:left;font-size:11px;color:rgba(255,255,255,0.45);text-transform:uppercase;">Item</th>
+            <th style="padding:10px 12px;text-align:center;font-size:11px;color:rgba(255,255,255,0.45);text-transform:uppercase;">Billed Qty</th>
+            <th style="padding:10px 12px;text-align:center;font-size:11px;color:rgba(255,255,255,0.45);text-transform:uppercase;">Return Qty</th>
+            <th style="padding:10px 12px;text-align:right;font-size:11px;color:rgba(255,255,255,0.45);text-transform:uppercase;">Price</th>
+            <th style="padding:10px 12px;text-align:right;font-size:11px;color:rgba(255,255,255,0.45);text-transform:uppercase;">Return Total</th>
+          </tr></thead>
           <tbody id="returnItemsBody"></tbody>
         </table>
         <div style="margin-top:16px;display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;">
           <div style="flex:1;min-width:200px;">
-            <label class="field-label">Reason for Return <span class="opt-tag">(optional)</span></label>
+            <label class="field-label">Reason <span class="opt-tag">(optional)</span></label>
             <input id="returnReason" placeholder="e.g. Defective part, Wrong item..." style="margin-bottom:0;">
           </div>
           <div style="background:rgba(220,38,38,0.1);border:1px solid rgba(220,38,38,0.25);border-radius:10px;padding:12px 20px;text-align:center;min-width:160px;">
@@ -282,7 +286,8 @@
   </div>
 </div>
 
-<!-- PRINT AREA -->
+
+<!-- ═══════════ PRINT AREA ═══════════ -->
 <div id="printArea">
   <div class="bill-paper">
     <div class="bill-header" id="printHeader">
@@ -352,10 +357,10 @@
   </div>
 </div>
 
-<!-- BILL HISTORY MODAL -->
-  
-<div id="billHistoryModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:9999;overflow-y:auto;padding:20px;">
-  <div style="background:#0f172a;border:1px solid rgba(255,255,255,0.1);width:95%;max-width:1100px;margin:30px auto;padding:28px;border-radius:16px;">
+
+<!-- ═══════════ BILL HISTORY MODAL ═══════════ -->
+<div id="billHistoryModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.82);z-index:9999;overflow-y:auto;padding:20px;backdrop-filter:blur(6px);">
+  <div style="background:#0f172a;border:1px solid rgba(255,255,255,0.1);width:95%;max-width:1100px;margin:30px auto;padding:28px;border-radius:18px;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
       <h2 style="font-family:'Playfair Display',serif;font-size:22px;color:white;margin:0;">📜 Bill History</h2>
       <div style="display:flex;gap:10px;flex-wrap:wrap;">
@@ -367,7 +372,7 @@
         <button id="closeHistoryBtn" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);padding:8px 16px;font-size:13px;border-radius:8px;box-shadow:none;">✕ Close</button>
       </div>
     </div>
-    <input type="text" id="searchBill" placeholder="Search by customer, bill number, or vehicle number..." style="width:100%;padding:12px 16px;margin-bottom:16px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:10px;color:white;font-size:14px;font-family:'DM Sans',sans-serif;">
+    <input type="text" id="searchBill" placeholder="Search by customer name, bill number, or vehicle number..." style="width:100%;padding:12px 16px;margin-bottom:16px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:10px;color:white;font-size:14px;font-family:'DM Sans',sans-serif;">
     <table style="width:100%;border-collapse:collapse;">
       <thead>
         <tr style="background:rgba(37,99,235,0.18);border-bottom:1px solid rgba(255,255,255,0.08);">
@@ -389,9 +394,8 @@
   </div>
 </div>
 
-<!-- DELETE CONFIRM MODAL -->
-  
-<div id="deleteModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:10000;align-items:center;justify-content:center;">
+<!-- ═══════════ DELETE CONFIRM MODAL ═══════════ -->
+<div id="deleteModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:10000;align-items:center;justify-content:center;backdrop-filter:blur(8px);">
   <div style="background:#0f172a;border:1px solid rgba(220,38,38,0.3);border-radius:16px;padding:28px;width:90%;max-width:420px;">
     <div style="font-family:'Playfair Display',serif;font-size:20px;color:#f87171;margin-bottom:12px;">🗑️ Delete Bill</div>
     <p style="color:rgba(255,255,255,0.7);font-size:14px;line-height:1.6;margin-bottom:8px;">Delete bill <strong id="deleteModalBillNo" style="color:white;"></strong>?</p>
@@ -403,49 +407,51 @@
   </div>
 </div>
 
+
 <script>
-// ── Load Supabase UMD then init ──
+// Load Supabase UMD then init — works on all browsers
 var _sb = document.createElement('script')
 _sb.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js'
 _sb.onload = function() {
-  var supabase = window.supabase.createClient(
+  initBilling(window.supabase.createClient(
     'https://mhhnmndnolhapaoqtbxo.supabase.co',
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1oaG5tbmRub2xoYXBhb3F0YnhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4Mzg4NTksImV4cCI6MjA4ODQxNDg1OX0.IMSp8vYiCln_iSuoT_H2qdeX_dP1WMhOOskDw20eJXw'
-  )
-  initBilling(supabase)
+  ))
 }
 document.head.appendChild(_sb)
+
 
 function initBilling(supabase) {
 
 // ── STATE ──
-  
-var selectedCustomer   = null
-var currentBillNumber  = null
-var billItems          = []
-var totalAmount        = 0
-var selectedBillType   = 'GST Invoice'
-var editingBillId      = null
-var editingBillNumber  = null
-var deletingBillId     = null
-var deletingBillNo     = null
-var returnOriginalSale = null
+var selectedCustomer    = null
+var currentBillNumber   = null
+var billItems           = []
+var totalAmount         = 0
+var selectedBillType    = 'GST Invoice'
+var editingBillId       = null
+var editingBillNumber   = null
+var deletingBillId      = null
+var deletingBillNo      = null
+var returnOriginalSale  = null
 var returnBillItemsData = []
-var historyPage        = 1
-var HIST_SIZE          = 20
-var deliveryBoxOpen    = false
+var historyPage         = 1
+var HIST_SIZE           = 20
+var deliveryBoxOpen     = false
+var searchDebounceTimer = null
+var productDebounceTimer= null
+
 
 // ── MODE ──
-  
 window.setMode = function(mode) {
-  document.getElementById('salesBillMode').style.display   = mode === 'sale'   ? 'block' : 'none'
-  document.getElementById('salesReturnMode').style.display = mode === 'return' ? 'block' : 'none'
-  document.getElementById('modeSaleBtn').className   = 'mode-btn ' + (mode === 'sale'   ? 'active-sale'   : '')
-  document.getElementById('modeReturnBtn').className = 'mode-btn ' + (mode === 'return' ? 'active-return' : '')
+  document.getElementById('salesBillMode').style.display   = mode==='sale'   ? 'block' : 'none'
+  document.getElementById('salesReturnMode').style.display = mode==='return' ? 'block' : 'none'
+  document.getElementById('modeSaleBtn').className   = 'mode-btn '+(mode==='sale'?'active-sale':'')
+  document.getElementById('modeReturnBtn').className = 'mode-btn '+(mode==='return'?'active-return':'')
 }
 
+
 // ── BILL TYPE ──
-  
 document.querySelectorAll('.bill-type-btn').forEach(function(btn) {
   btn.addEventListener('click', function() {
     document.querySelectorAll('.bill-type-btn').forEach(function(b){ b.classList.remove('active') })
@@ -454,8 +460,8 @@ document.querySelectorAll('.bill-type-btn').forEach(function(btn) {
   })
 })
 
-// ── DELIVERY BOX TOGGLE ──
-  
+
+// ── DELIVERY BOX ──
 window.toggleDeliveryBox = function() {
   deliveryBoxOpen = !deliveryBoxOpen
   var box = document.getElementById('deliveryBox')
@@ -476,17 +482,18 @@ window.toggleDeliveryBox = function() {
   }
 }
 
-// ── INVOICE NUMBER ──
-  
+
+// ── INVOICE NUMBER (date-based, safe for concurrent use) ──
 async function generateInvoiceNo() {
   var now = new Date()
   var dd  = String(now.getDate()).padStart(2,'0')
   var mm  = String(now.getMonth()+1).padStart(2,'0')
   var yy  = String(now.getFullYear()).slice(2)
+  var prefix = 'AAM-'+dd+mm+yy+'-'
   var startOfDay = new Date(); startOfDay.setHours(0,0,0,0)
-  var res = await supabase.from('sales').select('bill_number').gte('created_at', startOfDay.toISOString()).like('bill_number','AAM-%')
-  var count = (res.data || []).length
-  return 'AAM-' + dd + mm + yy + '-' + String(count+1).padStart(4,'0')
+  var res = await supabase.from('sales').select('bill_number', {count:'exact'}).gte('created_at', startOfDay.toISOString()).like('bill_number', 'AAM-%')
+  var count = res.count || (res.data||[]).length
+  return prefix + String(count+1).padStart(4,'0')
 }
 
 async function generateReturnNo() {
@@ -496,71 +503,94 @@ async function generateReturnNo() {
   var yy  = String(now.getFullYear()).slice(2)
   var startOfDay = new Date(); startOfDay.setHours(0,0,0,0)
   var res = await supabase.from('sales').select('bill_number').eq('bill_type','return').gte('created_at', startOfDay.toISOString())
-  var count = (res.data || []).length
-  return 'RTN-AAM-' + dd + mm + yy + '-' + String(count+1).padStart(4,'0')
+  return 'RTN-AAM-'+dd+mm+yy+'-'+String((res.data||[]).length+1).padStart(4,'0')
 }
 
-// ── CUSTOMER SEARCH ──
-  
-document.getElementById('customerSearch').addEventListener('input', async function() {
+
+// ── CUSTOMER SEARCH (debounced, 350ms) ──
+document.getElementById('customerSearch').addEventListener('input', function() {
   var text = this.value.trim()
+  clearTimeout(searchDebounceTimer)
   var list = document.getElementById('customerList')
   if (!text) { list.innerHTML = ''; return }
-  var res = await supabase.from('customers').select('*').or('name.ilike.%' + text + '%,phone.ilike.%' + text + '%').limit(6)
-  list.innerHTML = ''
-  if (!res.data) return
-  res.data.forEach(function(c) {
-    var li = document.createElement('li')
-    li.innerText = c.name + (c.phone ? ' — ' + c.phone : '')
-    li.onclick = function() {
-      selectedCustomer = c
-      document.getElementById('customerSearch').value = c.name
-      document.getElementById('billPhone').value = c.phone || ''
-      list.innerHTML = ''
-      loadVehicleSuggestions(c.id)
+  var self = this
+  searchDebounceTimer = setTimeout(async function() {
+    var res = await supabase.from('customers').select('id,name,phone').or('name.ilike.%'+text+'%,phone.ilike.%'+text+'%').limit(8)
+    list.innerHTML = ''
+    if (!res.data || !res.data.length) {
+      var li = document.createElement('li')
+      li.style.color = 'rgba(255,255,255,0.4)'
+      li.style.cursor = 'default'
+      li.innerText = 'No customers found — will create new on save'
+      list.appendChild(li)
+      return
     }
-    list.appendChild(li)
-  })
+    res.data.forEach(function(c) {
+      var li = document.createElement('li')
+      li.innerText = c.name + (c.phone ? ' — '+c.phone : '')
+      li.onclick = function() {
+        selectedCustomer = c
+        document.getElementById('customerSearch').value = c.name
+        document.getElementById('billPhone').value = c.phone || ''
+        list.innerHTML = ''
+        loadVehicleSuggestions(c.id)
+      }
+      list.appendChild(li)
+    })
+  }, 350)
 })
 
 async function loadVehicleSuggestions(customerId) {
-  var res = await supabase.from('sales').select('vehicle_number').eq('customer_id', customerId).not('vehicle_number','is',null).order('created_at',{ascending:false}).limit(40)
+  var res = await supabase.from('sales').select('vehicle_number').eq('customer_id', customerId).not('vehicle_number','is',null).order('created_at',{ascending:false}).limit(50)
   var dl = document.getElementById('vehicleSuggestions')
-  var unique = []
-  ;(res.data || []).forEach(function(s){ if(s.vehicle_number && unique.indexOf(s.vehicle_number)===-1) unique.push(s.vehicle_number) })
-  dl.innerHTML = unique.map(function(v){ return '<option value="' + v + '">' }).join('')
+  var seen = {}
+  dl.innerHTML = (res.data||[]).filter(function(s){ return s.vehicle_number && !seen[s.vehicle_number] && (seen[s.vehicle_number]=1) }).map(function(s){ return '<option value="'+s.vehicle_number+'">' }).join('')
 }
 
-// ── PRODUCT SEARCH ──
-  
-document.getElementById('productSearch').addEventListener('input', async function() {
+
+// ── PRODUCT SEARCH (debounced, 300ms — fast for 20k products) ──
+document.getElementById('productSearch').addEventListener('input', function() {
   var text = this.value.trim()
+  clearTimeout(productDebounceTimer)
   var list = document.getElementById('productList')
   if (!text) { list.innerHTML = ''; return }
-  var res = await supabase.from('inventory').select('*').ilike('item_name', '%' + text + '%').limit(8)
-  list.innerHTML = ''
-  if (!res.data) return
-  res.data.forEach(function(p) {
-    var li = document.createElement('li')
-    var sc = p.quantity <= 0 ? '#f87171' : p.quantity <= 5 ? '#fbbf24' : '#34d399'
-    li.innerHTML = p.item_name + ' <span style="color:rgba(255,255,255,0.4);font-size:12px;">— Stock: <span style="color:' + sc + ';font-weight:600;">' + (p.quantity||0) + '</span> | ₹' + (p.selling_price||0) + '</span>'
-    li.onclick = function() { addToBill(p); document.getElementById('productSearch').value = ''; list.innerHTML = '' }
-    list.appendChild(li)
-  })
+  productDebounceTimer = setTimeout(async function() {
+    var res = await supabase.from('inventory').select('id,item_name,selling_price,quantity').ilike('item_name','%'+text+'%').order('item_name').limit(10)
+    list.innerHTML = ''
+    if (!res.data || !res.data.length) {
+      var li = document.createElement('li')
+      li.style.color = 'rgba(255,255,255,0.4)'
+      li.style.cursor = 'default'
+      li.innerText = 'No products found'
+      list.appendChild(li)
+      return
+    }
+    res.data.forEach(function(p) {
+      var li = document.createElement('li')
+      var sc = p.quantity <= 0 ? '#f87171' : p.quantity <= 5 ? '#fbbf24' : '#34d399'
+      li.innerHTML = p.item_name + ' <span style="color:rgba(255,255,255,0.4);font-size:12px;">— Stock: <span style="color:'+sc+';font-weight:600;">'+(p.quantity||0)+'</span> | ₹'+(p.selling_price||0)+'</span>'
+      li.onclick = function() {
+        addToBill(p)
+        document.getElementById('productSearch').value = ''
+        list.innerHTML = ''
+      }
+      list.appendChild(li)
+    })
+  }, 300)
 })
 
+
 // ── ADD TO BILL ──
-  
 function addToBill(product) {
-  var item = null
-  for (var i=0; i<billItems.length; i++) { if(billItems[i].id === product.id){ item=billItems[i]; break } }
-  if (item) { item.qty++ }
+  var found = null
+  for (var i=0; i<billItems.length; i++) { if (billItems[i].id === product.id) { found = billItems[i]; break } }
+  if (found) { found.qty++ }
   else { billItems.push({ id: product.id, name: product.item_name, price: product.selling_price||0, qty: 1 }) }
   renderBill()
 }
 
-// ── DISCOUNT CHANGE ──
-  
+
+// ── DISCOUNT TYPE CHANGE ──
 window.handleDiscountTypeChange = function() {
   var type = document.getElementById('discountType').value
   if (type !== 'auto') {
@@ -571,133 +601,132 @@ window.handleDiscountTypeChange = function() {
   renderBill()
 }
 
-// ── RENDER BILL ──
-  
-function renderBill() {
-  const table = document.getElementById("billTable"); table.innerHTML=""; totalAmount=0
 
-  billItems.forEach((item, index) => {
-    const lt = item.qty * item.price; totalAmount += lt
-    table.innerHTML += `
-      <tr>
-        <td style="font-weight:500;">
-          ${item.name}
-          ${item.isEdited ? '<span style="font-size:10px;background:rgba(245,158,11,0.2);color:#f59e0b;padding:1px 7px;border-radius:8px;margin-left:6px;">edited</span>' : ''}
-        </td>
-        <td><input type="number" value="${item.qty}" min="1" class="qtyInput" data-index="${index}" style="width:65px;margin-bottom:0;text-align:center;"></td>
-        <td><input type="number" value="${item.price}" min="0" class="priceInput" data-index="${index}" style="width:90px;margin-bottom:0;color:#34d399;font-weight:600;text-align:center;" title="Edit price for this bill only"></td>
-        <td style="font-weight:600;">₹${lt.toLocaleString('en-IN')}</td>
-        <td><button class="removeBtn" data-index="${index}">✕</button></td>
-      </tr>`
+// ── RENDER BILL ──
+function renderBill() {
+  var table = document.getElementById('billTable'); table.innerHTML = ''; totalAmount = 0
+  var gst = document.getElementById('gstToggle').checked
+  var deliv = deliveryBoxOpen ? (parseFloat(document.getElementById('deliveryCharges').value)||0) : 0
+
+  billItems.forEach(function(item, index) {
+    var lt = item.qty * item.price; totalAmount += lt
+    var editedBadge = item.isEdited ? '<span style="font-size:10px;background:rgba(245,158,11,0.2);color:#f59e0b;padding:1px 7px;border-radius:8px;margin-left:6px;">edited</span>' : ''
+    var tr = document.createElement('tr')
+    tr.innerHTML =
+      '<td style="font-weight:500;">'+item.name+editedBadge+'</td>'+
+      '<td><input type="number" value="'+item.qty+'" min="1" class="qtyInput" data-index="'+index+'" style="width:65px;margin-bottom:0;text-align:center;"></td>'+
+      '<td><input type="number" value="'+item.price+'" min="0" class="priceInput" data-index="'+index+'" style="width:90px;margin-bottom:0;color:#34d399;font-weight:600;text-align:center;" title="Edit price for this bill (won\'t change inventory base price in edit mode)"></td>'+
+      '<td style="font-weight:600;">₹'+lt.toLocaleString('en-IN')+'</td>'+
+      '<td><button class="removeBtn" data-index="'+index+'">✕</button></td>'
+    table.appendChild(tr)
   })
 
-  document.getElementById("totalAmount").innerText = totalAmount.toLocaleString('en-IN')
+  document.getElementById('totalAmount').innerText = totalAmount.toLocaleString('en-IN')
 
-  const gst = document.getElementById("gstToggle").checked
-  let afterGST = totalAmount; if(gst) afterGST = Math.round(totalAmount * 1.18)
-  const cash   = parseFloat(document.getElementById("cash").value)   || 0
-  const upi    = parseFloat(document.getElementById("upi").value)    || 0
-  const cred   = parseFloat(document.getElementById("credit").value) || 0
-  const paid   = cash + upi + cred
-  const dt     = document.getElementById("discountType").value
-  let disc = 0
-  if(dt==="auto"){disc=Math.max(afterGST-paid,0);document.getElementById("discountValue").value=disc;document.getElementById("discountValue").disabled=true;document.getElementById("autoDiscountBadge").style.display="inline"}
-  else{document.getElementById("discountValue").disabled=false;document.getElementById("autoDiscountBadge").style.display="none";const dv=parseFloat(document.getElementById("discountValue").value)||0;disc=dt==="percent"?Math.round(afterGST*dv/100):dv;disc=Math.min(disc,afterGST)}
-  const after = afterGST - disc; const rem = Math.round(after - paid)
-  const row = (l,v,c) => `<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.05);"><span style="color:${c||'rgba(255,255,255,0.5)'};">${l}</span><span style="font-weight:600;color:${c||'white'};">${v}</span></div>`
-  let html = row("Subtotal","₹"+totalAmount.toLocaleString("en-IN"))
-  if(gst){html+=row("CGST (9%)","+ ₹"+Math.round(totalAmount*0.09).toLocaleString("en-IN"));html+=row("SGST (9%)","+ ₹"+Math.round(totalAmount*0.09).toLocaleString("en-IN"))}
-  if(disc>0)  html+=row("Discount","- ₹"+Math.round(disc).toLocaleString("en-IN"),"#34d399")
-  if(cash>0)  html+=row("Cash paid","₹"+cash.toLocaleString("en-IN"),"#60a5fa")
-  if(upi>0)   html+=row("UPI paid","₹"+upi.toLocaleString("en-IN"),"#a78bfa")
-  if(cred>0)  html+=row("Credit","₹"+cred.toLocaleString("en-IN"),"#f87171")
-  let sc="#34d399",st="✅ Fully Settled"
-  if(rem>0){sc="#f87171";st="⚠️ Still Due: ₹"+rem.toLocaleString("en-IN")}
-  if(rem<0){sc="#fbbf24";st="⚠️ Over Paid ₹"+Math.abs(rem).toLocaleString("en-IN")+" — please correct!"}
-  html += `<div style="display:flex;justify-content:space-between;padding:10px 0 4px;margin-top:6px;border-top:1px solid rgba(255,255,255,0.1);"><span style="font-size:15px;font-weight:600;color:white;">Final Bill Amount</span><span style="font-size:17px;font-weight:700;color:white;">₹${Math.round(after).toLocaleString("en-IN")}</span></div><div style="font-size:13px;color:${sc};padding-bottom:2px;">${st}</div>`
-  document.getElementById("paymentSummary").innerHTML = html
+  var afterGST = gst ? Math.round(totalAmount * 1.18) : totalAmount
+  var afterDelivery = afterGST + deliv
+  var cash   = parseFloat(document.getElementById('cash').value)   || 0
+  var upi    = parseFloat(document.getElementById('upi').value)    || 0
+  var cred   = parseFloat(document.getElementById('credit').value) || 0
+  var paid   = cash + upi + cred
+  var dt     = document.getElementById('discountType').value
+  var disc   = 0
+  if (dt==='auto') {
+    disc = Math.max(afterDelivery - paid, 0)
+    document.getElementById('discountValue').value = disc
+    document.getElementById('discountValue').disabled = true
+    document.getElementById('autoDiscountBadge').style.display = 'inline'
+  } else {
+    document.getElementById('discountValue').disabled = false
+    document.getElementById('autoDiscountBadge').style.display = 'none'
+    var dv = parseFloat(document.getElementById('discountValue').value)||0
+    disc = dt==='percent' ? Math.round(afterDelivery*dv/100) : dv
+    disc = Math.min(disc, afterDelivery)
+  }
+  var after = afterDelivery - disc
+  var rem   = Math.round(after - paid)
 
-  // ── EDIT MODE NOTICE ──
-  if(editingBillId) {
-    const notice = document.getElementById("billEditNotice")
-    if(!notice) {
-      const div = document.createElement("div")
-      div.id = "billEditNotice"
-      div.style.cssText = "background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);border-radius:8px;padding:10px 14px;font-size:13px;color:#fbbf24;margin-bottom:12px;"
-      div.innerText = "✏️ Edit mode — change qty, price, remove items, or use the product search above to add different products. Price changes here do NOT affect the base inventory price."
+  function row(l,v,c){ return '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.05);"><span style="color:'+(c||'rgba(255,255,255,0.5)')+';">'+l+'</span><span style="font-weight:600;color:'+(c||'white')+';">'+v+'</span></div>' }
+  var html = row('Subtotal','₹'+totalAmount.toLocaleString('en-IN'))
+  if (gst) { html+=row('CGST (9%)','+ ₹'+Math.round(totalAmount*0.09).toLocaleString('en-IN')); html+=row('SGST (9%)','+ ₹'+Math.round(totalAmount*0.09).toLocaleString('en-IN')) }
+  if (deliv > 0) html += row('🚚 Delivery','+ ₹'+deliv.toLocaleString('en-IN'),'#06b6d4')
+  if (disc  > 0) html += row('Discount','- ₹'+Math.round(disc).toLocaleString('en-IN'),'#34d399')
+  if (cash  > 0) html += row('Cash paid','₹'+cash.toLocaleString('en-IN'),'#60a5fa')
+  if (upi   > 0) html += row('UPI paid','₹'+upi.toLocaleString('en-IN'),'#a78bfa')
+  if (cred  > 0) html += row('Credit','₹'+cred.toLocaleString('en-IN'),'#f87171')
+  var sc='#34d399', st='✅ Fully Settled'
+  if (rem > 0) { sc='#f87171'; st='⚠️ Still Due: ₹'+rem.toLocaleString('en-IN') }
+  if (rem < 0) { sc='#fbbf24'; st='⚠️ Over Paid ₹'+Math.abs(rem).toLocaleString('en-IN')+' — please correct!' }
+  html += '<div style="display:flex;justify-content:space-between;padding:10px 0 4px;margin-top:6px;border-top:1px solid rgba(255,255,255,0.1);"><span style="font-size:15px;font-weight:600;color:white;">Final Bill Amount</span><span style="font-size:17px;font-weight:700;color:white;">₹'+Math.round(after).toLocaleString('en-IN')+'</span></div>'
+  html += '<div style="font-size:13px;color:'+sc+';padding-bottom:2px;">'+st+'</div>'
+  document.getElementById('paymentSummary').innerHTML = html
+
+  // Edit mode notice
+  if (editingBillId) {
+    if (!document.getElementById('billEditNotice')) {
+      var div = document.createElement('div')
+      div.id = 'billEditNotice'
+      div.style.cssText = 'background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);border-radius:8px;padding:10px 14px;font-size:13px;color:#fbbf24;margin-bottom:12px;'
+      div.innerText = '✏️ Edit mode — change qty, price, remove or add items using search above. Price changes here do NOT update inventory base price.'
       table.parentNode.insertBefore(div, table)
     }
   } else {
-    const notice = document.getElementById("billEditNotice")
-    if(notice) notice.remove()
+    var notice = document.getElementById('billEditNotice')
+    if (notice) notice.remove()
   }
 
-  // ── QTY listeners ──
-  document.querySelectorAll(".qtyInput").forEach(input => {
-    input.addEventListener("change", function() {
-      billItems[+this.dataset.index].qty = parseInt(this.value) || 1
-      renderBill()
-    })
+  // Qty listeners
+  table.querySelectorAll('.qtyInput').forEach(function(input) {
+    input.addEventListener('change', function() { billItems[+this.dataset.index].qty = parseInt(this.value)||1; renderBill() })
   })
 
-  // ── PRICE listeners — NEVER auto-save to inventory in edit mode ──
-  document.querySelectorAll(".priceInput").forEach(input => {
-    input.addEventListener("change", function() {
-      const idx      = +this.dataset.index
-      const newPrice = parseFloat(this.value) || 0
-      billItems[idx].price = newPrice
-      billItems[idx].isEdited = true   // mark as manually edited
-
-      // Only auto-update inventory selling price when creating a NEW bill
-      if (!editingBillId) {
-        const itemId = billItems[idx].id
-        if (itemId) {
-          supabase.from("inventory").update({ selling_price: newPrice }).eq("id", itemId)
-            .then(({ error }) => {
-              if (!error) { this.style.borderColor="#34d399"; setTimeout(()=>{ this.style.borderColor="" }, 1500) }
-            })
-        }
+  // Price listeners — only updates inventory when NOT in edit mode
+  table.querySelectorAll('.priceInput').forEach(function(input) {
+    input.addEventListener('change', function() {
+      var idx = +this.dataset.index
+      var np  = parseFloat(this.value)||0
+      billItems[idx].price = np
+      billItems[idx].isEdited = true
+      if (!editingBillId && billItems[idx].id) {
+        supabase.from('inventory').update({selling_price:np}).eq('id',billItems[idx].id).then(function(r){
+          if (!r.error) { input.style.borderColor='#34d399'; setTimeout(function(){ input.style.borderColor='' },1500) }
+        })
       } else {
-        // In edit mode — just show a brief amber flash, no DB write
-        this.style.borderColor = "#f59e0b"
-        setTimeout(() => { this.style.borderColor = "" }, 1000)
+        input.style.borderColor = '#f59e0b'
+        setTimeout(function(){ input.style.borderColor='' }, 1000)
       }
       renderBill()
     })
   })
 
-  // ── REMOVE listeners ──
-  document.querySelectorAll(".removeBtn").forEach(btn => {
-    btn.addEventListener("click", function() {
-      billItems.splice(+this.dataset.index, 1)
-      renderBill()
-    })
+  // Remove listeners
+  table.querySelectorAll('.removeBtn').forEach(function(btn) {
+    btn.addEventListener('click', function() { billItems.splice(+this.dataset.index, 1); renderBill() })
   })
 }
-  
-  // ── CALC DISCOUNT HELPER ──
+
+document.getElementById('gstToggle').addEventListener('change', renderBill)
+
+
+// ── CALC DISCOUNT HELPER ──
 function calcDiscount(afterTotal) {
   var dt   = document.getElementById('discountType').value
   var cash = parseFloat(document.getElementById('cash').value)   || 0
   var upi  = parseFloat(document.getElementById('upi').value)    || 0
   var cred = parseFloat(document.getElementById('credit').value) || 0
   var disc = 0
-  if (dt === 'auto') {
-    disc = Math.max(afterTotal - (cash+upi+cred), 0)
-  } else {
-    var dv = parseFloat(document.getElementById('discountValue').value) || 0
-    disc = dt === 'percent' ? Math.round(afterTotal * dv / 100) : dv
-    disc = Math.min(disc, afterTotal)
-  }
+  if (dt === 'auto') { disc = Math.max(afterTotal-(cash+upi+cred), 0) }
+  else { var dv=parseFloat(document.getElementById('discountValue').value)||0; disc=dt==='percent'?Math.round(afterTotal*dv/100):dv; disc=Math.min(disc,afterTotal) }
   return Math.round(disc)
 }
+
 
 // ── SAVE BILL ──
 async function saveBill() {
   if (window.isSaving) return
   window.isSaving = true
   try {
-    // Customer
+    // ── Customer ──
     var customerId = null
     if (!selectedCustomer) {
       var name = document.getElementById('customerSearch').value.trim()
@@ -710,324 +739,396 @@ async function saveBill() {
 
     if (!billItems.length) { alert('Add products first'); window.isSaving=false; return }
 
+    // ── Amounts ──
     var cash = parseFloat(document.getElementById('cash').value)   || 0
     var upi  = parseFloat(document.getElementById('upi').value)    || 0
     var cred = parseFloat(document.getElementById('credit').value) || 0
     var paid = cash + upi + cred
     var gst  = document.getElementById('gstToggle').checked
-    var deliv     = parseFloat(document.getElementById('deliveryCharges').value) || 0
-    var delivNote = document.getElementById('deliveryNote').value.trim()
-
-    var afterGST = totalAmount
-    if (gst) afterGST = Math.round(totalAmount * 1.18)
-    var afterDelivery = afterGST + deliv
-    var disc  = calcDiscount(afterDelivery)
-    var final = afterDelivery - disc
+    var deliv     = deliveryBoxOpen ? (parseFloat(document.getElementById('deliveryCharges').value)||0) : 0
+    var delivNote = deliveryBoxOpen ? document.getElementById('deliveryNote').value.trim() : ''
+    var afterGST  = gst ? Math.round(totalAmount*1.18) : totalAmount
+    var afterDeliv = afterGST + deliv
+    var disc  = calcDiscount(afterDeliv)
+    var final = afterDeliv - disc
 
     if (paid > final) {
-      alert('❌ Payment (₹' + paid.toLocaleString('en-IN') + ') exceeds total (₹' + final.toLocaleString('en-IN') + '). Please correct.')
+      alert('❌ Payment (₹'+paid.toLocaleString('en-IN')+') exceeds total (₹'+final.toLocaleString('en-IN')+'). Please correct.')
       window.isSaving = false; return
     }
 
     var receiver = document.getElementById('receiverName').value.trim()
     var vehicle  = document.getElementById('vehicleNumber').value.trim()
-    var newItems = billItems.map(function(item){ return {item_id:item.id,quantity:item.qty,price:item.price,total:item.qty*item.price} })
 
-    // EDIT MODE
+    // ── CRITICAL: include item_name so bills NEVER show empty products ──
+    var newItemsBase = billItems.map(function(item) {
+      return { item_id:item.id, item_name:item.name, quantity:item.qty, price:item.price, total:item.qty*item.price }
+    })
+
+    // ── EDIT MODE ──
     if (editingBillId) {
-      var old = await supabase.from('bill_items').select('*').eq('sale_id', editingBillId)
+      var oldR = await supabase.from('bill_items').select('*').eq('sale_id', editingBillId)
       await supabase.from('bill_items').delete().eq('sale_id', editingBillId)
-      var ins = await supabase.from('bill_items').insert(newItems.map(function(i){ return Object.assign({},i,{sale_id:editingBillId}) }))
+      var ins = await supabase.from('bill_items').insert(newItemsBase.map(function(i){ return Object.assign({},i,{sale_id:editingBillId}) }))
       if (ins.error) {
-        if (old.data && old.data.length) await supabase.from('bill_items').insert(old.data.map(function(r){ var x=Object.assign({},r); delete x.id; return x }))
-        alert('❌ Edit failed: ' + ins.error.message); window.isSaving=false; return
+        // Restore old items on failure
+        if (oldR.data && oldR.data.length) await supabase.from('bill_items').insert(oldR.data.map(function(r){ var x=Object.assign({},r); delete x.id; return x }))
+        alert('❌ Edit failed: '+ins.error.message); window.isSaving=false; return
       }
       await supabase.from('sales').update({customer_id:customerId,total_amount:final,cash:cash,upi:upi,credit:cred,discount:disc,delivery_charges:deliv,delivery_note:delivNote||null,receiver_name:receiver||null,vehicle_number:vehicle||null}).eq('id',editingBillId)
-      for (var i=0;i<(old.data||[]).length;i++){var o=old.data[i];if(o.item_id&&o.quantity>0)await supabase.rpc('increment_inventory',{p_item_id:o.item_id,p_qty:o.quantity})}
-      for (var j=0;j<billItems.length;j++){var bi=billItems[j];if(bi.id)await supabase.rpc('decrement_inventory',{p_item_id:bi.id,p_qty:bi.qty})}
-      if (!window.isPrinting) alert('✅ Bill Updated! Bill No: ' + editingBillNumber)
+      // Restore old inventory, apply new
+      for (var oi=0; oi<(oldR.data||[]).length; oi++) { var ov=oldR.data[oi]; if(ov.item_id&&ov.quantity>0) await supabase.rpc('increment_inventory',{p_item_id:ov.item_id,p_qty:ov.quantity}) }
+      for (var ni=0; ni<billItems.length; ni++) { var nv=billItems[ni]; if(nv.id) await supabase.rpc('decrement_inventory',{p_item_id:nv.id,p_qty:nv.qty}) }
+      if (!window.isPrinting) alert('✅ Bill Updated! Bill No: '+editingBillNumber)
       cancelEdit(); window.isSaving=false; return
     }
 
-    // NEW BILL
+    // ── NEW BILL ──
     var billNumber = await generateInvoiceNo()
     currentBillNumber = billNumber
-    var saleRes = await supabase.from('sales').insert([{bill_number:billNumber,customer_id:customerId,total_amount:final,cash:cash,upi:upi,credit:cred,discount:disc,advance:0,receiver_name:receiver||null,vehicle_number:vehicle||null,bill_type:'sale',delivery_charges:deliv,delivery_note:delivNote||null}]).select().single()
-    if (saleRes.error) { alert('Error saving sale ❌\n' + saleRes.error.message); window.isSaving=false; return }
+    var saleRes = await supabase.from('sales').insert([{
+      bill_number:billNumber, customer_id:customerId,
+      total_amount:final, cash:cash, upi:upi, credit:cred,
+      discount:disc, advance:0, bill_type:'sale',
+      delivery_charges:deliv, delivery_note:delivNote||null,
+      receiver_name:receiver||null, vehicle_number:vehicle||null
+    }]).select().single()
+    if (saleRes.error) { alert('Error saving sale ❌\n'+saleRes.error.message); window.isSaving=false; return }
 
-    var itemsRes = await supabase.from('bill_items').insert(newItems.map(function(i){ return Object.assign({},i,{sale_id:saleRes.data.id}) }))
+    // Insert all items in ONE bulk call (atomic — either all save or none)
+    var itemsRes = await supabase.from('bill_items').insert(newItemsBase.map(function(i){ return Object.assign({},i,{sale_id:saleRes.data.id}) }))
     if (itemsRes.error) {
       await supabase.from('sales').delete().eq('id', saleRes.data.id)
-      alert('❌ Bill items failed — bill rolled back.\n' + itemsRes.error.message); window.isSaving=false; return
+      alert('❌ Bill items failed — bill rolled back.\nPlease try again.\n'+itemsRes.error.message)
+      window.isSaving = false; return
     }
-    for (var k=0;k<billItems.length;k++){var bk=billItems[k];if(bk.id)await supabase.rpc('decrement_inventory',{p_item_id:bk.id,p_qty:bk.qty})}
-    if (!window.isPrinting) alert('✅ Bill Saved — ' + billNumber)
 
-  } catch(err) { console.error(err); alert('Error ❌\n' + err.message) }
+    // Atomic inventory deduction
+    for (var ki=0; ki<billItems.length; ki++) {
+      var bk = billItems[ki]
+      if (bk.id) await supabase.rpc('decrement_inventory',{p_item_id:bk.id,p_qty:bk.qty})
+    }
+
+    if (!window.isPrinting) alert('✅ Bill Saved — '+billNumber)
+
+  } catch(err) { console.error(err); alert('Error ❌\n'+err.message) }
   window.isSaving = false
 }
 
 document.getElementById('saveBtn').addEventListener('click', saveBill)
 
+
 // ── CANCEL EDIT ──
 window.cancelEdit = function() {
-  editingBillId = null; editingBillNumber = null; selectedCustomer = null; billItems = []; totalAmount = 0
-  document.getElementById('editModeBar').style.display = 'none'
-  document.getElementById('saveBtn').innerText = '💾 Save Bill'
-  ;['customerSearch','receiverName','vehicleNumber','billPhone'].forEach(function(id){ document.getElementById(id).value='' })
+  editingBillId=null; editingBillNumber=null; selectedCustomer=null; billItems=[]; totalAmount=0
+  deliveryBoxOpen=false
+  document.getElementById('editModeBar').style.display='none'
+  document.getElementById('saveBtn').innerText='💾 Save Bill'
+  document.getElementById('deliveryBox').classList.remove('visible')
+  document.getElementById('deliveryToggleBtn').innerText='+ Add Delivery / Extra Charges'
+  document.getElementById('deliveryToggleBtn').style.color='rgba(6,182,212,0.9)'
+  ;['customerSearch','receiverName','vehicleNumber','billPhone','deliveryCharges','deliveryNote'].forEach(function(id){ document.getElementById(id).value='' })
   ;['cash','upi','credit','discountValue'].forEach(function(id){ document.getElementById(id).value='' })
+  document.getElementById('gstToggle').checked=false
   renderBill()
 }
 
+
 // ── FILL PRINT AREA ──
 function fillPrintArea(opts) {
-  var isReturn=opts.isReturn, billNo=opts.billNo, date=opts.date, customerName=opts.customerName,
-      phone=opts.phone, receiver=opts.receiver, vehicle=opts.vehicle, originalRef=opts.originalRef,
-      items=opts.items, subtotal=opts.subtotal, final=opts.final, gstEnabled=opts.gstEnabled,
-      cgst=opts.cgst, sgst=opts.sgst, disc=opts.disc, cash=opts.cash, upi=opts.upi, credit=opts.credit,
+  var isReturn=opts.isReturn, billNo=opts.billNo, date=opts.date,
+      customerName=opts.customerName, phone=opts.phone,
+      receiver=opts.receiver, vehicle=opts.vehicle, originalRef=opts.originalRef,
+      items=opts.items, subtotal=opts.subtotal, final=opts.final,
+      gstEnabled=opts.gstEnabled, cgst=opts.cgst, sgst=opts.sgst,
+      disc=opts.disc, cash=opts.cash, upi=opts.upi, credit=opts.credit,
       payMode=opts.payMode, deliv=opts.deliv||0, delivNote=opts.delivNote||''
 
-  document.getElementById('printHeader').className             = 'bill-header' + (isReturn ? ' return-style' : '')
+  document.getElementById('printHeader').className             = 'bill-header'+(isReturn?' return-style':'')
   document.getElementById('printBillType').innerText           = isReturn ? 'SALES RETURN' : (selectedBillType||'GST Invoice')
   document.getElementById('printInvoiceNo').innerText          = billNo
   document.getElementById('printDate').innerText               = date
   document.getElementById('printCustomer').innerText           = customerName
-  document.getElementById('printPhone').innerText              = phone || '—'
-  document.getElementById('printPayMode').innerText            = payMode || '—'
+  document.getElementById('printPhone').innerText              = phone||'—'
+  document.getElementById('printPayMode').innerText            = payMode||'—'
   document.getElementById('printFinalLabel').innerText         = isReturn ? 'Return Total' : 'Grand Total'
   document.getElementById('printFooterMsg').innerText          = isReturn ? 'Return processed. Thank you. 🙏' : 'Thank you for your business 🙏'
   document.getElementById('printCustSigLabel').innerText       = isReturn ? 'Returned By' : 'Customer Signature'
   document.getElementById('printReturnNoteLine').style.display = isReturn ? 'block' : 'none'
-  document.getElementById('printReturnRefBar').style.display   = (isReturn && originalRef) ? 'block' : 'none'
-  if (isReturn && originalRef) document.getElementById('printOriginalRef').innerText = originalRef
+  document.getElementById('printReturnRefBar').style.display   = (isReturn&&originalRef) ? 'block' : 'none'
+  if (isReturn&&originalRef) document.getElementById('printOriginalRef').innerText=originalRef
   if (receiver) { document.getElementById('printReceiverBlock').style.display='block'; document.getElementById('printReceiver').innerText=receiver } else { document.getElementById('printReceiverBlock').style.display='none' }
-  if (vehicle)  { document.getElementById('printVehicleBlock').style.display='block';  document.getElementById('printVehicle').innerText=vehicle   } else { document.getElementById('printVehicleBlock').style.display='none' }
+  if (vehicle)  { document.getElementById('printVehicleBlock').style.display='block';  document.getElementById('printVehicle').innerText=vehicle  } else { document.getElementById('printVehicleBlock').style.display='none' }
 
-  var tbody = document.getElementById('printItems'); tbody.innerHTML = ''
-  items.forEach(function(item, i) {
-    tbody.innerHTML += '<tr><td style="padding:10px 14px;color:#6b7280;">' + (i+1) + '</td><td style="padding:10px 14px;">' + item.name + '</td><td style="padding:10px 14px;text-align:center;">' + Math.abs(item.qty) + '</td><td style="padding:10px 14px;text-align:center;">₹' + item.price + '</td><td style="padding:10px 14px;text-align:right;font-weight:600;">₹' + Math.abs(item.qty*item.price).toLocaleString('en-IN') + '</td></tr>'
+  var tbody = document.getElementById('printItems'); tbody.innerHTML=''
+  items.forEach(function(item,i) {
+    tbody.innerHTML += '<tr><td style="padding:10px 14px;color:#6b7280;">'+(i+1)+'</td><td style="padding:10px 14px;">'+item.name+'</td><td style="padding:10px 14px;text-align:center;">'+Math.abs(item.qty)+'</td><td style="padding:10px 14px;text-align:center;">₹'+item.price+'</td><td style="padding:10px 14px;text-align:right;font-weight:600;">₹'+Math.abs(item.qty*item.price).toLocaleString('en-IN')+'</td></tr>'
   })
 
-  document.getElementById('printSubtotal').innerText           = Math.abs(subtotal).toLocaleString('en-IN')
-  document.getElementById('printFinal').innerText              = Math.abs(final).toLocaleString('en-IN')
-  document.getElementById('gstRow').style.display              = gstEnabled ? 'flex' : 'none'
-  document.getElementById('sgstRow').style.display             = gstEnabled ? 'flex' : 'none'
+  document.getElementById('printSubtotal').innerText          = Math.abs(subtotal).toLocaleString('en-IN')
+  document.getElementById('printFinal').innerText             = Math.abs(final).toLocaleString('en-IN')
+  document.getElementById('gstRow').style.display             = gstEnabled ? 'flex' : 'none'
+  document.getElementById('sgstRow').style.display            = gstEnabled ? 'flex' : 'none'
   if (gstEnabled) { document.getElementById('printCGST').innerText=Math.round(cgst).toLocaleString('en-IN'); document.getElementById('printSGST').innerText=Math.round(sgst).toLocaleString('en-IN') }
-  document.getElementById('deliveryRow').style.display         = deliv > 0 ? 'flex' : 'none'
-  if (deliv > 0) document.getElementById('printDelivery').innerText = deliv.toLocaleString('en-IN')
-  document.getElementById('discountRow').style.display         = disc > 0 ? 'flex' : 'none'
-  if (disc > 0) document.getElementById('printDiscount').innerText = disc.toLocaleString('en-IN')
-  document.getElementById('printCash').innerText               = Math.abs(cash||0)
-  document.getElementById('printUPI').innerText                = Math.abs(upi||0)
-  document.getElementById('printCredit').innerText             = Math.abs(credit||0)
-  document.getElementById('printCreditLabel').innerText        = isReturn ? 'Credit Adjusted' : 'Credit'
-  document.getElementById('printDiscountPayItem').style.display = (!isReturn && disc>0) ? 'inline' : 'none'
-  if (!isReturn && disc>0) document.getElementById('printDiscountPay').innerText = disc.toLocaleString('en-IN')
+  document.getElementById('deliveryRow').style.display        = deliv>0 ? 'flex' : 'none'
+  if (deliv>0) document.getElementById('printDelivery').innerText=deliv.toLocaleString('en-IN')
+  document.getElementById('discountRow').style.display        = disc>0 ? 'flex' : 'none'
+  if (disc>0) document.getElementById('printDiscount').innerText=disc.toLocaleString('en-IN')
+  document.getElementById('printCash').innerText              = Math.abs(cash||0)
+  document.getElementById('printUPI').innerText               = Math.abs(upi||0)
+  document.getElementById('printCredit').innerText            = Math.abs(credit||0)
+  document.getElementById('printCreditLabel').innerText       = isReturn ? 'Credit Adjusted' : 'Credit'
+  document.getElementById('printDiscountPayItem').style.display = (!isReturn&&disc>0) ? 'inline' : 'none'
+  if (!isReturn&&disc>0) document.getElementById('printDiscountPay').innerText=disc.toLocaleString('en-IN')
   var dnBar = document.getElementById('printDeliveryNoteBar')
   if (delivNote) { dnBar.style.display='block'; document.getElementById('printDeliveryNoteText').innerText=delivNote } else { dnBar.style.display='none' }
+  document.getElementById('printPayTitle').innerText          = isReturn ? 'Return Breakdown' : 'Payment Breakdown'
 }
+
 
 // ── PRINT BILL ──
 async function printBill() {
   if (!billItems.length) { alert('Add products first'); return }
-  var cash = parseFloat(document.getElementById('cash').value)   || 0
-  var upi  = parseFloat(document.getElementById('upi').value)    || 0
-  var cred = parseFloat(document.getElementById('credit').value) || 0
-  var gst  = document.getElementById('gstToggle').checked
-  var deliv     = parseFloat(document.getElementById('deliveryCharges').value) || 0
-  var delivNote = document.getElementById('deliveryNote').value.trim()
+  var cash  = parseFloat(document.getElementById('cash').value)   || 0
+  var upi   = parseFloat(document.getElementById('upi').value)    || 0
+  var cred  = parseFloat(document.getElementById('credit').value) || 0
+  var gst   = document.getElementById('gstToggle').checked
+  var deliv = deliveryBoxOpen ? (parseFloat(document.getElementById('deliveryCharges').value)||0) : 0
+  var delivNote = deliveryBoxOpen ? document.getElementById('deliveryNote').value.trim() : ''
   var afterGST  = gst ? Math.round(totalAmount*1.18) : totalAmount
-  var afterDelivery = afterGST + deliv
-  var disc  = calcDiscount(afterDelivery)
-  var final = afterDelivery - disc
+  var afterDeliv = afterGST + deliv
+  var disc  = calcDiscount(afterDeliv)
+  var final = afterDeliv - disc
   if ((cash+upi+cred) > final) { alert('❌ Payment exceeds total. Please correct.'); return }
   window.isPrinting = true
   var tempItems = billItems.slice()
   var tempTotal = totalAmount
   var cgst = gst ? Math.round(tempTotal*0.09) : 0
-  var sgst = cgst
-  var modes = []
-  if (cash > 0) modes.push('Cash'); if (upi > 0) modes.push('UPI'); if (cred > 0) modes.push('Credit')
+  var modes=[];if(cash>0)modes.push('Cash');if(upi>0)modes.push('UPI');if(cred>0)modes.push('Credit')
   await saveBill()
   await new Promise(function(r){ setTimeout(r,300) })
-  fillPrintArea({isReturn:false,billNo:currentBillNumber,date:new Date().toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}),customerName:selectedCustomer?selectedCustomer.name:'Walk-in Customer',phone:document.getElementById('billPhone').value||'—',receiver:document.getElementById('receiverName').value.trim(),vehicle:document.getElementById('vehicleNumber').value.trim(),originalRef:null,items:tempItems,subtotal:tempTotal,final:final,gstEnabled:gst,cgst:cgst,sgst:sgst,disc:disc,cash:cash,upi:upi,credit:cred,payMode:modes.join(' + ')||'—',deliv:deliv,delivNote:delivNote})
-  document.getElementById('printArea').style.display = 'block'
-  var ot = document.title; document.title = 'Bill-' + currentBillNumber; window.print()
+  fillPrintArea({isReturn:false,billNo:currentBillNumber,date:new Date().toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}),customerName:selectedCustomer?selectedCustomer.name:'Walk-in Customer',phone:document.getElementById('billPhone').value||'—',receiver:document.getElementById('receiverName').value.trim(),vehicle:document.getElementById('vehicleNumber').value.trim(),originalRef:null,items:tempItems,subtotal:tempTotal,final:final,gstEnabled:gst,cgst:cgst,sgst:cgst,disc:disc,cash:cash,upi:upi,credit:cred,payMode:modes.join(' + ')||'—',deliv:deliv,delivNote:delivNote})
+  document.getElementById('printArea').style.display='block'
+  var ot=document.title; document.title='Bill-'+currentBillNumber; window.print()
   setTimeout(function(){ document.title=ot; document.getElementById('printArea').style.display='none'; window.isPrinting=false }, 800)
 }
 
 document.getElementById('printBtn').addEventListener('click', printBill)
 
+
 // ── BILL HISTORY ──
 document.getElementById('historyBtn').addEventListener('click', function() {
-  document.getElementById('billHistoryModal').style.display = 'block'
-  historyPage = 1; loadBills()
+  document.getElementById('billHistoryModal').style.display='block'; historyPage=1; loadBills()
 })
 document.getElementById('closeHistoryBtn').addEventListener('click', function() {
-  document.getElementById('billHistoryModal').style.display = 'none'
+  document.getElementById('billHistoryModal').style.display='none'
 })
 document.getElementById('searchBill').addEventListener('input', function(){ historyPage=1; loadBills() })
 document.getElementById('historyFilter').addEventListener('change', function(){ historyPage=1; loadBills() })
 
 async function loadBills() {
-  var search = (document.getElementById('searchBill').value || '').toLowerCase().trim()
+  var search = (document.getElementById('searchBill').value||'').toLowerCase().trim()
   var filter = document.getElementById('historyFilter').value
   var tbody  = document.getElementById('billHistoryBody')
   tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:20px;color:rgba(255,255,255,0.3);">Loading...</td></tr>'
 
   var query = supabase.from('sales').select('*', {count:'exact'}).order('created_at',{ascending:false})
-  if (filter === 'sale')   query = query.or('bill_type.eq.sale,bill_type.is.null')
-  if (filter === 'return') query = query.eq('bill_type','return')
-  var from = (historyPage-1) * HIST_SIZE
+  if (filter==='sale')   query=query.or('bill_type.eq.sale,bill_type.is.null')
+  if (filter==='return') query=query.eq('bill_type','return')
+  var from = (historyPage-1)*HIST_SIZE
   query = query.range(from, from+HIST_SIZE-1)
-
   var res = await query
   if (res.error) { tbody.innerHTML='<tr><td colspan="7" style="text-align:center;padding:20px;color:#f87171;">Error loading</td></tr>'; return }
 
-  var custIds = []
-  ;(res.data||[]).forEach(function(b){ if(b.customer_id && custIds.indexOf(b.customer_id)===-1) custIds.push(b.customer_id) })
-  var custMap = {}
+  // Load customer names for visible page only (fast)
+  var custIds=[];
+  (res.data||[]).forEach(function(b){ if(b.customer_id && custIds.indexOf(b.customer_id)===-1) custIds.push(b.customer_id) })
+  var custMap={}
   if (custIds.length) {
-    var cr = await supabase.from('customers').select('id,name').in('id', custIds)
+    var cr = await supabase.from('customers').select('id,name').in('id',custIds)
     ;(cr.data||[]).forEach(function(c){ custMap[c.id]=c.name })
   }
 
   var filtered = (res.data||[]).filter(function(bill) {
     if (!search) return true
-    var cn = custMap[bill.customer_id] || ''
-    return (bill.bill_number||'').toLowerCase().indexOf(search)!==-1 || cn.toLowerCase().indexOf(search)!==-1 || (bill.vehicle_number||'').toLowerCase().indexOf(search)!==-1
+    return (bill.bill_number||'').toLowerCase().indexOf(search)!==-1 || (custMap[bill.customer_id]||'').toLowerCase().indexOf(search)!==-1 || (bill.vehicle_number||'').toLowerCase().indexOf(search)!==-1
   })
 
-  tbody.innerHTML = ''
+  tbody.innerHTML=''
   if (!filtered.length) { tbody.innerHTML='<tr><td colspan="7" style="text-align:center;padding:30px;color:rgba(255,255,255,0.3);">No bills found</td></tr>'; return }
 
   filtered.forEach(function(bill) {
-    var cn = custMap[bill.customer_id] || 'Walk-in'
-    var isRet = bill.bill_type === 'return'
+    var cn    = custMap[bill.customer_id]||'Walk-in'
+    var isRet = bill.bill_type==='return'
     var typeLabel = isRet
       ? '<span style="background:rgba(220,38,38,0.15);color:#f87171;padding:3px 8px;border-radius:10px;font-size:11px;font-weight:600;">↩ Return</span>'
       : '<span style="background:rgba(37,99,235,0.15);color:#60a5fa;padding:3px 8px;border-radius:10px;font-size:11px;font-weight:600;">📄 Sale</span>'
     var tr = document.createElement('tr')
-    tr.style.borderBottom = '1px solid rgba(255,255,255,0.05)'
-    tr.onmouseover = function(){ this.style.background='rgba(255,255,255,0.03)' }
-    tr.onmouseout  = function(){ this.style.background='transparent' }
-    tr.innerHTML =
-      '<td style="padding:11px 14px;font-size:12px;color:rgba(255,255,255,0.4);">' + bill.bill_number + '</td>' +
-      '<td style="padding:11px 14px;color:rgba(255,255,255,0.75);">' + new Date(bill.created_at).toLocaleDateString('en-IN') + '</td>' +
-      '<td style="padding:11px 14px;color:white;font-weight:500;">' + cn + '</td>' +
-      '<td style="padding:11px 14px;color:rgba(255,255,255,0.5);font-size:12px;font-family:monospace;">' + (bill.vehicle_number||'—') + '</td>' +
-      '<td style="padding:11px 14px;color:' + (isRet?'#f87171':'#34d399') + ';font-weight:600;">' + (isRet?'-':'') + '₹' + Math.round(Math.abs(bill.total_amount)).toLocaleString('en-IN') + '</td>' +
-      '<td style="padding:11px 14px;">' + typeLabel + '</td>' +
-      '<td style="padding:11px 14px;"><div style="display:flex;gap:6px;flex-wrap:wrap;">' +
-        '<button data-billno="' + bill.bill_number + '" class="hViewBtn" style="padding:5px 10px;font-size:11px;background:rgba(37,99,235,0.25);border:1px solid rgba(37,99,235,0.4);border-radius:6px;box-shadow:none;">👁 View</button>' +
-        '<button data-billno="' + bill.bill_number + '" class="hPrintBtn" style="padding:5px 10px;font-size:11px;background:rgba(139,92,246,0.25);border:1px solid rgba(139,92,246,0.4);border-radius:6px;box-shadow:none;">🖨 Print</button>' +
-        (!isRet ? '<button data-billno="' + bill.bill_number + '" class="hEditBtn" style="padding:5px 10px;font-size:11px;background:rgba(245,158,11,0.2);border:1px solid rgba(245,158,11,0.35);border-radius:6px;box-shadow:none;">✏️ Edit</button>' : '') +
-        '<button data-billid="' + bill.id + '" data-billno="' + bill.bill_number + '" class="hDelBtn" style="padding:5px 10px;font-size:11px;background:rgba(220,38,38,0.2);border:1px solid rgba(220,38,38,0.3);border-radius:6px;box-shadow:none;">🗑️</button>' +
+    tr.style.borderBottom='1px solid rgba(255,255,255,0.05)'
+    tr.onmouseover=function(){this.style.background='rgba(255,255,255,0.03)'}
+    tr.onmouseout =function(){this.style.background='transparent'}
+    tr.innerHTML=
+      '<td style="padding:11px 14px;font-size:12px;color:rgba(255,255,255,0.4);">'+bill.bill_number+'</td>'+
+      '<td style="padding:11px 14px;color:rgba(255,255,255,0.75);">'+new Date(bill.created_at).toLocaleDateString('en-IN')+'</td>'+
+      '<td style="padding:11px 14px;color:white;font-weight:500;">'+cn+'</td>'+
+      '<td style="padding:11px 14px;color:rgba(255,255,255,0.5);font-size:12px;font-family:monospace;">'+(bill.vehicle_number||'—')+'</td>'+
+      '<td style="padding:11px 14px;color:'+(isRet?'#f87171':'#34d399')+';font-weight:600;">'+(isRet?'-':'')+'₹'+Math.round(Math.abs(bill.total_amount)).toLocaleString('en-IN')+'</td>'+
+      '<td style="padding:11px 14px;">'+typeLabel+'</td>'+
+      '<td style="padding:11px 14px;"><div style="display:flex;gap:6px;flex-wrap:wrap;">'+
+        '<button data-billno="'+bill.bill_number+'" class="hViewBtn"  style="padding:5px 10px;font-size:11px;background:rgba(37,99,235,0.25);border:1px solid rgba(37,99,235,0.4);border-radius:6px;box-shadow:none;">👁 View</button>'+
+        '<button data-billno="'+bill.bill_number+'" class="hPrintBtn" style="padding:5px 10px;font-size:11px;background:rgba(139,92,246,0.25);border:1px solid rgba(139,92,246,0.4);border-radius:6px;box-shadow:none;">🖨 Print</button>'+
+        (!isRet?'<button data-billno="'+bill.bill_number+'" class="hEditBtn" style="padding:5px 10px;font-size:11px;background:rgba(245,158,11,0.2);border:1px solid rgba(245,158,11,0.35);border-radius:6px;box-shadow:none;">✏️ Edit</button>':'')+
+        '<button data-billid="'+bill.id+'" data-billno="'+bill.bill_number+'" class="hDelBtn" style="padding:5px 10px;font-size:11px;background:rgba(220,38,38,0.2);border:1px solid rgba(220,38,38,0.3);border-radius:6px;box-shadow:none;">🗑️</button>'+
       '</div></td>'
     tbody.appendChild(tr)
   })
 
-  // Attach events safely after DOM build
-  tbody.querySelectorAll('.hViewBtn').forEach(function(b){ b.addEventListener('click', function(){ viewBill(this.dataset.billno) }) })
-  tbody.querySelectorAll('.hPrintBtn').forEach(function(b){ b.addEventListener('click', function(){ reprintBill(this.dataset.billno) }) })
-  tbody.querySelectorAll('.hEditBtn').forEach(function(b){ b.addEventListener('click', function(){ openEditBill(this.dataset.billno) }) })
-  tbody.querySelectorAll('.hDelBtn').forEach(function(b){ b.addEventListener('click', function(){ openDeleteModal(this.dataset.billid, this.dataset.billno) }) })
+  // Attach events safely after DOM
+  tbody.querySelectorAll('.hViewBtn') .forEach(function(b){b.addEventListener('click',function(){viewBill(this.dataset.billno)})})
+  tbody.querySelectorAll('.hPrintBtn').forEach(function(b){b.addEventListener('click',function(){reprintBill(this.dataset.billno)})})
+  tbody.querySelectorAll('.hEditBtn') .forEach(function(b){b.addEventListener('click',function(){openEditBill(this.dataset.billno)})})
+  tbody.querySelectorAll('.hDelBtn')  .forEach(function(b){b.addEventListener('click',function(){openDeleteModal(this.dataset.billid,this.dataset.billno)})})
 
-  var totalPages = Math.ceil((res.count||0)/HIST_SIZE) || 1
-  document.getElementById('historyPageInfo').innerText = 'Page ' + historyPage + ' of ' + totalPages + ' — ' + (res.count||0) + ' bills'
-  var pg = document.getElementById('historyPagination'); pg.innerHTML = ''
-  if (totalPages > 1) {
-    var prev = document.createElement('button'); prev.innerText='← Prev'; prev.disabled=(historyPage===1)
-    prev.style.cssText='padding:6px 12px;font-size:12px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:7px;color:white;cursor:pointer;font-family:"DM Sans",sans-serif;'
-    prev.addEventListener('click', function(){ historyPage--; loadBills() })
-    pg.appendChild(prev)
-    var nxt = document.createElement('button'); nxt.innerText='Next →'; nxt.disabled=(historyPage===totalPages)
-    nxt.style.cssText=prev.style.cssText
-    nxt.addEventListener('click', function(){ historyPage++; loadBills() })
-    pg.appendChild(nxt)
+  var totalPages = Math.ceil((res.count||0)/HIST_SIZE)||1
+  document.getElementById('historyPageInfo').innerText='Page '+historyPage+' of '+totalPages+' — '+(res.count||0)+' bills'
+  var pg=document.getElementById('historyPagination'); pg.innerHTML=''
+  if (totalPages>1) {
+    function mkPageBtn(label,disabled,fn){
+      var b=document.createElement('button'); b.innerText=label; b.disabled=disabled
+      b.style.cssText='padding:6px 12px;font-size:12px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:7px;color:white;cursor:pointer;font-family:"DM Sans",sans-serif;'
+      b.addEventListener('click',fn); pg.appendChild(b)
+    }
+    mkPageBtn('← Prev',historyPage===1,function(){ historyPage--; loadBills() })
+    mkPageBtn('Next →',historyPage===totalPages,function(){ historyPage++; loadBills() })
   }
 }
 
-// ── VIEW BILL ──
+
+// ── VIEW BILL — 3-layer name fallback so products NEVER disappear ──
 async function viewBill(billNo) {
   var sr = await supabase.from('sales').select('*').eq('bill_number',billNo).single()
   if (!sr.data) { alert('Bill not found'); return }
   var sale = sr.data
-  var cr   = await supabase.from('customers').select('id,name,phone')
-  var cm   = {}; (cr.data||[]).forEach(function(c){ cm[c.id]=c })
-  var cust = cm[sale.customer_id] || {name:'Walk-in',phone:''}
-  var ir   = await supabase.from('bill_items').select('*').eq('sale_id',sale.id)
-  var ids  = (ir.data||[]).map(function(i){ return i.item_id }).filter(Boolean)
-  var pm   = {}
-  if (ids.length) { var pr=await supabase.from('inventory').select('id,item_name').in('id',ids); (pr.data||[]).forEach(function(p){ pm[p.id]=p.item_name }) }
-  var modes = []
-  if (sale.cash>0) modes.push('Cash'); if (sale.upi>0) modes.push('UPI'); if (sale.credit>0) modes.push('Credit')
-  var printItems = (ir.data||[]).map(function(item){ return {name:pm[item.item_id]||'Item',qty:item.quantity,price:item.price} })
-  var st = 0; (ir.data||[]).forEach(function(i){ st += i.total||0 })
-  fillPrintArea({isReturn:sale.bill_type==='return',billNo:sale.bill_number,date:new Date(sale.created_at).toLocaleString('en-IN'),customerName:cust.name,phone:cust.phone,receiver:sale.receiver_name,vehicle:sale.vehicle_number,originalRef:sale.original_bill_ref,items:printItems,subtotal:st,final:sale.total_amount,gstEnabled:false,cgst:0,sgst:0,disc:sale.discount||0,cash:sale.cash||0,upi:sale.upi||0,credit:sale.credit||0,payMode:modes.join(' + ')||'—',deliv:sale.delivery_charges||0,delivNote:sale.delivery_note||''})
-  document.getElementById('billHistoryModal').style.display = 'none'
-  document.getElementById('printArea').style.display = 'block'
+
+  // Customer info
+  var custName='Walk-in', custPhone=''
+  if (sale.customer_id) {
+    var cr = await supabase.from('customers').select('name,phone').eq('id',sale.customer_id).single()
+    if (cr.data) { custName=cr.data.name; custPhone=cr.data.phone||'' }
+  }
+
+  // Load bill items
+  var ir = await supabase.from('bill_items').select('*').eq('sale_id',sale.id)
+  var items = ir.data || []
+
+  // Layer 2: for any items without stored name, try inventory lookup
+  var missingIds = items.filter(function(i){ return !i.item_name && i.item_id }).map(function(i){ return i.item_id })
+  var inventoryNames = {}
+  if (missingIds.length) {
+    var pr = await supabase.from('inventory').select('id,item_name').in('id',missingIds)
+    ;(pr.data||[]).forEach(function(p){ inventoryNames[p.id]=p.item_name })
+  }
+
+  // Build print items with guaranteed names
+  var printItems = items.map(function(item) {
+    var name = item.item_name                             // Layer 1: stored at bill time
+           || inventoryNames[item.item_id]               // Layer 2: current inventory
+           || '[Product #'+item.item_id+' (deleted)']    // Layer 3: never blank
+    return { name:name, qty:item.quantity, price:item.price }
+  })
+
+  var modes=[];if(sale.cash>0)modes.push('Cash');if(sale.upi>0)modes.push('UPI');if(sale.credit>0)modes.push('Credit')
+  var subtotal = items.reduce(function(s,i){ return s+(i.total||0) }, 0)
+
+  fillPrintArea({
+    isReturn:sale.bill_type==='return', billNo:sale.bill_number,
+    date:new Date(sale.created_at).toLocaleString('en-IN'),
+    customerName:custName, phone:custPhone,
+    receiver:sale.receiver_name, vehicle:sale.vehicle_number, originalRef:sale.original_bill_ref,
+    items:printItems, subtotal:subtotal, final:sale.total_amount,
+    gstEnabled:false, cgst:0, sgst:0, disc:sale.discount||0,
+    cash:sale.cash||0, upi:sale.upi||0, credit:sale.credit||0,
+    payMode:modes.join(' + ')||'—',
+    deliv:sale.delivery_charges||0, delivNote:sale.delivery_note||''
+  })
+  document.getElementById('billHistoryModal').style.display='none'
+  document.getElementById('printArea').style.display='block'
 }
 
 async function reprintBill(billNo) {
   await viewBill(billNo)
   await new Promise(function(r){ setTimeout(r,300) })
-  var ot = document.title; document.title = 'Bill-' + billNo; window.print()
+  var ot=document.title; document.title='Bill-'+billNo; window.print()
   setTimeout(function(){ document.title=ot; document.getElementById('printArea').style.display='none' }, 800)
 }
 
-// ── EDIT BILL ──
+
+// ── EDIT BILL — also uses stored item names ──
 async function openEditBill(billNo) {
   var sr = await supabase.from('sales').select('*').eq('bill_number',billNo).single()
   if (!sr.data) { alert('Bill not found'); return }
   var sale = sr.data
   var ir   = await supabase.from('bill_items').select('*').eq('sale_id',sale.id)
-  var ids  = (ir.data||[]).map(function(i){ return i.item_id }).filter(Boolean)
-  var pm   = {}
-  if (ids.length) { var pr=await supabase.from('inventory').select('id,item_name,selling_price').in('id',ids); (pr.data||[]).forEach(function(p){ pm[p.id]=p }) }
-  editingBillId = sale.id; editingBillNumber = sale.bill_number
-  document.getElementById('editModeBar').style.display = 'block'
-  document.getElementById('editModeBillNo').innerText = 'Bill: ' + sale.bill_number + ' — ' + new Date(sale.created_at).toLocaleDateString('en-IN')
-  document.getElementById('saveBtn').innerText = '💾 Update Bill'
+  var items = ir.data || []
+
+  // Get current inventory info for items that need it
+  var ids = items.filter(function(i){ return i.item_id }).map(function(i){ return i.item_id })
+  var invMap = {}
+  if (ids.length) {
+    var pr = await supabase.from('inventory').select('id,item_name,selling_price').in('id',ids)
+    ;(pr.data||[]).forEach(function(p){ invMap[p.id]=p })
+  }
+
+  editingBillId=sale.id; editingBillNumber=sale.bill_number
+  document.getElementById('editModeBar').style.display='block'
+  document.getElementById('editModeBillNo').innerText='Bill: '+sale.bill_number+' — '+new Date(sale.created_at).toLocaleDateString('en-IN')
+  document.getElementById('saveBtn').innerText='💾 Update Bill'
+
   if (sale.customer_id) {
     var cr2 = await supabase.from('customers').select('*').eq('id',sale.customer_id).single()
     if (cr2.data) { selectedCustomer=cr2.data; document.getElementById('customerSearch').value=cr2.data.name; document.getElementById('billPhone').value=cr2.data.phone||''; loadVehicleSuggestions(cr2.data.id) }
   }
-  document.getElementById('receiverName').value   = sale.receiver_name || ''
-  document.getElementById('vehicleNumber').value  = sale.vehicle_number || ''
-  document.getElementById('cash').value           = sale.cash   || 0
-  document.getElementById('upi').value            = sale.upi    || 0
-  document.getElementById('credit').value         = sale.credit || 0
-  billItems = (ir.data||[]).map(function(item){ return {id:item.item_id,name:(pm[item.item_id]?pm[item.item_id].item_name:'Item'),price:item.price,qty:item.quantity} })
+  document.getElementById('receiverName').value  = sale.receiver_name  || ''
+  document.getElementById('vehicleNumber').value = sale.vehicle_number || ''
+  document.getElementById('cash').value   = sale.cash   || 0
+  document.getElementById('upi').value    = sale.upi    || 0
+  document.getElementById('credit').value = sale.credit || 0
+
+  // Use stored item_name (Layer 1) or inventory lookup (Layer 2) — NEVER shows blank name
+  billItems = items.map(function(item) {
+    var name = item.item_name || (invMap[item.item_id]?invMap[item.item_id].item_name:'[Product #'+item.item_id+']')
+    return { id:item.item_id, name:name, price:item.price, qty:item.quantity }
+  })
+
   renderBill()
-  document.getElementById('billHistoryModal').style.display = 'none'
+  document.getElementById('billHistoryModal').style.display='none'
   setMode('sale')
   window.scrollTo({top:0,behavior:'smooth'})
 }
 
+
 // ── DELETE ──
 function openDeleteModal(id, billNo) {
-  deletingBillId = id; deletingBillNo = billNo
-  document.getElementById('deleteModalBillNo').innerText = billNo
-  document.getElementById('deleteModal').style.display = 'flex'
+  deletingBillId=id; deletingBillNo=billNo
+  document.getElementById('deleteModalBillNo').innerText=billNo
+  document.getElementById('deleteModal').style.display='flex'
 }
-
 document.getElementById('cancelDeleteBtn').addEventListener('click', function() {
-  document.getElementById('deleteModal').style.display = 'none'
-  deletingBillId = null; deletingBillNo = null
+  document.getElementById('deleteModal').style.display='none'; deletingBillId=null; deletingBillNo=null
 })
-
 document.getElementById('confirmDeleteBtn').addEventListener('click', async function() {
   if (!deletingBillId) return
   var ir = await supabase.from('bill_items').select('*').eq('sale_id',deletingBillId)
-  for (var i=0;i<(ir.data||[]).length;i++){var item=ir.data[i];if(item.item_id&&item.quantity>0)await supabase.rpc('increment_inventory',{p_item_id:item.item_id,p_qty:item.quantity})}
+  for (var i=0; i<(ir.data||[]).length; i++) {
+    var item=ir.data[i]; if(item.item_id&&item.quantity>0) await supabase.rpc('increment_inventory',{p_item_id:item.item_id,p_qty:item.quantity})
+  }
   await supabase.from('bill_items').delete().eq('sale_id',deletingBillId)
   await supabase.from('sales').delete().eq('id',deletingBillId)
-  document.getElementById('deleteModal').style.display='none'
-  deletingBillId=null; deletingBillNo=null
+  document.getElementById('deleteModal').style.display='none'; deletingBillId=null; deletingBillNo=null
   alert('✅ Bill deleted & inventory restored')
   loadBills()
 })
+
 
 // ── SALES RETURN ──
 document.getElementById('findReturnBillBtn').addEventListener('click', async function() {
@@ -1035,103 +1136,100 @@ document.getElementById('findReturnBillBtn').addEventListener('click', async fun
   if (!billNo) { alert('Enter a bill number'); return }
   var sr = await supabase.from('sales').select('*').eq('bill_number',billNo).single()
   if (!sr.data) { alert('Bill not found'); return }
-  if (sr.data.bill_type === 'return') { alert('This is already a return bill!'); return }
+  if (sr.data.bill_type==='return') { alert('This is already a return bill!'); return }
   var sale = sr.data
   var ir   = await supabase.from('bill_items').select('*').eq('sale_id',sale.id)
-  var ids  = (ir.data||[]).map(function(i){ return i.item_id }).filter(Boolean)
-  var pm   = {}
-  if (ids.length) { var pr=await supabase.from('inventory').select('id,item_name').in('id',ids); (pr.data||[]).forEach(function(p){ pm[p.id]=p.item_name }) }
+  var items = ir.data || []
+
+  // Get names with fallback
+  var missingIds = items.filter(function(i){ return !i.item_name && i.item_id }).map(function(i){ return i.item_id })
+  var invNames = {}
+  if (missingIds.length) {
+    var pr=await supabase.from('inventory').select('id,item_name').in('id',missingIds)
+    ;(pr.data||[]).forEach(function(p){ invNames[p.id]=p.item_name })
+  }
+
   var custName='Walk-in', custPhone=''
-  if (sale.customer_id) { var cr3=await supabase.from('customers').select('name,phone').eq('id',sale.customer_id).single(); if(cr3.data){custName=cr3.data.name;custPhone=cr3.data.phone||''} }
-  returnOriginalSale = sale
-  returnBillItemsData = ir.data || []
+  if (sale.customer_id) {
+    var cr3=await supabase.from('customers').select('name,phone').eq('id',sale.customer_id).single()
+    if(cr3.data){custName=cr3.data.name;custPhone=cr3.data.phone||''}
+  }
+  returnOriginalSale=sale; returnBillItemsData=items
 
-  document.getElementById('returnCustomerInfo').innerHTML =
-    '<div><div style="font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Customer</div><div style="font-size:15px;font-weight:600;color:white;">' + custName + '</div></div>' +
-    '<div><div style="font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Original Bill</div><div style="font-size:13px;color:#fbbf24;font-weight:600;">' + sale.bill_number + '</div></div>' +
-    '<div><div style="font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Original Total</div><div style="font-size:13px;color:#34d399;font-weight:600;">₹' + Math.round(sale.total_amount).toLocaleString('en-IN') + '</div></div>' +
-    '<div><div style="font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Date</div><div style="font-size:13px;color:rgba(255,255,255,0.6);">' + new Date(sale.created_at).toLocaleDateString('en-IN') + '</div></div>'
+  document.getElementById('returnCustomerInfo').innerHTML=
+    '<div><div style="font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Customer</div><div style="font-size:15px;font-weight:600;color:white;">'+custName+'</div></div>'+
+    '<div><div style="font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Original Bill</div><div style="font-size:13px;color:#fbbf24;font-weight:600;">'+sale.bill_number+'</div></div>'+
+    '<div><div style="font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Original Total</div><div style="font-size:13px;color:#34d399;font-weight:600;">₹'+Math.round(sale.total_amount).toLocaleString('en-IN')+'</div></div>'+
+    '<div><div style="font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Date</div><div style="font-size:13px;color:rgba(255,255,255,0.6);">'+new Date(sale.created_at).toLocaleDateString('en-IN')+'</div></div>'
 
-  var tbody = document.getElementById('returnItemsBody'); tbody.innerHTML = ''
-  returnBillItemsData.forEach(function(item, idx) {
+  var tbody = document.getElementById('returnItemsBody'); tbody.innerHTML=''
+  items.forEach(function(item,idx) {
+    var name = item.item_name || invNames[item.item_id] || '[Product #'+item.item_id+']'
     var tr = document.createElement('tr')
-    tr.style.borderBottom = '1px solid rgba(255,255,255,0.05)'
-    tr.innerHTML =
-      '<td style="padding:10px;text-align:center;"><input type="checkbox" class="returnChk" data-idx="' + idx + '" style="width:18px;height:18px;accent-color:#dc2626;cursor:pointer;"></td>' +
-      '<td style="padding:10px;color:white;">' + (pm[item.item_id]||'Item') + '</td>' +
-      '<td style="padding:10px;text-align:center;color:rgba(255,255,255,0.7);">' + item.quantity + '</td>' +
-      '<td style="padding:10px;text-align:center;"><input type="number" class="returnQtyInput" data-idx="' + idx + '" value="' + item.quantity + '" min="1" max="' + item.quantity + '" style="width:70px;margin-bottom:0;text-align:center;"></td>' +
-      '<td style="padding:10px;text-align:right;color:rgba(255,255,255,0.7);">₹' + item.price + '</td>' +
-      '<td style="padding:10px;text-align:right;font-weight:600;color:#f87171;" id="rtotal' + idx + '">₹0</td>'
+    tr.style.borderBottom='1px solid rgba(255,255,255,0.05)'
+    tr.innerHTML=
+      '<td style="padding:10px;text-align:center;"><input type="checkbox" class="returnChk" data-idx="'+idx+'" style="width:18px;height:18px;accent-color:#dc2626;cursor:pointer;"></td>'+
+      '<td style="padding:10px;color:white;">'+name+'</td>'+
+      '<td style="padding:10px;text-align:center;color:rgba(255,255,255,0.7);">'+item.quantity+'</td>'+
+      '<td style="padding:10px;text-align:center;"><input type="number" class="returnQtyInput" data-idx="'+idx+'" value="'+item.quantity+'" min="1" max="'+item.quantity+'" style="width:70px;margin-bottom:0;text-align:center;"></td>'+
+      '<td style="padding:10px;text-align:right;color:rgba(255,255,255,0.7);">₹'+item.price+'</td>'+
+      '<td style="padding:10px;text-align:right;font-weight:600;color:#f87171;" id="rtotal'+idx+'">₹0</td>'
     tbody.appendChild(tr)
   })
 
-  tbody.querySelectorAll('.returnChk').forEach(function(chk) {
-    chk.addEventListener('change', calcReturnTotal)
-  })
-  tbody.querySelectorAll('.returnQtyInput').forEach(function(inp) {
-    inp.addEventListener('input', calcReturnTotal)
-  })
-
-  document.getElementById('returnBillDetails').style.display = 'block'
+  tbody.querySelectorAll('.returnChk').forEach(function(chk){ chk.addEventListener('change', calcReturnTotal) })
+  tbody.querySelectorAll('.returnQtyInput').forEach(function(inp){ inp.addEventListener('input', calcReturnTotal) })
+  document.getElementById('returnBillDetails').style.display='block'
 })
 
 function calcReturnTotal() {
-  var t = 0
+  var t=0
   document.querySelectorAll('.returnChk').forEach(function(chk) {
-    var idx   = +chk.dataset.idx
-    var qi    = document.querySelector('.returnQtyInput[data-idx="' + idx + '"]')
-    var qty   = chk.checked ? (parseInt(qi ? qi.value : 0)||0) : 0
-    var price = (returnBillItemsData[idx] ? returnBillItemsData[idx].price : 0) || 0
-    var sub   = qty * price
-    t += sub
-    var el = document.getElementById('rtotal' + idx)
-    if (el) el.innerText = chk.checked ? '₹' + sub.toLocaleString('en-IN') : '₹0'
+    var idx=+chk.dataset.idx
+    var qi=document.querySelector('.returnQtyInput[data-idx="'+idx+'"]')
+    var qty=chk.checked?(parseInt(qi?qi.value:0)||0):0
+    var price=(returnBillItemsData[idx]?returnBillItemsData[idx].price:0)||0
+    var sub=qty*price; t+=sub
+    var el=document.getElementById('rtotal'+idx); if(el) el.innerText=chk.checked?'₹'+sub.toLocaleString('en-IN'):'₹0'
   })
-  document.getElementById('returnTotalAmt').innerText = t.toLocaleString('en-IN')
+  document.getElementById('returnTotalAmt').innerText=t.toLocaleString('en-IN')
 }
 
 async function processReturn(shouldPrint) {
-  var checkedItems = []
-  var valid = true
+  var checkedItems=[], valid=true
   document.querySelectorAll('.returnChk').forEach(function(chk) {
-    if (!chk.checked) return
-    var idx  = +chk.dataset.idx
-    var qi   = document.querySelector('.returnQtyInput[data-idx="' + idx + '"]')
-    var qty  = parseInt(qi ? qi.value : 0) || 0
-    if (qty <= 0) return
-    var orig = returnBillItemsData[idx]
-    if (!orig) return
-    if (qty > orig.quantity) { alert('Return qty exceeds billed qty for one item'); valid=false; return }
-    checkedItems.push({item_id:orig.item_id, qty:qty, price:orig.price, orig_quantity:orig.quantity})
+    if(!chk.checked) return
+    var idx=+chk.dataset.idx
+    var qi=document.querySelector('.returnQtyInput[data-idx="'+idx+'"]')
+    var qty=parseInt(qi?qi.value:0)||0; if(qty<=0) return
+    var orig=returnBillItemsData[idx]; if(!orig) return
+    if(qty>orig.quantity){alert('Return qty exceeds billed qty');valid=false;return}
+    checkedItems.push({item_id:orig.item_id,item_name:orig.item_name||('[Product #'+orig.item_id+']'),qty:qty,price:orig.price})
   })
-  if (!valid) return
-  if (!checkedItems.length) { alert('Select at least one item to return'); return }
-  var returnTotal = checkedItems.reduce(function(s,i){ return s+(i.qty*i.price) }, 0)
-  var returnNo = await generateReturnNo()
-  var rr = await supabase.from('sales').insert([{bill_number:returnNo,customer_id:returnOriginalSale.customer_id,total_amount:-returnTotal,cash:0,upi:0,credit:-returnTotal,discount:0,advance:0,bill_type:'return',original_bill_ref:returnOriginalSale.bill_number,receiver_name:returnOriginalSale.receiver_name,vehicle_number:returnOriginalSale.vehicle_number}]).select().single()
-  if (rr.error) { alert('❌ Error creating return: ' + rr.error.message); return }
-  var returnItemsInsert = checkedItems.map(function(i){ return {sale_id:rr.data.id,item_id:i.item_id,quantity:-i.qty,price:i.price,total:-(i.qty*i.price)} })
-  var rir = await supabase.from('bill_items').insert(returnItemsInsert)
-  if (rir.error) { await supabase.from('sales').delete().eq('id',rr.data.id); alert('❌ Return items failed: '+rir.error.message); return }
-  for (var i=0;i<checkedItems.length;i++){var ci=checkedItems[i];if(ci.item_id)await supabase.rpc('increment_inventory',{p_item_id:ci.item_id,p_qty:ci.qty})}
-  if (shouldPrint) {
-    var custName='Walk-in', custPhone=''
-    if (returnOriginalSale.customer_id) { var crp=await supabase.from('customers').select('name,phone').eq('id',returnOriginalSale.customer_id).single(); if(crp.data){custName=crp.data.name;custPhone=crp.data.phone||''} }
-    var pids = checkedItems.map(function(i){return i.item_id}).filter(Boolean)
-    var ppm  = {}
-    if (pids.length) { var ppr=await supabase.from('inventory').select('id,item_name').in('id',pids); (ppr.data||[]).forEach(function(p){ppm[p.id]=p.item_name}) }
-    var printReturnItems = checkedItems.map(function(i){ return {name:ppm[i.item_id]||'Item',qty:i.qty,price:i.price} })
-    fillPrintArea({isReturn:true,billNo:returnNo,date:new Date().toLocaleString('en-IN'),customerName:custName,phone:custPhone,receiver:'',vehicle:'',originalRef:returnOriginalSale.bill_number,items:printReturnItems,subtotal:returnTotal,final:returnTotal,gstEnabled:false,cgst:0,sgst:0,disc:0,cash:0,upi:0,credit:returnTotal,payMode:'Credit Adjusted'})
-    document.getElementById('printArea').style.display = 'block'
-    var ot = document.title; document.title='Return-'+returnNo; window.print()
-    setTimeout(function(){ document.title=ot; document.getElementById('printArea').style.display='none' }, 800)
+  if(!valid)return
+  if(!checkedItems.length){alert('Select at least one item');return}
+  var returnTotal=checkedItems.reduce(function(s,i){return s+(i.qty*i.price)},0)
+  var returnNo=await generateReturnNo()
+  var rr=await supabase.from('sales').insert([{bill_number:returnNo,customer_id:returnOriginalSale.customer_id,total_amount:-returnTotal,cash:0,upi:0,credit:-returnTotal,discount:0,advance:0,bill_type:'return',original_bill_ref:returnOriginalSale.bill_number,receiver_name:returnOriginalSale.receiver_name,vehicle_number:returnOriginalSale.vehicle_number}]).select().single()
+  if(rr.error){alert('❌ Error creating return: '+rr.error.message);return}
+  // Insert return items WITH stored item names
+  var retItems=checkedItems.map(function(i){return{sale_id:rr.data.id,item_id:i.item_id,item_name:i.item_name,quantity:-i.qty,price:i.price,total:-(i.qty*i.price)}})
+  var rir=await supabase.from('bill_items').insert(retItems)
+  if(rir.error){await supabase.from('sales').delete().eq('id',rr.data.id);alert('❌ Return failed: '+rir.error.message);return}
+  for(var i=0;i<checkedItems.length;i++){var ci=checkedItems[i];if(ci.item_id)await supabase.rpc('increment_inventory',{p_item_id:ci.item_id,p_qty:ci.qty})}
+  if(shouldPrint){
+    var custName='Walk-in',custPhone=''
+    if(returnOriginalSale.customer_id){var crp=await supabase.from('customers').select('name,phone').eq('id',returnOriginalSale.customer_id).single();if(crp.data){custName=crp.data.name;custPhone=crp.data.phone||''}}
+    fillPrintArea({isReturn:true,billNo:returnNo,date:new Date().toLocaleString('en-IN'),customerName:custName,phone:custPhone,receiver:'',vehicle:'',originalRef:returnOriginalSale.bill_number,items:checkedItems.map(function(i){return{name:i.item_name,qty:i.qty,price:i.price}}),subtotal:returnTotal,final:returnTotal,gstEnabled:false,cgst:0,sgst:0,disc:0,cash:0,upi:0,credit:returnTotal,payMode:'Credit Adjusted',deliv:0,delivNote:''})
+    document.getElementById('printArea').style.display='block'
+    var ot=document.title;document.title='Return-'+returnNo;window.print()
+    setTimeout(function(){document.title=ot;document.getElementById('printArea').style.display='none'},800)
   }
-  alert('✅ Return processed!\nReturn No: ' + returnNo + '\nInventory Restored!\nCredit ₹' + returnTotal.toLocaleString('en-IN') + ' added to customer account.')
-  clearReturn()
+  alert('✅ Return processed!\nReturn No: '+returnNo+'\nInventory Restored!\nCredit ₹'+returnTotal.toLocaleString('en-IN')+' added to customer account.')
+  clearReturnForm()
 }
 
-function clearReturn() {
+function clearReturnForm() {
   returnOriginalSale=null; returnBillItemsData=[]
   document.getElementById('returnBillDetails').style.display='none'
   document.getElementById('returnBillSearch').value=''
@@ -1140,17 +1238,11 @@ function clearReturn() {
 
 document.getElementById('processReturnBtn').addEventListener('click',      function(){ processReturn(false) })
 document.getElementById('processReturnPrintBtn').addEventListener('click', function(){ processReturn(true)  })
-document.getElementById('clearReturnBtn').addEventListener('click',         clearReturn)
+document.getElementById('clearReturnBtn').addEventListener('click',         clearReturnForm)
 
 // ── PREFILL FROM CUSTOMER PAGE ──
-var pn = localStorage.getItem('billing_prefill_name')
-var pp = localStorage.getItem('billing_prefill_phone')
-if (pn) {
-  document.getElementById('customerSearch').value = pn
-  if (pp) document.getElementById('billPhone').value = pp
-  localStorage.removeItem('billing_prefill_name')
-  localStorage.removeItem('billing_prefill_phone')
-}
+var pn=localStorage.getItem('billing_prefill_name'), pp=localStorage.getItem('billing_prefill_phone')
+if(pn){ document.getElementById('customerSearch').value=pn; if(pp) document.getElementById('billPhone').value=pp; localStorage.removeItem('billing_prefill_name'); localStorage.removeItem('billing_prefill_phone') }
 
 } // end initBilling
 </script>
