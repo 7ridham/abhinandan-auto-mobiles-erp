@@ -257,6 +257,7 @@
   </div>
 
   <!-- ════════════ PURCHASE RETURN MODE ════════════ -->
+  
   <div id="purchaseReturnMode" style="display:none;">
     <div class="card" style="border-color:rgba(220,38,38,0.2);">
       <h3 style="color:#f87171;">↩️ Purchase Return</h3>
@@ -309,6 +310,7 @@
 
 
 <!-- ════════════ PRINT AREA ════════════ -->
+  
 <div id="printArea">
   <div class="pur-paper">
     <div class="pur-header" id="purPrintHeader">
@@ -388,6 +390,7 @@
 
 
 <!-- ════════════ PURCHASE HISTORY MODAL ════════════ -->
+  
 <div id="purchaseHistoryModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:9999;overflow-y:auto;padding:20px;">
   <div style="background:#0f172a;border:1px solid rgba(255,255,255,0.1);width:95%;max-width:1100px;margin:30px auto;padding:28px;border-radius:16px;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
@@ -423,6 +426,7 @@
 </div>
 
 <!-- DELETE CONFIRM MODAL -->
+  
 <div id="deleteModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:10000;align-items:center;justify-content:center;">
   <div style="background:#0f172a;border:1px solid rgba(220,38,38,0.3);border-radius:16px;padding:28px;width:90%;max-width:420px;">
     <div style="font-family:'Playfair Display',serif;font-size:20px;color:#f87171;margin-bottom:12px;">🗑️ Delete Purchase Bill</div>
@@ -444,6 +448,7 @@ const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 const supabase = createClient(supabaseUrl, supabaseKey)
 
 // ── STATE ──
+  
 let selectedMerchant    = null
 let currentPurBillNo    = null
 let purchaseItems       = []
@@ -602,46 +607,89 @@ window.handlePurDiscountTypeChange=function(){
 
 // ── RENDER BILL ──
 function renderPurchaseBill() {
-  const table=document.getElementById("purchaseTable");table.innerHTML="";totalAmount=0
-  purchaseItems.forEach((item,idx)=>{
-    const lt=item.qty*item.buyPrice;totalAmount+=lt
-    table.innerHTML+=`<tr>
-      <td style="font-weight:500;">${item.name}${item.isNew?'<span style="font-size:11px;background:rgba(245,158,11,0.2);color:#f59e0b;padding:2px 8px;border-radius:10px;margin-left:6px;">NEW</span>':''}</td>
-      <td><input type="number" value="${item.qty}" min="1" class="purQtyInput" data-index="${idx}" style="width:65px;margin-bottom:0;text-align:center;"></td>
-      <td><input type="number" value="${item.buyPrice}" min="0" class="purPriceInput" data-index="${idx}" style="width:100px;margin-bottom:0;color:#fbbf24;font-weight:600;text-align:center;"></td>
-      <td style="font-weight:600;">₹${lt.toLocaleString('en-IN')}</td>
-      <td><button class="purRemoveBtn" data-index="${idx}">✕</button></td>
-    </tr>`
-  })
-  document.getElementById("purchaseTotalAmount").innerText=totalAmount.toLocaleString('en-IN')
+  const table = document.getElementById("purchaseTable"); table.innerHTML=""; totalAmount=0
 
-  const cash=parseFloat(document.getElementById("purCash").value)||0
-  const upi =parseFloat(document.getElementById("purUpi").value)||0
-  const cred=parseFloat(document.getElementById("purCredit").value)||0
-  const paid=cash+upi+cred
-  const dt=document.getElementById("purDiscountType").value
-  let disc=0
+  purchaseItems.forEach((item, idx) => {
+    const lt = item.qty * item.buyPrice; totalAmount += lt
+    table.innerHTML += `
+      <tr>
+        <td style="font-weight:500;">
+          ${item.name}
+          ${item.isNew    ? '<span style="font-size:11px;background:rgba(245,158,11,0.2);color:#f59e0b;padding:2px 8px;border-radius:10px;margin-left:6px;">NEW</span>' : ''}
+          ${item.isEdited ? '<span style="font-size:10px;background:rgba(245,158,11,0.15);color:#fbbf24;padding:1px 7px;border-radius:8px;margin-left:4px;">edited</span>' : ''}
+        </td>
+        <td><input type="number" value="${item.qty}" min="1" class="purQtyInput" data-index="${idx}" style="width:65px;margin-bottom:0;text-align:center;"></td>
+        <td><input type="number" value="${item.buyPrice}" min="0" class="purPriceInput" data-index="${idx}" style="width:100px;margin-bottom:0;color:#fbbf24;font-weight:600;text-align:center;"></td>
+        <td style="font-weight:600;">₹${lt.toLocaleString('en-IN')}</td>
+        <td><button class="purRemoveBtn" data-index="${idx}">✕</button></td>
+      </tr>`
+  })
+
+  document.getElementById("purchaseTotalAmount").innerText = totalAmount.toLocaleString('en-IN')
+
+  const cash = parseFloat(document.getElementById("purCash").value)   || 0
+  const upi  = parseFloat(document.getElementById("purUpi").value)    || 0
+  const cred = parseFloat(document.getElementById("purCredit").value) || 0
+  const paid = cash + upi + cred
+  const dt   = document.getElementById("purDiscountType").value
+  let disc = 0
   if(dt==="auto"){disc=Math.max(totalAmount-paid,0);document.getElementById("purDiscount").value=disc;document.getElementById("purDiscount").disabled=true;document.getElementById("purAutoDiscountBadge").style.display="inline"}
   else{document.getElementById("purDiscount").disabled=false;document.getElementById("purAutoDiscountBadge").style.display="none";const dv=parseFloat(document.getElementById("purDiscount").value)||0;disc=dt==="percent"?Math.round(totalAmount*dv/100):dv;disc=Math.min(disc,totalAmount)}
-  const after=totalAmount-disc;const rem=Math.round(after-paid)
-  const row=(l,v,c)=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.05);"><span style="color:${c||'rgba(255,255,255,0.5)'};">${l}</span><span style="font-weight:600;color:${c||'white'};">${v}</span></div>`
-  let html=row("Subtotal","₹"+totalAmount.toLocaleString("en-IN"))
-  if(disc>0)html+=row("Merchant Discount","- ₹"+Math.round(disc).toLocaleString("en-IN"),"#34d399")
-  if(cash>0)html+=row("Cash paid","₹"+cash.toLocaleString("en-IN"),"#60a5fa")
-  if(upi>0) html+=row("UPI paid","₹"+upi.toLocaleString("en-IN"),"#a78bfa")
-  if(cred>0)html+=row("Credit","₹"+cred.toLocaleString("en-IN"),"#f87171")
+  const after = totalAmount - disc; const rem = Math.round(after - paid)
+  const row = (l,v,c) => `<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.05);"><span style="color:${c||'rgba(255,255,255,0.5)'};">${l}</span><span style="font-weight:600;color:${c||'white'};">${v}</span></div>`
+  let html = row("Subtotal","₹"+totalAmount.toLocaleString("en-IN"))
+  if(disc>0) html+=row("Merchant Discount","- ₹"+Math.round(disc).toLocaleString("en-IN"),"#34d399")
+  if(cash>0) html+=row("Cash paid","₹"+cash.toLocaleString("en-IN"),"#60a5fa")
+  if(upi>0)  html+=row("UPI paid","₹"+upi.toLocaleString("en-IN"),"#a78bfa")
+  if(cred>0) html+=row("Credit","₹"+cred.toLocaleString("en-IN"),"#f87171")
   let sc="#34d399",st="✅ Fully Settled"
   if(rem>0){sc="#f87171";st="⚠️ Still Due: ₹"+rem.toLocaleString("en-IN")}
-  if(rem<0){sc="#fbbf24";st="⚠️ Extra Paid ₹"+Math.abs(rem).toLocaleString("en-IN")+" — please correct!"}
-  html+=`<div style="display:flex;justify-content:space-between;padding:10px 0 4px;margin-top:6px;border-top:1px solid rgba(255,255,255,0.1);"><span style="font-size:15px;font-weight:600;color:white;">Final Bill Amount</span><span style="font-size:17px;font-weight:700;color:white;">₹${Math.round(after).toLocaleString("en-IN")}</span></div><div style="font-size:13px;color:${sc};padding-bottom:2px;">${st}</div>`
-  document.getElementById("purPaymentSummary").innerHTML=html
+  if(rem<0){sc="#fbbf24";st="⚠️ Over Paid ₹"+Math.abs(rem).toLocaleString("en-IN")+" — please correct!"}
+  html += `<div style="display:flex;justify-content:space-between;padding:10px 0 4px;margin-top:6px;border-top:1px solid rgba(255,255,255,0.1);"><span style="font-size:15px;font-weight:600;color:white;">Final Bill Amount</span><span style="font-size:17px;font-weight:700;color:white;">₹${Math.round(after).toLocaleString("en-IN")}</span></div><div style="font-size:13px;color:${sc};padding-bottom:2px;">${st}</div>`
+  document.getElementById("purPaymentSummary").innerHTML = html
 
-  document.querySelectorAll(".purQtyInput").forEach(i=>i.addEventListener("change",function(){purchaseItems[+this.dataset.index].qty=parseInt(this.value)||1;renderPurchaseBill()}))
-  document.querySelectorAll(".purPriceInput").forEach(i=>i.addEventListener("change",function(){purchaseItems[+this.dataset.index].buyPrice=parseFloat(this.value)||0;renderPurchaseBill()}))
-  document.querySelectorAll(".purRemoveBtn").forEach(b=>b.addEventListener("click",function(){purchaseItems.splice(+this.dataset.index,1);renderPurchaseBill()}))
+  // ── EDIT MODE NOTICE ──
+  if(editingBillId) {
+    const notice = document.getElementById("purEditNotice")
+    if(!notice){
+      const div = document.createElement("div")
+      div.id = "purEditNotice"
+      div.style.cssText = "background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);border-radius:8px;padding:10px 14px;font-size:13px;color:#fbbf24;margin-bottom:12px;"
+      div.innerText = "✏️ Edit mode — change qty, price, remove items, or use product search above to add new/different products. Price changes here do NOT affect inventory base price."
+      table.parentNode.insertBefore(div, table)
+    }
+  } else {
+    const notice = document.getElementById("purEditNotice"); if(notice) notice.remove()
+  }
+
+  // ── QTY listeners ──
+  document.querySelectorAll(".purQtyInput").forEach(i => {
+    i.addEventListener("change", function() { purchaseItems[+this.dataset.index].qty = parseInt(this.value)||1; renderPurchaseBill() })
+  })
+
+  // ── PRICE listeners — NEVER auto-save to inventory in edit mode ──
+  document.querySelectorAll(".purPriceInput").forEach(i => {
+    i.addEventListener("change", function() {
+      const idx = +this.dataset.index
+      purchaseItems[idx].buyPrice = parseFloat(this.value)||0
+      purchaseItems[idx].isEdited = true
+      // Only update inventory purchase_price when saving a brand-new purchase, not in edit
+      if(!editingBillId) {
+        const id = purchaseItems[idx].id
+        if(id) supabase.from("inventory").update({ purchase_price: parseFloat(this.value)||0 }).eq("id", id)
+      }
+      this.style.borderColor = editingBillId ? "#f59e0b" : "#34d399"
+      setTimeout(() => { this.style.borderColor = "" }, 1000)
+      renderPurchaseBill()
+    })
+  })
+
+  // ── REMOVE listeners ──
+  document.querySelectorAll(".purRemoveBtn").forEach(b => {
+    b.addEventListener("click", function() { purchaseItems.splice(+this.dataset.index, 1); renderPurchaseBill() })
+  })
 }
-
-
+  
 // ── CALC DISCOUNT HELPER ──
 function calcPurDiscount() {
   const dt=document.getElementById("purDiscountType").value
