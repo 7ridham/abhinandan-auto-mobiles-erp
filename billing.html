@@ -353,6 +353,7 @@
 </div>
 
 <!-- BILL HISTORY MODAL -->
+  
 <div id="billHistoryModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:9999;overflow-y:auto;padding:20px;">
   <div style="background:#0f172a;border:1px solid rgba(255,255,255,0.1);width:95%;max-width:1100px;margin:30px auto;padding:28px;border-radius:16px;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
@@ -389,6 +390,7 @@
 </div>
 
 <!-- DELETE CONFIRM MODAL -->
+  
 <div id="deleteModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:10000;align-items:center;justify-content:center;">
   <div style="background:#0f172a;border:1px solid rgba(220,38,38,0.3);border-radius:16px;padding:28px;width:90%;max-width:420px;">
     <div style="font-family:'Playfair Display',serif;font-size:20px;color:#f87171;margin-bottom:12px;">🗑️ Delete Bill</div>
@@ -417,6 +419,7 @@ document.head.appendChild(_sb)
 function initBilling(supabase) {
 
 // ── STATE ──
+  
 var selectedCustomer   = null
 var currentBillNumber  = null
 var billItems          = []
@@ -433,6 +436,7 @@ var HIST_SIZE          = 20
 var deliveryBoxOpen    = false
 
 // ── MODE ──
+  
 window.setMode = function(mode) {
   document.getElementById('salesBillMode').style.display   = mode === 'sale'   ? 'block' : 'none'
   document.getElementById('salesReturnMode').style.display = mode === 'return' ? 'block' : 'none'
@@ -441,6 +445,7 @@ window.setMode = function(mode) {
 }
 
 // ── BILL TYPE ──
+  
 document.querySelectorAll('.bill-type-btn').forEach(function(btn) {
   btn.addEventListener('click', function() {
     document.querySelectorAll('.bill-type-btn').forEach(function(b){ b.classList.remove('active') })
@@ -450,6 +455,7 @@ document.querySelectorAll('.bill-type-btn').forEach(function(btn) {
 })
 
 // ── DELIVERY BOX TOGGLE ──
+  
 window.toggleDeliveryBox = function() {
   deliveryBoxOpen = !deliveryBoxOpen
   var box = document.getElementById('deliveryBox')
@@ -471,6 +477,7 @@ window.toggleDeliveryBox = function() {
 }
 
 // ── INVOICE NUMBER ──
+  
 async function generateInvoiceNo() {
   var now = new Date()
   var dd  = String(now.getDate()).padStart(2,'0')
@@ -494,6 +501,7 @@ async function generateReturnNo() {
 }
 
 // ── CUSTOMER SEARCH ──
+  
 document.getElementById('customerSearch').addEventListener('input', async function() {
   var text = this.value.trim()
   var list = document.getElementById('customerList')
@@ -524,6 +532,7 @@ async function loadVehicleSuggestions(customerId) {
 }
 
 // ── PRODUCT SEARCH ──
+  
 document.getElementById('productSearch').addEventListener('input', async function() {
   var text = this.value.trim()
   var list = document.getElementById('productList')
@@ -541,6 +550,7 @@ document.getElementById('productSearch').addEventListener('input', async functio
 })
 
 // ── ADD TO BILL ──
+  
 function addToBill(product) {
   var item = null
   for (var i=0; i<billItems.length; i++) { if(billItems[i].id === product.id){ item=billItems[i]; break } }
@@ -550,6 +560,7 @@ function addToBill(product) {
 }
 
 // ── DISCOUNT CHANGE ──
+  
 window.handleDiscountTypeChange = function() {
   var type = document.getElementById('discountType').value
   if (type !== 'auto') {
@@ -561,103 +572,110 @@ window.handleDiscountTypeChange = function() {
 }
 
 // ── RENDER BILL ──
+  
 function renderBill() {
-  var table = document.getElementById('billTable')
-  table.innerHTML = ''
-  totalAmount = 0
+  const table = document.getElementById("billTable"); table.innerHTML=""; totalAmount=0
 
-  billItems.forEach(function(item, index) {
-    var lt = item.qty * item.price
-    totalAmount += lt
-    var tr = document.createElement('tr')
-    tr.innerHTML = '<td style="font-weight:500;">' + item.name + '</td>' +
-      '<td><input type="number" value="' + item.qty + '" min="1" class="qtyInput" data-index="' + index + '" style="width:65px;margin-bottom:0;text-align:center;"></td>' +
-      '<td><input type="number" value="' + item.price + '" min="0" class="priceInput" data-index="' + index + '" style="width:90px;margin-bottom:0;color:#34d399;font-weight:600;text-align:center;"></td>' +
-      '<td style="font-weight:600;">₹' + lt.toLocaleString('en-IN') + '</td>' +
-      '<td><button class="removeBtn" data-index="' + index + '">✕</button></td>'
-    table.appendChild(tr)
+  billItems.forEach((item, index) => {
+    const lt = item.qty * item.price; totalAmount += lt
+    table.innerHTML += `
+      <tr>
+        <td style="font-weight:500;">
+          ${item.name}
+          ${item.isEdited ? '<span style="font-size:10px;background:rgba(245,158,11,0.2);color:#f59e0b;padding:1px 7px;border-radius:8px;margin-left:6px;">edited</span>' : ''}
+        </td>
+        <td><input type="number" value="${item.qty}" min="1" class="qtyInput" data-index="${index}" style="width:65px;margin-bottom:0;text-align:center;"></td>
+        <td><input type="number" value="${item.price}" min="0" class="priceInput" data-index="${index}" style="width:90px;margin-bottom:0;color:#34d399;font-weight:600;text-align:center;" title="Edit price for this bill only"></td>
+        <td style="font-weight:600;">₹${lt.toLocaleString('en-IN')}</td>
+        <td><button class="removeBtn" data-index="${index}">✕</button></td>
+      </tr>`
   })
 
-  document.getElementById('totalAmount').innerText = totalAmount.toLocaleString('en-IN')
+  document.getElementById("totalAmount").innerText = totalAmount.toLocaleString('en-IN')
 
-  var gst     = document.getElementById('gstToggle').checked
-  var deliv   = parseFloat(document.getElementById('deliveryCharges').value) || 0
-  var afterGST = totalAmount
-  if (gst) afterGST = Math.round(totalAmount * 1.18)
-  var afterDelivery = afterGST + deliv
+  const gst = document.getElementById("gstToggle").checked
+  let afterGST = totalAmount; if(gst) afterGST = Math.round(totalAmount * 1.18)
+  const cash   = parseFloat(document.getElementById("cash").value)   || 0
+  const upi    = parseFloat(document.getElementById("upi").value)    || 0
+  const cred   = parseFloat(document.getElementById("credit").value) || 0
+  const paid   = cash + upi + cred
+  const dt     = document.getElementById("discountType").value
+  let disc = 0
+  if(dt==="auto"){disc=Math.max(afterGST-paid,0);document.getElementById("discountValue").value=disc;document.getElementById("discountValue").disabled=true;document.getElementById("autoDiscountBadge").style.display="inline"}
+  else{document.getElementById("discountValue").disabled=false;document.getElementById("autoDiscountBadge").style.display="none";const dv=parseFloat(document.getElementById("discountValue").value)||0;disc=dt==="percent"?Math.round(afterGST*dv/100):dv;disc=Math.min(disc,afterGST)}
+  const after = afterGST - disc; const rem = Math.round(after - paid)
+  const row = (l,v,c) => `<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.05);"><span style="color:${c||'rgba(255,255,255,0.5)'};">${l}</span><span style="font-weight:600;color:${c||'white'};">${v}</span></div>`
+  let html = row("Subtotal","₹"+totalAmount.toLocaleString("en-IN"))
+  if(gst){html+=row("CGST (9%)","+ ₹"+Math.round(totalAmount*0.09).toLocaleString("en-IN"));html+=row("SGST (9%)","+ ₹"+Math.round(totalAmount*0.09).toLocaleString("en-IN"))}
+  if(disc>0)  html+=row("Discount","- ₹"+Math.round(disc).toLocaleString("en-IN"),"#34d399")
+  if(cash>0)  html+=row("Cash paid","₹"+cash.toLocaleString("en-IN"),"#60a5fa")
+  if(upi>0)   html+=row("UPI paid","₹"+upi.toLocaleString("en-IN"),"#a78bfa")
+  if(cred>0)  html+=row("Credit","₹"+cred.toLocaleString("en-IN"),"#f87171")
+  let sc="#34d399",st="✅ Fully Settled"
+  if(rem>0){sc="#f87171";st="⚠️ Still Due: ₹"+rem.toLocaleString("en-IN")}
+  if(rem<0){sc="#fbbf24";st="⚠️ Over Paid ₹"+Math.abs(rem).toLocaleString("en-IN")+" — please correct!"}
+  html += `<div style="display:flex;justify-content:space-between;padding:10px 0 4px;margin-top:6px;border-top:1px solid rgba(255,255,255,0.1);"><span style="font-size:15px;font-weight:600;color:white;">Final Bill Amount</span><span style="font-size:17px;font-weight:700;color:white;">₹${Math.round(after).toLocaleString("en-IN")}</span></div><div style="font-size:13px;color:${sc};padding-bottom:2px;">${st}</div>`
+  document.getElementById("paymentSummary").innerHTML = html
 
-  var cash = parseFloat(document.getElementById('cash').value)   || 0
-  var upi  = parseFloat(document.getElementById('upi').value)    || 0
-  var cred = parseFloat(document.getElementById('credit').value) || 0
-  var paid = cash + upi + cred
-
-  var dt = document.getElementById('discountType').value
-  var disc = 0
-  if (dt === 'auto') {
-    disc = Math.max(afterDelivery - paid, 0)
-    document.getElementById('discountValue').value = disc
-    document.getElementById('discountValue').disabled = true
-    document.getElementById('autoDiscountBadge').style.display = 'inline'
+  // ── EDIT MODE NOTICE ──
+  if(editingBillId) {
+    const notice = document.getElementById("billEditNotice")
+    if(!notice) {
+      const div = document.createElement("div")
+      div.id = "billEditNotice"
+      div.style.cssText = "background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);border-radius:8px;padding:10px 14px;font-size:13px;color:#fbbf24;margin-bottom:12px;"
+      div.innerText = "✏️ Edit mode — change qty, price, remove items, or use the product search above to add different products. Price changes here do NOT affect the base inventory price."
+      table.parentNode.insertBefore(div, table)
+    }
   } else {
-    document.getElementById('discountValue').disabled = false
-    document.getElementById('autoDiscountBadge').style.display = 'none'
-    var dv = parseFloat(document.getElementById('discountValue').value) || 0
-    disc = dt === 'percent' ? Math.round(afterDelivery * dv / 100) : dv
-    disc = Math.min(disc, afterDelivery)
+    const notice = document.getElementById("billEditNotice")
+    if(notice) notice.remove()
   }
 
-  var after = afterDelivery - disc
-  var rem   = Math.round(after - paid)
-
-  function row(l, v, c) {
-    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.05);"><span style="color:' + (c||'rgba(255,255,255,0.5)') + ';">' + l + '</span><span style="font-weight:600;color:' + (c||'white') + ';">' + v + '</span></div>'
-  }
-
-  var html = row('Subtotal', '₹' + totalAmount.toLocaleString('en-IN'))
-  if (gst) {
-    html += row('CGST (9%)', '+ ₹' + Math.round(totalAmount*0.09).toLocaleString('en-IN'))
-    html += row('SGST (9%)', '+ ₹' + Math.round(totalAmount*0.09).toLocaleString('en-IN'))
-  }
-  if (deliv > 0) html += row('🚚 Delivery', '+ ₹' + deliv.toLocaleString('en-IN'), '#06b6d4')
-  if (disc  > 0) html += row('Discount',    '- ₹' + Math.round(disc).toLocaleString('en-IN'), '#34d399')
-  if (cash  > 0) html += row('Cash paid',   '₹' + cash.toLocaleString('en-IN'), '#60a5fa')
-  if (upi   > 0) html += row('UPI paid',    '₹' + upi.toLocaleString('en-IN'), '#a78bfa')
-  if (cred  > 0) html += row('Credit',      '₹' + cred.toLocaleString('en-IN'), '#f87171')
-
-  var sc = '#34d399', st = '✅ Fully Settled'
-  if (rem > 0) { sc = '#f87171'; st = '⚠️ Still Due: ₹' + rem.toLocaleString('en-IN') }
-  if (rem < 0) { sc = '#fbbf24'; st = '⚠️ Extra Paid ₹' + Math.abs(rem).toLocaleString('en-IN') + ' — please correct!' }
-
-  html += '<div style="display:flex;justify-content:space-between;padding:10px 0 4px;margin-top:6px;border-top:1px solid rgba(255,255,255,0.1);"><span style="font-size:15px;font-weight:600;color:white;">Final Bill Amount</span><span style="font-size:17px;font-weight:700;color:white;">₹' + Math.round(after).toLocaleString('en-IN') + '</span></div>'
-  html += '<div style="font-size:13px;color:' + sc + ';padding-bottom:2px;">' + st + '</div>'
-  document.getElementById('paymentSummary').innerHTML = html
-
-  table.querySelectorAll('.qtyInput').forEach(function(inp) {
-    inp.addEventListener('change', function() { billItems[+this.dataset.index].qty = parseInt(this.value)||1; renderBill() })
+  // ── QTY listeners ──
+  document.querySelectorAll(".qtyInput").forEach(input => {
+    input.addEventListener("change", function() {
+      billItems[+this.dataset.index].qty = parseInt(this.value) || 1
+      renderBill()
+    })
   })
-  table.querySelectorAll('.priceInput').forEach(function(inp) {
-    inp.addEventListener('change', function() {
-      var idx = +this.dataset.index
-      var np  = parseFloat(this.value) || 0
-      billItems[idx].price = np
-      var iid = billItems[idx].id
-      if (iid) {
-        supabase.from('inventory').update({selling_price:np}).eq('id',iid).then(function(r) {
-          if (!r.error) { inp.style.borderColor='#34d399'; setTimeout(function(){ inp.style.borderColor='' },1500) }
-        })
+
+  // ── PRICE listeners — NEVER auto-save to inventory in edit mode ──
+  document.querySelectorAll(".priceInput").forEach(input => {
+    input.addEventListener("change", function() {
+      const idx      = +this.dataset.index
+      const newPrice = parseFloat(this.value) || 0
+      billItems[idx].price = newPrice
+      billItems[idx].isEdited = true   // mark as manually edited
+
+      // Only auto-update inventory selling price when creating a NEW bill
+      if (!editingBillId) {
+        const itemId = billItems[idx].id
+        if (itemId) {
+          supabase.from("inventory").update({ selling_price: newPrice }).eq("id", itemId)
+            .then(({ error }) => {
+              if (!error) { this.style.borderColor="#34d399"; setTimeout(()=>{ this.style.borderColor="" }, 1500) }
+            })
+        }
+      } else {
+        // In edit mode — just show a brief amber flash, no DB write
+        this.style.borderColor = "#f59e0b"
+        setTimeout(() => { this.style.borderColor = "" }, 1000)
       }
       renderBill()
     })
   })
-  table.querySelectorAll('.removeBtn').forEach(function(btn) {
-    btn.addEventListener('click', function() { billItems.splice(+this.dataset.index,1); renderBill() })
+
+  // ── REMOVE listeners ──
+  document.querySelectorAll(".removeBtn").forEach(btn => {
+    btn.addEventListener("click", function() {
+      billItems.splice(+this.dataset.index, 1)
+      renderBill()
+    })
   })
 }
-
-document.getElementById('gstToggle').addEventListener('change', renderBill)
-document.getElementById('deliveryCharges') && document.getElementById('deliveryCharges').addEventListener('input', renderBill)
-
-// ── CALC DISCOUNT HELPER ──
+  
+  // ── CALC DISCOUNT HELPER ──
 function calcDiscount(afterTotal) {
   var dt   = document.getElementById('discountType').value
   var cash = parseFloat(document.getElementById('cash').value)   || 0
