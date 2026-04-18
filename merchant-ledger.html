@@ -1,219 +1,237 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Merchant Ledger - Abhinandan Auto Mobiles</title>
+<title>Merchant Ledger — Abhinandan Auto Mobiles</title>
 <link rel="stylesheet" href="style.css">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'DM Sans', sans-serif; }
+* { box-sizing:border-box; margin:0; padding:0; }
+body { font-family:'DM Sans',sans-serif; }
 
-  .search-box input {
-    width: 100%; padding: 10px 16px; border-radius: 8px;
-    border: 1.5px solid rgba(255,255,255,0.15);
-    background: rgba(255,255,255,0.07); color: white;
-    font-size: 14px; font-family: 'DM Sans', sans-serif; margin-bottom: 20px;
-  }
-  .search-box input::placeholder { color: rgba(255,255,255,0.4); }
-  .search-box input:focus { outline: none; border-color: #2563eb; }
+.ledger-toolbar { display:flex; gap:12px; flex-wrap:wrap; align-items:center; margin-bottom:20px; }
+.ledger-toolbar input { flex:1; min-width:200px; padding:10px 16px; border-radius:10px; border:1.5px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.06); color:white; font-size:14px; font-family:'DM Sans',sans-serif; outline:none; }
+.ledger-toolbar input:focus { border-color:#7c3aed; }
+.ledger-toolbar input::placeholder { color:rgba(255,255,255,0.3); }
+.ledger-toolbar select { padding:10px 14px; border-radius:10px; border:1.5px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.06); color:white; font-size:13px; font-family:'DM Sans',sans-serif; outline:none; cursor:pointer; }
+.ledger-toolbar select option { background:#1e293b; }
 
-  .merchant-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
-  .merchant-card {
-    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 12px; padding: 18px; cursor: pointer; transition: all 0.2s; position: relative;
-  }
-  .merchant-card:hover { background: rgba(255,255,255,0.1); border-color: #a78bfa; transform: translateY(-2px); }
-  .merchant-card-name { font-size: 16px; font-weight: 600; color: white; margin-bottom: 4px; }
-  .merchant-card-phone { font-size: 13px; color: rgba(255,255,255,0.5); margin-bottom: 6px; }
-  .merchant-card-last { font-size: 11px; color: rgba(255,255,255,0.3); margin-bottom: 12px; }
-  .merchant-card-stats { display: flex; justify-content: space-between; }
-  .stat-block { text-align: center; }
-  .stat-label { font-size: 11px; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.5px; }
-  .stat-value { font-size: 15px; font-weight: 600; color: white; margin-top: 2px; }
-  .stat-value.red { color: #f87171; }
-  .stat-value.green { color: #34d399; }
-  .stat-value.orange { color: #fb923c; }
+.ledger-stats { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:20px; }
+@media(max-width:900px){ .ledger-stats { grid-template-columns:repeat(2,1fr); } }
+.ls-card { background:linear-gradient(135deg,rgba(255,255,255,0.07),rgba(255,255,255,0.03)); border:1px solid rgba(255,255,255,0.09); border-radius:14px; padding:16px 18px; position:relative; overflow:hidden; }
+.ls-card::before { content:''; position:absolute; top:0; left:10%; right:10%; height:1px; background:linear-gradient(90deg,transparent,rgba(167,139,250,0.2),transparent); }
+.ls-label { font-size:10px; font-weight:600; letter-spacing:1.5px; text-transform:uppercase; color:rgba(255,255,255,0.3); margin-bottom:6px; }
+.ls-value { font-family:'Playfair Display',serif; font-size:22px; font-weight:700; color:white; }
+.ls-sub   { font-size:11px; color:rgba(255,255,255,0.3); margin-top:4px; }
 
-  /* Aging dot on card */
-  .aging-dot { position: absolute; top: 14px; right: 14px; width: 10px; height: 10px; border-radius: 50%; }
-  .aging-dot.green  { background: #34d399; }
-  .aging-dot.yellow { background: #fbbf24; }
-  .aging-dot.orange { background: #fb923c; }
-  .aging-dot.red    { background: #f87171; box-shadow: 0 0 6px #f87171; }
+.merchant-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(290px,1fr)); gap:14px; }
+.merchant-card { background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:18px; cursor:pointer; transition:all 0.2s; position:relative; overflow:hidden; }
+.merchant-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:transparent; transition:all 0.2s; }
+.merchant-card:hover { background:rgba(255,255,255,0.09); border-color:rgba(124,58,237,0.5); transform:translateY(-2px); box-shadow:0 8px 24px rgba(0,0,0,0.3); }
+.merchant-card:hover::before { background:linear-gradient(90deg,#7c3aed,#a78bfa); }
+.mc-avatar { width:40px; height:40px; border-radius:50%; background:linear-gradient(135deg,#6d28d9,#a78bfa); display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:700; color:white; flex-shrink:0; }
+.mc-name { font-size:15px; font-weight:600; color:white; margin-bottom:2px; }
+.mc-phone{ font-size:12px; color:rgba(255,255,255,0.4); }
+.mc-stats { display:flex; justify-content:space-between; margin-top:12px; }
+.mc-stat-label { font-size:10px; color:rgba(255,255,255,0.35); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:2px; }
+.mc-stat-value { font-size:14px; font-weight:600; color:white; }
+.mc-stat-value.red   { color:#f87171; }
+.mc-stat-value.green { color:#34d399; }
+.aging-dot { position:absolute; top:14px; right:14px; width:10px; height:10px; border-radius:50%; }
+.aging-dot.g { background:#34d399; }
+.aging-dot.y { background:#fbbf24; }
+.aging-dot.o { background:#fb923c; }
+.aging-dot.r { background:#f87171; box-shadow:0 0 8px #f87171; animation:pulse-red 1.5s infinite; }
+@keyframes pulse-red { 0%,100%{opacity:1}50%{opacity:0.4} }
 
-  /* LEDGER MODAL */
-  .modal-overlay {
-    display: none; position: fixed; top: 0; left: 0;
-    width: 100%; height: 100%; background: rgba(0,0,0,0.75);
-    z-index: 9000; overflow-y: auto; padding: 20px;
-  }
-  .modal-box { background: #0f172a; border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; max-width: 960px; margin: 20px auto; overflow: hidden; }
-  .modal-header {
-    background: linear-gradient(135deg, #2d1b69 0%, #7c3aed 100%);
-    padding: 24px 28px; display: flex; justify-content: space-between;
-    align-items: flex-start; gap: 16px; flex-wrap: wrap;
-  }
-  .modal-header h2 { font-family: 'Playfair Display', serif; font-size: 22px; color: white; margin-bottom: 4px; }
-  .modal-header p { font-size: 13px; color: rgba(255,255,255,0.7); }
-  .modal-header-right { display: flex; gap: 10px; flex-wrap: wrap; }
+.pagination { display:flex; justify-content:space-between; align-items:center; margin-top:20px; flex-wrap:wrap; gap:12px; }
+.pg-info { font-size:13px; color:rgba(255,255,255,0.35); }
+.pg-btns { display:flex; gap:8px; }
+.pg-btn { padding:7px 14px; font-size:12px; background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.1); border-radius:8px; color:rgba(255,255,255,0.7); cursor:pointer; font-family:'DM Sans',sans-serif; transition:all 0.15s; }
+.pg-btn:hover:not(:disabled) { background:rgba(124,58,237,0.25); border-color:rgba(124,58,237,0.4); color:white; }
+.pg-btn.active { background:rgba(124,58,237,0.35); border-color:#7c3aed; color:white; }
+.pg-btn:disabled { opacity:0.3; cursor:not-allowed; }
 
-  .btn { padding: 8px 16px; border-radius: 8px; border: none; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s; }
-  .btn-white { background: white; color: #2d1b69; }
-  .btn-white:hover { background: #ede9fe; }
-  .btn-outline { background: rgba(255,255,255,0.15); color: white; border: 1px solid rgba(255,255,255,0.3); }
-  .btn-outline:hover { background: rgba(255,255,255,0.25); }
-  .btn-purple { background: #7c3aed; color: white; }
-  .btn-purple:hover { background: #6d28d9; }
-  .btn-green { background: #059669; color: white; }
-  .btn-green:hover { background: #047857; }
-  .btn-sm { padding: 5px 12px; font-size: 12px; }
+.modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:9000; overflow-y:auto; padding:20px; backdrop-filter:blur(6px); }
+.modal-box { background:linear-gradient(135deg,#0d1117,#0f172a); border:1px solid rgba(255,255,255,0.1); border-radius:20px; max-width:980px; margin:20px auto; overflow:hidden; box-shadow:0 24px 80px rgba(0,0,0,0.6); }
+.modal-header { background:linear-gradient(135deg,#2d1b69 0%,#7c3aed 100%); padding:24px 28px; display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap; }
+.modal-header h2 { font-family:'Playfair Display',serif; font-size:22px; color:white; margin-bottom:4px; }
+.modal-header-sub { font-size:13px; color:rgba(255,255,255,0.6); }
+.modal-header-right { display:flex; gap:10px; flex-wrap:wrap; }
 
-  .summary-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: rgba(255,255,255,0.08); border-bottom: 1px solid rgba(255,255,255,0.08); }
-  .summary-card { background: #0f172a; padding: 16px 20px; text-align: center; }
-  .summary-card .s-label { font-size: 11px; color: rgba(255,255,255,0.45); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
-  .summary-card .s-value { font-size: 20px; font-weight: 700; color: white; }
-  .summary-card .s-value.red    { color: #f87171; }
-  .summary-card .s-value.green  { color: #34d399; }
-  .summary-card .s-value.purple { color: #a78bfa; }
+.summary-row { display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:rgba(255,255,255,0.06); border-bottom:1px solid rgba(255,255,255,0.06); }
+.summary-card { background:#0f172a; padding:16px 20px; text-align:center; }
+.summary-card .s-label { font-size:10px; color:rgba(255,255,255,0.4); text-transform:uppercase; letter-spacing:1px; margin-bottom:6px; }
+.summary-card .s-value { font-size:20px; font-weight:700; color:white; }
+.summary-card .s-value.red    { color:#f87171; }
+.summary-card .s-value.green  { color:#34d399; }
+.summary-card .s-value.purple { color:#a78bfa; }
 
-  .modal-body { padding: 24px 28px; }
-  .section-title { font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px; }
+.balance-banner { padding:12px 28px; display:flex; align-items:center; gap:10px; border-bottom:1px solid rgba(255,255,255,0.06); font-size:14px; font-weight:600; }
+.balance-banner.owe   { background:rgba(248,113,113,0.08); color:#f87171; }
+.balance-banner.adv   { background:rgba(52,211,153,0.08);  color:#34d399; }
+.balance-banner.clear { background:rgba(52,211,153,0.05);  color:#34d399; }
 
-  /* Aging bar inside modal */
-  .aging-bar { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
-  .aging-chip { padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; }
-  .aging-chip.g { background: rgba(52,211,153,0.15); color: #34d399; }
-  .aging-chip.y { background: rgba(251,191,36,0.15); color: #fbbf24; }
-  .aging-chip.o { background: rgba(251,146,60,0.15); color: #fb923c; }
-  .aging-chip.r { background: rgba(248,113,113,0.15); color: #f87171; }
+.aging-bar-section { padding:14px 28px; border-bottom:1px solid rgba(255,255,255,0.05); }
+.aging-bar-title { font-size:10px; font-weight:600; letter-spacing:1.5px; text-transform:uppercase; color:rgba(167,139,250,0.6); margin-bottom:10px; }
+.aging-bar { display:flex; gap:10px; flex-wrap:wrap; }
+.aging-chip { padding:7px 14px; border-radius:10px; font-size:12px; font-weight:600; }
+.aging-chip.g { background:rgba(52,211,153,0.12); color:#34d399; }
+.aging-chip.y { background:rgba(251,191,36,0.12);  color:#fbbf24; }
+.aging-chip.o { background:rgba(251,146,60,0.12);  color:#fb923c; }
+.aging-chip.r { background:rgba(248,113,113,0.12); color:#f87171; }
 
-  .tx-table { width: 100%; border-collapse: collapse; font-size: 14px; }
-  .tx-table thead tr { background: #1e293b; }
-  .tx-table thead th { padding: 10px 14px; color: rgba(255,255,255,0.5); font-weight: 500; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; text-align: left; }
-  .tx-table tbody tr { border-bottom: 1px solid rgba(255,255,255,0.05); transition: background 0.15s; }
-  .tx-table tbody tr:hover { background: rgba(255,255,255,0.04); }
-  .tx-table tbody td { padding: 11px 14px; color: rgba(255,255,255,0.8); vertical-align: middle; }
+.modal-body { padding:24px 28px; }
+.section-title { font-size:11px; font-weight:600; color:rgba(255,255,255,0.4); text-transform:uppercase; letter-spacing:1.5px; margin-bottom:14px; }
+.tx-table { width:100%; border-collapse:collapse; font-size:13px; }
+.tx-table thead tr { background:rgba(255,255,255,0.04); }
+.tx-table thead th { padding:10px 14px; color:rgba(255,255,255,0.4); font-weight:600; font-size:11px; text-transform:uppercase; letter-spacing:0.5px; text-align:left; border-bottom:1px solid rgba(255,255,255,0.06); }
+.tx-table tbody tr { border-bottom:1px solid rgba(255,255,255,0.04); transition:background 0.15s; }
+.tx-table tbody tr:hover { background:rgba(255,255,255,0.03); }
+.tx-table tbody td { padding:12px 14px; color:rgba(255,255,255,0.8); vertical-align:middle; }
+.tx-table tbody tr.row-return  { background:rgba(220,38,38,0.03); }
+.tx-table tbody tr.row-payment { background:rgba(16,185,129,0.03); }
 
-  .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
-  .badge-cash    { background: rgba(52,211,153,0.15); color: #34d399; }
-  .badge-upi     { background: rgba(96,165,250,0.15); color: #60a5fa; }
-  .badge-credit  { background: rgba(248,113,113,0.15); color: #f87171; }
-  .badge-mixed   { background: rgba(251,191,36,0.15); color: #fbbf24; }
-  .badge-payment { background: rgba(16,185,129,0.2); color: #10b981; }
-  .badge-age-g   { background: rgba(52,211,153,0.12); color: #34d399; font-size: 10px; }
-  .badge-age-y   { background: rgba(251,191,36,0.12); color: #fbbf24; font-size: 10px; }
-  .badge-age-o   { background: rgba(251,146,60,0.12); color: #fb923c; font-size: 10px; }
-  .badge-age-r   { background: rgba(248,113,113,0.12); color: #f87171; font-size: 10px; }
+.badge { display:inline-block; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:600; }
+.badge-cash    { background:rgba(52,211,153,0.12); color:#34d399; }
+.badge-upi     { background:rgba(96,165,250,0.12);  color:#60a5fa; }
+.badge-credit  { background:rgba(248,113,113,0.12); color:#f87171; }
+.badge-mixed   { background:rgba(251,191,36,0.12);  color:#fbbf24; }
+.badge-payment { background:rgba(16,185,129,0.15);  color:#10b981; }
+.badge-return  { background:rgba(220,38,38,0.15);   color:#f87171; }
+.badge-age-g   { background:rgba(52,211,153,0.1);   color:#34d399; font-size:10px; }
+.badge-age-y   { background:rgba(251,191,36,0.1);   color:#fbbf24; font-size:10px; }
+.badge-age-o   { background:rgba(251,146,60,0.1);   color:#fb923c; font-size:10px; }
+.badge-age-r   { background:rgba(248,113,113,0.1);  color:#f87171; font-size:10px; }
 
-  .amount-payable  { color: #f87171; font-weight: 600; }
-  .amount-paid     { color: #34d399; font-weight: 600; }
-  .amount-payment  { color: #10b981; font-weight: 600; }
-  .empty-state     { text-align: center; padding: 40px 20px; color: rgba(255,255,255,0.3); font-size: 14px; }
+.btn { padding:8px 16px; border-radius:8px; border:none; font-size:13px; font-weight:600; cursor:pointer; font-family:'DM Sans',sans-serif; transition:all 0.2s; }
+.btn-purple  { background:#7c3aed; color:white; }
+.btn-purple:hover { background:#6d28d9; }
+.btn-green   { background:#059669; color:white; }
+.btn-green:hover { background:#047857; }
+.btn-white   { background:white; color:#2d1b69; }
+.btn-white:hover { background:#ede9fe; }
+.btn-outline { background:rgba(255,255,255,0.1); color:white; border:1px solid rgba(255,255,255,0.2); }
+.btn-outline:hover { background:rgba(255,255,255,0.18); }
+.btn-sm { padding:5px 11px; font-size:11px; border-radius:7px; }
 
-  /* PAY MODAL */
-  .pay-modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 11000; align-items: center; justify-content: center; }
-  .pay-modal-box { background: #0f172a; border: 1px solid rgba(255,255,255,0.15); border-radius: 16px; padding: 28px; width: 90%; max-width: 440px; }
-  .pay-modal-box h3 { color: white; font-family: 'Playfair Display', serif; font-size: 20px; margin-bottom: 6px; }
-  .pay-modal-box .sub { color: rgba(255,255,255,0.4); font-size: 13px; margin-bottom: 20px; }
-  .pay-field { margin-bottom: 14px; }
-  .pay-field label { display: block; font-size: 11px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: rgba(255,255,255,0.45); margin-bottom: 6px; }
-  .pay-field input, .pay-field select, .pay-field textarea { width: 100%; padding: 10px 14px; border-radius: 8px; border: 1.5px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.07); color: white; font-size: 14px; font-family: 'DM Sans', sans-serif; outline: none; }
-  .pay-field input:focus, .pay-field select:focus { border-color: rgba(124,58,237,0.6); }
-  .pay-field textarea { height: 70px; resize: vertical; }
-  .pay-field select option { background: #1e293b; }
-  .pay-actions { display: flex; gap: 10px; margin-top: 20px; }
+#viewPurchaseModal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.88); z-index:10000; overflow-y:auto; padding:20px; backdrop-filter:blur(8px); }
+.view-bill-box { background:white; max-width:800px; margin:20px auto; border-radius:16px; overflow:hidden; box-shadow:0 24px 80px rgba(0,0,0,0.6); }
+.view-bill-actions { background:#1e293b; padding:14px 24px; display:flex; gap:10px; justify-content:flex-end; align-items:center; }
+.view-bill-actions .bill-no-display { font-size:12px; color:rgba(255,255,255,0.4); margin-right:auto; font-family:monospace; }
 
-  /* VIEW PURCHASE MODAL */
-  #viewPurchaseModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 10000; overflow-y: auto; padding: 20px; }
-  .view-bill-box { background: white; max-width: 800px; margin: 20px auto; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 40px rgba(0,0,0,0.4); }
-  .view-bill-actions { background: #1e293b; padding: 14px 24px; display: flex; gap: 10px; justify-content: flex-end; }
+.pay-modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.88); z-index:11000; align-items:center; justify-content:center; backdrop-filter:blur(8px); }
+.pay-modal-box { background:linear-gradient(135deg,#0d1117,#1e293b); border:1px solid rgba(255,255,255,0.12); border-radius:18px; padding:28px; width:90%; max-width:460px; }
+.pay-modal-box h3 { font-family:'Playfair Display',serif; font-size:20px; color:white; margin-bottom:6px; }
+.pay-modal-box .sub { color:rgba(255,255,255,0.4); font-size:13px; margin-bottom:20px; }
+.pay-field { margin-bottom:14px; }
+.pay-field label { display:block; font-size:11px; font-weight:600; letter-spacing:0.8px; text-transform:uppercase; color:rgba(255,255,255,0.4); margin-bottom:6px; }
+.pay-field input, .pay-field select, .pay-field textarea { width:100%; padding:10px 14px; border-radius:8px; border:1.5px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.06); color:white; font-size:14px; font-family:'DM Sans',sans-serif; outline:none; }
+.pay-field input:focus,.pay-field select:focus { border-color:#7c3aed; }
+.pay-field textarea { height:70px; resize:vertical; }
+.pay-field select option { background:#1e293b; }
+.pay-actions { display:flex; gap:10px; margin-top:20px; }
 
-  /* PRINT */
-  #statementArea { display: none; }
-  #receiptArea   { display: none; }
+/* Invoice */
+.inv-header { background:linear-gradient(135deg,#2d1b69 0%,#7c3aed 60%,#a78bfa 100%); color:white; padding:24px 32px; display:flex; justify-content:space-between; align-items:center; gap:16px; }
+.inv-header.return-style { background:linear-gradient(135deg,#7f1d1d,#dc2626,#f87171) !important; }
+.inv-company { font-family:'Playfair Display',serif; font-size:20px; font-weight:700; margin-bottom:4px; }
+.inv-sub  { font-size:12px; opacity:0.85; margin:2px 0; }
+.inv-badge{ display:inline-block; background:rgba(255,255,255,0.18); border:1px solid rgba(255,255,255,0.4); font-size:11px; font-weight:600; letter-spacing:2px; text-transform:uppercase; padding:3px 12px; border-radius:20px; margin-bottom:6px; }
+.inv-no   { font-size:14px; font-weight:600; }
+.inv-date { font-size:12px; opacity:0.8; }
+.inv-meta { display:flex; gap:30px; padding:14px 32px; background:#f5f3ff; border-bottom:1px solid #ddd6fe; flex-wrap:wrap; }
+.inv-meta-block label { font-size:10px; font-weight:600; letter-spacing:1px; text-transform:uppercase; color:#6b7280; display:block; margin-bottom:2px; }
+.inv-meta-block span  { font-size:14px; font-weight:600; color:#111; }
+.inv-merchant-box { margin:0 32px; padding:12px; background:#f5f3ff; border:1px solid #ddd6fe; border-radius:8px; margin-top:14px; }
+.inv-merchant-title { font-size:10px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:#6b7280; margin-bottom:8px; }
+.inv-merchant-row { display:flex; gap:40px; flex-wrap:wrap; }
+.inv-merchant-item label { font-size:10px; font-weight:600; letter-spacing:1px; text-transform:uppercase; color:#6b7280; display:block; margin-bottom:2px; }
+.inv-merchant-item span  { font-size:14px; font-weight:600; color:#111; }
+.inv-table-wrap { padding:0 32px; margin-top:16px; }
+.inv-table { width:100%; border-collapse:collapse; font-size:13px; }
+.inv-table thead tr { background:#4c1d95; color:white; }
+.inv-table thead th { padding:9px 12px; text-align:left; font-weight:600; font-size:12px; }
+.inv-table thead th:not(:first-child) { text-align:center; }
+.inv-table thead th:last-child { text-align:right; }
+.inv-table tbody tr { border-bottom:1px solid #e5e7eb; }
+.inv-table tbody tr:nth-child(even) { background:#f5f3ff; }
+.inv-table tbody td { padding:9px 12px; color:#374151; }
+.inv-table tbody td:not(:first-child) { text-align:center; }
+.inv-table tbody td:last-child { text-align:right; font-weight:600; }
+.inv-totals { display:flex; justify-content:flex-end; padding:16px 32px 0; }
+.inv-totals-inner { min-width:220px; }
+.inv-total-row { display:flex; justify-content:space-between; padding:5px 0; font-size:13px; color:#374151; border-bottom:1px dashed #e5e7eb; }
+.inv-total-row:last-child { border-bottom:none; border-top:2px solid #4c1d95; margin-top:6px; padding-top:10px; font-size:16px; font-weight:700; color:#111; }
+.inv-pay { margin:14px 32px; padding:12px; background:#f5f3ff; border:1px solid #ddd6fe; border-radius:8px; }
+.inv-pay-title { font-size:10px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:#6b7280; margin-bottom:8px; }
+.inv-pay-row { display:flex; gap:24px; font-size:12px; flex-wrap:wrap; }
+.inv-pay-row span { color:#6b7280; }
+.inv-pay-row strong { color:#111; }
+.inv-balance-box { margin:8px 32px; padding:12px 16px; border-radius:8px; font-size:13px; }
+.inv-balance-box.due   { background:#fef2f2; border:1px solid #fecaca; }
+.inv-balance-box.adv   { background:#f0fdf4; border:1px solid #86efac; }
+.inv-balance-box.clear { background:#f0fdf4; border:1px solid #86efac; }
+.inv-balance-row { display:flex; justify-content:space-between; padding:3px 0; }
+.inv-balance-label { color:#6b7280; }
+.inv-balance-val { font-weight:700; }
+.inv-footer { margin:16px 32px 24px; display:flex; justify-content:space-between; align-items:flex-end; padding-top:14px; border-top:1px solid #e5e7eb; font-size:12px; color:#6b7280; }
+.inv-footer .thank-you { font-size:14px; font-weight:600; color:#4c1d95; margin-bottom:3px; }
 
-  @media print {
-    body > * { display: none !important; }
-    body.print-statement #statementArea { display: block !important; padding: 28px; background: white; color: #111; font-family: 'DM Sans', sans-serif; }
-    body.print-receipt   #receiptArea   { display: block !important; padding: 28px; background: white; color: #111; font-family: 'DM Sans', sans-serif; }
-    body.print-bill #viewPurchasePrintArea { display: block !important; background: white; }
-    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-  }
+/* PRINT */
+#statementArea { display:none; }
+#voucherArea   { display:none; }
+@media print {
+  body > * { display:none !important; }
+  body.print-statement #statementArea { display:block !important; padding:28px; background:white; color:#111; font-family:'DM Sans',sans-serif; }
+  body.print-voucher   #voucherArea   { display:block !important; padding:28px; background:white; color:#111; font-family:'DM Sans',sans-serif; }
+  body.print-bill #viewPurchasePrintArea { display:block !important; background:white; }
+  * { -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
+}
 
-  /* Statement */
-  .stmt-header { display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 16px; border-bottom: 2px solid #4c1d95; margin-bottom: 20px; }
-  .stmt-company { font-family: 'Playfair Display', serif; font-size: 20px; color: #4c1d95; font-weight: 700; }
-  .stmt-sub { font-size: 12px; color: #6b7280; margin-top: 2px; }
-  .stmt-title { font-size: 18px; font-weight: 700; color: #111; text-align: right; }
-  .stmt-no { font-size: 12px; color: #7c3aed; font-weight: 600; text-align: right; margin-top: 4px; }
-  .stmt-merchant-box { background: #f5f3ff; border: 1px solid #ddd6fe; border-radius: 8px; padding: 14px 18px; margin-bottom: 20px; display: flex; gap: 40px; flex-wrap: wrap; }
-  .stmt-merchant-box .lbl { font-size: 11px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px; }
-  .stmt-merchant-box .val { font-size: 14px; font-weight: 600; color: #111; }
-  .stmt-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 16px; }
-  .stmt-table thead tr { background: #4c1d95; color: white; }
-  .stmt-table thead th { padding: 9px 12px; text-align: left; font-weight: 600; }
-  .stmt-table tbody tr { border-bottom: 1px solid #e5e7eb; }
-  .stmt-table tbody tr:nth-child(even) { background: #f5f3ff; }
-  .stmt-table tbody td { padding: 9px 12px; color: #374151; }
-  .stmt-section-head { font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #4c1d95; padding: 10px 0 6px; border-top: 1px solid #e5e7eb; margin-bottom: 4px; }
-  .stmt-summary { display: flex; justify-content: flex-end; margin-bottom: 20px; }
-  .stmt-summary-box { min-width: 280px; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; }
-  .stmt-summary-row { display: flex; justify-content: space-between; padding: 8px 14px; font-size: 13px; border-bottom: 1px solid #e5e7eb; color: #374151; }
-  .stmt-summary-row:last-child { border-bottom: none; font-weight: 700; font-size: 15px; color: #dc2626; background: #fef2f2; }
-  .stmt-footer { margin-top: 24px; padding-top: 14px; border-top: 1px solid #e5e7eb; font-size: 12px; color: #6b7280; text-align: center; }
+/* Statement */
+.stmt-header { display:flex; justify-content:space-between; align-items:flex-start; padding-bottom:16px; border-bottom:2px solid #4c1d95; margin-bottom:20px; }
+.stmt-company { font-family:'Playfair Display',serif; font-size:20px; color:#4c1d95; font-weight:700; }
+.stmt-sub  { font-size:12px; color:#6b7280; margin-top:2px; }
+.stmt-title{ font-size:18px; font-weight:700; color:#111; text-align:right; }
+.stmt-no   { font-size:12px; color:#7c3aed; font-weight:600; text-align:right; margin-top:4px; }
+.stmt-merch-box { background:#f5f3ff; border:1px solid #ddd6fe; border-radius:8px; padding:14px 18px; margin-bottom:20px; display:flex; gap:40px; flex-wrap:wrap; }
+.stmt-merch-box .lbl { font-size:11px; color:#6b7280; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:3px; }
+.stmt-merch-box .val { font-size:14px; font-weight:600; color:#111; }
+.stmt-tbl { width:100%; border-collapse:collapse; font-size:13px; margin-bottom:16px; }
+.stmt-tbl thead tr { background:#4c1d95; color:white; }
+.stmt-tbl thead th { padding:9px 12px; text-align:left; font-weight:600; }
+.stmt-tbl tbody tr { border-bottom:1px solid #e5e7eb; }
+.stmt-tbl tbody tr:nth-child(even) { background:#f5f3ff; }
+.stmt-tbl tbody td { padding:9px 12px; color:#374151; }
+.stmt-tbl tbody tr.return-row td { color:#dc2626; background:#fef2f2; }
+.stmt-tbl tbody tr.payment-row td { color:#059669; }
+.stmt-section-head { font-size:12px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:#4c1d95; padding:10px 0 6px; border-top:1px solid #e5e7eb; margin-bottom:4px; }
+.stmt-summary { display:flex; justify-content:flex-end; margin-bottom:20px; }
+.stmt-summary-box { min-width:280px; border:1px solid #e5e7eb; border-radius:10px; overflow:hidden; }
+.stmt-summary-row { display:flex; justify-content:space-between; padding:9px 14px; font-size:13px; border-bottom:1px solid #e5e7eb; color:#374151; }
+.stmt-summary-row.balance-row-due  { font-weight:700; font-size:15px; color:#dc2626; background:#fef2f2; border-bottom:none; }
+.stmt-summary-row.balance-row-adv  { font-weight:700; font-size:15px; color:#059669; background:#f0fdf4; border-bottom:none; }
+.stmt-summary-row.balance-row-zero { font-weight:700; font-size:15px; color:#059669; background:#f0fdf4; border-bottom:none; }
+.stmt-footer { margin-top:24px; padding-top:14px; border-top:1px solid #e5e7eb; font-size:12px; color:#6b7280; text-align:center; }
 
-  /* Purchase invoice (view) */
-  .inv-header { background: linear-gradient(135deg, #2d1b69 0%, #7c3aed 60%, #a78bfa 100%); color: white; padding: 24px 32px; display: flex; justify-content: space-between; align-items: center; gap: 16px; }
-  .inv-company { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; margin-bottom: 4px; }
-  .inv-sub { font-size: 12px; opacity: 0.85; margin: 2px 0; }
-  .inv-badge { display: inline-block; background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.4); font-size: 11px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; padding: 3px 12px; border-radius: 20px; margin-bottom: 6px; }
-  .inv-no { font-size: 14px; font-weight: 600; }
-  .inv-date { font-size: 12px; opacity: 0.8; }
-  .inv-meta { display: flex; gap: 40px; padding: 14px 32px; background: #f5f3ff; border-bottom: 1px solid #ddd6fe; flex-wrap: wrap; }
-  .inv-meta-block label { font-size: 10px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: #6b7280; display: block; margin-bottom: 2px; }
-  .inv-meta-block span { font-size: 14px; font-weight: 600; color: #111; }
-  .inv-table-wrap { padding: 0 32px; margin-top: 16px; }
-  .inv-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  .inv-table thead tr { background: #4c1d95; color: white; }
-  .inv-table thead th { padding: 9px 12px; text-align: left; font-weight: 600; font-size: 12px; }
-  .inv-table thead th:not(:first-child) { text-align: center; }
-  .inv-table thead th:last-child { text-align: right; }
-  .inv-table tbody tr { border-bottom: 1px solid #e5e7eb; }
-  .inv-table tbody tr:nth-child(even) { background: #f5f3ff; }
-  .inv-table tbody td { padding: 9px 12px; color: #374151; }
-  .inv-table tbody td:not(:first-child) { text-align: center; }
-  .inv-table tbody td:last-child { text-align: right; font-weight: 600; }
-  .inv-totals { display: flex; justify-content: flex-end; padding: 16px 32px 0; }
-  .inv-totals-inner { min-width: 220px; }
-  .inv-total-row { display: flex; justify-content: space-between; padding: 5px 0; font-size: 13px; color: #374151; border-bottom: 1px dashed #e5e7eb; }
-  .inv-total-row:last-child { border-bottom: none; border-top: 2px solid #4c1d95; margin-top: 6px; padding-top: 10px; font-size: 16px; font-weight: 700; color: #111; }
-  .inv-pay { margin: 14px 32px; padding: 12px; background: #f5f3ff; border: 1px solid #ddd6fe; border-radius: 8px; }
-  .inv-pay-title { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: #6b7280; margin-bottom: 8px; }
-  .inv-pay-row { display: flex; gap: 24px; font-size: 12px; flex-wrap: wrap; }
-  .inv-pay-row span { color: #6b7280; }
-  .inv-pay-row strong { color: #111; }
-  .inv-payment-status { margin: 8px 32px; padding: 12px 16px; border-radius: 8px; font-size: 13px; }
-  .inv-payment-status.fully-paid { background: #f0fdf4; border: 1px solid #86efac; }
-  .inv-payment-status.partial    { background: #fffbeb; border: 1px solid #fde68a; }
-  .inv-payment-status.unpaid     { background: #fef2f2; border: 1px solid #fecaca; }
-  .inv-ps-row { display: flex; justify-content: space-between; padding: 3px 0; }
-  .inv-ps-label { color: #6b7280; }
-  .inv-ps-val { font-weight: 600; color: #111; }
-  .inv-ps-balance { font-size: 15px; font-weight: 700; margin-top: 6px; padding-top: 6px; border-top: 1px solid #e5e7eb; }
-  .inv-footer { margin: 16px 32px 24px; display: flex; justify-content: space-between; align-items: flex-end; padding-top: 14px; border-top: 1px solid #e5e7eb; font-size: 12px; color: #6b7280; }
-  .inv-footer .thank-you { font-size: 14px; font-weight: 600; color: #4c1d95; margin-bottom: 3px; }
+/* Voucher */
+.vchr-header { display:flex; justify-content:space-between; align-items:flex-start; padding-bottom:14px; border-bottom:2px solid #4c1d95; margin-bottom:18px; }
+.vchr-company{ font-family:'Playfair Display',serif; font-size:18px; color:#4c1d95; font-weight:700; }
+.vchr-sub    { font-size:11px; color:#6b7280; margin-top:2px; }
+.vchr-title  { font-size:16px; font-weight:700; color:#111; text-align:right; }
+.vchr-no     { font-size:11px; color:#7c3aed; font-weight:600; text-align:right; margin-top:3px; }
+.vchr-body   { background:#f5f3ff; border:1px solid #ddd6fe; border-radius:8px; padding:16px 20px; margin-bottom:16px; }
+.vchr-row    { display:flex; justify-content:space-between; padding:5px 0; font-size:14px; color:#374151; border-bottom:1px dashed #ddd6fe; }
+.vchr-row:last-child { border-bottom:none; font-weight:700; font-size:16px; color:#7c3aed; padding-top:10px; }
+.vchr-note   { font-size:13px; color:#6b7280; font-style:italic; padding:10px 14px; background:#fffbeb; border:1px solid #fde68a; border-radius:8px; margin-bottom:16px; }
+.vchr-sigs   { display:flex; justify-content:space-between; margin-top:24px; padding-top:14px; border-top:1px solid #e5e7eb; }
+.vchr-sig    { text-align:center; }
+.vchr-sig-line{ border-top:1px solid #000; width:140px; margin-bottom:4px; margin-top:28px; margin-left:auto; margin-right:auto; }
+.vchr-sig-lbl{ font-size:11px; color:#6b7280; }
+.vchr-footer { text-align:center; font-size:11px; color:#9ca3af; border-top:1px solid #e5e7eb; padding-top:14px; margin-top:16px; }
 
-  /* Receipt */
-  .rcpt-header { display:flex; justify-content:space-between; align-items:flex-start; padding-bottom:14px; border-bottom:2px solid #4c1d95; margin-bottom:18px; }
-  .rcpt-company { font-family:'Playfair Display',serif; font-size:18px; color:#4c1d95; font-weight:700; }
-  .rcpt-sub { font-size:11px; color:#6b7280; margin-top:2px; }
-  .rcpt-title { font-size:16px; font-weight:700; color:#111; text-align:right; }
-  .rcpt-no { font-size:11px; color:#7c3aed; font-weight:600; text-align:right; margin-top:3px; }
-  .rcpt-body { background:#f5f3ff; border:1px solid #ddd6fe; border-radius:8px; padding:16px 20px; margin-bottom:18px; }
-  .rcpt-row { display:flex; justify-content:space-between; padding:5px 0; font-size:14px; color:#374151; border-bottom:1px dashed #ddd6fe; }
-  .rcpt-row:last-child { border-bottom:none; font-weight:700; font-size:16px; color:#7c3aed; padding-top:10px; }
-  .rcpt-note { font-size:13px; color:#6b7280; font-style:italic; padding:10px 14px; background:#fffbeb; border:1px solid #fde68a; border-radius:8px; margin-bottom:16px; }
-  .rcpt-footer { text-align:center; font-size:11px; color:#9ca3af; border-top:1px solid #e5e7eb; padding-top:14px; }
+.empty-state { text-align:center; padding:50px 20px; color:rgba(255,255,255,0.25); font-size:14px; }
+.loading-row { text-align:center; padding:30px; color:rgba(255,255,255,0.3); font-size:13px; }
 </style>
 </head>
 <body>
@@ -230,210 +248,192 @@
   <a href="customers.html">👥 Customers</a>
   <a href="customer-ledger.html">📒 Customer Ledger</a>
   <a href="merchants.html">🏭 Merchants</a>
-  <a href="merchant-ledger.html">🏪 Merchant Ledger</a>
-  <div class="sidebar-bottom">
-   <div class="sidebar-version">Auto ERP v1.0</div>
-  </div>
+  <a href="merchant-ledger.html" class="active">🏪 Merchant Ledger</a>
+  <div class="sidebar-bottom"><div class="sidebar-version">Auto ERP v1.0</div></div>
 </div>
 
 <div class="main">
-  <h1>Merchant Ledger</h1>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
+    <h1>Merchant Ledger</h1>
+    <div style="font-size:12px;color:rgba(255,255,255,0.3);" id="lastRefreshed"></div>
+  </div>
+
+  <div class="ledger-stats">
+    <div class="ls-card"><div class="ls-label">Total Merchants</div><div class="ls-value" id="gsTotal">—</div><div class="ls-sub">All suppliers</div></div>
+    <div class="ls-card"><div class="ls-label">Payable Due</div><div class="ls-value" id="gsWithPayable" style="color:#f87171;">—</div><div class="ls-sub">You owe them</div></div>
+    <div class="ls-card"><div class="ls-label">Total Payable</div><div class="ls-value" id="gsTotalPayable" style="color:#fbbf24;font-size:18px;">—</div><div class="ls-sub">Outstanding</div></div>
+    <div class="ls-card"><div class="ls-label">Overpaid</div><div class="ls-value" id="gsTotalAdv" style="color:#34d399;font-size:18px;">—</div><div class="ls-sub">They owe you</div></div>
+  </div>
+
   <div class="card">
-    <h3>Search Merchant / Supplier</h3>
-    <div class="search-box">
-      <input id="searchInput" placeholder="Search by name or phone..." oninput="filterMerchants()">
+    <div class="ledger-toolbar">
+      <input id="searchInput" placeholder="🔍  Search by name or phone..." oninput="debounceSearch()">
+      <select id="filterBalance" onchange="currentPage=1;loadMerchants()">
+        <option value="all">All Merchants</option>
+        <option value="payable">Payable Due</option>
+        <option value="overdue">Overdue 30+ days</option>
+        <option value="advance">Overpaid / Advance</option>
+        <option value="clear">Clear Accounts</option>
+      </select>
+      <select id="sortBy" onchange="currentPage=1;loadMerchants()">
+        <option value="payable_desc">Sort: Most Payable First</option>
+        <option value="name">Sort: Name</option>
+        <option value="bills_desc">Sort: Most Bills First</option>
+      </select>
     </div>
+
     <div class="merchant-grid" id="merchantGrid">
-      <div class="empty-state">Loading merchants...</div>
+      <div class="loading-row">Loading merchants...</div>
+    </div>
+
+    <div class="pagination">
+      <div class="pg-info" id="pgInfo">—</div>
+      <div class="pg-btns" id="pgBtns"></div>
     </div>
   </div>
 </div>
 
 
-<!-- ── LEDGER MODAL ── -->
+<!-- ════════════ LEDGER MODAL ════════════ -->
 <div class="modal-overlay" id="ledgerModal">
   <div class="modal-box">
     <div class="modal-header">
       <div>
         <h2 id="modalName">—</h2>
-        <p id="modalPhone">—</p>
+        <div class="modal-header-sub" id="modalSub">—</div>
       </div>
       <div class="modal-header-right">
-        <button class="btn btn-green"   onclick="openPaymentModal()">💸 Pay Merchant</button>
-        <button class="btn btn-white"   onclick="printStatement()">🖨 Statement</button>
-        <button class="btn btn-outline" onclick="closeModal()">✕ Close</button>
+        <button class="btn btn-green  btn-sm" onclick="openPaymentModal()">💸 Pay Merchant</button>
+        <button class="btn btn-white  btn-sm" onclick="printStatement()">🖨 Statement</button>
+        <button class="btn btn-outline btn-sm" onclick="closeModal()">✕ Close</button>
       </div>
     </div>
 
     <div class="summary-row">
-      <div class="summary-card">
-        <div class="s-label">Total Bills</div>
-        <div class="s-value purple" id="totalBills">0</div>
-      </div>
-      <div class="summary-card">
-        <div class="s-label">Total Purchased</div>
-        <div class="s-value purple" id="totalPurchased">₹0</div>
-      </div>
-      <div class="summary-card">
-        <div class="s-label">Total Paid</div>
-        <div class="s-value green" id="totalPaid">₹0</div>
-      </div>
-      <div class="summary-card">
-        <div class="s-label">Amount Payable</div>
-        <div class="s-value red" id="amountPayable">₹0</div>
-      </div>
+      <div class="summary-card"><div class="s-label">Total Bills</div><div class="s-value purple" id="smBills">0</div></div>
+      <div class="summary-card"><div class="s-label">Total Purchased</div><div class="s-value purple" id="smTotal">₹0</div></div>
+      <div class="summary-card"><div class="s-label">Total Paid</div><div class="s-value green" id="smPaid">₹0</div></div>
+      <div class="summary-card"><div class="s-label" id="smBalLabel">Balance</div><div class="s-value" id="smBal">₹0</div></div>
     </div>
 
-    <!-- Aging Analysis Bar -->
-    <div style="padding:14px 28px 0; border-bottom:1px solid rgba(255,255,255,0.06);">
-      <div style="font-size:11px;font-weight:600;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">📊 Outstanding Aging</div>
-      <div class="aging-bar" id="agingBar">
-        <span class="aging-chip g" id="aging0to30">0-30 days: ₹0</span>
-        <span class="aging-chip y" id="aging31to60">31-60 days: ₹0</span>
-        <span class="aging-chip o" id="aging61to90">61-90 days: ₹0</span>
-        <span class="aging-chip r" id="aging90plus">90+ days: ₹0</span>
+    <div class="balance-banner clear" id="balanceBanner">
+      <span id="balanceBannerText">Account is clear ✓</span>
+    </div>
+
+    <div class="aging-bar-section">
+      <div class="aging-bar-title">📊 Outstanding Aging Analysis</div>
+      <div class="aging-bar">
+        <span class="aging-chip g" id="age0">0–30 days: ₹0</span>
+        <span class="aging-chip y" id="age31">31–60 days: ₹0</span>
+        <span class="aging-chip o" id="age61">61–90 days: ₹0</span>
+        <span class="aging-chip r" id="age90">90+ days: ₹0</span>
       </div>
     </div>
 
     <div class="modal-body">
-      <div class="section-title">Transaction History</div>
-      <table class="tx-table">
-        <thead>
-          <tr>
-            <th>Bill No / Receipt</th>
-            <th>Date</th>
-            <th>Type</th>
-            <th>Amount</th>
-            <th>Payable / Paid</th>
-            <th>Age</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody id="txBody"></tbody>
-      </table>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
+        <div class="section-title" style="margin-bottom:0;">Transaction History</div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.3);" id="txCount">—</div>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="tx-table">
+          <thead>
+            <tr>
+              <th>No / Voucher</th>
+              <th>Date</th>
+              <th>Type</th>
+              <th>Bill Amount</th>
+              <th>Payable / Paid</th>
+              <th>Age</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="txBody"></tbody>
+        </table>
+      </div>
     </div>
   </div>
 </div>
 
 
-<!-- ── VIEW PURCHASE MODAL ── -->
+<!-- ════════════ VIEW PURCHASE MODAL ════════════ -->
 <div id="viewPurchaseModal">
   <div class="view-bill-box">
     <div class="view-bill-actions">
+      <span class="bill-no-display" id="vBillNoDisplay">—</span>
       <button class="btn btn-white btn-sm" onclick="printViewedBill()">🖨 Print</button>
       <button class="btn btn-outline btn-sm" onclick="closeViewPurchase()">✕ Close</button>
     </div>
     <div id="viewPurchasePrintArea">
-      <div class="inv-header">
+      <div class="inv-header" id="vPurchaseHeader">
         <div>
           <div class="inv-company">Abhinandan Auto Mobiles</div>
           <div class="inv-sub">Santalpur - Palanpur Highway</div>
           <div class="inv-sub">📞 +91 98700 37002</div>
         </div>
         <div style="text-align:right;">
-          <div class="inv-badge">Purchase Bill</div>
-          <div class="inv-no">Bill # <span id="vBillNo">—</span></div>
-          <div class="inv-date" id="vDate">—</div>
+          <div class="inv-badge" id="vPurchaseType">Purchase Invoice</div>
+          <div class="inv-no">Bill # <span id="vPurchaseNo">—</span></div>
+          <div class="inv-date" id="vPurchaseDate">—</div>
         </div>
       </div>
+      <div id="vReturnBar" style="display:none;background:#fef2f2;border-bottom:1px solid #fecaca;padding:10px 32px;font-size:13px;color:#dc2626;font-weight:500;">
+        ↩️ <strong>Purchase Return</strong> — Original Bill: <span id="vReturnOrigRef">—</span>
+      </div>
       <div class="inv-meta">
-        <div class="inv-meta-block"><label>Merchant / Supplier</label><span id="vMerchant">—</span></div>
-        <div class="inv-meta-block"><label>Phone</label><span id="vPhone">—</span></div>
+        <div class="inv-meta-block"><label>Merchant</label><span id="vMerchant">—</span></div>
+        <div class="inv-meta-block"><label>Phone</label><span id="vMerchPhone">—</span></div>
         <div class="inv-meta-block"><label>Payment Mode</label><span id="vPayMode">—</span></div>
+        <div class="inv-meta-block" id="vInvRefBlock" style="display:none;"><label>Merchant Invoice Ref</label><span id="vInvRef">—</span></div>
+      </div>
+      <div class="inv-merchant-box" id="vMerchDetailBox" style="display:none;">
+        <div class="inv-merchant-title">Supplier Details</div>
+        <div class="inv-merchant-row">
+          <div class="inv-merchant-item" id="vAddrBlock" style="display:none;"><label>Address</label><span id="vMerchAddr">—</span></div>
+          <div class="inv-merchant-item" id="vGstinBlock" style="display:none;"><label>GSTIN</label><span id="vMerchGstin" style="font-family:monospace;">—</span></div>
+        </div>
       </div>
       <div class="inv-table-wrap">
         <table class="inv-table">
-          <thead><tr><th>#</th><th>Item</th><th>Qty</th><th>Purchase Price</th><th>Amount</th></tr></thead>
-          <tbody id="vItems"></tbody>
+          <thead><tr><th>#</th><th>Item</th><th>Qty</th><th>Price</th><th>Amount</th></tr></thead>
+          <tbody id="vPurchaseItems"></tbody>
         </table>
       </div>
       <div class="inv-totals">
         <div class="inv-totals-inner">
-          <div class="inv-total-row"><span style="color:#6b7280;">Subtotal</span><span>₹<span id="vSubtotal">0</span></span></div>
-          <div class="inv-total-row"><span style="color:#4c1d95;">Grand Total</span><span style="color:#4c1d95;">₹<span id="vTotal">0</span></span></div>
+          <div class="inv-total-row"><span style="color:#6b7280;">Subtotal</span><span>₹<span id="vPurSubtotal">0</span></span></div>
+          <div class="inv-total-row" id="vDiscRow" style="display:none;"><span style="color:#059669;">Discount</span><span style="color:#059669;">- ₹<span id="vDiscount">0</span></span></div>
+          <div class="inv-total-row"><span style="color:#4c1d95;" id="vPurTotalLabel">Grand Total</span><span style="color:#4c1d95;font-weight:700;">₹<span id="vPurTotal">0</span></span></div>
         </div>
       </div>
       <div class="inv-pay">
-        <div class="inv-pay-title">Payment Breakdown (At Purchase)</div>
+        <div class="inv-pay-title" id="vPurPayTitle">Payment Breakdown</div>
         <div class="inv-pay-row">
-          <div><span>Cash: </span><strong id="vCash">₹0</strong></div>
-          <div><span>UPI: </span><strong id="vUPI">₹0</strong></div>
-          <div><span>Credit (Payable): </span><strong id="vCredit">₹0</strong></div>
+          <div><span>Cash: </span><strong id="vPurCash">₹0</strong></div>
+          <div><span>UPI: </span><strong id="vPurUPI">₹0</strong></div>
+          <div><span id="vPurCreditLabel">Payable (Credit): </span><strong id="vPurCredit">₹0</strong></div>
         </div>
       </div>
-      <div id="vPaymentStatusBox" style="display:none;">
-        <div class="inv-pay-title" style="margin:0 32px 6px;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#6b7280;">Payable Status After Payments</div>
-        <div class="inv-payment-status" id="vPaymentStatusDiv">
-          <div class="inv-ps-row"><span class="inv-ps-label">Original Payable (at purchase)</span><span class="inv-ps-val" id="vOrigCredit">₹0</span></div>
-          <div class="inv-ps-row"><span class="inv-ps-label">Total Payments Made</span><span class="inv-ps-val" style="color:#059669;" id="vPaymentsMade">₹0</span></div>
-          <div class="inv-ps-balance"><div class="inv-ps-row"><span class="inv-ps-label">Balance Payable</span><span class="inv-ps-val" id="vBalanceDue">₹0</span></div></div>
-        </div>
+      <div id="vMerchBalanceBox" class="inv-balance-box clear" style="display:none;">
+        <div class="inv-balance-row"><span class="inv-balance-label">Payable at billing</span><span class="inv-balance-val" id="vMBOrigPayable">₹0</span></div>
+        <div class="inv-balance-row"><span class="inv-balance-label">Total payments made (all bills)</span><span class="inv-balance-val" style="color:#059669;" id="vMBPaid">₹0</span></div>
+        <div class="inv-balance-row" style="margin-top:6px;padding-top:6px;border-top:1px solid #e5e7eb;"><span class="inv-balance-label" style="font-weight:600;">Overall Balance</span><span class="inv-balance-val" id="vMBFinal">₹0</span></div>
       </div>
       <div class="inv-footer">
-        <div>
-          <div class="thank-you">Abhinandan Auto Mobiles 🙏</div>
-          <div>Purchase record — internal document.</div>
-        </div>
-        <div style="text-align:right;">
-          <div style="border-top:1px solid #374151;width:140px;margin:24px 0 4px auto;"></div>
-          <div style="font-size:11px;color:#6b7280;">Authorised Signatory</div>
-        </div>
+        <div><div class="thank-you" id="vPurFooterMsg">Stock Received 🙏</div><div>Internal purchase record.</div></div>
+        <div style="text-align:right;"><div style="border-top:1px solid #374151;width:140px;margin:24px 0 4px auto;"></div><div style="font-size:11px;color:#6b7280;">Authorised Signatory</div></div>
       </div>
     </div>
   </div>
 </div>
 
 
-<!-- ── STATEMENT PRINT AREA ── -->
-<div id="statementArea">
-  <div class="stmt-header">
-    <div>
-      <div class="stmt-company">Abhinandan Auto Mobiles</div>
-      <div class="stmt-sub">Santalpur - Palanpur Highway &nbsp;|&nbsp; +91 98700 37002</div>
-    </div>
-    <div>
-      <div class="stmt-title">Merchant / Supplier Statement</div>
-      <div class="stmt-no" id="stmtNo">—</div>
-      <div class="stmt-sub" id="stmtDate" style="text-align:right;margin-top:4px;"></div>
-    </div>
-  </div>
-  <div class="stmt-merchant-box">
-    <div><div class="lbl">Merchant Name</div><div class="val" id="stmtName">—</div></div>
-    <div><div class="lbl">Phone</div><div class="val" id="stmtPhone">—</div></div>
-    <div><div class="lbl">Generated On</div><div class="val" id="stmtGenDate">—</div></div>
-    <div><div class="lbl">Amount Payable</div><div class="val" style="color:#dc2626;" id="stmtPayableHead">₹0</div></div>
-  </div>
-
-  <div class="stmt-section-head">📦 Purchase Bills</div>
-  <table class="stmt-table">
-    <thead><tr><th>Bill No</th><th>Date</th><th>Total</th><th>Cash</th><th>UPI</th><th>Payable</th></tr></thead>
-    <tbody id="stmtBody"></tbody>
-  </table>
-
-  <div class="stmt-section-head" id="stmtPayHeading" style="display:none;">💸 Payments Made</div>
-  <table class="stmt-table" id="stmtPayTable" style="display:none;">
-    <thead><tr><th>Receipt No</th><th>Date</th><th>Mode</th><th>Amount</th><th>Note</th></tr></thead>
-    <tbody id="stmtPayBody"></tbody>
-  </table>
-
-  <div class="stmt-summary">
-    <div class="stmt-summary-box">
-      <div class="stmt-summary-row"><span>Total Purchased</span><span id="stmtTotal">₹0</span></div>
-      <div class="stmt-summary-row"><span>Cash Paid (at purchase)</span><span id="stmtCash">₹0</span></div>
-      <div class="stmt-summary-row"><span>UPI Paid (at purchase)</span><span id="stmtUPI">₹0</span></div>
-      <div class="stmt-summary-row"><span>Payments Made</span><span id="stmtPayments">₹0</span></div>
-      <div class="stmt-summary-row"><span>Balance Payable</span><span id="stmtCredit">₹0</span></div>
-    </div>
-  </div>
-  <div class="stmt-footer">This is a computer-generated statement. For queries contact Abhinandan Auto Mobiles.</div>
-</div>
-
-
-<!-- ── PAY MERCHANT MODAL ── -->
+<!-- ════════════ PAY MERCHANT MODAL ════════════ -->
 <div class="pay-modal-overlay" id="paymentModal">
   <div class="pay-modal-box">
     <h3>Pay Merchant</h3>
-    <p class="sub" id="payModalSub">Merchant: —</p>
+    <p class="sub" id="payModalSub">—</p>
+    <div id="payBalancePill" style="display:inline-block;padding:6px 14px;border-radius:20px;font-size:13px;font-weight:600;margin-bottom:16px;"></div>
     <div class="pay-field"><label>Amount Paid (₹) *</label><input type="number" id="payAmount" placeholder="e.g. 10000" min="0"></div>
     <div class="pay-field">
       <label>Payment Mode</label>
@@ -447,8 +447,8 @@
         <option value="Other">Other</option>
       </select>
     </div>
-    <div class="pay-field"><label>Reference / Cheque No (optional)</label><input type="text" id="payRef" placeholder="e.g. CHQ-001234 or UTR no."></div>
-    <div class="pay-field"><label>Note (optional)</label><textarea id="payNote" placeholder="e.g. Full payment for March purchases"></textarea></div>
+    <div class="pay-field"><label>Reference / Cheque No <span style="font-size:10px;color:rgba(255,255,255,0.25);">(optional)</span></label><input type="text" id="payRef" placeholder="e.g. CHQ-001234 or UTR"></div>
+    <div class="pay-field"><label>Note <span style="font-size:10px;color:rgba(255,255,255,0.25);">(optional)</span></label><textarea id="payNote" placeholder="e.g. Payment for March purchases..."></textarea></div>
     <div class="pay-actions">
       <button class="btn btn-purple" style="flex:1;" onclick="savePayment(false)">✅ Save</button>
       <button class="btn btn-white" onclick="savePayment(true)">🖨 Save & Print</button>
@@ -458,44 +458,80 @@
 </div>
 
 
-<!-- ── RECEIPT PRINT AREA ── -->
-<div id="receiptArea">
-  <div class="rcpt-header">
-    <div>
-      <div class="rcpt-company">Abhinandan Auto Mobiles</div>
-      <div class="rcpt-sub">Santalpur - Palanpur Highway &nbsp;|&nbsp; +91 98700 37002</div>
-    </div>
-    <div>
-      <div class="rcpt-title">Payment Voucher</div>
-      <div class="rcpt-no" id="rcptNo">—</div>
-      <div class="rcpt-sub" id="rcptDate" style="text-align:right;margin-top:2px;"></div>
+<!-- ════════════ STATEMENT PRINT ════════════ -->
+<div id="statementArea">
+  <div class="stmt-header">
+    <div><div class="stmt-company">Abhinandan Auto Mobiles</div><div class="stmt-sub">Santalpur - Palanpur Highway &nbsp;|&nbsp; +91 98700 37002</div></div>
+    <div><div class="stmt-title">Merchant / Supplier Statement</div><div class="stmt-no" id="stmtNo">—</div><div class="stmt-sub" id="stmtDate" style="text-align:right;margin-top:4px;"></div></div>
+  </div>
+  <div class="stmt-merch-box">
+    <div><div class="lbl">Merchant</div><div class="val" id="stmtName">—</div></div>
+    <div><div class="lbl">Phone</div><div class="val" id="stmtPhone">—</div></div>
+    <div><div class="lbl">Generated On</div><div class="val" id="stmtGenDate">—</div></div>
+    <div><div class="lbl" id="stmtBalLabel">Balance</div><div class="val" id="stmtBalVal" style="font-size:18px;">—</div></div>
+  </div>
+
+  <div class="stmt-section-head">📦 Purchase Bills</div>
+  <table class="stmt-tbl">
+    <thead><tr><th>Bill No</th><th>Date</th><th>Total</th><th>Cash</th><th>UPI</th><th>Payable</th></tr></thead>
+    <tbody id="stmtPurchaseBody"></tbody>
+  </table>
+
+  <div class="stmt-section-head" id="stmtReturnHeading" style="display:none;">↩️ Purchase Returns</div>
+  <table class="stmt-tbl" id="stmtReturnTable" style="display:none;">
+    <thead><tr><th>Return No</th><th>Date</th><th>Original Bill</th><th>Amount</th></tr></thead>
+    <tbody id="stmtReturnBody"></tbody>
+  </table>
+
+  <div class="stmt-section-head" id="stmtPayHeading" style="display:none;">💸 Payments Made</div>
+  <table class="stmt-tbl" id="stmtPayTable" style="display:none;">
+    <thead><tr><th>Voucher No</th><th>Date</th><th>Mode</th><th>Amount</th><th>Ref / Note</th></tr></thead>
+    <tbody id="stmtPayBody"></tbody>
+  </table>
+
+  <div class="stmt-summary">
+    <div class="stmt-summary-box">
+      <div class="stmt-summary-row"><span>Total Purchased</span><span id="stmtTotalPurchased">₹0</span></div>
+      <div class="stmt-summary-row"><span>Cash (at purchase)</span><span id="stmtCash">₹0</span></div>
+      <div class="stmt-summary-row"><span>UPI (at purchase)</span><span id="stmtUPI">₹0</span></div>
+      <div class="stmt-summary-row"><span>Returns</span><span id="stmtReturns">₹0</span></div>
+      <div class="stmt-summary-row"><span>Payments Made</span><span id="stmtPayments">₹0</span></div>
+      <div class="stmt-summary-row" id="stmtBalRow"><span id="stmtBalRowLabel">Balance</span><span id="stmtCredit">₹0</span></div>
     </div>
   </div>
-  <div class="rcpt-body">
-    <div class="rcpt-row"><span>Paid To</span><span id="rcptName">—</span></div>
-    <div class="rcpt-row"><span>Phone</span><span id="rcptPhone">—</span></div>
-    <div class="rcpt-row"><span>Payment Mode</span><span id="rcptMode">—</span></div>
-    <div class="rcpt-row" id="rcptRefRow" style="display:none;"><span>Reference No</span><span id="rcptRef">—</span></div>
-    <div class="rcpt-row"><span>Date</span><span id="rcptDateVal">—</span></div>
-    <div class="rcpt-row"><span>Amount Paid</span><span id="rcptAmount">₹0</span></div>
+  <div style="display:flex;justify-content:space-between;margin-top:24px;padding-top:16px;border-top:1px solid #e5e7eb;">
+    <div style="text-align:center;"><div style="border-top:1px solid #000;width:150px;margin-bottom:4px;margin-top:28px;"></div><div style="font-size:11px;color:#6b7280;">Merchant Signature</div></div>
+    <div style="text-align:center;"><div style="border-top:1px solid #000;width:150px;margin-bottom:4px;margin-top:28px;"></div><div style="font-size:11px;color:#6b7280;">For Abhinandan Auto Mobiles</div></div>
   </div>
-  <div class="rcpt-note" id="rcptNoteBox" style="display:none;">📝 Note: <span id="rcptNote"></span></div>
-  <div class="rcpt-body" style="margin-bottom:16px;">
-    <div class="rcpt-row"><span>Previous Balance Payable</span><span id="rcptPrevDue">₹0</span></div>
-    <div class="rcpt-row"><span>Amount Paid Now</span><span id="rcptPaid">₹0</span></div>
-    <div class="rcpt-row"><span style="color:#7c3aed;">Remaining Payable</span><span id="rcptRemaining">₹0</span></div>
+  <div class="stmt-footer">Computer-generated statement — Abhinandan Auto Mobiles</div>
+</div>
+
+
+<!-- ════════════ PAYMENT VOUCHER PRINT ════════════ -->
+<div id="voucherArea">
+  <div class="vchr-header">
+    <div><div class="vchr-company">Abhinandan Auto Mobiles</div><div class="vchr-sub">Santalpur - Palanpur Highway &nbsp;|&nbsp; +91 98700 37002</div></div>
+    <div><div class="vchr-title">Payment Voucher</div><div class="vchr-no" id="vchrNo">—</div><div class="vchr-sub" id="vchrDate" style="text-align:right;margin-top:2px;"></div></div>
   </div>
-  <div style="display:flex;justify-content:space-between;margin-top:30px;padding-top:16px;border-top:1px solid #e5e7eb;">
-    <div style="text-align:center;">
-      <div style="border-top:1px solid #000;width:140px;margin-bottom:4px;margin-top:28px;"></div>
-      <div style="font-size:11px;color:#6b7280;">Received By (Merchant)</div>
-    </div>
-    <div style="text-align:center;">
-      <div style="border-top:1px solid #000;width:140px;margin-bottom:4px;margin-top:28px;"></div>
-      <div style="font-size:11px;color:#6b7280;">Authorised Signatory</div>
-    </div>
+  <div class="vchr-body">
+    <div class="vchr-row"><span>Paid To</span><span id="vchrName">—</span></div>
+    <div class="vchr-row"><span>Phone</span><span id="vchrPhone">—</span></div>
+    <div class="vchr-row"><span>Payment Mode</span><span id="vchrMode">—</span></div>
+    <div class="vchr-row" id="vchrRefRow" style="display:none;"><span>Reference No</span><span id="vchrRef">—</span></div>
+    <div class="vchr-row"><span>Date</span><span id="vchrDateVal">—</span></div>
+    <div class="vchr-row"><span>Amount Paid</span><span id="vchrAmount">₹0</span></div>
   </div>
-  <div class="rcpt-footer" style="margin-top:16px;">Payment voucher — Abhinandan Auto Mobiles &nbsp;|&nbsp; Internal Record</div>
+  <div class="vchr-note" id="vchrNoteBox" style="display:none;">📝 Note: <span id="vchrNote"></span></div>
+  <div class="vchr-body" style="margin-bottom:16px;">
+    <div class="vchr-row"><span>Previous Balance</span><span id="vchrPrevBal">—</span></div>
+    <div class="vchr-row"><span>Amount Paid Now</span><span id="vchrPaid">₹0</span></div>
+    <div class="vchr-row"><span>New Balance</span><span id="vchrNewBal">—</span></div>
+  </div>
+  <div class="vchr-sigs">
+    <div class="vchr-sig"><div class="vchr-sig-line"></div><div class="vchr-sig-lbl">Received By (Merchant)</div></div>
+    <div class="vchr-sig"><div class="vchr-sig-line"></div><div class="vchr-sig-lbl">For Abhinandan Auto Mobiles</div></div>
+  </div>
+  <div class="vchr-footer">Payment Voucher — Abhinandan Auto Mobiles | Internal Record</div>
 </div>
 
 
@@ -506,488 +542,484 @@ const supabaseUrl = "https://mhhnmndnolhapaoqtbxo.supabase.co"
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1oaG5tbmRub2xoYXBhb3F0YnhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4Mzg4NTksImV4cCI6MjA4ODQxNDg1OX0.IMSp8vYiCln_iSuoT_H2qdeX_dP1WMhOOskDw20eJXw"
 const supabase = createClient(supabaseUrl, supabaseKey)
 
-let allMerchants        = []   // grouped by merchant_name+phone
-let currentMerchantData = null
+const PAGE_SIZE = 20
+let currentPage = 1
+let totalCount  = 0
+let currentMerchData = null
+let searchTimer  = null
 const today = new Date()
 
-// ─────────────────────────────────────────
-// HELPERS
-// ─────────────────────────────────────────
-function daysSince(dateStr) {
-  return Math.floor((today - new Date(dateStr)) / (1000 * 60 * 60 * 24))
-}
+const fmt = n => '₹' + (Math.round(Math.abs(n))||0).toLocaleString('en-IN')
+const daysSince = d => Math.floor((today - new Date(d)) / (1000*60*60*24))
 
-function agingClass(days) {
-  if (days <= 30)  return 'badge-age-g'
-  if (days <= 60)  return 'badge-age-y'
-  if (days <= 90)  return 'badge-age-o'
-  return 'badge-age-r'
-}
-
-function agingDotClass(maxDays) {
-  if (maxDays <= 30) return 'green'
-  if (maxDays <= 60) return 'yellow'
-  if (maxDays <= 90) return 'orange'
-  return 'red'
-}
-
-
-// ─────────────────────────────────────────
-// LOAD ALL MERCHANTS (group purchases by merchant_name+phone)
-// ─────────────────────────────────────────
+// ────────────────────────────────────────────
+// LOAD MERCHANT GRID
+// Groups purchases by merchant_name — fast for 500+ merchants
+// ────────────────────────────────────────────
 async function loadMerchants() {
+  document.getElementById('merchantGrid').innerHTML = '<div class="loading-row">⏳ Loading...</div>'
+  const search = document.getElementById('searchInput').value.trim()
+  const filter = document.getElementById('filterBalance').value
+  const sortBy = document.getElementById('sortBy').value
+
+  // Load purchases + payments in parallel
   const [{ data: purchases }, { data: mpayments }] = await Promise.all([
-    supabase.from('purchases').select('*').order('created_at', { ascending: false }),
-    supabase.from('merchant_payments').select('*')
+    supabase.from('purchases').select('merchant_name, merchant_phone, total_amount, credit, bill_type, created_at'),
+    supabase.from('merchant_payments').select('merchant_name, amount')
   ])
 
-  // Group by merchant_name (case-insensitive trim)
+  // Group by merchant name
   const map = {}
   for (const p of (purchases || [])) {
     const key = (p.merchant_name || '').trim().toLowerCase()
     if (!key) continue
-    if (!map[key]) {
-      map[key] = {
-        name:      (p.merchant_name || '').trim(),
-        phone:     p.merchant_phone || '',
-        purchases: [],
-        lastDate:  p.created_at
-      }
-    }
-    map[key].purchases.push(p)
+    if (!map[key]) map[key] = { name:(p.merchant_name||'').trim(), phone:p.merchant_phone||'', bills:[], lastDate:p.created_at }
+    map[key].bills.push(p)
     if (new Date(p.created_at) > new Date(map[key].lastDate)) map[key].lastDate = p.created_at
   }
 
-  allMerchants = Object.values(map).map(m => {
-    const creditFromBills = m.purchases.reduce((s, p) => s + (p.credit || 0), 0)
-    const myPayments = (mpayments || []).filter(mp =>
-      (mp.merchant_name || '').trim().toLowerCase() === m.name.toLowerCase()
-    )
-    const totalPaid = myPayments.reduce((s, p) => s + (p.amount || 0), 0)
-    const payable   = Math.max(creditFromBills - totalPaid, 0)
-    const maxAge    = m.purchases.filter(p => (p.credit || 0) > 0)
-      .reduce((max, p) => Math.max(max, daysSince(p.created_at)), 0)
+  const pmMap = {}
+  ;(mpayments || []).forEach(p => {
+    const key = (p.merchant_name||'').trim().toLowerCase()
+    if (!pmMap[key]) pmMap[key] = 0
+    pmMap[key] += p.amount || 0
+  })
+
+  let list = Object.values(map).map(m => {
+    const key      = m.name.toLowerCase()
+    const purchBills = m.bills.filter(b => b.bill_type !== 'return')
+    const retBills   = m.bills.filter(b => b.bill_type === 'return')
+    const payableFromBills   = purchBills.reduce((s,b) => s+(b.credit||0), 0)
+    const payableFromReturns = retBills.reduce((s,b)   => s+Math.abs(b.credit||0), 0)
+    const totalPaid  = pmMap[key] || 0
+    const netBalance = payableFromBills - payableFromReturns - totalPaid
+    // positive = you owe merchant, negative = merchant owes you (overpaid)
+    const maxAge = purchBills.filter(b=>(b.credit||0)>0).reduce((max,b)=>Math.max(max,daysSince(b.created_at)),0)
     return {
       ...m,
-      totalBills:       m.purchases.length,
-      totalAmount:      m.purchases.reduce((s, p) => s + (p.total_amount || 0), 0),
-      creditFromBills,
-      totalPaid,
-      payable,
-      maxAge
+      totalBills:  purchBills.length,
+      totalAmount: purchBills.reduce((s,b)=>s+(b.total_amount||0),0),
+      payableFromBills, payableFromReturns, totalPaid, netBalance, maxAge
     }
   })
 
-  // Sort: highest payable first
-  allMerchants.sort((a, b) => b.payable - a.payable)
-  renderMerchantGrid(allMerchants)
+  // Search filter
+  if (search) list = list.filter(m => m.name.toLowerCase().includes(search.toLowerCase()) || m.phone.includes(search))
+
+  // Balance filter
+  if (filter==='payable')  list = list.filter(m => m.netBalance > 0.01)
+  if (filter==='overdue')  list = list.filter(m => m.netBalance > 0.01 && m.maxAge > 30)
+  if (filter==='advance')  list = list.filter(m => m.netBalance < -0.01)
+  if (filter==='clear')    list = list.filter(m => Math.abs(m.netBalance) < 0.01)
+
+  // Sort
+  if (sortBy==='payable_desc') list.sort((a,b) => b.netBalance - a.netBalance)
+  if (sortBy==='name')         list.sort((a,b) => a.name.localeCompare(b.name))
+  if (sortBy==='bills_desc')   list.sort((a,b) => b.totalBills - a.totalBills)
+
+  totalCount = list.length
+
+  // Update stats
+  let withPayable=0, totalPayable=0, totalAdv=0
+  list.forEach(m => {
+    if (m.netBalance > 0.01)  { withPayable++; totalPayable += m.netBalance }
+    if (m.netBalance < -0.01) totalAdv += Math.abs(m.netBalance)
+  })
+  document.getElementById('gsTotal').innerText       = list.length
+  document.getElementById('gsWithPayable').innerText = withPayable
+  document.getElementById('gsTotalPayable').innerText= fmt(totalPayable)
+  document.getElementById('gsTotalAdv').innerText    = fmt(totalAdv)
+  document.getElementById('lastRefreshed').innerText = 'Updated ' + new Date().toLocaleTimeString('en-IN')
+
+  // Paginate
+  const from = (currentPage-1)*PAGE_SIZE
+  const page = list.slice(from, from+PAGE_SIZE)
+
+  renderGrid(page)
+  renderPagination(list.length)
 }
 
-function renderMerchantGrid(list) {
+function renderGrid(list) {
   const grid = document.getElementById('merchantGrid')
   if (!list.length) { grid.innerHTML = '<div class="empty-state">No merchants found</div>'; return }
-  grid.innerHTML = list.map(m => `
-    <div class="merchant-card" onclick="openLedger('${encodeURIComponent(m.name)}')">
-      <div class="aging-dot ${m.payable > 0 ? agingDotClass(m.maxAge) : 'green'}"></div>
-      <div class="merchant-card-name">${m.name}</div>
-      <div class="merchant-card-phone">${m.phone || 'No phone'}</div>
-      <div class="merchant-card-last">Last purchase: ${new Date(m.lastDate).toLocaleDateString('en-IN')}</div>
-      <div class="merchant-card-stats">
-        <div class="stat-block">
-          <div class="stat-label">Bills</div>
-          <div class="stat-value">${m.totalBills}</div>
-        </div>
-        <div class="stat-block">
-          <div class="stat-label">Total Bought</div>
-          <div class="stat-value">₹${Math.round(m.totalAmount).toLocaleString('en-IN')}</div>
-        </div>
-        <div class="stat-block">
-          <div class="stat-label">Payable</div>
-          <div class="stat-value ${m.payable > 0 ? 'red' : 'green'}">
-            ₹${Math.round(m.payable).toLocaleString('en-IN')}
-          </div>
+  grid.innerHTML = list.map(m => {
+    const nb = Math.round(m.netBalance)
+    const isOwed = nb > 0; const isAdv = nb < 0; const isZero = nb === 0
+    const display = isZero ? '✓ Clear' : (isAdv?'+':'-') + fmt(nb)
+    const color   = isZero ? 'green' : isOwed ? 'red' : 'green'
+    const sub     = isZero ? 'No dues' : isOwed ? 'You owe them' : 'They owe you'
+    const dotCls  = isZero||isAdv ? 'g' : m.maxAge<=30?'g':m.maxAge<=60?'y':m.maxAge<=90?'o':'r'
+    const ini     = (m.name||'?')[0].toUpperCase()
+    return `<div class="merchant-card" onclick="openLedger('${encodeURIComponent(m.name)}')">
+      <div class="aging-dot ${dotCls}"></div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+        <div class="mc-avatar">${ini}</div>
+        <div>
+          <div class="mc-name">${m.name}</div>
+          <div class="mc-phone">${m.phone||'No phone'}</div>
         </div>
       </div>
-    </div>
-  `).join('')
+      <div style="font-size:11px;color:rgba(255,255,255,0.3);margin-bottom:10px;">Last purchase: ${new Date(m.lastDate).toLocaleDateString('en-IN')}</div>
+      <div class="mc-stats">
+        <div><div class="mc-stat-label">Bills</div><div class="mc-stat-value">${m.totalBills}</div></div>
+        <div><div class="mc-stat-label">Total Bought</div><div class="mc-stat-value" style="font-size:12px;">₹${Math.round(m.totalAmount).toLocaleString('en-IN')}</div></div>
+        <div><div class="mc-stat-label">${sub}</div><div class="mc-stat-value ${color}">${display}</div></div>
+      </div>
+    </div>`
+  }).join('')
 }
 
-window.filterMerchants = function() {
-  const q = document.getElementById('searchInput').value.toLowerCase()
-  renderMerchantGrid(allMerchants.filter(m =>
-    m.name.toLowerCase().includes(q) || (m.phone || '').includes(q)
-  ))
+function renderPagination(total) {
+  const pages = Math.ceil(total/PAGE_SIZE)||1
+  document.getElementById('pgInfo').innerText = `Showing ${(currentPage-1)*PAGE_SIZE+1}–${Math.min(currentPage*PAGE_SIZE,total)} of ${total}`
+  const btns=document.getElementById('pgBtns'); btns.innerHTML=''
+  const mk=(l,d,fn,a)=>{ const b=document.createElement('button'); b.className='pg-btn'+(a?' active':''); b.innerText=l; b.disabled=d; b.onclick=fn; btns.appendChild(b) }
+  mk('← Prev',currentPage===1,()=>{currentPage--;loadMerchants()})
+  const s=Math.max(1,currentPage-2),e=Math.min(pages,s+4)
+  for(let i=s;i<=e;i++){const p=i;mk(String(i),false,()=>{currentPage=p;loadMerchants()},i===currentPage)}
+  mk('Next →',currentPage===pages,()=>{currentPage++;loadMerchants()})
 }
 
+window.debounceSearch = () => { clearTimeout(searchTimer); searchTimer=setTimeout(()=>{currentPage=1;loadMerchants()},350) }
 
-// ─────────────────────────────────────────
-// OPEN LEDGER
-// ─────────────────────────────────────────
+
+// ────────────────────────────────────────────
+// OPEN LEDGER MODAL
+// ────────────────────────────────────────────
 window.openLedger = async function(encodedName) {
   const merchantName = decodeURIComponent(encodedName)
-  const merchant     = allMerchants.find(m => m.name.toLowerCase() === merchantName.toLowerCase())
-  if (!merchant) return
-
-  document.getElementById('modalName').innerText  = merchant.name
-  document.getElementById('modalPhone').innerText = merchant.phone || 'No phone'
+  document.getElementById('modalName').innerText = merchantName
   document.getElementById('ledgerModal').style.display = 'block'
-  document.getElementById('txBody').innerHTML =
-    '<tr><td colspan="7" style="text-align:center;padding:20px;color:rgba(255,255,255,0.3);">Loading...</td></tr>'
+  document.getElementById('txBody').innerHTML = '<tr><td colspan="7" class="loading-row">Loading...</td></tr>'
 
   const [{ data: purchases }, { data: mpayments }] = await Promise.all([
-    supabase.from('purchases').select('*')
-      .ilike('merchant_name', merchant.name)
-      .order('created_at', { ascending: false }),
-    supabase.from('merchant_payments').select('*')
-      .ilike('merchant_name', merchant.name)
-      .order('created_at', { ascending: false })
+    supabase.from('purchases').select('*').ilike('merchant_name', merchantName).order('created_at', { ascending: true }),
+    supabase.from('merchant_payments').select('*').ilike('merchant_name', merchantName).order('created_at', { ascending: true })
   ])
 
-  const creditFromBills = (purchases || []).reduce((s, p) => s + (p.credit || 0), 0)
-  const totalPaid       = (mpayments || []).reduce((s, p) => s + (p.amount || 0), 0)
-  const payable         = Math.max(creditFromBills - totalPaid, 0)
-  const totalPurchased  = (purchases || []).reduce((s, p) => s + (p.total_amount || 0), 0)
+  const purchBills = (purchases||[]).filter(b => b.bill_type !== 'return')
+  const retBills   = (purchases||[]).filter(b => b.bill_type === 'return')
+  const payableFromBills   = purchBills.reduce((s,b)=>s+(b.credit||0),0)
+  const payableFromReturns = retBills.reduce((s,b)=>s+Math.abs(b.credit||0),0)
+  const totalPaid          = (mpayments||[]).reduce((s,p)=>s+(p.amount||0),0)
+  const totalPurchased     = purchBills.reduce((s,b)=>s+(b.total_amount||0),0)
+  const netBalance         = payableFromBills - payableFromReturns - totalPaid
 
-  // Aging buckets (only on unpaid credit bills)
-  let a0=0, a31=0, a61=0, a90=0
-  for (const p of (purchases || [])) {
-    if ((p.credit || 0) <= 0) continue
-    const days = daysSince(p.created_at)
-    if      (days <= 30) a0  += p.credit
-    else if (days <= 60) a31 += p.credit
-    else if (days <= 90) a61 += p.credit
-    else                 a90 += p.credit
-  }
-  document.getElementById('aging0to30').innerText  = `0-30 days: ₹${Math.round(a0).toLocaleString('en-IN')}`
-  document.getElementById('aging31to60').innerText = `31-60 days: ₹${Math.round(a31).toLocaleString('en-IN')}`
-  document.getElementById('aging61to90').innerText = `61-90 days: ₹${Math.round(a61).toLocaleString('en-IN')}`
-  document.getElementById('aging90plus').innerText = `90+ days: ₹${Math.round(a90).toLocaleString('en-IN')}`
+  // Get merchant profile if exists
+  const { data: profile } = await supabase.from('merchants').select('*').ilike('name', merchantName).single()
+  const subParts = [profile?.phone||purchBills[0]?.merchant_phone||'', profile?.email||'', profile?.address||'', profile?.gstin?'GSTIN: '+profile.gstin:''].filter(Boolean)
+  document.getElementById('modalSub').innerText = subParts.join('  |  ') || 'No contact info'
 
-  const rows = []
+  // Summary
+  document.getElementById('smBills').innerText = purchBills.length
+  document.getElementById('smTotal').innerText = fmt(totalPurchased)
+  document.getElementById('smPaid').innerText  = fmt(totalPaid)
+  const nb = Math.round(netBalance)
+  const isOwed = nb>0; const isAdv = nb<0; const isZero = nb===0
+  const balDisplay = isZero?'₹0 Clear':(isAdv?'+':'-')+fmt(nb)
+  const balColor   = isOwed?'#f87171':'#34d399'
+  document.getElementById('smBal').innerText      = balDisplay
+  document.getElementById('smBal').style.color    = balColor
+  document.getElementById('smBalLabel').innerText = isOwed?'Payable Due ▼':isAdv?'Overpaid ▲':'Balance'
+  const banner = document.getElementById('balanceBanner')
+  banner.className = 'balance-banner ' + (isOwed?'owe':isAdv?'adv':'clear')
+  document.getElementById('balanceBannerText').innerText = isZero
+    ? '✓ Account is fully settled — no dues'
+    : isOwed
+    ? `⚠️ You owe ₹${Math.abs(nb).toLocaleString('en-IN')} to this merchant`
+    : `✅ Merchant owes you ₹${Math.abs(nb).toLocaleString('en-IN')} — Overpaid`
 
-  for (const pur of (purchases || [])) {
-    const modes = []
-    if (pur.cash   > 0) modes.push('cash')
-    if (pur.upi    > 0) modes.push('upi')
-    if (pur.credit > 0) modes.push('credit')
-    const modeStr = modes.join('+')
-    let badgeClass = 'badge-mixed', badgeLabel = 'Mixed'
-    if (modeStr === 'cash')   { badgeClass = 'badge-cash';   badgeLabel = 'Cash' }
-    if (modeStr === 'upi')    { badgeClass = 'badge-upi';    badgeLabel = 'UPI' }
-    if (modeStr === 'credit') { badgeClass = 'badge-credit'; badgeLabel = 'Credit' }
+  // Aging (only on outstanding payable bills)
+  let a0=0,a31=0,a61=0,a90=0
+  purchBills.filter(b=>(b.credit||0)>0).forEach(b => {
+    const d=daysSince(b.created_at)
+    if(d<=30)a0+=b.credit;else if(d<=60)a31+=b.credit;else if(d<=90)a61+=b.credit;else a90+=b.credit
+  })
+  document.getElementById('age0').innerText  = '0–30 days: '+fmt(a0)
+  document.getElementById('age31').innerText = '31–60 days: '+fmt(a31)
+  document.getElementById('age61').innerText = '61–90 days: '+fmt(a61)
+  document.getElementById('age90').innerText = '90+ days: '+fmt(a90)
 
-    const days     = daysSince(pur.created_at)
-    const ageClass = pur.credit > 0 ? agingClass(days) : 'badge-age-g'
-    const ageLabel = pur.credit > 0 ? `${days}d` : '—'
+  // Build rows sorted by date
+  const allEvents = [
+    ...(purchases||[]).map(p=>({...p,_type:'bill'})),
+    ...(mpayments||[]).map(p=>({...p,_type:'payment'}))
+  ].sort((a,b)=>new Date(a.created_at)-new Date(b.created_at))
 
-    rows.push(`
-      <tr>
-        <td style="font-size:12px;color:rgba(255,255,255,0.45);">${pur.bill_number}</td>
-        <td>${new Date(pur.created_at).toLocaleDateString('en-IN')}</td>
-        <td><span class="badge ${badgeClass}">${badgeLabel}</span></td>
-        <td class="amount-paid">₹${Math.round(pur.total_amount).toLocaleString('en-IN')}</td>
-        <td class="${pur.credit > 0 ? 'amount-payable' : 'amount-paid'}">
-          ${pur.credit > 0 ? '₹' + Math.round(pur.credit).toLocaleString('en-IN') + ' payable' : '—'}
-        </td>
-        <td><span class="badge ${ageClass}">${ageLabel}</span></td>
-        <td>
-          <button class="btn btn-purple btn-sm" onclick="viewPurchase('${pur.bill_number}','${encodeURIComponent(merchant.name)}','${merchant.phone || ''}')">👁 View</button>
-        </td>
-      </tr>
-    `)
-  }
-
-  for (const pay of (mpayments || [])) {
-    rows.push(`
-      <tr style="background:rgba(16,185,129,0.04);">
-        <td style="font-size:11px;color:rgba(255,255,255,0.4);">${pay.receipt_no}</td>
-        <td>${new Date(pay.created_at).toLocaleDateString('en-IN')}</td>
-        <td><span class="badge badge-payment">Payment</span></td>
+  const rows = allEvents.map(ev => {
+    if (ev._type==='payment') {
+      return `<tr class="row-payment">
+        <td style="font-size:11px;color:rgba(255,255,255,0.4);font-family:monospace;">${ev.receipt_no}</td>
+        <td>${new Date(ev.created_at).toLocaleDateString('en-IN')}</td>
+        <td><span class="badge badge-payment">💸 Payment</span></td>
+        <td style="color:rgba(255,255,255,0.3);">—</td>
+        <td style="color:#10b981;font-weight:600;">- ${fmt(ev.amount)} <span style="font-size:11px;color:rgba(255,255,255,0.3);">(${ev.mode})</span></td>
         <td>—</td>
-        <td class="amount-payment">- ₹${Math.round(pay.amount).toLocaleString('en-IN')} (${pay.mode})</td>
-        <td>—</td>
-        <td><span style="font-size:12px;color:rgba(255,255,255,0.3);">${pay.note || pay.reference_no || '—'}</span></td>
-      </tr>
-    `)
-  }
+        <td><span style="font-size:11px;color:rgba(255,255,255,0.3);">${ev.note||ev.reference_no||'—'}</span></td>
+      </tr>`
+    }
+    const isReturn = ev.bill_type==='return'
+    const modes=[ev.cash>0?'cash':'',ev.upi>0?'upi':'',ev.credit>0?'credit':''].filter(Boolean)
+    const mstr=modes.join('+')
+    let bc='badge-mixed',bl='Mixed'
+    if(mstr==='cash'){bc='badge-cash';bl='Cash'}
+    if(mstr==='upi'){bc='badge-upi';bl='UPI'}
+    if(mstr==='credit'){bc='badge-credit';bl='Credit'}
+    const d = daysSince(ev.created_at)
+    const ageClass = isReturn?'':ev.credit>0?(d<=30?'badge-age-g':d<=60?'badge-age-y':d<=90?'badge-age-o':'badge-age-r'):''
+    const ageLabel = isReturn?'—':ev.credit>0?d+'d':'—'
+    return `<tr class="${isReturn?'row-return':''}">
+      <td style="font-size:11px;color:rgba(255,255,255,0.4);font-family:monospace;">${ev.bill_number}</td>
+      <td>${new Date(ev.created_at).toLocaleDateString('en-IN')}</td>
+      <td><span class="badge ${isReturn?'badge-return':bc}">${isReturn?'↩ Return':bl}</span></td>
+      <td style="color:${isReturn?'#f87171':'#a78bfa'};font-weight:600;">${isReturn?'-':''}${fmt(ev.total_amount)}</td>
+      <td style="color:${ev.credit>0?'#f87171':'rgba(255,255,255,0.3)'};">
+        ${ev.credit!==0?(isReturn?'- ':'+ ')+fmt(ev.credit)+(isReturn?' reduced':' payable'):'—'}
+      </td>
+      <td>${ageLabel&&ageLabel!=='—'?`<span class="badge ${ageClass}">${ageLabel}</span>`:'—'}</td>
+      <td><button class="btn btn-purple btn-sm" onclick="viewPurchase('${ev.bill_number}','${encodeURIComponent(merchantName)}')">👁 View</button></td>
+    </tr>`
+  })
 
-  document.getElementById('totalBills').innerText     = purchases?.length || 0
-  document.getElementById('totalPurchased').innerText = '₹' + Math.round(totalPurchased).toLocaleString('en-IN')
-  document.getElementById('totalPaid').innerText      = '₹' + Math.round(totalPaid).toLocaleString('en-IN')
-  document.getElementById('amountPayable').innerText  = '₹' + Math.round(payable).toLocaleString('en-IN')
-  document.getElementById('txBody').innerHTML         = rows.length ? rows.join('') : '<tr><td colspan="7" class="empty-state">No transactions</td></tr>'
+  document.getElementById('txCount').innerText  = `${purchBills.length} bills, ${(mpayments||[]).length} payments, ${retBills.length} returns`
+  document.getElementById('txBody').innerHTML   = rows.length ? rows.join('') : '<tr><td colspan="7" class="empty-state">No transactions yet</td></tr>'
 
-  currentMerchantData = { merchant, purchases: purchases || [], payments: mpayments || [], totalPurchased, creditFromBills, totalPaid, payable }
+  currentMerchData = { merchantName, profile, purchases:purchases||[], payments:mpayments||[], totalPurchased, payableFromBills, payableFromReturns, totalPaid, netBalance }
 }
 
-window.closeModal = function() {
-  document.getElementById('ledgerModal').style.display = 'none'
-  currentMerchantData = null
-}
-document.getElementById('ledgerModal').addEventListener('click', function(e) {
-  if (e.target === this) closeModal()
-})
+window.closeModal = () => { document.getElementById('ledgerModal').style.display='none'; currentMerchData=null }
+document.getElementById('ledgerModal').addEventListener('click', e => { if(e.target===document.getElementById('ledgerModal'))closeModal() })
 
 
-// ─────────────────────────────────────────
-// VIEW PURCHASE BILL
-// ─────────────────────────────────────────
-window.viewPurchase = async function(billNo, encodedName, phone) {
+// ────────────────────────────────────────────
+// VIEW PURCHASE BILL — item names never lost
+// ────────────────────────────────────────────
+window.viewPurchase = async function(billNo, encodedName) {
   const merchantName = decodeURIComponent(encodedName)
   const { data: pur } = await supabase.from('purchases').select('*').eq('bill_number', billNo).single()
   if (!pur) { alert('Bill not found'); return }
-
   const { data: items } = await supabase.from('purchase_items').select('*').eq('purchase_id', pur.id)
-  const itemIds = (items || []).map(i => i.item_id).filter(Boolean)
-  const { data: products } = itemIds.length
-    ? await supabase.from('inventory').select('id, item_name').in('id', itemIds)
-    : { data: [] }
-  const productMap = {}
-  ;(products || []).forEach(p => { productMap[p.id] = p.item_name })
 
-  // Balance status
-  const { data: allPurs } = await supabase.from('purchases').select('credit').ilike('merchant_name', merchantName)
-  const { data: allPays } = await supabase.from('merchant_payments').select('amount').ilike('merchant_name', merchantName)
-  const totalBillCredit = (allPurs || []).reduce((s, p) => s + (p.credit || 0), 0)
-  const totalPaid       = (allPays || []).reduce((s, p) => s + (p.amount || 0), 0)
-  const overallBalance  = Math.max(totalBillCredit - totalPaid, 0)
-
-  const modes = []
-  if (pur.cash   > 0) modes.push('Cash')
-  if (pur.upi    > 0) modes.push('UPI')
-  if (pur.credit > 0) modes.push('Credit')
-
-  document.getElementById('vBillNo').innerText    = pur.bill_number
-  document.getElementById('vDate').innerText      = new Date(pur.created_at).toLocaleString('en-IN')
-  document.getElementById('vMerchant').innerText  = merchantName
-  document.getElementById('vPhone').innerText     = phone || '—'
-  document.getElementById('vPayMode').innerText   = modes.join(' + ') || '—'
-
-  let subtotal = 0
-  document.getElementById('vItems').innerHTML = (items || []).map((item, i) => {
-    subtotal += item.total || 0
-    return `<tr>
-      <td style="color:#6b7280;">${i + 1}</td>
-      <td>${productMap[item.item_id] || item.item_name || 'Item'}</td>
-      <td>${item.quantity}</td>
-      <td>₹${item.purchase_price}</td>
-      <td>₹${item.total}</td>
-    </tr>`
-  }).join('')
-
-  document.getElementById('vSubtotal').innerText = subtotal.toLocaleString('en-IN')
-  document.getElementById('vTotal').innerText    = Math.round(pur.total_amount).toLocaleString('en-IN')
-  document.getElementById('vCash').innerText     = '₹' + (pur.cash   || 0)
-  document.getElementById('vUPI').innerText      = '₹' + (pur.upi    || 0)
-  document.getElementById('vCredit').innerText   = '₹' + (pur.credit || 0)
-
-  const origCredit = pur.credit || 0
-  if (origCredit > 0 && totalPaid > 0) {
-    document.getElementById('vPaymentStatusBox').style.display = 'block'
-    document.getElementById('vOrigCredit').innerText    = '₹' + Math.round(origCredit).toLocaleString('en-IN')
-    document.getElementById('vPaymentsMade').innerText  = '₹' + Math.round(totalPaid).toLocaleString('en-IN') + ' (total, all bills)'
-    document.getElementById('vBalanceDue').innerText    = '₹' + Math.round(overallBalance).toLocaleString('en-IN')
-    const div = document.getElementById('vPaymentStatusDiv')
-    div.className = 'inv-payment-status ' + (overallBalance === 0 ? 'fully-paid' : overallBalance < totalBillCredit ? 'partial' : 'unpaid')
-  } else {
-    document.getElementById('vPaymentStatusBox').style.display = 'none'
+  // 3-layer name fallback
+  const missingIds = (items||[]).filter(i=>!i.item_name && i.item_id).map(i=>i.item_id)
+  const invNames = {}
+  if (missingIds.length) {
+    const{data:prods}=await supabase.from('inventory').select('id,item_name').in('id',missingIds)
+    ;(prods||[]).forEach(p=>{invNames[p.id]=p.item_name})
   }
 
-  document.getElementById('viewPurchaseModal').style.display = 'block'
+  const isReturn = pur.bill_type === 'return'
+  const modes = [pur.cash>0?'Cash':'',pur.upi>0?'UPI':'',pur.credit>0?(isReturn?'Payable Reduced':'Credit'):''].filter(Boolean)
+
+  document.getElementById('vPurchaseHeader').className       = 'inv-header'+(isReturn?' return-style':'')
+  document.getElementById('vPurchaseType').innerText         = isReturn?'PURCHASE RETURN':'Purchase Invoice'
+  document.getElementById('vPurchaseNo').innerText           = pur.bill_number
+  document.getElementById('vPurchaseDate').innerText         = new Date(pur.created_at).toLocaleString('en-IN')
+  document.getElementById('vMerchant').innerText             = pur.merchant_name||'—'
+  document.getElementById('vMerchPhone').innerText           = pur.merchant_phone||'—'
+  document.getElementById('vPayMode').innerText              = modes.join(' + ')||'—'
+  document.getElementById('vPurTotalLabel').innerText        = isReturn?'Return Total':'Grand Total'
+  document.getElementById('vPurFooterMsg').innerText         = isReturn?'Return Processed 🙏':'Stock Received 🙏'
+  document.getElementById('vPurCreditLabel').innerText       = isReturn?'Payable Reduced: ':'Payable (Credit): '
+  document.getElementById('vPurPayTitle').innerText          = isReturn?'Return Breakdown':'Payment Breakdown'
+  document.getElementById('vReturnBar').style.display        = isReturn?'block':'none'
+  if(isReturn)document.getElementById('vReturnOrigRef').innerText=pur.original_bill_ref||'—'
+  document.getElementById('vBillNoDisplay').innerText        = pur.bill_number
+
+  if(pur.merchant_invoice_ref){document.getElementById('vInvRefBlock').style.display='block';document.getElementById('vInvRef').innerText=pur.merchant_invoice_ref}
+  else document.getElementById('vInvRefBlock').style.display='none'
+
+  const showDetail = pur.merchant_address||pur.merchant_gstin
+  document.getElementById('vMerchDetailBox').style.display = showDetail?'block':'none'
+  if(pur.merchant_address){document.getElementById('vAddrBlock').style.display='block';document.getElementById('vMerchAddr').innerText=pur.merchant_address}else document.getElementById('vAddrBlock').style.display='none'
+  if(pur.merchant_gstin)  {document.getElementById('vGstinBlock').style.display='block';document.getElementById('vMerchGstin').innerText=pur.merchant_gstin}else document.getElementById('vGstinBlock').style.display='none'
+
+  let subtotal=0
+  document.getElementById('vPurchaseItems').innerHTML=(items||[]).map((item,i)=>{
+    const name=item.item_name||invNames[item.item_id]||`[Deleted Product — was #${item.item_id}]`
+    const qty=Math.abs(item.quantity); const amt=Math.abs(item.total||0); subtotal+=amt
+    return `<tr><td style="color:#6b7280;">${i+1}</td><td>${name}</td><td>${qty}</td><td>₹${item.purchase_price}</td><td>₹${amt.toLocaleString('en-IN')}</td></tr>`
+  }).join('')
+
+  const disc=pur.discount||0
+  document.getElementById('vPurSubtotal').innerText = subtotal.toLocaleString('en-IN')
+  document.getElementById('vPurTotal').innerText    = Math.round(Math.abs(pur.total_amount)).toLocaleString('en-IN')
+  document.getElementById('vDiscRow').style.display = disc>0?'flex':'none'
+  if(disc>0)document.getElementById('vDiscount').innerText=disc.toLocaleString('en-IN')
+  document.getElementById('vPurCash').innerText     = '₹'+(pur.cash||0)
+  document.getElementById('vPurUPI').innerText      = '₹'+(pur.upi||0)
+  document.getElementById('vPurCredit').innerText   = '₹'+Math.abs(pur.credit||0)
+
+  // Balance box
+  if (currentMerchData) {
+    const nb=Math.round(currentMerchData.netBalance)
+    const balBox=document.getElementById('vMerchBalanceBox')
+    balBox.style.display='block'
+    balBox.className='inv-balance-box '+(nb>0?'due':nb<0?'adv':'clear')
+    document.getElementById('vMBOrigPayable').innerText=fmt(pur.credit||0)
+    document.getElementById('vMBPaid').innerText=fmt(currentMerchData.totalPaid)
+    const btext=nb===0?'₹0 — Settled ✓':(nb<0?'+':'-')+fmt(nb)+(nb<0?' (Overpaid)':' (Payable Due)')
+    const bel=document.getElementById('vMBFinal'); bel.innerText=btext; bel.style.color=nb>0?'#dc2626':'#059669'
+  } else document.getElementById('vMerchBalanceBox').style.display='none'
+
+  document.getElementById('viewPurchaseModal').style.display='block'
 }
-
-window.closeViewPurchase = function() { document.getElementById('viewPurchaseModal').style.display = 'none' }
-
-window.printViewedBill = function() {
+window.closeViewPurchase = () => { document.getElementById('viewPurchaseModal').style.display='none' }
+window.printViewedBill   = () => {
   document.body.classList.add('print-bill')
-  const origTitle = document.title
-  document.title  = document.getElementById('vBillNo').innerText || 'Purchase'
-  window.print()
-  setTimeout(() => { document.body.classList.remove('print-bill'); document.title = origTitle }, 800)
+  const ot=document.title; document.title=document.getElementById('vPurchaseNo').innerText||'Purchase'; window.print()
+  setTimeout(()=>{document.body.classList.remove('print-bill');document.title=ot},800)
 }
 
 
-// ─────────────────────────────────────────
-// RECEIPT NUMBER GENERATOR
-// ─────────────────────────────────────────
-async function generateReceiptNo(merchantName) {
-  const now = new Date()
-  const dd  = String(now.getDate()).padStart(2, '0')
-  const mm  = String(now.getMonth() + 1).padStart(2, '0')
-  const yy  = String(now.getFullYear()).slice(2)
-  const cleanName = merchantName.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 12)
-  const prefix = `AAM(MP)-${cleanName}-${dd}${mm}${yy}-`
-
-  const startOfDay = new Date(); startOfDay.setHours(0, 0, 0, 0)
-  const { data } = await supabase.from('merchant_payments')
-    .select('receipt_no')
-    .ilike('merchant_name', merchantName)
-    .gte('created_at', startOfDay.toISOString())
-
-  const count = (data || []).length
-  return `${prefix}${String(count + 1).padStart(4, '0')}`
-}
-
-// ─────────────────────────────────────────
-// STATEMENT NUMBER GENERATOR
-// ─────────────────────────────────────────
-async function generateStatementNo(merchantName) {
-  const now = new Date()
-  const dd  = String(now.getDate()).padStart(2, '0')
-  const mm  = String(now.getMonth() + 1).padStart(2, '0')
-  const yy  = String(now.getFullYear()).slice(2)
-  const cleanName = merchantName.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 12)
-  return `AAM(MS)-${cleanName}-${dd}${mm}${yy}-${String(Math.floor(Math.random()*9000)+1000)}`
-}
-
-
-// ─────────────────────────────────────────
-// PAY MERCHANT MODAL
-// ─────────────────────────────────────────
+// ────────────────────────────────────────────
+// PAY MERCHANT
+// ────────────────────────────────────────────
 window.openPaymentModal = function() {
-  if (!currentMerchantData) return
-  document.getElementById('payModalSub').innerText =
-    'Merchant: ' + currentMerchantData.merchant.name +
-    '  |  Payable: ₹' + Math.round(currentMerchantData.payable).toLocaleString('en-IN')
-  document.getElementById('payAmount').value = ''
+  if (!currentMerchData) return
+  const { merchantName, netBalance } = currentMerchData
+  const nb = Math.round(netBalance)
+  document.getElementById('payModalSub').innerText = 'Merchant: ' + merchantName
+  const pill=document.getElementById('payBalancePill')
+  if(nb>0){pill.innerText='⚠️ Payable: -'+fmt(nb);pill.style.background='rgba(248,113,113,0.15)';pill.style.color='#f87171'}
+  else if(nb<0){pill.innerText='✅ Overpaid: +'+fmt(Math.abs(nb));pill.style.background='rgba(52,211,153,0.15)';pill.style.color='#34d399'}
+  else{pill.innerText='✓ Account is clear';pill.style.background='rgba(52,211,153,0.1)';pill.style.color='#34d399'}
+  document.getElementById('payAmount').value = nb>0?nb:''
   document.getElementById('payMode').value   = 'Cash'
   document.getElementById('payRef').value    = ''
   document.getElementById('payNote').value   = ''
-  document.getElementById('paymentModal').style.display = 'flex'
+  document.getElementById('paymentModal').style.display='flex'
+}
+window.closePaymentModal = () => { document.getElementById('paymentModal').style.display='none' }
+
+async function generateVoucherNo(merchantName) {
+  const now=new Date()
+  const dd=String(now.getDate()).padStart(2,'0'); const mm=String(now.getMonth()+1).padStart(2,'0'); const yy=String(now.getFullYear()).slice(2)
+  const clean=merchantName.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,10)
+  const start=new Date(); start.setHours(0,0,0,0)
+  const{data}=await supabase.from('merchant_payments').select('id').ilike('merchant_name',merchantName).gte('created_at',start.toISOString())
+  return `AAM(MP)-${clean}-${dd}${mm}${yy}-${String((data||[]).length+1).padStart(4,'0')}`
 }
 
-window.closePaymentModal = function() { document.getElementById('paymentModal').style.display = 'none' }
-
 window.savePayment = async function(shouldPrint) {
-  const amount = parseFloat(document.getElementById('payAmount').value) || 0
-  const mode   = document.getElementById('payMode').value
-  const ref    = document.getElementById('payRef').value.trim()
-  const note   = document.getElementById('payNote').value.trim()
+  const amount=parseFloat(document.getElementById('payAmount').value)||0
+  const mode  =document.getElementById('payMode').value
+  const ref   =document.getElementById('payRef').value.trim()
+  const note  =document.getElementById('payNote').value.trim()
+  if(!amount){alert('Enter payment amount');return}
+  if(!currentMerchData)return
+  const{merchantName,netBalance}=currentMerchData
+  const voucherNo=await generateVoucherNo(merchantName)
+  const{data:profile}=await supabase.from('merchants').select('phone').ilike('name',merchantName).single()
+  const phone=profile?.phone||currentMerchData.purchases[0]?.merchant_phone||''
 
-  if (!amount) { alert('Enter payment amount'); return }
-  if (!currentMerchantData) return
-
-  const merchant = currentMerchantData.merchant
-  const payable  = currentMerchantData.payable
-
-  const receiptNo = await generateReceiptNo(merchant.name)
-
-  const { error } = await supabase.from('merchant_payments').insert([{
-    merchant_name:  merchant.name,
-    merchant_phone: merchant.phone || null,
-    receipt_no:     receiptNo,
-    amount:         Math.round(amount),
-    mode,
-    reference_no:   ref || null,
-    note:           note || null
+  const{error}=await supabase.from('merchant_payments').insert([{
+    merchant_name:merchantName,merchant_phone:phone||null,
+    receipt_no:voucherNo,amount:Math.round(amount),mode,
+    reference_no:ref||null,note:note||null
   }])
+  if(error){console.error(error);alert('Error ❌');return}
 
-  if (error) {
-    console.error(error)
-    alert('Error recording payment ❌')
-    return
-  }
+  const newBalance=netBalance-amount
 
-  const newPayable = Math.max(payable - amount, 0)
-
-  if (shouldPrint) {
-    document.getElementById('rcptNo').innerText      = receiptNo
-    document.getElementById('rcptName').innerText    = merchant.name
-    document.getElementById('rcptPhone').innerText   = merchant.phone || '—'
-    document.getElementById('rcptMode').innerText    = mode
-    document.getElementById('rcptAmount').innerText  = '₹' + amount.toLocaleString('en-IN')
-    document.getElementById('rcptPrevDue').innerText = '₹' + Math.round(payable).toLocaleString('en-IN')
-    document.getElementById('rcptPaid').innerText    = '₹' + amount.toLocaleString('en-IN')
-    document.getElementById('rcptRemaining').innerText = '₹' + Math.round(newPayable).toLocaleString('en-IN')
-    document.getElementById('rcptDate').innerText    = new Date().toLocaleString('en-IN')
-    document.getElementById('rcptDateVal').innerText = new Date().toLocaleDateString('en-IN', { day:'2-digit', month:'long', year:'numeric' })
-    if (ref) {
-      document.getElementById('rcptRef').innerText  = ref
-      document.getElementById('rcptRefRow').style.display = 'flex'
-    } else {
-      document.getElementById('rcptRefRow').style.display = 'none'
-    }
-    if (note) {
-      document.getElementById('rcptNote').innerText    = note
-      document.getElementById('rcptNoteBox').style.display = 'block'
-    } else {
-      document.getElementById('rcptNoteBox').style.display = 'none'
-    }
-
-    document.body.classList.add('print-receipt')
-    const origTitle = document.title
-    document.title  = receiptNo
-    window.print()
-    setTimeout(() => { document.body.classList.remove('print-receipt'); document.title = origTitle }, 1000)
+  if(shouldPrint){
+    const nb=Math.round(netBalance); const newNb=Math.round(newBalance)
+    const prevText=nb>0?'-'+fmt(nb)+' (Payable)':nb<0?'+'+fmt(Math.abs(nb))+' (Overpaid)':'₹0 Clear'
+    const newText =newNb>0?'-'+fmt(newNb)+' (Payable)':newNb<0?'+'+fmt(Math.abs(newNb))+' (Overpaid)':'₹0 Clear'
+    document.getElementById('vchrNo').innerText     =voucherNo
+    document.getElementById('vchrName').innerText   =merchantName
+    document.getElementById('vchrPhone').innerText  =phone||'—'
+    document.getElementById('vchrMode').innerText   =mode
+    document.getElementById('vchrAmount').innerText =fmt(amount)
+    document.getElementById('vchrPaid').innerText   =fmt(amount)
+    document.getElementById('vchrPrevBal').innerText=prevText
+    document.getElementById('vchrNewBal').innerText =newText
+    document.getElementById('vchrDate').innerText   =new Date().toLocaleString('en-IN')
+    document.getElementById('vchrDateVal').innerText=new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'})
+    if(ref){document.getElementById('vchrRef').innerText=ref;document.getElementById('vchrRefRow').style.display='flex'}else document.getElementById('vchrRefRow').style.display='none'
+    if(note){document.getElementById('vchrNote').innerText=note;document.getElementById('vchrNoteBox').style.display='block'}else document.getElementById('vchrNoteBox').style.display='none'
+    document.body.classList.add('print-voucher')
+    const ot=document.title; document.title=voucherNo; window.print()
+    setTimeout(()=>{document.body.classList.remove('print-voucher');document.title=ot},1000)
   }
 
   closePaymentModal()
-  alert(`✅ Payment of ₹${amount.toLocaleString('en-IN')} recorded!\nVoucher: ${receiptNo}`)
-  openLedger(encodeURIComponent(merchant.name))
+  alert(`✅ Payment of ${fmt(amount)} recorded!\nVoucher: ${voucherNo}`)
+  openLedger(encodeURIComponent(merchantName))
   loadMerchants()
 }
 
 
-// ─────────────────────────────────────────
+// ────────────────────────────────────────────
 // PRINT STATEMENT
-// ─────────────────────────────────────────
+// ────────────────────────────────────────────
 window.printStatement = async function() {
-  if (!currentMerchantData) return
-  const { merchant, purchases, payments, totalPurchased, totalPaid, payable } = currentMerchantData
+  if(!currentMerchData)return
+  const{merchantName,purchases,payments,totalPurchased,netBalance}=currentMerchData
+  const now=new Date()
+  const dd=String(now.getDate()).padStart(2,'0'); const mm=String(now.getMonth()+1).padStart(2,'0'); const yy=String(now.getFullYear()).slice(2)
+  const clean=merchantName.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,10)
+  const stmtNo=`AAM(MS)-${clean}-${dd}${mm}${yy}-${String(Math.floor(Math.random()*9000)+1000)}`
 
-  const stmtNo = await generateStatementNo(merchant.name)
-  let totalCash = 0, totalUPI = 0
+  const purchBills=(purchases||[]).filter(b=>b.bill_type!=='return')
+  const retBills  =(purchases||[]).filter(b=>b.bill_type==='return')
+  let totalCash=0,totalUPI=0,totalReturns=0
 
-  document.getElementById('stmtNo').innerText         = stmtNo
-  document.getElementById('stmtName').innerText       = merchant.name
-  document.getElementById('stmtPhone').innerText      = merchant.phone || '—'
-  document.getElementById('stmtGenDate').innerText    = new Date().toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' })
-  document.getElementById('stmtDate').innerText       = 'As of ' + new Date().toLocaleDateString('en-IN', { day:'2-digit', month:'long', year:'numeric' })
-  document.getElementById('stmtPayableHead').innerText = '₹' + Math.round(payable).toLocaleString('en-IN')
+  document.getElementById('stmtNo').innerText     =stmtNo
+  document.getElementById('stmtName').innerText   =merchantName
+  document.getElementById('stmtPhone').innerText  =purchBills[0]?.merchant_phone||'—'
+  document.getElementById('stmtGenDate').innerText=new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})
+  document.getElementById('stmtDate').innerText   ='As of '+new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'})
 
-  document.getElementById('stmtBody').innerHTML = [...purchases].reverse().map(p => {
-    totalCash += p.cash || 0
-    totalUPI  += p.upi  || 0
-    return `<tr>
-      <td>${p.bill_number}</td>
-      <td>${new Date(p.created_at).toLocaleDateString('en-IN')}</td>
-      <td>₹${Math.round(p.total_amount).toLocaleString('en-IN')}</td>
-      <td>₹${Math.round(p.cash  || 0).toLocaleString('en-IN')}</td>
-      <td>₹${Math.round(p.upi   || 0).toLocaleString('en-IN')}</td>
-      <td style="color:#dc2626;font-weight:600;">${p.credit > 0 ? '₹' + Math.round(p.credit).toLocaleString('en-IN') : '—'}</td>
-    </tr>`
+  const nb=Math.round(netBalance)
+  const balText=nb===0?'₹0 — Clear':(nb<0?'+':'-')+fmt(nb)+(nb<0?' (Overpaid)':' (Payable Due)')
+  document.getElementById('stmtBalLabel').innerText=nb>0?'Payable Due':nb<0?'Overpaid':'Balance'
+  document.getElementById('stmtBalVal').innerText  =balText
+  document.getElementById('stmtBalVal').style.color=nb>0?'#dc2626':nb<0?'#059669':'#059669'
+
+  document.getElementById('stmtPurchaseBody').innerHTML=purchBills.map(b=>{
+    totalCash+=b.cash||0;totalUPI+=b.upi||0
+    return `<tr><td>${b.bill_number}</td><td>${new Date(b.created_at).toLocaleDateString('en-IN')}</td><td>₹${Math.round(b.total_amount).toLocaleString('en-IN')}</td><td>₹${Math.round(b.cash||0).toLocaleString('en-IN')}</td><td>₹${Math.round(b.upi||0).toLocaleString('en-IN')}</td><td style="color:#dc2626;font-weight:600;">${b.credit>0?'₹'+Math.round(b.credit).toLocaleString('en-IN'):'—'}</td></tr>`
   }).join('')
 
-  if (payments.length > 0) {
-    document.getElementById('stmtPayHeading').style.display = 'block'
-    document.getElementById('stmtPayTable').style.display   = 'table'
-    document.getElementById('stmtPayBody').innerHTML = [...payments].reverse().map(p => `
-      <tr>
-        <td style="color:#7c3aed;font-weight:600;">${p.receipt_no}</td>
-        <td>${new Date(p.created_at).toLocaleDateString('en-IN')}</td>
-        <td>${p.mode}</td>
-        <td style="color:#059669;font-weight:600;">₹${Math.round(p.amount).toLocaleString('en-IN')}</td>
-        <td style="color:#6b7280;">${p.note || p.reference_no || '—'}</td>
-      </tr>
-    `).join('')
-  } else {
-    document.getElementById('stmtPayHeading').style.display = 'none'
-    document.getElementById('stmtPayTable').style.display   = 'none'
-  }
+  if(retBills.length){
+    document.getElementById('stmtReturnHeading').style.display='block'
+    document.getElementById('stmtReturnTable').style.display='table'
+    document.getElementById('stmtReturnBody').innerHTML=retBills.map(r=>{
+      totalReturns+=Math.abs(r.total_amount||0)
+      return `<tr class="return-row"><td>${r.bill_number}</td><td>${new Date(r.created_at).toLocaleDateString('en-IN')}</td><td>${r.original_bill_ref||'—'}</td><td>₹${Math.round(Math.abs(r.total_amount)).toLocaleString('en-IN')}</td></tr>`
+    }).join('')
+  }else{document.getElementById('stmtReturnHeading').style.display='none';document.getElementById('stmtReturnTable').style.display='none'}
 
-  document.getElementById('stmtTotal').innerText    = '₹' + Math.round(totalPurchased).toLocaleString('en-IN')
-  document.getElementById('stmtCash').innerText     = '₹' + Math.round(totalCash).toLocaleString('en-IN')
-  document.getElementById('stmtUPI').innerText      = '₹' + Math.round(totalUPI).toLocaleString('en-IN')
-  document.getElementById('stmtPayments').innerText = '₹' + Math.round(totalPaid).toLocaleString('en-IN')
-  document.getElementById('stmtCredit').innerText   = '₹' + Math.round(payable).toLocaleString('en-IN')
+  const totalPaid=(payments||[]).reduce((s,p)=>s+(p.amount||0),0)
+  if(payments.length){
+    document.getElementById('stmtPayHeading').style.display='block'
+    document.getElementById('stmtPayTable').style.display='table'
+    document.getElementById('stmtPayBody').innerHTML=payments.map(p=>`<tr class="payment-row"><td>${p.receipt_no}</td><td>${new Date(p.created_at).toLocaleDateString('en-IN')}</td><td>${p.mode}</td><td>₹${Math.round(p.amount).toLocaleString('en-IN')}</td><td>${p.reference_no||p.note||'—'}</td></tr>`).join('')
+  }else{document.getElementById('stmtPayHeading').style.display='none';document.getElementById('stmtPayTable').style.display='none'}
+
+  document.getElementById('stmtTotalPurchased').innerText=fmt(totalPurchased)
+  document.getElementById('stmtCash').innerText          =fmt(totalCash)
+  document.getElementById('stmtUPI').innerText           =fmt(totalUPI)
+  document.getElementById('stmtReturns').innerText       =totalReturns>0?fmt(totalReturns):'—'
+  document.getElementById('stmtPayments').innerText      =fmt(totalPaid)
+  document.getElementById('stmtCredit').innerText        =balText
+  const balRow=document.getElementById('stmtBalRow')
+  balRow.className='stmt-summary-row '+(nb>0?'balance-row-due':nb<0?'balance-row-adv':'balance-row-zero')
+  document.getElementById('stmtBalRowLabel').innerText=nb>0?'Payable Due':nb<0?'Overpaid Balance':'Balance'
 
   document.body.classList.add('print-statement')
-  const origTitle = document.title
-  document.title  = stmtNo
-  window.print()
-  setTimeout(() => { document.body.classList.remove('print-statement'); document.title = origTitle }, 1000)
+  const ot=document.title; document.title=stmtNo; window.print()
+  setTimeout(()=>{document.body.classList.remove('print-statement');document.title=ot},1000)
 }
 
+// Prefill from merchants.html
+const pf=localStorage.getItem('ledger_prefill_merchant')
+if(pf){
+  document.getElementById('searchInput').value=pf
+  localStorage.removeItem('ledger_prefill_merchant')
+  setTimeout(()=>openLedger(encodeURIComponent(pf)),600)
+}
 
 loadMerchants()
 </script>
