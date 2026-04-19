@@ -811,10 +811,19 @@ async function saveBill() {
     // ── Customer ──
     var customerId = null
     if (!selectedCustomer) {
-      var name = document.getElementById('customerSearch').value.trim()
-      if (!name) { alert('Please enter a customer name'); window.isSaving=false; saveBtn.innerText=origText; saveBtn.disabled=false; return }
-      var phone = prompt('Customer phone number (optional — press OK to skip):') || ''
-      var nc = await supabase.from('customers').insert([{name:name,phone:phone||null}]).select().single()
+      var name  = document.getElementById('customerSearch').value.trim()
+      var phone = document.getElementById('billPhone').value.trim()
+      if (!name) { alert('Enter customer name'); window.isSaving=false; return }
+      var nc = await supabase.from('customers').insert([{name:name, phone:phone||null}]).select().single()
+      if (!nc.error && window.AAMNotify) {
+        window.AAMNotify({
+          type:    'customer',
+          title:   '👤 New Customer Added',
+          message: 'Staff added new customer: ' + name + (phone ? ' | Phone: ' + phone : ''),
+          amount:  0
+        })
+      }
+      
       if (nc.error) { alert('Error creating customer: '+nc.error.message); window.isSaving=false; saveBtn.innerText=origText; saveBtn.disabled=false; return }
       selectedCustomer=nc.data; customerId=nc.data.id
     } else { customerId=selectedCustomer.id }
