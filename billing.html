@@ -246,6 +246,7 @@
   </div>
 
   <!-- ═══════════ SALES RETURN MODE ═══════════ -->
+  
   <div id="salesReturnMode" style="display:none;">
     <div class="card" style="border-color:rgba(220,38,38,0.2);">
       <h3 style="color:#f87171;">↩️ Sales Return</h3>
@@ -308,6 +309,7 @@
 </div>
 
 <!-- ═══════════ PRINT AREA ═══════════ -->
+  
 <div id="printArea">
   <div class="bill-paper">
     <div class="bill-header" id="printHeader">
@@ -378,6 +380,7 @@
 </div>
 
 <!-- ═══════════ BILL HISTORY MODAL ═══════════ -->
+  
 <div id="billHistoryModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.82);z-index:9999;overflow-y:auto;padding:20px;backdrop-filter:blur(6px);">
   <div style="background:#0f172a;border:1px solid rgba(255,255,255,0.1);width:95%;max-width:1100px;margin:30px auto;padding:28px;border-radius:18px;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
@@ -885,11 +888,24 @@ async function saveBill() {
     // Atomic stock deduction
     for(var ki=0;ki<billItems.length;ki++){var bk=billItems[ki];if(bk.id)await supabase.rpc('decrement_inventory',{p_item_id:bk.id,p_qty:bk.qty})}
 
-   if (!window.isPrinting) {
-      alert('✅ Bill Saved — '+billNumber)
+  if (!window.isPrinting) {
+      // Create notification for owner to see
+      var custDisplayName = selectedCustomer ? selectedCustomer.name : 'Walk-in Customer'
+      if (window.AAMNotify) {
+        window.AAMNotify({
+          type:        'bill',
+          title:       '🧾 New Bill Created',
+          message:     'Bill of ₹' + Math.round(final).toLocaleString('en-IN') +
+                       ' made for customer: ' + custDisplayName +
+                       ' | Bill No: ' + billNumber,
+          bill_number: billNumber,
+          amount:      final
+        })
+      }
+      alert('✅ Bill Saved — ' + billNumber)
       resetBillingForm()
     }
-
+    
   } catch(err) { console.error(err); alert('Unexpected error: '+err.message) }
   window.isSaving=false; saveBtn.innerText=origText; saveBtn.disabled=false
 }
@@ -1375,7 +1391,19 @@ async function processReturn(shouldPrint){
   if(retCash>0)refundMsg.push('Cash ₹'+retCash.toLocaleString('en-IN'))
   if(retUpi>0)refundMsg.push('UPI ₹'+retUpi.toLocaleString('en-IN'))
   if(retCredit>0)refundMsg.push('Credit ₹'+retCredit.toLocaleString('en-IN'))
-  alert('✅ Return processed!\nReturn No: '+returnNo+'\nInventory Restored!\nRefund: '+refundMsg.join(' + '))
+  if (window.AAMNotify) {
+    window.AAMNotify({
+      type:        'return',
+      title:       '↩️ Sales Return Processed',
+      message:     'Return of ₹' + returnTotal.toLocaleString('en-IN') +
+                   ' processed. Return No: ' + returnNo +
+                   ' | Original Bill: ' + returnOriginalSale.bill_number,
+      bill_number: returnNo,
+      amount:      returnTotal
+    })
+  }
+  alert('✅ Return processed!\nReturn No: '+returnNo+'\nInventory Restored!\nCredit ₹'+returnTotal.toLocaleString('en-IN')+' added to customer account.')
+  
   clearReturnForm()
 }
   
