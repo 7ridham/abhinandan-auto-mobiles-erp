@@ -788,7 +788,10 @@ async function savePurchase(){
     }
 
     if(!allSaved)alert('⚠️ Purchase saved but some items had errors. Check F12 console.')
-    else if(!window.isPrinting)alert('✅ Purchase Saved!\nBill: '+billNo+'\nInventory Updated!')
+    else if (!window.isPrinting) {
+      alert('✅ Purchase Saved!\nBill: '+billNo+'\nInventory Updated!')
+      resetPurchaseForm()
+    }
 
   }catch(err){console.error(err);alert('❌ Unexpected error: '+err.message)}
   window.isSavingPurchase=false
@@ -818,7 +821,23 @@ async function printPurchaseBill(){
 
 document.getElementById('printPurchaseBtn').addEventListener('click',printPurchaseBill)
 
-
+// ── RESET PURCHASE FORM (called after every new purchase save) ──
+function resetPurchaseForm() {
+  selectedMerchant = null
+  purchaseItems    = []
+  totalAmount      = 0
+  window.clearMerchant()
+  ;['purCash','purUpi','purCredit','purDiscount','merchantInvoiceRef',
+    'merchantSearch','merchantPhone','merchantAddress','merchantGstin'
+  ].forEach(function(id){ document.getElementById(id).value = '' })
+  document.getElementById('newProductBox').style.display = 'none'
+  // Reset bill type
+  document.querySelectorAll('.bill-type-btn').forEach(function(b){ b.classList.remove('active') })
+  document.querySelector('.bill-type-btn[data-type="Purchase Invoice"]').classList.add('active')
+  selectedBillType = 'Purchase Invoice'
+  renderPurchaseBill()
+}
+  
 // ── CANCEL EDIT ──
 window.cancelEdit=function(){
   editingBillId=null;editingBillNumber=null;selectedMerchant=null;purchaseItems=[];totalAmount=0
@@ -1052,13 +1071,19 @@ window.clearReturn=function(){
 
 
 // ── PREFILL FROM MERCHANTS.HTML ──
-var pf=localStorage.getItem('purchase_prefill_merchant')
-if(pf){
-  selectedMerchant={id:null,name:pf,phone:'',address:'',gstin:''}
-  showSelectedMerchant()
+var pf = localStorage.getItem('purchase_prefill_merchant')
+if (pf) {
   localStorage.removeItem('purchase_prefill_merchant')
+  // FIX: Look up full merchant details from database
+  supabase.from('merchants').select('*').ilike('name', pf).limit(1).then(function(res) {
+    if (res.data && res.data.length) {
+      selectedMerchant = res.data[0]   // gets real id, phone, address, gstin
+    } else {
+      selectedMerchant = {id:null, name:pf, phone:'', address:'', gstin:''}
+    }
+    showSelectedMerchant()
+  })
 }
-
 } // end initPurchase
 </script>
 </body>
