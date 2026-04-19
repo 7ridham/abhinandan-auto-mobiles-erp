@@ -143,7 +143,7 @@
         <div style="position:relative;">
           <label class="field-label">Customer Name <span style="color:#f87171;">*</span></label>
           <input id="customerSearch" placeholder="Type name or phone..." autocomplete="off" style="margin-bottom:0;">
-          <ul id="customerList" style="position:absolute;z-index:100;width:100%;background:#0f1623;border:1px solid rgba(255,255,255,0.12);border-radius:0 0 8px 8px;list-style:none;margin:0;padding:0;max-height:220px;overflow-y:auto;display:none;box-shadow:0 8px 24px rgba(0,0,0,0.5);"></ul>
+          <ul id="customerList" style="position:absolute;z-index:100;width:100%;background:#0f1623;border:1px solid rgba(255,255,255,0.12);border-radius:0 0 8px 8px;list-style:none;margin:0;padding:0;max-height:320px;overflow-y:auto;display:none;box-shadow:0 8px 24px rgba(0,0,0,0.5);"></ul>
         </div>
         <div>
           <label class="field-label">Phone <span class="opt-tag">(auto-filled)</span></label>
@@ -167,7 +167,7 @@
       <h3>Add Products</h3>
       <div style="position:relative;">
         <input id="productSearch" placeholder="Type product name to search..." autocomplete="off" style="margin-bottom:0;">
-        <ul id="productList" style="position:absolute;z-index:100;width:100%;background:#0f1623;border:1px solid rgba(255,255,255,0.12);border-radius:0 0 8px 8px;list-style:none;margin:0;padding:0;max-height:260px;overflow-y:auto;display:none;box-shadow:0 8px 24px rgba(0,0,0,0.5);"></ul>
+        <ul id="productList" style="position:absolute;z-index:100;width:100%;background:#0f1623;border:1px solid rgba(255,255,255,0.12);border-radius:0 0 8px 8px;list-style:none;margin:0;padding:0;max-height:320px;overflow-y:auto;display:none;box-shadow:0 8px 24px rgba(0,0,0,0.5);"></ul>
       </div>
       <div style="margin-top:8px;font-size:12px;color:rgba(255,255,255,0.3);">💡 Type at least 1 character. Results appear instantly.</div>
     </div>
@@ -274,16 +274,28 @@
             <tbody id="returnItemsBody"></tbody>
           </table>
         </div>
-        <div style="margin-top:16px;display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;">
-          <div style="flex:1;min-width:200px;">
-            <label class="field-label">Reason <span class="opt-tag">(optional)</span></label>
-            <input id="returnReason" placeholder="e.g. Defective part, Wrong item..." style="margin-bottom:0;">
+        <div style="margin-top:16px;">
+          <label class="field-label">Reason <span class="opt-tag">(optional)</span></label>
+          <input id="returnReason" placeholder="e.g. Defective part, Wrong item..." style="margin-bottom:0;">
+        </div>
+
+        <!-- RETURN PAYMENT OPTIONS -->
+        <div style="margin-top:16px;background:rgba(220,38,38,0.06);border:1.5px solid rgba(220,38,38,0.2);border-radius:12px;padding:16px;">
+          <div style="font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:rgba(220,38,38,0.7);margin-bottom:12px;">↩️ Return Payment / Refund Method</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px;">
+            <div><label class="field-label">Cash Refund (₹)</label><input type="number" id="returnCash" placeholder="0" min="0" oninput="calcReturnTotal()" style="margin-bottom:0;"></div>
+            <div><label class="field-label">UPI Refund (₹)</label><input type="number" id="returnUpi" placeholder="0" min="0" oninput="calcReturnTotal()" style="margin-bottom:0;"></div>
+            <div><label class="field-label">Credit to Account (₹)</label><input type="number" id="returnCredit" placeholder="0" min="0" oninput="calcReturnTotal()" style="margin-bottom:0;"></div>
           </div>
-          <div style="background:rgba(220,38,38,0.1);border:1px solid rgba(220,38,38,0.25);border-radius:10px;padding:12px 20px;text-align:center;min-width:160px;">
-            <div style="font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Return Total</div>
-            <div style="font-size:20px;font-weight:700;color:#f87171;">₹<span id="returnTotalAmt">0</span></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+            <div id="returnPaySummary" style="font-size:13px;color:rgba(255,255,255,0.5);">Enter refund method above</div>
+            <div style="background:rgba(220,38,38,0.1);border:1px solid rgba(220,38,38,0.25);border-radius:10px;padding:12px 20px;text-align:center;min-width:160px;">
+              <div style="font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Return Total</div>
+              <div style="font-size:20px;font-weight:700;color:#f87171;">₹<span id="returnTotalAmt">0</span></div>
+            </div>
           </div>
         </div>
+
         <div style="display:flex;gap:12px;margin-top:16px;flex-wrap:wrap;">
           <button id="processReturnBtn"      style="background:#dc2626;border:none;color:white;padding:10px 22px;border-radius:8px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:14px;">↩️ Process Return</button>
           <button id="processReturnPrintBtn" style="background:rgba(220,38,38,0.15);border:1px solid rgba(220,38,38,0.3);color:#f87171;padding:10px 18px;border-radius:8px;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;">🖨 Process & Print</button>
@@ -1264,8 +1276,23 @@ function calcReturnTotal(){
     var el=document.getElementById('rtotal'+idx); if(el)el.innerText=chk.checked?'₹'+sub.toLocaleString('en-IN'):'₹0'
   })
   document.getElementById('returnTotalAmt').innerText=t.toLocaleString('en-IN')
+  // Update pay summary
+  var cash=parseFloat(document.getElementById('returnCash')?document.getElementById('returnCash').value:0)||0
+  var upi=parseFloat(document.getElementById('returnUpi')?document.getElementById('returnUpi').value:0)||0
+  var cred=parseFloat(document.getElementById('returnCredit')?document.getElementById('returnCredit').value:0)||0
+  var paid=cash+upi+cred
+  var rem=t-paid
+  var parts=[]
+  if(cash>0)parts.push('<span style="color:#60a5fa;">Cash ₹'+cash.toLocaleString('en-IN')+'</span>')
+  if(upi>0)parts.push('<span style="color:#a78bfa;">UPI ₹'+upi.toLocaleString('en-IN')+'</span>')
+  if(cred>0)parts.push('<span style="color:#f87171;">Credit ₹'+cred.toLocaleString('en-IN')+'</span>')
+  var sc='#34d399',st='✅ Fully Accounted'
+  if(rem>0){sc='#fbbf24';st='⚠️ ₹'+rem.toLocaleString('en-IN')+' unaccounted'}
+  if(rem<0){sc='#f87171';st='❌ Exceeds return total by ₹'+Math.abs(rem).toLocaleString('en-IN')}
+  var sumEl=document.getElementById('returnPaySummary')
+  if(sumEl)sumEl.innerHTML=(parts.length?parts.join(' + ')+' — ':'')+'<span style="color:'+sc+';">'+st+'</span>'
 }
-
+  
 async function processReturn(shouldPrint){
   var checkedItems=[],valid=true
   document.querySelectorAll('.returnChk').forEach(function(chk){
@@ -1280,8 +1307,18 @@ async function processReturn(shouldPrint){
   if(!valid)return
   if(!checkedItems.length){alert('Select at least one item to return');return}
   var returnTotal=checkedItems.reduce(function(s,i){return s+(i.qty*i.price)},0)
+
+  // Get payment split
+  var retCash  = parseFloat(document.getElementById('returnCash').value)||0
+  var retUpi   = parseFloat(document.getElementById('returnUpi').value)||0
+  var retCredit= parseFloat(document.getElementById('returnCredit').value)||0
+  var retPaid  = retCash+retUpi+retCredit
+  if(retPaid>returnTotal){ alert('❌ Refund amount ₹'+retPaid.toLocaleString('en-IN')+' exceeds return total ₹'+returnTotal.toLocaleString('en-IN')); return }
+  // If nothing entered, default all to credit
+  if(retPaid===0){ retCredit=returnTotal; retPaid=returnTotal }
+
   var returnNo=await generateReturnNo()
-  var rr=await supabase.from('sales').insert([{bill_number:returnNo,customer_id:returnOriginalSale.customer_id,total_amount:-returnTotal,cash:0,upi:0,credit:-returnTotal,discount:0,advance:0,bill_type:'return',original_bill_ref:returnOriginalSale.bill_number,receiver_name:returnOriginalSale.receiver_name,vehicle_number:returnOriginalSale.vehicle_number}]).select().single()
+  var rr=await supabase.from('sales').insert([{bill_number:returnNo,customer_id:returnOriginalSale.customer_id,total_amount:-returnTotal,cash:-retCash,upi:-retUpi,credit:-retCredit,discount:0,advance:0,bill_type:'return',original_bill_ref:returnOriginalSale.bill_number,receiver_name:returnOriginalSale.receiver_name,vehicle_number:returnOriginalSale.vehicle_number}]).select().single()
   if(rr.error){alert('❌ Error creating return: '+rr.error.message);return}
   var retItems=checkedItems.map(function(i){return{sale_id:rr.data.id,item_id:i.item_id,item_name:i.item_name,quantity:-i.qty,price:i.price,total:-(i.qty*i.price)}})
   var rir=await supabase.from('bill_items').insert(retItems)
@@ -1290,22 +1327,30 @@ async function processReturn(shouldPrint){
   if(shouldPrint){
     var custName='Walk-in',custPhone=''
     if(returnOriginalSale.customer_id){var crp=await supabase.from('customers').select('name,phone').eq('id',returnOriginalSale.customer_id).single();if(crp.data){custName=crp.data.name;custPhone=crp.data.phone||''}}
-    fillPrintArea({isReturn:true,billNo:returnNo,date:new Date().toLocaleString('en-IN'),customerName:custName,phone:custPhone,receiver:'',vehicle:'',originalRef:returnOriginalSale.bill_number,items:checkedItems.map(function(i){return{name:i.item_name,qty:i.qty,price:i.price}}),subtotal:returnTotal,final:returnTotal,gstEnabled:false,cgst:0,sgst:0,disc:0,cash:0,upi:0,credit:returnTotal,payMode:'Credit Adjusted',deliv:0,delivNote:''})
+    var modes=[];if(retCash>0)modes.push('Cash');if(retUpi>0)modes.push('UPI');if(retCredit>0)modes.push('Credit')
+    fillPrintArea({isReturn:true,billNo:returnNo,date:new Date().toLocaleString('en-IN'),customerName:custName,phone:custPhone,receiver:'',vehicle:'',originalRef:returnOriginalSale.bill_number,items:checkedItems.map(function(i){return{name:i.item_name,qty:i.qty,price:i.price}}),subtotal:returnTotal,final:returnTotal,gstEnabled:false,cgst:0,sgst:0,disc:0,cash:retCash,upi:retUpi,credit:retCredit,payMode:modes.join(' + ')||'Credit',deliv:0,delivNote:''})
     document.getElementById('printArea').style.display='block'
     var ot=document.title; document.title='Return-'+returnNo; window.print()
     setTimeout(function(){document.title=ot;document.getElementById('printArea').style.display='none'},800)
   }
-  alert('✅ Return processed!\nReturn No: '+returnNo+'\nInventory Restored!\nCredit ₹'+returnTotal.toLocaleString('en-IN')+' added to customer account.')
+  var refundMsg=[]
+  if(retCash>0)refundMsg.push('Cash ₹'+retCash.toLocaleString('en-IN'))
+  if(retUpi>0)refundMsg.push('UPI ₹'+retUpi.toLocaleString('en-IN'))
+  if(retCredit>0)refundMsg.push('Credit ₹'+retCredit.toLocaleString('en-IN'))
+  alert('✅ Return processed!\nReturn No: '+returnNo+'\nInventory Restored!\nRefund: '+refundMsg.join(' + '))
   clearReturnForm()
 }
+  
 
 function clearReturnForm(){
   returnOriginalSale=null; returnBillItemsData=[]
   document.getElementById('returnBillDetails').style.display='none'
   document.getElementById('returnBillSearch').value=''
   document.getElementById('returnReason').value=''
+  ;['returnCash','returnUpi','returnCredit'].forEach(function(id){var el=document.getElementById(id);if(el)el.value=''})
+  var sumEl=document.getElementById('returnPaySummary'); if(sumEl)sumEl.innerHTML='Enter refund method above'
 }
-
+  
 document.getElementById('processReturnBtn').addEventListener('click',     function(){processReturn(false)})
 document.getElementById('processReturnPrintBtn').addEventListener('click',function(){processReturn(true)})
 document.getElementById('clearReturnBtn').addEventListener('click',        clearReturnForm)
