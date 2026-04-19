@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Login — Abhinandan Auto Mobiles ERP</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{height:100%;font-family:'DM Sans',sans-serif;}
+  body{
+    background:#080c14;
+    display:flex;align-items:center;justify-content:center;
+    min-height:100vh;
+    position:relative;overflow:hidden;
+  }
+  body::before{
+    content:'';position:fixed;inset:0;
+    background:radial-gradient(ellipse at 20% 50%,rgba(37,99,235,0.12) 0%,transparent 60%),
+               radial-gradient(ellipse at 80% 20%,rgba(124,58,237,0.1) 0%,transparent 55%),
+               radial-gradient(ellipse at 60% 80%,rgba(6,182,212,0.08) 0%,transparent 50%);
+    pointer-events:none;
+  }
+
+  .login-wrap{
+    width:100%;max-width:420px;padding:24px;position:relative;z-index:1;
+  }
+
+  /* Company header */
+  .login-brand{text-align:center;margin-bottom:32px;}
+  .login-brand-logo{
+    width:70px;height:70px;background:linear-gradient(135deg,#1e3a5f,#2563eb);
+    border-radius:16px;display:inline-flex;align-items:center;justify-content:center;
+    font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:white;
+    margin-bottom:14px;box-shadow:0 8px 24px rgba(37,99,235,0.3);
+  }
+  .login-brand h1{
+    font-family:'Playfair Display',serif;font-size:22px;color:white;margin-bottom:4px;
+  }
+  .login-brand p{font-size:13px;color:rgba(255,255,255,0.4);}
+
+  /* Role selector */
+  .role-selector{display:flex;gap:10px;margin-bottom:24px;}
+  .role-btn{
+    flex:1;padding:12px;border-radius:12px;
+    border:2px solid rgba(255,255,255,0.1);
+    background:rgba(255,255,255,0.04);
+    color:rgba(255,255,255,0.5);
+    font-size:13px;font-weight:600;cursor:pointer;
+    font-family:'DM Sans',sans-serif;
+    transition:all 0.2s;text-align:center;
+  }
+  .role-btn .rb-icon{font-size:22px;display:block;margin-bottom:4px;}
+  .role-btn.active-owner{
+    background:rgba(251,191,36,0.12);
+    border-color:rgba(251,191,36,0.5);
+    color:#fbbf24;
+    box-shadow:0 4px 14px rgba(251,191,36,0.15);
+  }
+  .role-btn.active-staff{
+    background:rgba(96,165,250,0.12);
+    border-color:rgba(96,165,250,0.5);
+    color:#60a5fa;
+    box-shadow:0 4px 14px rgba(96,165,250,0.15);
+  }
+
+  /* Card */
+  .login-card{
+    background:linear-gradient(135deg,rgba(255,255,255,0.07),rgba(255,255,255,0.03));
+    border:1px solid rgba(255,255,255,0.1);
+    border-radius:20px;
+    padding:28px;
+    box-shadow:0 24px 60px rgba(0,0,0,0.4);
+    position:relative;overflow:hidden;
+  }
+  .login-card::before{
+    content:'';position:absolute;top:0;left:10%;right:10%;height:1px;
+    background:linear-gradient(90deg,transparent,rgba(255,255,255,0.18),transparent);
+  }
+
+  /* Fields */
+  .field{margin-bottom:16px;}
+  .field label{
+    display:block;font-size:11px;font-weight:600;
+    letter-spacing:0.8px;text-transform:uppercase;
+    color:rgba(255,255,255,0.4);margin-bottom:7px;
+  }
+  .field input{
+    width:100%;padding:12px 16px;
+    background:rgba(255,255,255,0.07);
+    border:1.5px solid rgba(255,255,255,0.1);
+    border-radius:10px;color:white;
+    font-size:15px;font-family:'DM Sans',sans-serif;
+    outline:none;transition:border-color 0.2s;
+  }
+  .field input:focus{border-color:#2563eb;}
+  .field input::placeholder{color:rgba(255,255,255,0.25);}
+
+  /* Login button */
+  .login-btn{
+    width:100%;padding:14px;border-radius:12px;border:none;
+    background:linear-gradient(135deg,#1e3a5f,#2563eb);
+    color:white;font-size:15px;font-weight:600;cursor:pointer;
+    font-family:'DM Sans',sans-serif;margin-top:8px;
+    box-shadow:0 4px 14px rgba(37,99,235,0.35);
+    transition:all 0.2s;letter-spacing:0.3px;
+  }
+  .login-btn:hover{background:linear-gradient(135deg,#1e40af,#3b82f6);transform:translateY(-1px);}
+  .login-btn:disabled{opacity:0.6;cursor:not-allowed;transform:none;}
+
+  /* Error */
+  .error-box{
+    display:none;background:rgba(220,38,38,0.1);
+    border:1px solid rgba(220,38,38,0.3);
+    border-radius:10px;padding:12px 16px;
+    color:#f87171;font-size:13px;margin-bottom:16px;
+    text-align:center;
+  }
+
+  /* Footer note */
+  .login-footer{
+    text-align:center;margin-top:20px;
+    font-size:11px;color:rgba(255,255,255,0.2);
+    line-height:1.6;
+  }
+</style>
+</head>
+<body>
+
+<div class="login-wrap">
+
+  <!-- Brand -->
+  <div class="login-brand">
+    <div class="login-brand-logo">A</div>
+    <h1>Abhinandan Auto Mobiles</h1>
+    <p>ERP Management System</p>
+  </div>
+
+  <!-- Role selector (visual only) -->
+  <div class="role-selector">
+    <button class="role-btn active-owner" id="ownerBtn" onclick="selectRole('owner')">
+      <span class="rb-icon">👑</span>
+      Owner Login
+    </button>
+    <button class="role-btn" id="staffBtn" onclick="selectRole('staff')">
+      <span class="rb-icon">👷</span>
+      Staff Login
+    </button>
+  </div>
+
+  <!-- Login Card -->
+  <div class="login-card">
+    <div class="error-box" id="errorBox">❌ <span id="errorMsg">Invalid username or password</span></div>
+
+    <div class="field">
+      <label>Username</label>
+      <input type="text" id="username" placeholder="Enter your username" autocomplete="username" autofocus>
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input type="password" id="password" placeholder="Enter your password" autocomplete="current-password">
+    </div>
+
+    <button class="login-btn" id="loginBtn" onclick="doLogin()">🔐 Login to ERP</button>
+  </div>
+
+  <div class="login-footer">
+    Session auto-expires after 30 days<br>
+    Abhinandan Auto Mobiles ERP v1.0
+  </div>
+</div>
+
+
+<script>
+// Check if already logged in — skip login screen
+var existing = localStorage.getItem('aam_erp_session')
+if (existing) {
+  try {
+    var s = JSON.parse(existing)
+    if (s && s.expiry && Date.now() < s.expiry) {
+      window.location.href = s.role === 'staff' ? 'billing.html' : 'dashboard.html'
+    } else {
+      localStorage.removeItem('aam_erp_session')
+    }
+  } catch(e) { localStorage.removeItem('aam_erp_session') }
+}
+
+// Load Supabase
+var _sb = document.createElement('script')
+_sb.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js'
+_sb.onload = function() {
+  window._supabase = window.supabase.createClient(
+    'https://mhhnmndnolhapaoqtbxo.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1oaG5tbmRub2xoYXBhb3F0YnhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4Mzg4NTksImV4cCI6MjA4ODQxNDg1OX0.IMSp8vYiCln_iSuoT_H2qdeX_dP1WMhOOskDw20eJXw'
+  )
+}
+document.head.appendChild(_sb)
+
+// Role selector (visual feedback only)
+function selectRole(role) {
+  document.getElementById('ownerBtn').className = 'role-btn' + (role==='owner'?' active-owner':'')
+  document.getElementById('staffBtn').className = 'role-btn' + (role==='staff'?' active-staff':'')
+}
+
+// Allow Enter key to submit
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') doLogin()
+})
+
+// Main login function
+async function doLogin() {
+  var username = document.getElementById('username').value.trim()
+  var password = document.getElementById('password').value
+
+  if (!username || !password) {
+    showError('Please enter both username and password')
+    return
+  }
+
+  var btn = document.getElementById('loginBtn')
+  btn.disabled = true
+  btn.innerText = '⏳ Checking...'
+  hideError()
+
+  try {
+    // Check credentials against Supabase users table
+    var res = await window._supabase
+      .from('users')
+      .select('*')
+      .eq('username', username.toLowerCase())
+      .eq('password', password)
+      .eq('is_active', true)
+      .single()
+
+    if (res.error || !res.data) {
+      showError('Invalid username or password. Please try again.')
+      btn.disabled = false; btn.innerText = '🔐 Login to ERP'
+      return
+    }
+
+    var user = res.data
+
+    // Create 30-day session
+    var now  = Date.now()
+    var sess = {
+      username:  user.username,
+      role:      user.role,
+      full_name: user.full_name || user.username,
+      loginTime: now,
+      expiry:    now + (30 * 24 * 60 * 60 * 1000)   // 30 days
+    }
+    localStorage.setItem('aam_erp_session', JSON.stringify(sess))
+
+    // Redirect based on role
+    btn.innerText = '✅ Logging in...'
+    setTimeout(function() {
+      window.location.href = user.role === 'owner' ? 'dashboard.html' : 'billing.html'
+    }, 400)
+
+  } catch(err) {
+    showError('Connection error. Please try again.')
+    btn.disabled = false; btn.innerText = '🔐 Login to ERP'
+  }
+}
+
+function showError(msg) {
+  document.getElementById('errorMsg').innerText = msg
+  document.getElementById('errorBox').style.display = 'block'
+}
+function hideError() {
+  document.getElementById('errorBox').style.display = 'none'
+}
+</script>
+</body>
+</html>
