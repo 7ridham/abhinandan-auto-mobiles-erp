@@ -161,6 +161,25 @@
     </div>
   </div>
 
+<!-- ── NOTIFICATIONS PANEL ── -->
+  <div class="card" id="notificationsPanel" style="margin-bottom:24px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.35);">
+          🔔 Staff Activity Notifications
+        </div>
+        <span id="notifUnreadBadge" style="display:none;background:#dc2626;color:white;font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px;">0 new</span>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button onclick="markAllRead()" style="background:rgba(52,211,153,0.12);border:1px solid rgba(52,211,153,0.25);color:#34d399;padding:6px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;">✅ Mark all read</button>
+        <button onclick="loadNotifications()" style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.6);padding:6px 12px;border-radius:8px;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;">🔄 Refresh</button>
+      </div>
+    </div>
+    <div id="notifList" style="max-height:320px;overflow-y:auto;">
+      <div style="text-align:center;padding:20px;color:rgba(255,255,255,0.3);font-size:13px;">Loading...</div>
+    </div>
+  </div>
+  
   <div class="two-col">
     <!-- LOW STOCK ALERT -->
     <div class="card">
@@ -290,8 +309,80 @@ async function loadRecentBills() {
     </div>`}).join('')
 }
 
+// ── NOTIFICATIONS ──
+async function loadNotifications() {
+  var list = document.getElementById('notifList')
+  var { data, error } = await supabase
+    .from('notifications')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(30)
+
+  if (error || !data || !data.length) {
+    list.innerHTML = '<div style="text-align:center;padding:24px;color:rgba(255,255,255,0.25);font-size:13px;">No staff activity yet. Bills created by staff will appear here.</div>'
+    return
+  }
+
+  var unread = data.filter(function(n){ return !n.is_read }).length
+  var badge  = document.getElementById('notifUnreadBadge')
+  if (badge) {
+    badge.style.display = unread > 0 ? 'inline' : 'none'
+    badge.innerText = unread + ' new'
+  }
+  // Also update sidebar bell
+  var sbell = document.getElementById('notifBadge')
+  if (sbell) {
+    sbell.style.display = unread > 0 ? 'inline' : 'none'
+    sbell.innerText = unread > 99 ? '99+' : unread
+  }
+
+  var typeColors = {
+    'bill'     : { bg:'rgba(37,99,235,0.1)',   border:'rgba(37,99,235,0.25)',  dot:'#2563eb',  icon:'🧾' },
+    'return'   : { bg:'rgba(220,38,38,0.08)',  border:'rgba(220,38,38,0.2)',   dot:'#dc2626',  icon:'↩️' },
+    'purchase' : { bg:'rgba(217,119,6,0.08)',  border:'rgba(217,119,6,0.2)',   dot:'#d97706',  icon:'📦' },
+    'customer' : { bg:'rgba(52,211,153,0.08)', border:'rgba(52,211,153,0.2)', dot:'#34d399',  icon:'👤' },
+    'default'  : { bg:'rgba(255,255,255,0.04)',border:'rgba(255,255,255,0.1)', dot:'#60a5fa',  icon:'📌' }
+  }
+
+  list.innerHTML = data.map(function(n) {
+    var tc    = typeColors[n.type] || typeColors['default']
+    var isNew = !n.is_read
+    var time  = new Date(n.created_at)
+    var timeStr = time.toLocaleDateString('en-IN', {day:'2-digit', month:'short'}) +
+                  ' ' + time.toLocaleTimeString('en-IN', {hour:'2-digit', minute:'2-digit', hour12:true})
+    return '<div style="display:flex;gap:12px;align-items:flex-start;padding:12px 14px;margin-bottom:8px;' +
+      'background:' + (isNew ? tc.bg : 'rgba(255,255,255,0.02)') + ';' +
+      'border:1px solid ' + (isNew ? tc.border : 'rgba(255,255,255,0.06)') + ';' +
+      'border-radius:10px;transition:all 0.2s;">' +
+      // Dot for unread
+      '<div style="margin-top:4px;width:8px;height:8px;border-radius:50%;flex-shrink:0;background:' +
+        (isNew ? tc.dot : 'rgba(255,255,255,0.15)') + ';"></div>' +
+      '<div style="flex:1;min-width:0;">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">' +
+          '<div style="font-size:13px;font-weight:600;color:' + (isNew?'white':'rgba(255,255,255,0.6)') + ';">' +
+            tc.icon + ' ' + (n.title||'Activity') +
+          '</div>' +
+          '<div style="font-size:10px;color:rgba(255,255,255,0.3);white-space:nowrap;">' + timeStr + '</div>' +
+        '</div>' +
+        '<div style="font-size:12px;color:rgba(255,255,255,0.5);margin-top:3px;line-height:1.5;">' + (n.message||'') + '</div>' +
+        '<div style="font-size:11px;color:rgba(255,255,255,0.3);margin-top:4px;">By: <strong style="color:rgba(255,255,255,0.5);">' + (n.done_by||'Staff') + '</strong>' +
+          (n.amount > 0 ? ' &nbsp;|&nbsp; Amount: <strong style="color:#34d399;">₹' + Math.round(n.amount).toLocaleString('en-IN') + '</strong>' : '') +
+        '</div>' +
+      '</div>' +
+    '</div>'
+  }).join('')
+}
+
+window.markAllRead = async function() {
+  await supabase.from('notifications').update({ is_read: true }).eq('is_read', false)
+  loadNotifications()
+}
+  
+  
 // ── AUTO REFRESH every 60 seconds ──
-async function loadAll() { await Promise.all([loadStats(), loadWeekChart(), loadLowStock(), loadRecentBills()]) }
+async function loadAll() {
+  await Promise.all([loadStats(), loadWeekChart(), loadLowStock(), loadRecentBills(), loadNotifications()])
+}
 loadAll()
 setInterval(loadAll, 60000)
 
