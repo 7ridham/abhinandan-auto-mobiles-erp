@@ -516,17 +516,25 @@ window.toggleDeliveryBox = function() {
 // INVOICE NUMBER GENERATOR
 // ══════════════════════════════════════
 async function generateInvoiceNo() {
-  var now = new Date()
-  var dd  = String(now.getDate()).padStart(2,'0')
-  var mm  = String(now.getMonth()+1).padStart(2,'0')
-  var yy  = String(now.getFullYear()).slice(2)
+  var now    = new Date()
+  var dd     = String(now.getDate()).padStart(2,'0')
+  var mm     = String(now.getMonth()+1).padStart(2,'0')
+  var yy     = String(now.getFullYear()).slice(2)
   var prefix = 'AAM-'+dd+mm+yy+'-'
-  var startOfDay = new Date(); startOfDay.setHours(0,0,0,0)
-  var res = await supabase.from('sales').select('id',{count:'exact'}).gte('created_at',startOfDay.toISOString()).like('bill_number','AAM-%')
-  var count = res.count || (res.data||[]).length
-  return prefix + String(count+1).padStart(4,'0')
+  // FIX: Find the HIGHEST existing number today (safe after deletions)
+  var res = await supabase.from('sales')
+    .select('bill_number')
+    .like('bill_number', prefix+'%')
+    .order('bill_number', {ascending: false})
+    .limit(1)
+  var lastNo = 0
+  if (res.data && res.data.length) {
+    var parts = res.data[0].bill_number.split('-')
+    lastNo = parseInt(parts[parts.length-1]) || 0
+  }
+  return prefix + String(lastNo+1).padStart(4,'0')
 }
-
+  
 async function generateReturnNo() {
   var now = new Date()
   var dd  = String(now.getDate()).padStart(2,'0')
@@ -877,7 +885,10 @@ async function saveBill() {
     // Atomic stock deduction
     for(var ki=0;ki<billItems.length;ki++){var bk=billItems[ki];if(bk.id)await supabase.rpc('decrement_inventory',{p_item_id:bk.id,p_qty:bk.qty})}
 
-    if(!window.isPrinting) alert('✅ Bill Saved — '+billNumber)
+   if (!window.isPrinting) {
+      alert('✅ Bill Saved — '+billNumber)
+      resetBillingForm()
+    }
 
   } catch(err) { console.error(err); alert('Unexpected error: '+err.message) }
   window.isSaving=false; saveBtn.innerText=origText; saveBtn.disabled=false
@@ -885,6 +896,32 @@ async function saveBill() {
 
 document.getElementById('saveBtn').addEventListener('click', saveBill)
 
+// ── RESET BILLING FORM (called after every new bill save) ──
+function resetBillingForm() {
+  selectedCustomer = null
+  billItems        = []
+  totalAmount      = 0
+  deliveryBoxOpen  = false
+  // Clear all text inputs
+  ;['customerSearch','receiverName','vehicleNumber','billPhone',
+    'deliveryCharges','deliveryNote','cash','upi','credit','discountValue'
+  ].forEach(function(id){ document.getElementById(id).value = '' })
+  // Reset GST + delivery box
+  document.getElementById('gstToggle').checked = false
+  document.getElementById('deliveryBox').classList.remove('visible')
+  document.getElementById('deliveryToggleBtn').innerText = '+ Add Delivery / Extra Charges'
+  document.getElementById('deliveryToggleBtn').style.color = 'rgba(6,182,212,0.9)'
+  document.getElementById('deliveryToggleBtn').style.borderColor = 'rgba(6,182,212,0.3)'
+  // Reset bill type to GST Invoice
+  document.querySelectorAll('.bill-type-btn').forEach(function(b){ b.classList.remove('active') })
+  document.querySelector('.bill-type-btn[data-type="GST Invoice"]').classList.add('active')
+  selectedBillType = 'GST Invoice'
+  // Clear dropdowns
+  document.getElementById('customerList').innerHTML = ''
+  document.getElementById('productList').innerHTML  = ''
+  renderBill()
+}
+  
 // ══════════════════════════════════════
 // CANCEL EDIT
 // ══════════════════════════════════════
@@ -1359,16 +1396,27 @@ document.getElementById('clearReturnBtn').addEventListener('click',        clear
 // ══════════════════════════════════════
 // PREFILL FROM OTHER PAGES
 // ══════════════════════════════════════
-var pn=localStorage.getItem('billing_prefill_name')
-var pp=localStorage.getItem('billing_prefill_phone')
-if(pn){
-  document.getElementById('customerSearch').value=pn
-  if(pp) document.getElementById('billPhone').value=pp
+var pn = localStorage.getItem('billing_prefill_name')
+var pp = localStorage.getItem('billing_prefill_phone')
+if (pn) {
+  document.getElementById('customerSearch').value = pn
+  if (pp) document.getElementById('billPhone').value = pp
   localStorage.removeItem('billing_prefill_name')
   localStorage.removeItem('billing_prefill_phone')
+  // FIX: Fetch the actual customer object so it's not treated as a new customer
+  supabase.from('customers').select('*').ilike('name', pn).limit(1).then(function(res) {
+    if (res.data && res.data.length) {
+      selectedCustomer = res.data[0]
+      document.getElementById('billPhone').value = res.data[0].phone || pp || ''
+      loadVehicleSuggestions(res.data[0].id)
+    }
+  })
+  // FIX: Open Return mode if coming from Dashboard quick action
+if (localStorage.getItem('billing_open_return') === '1') {
+  localStorage.removeItem('billing_open_return')
+  setMode('return')
 }
-
-} // end initBilling
+}//end initBilling
 </script>
 </body>
 </html>
