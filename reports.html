@@ -1005,12 +1005,23 @@ window.exportCSV = function(tab) {
 // ═══════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════
-// Default to "This Month" so data always shows immediately
-document.querySelectorAll('.period-btn')[2].classList.remove('active')
-document.querySelectorAll('.period-btn')[0].classList.remove('active')
-document.querySelectorAll('.period-btn')[2].classList.add('active')
-currentPeriod = 'month'
-loadTab('sales')
+// ═══════════════════════════════════════
+// INIT — runs after DOM is ready
+// ═══════════════════════════════════════
+function initReports() {
+  // Set "This Month" as default period
+  document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'))
+  const monthBtn = document.querySelectorAll('.period-btn')[2]
+  if (monthBtn) monthBtn.classList.add('active')
+  currentPeriod = 'month'
+  loadTab('sales')
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initReports)
+} else {
+  initReports()
+}
 
 
 </script>
