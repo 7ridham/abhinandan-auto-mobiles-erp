@@ -5,11 +5,13 @@
 <title>Customer Ledger — Abhinandan Auto Mobiles</title>
 <link rel="stylesheet" href="style.css">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<!-- PDF Generation Libraries -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: 'DM Sans', sans-serif; }
 
-/* ── TOOLBAR ── */
 .ledger-toolbar { display:flex; gap:12px; flex-wrap:wrap; align-items:center; margin-bottom:20px; }
 .ledger-toolbar input { flex:1; min-width:200px; padding:10px 16px; border-radius:10px; border:1.5px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.06); color:white; font-size:14px; font-family:'DM Sans',sans-serif; outline:none; }
 .ledger-toolbar input:focus { border-color:#2563eb; }
@@ -17,16 +19,15 @@ body { font-family: 'DM Sans', sans-serif; }
 .ledger-toolbar select { padding:10px 14px; border-radius:10px; border:1.5px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.06); color:white; font-size:13px; font-family:'DM Sans',sans-serif; outline:none; cursor:pointer; }
 .ledger-toolbar select option { background:#1e293b; }
 
-/* ── STATS BAR ── */
 .ledger-stats { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:20px; }
 @media(max-width:900px){ .ledger-stats { grid-template-columns:repeat(2,1fr); } }
+@media(max-width:500px){ .ledger-stats { grid-template-columns:1fr 1fr; } }
 .ls-card { background:linear-gradient(135deg,rgba(255,255,255,0.07),rgba(255,255,255,0.03)); border:1px solid rgba(255,255,255,0.09); border-radius:14px; padding:16px 18px; position:relative; overflow:hidden; }
 .ls-card::before { content:''; position:absolute; top:0; left:10%; right:10%; height:1px; background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent); }
 .ls-label { font-size:10px; font-weight:600; letter-spacing:1.5px; text-transform:uppercase; color:rgba(255,255,255,0.3); margin-bottom:6px; }
 .ls-value { font-family:'Playfair Display',serif; font-size:22px; font-weight:700; color:white; }
 .ls-sub { font-size:11px; color:rgba(255,255,255,0.3); margin-top:4px; }
 
-/* ── CUSTOMER GRID ── */
 .customer-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:14px; }
 .customer-card { background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:18px; cursor:pointer; transition:all 0.2s; position:relative; overflow:hidden; }
 .customer-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:transparent; transition:all 0.2s; }
@@ -34,7 +35,7 @@ body { font-family: 'DM Sans', sans-serif; }
 .customer-card:hover::before { background:linear-gradient(90deg,#2563eb,#06b6d4); }
 .customer-card.has-due { border-color:rgba(248,113,113,0.15); }
 .customer-card.has-advance { border-color:rgba(52,211,153,0.15); }
-.cc-avatar { width:40px; height:40px; border-radius:50%; background:linear-gradient(135deg,#2563eb,#8b5cf6); display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:700; color:white; flex-shrink:0; margin-bottom:10px; }
+.cc-avatar { width:40px; height:40px; border-radius:50%; background:linear-gradient(135deg,#2563eb,#8b5cf6); display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:700; color:white; flex-shrink:0; }
 .cc-name { font-size:15px; font-weight:600; color:white; margin-bottom:2px; }
 .cc-phone { font-size:12px; color:rgba(255,255,255,0.4); margin-bottom:12px; }
 .cc-stats { display:flex; justify-content:space-between; }
@@ -43,7 +44,6 @@ body { font-family: 'DM Sans', sans-serif; }
 .cc-stat-value.red   { color:#f87171; }
 .cc-stat-value.green { color:#34d399; }
 
-/* ── PAGINATION ── */
 .pagination { display:flex; justify-content:space-between; align-items:center; margin-top:20px; flex-wrap:wrap; gap:12px; }
 .pg-info { font-size:13px; color:rgba(255,255,255,0.35); }
 .pg-btns { display:flex; gap:8px; flex-wrap:wrap; }
@@ -52,15 +52,13 @@ body { font-family: 'DM Sans', sans-serif; }
 .pg-btn.active { background:rgba(37,99,235,0.35); border-color:#2563eb; color:white; }
 .pg-btn:disabled { opacity:0.3; cursor:not-allowed; }
 
-/* ── MODAL OVERLAY ── */
 .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:9000; overflow-y:auto; padding:20px; backdrop-filter:blur(6px); }
 .modal-box { background:linear-gradient(135deg,#0d1117,#0f172a); border:1px solid rgba(255,255,255,0.1); border-radius:20px; max-width:960px; margin:20px auto; overflow:hidden; box-shadow:0 24px 80px rgba(0,0,0,0.6); }
 .modal-header { background:linear-gradient(135deg,#1e3a5f 0%,#2563eb 100%); padding:24px 28px; display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap; }
 .modal-header h2 { font-family:'Playfair Display',serif; font-size:22px; color:white; margin-bottom:4px; }
 .modal-header-sub { font-size:13px; color:rgba(255,255,255,0.65); }
-.modal-header-right { display:flex; gap:10px; flex-wrap:wrap; }
+.modal-header-right { display:flex; gap:8px; flex-wrap:wrap; }
 
-/* ── SUMMARY CARDS ── */
 .summary-row { display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:rgba(255,255,255,0.06); border-bottom:1px solid rgba(255,255,255,0.06); }
 .summary-card { background:#0f172a; padding:16px 20px; text-align:center; }
 .summary-card .s-label { font-size:10px; color:rgba(255,255,255,0.4); text-transform:uppercase; letter-spacing:1px; margin-bottom:6px; }
@@ -68,15 +66,12 @@ body { font-family: 'DM Sans', sans-serif; }
 .summary-card .s-value.red   { color:#f87171; }
 .summary-card .s-value.green { color:#34d399; }
 .summary-card .s-value.blue  { color:#60a5fa; }
-.summary-card .s-value.amber { color:#fbbf24; }
 
-/* ── BALANCE BANNER ── */
 .balance-banner { padding:12px 28px; display:flex; align-items:center; gap:10px; border-bottom:1px solid rgba(255,255,255,0.06); font-size:14px; font-weight:600; }
 .balance-banner.owe   { background:rgba(248,113,113,0.08); color:#f87171; }
 .balance-banner.adv   { background:rgba(52,211,153,0.08);  color:#34d399; }
 .balance-banner.clear { background:rgba(52,211,153,0.05);  color:#34d399; }
 
-/* ── TRANSACTION TABLE ── */
 .modal-body { padding:24px 28px; }
 .section-title { font-size:11px; font-weight:600; color:rgba(255,255,255,0.4); text-transform:uppercase; letter-spacing:1.5px; margin-bottom:14px; }
 .tx-table { width:100%; border-collapse:collapse; font-size:13px; }
@@ -85,10 +80,9 @@ body { font-family: 'DM Sans', sans-serif; }
 .tx-table tbody tr { border-bottom:1px solid rgba(255,255,255,0.04); transition:background 0.15s; }
 .tx-table tbody tr:hover { background:rgba(255,255,255,0.03); }
 .tx-table tbody td { padding:12px 14px; color:rgba(255,255,255,0.8); vertical-align:middle; }
-.tx-table tbody tr.row-return { background:rgba(220,38,38,0.03); }
+.tx-table tbody tr.row-return  { background:rgba(220,38,38,0.03); }
 .tx-table tbody tr.row-payment { background:rgba(16,185,129,0.03); }
 
-/* ── BADGES ── */
 .badge { display:inline-block; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:600; }
 .badge-cash    { background:rgba(52,211,153,0.12); color:#34d399; }
 .badge-upi     { background:rgba(96,165,250,0.12);  color:#60a5fa; }
@@ -97,54 +91,52 @@ body { font-family: 'DM Sans', sans-serif; }
 .badge-payment { background:rgba(16,185,129,0.15);  color:#10b981; }
 .badge-return  { background:rgba(220,38,38,0.15);   color:#f87171; }
 
-/* ── BUTTONS ── */
 .btn { padding:8px 16px; border-radius:8px; border:none; font-size:13px; font-weight:600; cursor:pointer; font-family:'DM Sans',sans-serif; transition:all 0.2s; }
 .btn-blue    { background:#2563eb; color:white; }
 .btn-blue:hover { background:#1d4ed8; }
 .btn-green   { background:#059669; color:white; }
 .btn-green:hover { background:#047857; }
-.btn-amber   { background:#d97706; color:white; }
-.btn-amber:hover { background:#b45309; }
 .btn-white   { background:white; color:#1e3a5f; }
 .btn-white:hover { background:#e0e7ff; }
+.btn-wa      { background:#25D366; color:white; }
+.btn-wa:hover{ background:#128C7E; }
 .btn-outline { background:rgba(255,255,255,0.1); color:white; border:1px solid rgba(255,255,255,0.2); }
 .btn-outline:hover { background:rgba(255,255,255,0.18); }
-.btn-danger  { background:rgba(220,38,38,0.15); color:#f87171; border:1px solid rgba(220,38,38,0.3); }
-.btn-danger:hover { background:rgba(220,38,38,0.25); }
 .btn-sm { padding:5px 11px; font-size:11px; border-radius:7px; }
 
-/* ── EDIT MODAL ── */
 .inner-modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.88); z-index:10000; align-items:center; justify-content:center; backdrop-filter:blur(8px); }
 .inner-modal-box { background:linear-gradient(135deg,#0d1117,#1e293b); border:1px solid rgba(255,255,255,0.12); border-radius:18px; padding:28px; width:90%; max-width:440px; }
 .inner-modal-box h3 { font-family:'Playfair Display',serif; font-size:18px; color:white; margin-bottom:6px; }
 .inner-modal-box .sub { font-size:13px; color:rgba(255,255,255,0.4); margin-bottom:20px; }
 .edit-field { margin-bottom:14px; }
 .edit-field label { display:block; font-size:11px; color:rgba(255,255,255,0.45); text-transform:uppercase; letter-spacing:0.8px; margin-bottom:6px; font-weight:600; }
-.edit-field input { width:100%; padding:10px 14px; border-radius:8px; border:1.5px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.06); color:white; font-size:15px; font-family:'DM Sans',sans-serif; outline:none; transition:border-color 0.2s; }
+.edit-field input { width:100%; padding:10px 14px; border-radius:8px; border:1.5px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.06); color:white; font-size:15px; font-family:'DM Sans',sans-serif; outline:none; }
 .edit-field input:focus { border-color:#2563eb; }
-.preview-box { background:rgba(255,255,255,0.04); border:1.5px solid transparent; border-radius:10px; padding:12px 14px; margin-bottom:14px; font-size:13px; color:rgba(255,255,255,0.55); transition:border-color 0.2s; }
+.preview-box { background:rgba(255,255,255,0.04); border:1.5px solid transparent; border-radius:10px; padding:12px 14px; margin-bottom:14px; font-size:13px; color:rgba(255,255,255,0.55); }
 .preview-box span { color:white; font-weight:700; font-size:15px; }
 
-/* ── VIEW BILL MODAL ── */
 #viewBillModal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.88); z-index:10000; overflow-y:auto; padding:20px; backdrop-filter:blur(8px); }
 .view-bill-box { background:white; max-width:800px; margin:20px auto; border-radius:16px; overflow:hidden; box-shadow:0 24px 80px rgba(0,0,0,0.6); }
-.view-bill-actions { background:#1e293b; padding:14px 24px; display:flex; gap:10px; justify-content:flex-end; align-items:center; }
+.view-bill-actions { background:#1e293b; padding:14px 24px; display:flex; gap:8px; justify-content:flex-end; align-items:center; flex-wrap:wrap; }
 .view-bill-actions .bill-no-display { font-size:12px; color:rgba(255,255,255,0.4); margin-right:auto; font-family:monospace; }
 
-/* ── PAY MODAL ── */
 .pay-modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.88); z-index:11000; align-items:center; justify-content:center; backdrop-filter:blur(8px); }
 .pay-modal-box { background:linear-gradient(135deg,#0d1117,#1e293b); border:1px solid rgba(255,255,255,0.12); border-radius:18px; padding:28px; width:90%; max-width:440px; }
 .pay-modal-box h3 { font-family:'Playfair Display',serif; font-size:20px; color:white; margin-bottom:6px; }
 .pay-modal-box .sub { color:rgba(255,255,255,0.4); font-size:13px; margin-bottom:20px; }
 .pay-field { margin-bottom:14px; }
 .pay-field label { display:block; font-size:11px; font-weight:600; letter-spacing:0.8px; text-transform:uppercase; color:rgba(255,255,255,0.4); margin-bottom:6px; }
-.pay-field input, .pay-field select, .pay-field textarea { width:100%; padding:10px 14px; border-radius:8px; border:1.5px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.06); color:white; font-size:14px; font-family:'DM Sans',sans-serif; outline:none; transition:border-color 0.2s; }
+.pay-field input, .pay-field select, .pay-field textarea { width:100%; padding:10px 14px; border-radius:8px; border:1.5px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.06); color:white; font-size:14px; font-family:'DM Sans',sans-serif; outline:none; }
 .pay-field input:focus, .pay-field select:focus { border-color:#2563eb; }
 .pay-field textarea { height:70px; resize:vertical; }
 .pay-field select option { background:#1e293b; }
-.pay-actions { display:flex; gap:10px; margin-top:20px; }
+.pay-actions { display:flex; gap:10px; margin-top:20px; flex-wrap:wrap; }
 
-/* ── INVOICE STYLES ── */
+/* WhatsApp loading toast */
+.wa-toast { position:fixed; bottom:30px; left:50%; transform:translateX(-50%); background:#25D366; color:white; padding:12px 24px; border-radius:12px; font-size:14px; font-weight:600; font-family:'DM Sans',sans-serif; z-index:99999; box-shadow:0 8px 24px rgba(37,211,102,0.4); display:none; align-items:center; gap:10px; }
+.wa-toast.show { display:flex; }
+
+/* INVOICE STYLES (for view bill) */
 .inv-header { background:linear-gradient(135deg,#1e3a5f 0%,#2563eb 60%,#06b6d4 100%); color:white; padding:24px 32px; display:flex; justify-content:space-between; align-items:center; gap:16px; }
 .inv-header.return-style { background:linear-gradient(135deg,#7f1d1d,#dc2626,#f87171) !important; }
 .inv-company { font-family:'Playfair Display',serif; font-size:20px; font-weight:700; margin-bottom:4px; }
@@ -185,7 +177,7 @@ body { font-family: 'DM Sans', sans-serif; }
 .inv-footer { margin:16px 32px 24px; display:flex; justify-content:space-between; align-items:flex-end; padding-top:14px; border-top:1px solid #e5e7eb; font-size:12px; color:#6b7280; }
 .inv-footer .thank-you { font-size:14px; font-weight:600; color:#1e3a5f; margin-bottom:3px; }
 
-/* ── PRINT ── */
+/* PRINT */
 #statementArea { display:none; }
 #receiptArea   { display:none; }
 @media print {
@@ -196,7 +188,7 @@ body { font-family: 'DM Sans', sans-serif; }
   * { -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
 }
 
-/* ── STATEMENT ── */
+/* Statement styles */
 .stmt-header { display:flex; justify-content:space-between; align-items:flex-start; padding-bottom:16px; border-bottom:2px solid #1e3a5f; margin-bottom:20px; }
 .stmt-company { font-family:'Playfair Display',serif; font-size:20px; color:#1e3a5f; font-weight:700; }
 .stmt-sub  { font-size:12px; color:#6b7280; margin-top:2px; }
@@ -222,7 +214,7 @@ body { font-family: 'DM Sans', sans-serif; }
 .stmt-summary-row.balance-row-zero { font-weight:700; font-size:15px; color:#059669; background:#f0fdf4; border-bottom:none; }
 .stmt-footer { margin-top:24px; padding-top:14px; border-top:1px solid #e5e7eb; font-size:12px; color:#6b7280; text-align:center; }
 
-/* ── RECEIPT ── */
+/* Receipt styles */
 .rcpt-header { display:flex; justify-content:space-between; align-items:flex-start; padding-bottom:14px; border-bottom:2px solid #1e3a5f; margin-bottom:18px; }
 .rcpt-company { font-family:'Playfair Display',serif; font-size:18px; color:#1e3a5f; font-weight:700; }
 .rcpt-sub   { font-size:11px; color:#6b7280; margin-top:2px; }
@@ -239,6 +231,12 @@ body { font-family: 'DM Sans', sans-serif; }
 </style>
 </head>
 <body>
+
+<!-- WhatsApp Toast -->
+<div class="wa-toast" id="waToast">
+  <span>📲</span>
+  <span id="waToastMsg">Generating PDF...</span>
+</div>
 
 <div class="sidebar">
   <h2>Auto ERP</h2>
@@ -257,14 +255,12 @@ body { font-family: 'DM Sans', sans-serif; }
   <div class="sidebar-bottom"><div class="sidebar-version">Auto ERP v1.0</div></div>
 </div>
 
-  
 <div class="main">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
     <h1>Customer Ledger</h1>
     <div style="font-size:12px;color:rgba(255,255,255,0.3);" id="lastRefreshed"></div>
   </div>
 
-  <!-- Stats -->
   <div class="ledger-stats">
     <div class="ls-card"><div class="ls-label">Total Customers</div><div class="ls-value" id="gsTotal">—</div><div class="ls-sub">In system</div></div>
     <div class="ls-card"><div class="ls-label">Credit Due</div><div class="ls-value" id="gsWithDue" style="color:#f87171;">—</div><div class="ls-sub">Customers with balance</div></div>
@@ -287,11 +283,9 @@ body { font-family: 'DM Sans', sans-serif; }
         <option value="bills_desc">Sort: Most Bills First</option>
       </select>
     </div>
-
     <div class="customer-grid" id="customerGrid">
       <div class="loading-row">Loading customers...</div>
     </div>
-
     <div class="pagination">
       <div class="pg-info" id="pgInfo">—</div>
       <div class="pg-btns" id="pgBtns"></div>
@@ -300,7 +294,7 @@ body { font-family: 'DM Sans', sans-serif; }
 </div>
 
 
-<!-- ════════════ LEDGER MODAL ════════════ -->
+<!-- LEDGER MODAL -->
 <div class="modal-overlay" id="ledgerModal">
   <div class="modal-box">
     <div class="modal-header">
@@ -311,21 +305,19 @@ body { font-family: 'DM Sans', sans-serif; }
       <div class="modal-header-right">
         <button class="btn btn-green btn-sm" onclick="openPaymentModal()">💸 Record Payment</button>
         <button class="btn btn-white btn-sm"  onclick="printStatement()">🖨 Statement</button>
+        <button class="btn btn-wa btn-sm"     onclick="whatsappStatement()">📲 WhatsApp</button>
         <button class="btn btn-outline btn-sm" onclick="closeModal()">✕ Close</button>
       </div>
     </div>
-
     <div class="summary-row">
       <div class="summary-card"><div class="s-label">Total Bills</div><div class="s-value blue" id="smBills">0</div></div>
       <div class="summary-card"><div class="s-label">Total Purchased</div><div class="s-value" id="smTotal">₹0</div></div>
       <div class="summary-card"><div class="s-label">Payments Received</div><div class="s-value green" id="smPaid">₹0</div></div>
       <div class="summary-card"><div class="s-label" id="smBalLabel">Balance</div><div class="s-value" id="smBal">₹0</div></div>
     </div>
-
     <div class="balance-banner clear" id="balanceBanner">
       <span id="balanceBannerText">Account is clear ✓</span>
     </div>
-
     <div class="modal-body">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
         <div class="section-title" style="margin-bottom:0;">Transaction History</div>
@@ -351,7 +343,7 @@ body { font-family: 'DM Sans', sans-serif; }
 </div>
 
 
-<!-- ════════════ EDIT PAYMENT MODAL ════════════ -->
+<!-- EDIT PAYMENT MODAL -->
 <div class="inner-modal-overlay" id="editModal">
   <div class="inner-modal-box">
     <h3>Edit Payment Split</h3>
@@ -365,7 +357,6 @@ body { font-family: 'DM Sans', sans-serif; }
       &nbsp;|&nbsp;
       <span id="editStatusText" style="color:#f87171;">₹0 remaining</span>
     </div>
-    <div id="editErr" style="color:#f87171;font-size:13px;margin-bottom:10px;display:none;"></div>
     <div class="pay-actions">
       <button class="btn btn-green" style="flex:1;" onclick="saveEditedBill()">✅ Save Changes</button>
       <button class="btn btn-outline" onclick="closeEditModal()">Cancel</button>
@@ -374,12 +365,13 @@ body { font-family: 'DM Sans', sans-serif; }
 </div>
 
 
-<!-- ════════════ VIEW BILL MODAL ════════════ -->
+<!-- VIEW BILL MODAL -->
 <div id="viewBillModal">
   <div class="view-bill-box">
     <div class="view-bill-actions">
       <span class="bill-no-display" id="vBillNoDisplay">—</span>
-      <button class="btn btn-white btn-sm" onclick="printViewedBill()">🖨 Print</button>
+      <button class="btn btn-wa btn-sm"     onclick="whatsappBill()">📲 WhatsApp</button>
+      <button class="btn btn-white btn-sm"  onclick="printViewedBill()">🖨 Print</button>
       <button class="btn btn-outline btn-sm" onclick="closeViewBill()">✕ Close</button>
     </div>
     <div id="viewBillPrintArea">
@@ -415,17 +407,17 @@ body { font-family: 'DM Sans', sans-serif; }
         </div>
       </div>
       <div class="inv-pay">
-        <div class="inv-pay-title">Payment Breakdown (At Time of Billing)</div>
+        <div class="inv-pay-title">Payment Breakdown</div>
         <div class="inv-pay-row">
           <div><span>Cash: </span><strong id="vCash">₹0</strong></div>
           <div><span>UPI: </span><strong id="vUPI">₹0</strong></div>
-          <div><span>Credit at billing: </span><strong id="vCredit">₹0</strong></div>
+          <div><span>Credit: </span><strong id="vCredit">₹0</strong></div>
           <div id="vDiscPayDiv" style="display:none;"><span>Discount: </span><strong id="vDiscPay" style="color:#059669;">₹0</strong></div>
         </div>
       </div>
       <div id="vBalanceBox" class="inv-balance-box clear" style="display:none;">
         <div class="inv-balance-row"><span class="inv-balance-label">Credit at billing</span><span class="inv-balance-val" id="vBalOrigCredit">₹0</span></div>
-        <div class="inv-balance-row"><span class="inv-balance-label">Total payments received (all bills)</span><span class="inv-balance-val" style="color:#059669;" id="vBalPaid">₹0</span></div>
+        <div class="inv-balance-row"><span class="inv-balance-label">Total payments received</span><span class="inv-balance-val" style="color:#059669;" id="vBalPaid">₹0</span></div>
         <div class="inv-balance-row" style="margin-top:6px;padding-top:6px;border-top:1px solid #e5e7eb;"><span class="inv-balance-label" style="font-weight:600;">Overall Balance</span><span class="inv-balance-val" id="vBalFinal">₹0</span></div>
       </div>
       <div class="inv-footer">
@@ -443,7 +435,7 @@ body { font-family: 'DM Sans', sans-serif; }
 </div>
 
 
-<!-- ════════════ RECORD PAYMENT MODAL ════════════ -->
+<!-- RECORD PAYMENT MODAL -->
 <div class="pay-modal-overlay" id="paymentModal">
   <div class="pay-modal-box">
     <h3>Record Payment</h3>
@@ -470,18 +462,11 @@ body { font-family: 'DM Sans', sans-serif; }
 </div>
 
 
-<!-- ════════════ STATEMENT PRINT ════════════ -->
+<!-- STATEMENT PRINT AREA -->
 <div id="statementArea">
   <div class="stmt-header">
-    <div>
-      <div class="stmt-company">Abhinandan Auto Mobiles</div>
-      <div class="stmt-sub">Santalpur - Palanpur Highway &nbsp;|&nbsp; +91 98700 37002</div>
-    </div>
-    <div>
-      <div class="stmt-title">Customer Statement</div>
-      <div class="stmt-no"   id="stmtNo">—</div>
-      <div class="stmt-sub"  id="stmtDate" style="text-align:right;margin-top:4px;"></div>
-    </div>
+    <div><div class="stmt-company">Abhinandan Auto Mobiles</div><div class="stmt-sub">Santalpur - Palanpur Highway &nbsp;|&nbsp; +91 98700 37002</div></div>
+    <div><div class="stmt-title">Customer Statement</div><div class="stmt-no" id="stmtNo">—</div><div class="stmt-sub" id="stmtDate" style="text-align:right;margin-top:4px;"></div></div>
   </div>
   <div class="stmt-cust-box">
     <div><div class="lbl">Customer</div><div class="val" id="stmtName">—</div></div>
@@ -489,25 +474,21 @@ body { font-family: 'DM Sans', sans-serif; }
     <div><div class="lbl">Generated On</div><div class="val" id="stmtGenDate">—</div></div>
     <div><div class="lbl" id="stmtBalLabel">Balance</div><div class="val" id="stmtBalVal" style="font-size:18px;">—</div></div>
   </div>
-
   <div class="stmt-section-head">📦 Sales Bills</div>
-  <table class="stmt-tbl" id="stmtSalesTable">
+  <table class="stmt-tbl">
     <thead><tr><th>Bill No</th><th>Date</th><th>Total</th><th>Cash</th><th>UPI</th><th>Credit</th></tr></thead>
     <tbody id="stmtSalesBody"></tbody>
   </table>
-
   <div class="stmt-section-head" id="stmtReturnHeading" style="display:none;">↩️ Returns</div>
   <table class="stmt-tbl" id="stmtReturnTable" style="display:none;">
     <thead><tr><th>Return No</th><th>Date</th><th>Original Bill</th><th>Amount</th></tr></thead>
     <tbody id="stmtReturnBody"></tbody>
   </table>
-
   <div class="stmt-section-head" id="stmtPayHeading" style="display:none;">✅ Payments Received</div>
   <table class="stmt-tbl" id="stmtPayTable" style="display:none;">
     <thead><tr><th>Receipt No</th><th>Date</th><th>Mode</th><th>Amount</th><th>Note</th></tr></thead>
     <tbody id="stmtPayBody"></tbody>
   </table>
-
   <div class="stmt-summary">
     <div class="stmt-summary-box">
       <div class="stmt-summary-row"><span>Total Billed</span><span id="stmtTotalBilled">₹0</span></div>
@@ -526,7 +507,7 @@ body { font-family: 'DM Sans', sans-serif; }
 </div>
 
 
-<!-- ════════════ RECEIPT PRINT ════════════ -->
+<!-- RECEIPT PRINT AREA -->
 <div id="receiptArea">
   <div class="rcpt-header">
     <div><div class="rcpt-company">Abhinandan Auto Mobiles</div><div class="rcpt-sub">Santalpur - Palanpur Highway &nbsp;|&nbsp; +91 98700 37002</div></div>
@@ -563,17 +544,99 @@ const supabase = createClient(supabaseUrl, supabaseKey)
 const PAGE_SIZE = 24
 let currentPage = 1
 let totalCount  = 0
-let allStats    = { total:0, withDue:0, totalDue:0, totalAdv:0 }
 let currentCustomerData = null
 let editingSaleId       = null
 let searchTimer         = null
 
 const fmt = n => '₹' + (Math.round(Math.abs(n))||0).toLocaleString('en-IN')
 
-// ────────────────────────────────────────────
-// LOAD CUSTOMER GRID
-// Uses server-side aggregation for speed at 5000+ customers
-// ────────────────────────────────────────────
+// ── WHATSAPP PDF HELPER ──
+// Validates Indian phone, generates PDF from a DOM element, downloads it, opens WhatsApp
+function showWaToast(msg) {
+  const t=document.getElementById('waToast')
+  document.getElementById('waToastMsg').innerText=msg
+  t.classList.add('show')
+  setTimeout(()=>t.classList.remove('show'),3500)
+}
+
+function cleanPhone(raw) {
+  // Remove all non-digits
+  const digits = (raw||'').replace(/\D/g,'')
+  // Accept 10-digit Indian number or 12-digit with 91 prefix
+  if (digits.length===10) return '91'+digits
+  if (digits.length===12 && digits.startsWith('91')) return digits
+  if (digits.length===11 && digits.startsWith('0')) return '91'+digits.slice(1)
+  return null
+}
+
+async function generatePDFAndWhatsApp(element, filename, phone, message) {
+  // Phone validation
+  const cleanedPhone = cleanPhone(phone)
+  if (!phone || phone.trim()==='') {
+    alert('📱 Add Phone Number First!\n\nPlease add the customer\'s phone number to send on WhatsApp.')
+    return
+  }
+  if (!cleanedPhone) {
+    alert('❌ Invalid Phone Number!\n\nThe number "'+phone+'" is not a valid Indian mobile number.\nPlease check and update the number.')
+    return
+  }
+
+  showWaToast('📄 Generating PDF...')
+
+  try {
+    // Temporarily show element for capture
+    const wasHidden = element.style.display==='none'
+    if (wasHidden) { element.style.display='block'; element.style.position='absolute'; element.style.left='-9999px'; }
+
+    await new Promise(r=>setTimeout(r,200)) // Let DOM render
+
+    const canvas = await html2canvas(element, {
+      scale: 2,
+      useCORS: true,
+      logging: false,
+      backgroundColor: '#ffffff',
+      scrollX: 0,
+      scrollY: 0
+    })
+
+    if (wasHidden) { element.style.display='none'; element.style.position=''; element.style.left=''; }
+
+    const { jsPDF } = window.jspdf
+    const pdf = new jsPDF({ orientation:'portrait', unit:'mm', format:'a4' })
+    const pdfW = pdf.internal.pageSize.getWidth()
+    const pdfH = pdf.internal.pageSize.getHeight()
+    const ratio = canvas.width / canvas.height
+    const imgH  = pdfW / ratio
+    let posY = 0
+    let remaining = imgH
+
+    // Multi-page support
+    const imgData = canvas.toDataURL('image/jpeg', 0.92)
+    while (remaining > 0) {
+      pdf.addImage(imgData, 'JPEG', 0, -posY, pdfW, imgH)
+      remaining -= pdfH
+      posY += pdfH
+      if (remaining > 0) pdf.addPage()
+    }
+
+    // Download PDF
+    pdf.save(filename)
+    showWaToast('✅ PDF Downloaded! Opening WhatsApp...')
+
+    await new Promise(r=>setTimeout(r,1000))
+
+    // Open WhatsApp
+    const waMsg = encodeURIComponent(message || 'Please find the attached statement/bill from Abhinandan Auto Mobiles.')
+    window.open('https://wa.me/'+cleanedPhone+'?text='+waMsg, '_blank')
+    showWaToast('📲 WhatsApp opened — attach the PDF file!')
+
+  } catch(err) {
+    console.error('PDF generation error:', err)
+    showWaToast('❌ Error generating PDF. Try again.')
+  }
+}
+
+// ── LOAD CUSTOMERS (paginated, fast for 7000+ customers) ──
 async function loadCustomers() {
   document.getElementById('customerGrid').innerHTML = '<div class="loading-row">⏳ Loading...</div>'
   const search  = document.getElementById('searchInput').value.trim()
@@ -581,63 +644,46 @@ async function loadCustomers() {
   const sortBy  = document.getElementById('sortBy').value
   const from    = (currentPage - 1) * PAGE_SIZE
 
-  // 1. Get paginated customers
   let custQuery = supabase.from('customers').select('*', { count: 'exact' })
   if (search) custQuery = custQuery.or(`name.ilike.%${search}%,phone.ilike.%${search}%`)
-  if (sortBy === 'name') custQuery = custQuery.order('name')
-  else custQuery = custQuery.order('name') // will re-sort after enrichment
-  custQuery = custQuery.range(from, from + PAGE_SIZE - 1)
+  custQuery = custQuery.order('name').range(from, from + PAGE_SIZE - 1)
   const { data: customers, count, error } = await custQuery
-  if (error) { document.getElementById('customerGrid').innerHTML = '<div class="loading-row" style="color:#f87171;">Error loading customers</div>'; return }
+  if (error) { document.getElementById('customerGrid').innerHTML = '<div class="loading-row" style="color:#f87171;">Error loading. Check connection.</div>'; return }
 
   totalCount = count || 0
-
   if (!customers?.length) {
     document.getElementById('customerGrid').innerHTML = '<div class="empty-state">No customers found</div>'
     renderPagination()
+    updateGlobalStats([])
     return
   }
 
-  // 2. Bulk fetch sales + payments for these customers only
   const custIds = customers.map(c => c.id)
   const [{ data: sales }, { data: payments }] = await Promise.all([
     supabase.from('sales').select('customer_id, total_amount, credit, bill_type').in('customer_id', custIds),
     supabase.from('payments').select('customer_id, amount').in('customer_id', custIds)
   ])
 
-  const salesMap    = {}
-  const paymentsMap = {}
-  ;(sales    || []).forEach(s => { if (!salesMap[s.customer_id])    salesMap[s.customer_id]    = []; salesMap[s.customer_id].push(s) })
-  ;(payments || []).forEach(p => { if (!paymentsMap[p.customer_id]) paymentsMap[p.customer_id] = []; paymentsMap[p.customer_id].push(p) })
+  const salesMap = {}, paymentsMap = {}
+  ;(sales||[]).forEach(s=>{ if(!salesMap[s.customer_id]) salesMap[s.customer_id]=[]; salesMap[s.customer_id].push(s) })
+  ;(payments||[]).forEach(p=>{ if(!paymentsMap[p.customer_id]) paymentsMap[p.customer_id]=[]; paymentsMap[p.customer_id].push(p) })
 
-  // 3. Enrich
   let enriched = customers.map(c => {
-    const mySales    = salesMap[c.id]    || []
-    const myPays     = paymentsMap[c.id] || []
-    const saleBills  = mySales.filter(s => s.bill_type !== 'return')
-    const retBills   = mySales.filter(s => s.bill_type === 'return')
-    const creditFromBills   = saleBills.reduce((s, b) => s + (b.credit || 0), 0)
-    const creditFromReturns = retBills.reduce((s, b)  => s + Math.abs(b.credit || 0), 0)
-    const totalPaid         = myPays.reduce((s, p)    => s + (p.amount || 0), 0)
+    const mySales = salesMap[c.id]||[], myPays = paymentsMap[c.id]||[]
+    const saleBills = mySales.filter(s=>s.bill_type!=='return')
+    const retBills  = mySales.filter(s=>s.bill_type==='return')
+    const creditFromBills   = saleBills.reduce((s,b)=>s+(b.credit||0),0)
+    const creditFromReturns = retBills.reduce((s,b)=>s+Math.abs(b.credit||0),0)
+    const totalPaid = myPays.reduce((s,p)=>s+(p.amount||0),0)
     const netCredit = creditFromBills - creditFromReturns - totalPaid
-    // positive netCredit = they owe you
-    // negative netCredit = they overpaid / have advance
-    return {
-      ...c,
-      totalBills:  saleBills.length,
-      totalAmount: saleBills.reduce((s, b) => s + (b.total_amount || 0), 0),
-      netCredit
-    }
+    return { ...c, totalBills:saleBills.length, totalAmount:saleBills.reduce((s,b)=>s+(b.total_amount||0),0), netCredit }
   })
 
-  // Filter by balance
-  if (filter === 'due')     enriched = enriched.filter(c => c.netCredit > 0.01)
-  if (filter === 'advance') enriched = enriched.filter(c => c.netCredit < -0.01)
-  if (filter === 'clear')   enriched = enriched.filter(c => Math.abs(c.netCredit) < 0.01)
-
-  // Sort
-  if (sortBy === 'due_desc')   enriched.sort((a, b) => b.netCredit - a.netCredit)
-  if (sortBy === 'bills_desc') enriched.sort((a, b) => b.totalBills - a.totalBills)
+  if (filter==='due')     enriched = enriched.filter(c=>c.netCredit>0.01)
+  if (filter==='advance') enriched = enriched.filter(c=>c.netCredit<-0.01)
+  if (filter==='clear')   enriched = enriched.filter(c=>Math.abs(c.netCredit)<0.01)
+  if (sortBy==='due_desc')   enriched.sort((a,b)=>b.netCredit-a.netCredit)
+  if (sortBy==='bills_desc') enriched.sort((a,b)=>b.totalBills-a.totalBills)
 
   renderGrid(enriched)
   renderPagination()
@@ -645,37 +691,28 @@ async function loadCustomers() {
 }
 
 function updateGlobalStats(list) {
-  let withDue = 0, totalDue = 0, totalAdv = 0
-  list.forEach(c => {
-    if (c.netCredit > 0.01)  { withDue++; totalDue += c.netCredit }
-    if (c.netCredit < -0.01) totalAdv += Math.abs(c.netCredit)
-  })
+  let withDue=0, totalDue=0, totalAdv=0
+  list.forEach(c=>{ if(c.netCredit>0.01){withDue++;totalDue+=c.netCredit} if(c.netCredit<-0.01)totalAdv+=Math.abs(c.netCredit) })
   document.getElementById('gsTotal').innerText    = totalCount
   document.getElementById('gsWithDue').innerText  = withDue
   document.getElementById('gsTotalDue').innerText = fmt(totalDue)
   document.getElementById('gsTotalAdv').innerText = fmt(totalAdv)
-  document.getElementById('lastRefreshed').innerText = 'Updated ' + new Date().toLocaleTimeString('en-IN')
+  document.getElementById('lastRefreshed').innerText = 'Updated '+new Date().toLocaleTimeString('en-IN')
 }
 
 function renderGrid(list) {
   const grid = document.getElementById('customerGrid')
-  if (!list.length) { grid.innerHTML = '<div class="empty-state">No customers match this filter</div>'; return }
-  grid.innerHTML = list.map(c => {
-    const nc      = Math.round(c.netCredit)
-    const isOwed  = nc > 0
-    const isAdv   = nc < 0
-    const isZero  = nc === 0
-    const display = isZero ? '✓ Clear' : (isAdv ? '+' : '') + (isAdv ? fmt(Math.abs(nc)) : '-' + fmt(nc))
-    const color   = isZero ? 'green' : isOwed ? 'red' : 'green'
-    const sub     = isZero ? 'No dues' : isOwed ? 'Credit Due' : 'Advance / Overpaid'
-    const ini     = (c.name||'?')[0].toUpperCase()
+  if (!list.length) { grid.innerHTML='<div class="empty-state">No customers match this filter</div>'; return }
+  grid.innerHTML = list.map(c=>{
+    const nc=Math.round(c.netCredit), isOwed=nc>0, isAdv=nc<0, isZero=nc===0
+    const display=isZero?'✓ Clear':(isAdv?'+':'')+fmt(nc)
+    const color=isZero?'green':isOwed?'red':'green'
+    const sub=isZero?'No dues':isOwed?'Credit Due':'Advance'
+    const ini=(c.name||'?')[0].toUpperCase()
     return `<div class="customer-card ${isOwed?'has-due':isAdv?'has-advance':''}" onclick="openLedger('${c.id}')">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
         <div class="cc-avatar">${ini}</div>
-        <div>
-          <div class="cc-name">${c.name}</div>
-          <div class="cc-phone">${c.phone || 'No phone'}</div>
-        </div>
+        <div><div class="cc-name">${c.name}</div><div class="cc-phone">${c.phone||'No phone'}</div></div>
       </div>
       <div class="cc-stats">
         <div><div class="cc-stat-label">Bills</div><div class="cc-stat-value">${c.totalBills}</div></div>
@@ -687,76 +724,62 @@ function renderGrid(list) {
 }
 
 function renderPagination() {
-  const total = Math.ceil(totalCount / PAGE_SIZE) || 1
-  document.getElementById('pgInfo').innerText = `Showing ${(currentPage-1)*PAGE_SIZE+1}–${Math.min(currentPage*PAGE_SIZE,totalCount)} of ${totalCount}`
-  const btns = document.getElementById('pgBtns'); btns.innerHTML = ''
-  const mk = (l, d, fn, a) => { const b = document.createElement('button'); b.className='pg-btn'+(a?' active':''); b.innerText=l; b.disabled=d; b.onclick=fn; btns.appendChild(b) }
-  mk('← Prev', currentPage===1, () => { currentPage--; loadCustomers() })
-  const start = Math.max(1, currentPage-2), end = Math.min(total, start+4)
-  for (let i=start;i<=end;i++) { const p=i; mk(String(i), false, ()=>{currentPage=p;loadCustomers()}, i===currentPage) }
-  mk('Next →', currentPage===total, () => { currentPage++; loadCustomers() })
+  const total=Math.ceil(totalCount/PAGE_SIZE)||1
+  document.getElementById('pgInfo').innerText=`Showing ${(currentPage-1)*PAGE_SIZE+1}–${Math.min(currentPage*PAGE_SIZE,totalCount)} of ${totalCount}`
+  const btns=document.getElementById('pgBtns'); btns.innerHTML=''
+  const mk=(l,d,fn,a)=>{const b=document.createElement('button');b.className='pg-btn'+(a?' active':'');b.innerText=l;b.disabled=d;b.onclick=fn;btns.appendChild(b)}
+  mk('← Prev',currentPage===1,()=>{currentPage--;loadCustomers()})
+  const s=Math.max(1,currentPage-2),e=Math.min(total,s+4)
+  for(let i=s;i<=e;i++){const p=i;mk(String(i),false,()=>{currentPage=p;loadCustomers()},i===currentPage)}
+  mk('Next →',currentPage===total,()=>{currentPage++;loadCustomers()})
 }
 
 window.debounceSearch = function() {
   clearTimeout(searchTimer)
-  searchTimer = setTimeout(() => { currentPage=1; loadCustomers() }, 350)
+  searchTimer=setTimeout(()=>{currentPage=1;loadCustomers()},350)
 }
 
-
-// ────────────────────────────────────────────
-// OPEN LEDGER MODAL
-// ────────────────────────────────────────────
+// ── OPEN LEDGER MODAL ──
 window.openLedger = async function(customerId) {
-  const { data: cust } = await supabase.from('customers').select('*').eq('id', customerId).single()
-  if (!cust) return
+  const{data:cust}=await supabase.from('customers').select('*').eq('id',customerId).single()
+  if(!cust)return
+  document.getElementById('modalName').innerText=cust.name
+  document.getElementById('modalPhone').innerText=[cust.phone||'',cust.email||'',cust.address||''].filter(Boolean).join('  |  ')||'No contact info'
+  document.getElementById('ledgerModal').style.display='block'
+  document.getElementById('txBody').innerHTML='<tr><td colspan="6" class="loading-row">Loading...</td></tr>'
 
-  document.getElementById('modalName').innerText  = cust.name
-  document.getElementById('modalPhone').innerText = [cust.phone||'', cust.email||'', cust.address||''].filter(Boolean).join('  |  ') || 'No contact info'
-  document.getElementById('ledgerModal').style.display = 'block'
-  document.getElementById('txBody').innerHTML = '<tr><td colspan="6" class="loading-row">Loading transactions...</td></tr>'
-
-  const [{ data: sales }, { data: payments }] = await Promise.all([
-    supabase.from('sales').select('*').eq('customer_id', customerId).order('created_at', { ascending: true }),
-    supabase.from('payments').select('*').eq('customer_id', customerId).order('created_at', { ascending: true })
+  const[{data:sales},{data:payments}]=await Promise.all([
+    supabase.from('sales').select('*').eq('customer_id',customerId).order('created_at',{ascending:true}),
+    supabase.from('payments').select('*').eq('customer_id',customerId).order('created_at',{ascending:true})
   ])
 
-  const saleBills  = (sales || []).filter(s => s.bill_type !== 'return')
-  const retBills   = (sales || []).filter(s => s.bill_type === 'return')
-  const creditFromBills   = saleBills.reduce((s, b) => s + (b.credit  || 0), 0)
-  const creditFromReturns = retBills.reduce((s, b)  => s + Math.abs(b.credit || 0), 0)
-  const totalPaid         = (payments || []).reduce((s, p) => s + (p.amount || 0), 0)
-  const totalPurchased    = saleBills.reduce((s, b) => s + (b.total_amount || 0), 0)
-  const netCredit = creditFromBills - creditFromReturns - totalPaid
+  const saleBills=(sales||[]).filter(s=>s.bill_type!=='return')
+  const retBills=(sales||[]).filter(s=>s.bill_type==='return')
+  const creditFromBills=saleBills.reduce((s,b)=>s+(b.credit||0),0)
+  const creditFromReturns=retBills.reduce((s,b)=>s+Math.abs(b.credit||0),0)
+  const totalPaid=(payments||[]).reduce((s,p)=>s+(p.amount||0),0)
+  const totalPurchased=saleBills.reduce((s,b)=>s+(b.total_amount||0),0)
+  const netCredit=creditFromBills-creditFromReturns-totalPaid
 
-  // Summary cards
-  document.getElementById('smBills').innerText = saleBills.length
-  document.getElementById('smTotal').innerText = fmt(totalPurchased)
-  document.getElementById('smPaid').innerText  = fmt(totalPaid)
+  document.getElementById('smBills').innerText=saleBills.length
+  document.getElementById('smTotal').innerText=fmt(totalPurchased)
+  document.getElementById('smPaid').innerText=fmt(totalPaid)
+  const nc=Math.round(netCredit), isOwed=nc>0, isAdv=nc<0, isZero=nc===0
+  const balDisplay=isZero?'₹0 Clear':(isAdv?'+':'-')+fmt(nc)
+  document.getElementById('smBal').innerText=balDisplay
+  document.getElementById('smBal').style.color=isOwed?'#f87171':'#34d399'
+  document.getElementById('smBalLabel').innerText=isOwed?'Credit Due ▼':isAdv?'Advance ▲':'Balance'
+  const banner=document.getElementById('balanceBanner')
+  banner.className='balance-banner '+(isOwed?'owe':isAdv?'adv':'clear')
+  document.getElementById('balanceBannerText').innerText=isZero?'✓ Account is fully settled':isOwed?`⚠️ Customer owes ₹${Math.abs(nc).toLocaleString('en-IN')}`:`✅ Customer has advance of ₹${Math.abs(nc).toLocaleString('en-IN')}`
 
-  const nc = Math.round(netCredit)
-  const isOwed = nc > 0; const isAdv = nc < 0; const isZero = nc === 0
-  const balDisplay = isZero ? '₹0 Clear' : (isAdv ? '+' : '-') + fmt(nc)
-  const balColor   = isOwed ? '#f87171' : '#34d399'
-  const balLabel   = isOwed ? 'Credit Due ▼' : isAdv ? 'Advance / Overpaid ▲' : 'Balance'
-  document.getElementById('smBal').innerText      = balDisplay
-  document.getElementById('smBal').style.color    = balColor
-  document.getElementById('smBalLabel').innerText = balLabel
-  const banner = document.getElementById('balanceBanner')
-  banner.className = 'balance-banner ' + (isOwed ? 'owe' : isAdv ? 'adv' : 'clear')
-  document.getElementById('balanceBannerText').innerText = isZero
-    ? '✓ Account is fully settled — no dues'
-    : isOwed
-    ? `⚠️ Customer owes ₹${Math.abs(nc).toLocaleString('en-IN')} — Credit Due`
-    : `✅ Customer has advance of ₹${Math.abs(nc).toLocaleString('en-IN')} — Overpaid`
+  const allEvents=[
+    ...(sales||[]).map(s=>({...s,_type:'bill'})),
+    ...(payments||[]).map(p=>({...p,_type:'payment'}))
+  ].sort((a,b)=>new Date(a.created_at)-new Date(b.created_at))
 
-  // Build rows sorted by date
-  const allEvents = [
-    ...(sales || []).map(s => ({ ...s, _type: 'bill' })),
-    ...(payments || []).map(p => ({ ...p, _type: 'payment' }))
-  ].sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
-
-  const rows = allEvents.map(ev => {
-    if (ev._type === 'payment') {
+  const rows=allEvents.map(ev=>{
+    if(ev._type==='payment'){
       return `<tr class="row-payment">
         <td style="font-size:11px;color:rgba(255,255,255,0.4);font-family:monospace;">${ev.receipt_no}</td>
         <td>${new Date(ev.created_at).toLocaleDateString('en-IN')}</td>
@@ -766,343 +789,271 @@ window.openLedger = async function(customerId) {
         <td><span style="font-size:11px;color:rgba(255,255,255,0.3);">${ev.note||'—'}</span></td>
       </tr>`
     }
-    const isReturn = ev.bill_type === 'return'
-    const modes = [ev.cash>0?'cash':'', ev.upi>0?'upi':'', ev.credit>0?'credit':''].filter(Boolean)
-    const modeStr = modes.join('+')
-    let bc='badge-mixed', bl='Mixed'
-    if(modeStr==='cash')  {bc='badge-cash';bl='Cash'}
-    if(modeStr==='upi')   {bc='badge-upi';bl='UPI'}
+    const isReturn=ev.bill_type==='return'
+    const modes=[ev.cash>0?'cash':'',ev.upi>0?'upi':'',ev.credit>0?'credit':''].filter(Boolean)
+    const modeStr=modes.join('+')
+    let bc='badge-mixed',bl='Mixed'
+    if(modeStr==='cash'){bc='badge-cash';bl='Cash'}
+    if(modeStr==='upi'){bc='badge-upi';bl='UPI'}
     if(modeStr==='credit'){bc='badge-credit';bl='Credit'}
     return `<tr class="${isReturn?'row-return':''}">
       <td style="font-size:11px;color:rgba(255,255,255,0.4);font-family:monospace;">${ev.bill_number}</td>
       <td>${new Date(ev.created_at).toLocaleDateString('en-IN')}</td>
       <td><span class="badge ${isReturn?'badge-return':bc}">${isReturn?'↩ Return':bl}</span></td>
       <td style="color:${isReturn?'#f87171':'#60a5fa'};font-weight:600;">${isReturn?'-':''}${fmt(ev.total_amount)}</td>
-      <td class="${ev.credit>0?(isReturn?'':'') :''}" style="color:${ev.credit>0?'#f87171':'rgba(255,255,255,0.3)'};">
-        ${ev.credit!==0 ? (isReturn?'+ ':'') + fmt(ev.credit) + (isReturn?' returned':' credit') : '—'}
-      </td>
+      <td style="color:${ev.credit>0?'#f87171':'rgba(255,255,255,0.3)'};">${ev.credit!==0?(isReturn?'+ ':'')+fmt(ev.credit)+(isReturn?' returned':' credit'):'—'}</td>
       <td>
-        <button class="btn btn-blue btn-sm" onclick="viewBill('${ev.bill_number}','${cust.name}','${cust.phone||''}')">👁 View</button>
+        <button class="btn btn-blue btn-sm" onclick="viewBill('${ev.bill_number}','${(cust.name||'').replace(/'/g,"\\'")}','${(cust.phone||'').replace(/'/g,"\\'")}')">👁 View</button>
         ${!isReturn?`<button class="btn btn-outline btn-sm" style="margin-left:5px;" onclick="openEditModal('${ev.id}','${ev.bill_number}',${ev.total_amount},${ev.cash||0},${ev.upi||0},${ev.credit||0})">✏️</button>`:''}
       </td>
     </tr>`
   })
 
-  document.getElementById('txCount').innerText = `${saleBills.length} bills, ${(payments||[]).length} payments, ${retBills.length} returns`
-  document.getElementById('txBody').innerHTML  = rows.length ? rows.join('') : '<tr><td colspan="6" class="empty-state">No transactions yet</td></tr>'
-
-  currentCustomerData = { cust, sales: sales||[], payments: payments||[], totalPurchased, creditFromBills, creditFromReturns, totalPaid, netCredit }
+  document.getElementById('txCount').innerText=`${saleBills.length} bills, ${(payments||[]).length} payments, ${retBills.length} returns`
+  document.getElementById('txBody').innerHTML=rows.length?rows.join(''):'<tr><td colspan="6" class="empty-state">No transactions yet</td></tr>'
+  currentCustomerData={cust,sales:sales||[],payments:payments||[],totalPurchased,creditFromBills,creditFromReturns,totalPaid,netCredit}
 }
 
-window.closeModal = function() {
-  document.getElementById('ledgerModal').style.display = 'none'
-  currentCustomerData = null
+window.closeModal=function(){document.getElementById('ledgerModal').style.display='none';currentCustomerData=null}
+document.getElementById('ledgerModal').addEventListener('click',e=>{if(e.target===document.getElementById('ledgerModal'))closeModal()})
+
+// ── WHATSAPP STATEMENT ──
+window.whatsappStatement = async function() {
+  if(!currentCustomerData)return
+  const{cust,netCredit}=currentCustomerData
+  const phone=cust.phone||''
+  // Build statement first
+  await buildStatementDOM()
+  const el=document.getElementById('statementArea')
+  const nc=Math.round(netCredit)
+  const balText=nc===0?'Clear':nc>0?'Due: -'+fmt(nc):'Advance: +'+fmt(Math.abs(nc))
+  const msg=`*Abhinandan Auto Mobiles*\nCustomer Statement for: *${cust.name}*\nBalance: *${balText}*\n📞 +91 98700 37002`
+  await generatePDFAndWhatsApp(el,'Statement-'+cust.name+'.pdf',phone,msg)
 }
-document.getElementById('ledgerModal').addEventListener('click', e => { if(e.target===document.getElementById('ledgerModal')) closeModal() })
 
-
-// ────────────────────────────────────────────
-// VIEW BILL — item names NEVER lost, even if inventory deleted
-// ────────────────────────────────────────────
+// ── VIEW BILL ──
 window.viewBill = async function(billNo, customerName, customerPhone) {
-  const { data: sale } = await supabase.from('sales').select('*').eq('bill_number', billNo).single()
-  if (!sale) { alert('Bill not found'); return }
-
-  const { data: items } = await supabase.from('bill_items').select('*').eq('sale_id', sale.id)
-
-  // ── PRODUCT NAME RESOLUTION: 3-layer fallback ──
-  // Layer 1: item_name stored in bill_items at time of billing (never gets deleted)
-  // Layer 2: look up from inventory (in case item_name column was just added)
-  // Layer 3: show "Deleted Product (was ID: X)" — data is never truly lost
-  const missingIds = (items||[]).filter(i => !i.item_name && i.item_id).map(i => i.item_id)
-  const inventoryNames = {}
-  if (missingIds.length > 0) {
-    const { data: prods } = await supabase.from('inventory').select('id, item_name').in('id', missingIds)
-    ;(prods || []).forEach(p => { inventoryNames[p.id] = p.item_name })
-  }
-
-  const modes = [sale.cash>0?'Cash':'', sale.upi>0?'UPI':'', sale.credit>0?'Credit':''].filter(Boolean)
-  const isReturn = sale.bill_type === 'return'
-
-  document.getElementById('vHeader').className       = 'inv-header' + (isReturn ? ' return-style' : '')
-  document.getElementById('vBillType').innerText     = isReturn ? 'Sales Return' : 'GST Invoice'
-  document.getElementById('vInvoiceNo').innerText    = sale.bill_number
-  document.getElementById('vDate').innerText         = new Date(sale.created_at).toLocaleString('en-IN')
-  document.getElementById('vCustomer').innerText     = customerName
-  document.getElementById('vPhone').innerText        = customerPhone || '—'
-  document.getElementById('vPayMode').innerText      = modes.join(' + ') || '—'
-  document.getElementById('vFooterMsg').innerText    = isReturn ? 'Return processed. Thank you. 🙏' : 'Thank you for your business 🙏'
-  document.getElementById('vBillNoDisplay').innerText= sale.bill_number
-
-  if (sale.vehicle_number) {
-    document.getElementById('vVehicleBlock').style.display = 'block'
-    document.getElementById('vVehicle').innerText = sale.vehicle_number
-  } else {
-    document.getElementById('vVehicleBlock').style.display = 'none'
-  }
-
-  let subtotal = 0
-  document.getElementById('vItems').innerHTML = (items || []).map((item, i) => {
-    // Use stored name → inventory lookup → fallback
-    const name = item.item_name || inventoryNames[item.item_id] || `[Deleted Product — was #${item.item_id}]`
-    const qty  = Math.abs(item.quantity)
-    const amt  = Math.abs(item.total || 0)
-    subtotal  += amt
-    return `<tr>
-      <td style="color:#6b7280;">${i+1}</td>
-      <td>${name}</td>
-      <td>${qty}</td>
-      <td>₹${item.price}</td>
-      <td>₹${amt.toLocaleString('en-IN')}</td>
-    </tr>`
+  const{data:sale}=await supabase.from('sales').select('*').eq('bill_number',billNo).single()
+  if(!sale){alert('Bill not found');return}
+  const{data:items}=await supabase.from('bill_items').select('*').eq('sale_id',sale.id)
+  const missingIds=(items||[]).filter(i=>!i.item_name&&i.item_id).map(i=>i.item_id)
+  const invNames={}
+  if(missingIds.length){const{data:prods}=await supabase.from('inventory').select('id,item_name').in('id',missingIds);(prods||[]).forEach(p=>{invNames[p.id]=p.item_name})}
+  const modes=[sale.cash>0?'Cash':'',sale.upi>0?'UPI':'',sale.credit>0?'Credit':''].filter(Boolean)
+  const isReturn=sale.bill_type==='return'
+  document.getElementById('vHeader').className='inv-header'+(isReturn?' return-style':'')
+  document.getElementById('vBillType').innerText=isReturn?'Sales Return':'GST Invoice'
+  document.getElementById('vInvoiceNo').innerText=sale.bill_number
+  document.getElementById('vDate').innerText=new Date(sale.created_at).toLocaleString('en-IN')
+  document.getElementById('vCustomer').innerText=customerName
+  document.getElementById('vPhone').innerText=customerPhone||'—'
+  document.getElementById('vPayMode').innerText=modes.join(' + ')||'—'
+  document.getElementById('vFooterMsg').innerText=isReturn?'Return processed. Thank you. 🙏':'Thank you for your business 🙏'
+  document.getElementById('vBillNoDisplay').innerText=sale.bill_number
+  if(sale.vehicle_number){document.getElementById('vVehicleBlock').style.display='block';document.getElementById('vVehicle').innerText=sale.vehicle_number}else{document.getElementById('vVehicleBlock').style.display='none'}
+  let subtotal=0
+  document.getElementById('vItems').innerHTML=(items||[]).map((item,i)=>{
+    const name=item.item_name||invNames[item.item_id]||`[Deleted Product — was #${item.item_id}]`
+    const qty=Math.abs(item.quantity), amt=Math.abs(item.total||0); subtotal+=amt
+    return `<tr><td style="color:#6b7280;">${i+1}</td><td>${name}</td><td>${qty}</td><td>₹${item.price}</td><td>₹${amt.toLocaleString('en-IN')}</td></tr>`
   }).join('')
-
-  const disc = sale.discount || 0
-  document.getElementById('vSubtotal').innerText   = subtotal.toLocaleString('en-IN')
-  document.getElementById('vTotal').innerText      = Math.round(Math.abs(sale.total_amount)).toLocaleString('en-IN')
-  document.getElementById('vDiscRow').style.display = disc > 0 ? 'flex' : 'none'
-  if (disc > 0) document.getElementById('vDiscount').innerText = disc.toLocaleString('en-IN')
-  document.getElementById('vCash').innerText    = '₹' + (sale.cash   || 0)
-  document.getElementById('vUPI').innerText     = '₹' + (sale.upi    || 0)
-  document.getElementById('vCredit').innerText  = '₹' + Math.abs(sale.credit || 0)
-  document.getElementById('vDiscPayDiv').style.display = disc > 0 ? 'block' : 'none'
-  if (disc > 0) document.getElementById('vDiscPay').innerText = '₹' + disc
-
-  // Balance status box
-  if (currentCustomerData) {
-    const { netCredit } = currentCustomerData
-    const nc = Math.round(netCredit)
-    const balBox = document.getElementById('vBalanceBox')
-    balBox.style.display = 'block'
-    balBox.className = 'inv-balance-box ' + (nc > 0 ? 'due' : nc < 0 ? 'adv' : 'clear')
-    document.getElementById('vBalOrigCredit').innerText = '₹' + Math.abs(sale.credit||0).toLocaleString('en-IN')
-    document.getElementById('vBalPaid').innerText       = fmt(currentCustomerData.totalPaid)
-    const balText = nc === 0 ? '₹0 — Fully Settled ✓' : (nc<0?'+':'-') + fmt(nc) + (nc<0?' (Advance)'  :' (Credit Due)')
-    const balEl   = document.getElementById('vBalFinal')
-    balEl.innerText    = balText
-    balEl.style.color  = nc > 0 ? '#dc2626' : '#059669'
-  } else {
-    document.getElementById('vBalanceBox').style.display = 'none'
-  }
-
-  document.getElementById('viewBillModal').style.display = 'block'
+  const disc=sale.discount||0
+  document.getElementById('vSubtotal').innerText=subtotal.toLocaleString('en-IN')
+  document.getElementById('vTotal').innerText=Math.round(Math.abs(sale.total_amount)).toLocaleString('en-IN')
+  document.getElementById('vDiscRow').style.display=disc>0?'flex':'none'
+  if(disc>0)document.getElementById('vDiscount').innerText=disc.toLocaleString('en-IN')
+  document.getElementById('vCash').innerText='₹'+(sale.cash||0)
+  document.getElementById('vUPI').innerText='₹'+(sale.upi||0)
+  document.getElementById('vCredit').innerText='₹'+Math.abs(sale.credit||0)
+  document.getElementById('vDiscPayDiv').style.display=disc>0?'block':'none'
+  if(disc>0)document.getElementById('vDiscPay').innerText='₹'+disc
+  if(currentCustomerData){
+    const{netCredit}=currentCustomerData, nc=Math.round(netCredit)
+    const balBox=document.getElementById('vBalanceBox')
+    balBox.style.display='block'
+    balBox.className='inv-balance-box '+(nc>0?'due':nc<0?'adv':'clear')
+    document.getElementById('vBalOrigCredit').innerText='₹'+Math.abs(sale.credit||0).toLocaleString('en-IN')
+    document.getElementById('vBalPaid').innerText=fmt(currentCustomerData.totalPaid)
+    const balText=nc===0?'₹0 — Settled ✓':(nc<0?'+':'-')+fmt(nc)+(nc<0?' (Advance)':' (Credit Due)')
+    const el=document.getElementById('vBalFinal'); el.innerText=balText; el.style.color=nc>0?'#dc2626':'#059669'
+  }else document.getElementById('vBalanceBox').style.display='none'
+  document.getElementById('viewBillModal').style.display='block'
 }
 
-window.closeViewBill   = () => { document.getElementById('viewBillModal').style.display='none' }
-window.printViewedBill = () => {
+// Store current viewed bill phone for WhatsApp
+window.whatsappBill = async function() {
+  const billNo=document.getElementById('vInvoiceNo').innerText
+  const custName=document.getElementById('vCustomer').innerText
+  const phone=document.getElementById('vPhone').innerText
+  const total=document.getElementById('vTotal').innerText
+  const el=document.getElementById('viewBillPrintArea')
+  const msg=`*Abhinandan Auto Mobiles*\nYour bill *${billNo}* for ₹${total} is attached.\nCustomer: *${custName}*\n📞 +91 98700 37002`
+  await generatePDFAndWhatsApp(el,'Bill-'+billNo+'.pdf', phone==='—'?'':phone, msg)
+}
+
+window.closeViewBill=()=>{document.getElementById('viewBillModal').style.display='none'}
+window.printViewedBill=()=>{
   document.body.classList.add('print-bill')
-  const ot = document.title
-  document.title = document.getElementById('vInvoiceNo').innerText || 'Invoice'
-  window.print()
-  setTimeout(() => { document.body.classList.remove('print-bill'); document.title = ot }, 800)
+  const ot=document.title; document.title=document.getElementById('vInvoiceNo').innerText||'Invoice'; window.print()
+  setTimeout(()=>{document.body.classList.remove('print-bill');document.title=ot},800)
 }
 
-
-// ────────────────────────────────────────────
-// EDIT PAYMENT SPLIT ON BILL
-// ────────────────────────────────────────────
-window.openEditModal = function(saleId, billNo, total, cash, upi, credit) {
-  editingSaleId = saleId
-  document.getElementById('editBillNoText').innerText = 'Bill: ' + billNo
-  document.getElementById('editBillTotal').innerText  = fmt(total)
-  document.getElementById('editCash').value   = cash
-  document.getElementById('editUPI').value    = upi
-  document.getElementById('editCredit').value = credit
+// ── EDIT PAYMENT SPLIT ──
+window.openEditModal=function(saleId,billNo,total,cash,upi,credit){
+  editingSaleId=saleId
+  document.getElementById('editBillNoText').innerText='Bill: '+billNo
+  document.getElementById('editBillTotal').innerText=fmt(total)
+  document.getElementById('editCash').value=cash
+  document.getElementById('editUPI').value=upi
+  document.getElementById('editCredit').value=credit
   updateEditPreview()
-  document.getElementById('editModal').style.display = 'flex'
+  document.getElementById('editModal').style.display='flex'
 }
-window.updateEditPreview = function() {
-  const total   = parseFloat(document.getElementById('editBillTotal').innerText.replace('₹','').replace(/,/g,''))||0
-  const cash    = parseFloat(document.getElementById('editCash').value)  ||0
-  const upi     = parseFloat(document.getElementById('editUPI').value)   ||0
-  const credit  = parseFloat(document.getElementById('editCredit').value)||0
-  const entered = cash+upi+credit
-  const rem     = total-entered
-  const box     = document.getElementById('editValBox')
-  document.getElementById('editEntered').innerText = fmt(entered)
-  if (rem>0) {
-    document.getElementById('editStatusText').innerText = fmt(rem) + ' will be credit'
-    document.getElementById('editStatusText').style.color = '#fbbf24'
-    box.style.borderColor = '#fbbf24'
-  } else if (rem<0) {
-    document.getElementById('editStatusText').innerText = 'Over by ' + fmt(Math.abs(rem))
-    document.getElementById('editStatusText').style.color = '#f87171'
-    box.style.borderColor = '#f87171'
-  } else {
-    document.getElementById('editStatusText').innerText = '✅ Exact'
-    document.getElementById('editStatusText').style.color = '#34d399'
-    box.style.borderColor = '#34d399'
-  }
+window.updateEditPreview=function(){
+  const total=parseFloat(document.getElementById('editBillTotal').innerText.replace('₹','').replace(/,/g,''))||0
+  const cash=parseFloat(document.getElementById('editCash').value)||0
+  const upi=parseFloat(document.getElementById('editUPI').value)||0
+  const credit=parseFloat(document.getElementById('editCredit').value)||0
+  const entered=cash+upi+credit, rem=total-entered
+  const box=document.getElementById('editValBox')
+  document.getElementById('editEntered').innerText=fmt(entered)
+  if(rem>0){document.getElementById('editStatusText').innerText=fmt(rem)+' will be credit';document.getElementById('editStatusText').style.color='#fbbf24';box.style.borderColor='#fbbf24'}
+  else if(rem<0){document.getElementById('editStatusText').innerText='Over by '+fmt(Math.abs(rem));document.getElementById('editStatusText').style.color='#f87171';box.style.borderColor='#f87171'}
+  else{document.getElementById('editStatusText').innerText='✅ Exact';document.getElementById('editStatusText').style.color='#34d399';box.style.borderColor='#34d399'}
 }
-window.closeEditModal = () => { document.getElementById('editModal').style.display='none'; editingSaleId=null }
-window.saveEditedBill = async function() {
-  if (!editingSaleId) return
-  const total  = parseFloat(document.getElementById('editBillTotal').innerText.replace('₹','').replace(/,/g,''))||0
-  const cash   = parseFloat(document.getElementById('editCash').value)  ||0
-  const upi    = parseFloat(document.getElementById('editUPI').value)   ||0
-  const credit = parseFloat(document.getElementById('editCredit').value)||0
-  if (cash+upi+credit > total) { alert('❌ Total exceeds bill amount'); return }
-  const { error } = await supabase.from('sales').update({ cash, upi, credit }).eq('id', editingSaleId)
-  if (error) { alert('Error saving ❌'); return }
+window.closeEditModal=()=>{document.getElementById('editModal').style.display='none';editingSaleId=null}
+window.saveEditedBill=async function(){
+  if(!editingSaleId)return
+  const total=parseFloat(document.getElementById('editBillTotal').innerText.replace('₹','').replace(/,/g,''))||0
+  const cash=parseFloat(document.getElementById('editCash').value)||0
+  const upi=parseFloat(document.getElementById('editUPI').value)||0
+  const credit=parseFloat(document.getElementById('editCredit').value)||0
+  if(cash+upi+credit>total){alert('❌ Total exceeds bill amount');return}
+  const{error}=await supabase.from('sales').update({cash,upi,credit}).eq('id',editingSaleId)
+  if(error){alert('Error saving ❌');return}
   alert('✅ Payment updated')
   closeEditModal()
-  if (currentCustomerData) openLedger(currentCustomerData.cust.id)
+  if(currentCustomerData)openLedger(currentCustomerData.cust.id)
   loadCustomers()
 }
 
-
-// ────────────────────────────────────────────
-// RECORD PAYMENT
-// ────────────────────────────────────────────
-window.openPaymentModal = function() {
-  if (!currentCustomerData) return
-  const { cust, netCredit } = currentCustomerData
-  const nc = Math.round(netCredit)
-  document.getElementById('payModalSub').innerText = 'Customer: ' + cust.name
-  const pill = document.getElementById('payBalancePill')
-  if (nc > 0) {
-    pill.innerText = '⚠️ Credit Due: -' + fmt(nc)
-    pill.style.background = 'rgba(248,113,113,0.15)'; pill.style.color = '#f87171'
-  } else if (nc < 0) {
-    pill.innerText = '✅ Advance: +' + fmt(Math.abs(nc))
-    pill.style.background = 'rgba(52,211,153,0.15)'; pill.style.color = '#34d399'
-  } else {
-    pill.innerText = '✓ Account is clear'
-    pill.style.background = 'rgba(52,211,153,0.1)'; pill.style.color = '#34d399'
-  }
-  document.getElementById('payAmount').value = nc > 0 ? nc : ''
-  document.getElementById('payMode').value   = 'Cash'
-  document.getElementById('payNote').value   = ''
-  document.getElementById('paymentModal').style.display = 'flex'
+// ── RECORD PAYMENT ──
+window.openPaymentModal=function(){
+  if(!currentCustomerData)return
+  const{cust,netCredit}=currentCustomerData, nc=Math.round(netCredit)
+  document.getElementById('payModalSub').innerText='Customer: '+cust.name
+  const pill=document.getElementById('payBalancePill')
+  if(nc>0){pill.innerText='⚠️ Credit Due: -'+fmt(nc);pill.style.background='rgba(248,113,113,0.15)';pill.style.color='#f87171'}
+  else if(nc<0){pill.innerText='✅ Advance: +'+fmt(Math.abs(nc));pill.style.background='rgba(52,211,153,0.15)';pill.style.color='#34d399'}
+  else{pill.innerText='✓ Account is clear';pill.style.background='rgba(52,211,153,0.1)';pill.style.color='#34d399'}
+  document.getElementById('payAmount').value=nc>0?nc:''
+  document.getElementById('payMode').value='Cash'
+  document.getElementById('payNote').value=''
+  document.getElementById('paymentModal').style.display='flex'
 }
-window.closePaymentModal = () => { document.getElementById('paymentModal').style.display='none' }
+window.closePaymentModal=()=>{document.getElementById('paymentModal').style.display='none'}
 
-async function generateReceiptNo(cust) {
+async function generateReceiptNo(cust){
   const now=new Date()
-  const dd=String(now.getDate()).padStart(2,'0')
-  const mm=String(now.getMonth()+1).padStart(2,'0')
-  const yy=String(now.getFullYear()).slice(2)
+  const dd=String(now.getDate()).padStart(2,'0'), mm=String(now.getMonth()+1).padStart(2,'0'), yy=String(now.getFullYear()).slice(2)
   const clean=(cust.name||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,10)
   const start=new Date(); start.setHours(0,0,0,0)
   const{data}=await supabase.from('payments').select('id').eq('customer_id',cust.id).gte('created_at',start.toISOString())
   return `AAM(S)-${clean}-${dd}${mm}${yy}-${String((data||[]).length+1).padStart(4,'0')}`
 }
 
-window.savePayment = async function(shouldPrint) {
-  const amount = parseFloat(document.getElementById('payAmount').value)||0
-  const mode   = document.getElementById('payMode').value
-  const note   = document.getElementById('payNote').value.trim()
-  if (!amount) { alert('Enter payment amount'); return }
-  if (!currentCustomerData) return
-  const { cust, netCredit } = currentCustomerData
-  const receiptNo = await generateReceiptNo(cust)
-
-  const { error } = await supabase.from('payments').insert([{
-    customer_id: cust.id, receipt_no: receiptNo,
-    amount: Math.round(amount), mode, note: note || null
-  }])
-  if (error) { console.error(error); alert('Error ❌'); return }
-
-  const newNetCredit = netCredit - amount  // paying reduces what they owe
-
-  if (shouldPrint) {
-    const nc = Math.round(netCredit); const newNc = Math.round(newNetCredit)
-    const prevText = nc > 0 ? '-' + fmt(nc) + ' (Due)' : nc < 0 ? '+' + fmt(Math.abs(nc)) + ' (Advance)' : '₹0 Clear'
-    const newText  = newNc > 0 ? '-' + fmt(newNc) + ' (Due)' : newNc < 0 ? '+' + fmt(Math.abs(newNc)) + ' (Advance)' : '₹0 Clear'
-    document.getElementById('rcptNo').innerText      = receiptNo
-    document.getElementById('rcptName').innerText    = cust.name
-    document.getElementById('rcptPhone').innerText   = cust.phone || '—'
-    document.getElementById('rcptMode').innerText    = mode
-    document.getElementById('rcptAmount').innerText  = fmt(amount)
-    document.getElementById('rcptPaid').innerText    = fmt(amount)
-    document.getElementById('rcptPrevBal').innerText = prevText
-    document.getElementById('rcptNewBal').innerText  = newText
-    document.getElementById('rcptDate').innerText    = new Date().toLocaleString('en-IN')
-    document.getElementById('rcptDateVal').innerText = new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'})
-    if(note){document.getElementById('rcptNote').innerText=note;document.getElementById('rcptNoteBox').style.display='block'}
-    else document.getElementById('rcptNoteBox').style.display='none'
+window.savePayment=async function(shouldPrint){
+  const amount=parseFloat(document.getElementById('payAmount').value)||0
+  const mode=document.getElementById('payMode').value
+  const note=document.getElementById('payNote').value.trim()
+  if(!amount){alert('Enter payment amount');return}
+  if(!currentCustomerData)return
+  const{cust,netCredit}=currentCustomerData
+  const receiptNo=await generateReceiptNo(cust)
+  const{error}=await supabase.from('payments').insert([{customer_id:cust.id,receipt_no:receiptNo,amount:Math.round(amount),mode,note:note||null}])
+  if(error){console.error(error);alert('Error ❌');return}
+  const newNetCredit=netCredit-amount
+  if(shouldPrint){
+    const nc=Math.round(netCredit), newNc=Math.round(newNetCredit)
+    const prevText=nc>0?'-'+fmt(nc)+' (Due)':nc<0?'+'+fmt(Math.abs(nc))+' (Advance)':'₹0 Clear'
+    const newText=newNc>0?'-'+fmt(newNc)+' (Due)':newNc<0?'+'+fmt(Math.abs(newNc))+' (Advance)':'₹0 Clear'
+    document.getElementById('rcptNo').innerText=receiptNo
+    document.getElementById('rcptName').innerText=cust.name
+    document.getElementById('rcptPhone').innerText=cust.phone||'—'
+    document.getElementById('rcptMode').innerText=mode
+    document.getElementById('rcptAmount').innerText=fmt(amount)
+    document.getElementById('rcptPaid').innerText=fmt(amount)
+    document.getElementById('rcptPrevBal').innerText=prevText
+    document.getElementById('rcptNewBal').innerText=newText
+    document.getElementById('rcptDate').innerText=new Date().toLocaleString('en-IN')
+    document.getElementById('rcptDateVal').innerText=new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'})
+    if(note){document.getElementById('rcptNote').innerText=note;document.getElementById('rcptNoteBox').style.display='block'}else document.getElementById('rcptNoteBox').style.display='none'
     document.body.classList.add('print-receipt')
     const ot=document.title; document.title=receiptNo; window.print()
     setTimeout(()=>{document.body.classList.remove('print-receipt');document.title=ot},1000)
   }
-
   closePaymentModal()
   alert(`✅ Payment of ${fmt(amount)} recorded!\nReceipt: ${receiptNo}`)
   openLedger(cust.id)
   loadCustomers()
 }
 
-
-// ────────────────────────────────────────────
-// PRINT STATEMENT
-// ────────────────────────────────────────────
-async function generateStmtNo(cust) {
+// ── BUILD STATEMENT DOM (shared by print + whatsapp) ──
+async function buildStatementDOM() {
+  if(!currentCustomerData)return
+  const{cust,sales,payments,totalPurchased,netCredit}=currentCustomerData
   const now=new Date()
-  const dd=String(now.getDate()).padStart(2,'0')
-  const mm=String(now.getMonth()+1).padStart(2,'0')
-  const yy=String(now.getFullYear()).slice(2)
+  const dd=String(now.getDate()).padStart(2,'0'), mm=String(now.getMonth()+1).padStart(2,'0'), yy=String(now.getFullYear()).slice(2)
   const clean=(cust.name||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,10)
-  return `AAM(S)-${clean}-${dd}${mm}${yy}-${String(Math.floor(Math.random()*9000)+1000)}`
-}
-
-window.printStatement = async function() {
-  if (!currentCustomerData) return
-  const { cust, sales, payments, totalPurchased, netCredit } = currentCustomerData
-  const stmtNo = await generateStmtNo(cust)
-
-  const saleBills = sales.filter(s => s.bill_type !== 'return')
-  const retBills  = sales.filter(s => s.bill_type === 'return')
+  const stmtNo=`AAM(STMT)-${clean}-${dd}${mm}${yy}-${String(Math.floor(Math.random()*9000)+1000)}`
+  const saleBills=sales.filter(s=>s.bill_type!=='return')
+  const retBills=sales.filter(s=>s.bill_type==='return')
   let totalCash=0, totalUPI=0, totalReturns=0
-
-  document.getElementById('stmtNo').innerText      = stmtNo
-  document.getElementById('stmtName').innerText    = cust.name
-  document.getElementById('stmtPhone').innerText   = cust.phone || '—'
-  document.getElementById('stmtGenDate').innerText = new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})
-  document.getElementById('stmtDate').innerText    = 'As of ' + new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'})
-
+  document.getElementById('stmtNo').innerText=stmtNo
+  document.getElementById('stmtName').innerText=cust.name
+  document.getElementById('stmtPhone').innerText=cust.phone||'—'
+  document.getElementById('stmtGenDate').innerText=new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})
+  document.getElementById('stmtDate').innerText='As of '+new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'})
   const nc=Math.round(netCredit)
-  const balText = nc===0?'₹0 — Clear':(nc<0?'+':'-')+fmt(nc)+(nc<0?' (Advance)':(nc>0?' (Credit Due)':''))
-  document.getElementById('stmtBalLabel').innerText = nc>0?'Credit Due':nc<0?'Advance / Overpaid':'Balance'
-  document.getElementById('stmtBalVal').innerText   = balText
-  document.getElementById('stmtBalVal').style.color = nc>0?'#dc2626':nc<0?'#059669':'#059669'
-
-  document.getElementById('stmtSalesBody').innerHTML = saleBills.map(s=>{
+  const balText=nc===0?'₹0 — Clear':(nc<0?'+':'-')+fmt(nc)+(nc<0?' (Advance)':' (Credit Due)')
+  document.getElementById('stmtBalLabel').innerText=nc>0?'Credit Due':nc<0?'Advance':'Balance'
+  document.getElementById('stmtBalVal').innerText=balText
+  document.getElementById('stmtBalVal').style.color=nc>0?'#dc2626':nc<0?'#059669':'#059669'
+  document.getElementById('stmtSalesBody').innerHTML=saleBills.map(s=>{
     totalCash+=s.cash||0; totalUPI+=s.upi||0
     return `<tr><td>${s.bill_number}</td><td>${new Date(s.created_at).toLocaleDateString('en-IN')}</td><td>₹${Math.round(s.total_amount).toLocaleString('en-IN')}</td><td>₹${Math.round(s.cash||0).toLocaleString('en-IN')}</td><td>₹${Math.round(s.upi||0).toLocaleString('en-IN')}</td><td style="color:#dc2626;font-weight:600;">${s.credit>0?'₹'+Math.round(s.credit).toLocaleString('en-IN'):'—'}</td></tr>`
   }).join('')
-
-  if (retBills.length) {
+  if(retBills.length){
     document.getElementById('stmtReturnHeading').style.display='block'
     document.getElementById('stmtReturnTable').style.display='table'
-    document.getElementById('stmtReturnBody').innerHTML = retBills.map(r=>{
+    document.getElementById('stmtReturnBody').innerHTML=retBills.map(r=>{
       totalReturns+=Math.abs(r.total_amount||0)
       return `<tr class="return-row"><td>${r.bill_number}</td><td>${new Date(r.created_at).toLocaleDateString('en-IN')}</td><td>${r.original_bill_ref||'—'}</td><td>₹${Math.round(Math.abs(r.total_amount)).toLocaleString('en-IN')}</td></tr>`
     }).join('')
-  } else { document.getElementById('stmtReturnHeading').style.display='none'; document.getElementById('stmtReturnTable').style.display='none' }
-
+  }else{document.getElementById('stmtReturnHeading').style.display='none';document.getElementById('stmtReturnTable').style.display='none'}
   const totalPaid=(payments||[]).reduce((s,p)=>s+(p.amount||0),0)
-  if (payments.length) {
+  if(payments.length){
     document.getElementById('stmtPayHeading').style.display='block'
     document.getElementById('stmtPayTable').style.display='table'
-    document.getElementById('stmtPayBody').innerHTML = payments.map(p=>`<tr class="payment-row"><td>${p.receipt_no}</td><td>${new Date(p.created_at).toLocaleDateString('en-IN')}</td><td>${p.mode}</td><td>₹${Math.round(p.amount).toLocaleString('en-IN')}</td><td>${p.note||'—'}</td></tr>`).join('')
-  } else { document.getElementById('stmtPayHeading').style.display='none'; document.getElementById('stmtPayTable').style.display='none' }
-
-  document.getElementById('stmtTotalBilled').innerText = fmt(totalPurchased)
-  document.getElementById('stmtCash').innerText        = fmt(totalCash)
-  document.getElementById('stmtUPI').innerText         = fmt(totalUPI)
-  document.getElementById('stmtReturns').innerText     = totalReturns>0?fmt(totalReturns):'—'
-  document.getElementById('stmtPayments').innerText    = fmt(totalPaid)
-  document.getElementById('stmtCredit').innerText      = balText
-
-  const balRow = document.getElementById('stmtBalRow')
-  balRow.className = nc>0?'stmt-summary-row balance-row-due':nc<0?'stmt-summary-row balance-row-adv':'stmt-summary-row balance-row-zero'
-  document.getElementById('stmtBalRowLabel').innerText = nc>0?'Credit Due':nc<0?'Advance Balance':'Balance'
-
-  document.body.classList.add('print-statement')
-  const ot=document.title; document.title=stmtNo; window.print()
-  setTimeout(()=>{document.body.classList.remove('print-statement');document.title=ot},1000)
+    document.getElementById('stmtPayBody').innerHTML=payments.map(p=>`<tr class="payment-row"><td>${p.receipt_no}</td><td>${new Date(p.created_at).toLocaleDateString('en-IN')}</td><td>${p.mode}</td><td>₹${Math.round(p.amount).toLocaleString('en-IN')}</td><td>${p.note||'—'}</td></tr>`).join('')
+  }else{document.getElementById('stmtPayHeading').style.display='none';document.getElementById('stmtPayTable').style.display='none'}
+  document.getElementById('stmtTotalBilled').innerText=fmt(totalPurchased)
+  document.getElementById('stmtCash').innerText=fmt(totalCash)
+  document.getElementById('stmtUPI').innerText=fmt(totalUPI)
+  document.getElementById('stmtReturns').innerText=totalReturns>0?fmt(totalReturns):'—'
+  document.getElementById('stmtPayments').innerText=fmt(totalPaid)
+  document.getElementById('stmtCredit').innerText=balText
+  const balRow=document.getElementById('stmtBalRow')
+  balRow.className='stmt-summary-row '+(nc>0?'balance-row-due':nc<0?'balance-row-adv':'balance-row-zero')
+  document.getElementById('stmtBalRowLabel').innerText=nc>0?'Credit Due':nc<0?'Advance Balance':'Balance'
 }
 
+window.printStatement=async function(){
+  await buildStatementDOM()
+  document.body.classList.add('print-statement')
+  const ot=document.title; document.title=document.getElementById('stmtNo').innerText; window.print()
+  setTimeout(()=>{document.body.classList.remove('print-statement');document.title=ot},1000)
+}
 
 // Prefill from customers.html
 const pname=localStorage.getItem('ledger_prefill_name')
