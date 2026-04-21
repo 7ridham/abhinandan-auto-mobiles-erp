@@ -5,6 +5,8 @@
 <title>Merchant Ledger — Abhinandan Auto Mobiles</title>
 <link rel="stylesheet" href="style.css">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
 * { box-sizing:border-box; margin:0; padding:0; }
 body { font-family:'DM Sans',sans-serif; }
@@ -57,7 +59,7 @@ body { font-family:'DM Sans',sans-serif; }
 .modal-header { background:linear-gradient(135deg,#2d1b69 0%,#7c3aed 100%); padding:24px 28px; display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap; }
 .modal-header h2 { font-family:'Playfair Display',serif; font-size:22px; color:white; margin-bottom:4px; }
 .modal-header-sub { font-size:13px; color:rgba(255,255,255,0.6); }
-.modal-header-right { display:flex; gap:10px; flex-wrap:wrap; }
+.modal-header-right { display:flex; gap:8px; flex-wrap:wrap; }
 
 .summary-row { display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:rgba(255,255,255,0.06); border-bottom:1px solid rgba(255,255,255,0.06); }
 .summary-card { background:#0f172a; padding:16px 20px; text-align:center; }
@@ -111,13 +113,15 @@ body { font-family:'DM Sans',sans-serif; }
 .btn-green:hover { background:#047857; }
 .btn-white   { background:white; color:#2d1b69; }
 .btn-white:hover { background:#ede9fe; }
+.btn-wa      { background:#25D366; color:white; }
+.btn-wa:hover{ background:#128C7E; }
 .btn-outline { background:rgba(255,255,255,0.1); color:white; border:1px solid rgba(255,255,255,0.2); }
 .btn-outline:hover { background:rgba(255,255,255,0.18); }
 .btn-sm { padding:5px 11px; font-size:11px; border-radius:7px; }
 
 #viewPurchaseModal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.88); z-index:10000; overflow-y:auto; padding:20px; backdrop-filter:blur(8px); }
 .view-bill-box { background:white; max-width:800px; margin:20px auto; border-radius:16px; overflow:hidden; box-shadow:0 24px 80px rgba(0,0,0,0.6); }
-.view-bill-actions { background:#1e293b; padding:14px 24px; display:flex; gap:10px; justify-content:flex-end; align-items:center; }
+.view-bill-actions { background:#1e293b; padding:14px 24px; display:flex; gap:8px; justify-content:flex-end; align-items:center; flex-wrap:wrap; }
 .view-bill-actions .bill-no-display { font-size:12px; color:rgba(255,255,255,0.4); margin-right:auto; font-family:monospace; }
 
 .pay-modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.88); z-index:11000; align-items:center; justify-content:center; backdrop-filter:blur(8px); }
@@ -130,9 +134,12 @@ body { font-family:'DM Sans',sans-serif; }
 .pay-field input:focus,.pay-field select:focus { border-color:#7c3aed; }
 .pay-field textarea { height:70px; resize:vertical; }
 .pay-field select option { background:#1e293b; }
-.pay-actions { display:flex; gap:10px; margin-top:20px; }
+.pay-actions { display:flex; gap:10px; margin-top:20px; flex-wrap:wrap; }
 
-/* Invoice */
+.wa-toast { position:fixed; bottom:30px; left:50%; transform:translateX(-50%); background:#25D366; color:white; padding:12px 24px; border-radius:12px; font-size:14px; font-weight:600; font-family:'DM Sans',sans-serif; z-index:99999; box-shadow:0 8px 24px rgba(37,211,102,0.4); display:none; align-items:center; gap:10px; white-space:nowrap; }
+.wa-toast.show { display:flex; }
+
+/* Invoice styles for view bill popup */
 .inv-header { background:linear-gradient(135deg,#2d1b69 0%,#7c3aed 60%,#a78bfa 100%); color:white; padding:24px 32px; display:flex; justify-content:space-between; align-items:center; gap:16px; }
 .inv-header.return-style { background:linear-gradient(135deg,#7f1d1d,#dc2626,#f87171) !important; }
 .inv-company { font-family:'Playfair Display',serif; font-size:20px; font-weight:700; margin-bottom:4px; }
@@ -189,7 +196,7 @@ body { font-family:'DM Sans',sans-serif; }
   * { -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
 }
 
-/* Statement */
+/* Statement styles */
 .stmt-header { display:flex; justify-content:space-between; align-items:flex-start; padding-bottom:16px; border-bottom:2px solid #4c1d95; margin-bottom:20px; }
 .stmt-company { font-family:'Playfair Display',serif; font-size:20px; color:#4c1d95; font-weight:700; }
 .stmt-sub  { font-size:12px; color:#6b7280; margin-top:2px; }
@@ -215,7 +222,7 @@ body { font-family:'DM Sans',sans-serif; }
 .stmt-summary-row.balance-row-zero { font-weight:700; font-size:15px; color:#059669; background:#f0fdf4; border-bottom:none; }
 .stmt-footer { margin-top:24px; padding-top:14px; border-top:1px solid #e5e7eb; font-size:12px; color:#6b7280; text-align:center; }
 
-/* Voucher */
+/* Voucher styles */
 .vchr-header { display:flex; justify-content:space-between; align-items:flex-start; padding-bottom:14px; border-bottom:2px solid #4c1d95; margin-bottom:18px; }
 .vchr-company{ font-family:'Playfair Display',serif; font-size:18px; color:#4c1d95; font-weight:700; }
 .vchr-sub    { font-size:11px; color:#6b7280; margin-top:2px; }
@@ -237,6 +244,11 @@ body { font-family:'DM Sans',sans-serif; }
 </head>
 <body>
 
+<div class="wa-toast" id="waToast">
+  <span>📲</span>
+  <span id="waToastMsg">Generating PDF...</span>
+</div>
+
 <div class="sidebar">
   <h2>Auto ERP</h2>
   <div class="sidebar-divider"></div>
@@ -253,7 +265,7 @@ body { font-family:'DM Sans',sans-serif; }
   <a href="reports.html" class="owner-only">📊 Reports</a>
   <div class="sidebar-bottom"><div class="sidebar-version">Auto ERP v1.0</div></div>
 </div>
-  
+
 <div class="main">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
     <h1>Merchant Ledger</h1>
@@ -283,11 +295,9 @@ body { font-family:'DM Sans',sans-serif; }
         <option value="bills_desc">Sort: Most Bills First</option>
       </select>
     </div>
-
     <div class="merchant-grid" id="merchantGrid">
       <div class="loading-row">Loading merchants...</div>
     </div>
-
     <div class="pagination">
       <div class="pg-info" id="pgInfo">—</div>
       <div class="pg-btns" id="pgBtns"></div>
@@ -296,7 +306,7 @@ body { font-family:'DM Sans',sans-serif; }
 </div>
 
 
-<!-- ════════════ LEDGER MODAL ════════════ -->
+<!-- LEDGER MODAL -->
 <div class="modal-overlay" id="ledgerModal">
   <div class="modal-box">
     <div class="modal-header">
@@ -307,21 +317,19 @@ body { font-family:'DM Sans',sans-serif; }
       <div class="modal-header-right">
         <button class="btn btn-green  btn-sm" onclick="openPaymentModal()">💸 Pay Merchant</button>
         <button class="btn btn-white  btn-sm" onclick="printStatement()">🖨 Statement</button>
+        <button class="btn btn-wa     btn-sm" onclick="whatsappStatement()">📲 WhatsApp</button>
         <button class="btn btn-outline btn-sm" onclick="closeModal()">✕ Close</button>
       </div>
     </div>
-
     <div class="summary-row">
       <div class="summary-card"><div class="s-label">Total Bills</div><div class="s-value purple" id="smBills">0</div></div>
       <div class="summary-card"><div class="s-label">Total Purchased</div><div class="s-value purple" id="smTotal">₹0</div></div>
       <div class="summary-card"><div class="s-label">Total Paid</div><div class="s-value green" id="smPaid">₹0</div></div>
       <div class="summary-card"><div class="s-label" id="smBalLabel">Balance</div><div class="s-value" id="smBal">₹0</div></div>
     </div>
-
     <div class="balance-banner clear" id="balanceBanner">
       <span id="balanceBannerText">Account is clear ✓</span>
     </div>
-
     <div class="aging-bar-section">
       <div class="aging-bar-title">📊 Outstanding Aging Analysis</div>
       <div class="aging-bar">
@@ -331,7 +339,6 @@ body { font-family:'DM Sans',sans-serif; }
         <span class="aging-chip r" id="age90">90+ days: ₹0</span>
       </div>
     </div>
-
     <div class="modal-body">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
         <div class="section-title" style="margin-bottom:0;">Transaction History</div>
@@ -339,17 +346,9 @@ body { font-family:'DM Sans',sans-serif; }
       </div>
       <div style="overflow-x:auto;">
         <table class="tx-table">
-          <thead>
-            <tr>
-              <th>No / Voucher</th>
-              <th>Date</th>
-              <th>Type</th>
-              <th>Bill Amount</th>
-              <th>Payable / Paid</th>
-              <th>Age</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
+          <thead><tr>
+            <th>No / Voucher</th><th>Date</th><th>Type</th><th>Bill Amount</th><th>Payable / Paid</th><th>Age</th><th>Actions</th>
+          </tr></thead>
           <tbody id="txBody"></tbody>
         </table>
       </div>
@@ -358,11 +357,12 @@ body { font-family:'DM Sans',sans-serif; }
 </div>
 
 
-<!-- ════════════ VIEW PURCHASE MODAL ════════════ -->
+<!-- VIEW PURCHASE MODAL -->
 <div id="viewPurchaseModal">
   <div class="view-bill-box">
     <div class="view-bill-actions">
       <span class="bill-no-display" id="vBillNoDisplay">—</span>
+      <button class="btn btn-wa    btn-sm" onclick="whatsappPurchaseBill()">📲 WhatsApp</button>
       <button class="btn btn-white btn-sm" onclick="printViewedBill()">🖨 Print</button>
       <button class="btn btn-outline btn-sm" onclick="closeViewPurchase()">✕ Close</button>
     </div>
@@ -418,7 +418,7 @@ body { font-family:'DM Sans',sans-serif; }
       </div>
       <div id="vMerchBalanceBox" class="inv-balance-box clear" style="display:none;">
         <div class="inv-balance-row"><span class="inv-balance-label">Payable at billing</span><span class="inv-balance-val" id="vMBOrigPayable">₹0</span></div>
-        <div class="inv-balance-row"><span class="inv-balance-label">Total payments made (all bills)</span><span class="inv-balance-val" style="color:#059669;" id="vMBPaid">₹0</span></div>
+        <div class="inv-balance-row"><span class="inv-balance-label">Total payments made</span><span class="inv-balance-val" style="color:#059669;" id="vMBPaid">₹0</span></div>
         <div class="inv-balance-row" style="margin-top:6px;padding-top:6px;border-top:1px solid #e5e7eb;"><span class="inv-balance-label" style="font-weight:600;">Overall Balance</span><span class="inv-balance-val" id="vMBFinal">₹0</span></div>
       </div>
       <div class="inv-footer">
@@ -430,7 +430,7 @@ body { font-family:'DM Sans',sans-serif; }
 </div>
 
 
-<!-- ════════════ PAY MERCHANT MODAL ════════════ -->
+<!-- PAY MERCHANT MODAL -->
 <div class="pay-modal-overlay" id="paymentModal">
   <div class="pay-modal-box">
     <h3>Pay Merchant</h3>
@@ -453,14 +453,14 @@ body { font-family:'DM Sans',sans-serif; }
     <div class="pay-field"><label>Note <span style="font-size:10px;color:rgba(255,255,255,0.25);">(optional)</span></label><textarea id="payNote" placeholder="e.g. Payment for March purchases..."></textarea></div>
     <div class="pay-actions">
       <button class="btn btn-purple" style="flex:1;" onclick="savePayment(false)">✅ Save</button>
-      <button class="btn btn-white" onclick="savePayment(true)">🖨 Save & Print</button>
+      <button class="btn btn-white"  onclick="savePayment(true)">🖨 Save & Print</button>
       <button class="btn btn-outline" onclick="closePaymentModal()">Cancel</button>
     </div>
   </div>
 </div>
 
 
-<!-- ════════════ STATEMENT PRINT ════════════ -->
+<!-- STATEMENT PRINT AREA -->
 <div id="statementArea">
   <div class="stmt-header">
     <div><div class="stmt-company">Abhinandan Auto Mobiles</div><div class="stmt-sub">Santalpur - Palanpur Highway &nbsp;|&nbsp; +91 98700 37002</div></div>
@@ -472,25 +472,21 @@ body { font-family:'DM Sans',sans-serif; }
     <div><div class="lbl">Generated On</div><div class="val" id="stmtGenDate">—</div></div>
     <div><div class="lbl" id="stmtBalLabel">Balance</div><div class="val" id="stmtBalVal" style="font-size:18px;">—</div></div>
   </div>
-
   <div class="stmt-section-head">📦 Purchase Bills</div>
   <table class="stmt-tbl">
     <thead><tr><th>Bill No</th><th>Date</th><th>Total</th><th>Cash</th><th>UPI</th><th>Payable</th></tr></thead>
     <tbody id="stmtPurchaseBody"></tbody>
   </table>
-
   <div class="stmt-section-head" id="stmtReturnHeading" style="display:none;">↩️ Purchase Returns</div>
   <table class="stmt-tbl" id="stmtReturnTable" style="display:none;">
     <thead><tr><th>Return No</th><th>Date</th><th>Original Bill</th><th>Amount</th></tr></thead>
     <tbody id="stmtReturnBody"></tbody>
   </table>
-
   <div class="stmt-section-head" id="stmtPayHeading" style="display:none;">💸 Payments Made</div>
   <table class="stmt-tbl" id="stmtPayTable" style="display:none;">
     <thead><tr><th>Voucher No</th><th>Date</th><th>Mode</th><th>Amount</th><th>Ref / Note</th></tr></thead>
     <tbody id="stmtPayBody"></tbody>
   </table>
-
   <div class="stmt-summary">
     <div class="stmt-summary-box">
       <div class="stmt-summary-row"><span>Total Purchased</span><span id="stmtTotalPurchased">₹0</span></div>
@@ -509,7 +505,7 @@ body { font-family:'DM Sans',sans-serif; }
 </div>
 
 
-<!-- ════════════ PAYMENT VOUCHER PRINT ════════════ -->
+<!-- PAYMENT VOUCHER PRINT AREA -->
 <div id="voucherArea">
   <div class="vchr-header">
     <div><div class="vchr-company">Abhinandan Auto Mobiles</div><div class="vchr-sub">Santalpur - Palanpur Highway &nbsp;|&nbsp; +91 98700 37002</div></div>
@@ -546,120 +542,142 @@ const supabase = createClient(supabaseUrl, supabaseKey)
 
 const PAGE_SIZE = 20
 let currentPage = 1
-let totalCount  = 0
 let currentMerchData = null
-let searchTimer  = null
+let searchTimer = null
+let _currentViewedBillPhone = ''
 const today = new Date()
-
 const fmt = n => '₹' + (Math.round(Math.abs(n))||0).toLocaleString('en-IN')
 const daysSince = d => Math.floor((today - new Date(d)) / (1000*60*60*24))
 
-// ────────────────────────────────────────────
-// LOAD MERCHANT GRID
-// Groups purchases by merchant_name — fast for 500+ merchants
-// ────────────────────────────────────────────
-async function loadMerchants() {
-  document.getElementById('merchantGrid').innerHTML = '<div class="loading-row">⏳ Loading...</div>'
-  const search = document.getElementById('searchInput').value.trim()
-  const filter = document.getElementById('filterBalance').value
-  const sortBy = document.getElementById('sortBy').value
+// ── WHATSAPP PDF HELPER ──
+function showWaToast(msg) {
+  const t=document.getElementById('waToast')
+  document.getElementById('waToastMsg').innerText=msg
+  t.classList.add('show')
+  setTimeout(()=>t.classList.remove('show'),3500)
+}
 
-  // Load purchases + payments in parallel
-  const [{ data: purchases }, { data: mpayments }] = await Promise.all([
-    supabase.from('purchases').select('merchant_name, merchant_phone, total_amount, credit, bill_type, created_at'),
-    supabase.from('merchant_payments').select('merchant_name, amount')
+function cleanPhone(raw) {
+  const digits=(raw||'').replace(/\D/g,'')
+  if(digits.length===10)return '91'+digits
+  if(digits.length===12&&digits.startsWith('91'))return digits
+  if(digits.length===11&&digits.startsWith('0'))return '91'+digits.slice(1)
+  return null
+}
+
+async function generatePDFAndWhatsApp(element, filename, phone, message) {
+  const cleanedPhone=cleanPhone(phone)
+  if(!phone||phone.trim()===''){
+    alert('📱 Add Phone Number First!\n\nPlease add the merchant\'s phone number to send on WhatsApp.')
+    return
+  }
+  if(!cleanedPhone){
+    alert('❌ Invalid Phone Number!\n\nThe number "'+phone+'" is not a valid Indian mobile number.\nPlease check and update.')
+    return
+  }
+  showWaToast('📄 Generating PDF...')
+  try {
+    const wasHidden=element.style.display==='none'
+    if(wasHidden){element.style.display='block';element.style.position='absolute';element.style.left='-9999px'}
+    await new Promise(r=>setTimeout(r,200))
+    const canvas=await html2canvas(element,{scale:2,useCORS:true,logging:false,backgroundColor:'#ffffff',scrollX:0,scrollY:0})
+    if(wasHidden){element.style.display='none';element.style.position='';element.style.left=''}
+    const{jsPDF}=window.jspdf
+    const pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'})
+    const pdfW=pdf.internal.pageSize.getWidth(), pdfH=pdf.internal.pageSize.getHeight()
+    const ratio=canvas.width/canvas.height, imgH=pdfW/ratio
+    const imgData=canvas.toDataURL('image/jpeg',0.92)
+    let posY=0, remaining=imgH
+    while(remaining>0){
+      pdf.addImage(imgData,'JPEG',0,-posY,pdfW,imgH)
+      remaining-=pdfH; posY+=pdfH
+      if(remaining>0)pdf.addPage()
+    }
+    pdf.save(filename)
+    showWaToast('✅ PDF Downloaded! Opening WhatsApp...')
+    await new Promise(r=>setTimeout(r,1000))
+    window.open('https://wa.me/'+cleanedPhone+'?text='+encodeURIComponent(message||'Please find the attached statement from Abhinandan Auto Mobiles.'),'_blank')
+    showWaToast('📲 WhatsApp opened — attach the PDF file!')
+  }catch(err){
+    console.error('PDF error:',err)
+    showWaToast('❌ Error generating PDF. Try again.')
+  }
+}
+
+// ── LOAD MERCHANT GRID ──
+async function loadMerchants() {
+  document.getElementById('merchantGrid').innerHTML='<div class="loading-row">⏳ Loading...</div>'
+  const search=document.getElementById('searchInput').value.trim()
+  const filter=document.getElementById('filterBalance').value
+  const sortBy=document.getElementById('sortBy').value
+
+  const[{data:purchases},{data:mpayments}]=await Promise.all([
+    supabase.from('purchases').select('merchant_name,merchant_phone,total_amount,credit,bill_type,created_at'),
+    supabase.from('merchant_payments').select('merchant_name,amount')
   ])
 
-  // Group by merchant name
-  const map = {}
-  for (const p of (purchases || [])) {
-    const key = (p.merchant_name || '').trim().toLowerCase()
-    if (!key) continue
-    if (!map[key]) map[key] = { name:(p.merchant_name||'').trim(), phone:p.merchant_phone||'', bills:[], lastDate:p.created_at }
+  const map={}
+  for(const p of(purchases||[])){
+    const key=(p.merchant_name||'').trim().toLowerCase()
+    if(!key)continue
+    if(!map[key])map[key]={name:(p.merchant_name||'').trim(),phone:p.merchant_phone||'',bills:[],lastDate:p.created_at}
     map[key].bills.push(p)
-    if (new Date(p.created_at) > new Date(map[key].lastDate)) map[key].lastDate = p.created_at
+    if(new Date(p.created_at)>new Date(map[key].lastDate))map[key].lastDate=p.created_at
   }
 
-  const pmMap = {}
-  ;(mpayments || []).forEach(p => {
-    const key = (p.merchant_name||'').trim().toLowerCase()
-    if (!pmMap[key]) pmMap[key] = 0
-    pmMap[key] += p.amount || 0
+  const pmMap={}
+  ;(mpayments||[]).forEach(p=>{const key=(p.merchant_name||'').trim().toLowerCase();if(!pmMap[key])pmMap[key]=0;pmMap[key]+=p.amount||0})
+
+  let list=Object.values(map).map(m=>{
+    const key=m.name.toLowerCase()
+    const purchBills=m.bills.filter(b=>b.bill_type!=='return')
+    const retBills=m.bills.filter(b=>b.bill_type==='return')
+    const payableFromBills=purchBills.reduce((s,b)=>s+(b.credit||0),0)
+    const payableFromReturns=retBills.reduce((s,b)=>s+Math.abs(b.credit||0),0)
+    const totalPaid=pmMap[key]||0
+    const netBalance=payableFromBills-payableFromReturns-totalPaid
+    const maxAge=purchBills.filter(b=>(b.credit||0)>0).reduce((max,b)=>Math.max(max,daysSince(b.created_at)),0)
+    return{...m,totalBills:purchBills.length,totalAmount:purchBills.reduce((s,b)=>s+(b.total_amount||0),0),payableFromBills,payableFromReturns,totalPaid,netBalance,maxAge}
   })
 
-  let list = Object.values(map).map(m => {
-    const key      = m.name.toLowerCase()
-    const purchBills = m.bills.filter(b => b.bill_type !== 'return')
-    const retBills   = m.bills.filter(b => b.bill_type === 'return')
-    const payableFromBills   = purchBills.reduce((s,b) => s+(b.credit||0), 0)
-    const payableFromReturns = retBills.reduce((s,b)   => s+Math.abs(b.credit||0), 0)
-    const totalPaid  = pmMap[key] || 0
-    const netBalance = payableFromBills - payableFromReturns - totalPaid
-    // positive = you owe merchant, negative = merchant owes you (overpaid)
-    const maxAge = purchBills.filter(b=>(b.credit||0)>0).reduce((max,b)=>Math.max(max,daysSince(b.created_at)),0)
-    return {
-      ...m,
-      totalBills:  purchBills.length,
-      totalAmount: purchBills.reduce((s,b)=>s+(b.total_amount||0),0),
-      payableFromBills, payableFromReturns, totalPaid, netBalance, maxAge
-    }
-  })
+  if(search)list=list.filter(m=>m.name.toLowerCase().includes(search.toLowerCase())||m.phone.includes(search))
+  if(filter==='payable') list=list.filter(m=>m.netBalance>0.01)
+  if(filter==='overdue') list=list.filter(m=>m.netBalance>0.01&&m.maxAge>30)
+  if(filter==='advance') list=list.filter(m=>m.netBalance<-0.01)
+  if(filter==='clear')   list=list.filter(m=>Math.abs(m.netBalance)<0.01)
+  if(sortBy==='payable_desc')list.sort((a,b)=>b.netBalance-a.netBalance)
+  if(sortBy==='name')list.sort((a,b)=>a.name.localeCompare(b.name))
+  if(sortBy==='bills_desc')list.sort((a,b)=>b.totalBills-a.totalBills)
 
-  // Search filter
-  if (search) list = list.filter(m => m.name.toLowerCase().includes(search.toLowerCase()) || m.phone.includes(search))
+  let withPayable=0,totalPayable=0,totalAdv=0
+  list.forEach(m=>{if(m.netBalance>0.01){withPayable++;totalPayable+=m.netBalance}if(m.netBalance<-0.01)totalAdv+=Math.abs(m.netBalance)})
+  document.getElementById('gsTotal').innerText=list.length
+  document.getElementById('gsWithPayable').innerText=withPayable
+  document.getElementById('gsTotalPayable').innerText=fmt(totalPayable)
+  document.getElementById('gsTotalAdv').innerText=fmt(totalAdv)
+  document.getElementById('lastRefreshed').innerText='Updated '+new Date().toLocaleTimeString('en-IN')
 
-  // Balance filter
-  if (filter==='payable')  list = list.filter(m => m.netBalance > 0.01)
-  if (filter==='overdue')  list = list.filter(m => m.netBalance > 0.01 && m.maxAge > 30)
-  if (filter==='advance')  list = list.filter(m => m.netBalance < -0.01)
-  if (filter==='clear')    list = list.filter(m => Math.abs(m.netBalance) < 0.01)
-
-  // Sort
-  if (sortBy==='payable_desc') list.sort((a,b) => b.netBalance - a.netBalance)
-  if (sortBy==='name')         list.sort((a,b) => a.name.localeCompare(b.name))
-  if (sortBy==='bills_desc')   list.sort((a,b) => b.totalBills - a.totalBills)
-
-  totalCount = list.length
-
-  // Update stats
-  let withPayable=0, totalPayable=0, totalAdv=0
-  list.forEach(m => {
-    if (m.netBalance > 0.01)  { withPayable++; totalPayable += m.netBalance }
-    if (m.netBalance < -0.01) totalAdv += Math.abs(m.netBalance)
-  })
-  document.getElementById('gsTotal').innerText       = list.length
-  document.getElementById('gsWithPayable').innerText = withPayable
-  document.getElementById('gsTotalPayable').innerText= fmt(totalPayable)
-  document.getElementById('gsTotalAdv').innerText    = fmt(totalAdv)
-  document.getElementById('lastRefreshed').innerText = 'Updated ' + new Date().toLocaleTimeString('en-IN')
-
-  // Paginate
-  const from = (currentPage-1)*PAGE_SIZE
-  const page = list.slice(from, from+PAGE_SIZE)
-
+  const from=(currentPage-1)*PAGE_SIZE
+  const page=list.slice(from,from+PAGE_SIZE)
   renderGrid(page)
   renderPagination(list.length)
 }
 
-function renderGrid(list) {
-  const grid = document.getElementById('merchantGrid')
-  if (!list.length) { grid.innerHTML = '<div class="empty-state">No merchants found</div>'; return }
-  grid.innerHTML = list.map(m => {
-    const nb = Math.round(m.netBalance)
-    const isOwed = nb > 0; const isAdv = nb < 0; const isZero = nb === 0
-    const display = isZero ? '✓ Clear' : (isAdv?'+':'-') + fmt(nb)
-    const color   = isZero ? 'green' : isOwed ? 'red' : 'green'
-    const sub     = isZero ? 'No dues' : isOwed ? 'You owe them' : 'They owe you'
-    const dotCls  = isZero||isAdv ? 'g' : m.maxAge<=30?'g':m.maxAge<=60?'y':m.maxAge<=90?'o':'r'
-    const ini     = (m.name||'?')[0].toUpperCase()
+function renderGrid(list){
+  const grid=document.getElementById('merchantGrid')
+  if(!list.length){grid.innerHTML='<div class="empty-state">No merchants found</div>';return}
+  grid.innerHTML=list.map(m=>{
+    const nb=Math.round(m.netBalance), isOwed=nb>0, isAdv=nb<0, isZero=nb===0
+    const display=isZero?'✓ Clear':(isAdv?'+':'-')+fmt(nb)
+    const color=isZero?'green':isOwed?'red':'green'
+    const sub=isZero?'No dues':isOwed?'You owe them':'They owe you'
+    const dotCls=isZero||isAdv?'g':m.maxAge<=30?'g':m.maxAge<=60?'y':m.maxAge<=90?'o':'r'
+    const ini=(m.name||'?')[0].toUpperCase()
     return `<div class="merchant-card" onclick="openLedger('${encodeURIComponent(m.name)}')">
       <div class="aging-dot ${dotCls}"></div>
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
         <div class="mc-avatar">${ini}</div>
-        <div>
-          <div class="mc-name">${m.name}</div>
-          <div class="mc-phone">${m.phone||'No phone'}</div>
-        </div>
+        <div><div class="mc-name">${m.name}</div><div class="mc-phone">${m.phone||'No phone'}</div></div>
       </div>
       <div style="font-size:11px;color:rgba(255,255,255,0.3);margin-bottom:10px;">Last purchase: ${new Date(m.lastDate).toLocaleDateString('en-IN')}</div>
       <div class="mc-stats">
@@ -671,85 +689,73 @@ function renderGrid(list) {
   }).join('')
 }
 
-function renderPagination(total) {
-  const pages = Math.ceil(total/PAGE_SIZE)||1
-  document.getElementById('pgInfo').innerText = `Showing ${(currentPage-1)*PAGE_SIZE+1}–${Math.min(currentPage*PAGE_SIZE,total)} of ${total}`
-  const btns=document.getElementById('pgBtns'); btns.innerHTML=''
-  const mk=(l,d,fn,a)=>{ const b=document.createElement('button'); b.className='pg-btn'+(a?' active':''); b.innerText=l; b.disabled=d; b.onclick=fn; btns.appendChild(b) }
+function renderPagination(total){
+  const pages=Math.ceil(total/PAGE_SIZE)||1
+  document.getElementById('pgInfo').innerText=`Showing ${(currentPage-1)*PAGE_SIZE+1}–${Math.min(currentPage*PAGE_SIZE,total)} of ${total}`
+  const btns=document.getElementById('pgBtns');btns.innerHTML=''
+  const mk=(l,d,fn,a)=>{const b=document.createElement('button');b.className='pg-btn'+(a?' active':'');b.innerText=l;b.disabled=d;b.onclick=fn;btns.appendChild(b)}
   mk('← Prev',currentPage===1,()=>{currentPage--;loadMerchants()})
   const s=Math.max(1,currentPage-2),e=Math.min(pages,s+4)
   for(let i=s;i<=e;i++){const p=i;mk(String(i),false,()=>{currentPage=p;loadMerchants()},i===currentPage)}
   mk('Next →',currentPage===pages,()=>{currentPage++;loadMerchants()})
 }
 
-window.debounceSearch = () => { clearTimeout(searchTimer); searchTimer=setTimeout(()=>{currentPage=1;loadMerchants()},350) }
+window.debounceSearch=()=>{clearTimeout(searchTimer);searchTimer=setTimeout(()=>{currentPage=1;loadMerchants()},350)}
 
+// ── OPEN LEDGER MODAL ──
+window.openLedger=async function(encodedName){
+  const merchantName=decodeURIComponent(encodedName)
+  document.getElementById('modalName').innerText=merchantName
+  document.getElementById('ledgerModal').style.display='block'
+  document.getElementById('txBody').innerHTML='<tr><td colspan="7" class="loading-row">Loading...</td></tr>'
 
-// ────────────────────────────────────────────
-// OPEN LEDGER MODAL
-// ────────────────────────────────────────────
-window.openLedger = async function(encodedName) {
-  const merchantName = decodeURIComponent(encodedName)
-  document.getElementById('modalName').innerText = merchantName
-  document.getElementById('ledgerModal').style.display = 'block'
-  document.getElementById('txBody').innerHTML = '<tr><td colspan="7" class="loading-row">Loading...</td></tr>'
-
-  const [{ data: purchases }, { data: mpayments }] = await Promise.all([
-    supabase.from('purchases').select('*').ilike('merchant_name', merchantName).order('created_at', { ascending: true }),
-    supabase.from('merchant_payments').select('*').ilike('merchant_name', merchantName).order('created_at', { ascending: true })
+  const[{data:purchases},{data:mpayments}]=await Promise.all([
+    supabase.from('purchases').select('*').ilike('merchant_name',merchantName).order('created_at',{ascending:true}),
+    supabase.from('merchant_payments').select('*').ilike('merchant_name',merchantName).order('created_at',{ascending:true})
   ])
 
-  const purchBills = (purchases||[]).filter(b => b.bill_type !== 'return')
-  const retBills   = (purchases||[]).filter(b => b.bill_type === 'return')
-  const payableFromBills   = purchBills.reduce((s,b)=>s+(b.credit||0),0)
-  const payableFromReturns = retBills.reduce((s,b)=>s+Math.abs(b.credit||0),0)
-  const totalPaid          = (mpayments||[]).reduce((s,p)=>s+(p.amount||0),0)
-  const totalPurchased     = purchBills.reduce((s,b)=>s+(b.total_amount||0),0)
-  const netBalance         = payableFromBills - payableFromReturns - totalPaid
+  const purchBills=(purchases||[]).filter(b=>b.bill_type!=='return')
+  const retBills=(purchases||[]).filter(b=>b.bill_type==='return')
+  const payableFromBills=purchBills.reduce((s,b)=>s+(b.credit||0),0)
+  const payableFromReturns=retBills.reduce((s,b)=>s+Math.abs(b.credit||0),0)
+  const totalPaid=(mpayments||[]).reduce((s,p)=>s+(p.amount||0),0)
+  const totalPurchased=purchBills.reduce((s,b)=>s+(b.total_amount||0),0)
+  const netBalance=payableFromBills-payableFromReturns-totalPaid
 
-  // Get merchant profile if exists
-  const { data: profile } = await supabase.from('merchants').select('*').ilike('name', merchantName).single()
-  const subParts = [profile?.phone||purchBills[0]?.merchant_phone||'', profile?.email||'', profile?.address||'', profile?.gstin?'GSTIN: '+profile.gstin:''].filter(Boolean)
-  document.getElementById('modalSub').innerText = subParts.join('  |  ') || 'No contact info'
+  const{data:profile}=await supabase.from('merchants').select('*').ilike('name',merchantName).single()
+  const phone=profile?.phone||purchBills[0]?.merchant_phone||''
+  const subParts=[phone,profile?.email||'',profile?.address||'',profile?.gstin?'GSTIN: '+profile.gstin:''].filter(Boolean)
+  document.getElementById('modalSub').innerText=subParts.join('  |  ')||'No contact info'
 
-  // Summary
-  document.getElementById('smBills').innerText = purchBills.length
-  document.getElementById('smTotal').innerText = fmt(totalPurchased)
-  document.getElementById('smPaid').innerText  = fmt(totalPaid)
-  const nb = Math.round(netBalance)
-  const isOwed = nb>0; const isAdv = nb<0; const isZero = nb===0
-  const balDisplay = isZero?'₹0 Clear':(isAdv?'+':'-')+fmt(nb)
-  const balColor   = isOwed?'#f87171':'#34d399'
-  document.getElementById('smBal').innerText      = balDisplay
-  document.getElementById('smBal').style.color    = balColor
-  document.getElementById('smBalLabel').innerText = isOwed?'Payable Due ▼':isAdv?'Overpaid ▲':'Balance'
-  const banner = document.getElementById('balanceBanner')
-  banner.className = 'balance-banner ' + (isOwed?'owe':isAdv?'adv':'clear')
-  document.getElementById('balanceBannerText').innerText = isZero
-    ? '✓ Account is fully settled — no dues'
-    : isOwed
-    ? `⚠️ You owe ₹${Math.abs(nb).toLocaleString('en-IN')} to this merchant`
-    : `✅ Merchant owes you ₹${Math.abs(nb).toLocaleString('en-IN')} — Overpaid`
+  document.getElementById('smBills').innerText=purchBills.length
+  document.getElementById('smTotal').innerText=fmt(totalPurchased)
+  document.getElementById('smPaid').innerText=fmt(totalPaid)
+  const nb=Math.round(netBalance), isOwed=nb>0, isAdv=nb<0, isZero=nb===0
+  const balDisplay=isZero?'₹0 Clear':(isAdv?'+':'-')+fmt(nb)
+  document.getElementById('smBal').innerText=balDisplay
+  document.getElementById('smBal').style.color=isOwed?'#f87171':'#34d399'
+  document.getElementById('smBalLabel').innerText=isOwed?'Payable Due ▼':isAdv?'Overpaid ▲':'Balance'
+  const banner=document.getElementById('balanceBanner')
+  banner.className='balance-banner '+(isOwed?'owe':isAdv?'adv':'clear')
+  document.getElementById('balanceBannerText').innerText=isZero?'✓ Account fully settled':isOwed?`⚠️ You owe ₹${Math.abs(nb).toLocaleString('en-IN')} to this merchant`:`✅ Merchant owes you ₹${Math.abs(nb).toLocaleString('en-IN')}`
 
-  // Aging (only on outstanding payable bills)
   let a0=0,a31=0,a61=0,a90=0
-  purchBills.filter(b=>(b.credit||0)>0).forEach(b => {
+  purchBills.filter(b=>(b.credit||0)>0).forEach(b=>{
     const d=daysSince(b.created_at)
     if(d<=30)a0+=b.credit;else if(d<=60)a31+=b.credit;else if(d<=90)a61+=b.credit;else a90+=b.credit
   })
-  document.getElementById('age0').innerText  = '0–30 days: '+fmt(a0)
-  document.getElementById('age31').innerText = '31–60 days: '+fmt(a31)
-  document.getElementById('age61').innerText = '61–90 days: '+fmt(a61)
-  document.getElementById('age90').innerText = '90+ days: '+fmt(a90)
+  document.getElementById('age0').innerText='0–30 days: '+fmt(a0)
+  document.getElementById('age31').innerText='31–60 days: '+fmt(a31)
+  document.getElementById('age61').innerText='61–90 days: '+fmt(a61)
+  document.getElementById('age90').innerText='90+ days: '+fmt(a90)
 
-  // Build rows sorted by date
-  const allEvents = [
+  const allEvents=[
     ...(purchases||[]).map(p=>({...p,_type:'bill'})),
     ...(mpayments||[]).map(p=>({...p,_type:'payment'}))
   ].sort((a,b)=>new Date(a.created_at)-new Date(b.created_at))
 
-  const rows = allEvents.map(ev => {
-    if (ev._type==='payment') {
+  const rows=allEvents.map(ev=>{
+    if(ev._type==='payment'){
       return `<tr class="row-payment">
         <td style="font-size:11px;color:rgba(255,255,255,0.4);font-family:monospace;">${ev.receipt_no}</td>
         <td>${new Date(ev.created_at).toLocaleDateString('en-IN')}</td>
@@ -760,100 +766,92 @@ window.openLedger = async function(encodedName) {
         <td><span style="font-size:11px;color:rgba(255,255,255,0.3);">${ev.note||ev.reference_no||'—'}</span></td>
       </tr>`
     }
-    const isReturn = ev.bill_type==='return'
-    const modes=[ev.cash>0?'cash':'',ev.upi>0?'upi':'',ev.credit>0?'credit':''].filter(Boolean)
-    const mstr=modes.join('+')
+    const isReturn=ev.bill_type==='return'
+    const modes=[ev.cash>0?'cash':'',ev.upi>0?'upi':'',ev.credit>0?'credit':''].filter(Boolean).join('+')
     let bc='badge-mixed',bl='Mixed'
-    if(mstr==='cash'){bc='badge-cash';bl='Cash'}
-    if(mstr==='upi'){bc='badge-upi';bl='UPI'}
-    if(mstr==='credit'){bc='badge-credit';bl='Credit'}
-    const d = daysSince(ev.created_at)
-    const ageClass = isReturn?'':ev.credit>0?(d<=30?'badge-age-g':d<=60?'badge-age-y':d<=90?'badge-age-o':'badge-age-r'):''
-    const ageLabel = isReturn?'—':ev.credit>0?d+'d':'—'
+    if(modes==='cash'){bc='badge-cash';bl='Cash'}
+    if(modes==='upi'){bc='badge-upi';bl='UPI'}
+    if(modes==='credit'){bc='badge-credit';bl='Credit'}
+    const d=daysSince(ev.created_at)
+    const ageClass=isReturn?'':ev.credit>0?(d<=30?'badge-age-g':d<=60?'badge-age-y':d<=90?'badge-age-o':'badge-age-r'):''
+    const ageLabel=isReturn?'—':ev.credit>0?d+'d':'—'
     return `<tr class="${isReturn?'row-return':''}">
       <td style="font-size:11px;color:rgba(255,255,255,0.4);font-family:monospace;">${ev.bill_number}</td>
       <td>${new Date(ev.created_at).toLocaleDateString('en-IN')}</td>
       <td><span class="badge ${isReturn?'badge-return':bc}">${isReturn?'↩ Return':bl}</span></td>
       <td style="color:${isReturn?'#f87171':'#a78bfa'};font-weight:600;">${isReturn?'-':''}${fmt(ev.total_amount)}</td>
-      <td style="color:${ev.credit>0?'#f87171':'rgba(255,255,255,0.3)'};">
-        ${ev.credit!==0?(isReturn?'- ':'+ ')+fmt(ev.credit)+(isReturn?' reduced':' payable'):'—'}
-      </td>
+      <td style="color:${ev.credit>0?'#f87171':'rgba(255,255,255,0.3)'};">${ev.credit!==0?(isReturn?'- ':'+ ')+fmt(ev.credit)+(isReturn?' reduced':' payable'):'—'}</td>
       <td>${ageLabel&&ageLabel!=='—'?`<span class="badge ${ageClass}">${ageLabel}</span>`:'—'}</td>
       <td><button class="btn btn-purple btn-sm" onclick="viewPurchase('${ev.bill_number}','${encodeURIComponent(merchantName)}')">👁 View</button></td>
     </tr>`
   })
 
-  document.getElementById('txCount').innerText  = `${purchBills.length} bills, ${(mpayments||[]).length} payments, ${retBills.length} returns`
-  document.getElementById('txBody').innerHTML   = rows.length ? rows.join('') : '<tr><td colspan="7" class="empty-state">No transactions yet</td></tr>'
-
-  currentMerchData = { merchantName, profile, purchases:purchases||[], payments:mpayments||[], totalPurchased, payableFromBills, payableFromReturns, totalPaid, netBalance }
+  document.getElementById('txCount').innerText=`${purchBills.length} bills, ${(mpayments||[]).length} payments, ${retBills.length} returns`
+  document.getElementById('txBody').innerHTML=rows.length?rows.join(''):'<tr><td colspan="7" class="empty-state">No transactions yet</td></tr>'
+  currentMerchData={merchantName,profile,purchases:purchases||[],payments:mpayments||[],totalPurchased,payableFromBills,payableFromReturns,totalPaid,netBalance,phone}
 }
 
-window.closeModal = () => { document.getElementById('ledgerModal').style.display='none'; currentMerchData=null }
-document.getElementById('ledgerModal').addEventListener('click', e => { if(e.target===document.getElementById('ledgerModal'))closeModal() })
+window.closeModal=()=>{document.getElementById('ledgerModal').style.display='none';currentMerchData=null}
+document.getElementById('ledgerModal').addEventListener('click',e=>{if(e.target===document.getElementById('ledgerModal'))closeModal()})
 
+// ── WHATSAPP STATEMENT ──
+window.whatsappStatement=async function(){
+  if(!currentMerchData)return
+  const{merchantName,netBalance,phone}=currentMerchData
+  await buildStatementDOM()
+  const el=document.getElementById('statementArea')
+  const nb=Math.round(netBalance)
+  const balText=nb===0?'Clear':nb>0?'Payable: -'+fmt(nb):'Advance: +'+fmt(Math.abs(nb))
+  const msg=`*Abhinandan Auto Mobiles*\nMerchant Statement for: *${merchantName}*\nBalance: *${balText}*\n📞 +91 98700 37002`
+  await generatePDFAndWhatsApp(el,'Statement-'+merchantName+'.pdf',phone,msg)
+}
 
-// ────────────────────────────────────────────
-// VIEW PURCHASE BILL — item names never lost
-// ────────────────────────────────────────────
-window.viewPurchase = async function(billNo, encodedName) {
-  const merchantName = decodeURIComponent(encodedName)
-  const { data: pur } = await supabase.from('purchases').select('*').eq('bill_number', billNo).single()
-  if (!pur) { alert('Bill not found'); return }
-  const { data: items } = await supabase.from('purchase_items').select('*').eq('purchase_id', pur.id)
-
-  // 3-layer name fallback
-  const missingIds = (items||[]).filter(i=>!i.item_name && i.item_id).map(i=>i.item_id)
-  const invNames = {}
-  if (missingIds.length) {
-    const{data:prods}=await supabase.from('inventory').select('id,item_name').in('id',missingIds)
-    ;(prods||[]).forEach(p=>{invNames[p.id]=p.item_name})
-  }
-
-  const isReturn = pur.bill_type === 'return'
-  const modes = [pur.cash>0?'Cash':'',pur.upi>0?'UPI':'',pur.credit>0?(isReturn?'Payable Reduced':'Credit'):''].filter(Boolean)
-
-  document.getElementById('vPurchaseHeader').className       = 'inv-header'+(isReturn?' return-style':'')
-  document.getElementById('vPurchaseType').innerText         = isReturn?'PURCHASE RETURN':'Purchase Invoice'
-  document.getElementById('vPurchaseNo').innerText           = pur.bill_number
-  document.getElementById('vPurchaseDate').innerText         = new Date(pur.created_at).toLocaleString('en-IN')
-  document.getElementById('vMerchant').innerText             = pur.merchant_name||'—'
-  document.getElementById('vMerchPhone').innerText           = pur.merchant_phone||'—'
-  document.getElementById('vPayMode').innerText              = modes.join(' + ')||'—'
-  document.getElementById('vPurTotalLabel').innerText        = isReturn?'Return Total':'Grand Total'
-  document.getElementById('vPurFooterMsg').innerText         = isReturn?'Return Processed 🙏':'Stock Received 🙏'
-  document.getElementById('vPurCreditLabel').innerText       = isReturn?'Payable Reduced: ':'Payable (Credit): '
-  document.getElementById('vPurPayTitle').innerText          = isReturn?'Return Breakdown':'Payment Breakdown'
-  document.getElementById('vReturnBar').style.display        = isReturn?'block':'none'
+// ── VIEW PURCHASE BILL ──
+window.viewPurchase=async function(billNo,encodedName){
+  const merchantName=decodeURIComponent(encodedName)
+  const{data:pur}=await supabase.from('purchases').select('*').eq('bill_number',billNo).single()
+  if(!pur){alert('Bill not found');return}
+  const{data:items}=await supabase.from('purchase_items').select('*').eq('purchase_id',pur.id)
+  const missingIds=(items||[]).filter(i=>!i.item_name&&i.item_id).map(i=>i.item_id)
+  const invNames={}
+  if(missingIds.length){const{data:prods}=await supabase.from('inventory').select('id,item_name').in('id',missingIds);(prods||[]).forEach(p=>{invNames[p.id]=p.item_name})}
+  const isReturn=pur.bill_type==='return'
+  const modes=[pur.cash>0?'Cash':'',pur.upi>0?'UPI':'',pur.credit>0?(isReturn?'Payable Reduced':'Credit'):''].filter(Boolean)
+  _currentViewedBillPhone=pur.merchant_phone||''
+  document.getElementById('vPurchaseHeader').className='inv-header'+(isReturn?' return-style':'')
+  document.getElementById('vPurchaseType').innerText=isReturn?'PURCHASE RETURN':'Purchase Invoice'
+  document.getElementById('vPurchaseNo').innerText=pur.bill_number
+  document.getElementById('vPurchaseDate').innerText=new Date(pur.created_at).toLocaleString('en-IN')
+  document.getElementById('vMerchant').innerText=pur.merchant_name||'—'
+  document.getElementById('vMerchPhone').innerText=pur.merchant_phone||'—'
+  document.getElementById('vPayMode').innerText=modes.join(' + ')||'—'
+  document.getElementById('vPurTotalLabel').innerText=isReturn?'Return Total':'Grand Total'
+  document.getElementById('vPurFooterMsg').innerText=isReturn?'Return Processed 🙏':'Stock Received 🙏'
+  document.getElementById('vPurCreditLabel').innerText=isReturn?'Payable Reduced: ':'Payable (Credit): '
+  document.getElementById('vPurPayTitle').innerText=isReturn?'Return Breakdown':'Payment Breakdown'
+  document.getElementById('vReturnBar').style.display=isReturn?'block':'none'
   if(isReturn)document.getElementById('vReturnOrigRef').innerText=pur.original_bill_ref||'—'
-  document.getElementById('vBillNoDisplay').innerText        = pur.bill_number
-
-  if(pur.merchant_invoice_ref){document.getElementById('vInvRefBlock').style.display='block';document.getElementById('vInvRef').innerText=pur.merchant_invoice_ref}
-  else document.getElementById('vInvRefBlock').style.display='none'
-
-  const showDetail = pur.merchant_address||pur.merchant_gstin
-  document.getElementById('vMerchDetailBox').style.display = showDetail?'block':'none'
+  document.getElementById('vBillNoDisplay').innerText=pur.bill_number
+  if(pur.merchant_invoice_ref){document.getElementById('vInvRefBlock').style.display='block';document.getElementById('vInvRef').innerText=pur.merchant_invoice_ref}else document.getElementById('vInvRefBlock').style.display='none'
+  const showDetail=pur.merchant_address||pur.merchant_gstin
+  document.getElementById('vMerchDetailBox').style.display=showDetail?'block':'none'
   if(pur.merchant_address){document.getElementById('vAddrBlock').style.display='block';document.getElementById('vMerchAddr').innerText=pur.merchant_address}else document.getElementById('vAddrBlock').style.display='none'
-  if(pur.merchant_gstin)  {document.getElementById('vGstinBlock').style.display='block';document.getElementById('vMerchGstin').innerText=pur.merchant_gstin}else document.getElementById('vGstinBlock').style.display='none'
-
+  if(pur.merchant_gstin){document.getElementById('vGstinBlock').style.display='block';document.getElementById('vMerchGstin').innerText=pur.merchant_gstin}else document.getElementById('vGstinBlock').style.display='none'
   let subtotal=0
   document.getElementById('vPurchaseItems').innerHTML=(items||[]).map((item,i)=>{
     const name=item.item_name||invNames[item.item_id]||`[Deleted Product — was #${item.item_id}]`
-    const qty=Math.abs(item.quantity); const amt=Math.abs(item.total||0); subtotal+=amt
+    const qty=Math.abs(item.quantity),amt=Math.abs(item.total||0);subtotal+=amt
     return `<tr><td style="color:#6b7280;">${i+1}</td><td>${name}</td><td>${qty}</td><td>₹${item.purchase_price}</td><td>₹${amt.toLocaleString('en-IN')}</td></tr>`
   }).join('')
-
   const disc=pur.discount||0
-  document.getElementById('vPurSubtotal').innerText = subtotal.toLocaleString('en-IN')
-  document.getElementById('vPurTotal').innerText    = Math.round(Math.abs(pur.total_amount)).toLocaleString('en-IN')
-  document.getElementById('vDiscRow').style.display = disc>0?'flex':'none'
+  document.getElementById('vPurSubtotal').innerText=subtotal.toLocaleString('en-IN')
+  document.getElementById('vPurTotal').innerText=Math.round(Math.abs(pur.total_amount)).toLocaleString('en-IN')
+  document.getElementById('vDiscRow').style.display=disc>0?'flex':'none'
   if(disc>0)document.getElementById('vDiscount').innerText=disc.toLocaleString('en-IN')
-  document.getElementById('vPurCash').innerText     = '₹'+(pur.cash||0)
-  document.getElementById('vPurUPI').innerText      = '₹'+(pur.upi||0)
-  document.getElementById('vPurCredit').innerText   = '₹'+Math.abs(pur.credit||0)
-
-  // Balance box
-  if (currentMerchData) {
+  document.getElementById('vPurCash').innerText='₹'+(pur.cash||0)
+  document.getElementById('vPurUPI').innerText='₹'+(pur.upi||0)
+  document.getElementById('vPurCredit').innerText='₹'+Math.abs(pur.credit||0)
+  if(currentMerchData){
     const nb=Math.round(currentMerchData.netBalance)
     const balBox=document.getElementById('vMerchBalanceBox')
     balBox.style.display='block'
@@ -861,129 +859,117 @@ window.viewPurchase = async function(billNo, encodedName) {
     document.getElementById('vMBOrigPayable').innerText=fmt(pur.credit||0)
     document.getElementById('vMBPaid').innerText=fmt(currentMerchData.totalPaid)
     const btext=nb===0?'₹0 — Settled ✓':(nb<0?'+':'-')+fmt(nb)+(nb<0?' (Overpaid)':' (Payable Due)')
-    const bel=document.getElementById('vMBFinal'); bel.innerText=btext; bel.style.color=nb>0?'#dc2626':'#059669'
-  } else document.getElementById('vMerchBalanceBox').style.display='none'
-
+    const bel=document.getElementById('vMBFinal');bel.innerText=btext;bel.style.color=nb>0?'#dc2626':'#059669'
+  }else document.getElementById('vMerchBalanceBox').style.display='none'
   document.getElementById('viewPurchaseModal').style.display='block'
 }
-window.closeViewPurchase = () => { document.getElementById('viewPurchaseModal').style.display='none' }
-window.printViewedBill   = () => {
+
+window.whatsappPurchaseBill=async function(){
+  const billNo=document.getElementById('vPurchaseNo').innerText
+  const merchant=document.getElementById('vMerchant').innerText
+  const total=document.getElementById('vPurTotal').innerText
+  const el=document.getElementById('viewPurchasePrintArea')
+  const msg=`*Abhinandan Auto Mobiles*\nPurchase Bill *${billNo}* for ₹${total}\nMerchant: *${merchant}*\n📞 +91 98700 37002`
+  await generatePDFAndWhatsApp(el,'Purchase-'+billNo+'.pdf',_currentViewedBillPhone,msg)
+}
+
+window.closeViewPurchase=()=>{document.getElementById('viewPurchaseModal').style.display='none'}
+window.printViewedBill=()=>{
   document.body.classList.add('print-bill')
-  const ot=document.title; document.title=document.getElementById('vPurchaseNo').innerText||'Purchase'; window.print()
+  const ot=document.title;document.title=document.getElementById('vPurchaseNo').innerText||'Purchase';window.print()
   setTimeout(()=>{document.body.classList.remove('print-bill');document.title=ot},800)
 }
 
-
-// ────────────────────────────────────────────
-// PAY MERCHANT
-// ────────────────────────────────────────────
-window.openPaymentModal = function() {
-  if (!currentMerchData) return
-  const { merchantName, netBalance } = currentMerchData
-  const nb = Math.round(netBalance)
-  document.getElementById('payModalSub').innerText = 'Merchant: ' + merchantName
+// ── PAY MERCHANT ──
+window.openPaymentModal=function(){
+  if(!currentMerchData)return
+  const{merchantName,netBalance}=currentMerchData, nb=Math.round(netBalance)
+  document.getElementById('payModalSub').innerText='Merchant: '+merchantName
   const pill=document.getElementById('payBalancePill')
   if(nb>0){pill.innerText='⚠️ Payable: -'+fmt(nb);pill.style.background='rgba(248,113,113,0.15)';pill.style.color='#f87171'}
   else if(nb<0){pill.innerText='✅ Overpaid: +'+fmt(Math.abs(nb));pill.style.background='rgba(52,211,153,0.15)';pill.style.color='#34d399'}
   else{pill.innerText='✓ Account is clear';pill.style.background='rgba(52,211,153,0.1)';pill.style.color='#34d399'}
-  document.getElementById('payAmount').value = nb>0?nb:''
-  document.getElementById('payMode').value   = 'Cash'
-  document.getElementById('payRef').value    = ''
-  document.getElementById('payNote').value   = ''
+  document.getElementById('payAmount').value=nb>0?nb:''
+  document.getElementById('payMode').value='Cash'
+  document.getElementById('payRef').value=''
+  document.getElementById('payNote').value=''
   document.getElementById('paymentModal').style.display='flex'
 }
-window.closePaymentModal = () => { document.getElementById('paymentModal').style.display='none' }
+window.closePaymentModal=()=>{document.getElementById('paymentModal').style.display='none'}
 
-async function generateVoucherNo(merchantName) {
+async function generateVoucherNo(merchantName){
   const now=new Date()
-  const dd=String(now.getDate()).padStart(2,'0'); const mm=String(now.getMonth()+1).padStart(2,'0'); const yy=String(now.getFullYear()).slice(2)
+  const dd=String(now.getDate()).padStart(2,'0'),mm=String(now.getMonth()+1).padStart(2,'0'),yy=String(now.getFullYear()).slice(2)
   const clean=merchantName.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,10)
-  const start=new Date(); start.setHours(0,0,0,0)
+  const start=new Date();start.setHours(0,0,0,0)
   const{data}=await supabase.from('merchant_payments').select('id').ilike('merchant_name',merchantName).gte('created_at',start.toISOString())
   return `AAM(MP)-${clean}-${dd}${mm}${yy}-${String((data||[]).length+1).padStart(4,'0')}`
 }
 
-window.savePayment = async function(shouldPrint) {
+window.savePayment=async function(shouldPrint){
   const amount=parseFloat(document.getElementById('payAmount').value)||0
-  const mode  =document.getElementById('payMode').value
-  const ref   =document.getElementById('payRef').value.trim()
-  const note  =document.getElementById('payNote').value.trim()
+  const mode=document.getElementById('payMode').value
+  const ref=document.getElementById('payRef').value.trim()
+  const note=document.getElementById('payNote').value.trim()
   if(!amount){alert('Enter payment amount');return}
   if(!currentMerchData)return
-  const{merchantName,netBalance}=currentMerchData
+  const{merchantName,netBalance,phone}=currentMerchData
   const voucherNo=await generateVoucherNo(merchantName)
-  const{data:profile}=await supabase.from('merchants').select('phone').ilike('name',merchantName).single()
-  const phone=profile?.phone||currentMerchData.purchases[0]?.merchant_phone||''
-
-  const{error}=await supabase.from('merchant_payments').insert([{
-    merchant_name:merchantName,merchant_phone:phone||null,
-    receipt_no:voucherNo,amount:Math.round(amount),mode,
-    reference_no:ref||null,note:note||null
-  }])
+  const mPhone=phone||currentMerchData.purchases[0]?.merchant_phone||''
+  const{error}=await supabase.from('merchant_payments').insert([{merchant_name:merchantName,merchant_phone:mPhone||null,receipt_no:voucherNo,amount:Math.round(amount),mode,reference_no:ref||null,note:note||null}])
   if(error){console.error(error);alert('Error ❌');return}
-
   const newBalance=netBalance-amount
-
   if(shouldPrint){
-    const nb=Math.round(netBalance); const newNb=Math.round(newBalance)
+    const nb=Math.round(netBalance),newNb=Math.round(newBalance)
     const prevText=nb>0?'-'+fmt(nb)+' (Payable)':nb<0?'+'+fmt(Math.abs(nb))+' (Overpaid)':'₹0 Clear'
-    const newText =newNb>0?'-'+fmt(newNb)+' (Payable)':newNb<0?'+'+fmt(Math.abs(newNb))+' (Overpaid)':'₹0 Clear'
-    document.getElementById('vchrNo').innerText     =voucherNo
-    document.getElementById('vchrName').innerText   =merchantName
-    document.getElementById('vchrPhone').innerText  =phone||'—'
-    document.getElementById('vchrMode').innerText   =mode
-    document.getElementById('vchrAmount').innerText =fmt(amount)
-    document.getElementById('vchrPaid').innerText   =fmt(amount)
+    const newText=newNb>0?'-'+fmt(newNb)+' (Payable)':newNb<0?'+'+fmt(Math.abs(newNb))+' (Overpaid)':'₹0 Clear'
+    document.getElementById('vchrNo').innerText=voucherNo
+    document.getElementById('vchrName').innerText=merchantName
+    document.getElementById('vchrPhone').innerText=mPhone||'—'
+    document.getElementById('vchrMode').innerText=mode
+    document.getElementById('vchrAmount').innerText=fmt(amount)
+    document.getElementById('vchrPaid').innerText=fmt(amount)
     document.getElementById('vchrPrevBal').innerText=prevText
-    document.getElementById('vchrNewBal').innerText =newText
-    document.getElementById('vchrDate').innerText   =new Date().toLocaleString('en-IN')
+    document.getElementById('vchrNewBal').innerText=newText
+    document.getElementById('vchrDate').innerText=new Date().toLocaleString('en-IN')
     document.getElementById('vchrDateVal').innerText=new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'})
     if(ref){document.getElementById('vchrRef').innerText=ref;document.getElementById('vchrRefRow').style.display='flex'}else document.getElementById('vchrRefRow').style.display='none'
     if(note){document.getElementById('vchrNote').innerText=note;document.getElementById('vchrNoteBox').style.display='block'}else document.getElementById('vchrNoteBox').style.display='none'
     document.body.classList.add('print-voucher')
-    const ot=document.title; document.title=voucherNo; window.print()
+    const ot=document.title;document.title=voucherNo;window.print()
     setTimeout(()=>{document.body.classList.remove('print-voucher');document.title=ot},1000)
   }
-
   closePaymentModal()
   alert(`✅ Payment of ${fmt(amount)} recorded!\nVoucher: ${voucherNo}`)
   openLedger(encodeURIComponent(merchantName))
   loadMerchants()
 }
 
-
-// ────────────────────────────────────────────
-// PRINT STATEMENT
-// ────────────────────────────────────────────
-window.printStatement = async function() {
+// ── BUILD STATEMENT DOM ──
+async function buildStatementDOM(){
   if(!currentMerchData)return
   const{merchantName,purchases,payments,totalPurchased,netBalance}=currentMerchData
   const now=new Date()
-  const dd=String(now.getDate()).padStart(2,'0'); const mm=String(now.getMonth()+1).padStart(2,'0'); const yy=String(now.getFullYear()).slice(2)
+  const dd=String(now.getDate()).padStart(2,'0'),mm=String(now.getMonth()+1).padStart(2,'0'),yy=String(now.getFullYear()).slice(2)
   const clean=merchantName.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,10)
   const stmtNo=`AAM(MS)-${clean}-${dd}${mm}${yy}-${String(Math.floor(Math.random()*9000)+1000)}`
-
   const purchBills=(purchases||[]).filter(b=>b.bill_type!=='return')
-  const retBills  =(purchases||[]).filter(b=>b.bill_type==='return')
+  const retBills=(purchases||[]).filter(b=>b.bill_type==='return')
   let totalCash=0,totalUPI=0,totalReturns=0
-
-  document.getElementById('stmtNo').innerText     =stmtNo
-  document.getElementById('stmtName').innerText   =merchantName
-  document.getElementById('stmtPhone').innerText  =purchBills[0]?.merchant_phone||'—'
+  document.getElementById('stmtNo').innerText=stmtNo
+  document.getElementById('stmtName').innerText=merchantName
+  document.getElementById('stmtPhone').innerText=purchBills[0]?.merchant_phone||'—'
   document.getElementById('stmtGenDate').innerText=new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})
-  document.getElementById('stmtDate').innerText   ='As of '+new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'})
-
+  document.getElementById('stmtDate').innerText='As of '+new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'})
   const nb=Math.round(netBalance)
   const balText=nb===0?'₹0 — Clear':(nb<0?'+':'-')+fmt(nb)+(nb<0?' (Overpaid)':' (Payable Due)')
   document.getElementById('stmtBalLabel').innerText=nb>0?'Payable Due':nb<0?'Overpaid':'Balance'
-  document.getElementById('stmtBalVal').innerText  =balText
+  document.getElementById('stmtBalVal').innerText=balText
   document.getElementById('stmtBalVal').style.color=nb>0?'#dc2626':nb<0?'#059669':'#059669'
-
   document.getElementById('stmtPurchaseBody').innerHTML=purchBills.map(b=>{
     totalCash+=b.cash||0;totalUPI+=b.upi||0
     return `<tr><td>${b.bill_number}</td><td>${new Date(b.created_at).toLocaleDateString('en-IN')}</td><td>₹${Math.round(b.total_amount).toLocaleString('en-IN')}</td><td>₹${Math.round(b.cash||0).toLocaleString('en-IN')}</td><td>₹${Math.round(b.upi||0).toLocaleString('en-IN')}</td><td style="color:#dc2626;font-weight:600;">${b.credit>0?'₹'+Math.round(b.credit).toLocaleString('en-IN'):'—'}</td></tr>`
   }).join('')
-
   if(retBills.length){
     document.getElementById('stmtReturnHeading').style.display='block'
     document.getElementById('stmtReturnTable').style.display='table'
@@ -992,26 +978,27 @@ window.printStatement = async function() {
       return `<tr class="return-row"><td>${r.bill_number}</td><td>${new Date(r.created_at).toLocaleDateString('en-IN')}</td><td>${r.original_bill_ref||'—'}</td><td>₹${Math.round(Math.abs(r.total_amount)).toLocaleString('en-IN')}</td></tr>`
     }).join('')
   }else{document.getElementById('stmtReturnHeading').style.display='none';document.getElementById('stmtReturnTable').style.display='none'}
-
   const totalPaid=(payments||[]).reduce((s,p)=>s+(p.amount||0),0)
   if(payments.length){
     document.getElementById('stmtPayHeading').style.display='block'
     document.getElementById('stmtPayTable').style.display='table'
     document.getElementById('stmtPayBody').innerHTML=payments.map(p=>`<tr class="payment-row"><td>${p.receipt_no}</td><td>${new Date(p.created_at).toLocaleDateString('en-IN')}</td><td>${p.mode}</td><td>₹${Math.round(p.amount).toLocaleString('en-IN')}</td><td>${p.reference_no||p.note||'—'}</td></tr>`).join('')
   }else{document.getElementById('stmtPayHeading').style.display='none';document.getElementById('stmtPayTable').style.display='none'}
-
   document.getElementById('stmtTotalPurchased').innerText=fmt(totalPurchased)
-  document.getElementById('stmtCash').innerText          =fmt(totalCash)
-  document.getElementById('stmtUPI').innerText           =fmt(totalUPI)
-  document.getElementById('stmtReturns').innerText       =totalReturns>0?fmt(totalReturns):'—'
-  document.getElementById('stmtPayments').innerText      =fmt(totalPaid)
-  document.getElementById('stmtCredit').innerText        =balText
+  document.getElementById('stmtCash').innerText=fmt(totalCash)
+  document.getElementById('stmtUPI').innerText=fmt(totalUPI)
+  document.getElementById('stmtReturns').innerText=totalReturns>0?fmt(totalReturns):'—'
+  document.getElementById('stmtPayments').innerText=fmt(totalPaid)
+  document.getElementById('stmtCredit').innerText=balText
   const balRow=document.getElementById('stmtBalRow')
   balRow.className='stmt-summary-row '+(nb>0?'balance-row-due':nb<0?'balance-row-adv':'balance-row-zero')
   document.getElementById('stmtBalRowLabel').innerText=nb>0?'Payable Due':nb<0?'Overpaid Balance':'Balance'
+}
 
+window.printStatement=async function(){
+  await buildStatementDOM()
   document.body.classList.add('print-statement')
-  const ot=document.title; document.title=stmtNo; window.print()
+  const ot=document.title;document.title=document.getElementById('stmtNo').innerText;window.print()
   setTimeout(()=>{document.body.classList.remove('print-statement');document.title=ot},1000)
 }
 
