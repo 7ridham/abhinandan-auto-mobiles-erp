@@ -570,73 +570,118 @@ function cleanPhone(raw) {
 }
 
 async function generatePDFAndWhatsApp(element, filename, phone, message) {
-  // Phone validation
   const cleanedPhone = cleanPhone(phone)
-  if (!phone || phone.trim()==='') {
-    alert('📱 Add Phone Number First!\n\nPlease add the customer\'s phone number to send on WhatsApp.')
+  if (!phone || phone.trim() === '') {
+    alert('📱 Add Phone Number First!\n\nPlease add the customer\'s phone number.')
     return
   }
   if (!cleanedPhone) {
-    alert('❌ Invalid Phone Number!\n\nThe number "'+phone+'" is not a valid Indian mobile number.\nPlease check and update the number.')
+    alert('❌ Invalid Phone Number!\n\n"' + phone + '" is not a valid Indian mobile number.\nPlease check and update.')
     return
   }
 
   showWaToast('📄 Generating PDF...')
 
   try {
-    // Temporarily show element for capture
-    const wasHidden = element.style.display==='none'
-    if (wasHidden) { element.style.display='block'; element.style.position='absolute'; element.style.left='-9999px'; }
+    // ── CORE FIX: Use iframe to isolate white background ──
+    // This prevents dark page background from bleeding into PDF
+    const iframe = document.createElement('iframe')
+    iframe.style.cssText = 'position:fixed;left:-9999px;top:0;width:794px;height:1px;border:none;visibility:hidden;'
+    document.body.appendChild(iframe)
 
-    await new Promise(r=>setTimeout(r,200)) // Let DOM render
+    // Clone the element's HTML into the iframe with white bg + same fonts
+    const iDoc = iframe.contentDocument || iframe.contentWindow.document
+    iDoc.open()
+    iDoc.write(`<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:white!important;color:#111;font-family:'DM Sans',sans-serif;padding:20px;width:754px;}
+  table{width:100%;border-collapse:collapse;}
+  ${Array.from(document.styleSheets).reduce((acc, sheet) => {
+    try { return acc + Array.from(sheet.cssRules).map(r => r.cssText).join('\n') }
+    catch(e) { return acc }
+  }, '')}
+</style>
+</head>
+<body>
+${element.outerHTML}
+</body>
+</html>`)
+    iDoc.close()
 
-    const canvas = await html2canvas(element, {
+    // Wait for fonts to load inside iframe
+    await new Promise(r => setTimeout(r, 800))
+
+    // Resize iframe to content height
+    const body = iDoc.body
+    iframe.style.height = body.scrollHeight + 'px'
+    iframe.style.visibility = 'visible'
+
+    await new Promise(r => setTimeout(r, 200))
+
+    const canvas = await html2canvas(body, {
       scale: 2,
       useCORS: true,
       logging: false,
       backgroundColor: '#ffffff',
       scrollX: 0,
-      scrollY: 0
+      scrollY: 0,
+      windowWidth: 794,
+      windowHeight: body.scrollHeight
     })
 
-    if (wasHidden) { element.style.display='none'; element.style.position=''; element.style.left=''; }
+    document.body.removeChild(iframe)
 
     const { jsPDF } = window.jspdf
-    const pdf = new jsPDF({ orientation:'portrait', unit:'mm', format:'a4' })
-    const pdfW = pdf.internal.pageSize.getWidth()
-    const pdfH = pdf.internal.pageSize.getHeight()
-    const ratio = canvas.width / canvas.height
-    const imgH  = pdfW / ratio
-    let posY = 0
-    let remaining = imgH
+    const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
+    const pdfW = pdf.internal.pageSize.getWidth()  // 210mm
+    const pdfH = pdf.internal.pageSize.getHeight() // 297mm
 
-    // Multi-page support
-    const imgData = canvas.toDataURL('image/jpeg', 0.92)
-    while (remaining > 0) {
-      pdf.addImage(imgData, 'JPEG', 0, -posY, pdfW, imgH)
-      remaining -= pdfH
-      posY += pdfH
-      if (remaining > 0) pdf.addPage()
+    // Convert canvas to pages properly — no black fill
+    const canvasWidthPx  = canvas.width
+    const canvasHeightPx = canvas.height
+    const pdfWidthPx     = canvasWidthPx  // full width = one page width
+    const pageHeightPx   = Math.floor(canvasHeightPx * (pdfW / (canvasWidthPx / 2))) // proportional
+
+    // Simpler: just scale canvas to A4 width and let it flow
+    const imgData = canvas.toDataURL('image/jpeg', 0.95)
+    const imgWidthMm  = pdfW
+    const imgHeightMm = (canvas.height / canvas.width) * pdfW * (1/2) // scale factor 2
+
+    let yPosition = 0
+    let remainingHeight = imgHeightMm
+
+    while (remainingHeight > 0) {
+      if (yPosition > 0) pdf.addPage()
+      // Clip to only draw the portion for this page
+      pdf.addImage(imgData, 'JPEG', 0, -yPosition, imgWidthMm, imgHeightMm)
+      yPosition   += pdfH
+      remainingHeight -= pdfH
     }
 
-    // Download PDF
     pdf.save(filename)
     showWaToast('✅ PDF Downloaded! Opening WhatsApp...')
+    await new Promise(r => setTimeout(r, 1200))
 
-    await new Promise(r=>setTimeout(r,1000))
+    const waText = encodeURIComponent(message || 'Please find the attached document from Abhinandan Auto Mobiles.')
+    window.open('https://wa.me/' + cleanedPhone + '?text=' + waText, '_blank')
+    showWaToast('📲 Attach the downloaded PDF in WhatsApp!')
 
-    // Open WhatsApp
-    const waMsg = encodeURIComponent(message || 'Please find the attached statement/bill from Abhinandan Auto Mobiles.')
-    window.open('https://wa.me/'+cleanedPhone+'?text='+waMsg, '_blank')
-    showWaToast('📲 WhatsApp opened — attach the PDF file!')
-
-  } catch(err) {
+  } catch (err) {
     console.error('PDF generation error:', err)
-    showWaToast('❌ Error generating PDF. Try again.')
+    // Cleanup iframe if error
+    const frames = document.querySelectorAll('iframe[style*="-9999px"]')
+    frames.forEach(f => f.remove())
+    showWaToast('❌ PDF error — check console')
+    alert('❌ PDF generation failed: ' + err.message + '\n\nTry using the 🖨 Print button instead.')
   }
 }
-
-// ── LOAD CUSTOMERS (paginated, fast for 7000+ customers) ──
+  
+  // ── LOAD CUSTOMERS (paginated, fast for 7000+ customers) ──
 async function loadCustomers() {
   document.getElementById('customerGrid').innerHTML = '<div class="loading-row">⏳ Loading...</div>'
   const search  = document.getElementById('searchInput').value.trim()
