@@ -54,28 +54,28 @@
 ══════════════════════════════════════════ */
 html.light-theme {
   --bg-body:       #edf0f7;
-  --bg-card:       rgba(255,255,255,0.88);
-  --bg-card2:      rgba(255,255,255,0.75);
+  --bg-card:       rgba(255,255,255,0.92);
+  --bg-card2:      rgba(255,255,255,0.80);
   --bg-input:      white;
-  --bg-sidebar:    rgba(255,255,255,0.96);
+  --bg-sidebar:    rgba(255,255,255,0.98);
   --bg-hover:      rgba(59,130,246,0.07);
   --bg-active:     linear-gradient(90deg,rgba(59,130,246,0.12),rgba(139,92,246,0.07));
 
-  --text-primary:   #1e293b;
-  --text-secondary: rgba(30,41,59,0.72);
-  --text-muted:     rgba(30,41,59,0.45);
-  --text-faint:     rgba(30,41,59,0.28);
+  --text-primary:   #0f172a;
+  --text-secondary: #1e293b;
+  --text-muted:     #475569;
+  --text-faint:     #64748b;
 
-  --border:         rgba(0,0,0,0.09);
-  --border-input:   rgba(0,0,0,0.12);
-  --border-active:  rgba(59,130,246,0.4);
+  --border:         rgba(0,0,0,0.12);
+  --border-input:   rgba(0,0,0,0.15);
+  --border-active:  rgba(59,130,246,0.5);
 
-  --shadow-card:    0 2px 16px rgba(0,0,0,0.08);
-  --shimmer:        linear-gradient(90deg,transparent,rgba(0,0,0,0.05),transparent);
-  --shimmer-side:   rgba(0,0,0,0.04);
+  --shadow-card:    0 2px 16px rgba(0,0,0,0.10);
+  --shimmer:        linear-gradient(90deg,transparent,rgba(0,0,0,0.06),transparent);
+  --shimmer-side:   rgba(0,0,0,0.05);
 
-  --scrollbar:      rgba(0,0,0,0.15);
-  --scrollbar-h:    rgba(0,0,0,0.25);
+  --scrollbar:      rgba(0,0,0,0.18);
+  --scrollbar-h:    rgba(0,0,0,0.30);
 
   --select-opt-bg:  white;
 }
@@ -370,4 +370,107 @@ ul li:hover {
   .bill-totals, .pur-totals, .bill-payment, .pur-payment,
   .bill-footer, .pur-footer, .stmt-summary, .stmt-footer { page-break-inside: avoid; }
   @page { margin: 15mm 10mm; size: A4; }
+
+   /* ══════════════════════════════════════════
+   LIGHT THEME — FORCE DARK TEXT ON ALL ELEMENTS
+══════════════════════════════════════════ */
+html.light-theme .stat-value,
+html.light-theme .stat-label,
+html.light-theme .stat-sub,
+html.light-theme .stat-trend,
+html.light-theme .section-label,
+html.light-theme .bar-day,
+html.light-theme .bar-amt,
+html.light-theme .rec-name,
+html.light-theme .rec-date,
+html.light-theme .rec-bill,
+html.light-theme h1,
+html.light-theme h2,
+html.light-theme h3,
+html.light-theme td,
+html.light-theme th,
+html.light-theme label,
+html.light-theme .field-label,
+html.light-theme .form-label,
+html.light-theme .ls-label,
+html.light-theme .ls-sub,
+html.light-theme .cc-phone,
+html.light-theme .cc-stat-label,
+html.light-theme .pg-info,
+html.light-theme .section-title,
+html.light-theme .pagination-info,
+html.light-theme .sidebar-label,
+html.light-theme .sidebar-version,
+html.light-theme .profit-sub {
+  color: var(--text-primary) !important;
+}
+
+html.light-theme input,
+html.light-theme select,
+html.light-theme textarea {
+  color: #0f172a !important;
+  background: white !important;
+  border-color: rgba(0,0,0,0.15) !important;
+}
+
+html.light-theme input::placeholder,
+html.light-theme textarea::placeholder {
+  color: #64748b !important;
+}
+
+html.light-theme .sidebar a {
+  color: #334155 !important;
+  font-weight: 600;
+}
+html.light-theme .sidebar a.active {
+  color: #1e3a5f !important;
+}
+html.light-theme .sidebar a:hover {
+  color: #0f172a !important;
+}
+
+html.light-theme .sidebar h2 {
+  color: #0f172a !important;
+}
+html.light-theme .sidebar h2::after {
+  color: #475569 !important;
+}
+
+html.light-theme table td {
+  color: #1e293b !important;
+}
+html.light-theme table th {
+  color: #475569 !important;
+}
+
+html.light-theme .card {
+  color: #0f172a;
+}
+
+html.light-theme .ls-value {
+  color: #0f172a !important;
+  font-weight: 700;
+}
+
+/* Light mode stat cards */
+html.light-theme .stat-card,
+html.light-theme .ls-card {
+  background: rgba(255,255,255,0.95) !important;
+  border-color: rgba(0,0,0,0.10) !important;
+}
+
+html.light-theme .stat-value {
+  color: #0f172a !important;
+}
+
+/* Keep colored values colored even in light mode */
+html.light-theme .stat-value[style*="color"],
+html.light-theme .ls-value[style*="color"],
+html.light-theme .rec-amt,
+html.light-theme .text-success,
+html.light-theme .text-danger,
+html.light-theme .text-info,
+html.light-theme .text-warning {
+  /* These keep their own inline colors */
+}
 }
