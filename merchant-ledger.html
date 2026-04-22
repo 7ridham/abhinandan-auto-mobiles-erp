@@ -282,7 +282,7 @@ body { font-family:'DM Sans',sans-serif; }
   <div class="card">
     <div class="ledger-toolbar">
       <input id="searchInput" placeholder="🔍  Search by name or phone..." oninput="debounceSearch()">
-      <select id="filterBalance" onchange="currentPage=1;loadMerchants()">
+      <select id="filterBalance" onchange="resetAndLoad()">
         <option value="all">All Merchants</option>
         <option value="payable">Payable Due</option>
         <option value="overdue">Overdue 30+ days</option>
@@ -564,11 +564,10 @@ function cleanPhone(raw) {
   if(digits.length===11&&digits.startsWith('0'))return '91'+digits.slice(1)
   return null
 }
-
 async function generatePDFAndWhatsApp(element, filename, phone, message) {
   const cleanedPhone = cleanPhone(phone)
   if (!phone || phone.trim() === '') {
-    alert('📱 Add Phone Number First!\n\nPlease add the phone number to send on WhatsApp.')
+    alert('📱 Add Phone Number First!\n\nPlease add the merchant\'s phone number.')
     return
   }
   if (!cleanedPhone) {
@@ -579,102 +578,97 @@ async function generatePDFAndWhatsApp(element, filename, phone, message) {
   showWaToast('📄 Generating PDF...')
 
   try {
-    // ── STEP 1: Force white background + show element ──
-    // Save original styles
-    const origDisplay    = element.style.display
-    const origPosition   = element.style.position
-    const origLeft       = element.style.left
-    const origBackground = element.style.background
-    const origColor      = element.style.color
-    const origWidth      = element.style.width
+    // ── THE REAL FIX: Build a clean white HTML string and render it in a hidden div ──
+    // We copy the element's innerHTML into a clean white wrapper so no dark page
+    // background bleeds into the PDF capture.
 
-    // Apply white rendering styles
-    element.style.display    = 'block'
-    element.style.position   = 'fixed'
-    element.style.left       = '-9999px'
-    element.style.top        = '0'
-    element.style.background = 'white'
-    element.style.color      = '#111111'
-    element.style.width      = '794px'
-    element.style.zIndex     = '-1'
+    // 1. Create a clean white container off-screen
+    const wrapper = document.createElement('div')
+    wrapper.style.cssText = [
+      'position:fixed',
+      'left:-9999px',
+      'top:0',
+      'width:794px',
+      'background:white',
+      'color:#111',
+      'font-family:DM Sans,sans-serif',
+      'padding:20px',
+      'z-index:-9999'
+    ].join(';')
 
-    // Also force all child elements to have visible colors
-    const allEls = element.querySelectorAll('*')
-    const savedStyles = []
-    allEls.forEach(el => {
-      savedStyles.push({ el, bg: el.style.background, color: el.style.color })
-      const computed = window.getComputedStyle(el)
-      // If background is dark (rgba with low brightness), make it white
-      const bg = computed.backgroundColor
-      const matches = bg.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/)
-      if (matches) {
-        const r = parseInt(matches[1]), g = parseInt(matches[2]), b = parseInt(matches[3])
-        const brightness = (r * 299 + g * 587 + b * 114) / 1000
-        if (brightness < 100) {
-          // Dark background — make white for print
+    // 2. Copy the statement/bill content into wrapper
+    wrapper.innerHTML = element.innerHTML
+
+    // 3. Fix any dark colors inside the cloned content
+    document.body.appendChild(wrapper)
+
+    // Force all elements inside wrapper to have visible (light) colors
+    wrapper.querySelectorAll('*').forEach(el => {
+      const cs = window.getComputedStyle(el)
+      const bg = cs.backgroundColor
+
+      // Check if background color is dark
+      const m = bg.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/)
+      if (m) {
+        const brightness = (parseInt(m[1]) * 299 + parseInt(m[2]) * 587 + parseInt(m[3]) * 114) / 1000
+        if (brightness < 80) {
+          el.style.backgroundColor = 'transparent'
           el.style.background = 'transparent'
+        }
+      }
+
+      // Fix white/light text that would be invisible on white background
+      const color = cs.color
+      const cm = color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/)
+      if (cm) {
+        const brightness = (parseInt(cm[1]) * 299 + parseInt(cm[2]) * 587 + parseInt(cm[3]) * 114) / 1000
+        if (brightness > 200) {
+          // Very light text — make it dark for PDF
+          el.style.color = '#111111'
         }
       }
     })
 
-    // Wait for render
-    await new Promise(r => setTimeout(r, 400))
+    // 4. Wait for render to complete
+    await new Promise(r => setTimeout(r, 600))
 
-    const canvas = await html2canvas(element, {
+    // 5. Capture wrapper (which is white background, dark text)
+    const canvas = await html2canvas(wrapper, {
       scale: 2,
       useCORS: true,
       logging: false,
       backgroundColor: '#ffffff',
       scrollX: 0,
-      scrollY: 0,
-      ignoreElements: el => {
-        // Ignore sidebar, nav, modals — only capture the statement
-        if (el.classList.contains('sidebar')) return true
-        if (el.classList.contains('main')) return true
-        if (el.id === 'ledgerModal') return true
-        return false
-      }
+      scrollY: 0
     })
 
-    // ── STEP 2: Restore original styles ──
-    element.style.display    = origDisplay
-    element.style.position   = origPosition
-    element.style.left       = origLeft
-    element.style.top        = ''
-    element.style.background = origBackground
-    element.style.color      = origColor
-    element.style.width      = origWidth
-    element.style.zIndex     = ''
+    // 6. Clean up wrapper
+    document.body.removeChild(wrapper)
 
-    savedStyles.forEach(({ el, bg, color }) => {
-      el.style.background = bg
-      el.style.color      = color
-    })
-
-    // ── STEP 3: Build PDF with proper paging ──
+    // 7. Build PDF — handle multi-page correctly
     const { jsPDF } = window.jspdf
     const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' })
 
-    const pageWidth  = pdf.internal.pageSize.getWidth()   // 595.28 pt
-    const pageHeight = pdf.internal.pageSize.getHeight()  // 841.89 pt
+    const pageW = pdf.internal.pageSize.getWidth()   // 595.28 pt
+    const pageH = pdf.internal.pageSize.getHeight()  // 841.89 pt
 
-    // Canvas is @2x scale, so actual content width in points:
-    // canvas.width px at 2x scale = canvas.width/2 "real" px
-    // Scale to fit A4 width (595.28 pt = 794 px at 96dpi, but jsPDF uses pt)
-    const imgWidthPt  = pageWidth
-    const imgHeightPt = (canvas.height / canvas.width) * pageWidth
+    // Scale canvas to page width
+    const imgW = pageW
+    const imgH = (canvas.height / canvas.width) * pageW  // maintain aspect ratio
 
     const imgData = canvas.toDataURL('image/jpeg', 0.95)
 
-    let pageY = 0
-    while (pageY < imgHeightPt) {
-      if (pageY > 0) pdf.addPage()
-      pdf.addImage(imgData, 'JPEG', 0, -pageY, imgWidthPt, imgHeightPt)
-      pageY += pageHeight
+    // Add pages — only draw what fits on each page, no black fill
+    let drawnY = 0
+    while (drawnY < imgH) {
+      if (drawnY > 0) pdf.addPage()
+      // Draw image shifted up so only the current page's slice is visible
+      pdf.addImage(imgData, 'JPEG', 0, -drawnY, imgW, imgH)
+      drawnY += pageH
     }
 
     pdf.save(filename)
-    showWaToast('✅ PDF saved! Opening WhatsApp...')
+    showWaToast('✅ PDF Downloaded! Opening WhatsApp...')
     await new Promise(r => setTimeout(r, 1500))
 
     const waMsg = encodeURIComponent(message || 'Please find the attached document from Abhinandan Auto Mobiles.')
@@ -683,10 +677,15 @@ async function generatePDFAndWhatsApp(element, filename, phone, message) {
 
   } catch (err) {
     console.error('PDF error:', err)
-    showWaToast('❌ Error — try Print button instead')
-    alert('PDF generation failed:\n' + err.message)
+    // Cleanup any leftover wrapper
+    document.querySelectorAll('div[style*="-9999px"]').forEach(el => {
+      if (el.style.zIndex === '-9999') el.remove()
+    })
+    showWaToast('❌ Error generating PDF')
+    alert('PDF failed: ' + err.message + '\n\nUse the 🖨 Print button as backup.')
   }
 }
+  
   
   // ── LOAD MERCHANT GRID ──
 async function loadMerchants() {
@@ -785,6 +784,8 @@ function renderPagination(total){
 }
 
 window.debounceSearch=()=>{clearTimeout(searchTimer);searchTimer=setTimeout(()=>{currentPage=1;loadMerchants()},350)}
+window.resetAndLoad=function(){currentPage=1;loadMerchants()}
+  
 
 // ── OPEN LEDGER MODAL ──
 window.openLedger=async function(encodedName){
@@ -882,13 +883,21 @@ document.getElementById('ledgerModal').addEventListener('click',e=>{if(e.target=
 window.whatsappStatement=async function(){
   if(!currentMerchData)return
   const{merchantName,netBalance,phone}=currentMerchData
+
+  // Build the statement data into the DOM first
   await buildStatementDOM()
+
+  // ── CRITICAL FIX: Wait for DOM to fully render before capturing ──
+  // Without this delay, html2canvas captures an empty/half-rendered element
+  await new Promise(r => setTimeout(r, 300))
+
   const el=document.getElementById('statementArea')
   const nb=Math.round(netBalance)
   const balText=nb===0?'Clear':nb>0?'Payable: -'+fmt(nb):'Advance: +'+fmt(Math.abs(nb))
   const msg=`*Abhinandan Auto Mobiles*\nMerchant Statement for: *${merchantName}*\nBalance: *${balText}*\n📞 +91 98700 37002`
   await generatePDFAndWhatsApp(el,'Statement-'+merchantName+'.pdf',phone,msg)
 }
+  
 
 // ── VIEW PURCHASE BILL ──
 window.viewPurchase=async function(billNo,encodedName){
