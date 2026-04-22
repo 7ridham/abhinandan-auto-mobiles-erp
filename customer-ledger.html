@@ -682,58 +682,98 @@ ${element.outerHTML}
 }
   
   // ── LOAD CUSTOMERS (paginated, fast for 7000+ customers) ──
-async function loadCustomers() {
+  async function loadCustomers() {
   document.getElementById('customerGrid').innerHTML = '<div class="loading-row">⏳ Loading...</div>'
   const search  = document.getElementById('searchInput').value.trim()
   const filter  = document.getElementById('filterBalance').value
   const sortBy  = document.getElementById('sortBy').value
-  const from    = (currentPage - 1) * PAGE_SIZE
 
-  let custQuery = supabase.from('customers').select('*', { count: 'exact' })
+  // ── FIX: Load ALL customers (no pagination yet), then filter, then paginate ──
+  // For 7000+ customers this is still fast because we only fetch 3 columns for the balance calc
+  let custQuery = supabase.from('customers').select('*')
   if (search) custQuery = custQuery.or(`name.ilike.%${search}%,phone.ilike.%${search}%`)
-  custQuery = custQuery.order('name').range(from, from + PAGE_SIZE - 1)
-  const { data: customers, count, error } = await custQuery
-  if (error) { document.getElementById('customerGrid').innerHTML = '<div class="loading-row" style="color:#f87171;">Error loading. Check connection.</div>'; return }
+  custQuery = custQuery.order('name')
 
-  totalCount = count || 0
+  const { data: customers, error } = await custQuery
+  if (error) {
+    document.getElementById('customerGrid').innerHTML = '<div class="loading-row" style="color:#f87171;">Error loading. Check connection.</div>'
+    return
+  }
+
   if (!customers?.length) {
     document.getElementById('customerGrid').innerHTML = '<div class="empty-state">No customers found</div>'
+    totalCount = 0
     renderPagination()
     updateGlobalStats([])
     return
   }
 
+  // Bulk fetch sales + payments for ALL these customers in 2 queries
   const custIds = customers.map(c => c.id)
-  const [{ data: sales }, { data: payments }] = await Promise.all([
-    supabase.from('sales').select('customer_id, total_amount, credit, bill_type').in('customer_id', custIds),
-    supabase.from('payments').select('customer_id, amount').in('customer_id', custIds)
-  ])
+
+  // Supabase has a limit on .in() — batch if needed
+  const batchSize = 500
+  let allSales = [], allPayments = []
+
+  for (let i = 0; i < custIds.length; i += batchSize) {
+    const batch = custIds.slice(i, i + batchSize)
+    const [{ data: s }, { data: p }] = await Promise.all([
+      supabase.from('sales').select('customer_id, total_amount, credit, bill_type').in('customer_id', batch),
+      supabase.from('payments').select('customer_id, amount').in('customer_id', batch)
+    ])
+    allSales    = allSales.concat(s || [])
+    allPayments = allPayments.concat(p || [])
+  }
 
   const salesMap = {}, paymentsMap = {}
-  ;(sales||[]).forEach(s=>{ if(!salesMap[s.customer_id]) salesMap[s.customer_id]=[]; salesMap[s.customer_id].push(s) })
-  ;(payments||[]).forEach(p=>{ if(!paymentsMap[p.customer_id]) paymentsMap[p.customer_id]=[]; paymentsMap[p.customer_id].push(p) })
-
-  let enriched = customers.map(c => {
-    const mySales = salesMap[c.id]||[], myPays = paymentsMap[c.id]||[]
-    const saleBills = mySales.filter(s=>s.bill_type!=='return')
-    const retBills  = mySales.filter(s=>s.bill_type==='return')
-    const creditFromBills   = saleBills.reduce((s,b)=>s+(b.credit||0),0)
-    const creditFromReturns = retBills.reduce((s,b)=>s+Math.abs(b.credit||0),0)
-    const totalPaid = myPays.reduce((s,p)=>s+(p.amount||0),0)
-    const netCredit = creditFromBills - creditFromReturns - totalPaid
-    return { ...c, totalBills:saleBills.length, totalAmount:saleBills.reduce((s,b)=>s+(b.total_amount||0),0), netCredit }
+  allSales.forEach(s => {
+    if (!salesMap[s.customer_id]) salesMap[s.customer_id] = []
+    salesMap[s.customer_id].push(s)
+  })
+  allPayments.forEach(p => {
+    if (!paymentsMap[p.customer_id]) paymentsMap[p.customer_id] = []
+    paymentsMap[p.customer_id].push(p)
   })
 
-  if (filter==='due')     enriched = enriched.filter(c=>c.netCredit>0.01)
-  if (filter==='advance') enriched = enriched.filter(c=>c.netCredit<-0.01)
-  if (filter==='clear')   enriched = enriched.filter(c=>Math.abs(c.netCredit)<0.01)
-  if (sortBy==='due_desc')   enriched.sort((a,b)=>b.netCredit-a.netCredit)
-  if (sortBy==='bills_desc') enriched.sort((a,b)=>b.totalBills-a.totalBills)
+  // Enrich all customers with balance
+  let enriched = customers.map(c => {
+    const mySales   = salesMap[c.id]    || []
+    const myPays    = paymentsMap[c.id] || []
+    const saleBills = mySales.filter(s => s.bill_type !== 'return')
+    const retBills  = mySales.filter(s => s.bill_type === 'return')
+    const creditFromBills   = saleBills.reduce((s, b) => s + (b.credit || 0), 0)
+    const creditFromReturns = retBills.reduce((s, b)  => s + Math.abs(b.credit || 0), 0)
+    const totalPaid         = myPays.reduce((s, p)    => s + (p.amount || 0), 0)
+    const netCredit = creditFromBills - creditFromReturns - totalPaid
+    return {
+      ...c,
+      totalBills:  saleBills.length,
+      totalAmount: saleBills.reduce((s, b) => s + (b.total_amount || 0), 0),
+      netCredit
+    }
+  })
 
-  renderGrid(enriched)
+  // ── FILTER first (on ALL data) ──
+  if (filter === 'due')     enriched = enriched.filter(c => c.netCredit > 0.01)
+  if (filter === 'advance') enriched = enriched.filter(c => c.netCredit < -0.01)
+  if (filter === 'clear')   enriched = enriched.filter(c => Math.abs(c.netCredit) < 0.01)
+
+  // ── SORT ──
+  if (sortBy === 'due_desc')   enriched.sort((a, b) => b.netCredit - a.netCredit)
+  if (sortBy === 'bills_desc') enriched.sort((a, b) => b.totalBills - a.totalBills)
+
+  // ── Update global count for pagination (after filter) ──
+  totalCount = enriched.length
+
+  // ── PAGINATE last ──
+  const from = (currentPage - 1) * PAGE_SIZE
+  const page = enriched.slice(from, from + PAGE_SIZE)
+
+  renderGrid(page)
   renderPagination()
-  updateGlobalStats(enriched)
+  updateGlobalStats(enriched) // stats on full filtered list
 }
+  
 
 function updateGlobalStats(list) {
   let withDue=0, totalDue=0, totalAdv=0
