@@ -27,9 +27,9 @@
   .section-label{font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:14px;}
 
   /* Chart bars */
-  .bar-chart{display:flex;align-items:flex-end;gap:6px;height:120px;padding-top:8px;}
-  .bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;}
-  .bar{width:100%;border-radius:4px 4px 0 0;background:linear-gradient(180deg,#2563eb,rgba(37,99,235,0.4));min-height:4px;transition:all 0.4s;}
+  .bar-chart{display:flex;align-items:flex-end;gap:6px;height:160px;padding-top:8px;}
+  .bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:4px;height:100%;}
+  .bar{width:100%;border-radius:4px 4px 0 0;background:linear-gradient(180deg,#2563eb,rgba(37,99,235,0.4));min-height:6px;transition:height 0.6s ease;flex-shrink:0;}
   .bar.today{background:linear-gradient(180deg,#06b6d4,rgba(6,182,212,0.4));}
   .bar-day{font-size:10px;color:rgba(255,255,255,0.3);text-align:center;}
   .bar-amt{font-size:9px;color:rgba(255,255,255,0.5);text-align:center;white-space:nowrap;}
@@ -271,7 +271,8 @@ async function loadWeekChart() {
     const pct=Math.round((Number(d.total)/max)*100)||2
     const label=new Date(day+'T12:00:00').toLocaleDateString('en-IN',{weekday:'short'})
     const wrap=document.createElement('div');wrap.className='bar-wrap'
-    wrap.innerHTML=`<div class="bar-amt">${Number(d.total)>0?'₹'+Math.round(Number(d.total)/1000)+'k':''}</div><div class="bar${isToday?' today':''}" style="height:${pct}%;"></div><div class="bar-day">${isToday?'<b style="color:#06b6d4;">Today</b>':label}</div>`
+    const barHeight = Math.max(Math.round((Number(d.total)/max)*140), Number(d.total)>0?8:0)
+    wrap.innerHTML=`<div class="bar-amt" style="font-size:10px;color:rgba(255,255,255,0.5);text-align:center;white-space:nowrap;">${Number(d.total)>0?'₹'+Math.round(Number(d.total)/1000)+'k':''}</div><div class="bar${isToday?' today':''}" style="height:${barHeight}px;"></div><div class="bar-day" style="font-size:10px;color:rgba(255,255,255,0.3);text-align:center;">${isToday?'<b style="color:#06b6d4;">Today</b>':label}</div>`
     chart.appendChild(wrap)
   })
 }
