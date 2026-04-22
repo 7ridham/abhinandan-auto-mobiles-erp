@@ -566,45 +566,129 @@ function cleanPhone(raw) {
 }
 
 async function generatePDFAndWhatsApp(element, filename, phone, message) {
-  const cleanedPhone=cleanPhone(phone)
-  if(!phone||phone.trim()===''){
-    alert('📱 Add Phone Number First!\n\nPlease add the merchant\'s phone number to send on WhatsApp.')
+  const cleanedPhone = cleanPhone(phone)
+  if (!phone || phone.trim() === '') {
+    alert('📱 Add Phone Number First!\n\nPlease add the phone number to send on WhatsApp.')
     return
   }
-  if(!cleanedPhone){
-    alert('❌ Invalid Phone Number!\n\nThe number "'+phone+'" is not a valid Indian mobile number.\nPlease check and update.')
+  if (!cleanedPhone) {
+    alert('❌ Invalid Phone Number!\n\n"' + phone + '" is not a valid Indian mobile number.\nPlease check and update it.')
     return
   }
+
   showWaToast('📄 Generating PDF...')
+
   try {
-    const wasHidden=element.style.display==='none'
-    if(wasHidden){element.style.display='block';element.style.position='absolute';element.style.left='-9999px'}
-    await new Promise(r=>setTimeout(r,200))
-    const canvas=await html2canvas(element,{scale:2,useCORS:true,logging:false,backgroundColor:'#ffffff',scrollX:0,scrollY:0})
-    if(wasHidden){element.style.display='none';element.style.position='';element.style.left=''}
-    const{jsPDF}=window.jspdf
-    const pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'})
-    const pdfW=pdf.internal.pageSize.getWidth(), pdfH=pdf.internal.pageSize.getHeight()
-    const ratio=canvas.width/canvas.height, imgH=pdfW/ratio
-    const imgData=canvas.toDataURL('image/jpeg',0.92)
-    let posY=0, remaining=imgH
-    while(remaining>0){
-      pdf.addImage(imgData,'JPEG',0,-posY,pdfW,imgH)
-      remaining-=pdfH; posY+=pdfH
-      if(remaining>0)pdf.addPage()
+    // ── STEP 1: Force white background + show element ──
+    // Save original styles
+    const origDisplay    = element.style.display
+    const origPosition   = element.style.position
+    const origLeft       = element.style.left
+    const origBackground = element.style.background
+    const origColor      = element.style.color
+    const origWidth      = element.style.width
+
+    // Apply white rendering styles
+    element.style.display    = 'block'
+    element.style.position   = 'fixed'
+    element.style.left       = '-9999px'
+    element.style.top        = '0'
+    element.style.background = 'white'
+    element.style.color      = '#111111'
+    element.style.width      = '794px'
+    element.style.zIndex     = '-1'
+
+    // Also force all child elements to have visible colors
+    const allEls = element.querySelectorAll('*')
+    const savedStyles = []
+    allEls.forEach(el => {
+      savedStyles.push({ el, bg: el.style.background, color: el.style.color })
+      const computed = window.getComputedStyle(el)
+      // If background is dark (rgba with low brightness), make it white
+      const bg = computed.backgroundColor
+      const matches = bg.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/)
+      if (matches) {
+        const r = parseInt(matches[1]), g = parseInt(matches[2]), b = parseInt(matches[3])
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000
+        if (brightness < 100) {
+          // Dark background — make white for print
+          el.style.background = 'transparent'
+        }
+      }
+    })
+
+    // Wait for render
+    await new Promise(r => setTimeout(r, 400))
+
+    const canvas = await html2canvas(element, {
+      scale: 2,
+      useCORS: true,
+      logging: false,
+      backgroundColor: '#ffffff',
+      scrollX: 0,
+      scrollY: 0,
+      ignoreElements: el => {
+        // Ignore sidebar, nav, modals — only capture the statement
+        if (el.classList.contains('sidebar')) return true
+        if (el.classList.contains('main')) return true
+        if (el.id === 'ledgerModal') return true
+        return false
+      }
+    })
+
+    // ── STEP 2: Restore original styles ──
+    element.style.display    = origDisplay
+    element.style.position   = origPosition
+    element.style.left       = origLeft
+    element.style.top        = ''
+    element.style.background = origBackground
+    element.style.color      = origColor
+    element.style.width      = origWidth
+    element.style.zIndex     = ''
+
+    savedStyles.forEach(({ el, bg, color }) => {
+      el.style.background = bg
+      el.style.color      = color
+    })
+
+    // ── STEP 3: Build PDF with proper paging ──
+    const { jsPDF } = window.jspdf
+    const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' })
+
+    const pageWidth  = pdf.internal.pageSize.getWidth()   // 595.28 pt
+    const pageHeight = pdf.internal.pageSize.getHeight()  // 841.89 pt
+
+    // Canvas is @2x scale, so actual content width in points:
+    // canvas.width px at 2x scale = canvas.width/2 "real" px
+    // Scale to fit A4 width (595.28 pt = 794 px at 96dpi, but jsPDF uses pt)
+    const imgWidthPt  = pageWidth
+    const imgHeightPt = (canvas.height / canvas.width) * pageWidth
+
+    const imgData = canvas.toDataURL('image/jpeg', 0.95)
+
+    let pageY = 0
+    while (pageY < imgHeightPt) {
+      if (pageY > 0) pdf.addPage()
+      pdf.addImage(imgData, 'JPEG', 0, -pageY, imgWidthPt, imgHeightPt)
+      pageY += pageHeight
     }
+
     pdf.save(filename)
-    showWaToast('✅ PDF Downloaded! Opening WhatsApp...')
-    await new Promise(r=>setTimeout(r,1000))
-    window.open('https://wa.me/'+cleanedPhone+'?text='+encodeURIComponent(message||'Please find the attached statement from Abhinandan Auto Mobiles.'),'_blank')
-    showWaToast('📲 WhatsApp opened — attach the PDF file!')
-  }catch(err){
-    console.error('PDF error:',err)
-    showWaToast('❌ Error generating PDF. Try again.')
+    showWaToast('✅ PDF saved! Opening WhatsApp...')
+    await new Promise(r => setTimeout(r, 1500))
+
+    const waMsg = encodeURIComponent(message || 'Please find the attached document from Abhinandan Auto Mobiles.')
+    window.open('https://wa.me/' + cleanedPhone + '?text=' + waMsg, '_blank')
+    showWaToast('📲 WhatsApp opened — tap 📎 and attach the PDF!')
+
+  } catch (err) {
+    console.error('PDF error:', err)
+    showWaToast('❌ Error — try Print button instead')
+    alert('PDF generation failed:\n' + err.message)
   }
 }
-
-// ── LOAD MERCHANT GRID ──
+  
+  // ── LOAD MERCHANT GRID ──
 async function loadMerchants() {
   document.getElementById('merchantGrid').innerHTML='<div class="loading-row">⏳ Loading...</div>'
   const search=document.getElementById('searchInput').value.trim()
