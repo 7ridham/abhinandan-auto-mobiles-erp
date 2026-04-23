@@ -348,7 +348,6 @@ ul li:hover {
 .badge-info    { background: rgba(96,165,250,0.15);  color: #60a5fa; }
 .badge-warning { background: rgba(251,191,36,0.15);  color: #fbbf24; }
 
-
 /* ══════════════════════════════════════════
    PRINT — A4 multi-page safe
 ══════════════════════════════════════════ */
@@ -370,28 +369,49 @@ ul li:hover {
   .bill-totals, .pur-totals, .bill-payment, .pur-payment,
   .bill-footer, .pur-footer, .stmt-summary, .stmt-footer { page-break-inside: avoid; }
   @page { margin: 15mm 10mm; size: A4; }
+}
 
-   /* ══════════════════════════════════════════
-   LIGHT THEME — FORCE DARK TEXT ON ALL ELEMENTS
+/* ══════════════════════════════════════════
+   LIGHT THEME — All elements visible with dark text
+   Applied OUTSIDE print block so it works on screen
 ══════════════════════════════════════════ */
-html.light-theme .stat-value,
-html.light-theme .stat-label,
-html.light-theme .stat-sub,
-html.light-theme .stat-trend,
-html.light-theme .section-label,
-html.light-theme .bar-day,
-html.light-theme .bar-amt,
-html.light-theme .rec-name,
-html.light-theme .rec-date,
-html.light-theme .rec-bill,
+html.light-theme body {
+  color: #0f172a;
+}
+
+/* Liquid glass effect — subtle dark backdrop so everything is readable */
+html.light-theme .card {
+  background: rgba(255,255,255,0.82) !important;
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  border: 1px solid rgba(0,0,0,0.10) !important;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.10), inset 0 1px 0 rgba(255,255,255,0.8) !important;
+  color: #0f172a;
+}
+
+html.light-theme .stat-card,
+html.light-theme .ls-card {
+  background: rgba(255,255,255,0.90) !important;
+  border: 1px solid rgba(0,0,0,0.09) !important;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08) !important;
+}
+
+/* All text elements dark in light mode */
 html.light-theme h1,
 html.light-theme h2,
-html.light-theme h3,
-html.light-theme td,
-html.light-theme th,
-html.light-theme label,
-html.light-theme .field-label,
-html.light-theme .form-label,
+html.light-theme h3 {
+  color: #0f172a !important;
+}
+
+html.light-theme .stat-label,
+html.light-theme .stat-sub,
+html.light-theme .section-label,
+html.light-theme .sidebar-label,
+html.light-theme .sidebar-version,
+html.light-theme .bar-day,
+html.light-theme .bar-amt,
+html.light-theme .rec-date,
+html.light-theme .rec-bill,
 html.light-theme .ls-label,
 html.light-theme .ls-sub,
 html.light-theme .cc-phone,
@@ -399,52 +419,15 @@ html.light-theme .cc-stat-label,
 html.light-theme .pg-info,
 html.light-theme .section-title,
 html.light-theme .pagination-info,
-html.light-theme .sidebar-label,
-html.light-theme .sidebar-version,
-html.light-theme .profit-sub {
-  color: var(--text-primary) !important;
-}
-
-html.light-theme input,
-html.light-theme select,
-html.light-theme textarea {
-  color: #0f172a !important;
-  background: white !important;
-  border-color: rgba(0,0,0,0.15) !important;
-}
-
-html.light-theme input::placeholder,
-html.light-theme textarea::placeholder {
-  color: #64748b !important;
-}
-
-html.light-theme .sidebar a {
-  color: #334155 !important;
-  font-weight: 600;
-}
-html.light-theme .sidebar a.active {
-  color: #1e3a5f !important;
-}
-html.light-theme .sidebar a:hover {
-  color: #0f172a !important;
-}
-
-html.light-theme .sidebar h2 {
-  color: #0f172a !important;
-}
-html.light-theme .sidebar h2::after {
+html.light-theme .profit-sub,
+html.light-theme .field-label,
+html.light-theme .form-label,
+html.light-theme label {
   color: #475569 !important;
 }
 
-html.light-theme table td {
-  color: #1e293b !important;
-}
-html.light-theme table th {
-  color: #475569 !important;
-}
-
-html.light-theme .card {
-  color: #0f172a;
+html.light-theme .stat-value {
+  color: #0f172a !important;
 }
 
 html.light-theme .ls-value {
@@ -452,25 +435,183 @@ html.light-theme .ls-value {
   font-weight: 700;
 }
 
-/* Light mode stat cards */
-html.light-theme .stat-card,
-html.light-theme .ls-card {
-  background: rgba(255,255,255,0.95) !important;
-  border-color: rgba(0,0,0,0.10) !important;
+html.light-theme .rec-name {
+  color: #0f172a !important;
+  font-weight: 600;
 }
 
-html.light-theme .stat-value {
+html.light-theme td {
+  color: #1e293b !important;
+}
+
+html.light-theme th {
+  color: #475569 !important;
+}
+
+html.light-theme tr:hover td {
+  background: rgba(59,130,246,0.06) !important;
+}
+
+html.light-theme input,
+html.light-theme select,
+html.light-theme textarea {
+  color: #0f172a !important;
+  background: rgba(255,255,255,0.95) !important;
+  border-color: rgba(0,0,0,0.14) !important;
+}
+
+html.light-theme input::placeholder,
+html.light-theme textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+/* Sidebar in light mode */
+html.light-theme .sidebar {
+  background: linear-gradient(180deg, rgba(255,255,255,0.97) 0%, rgba(248,250,255,0.95) 100%) !important;
+  border-right-color: rgba(0,0,0,0.10) !important;
+}
+
+html.light-theme .sidebar h2 {
   color: #0f172a !important;
 }
 
-/* Keep colored values colored even in light mode */
-html.light-theme .stat-value[style*="color"],
-html.light-theme .ls-value[style*="color"],
-html.light-theme .rec-amt,
-html.light-theme .text-success,
-html.light-theme .text-danger,
-html.light-theme .text-info,
-html.light-theme .text-warning {
-  /* These keep their own inline colors */
+html.light-theme .sidebar h2::after {
+  color: #64748b !important;
 }
+
+html.light-theme .sidebar a {
+  color: #334155 !important;
+  font-weight: 500;
+}
+
+html.light-theme .sidebar a:hover {
+  color: #0f172a !important;
+  background: rgba(59,130,246,0.08) !important;
+}
+
+html.light-theme .sidebar a.active {
+  color: #1e3a5f !important;
+  background: linear-gradient(90deg, rgba(37,99,235,0.12), rgba(139,92,246,0.08)) !important;
+  border-color: rgba(37,99,235,0.35) !important;
+  font-weight: 600;
+}
+
+html.light-theme .sidebar-label {
+  color: #64748b !important;
+}
+
+html.light-theme .sidebar-version {
+  color: #94a3b8 !important;
+}
+
+html.light-theme .sidebar-divider {
+  background: linear-gradient(90deg, transparent, rgba(0,0,0,0.08), transparent) !important;
+}
+
+html.light-theme .sidebar-bottom {
+  border-top-color: rgba(0,0,0,0.08) !important;
+}
+
+/* Dropdown lists */
+html.light-theme ul li {
+  background: white !important;
+  border-color: rgba(0,0,0,0.08) !important;
+  color: #1e293b !important;
+}
+
+html.light-theme ul li:hover {
+  background: rgba(59,130,246,0.08) !important;
+  color: #0f172a !important;
+}
+
+/* Buttons in light mode keep their colors — only override the default blue */
+html.light-theme button {
+  box-shadow: 0 2px 8px rgba(37,99,235,0.2) !important;
+}
+
+/* Settings button in sidebar for light mode */
+html.light-theme #aam_settings_btn button {
+  background: rgba(255,255,255,0.8) !important;
+  border-color: rgba(0,0,0,0.12) !important;
+}
+
+html.light-theme #aam_settings_btn button:hover {
+  background: rgba(59,130,246,0.08) !important;
+}
+
+html.light-theme #aam_settings_btn button div[style*="color:white"] {
+  color: #0f172a !important;
+}
+
+/* Clock and date on dashboard */
+html.light-theme #clockLine {
+  color: #334155 !important;
+}
+
+html.light-theme #dateLine {
+  color: #64748b !important;
+}
+
+/* Mini table in dashboard */
+html.light-theme .mini-tbl th {
+  color: #64748b !important;
+  border-bottom-color: rgba(0,0,0,0.08) !important;
+}
+
+html.light-theme .mini-tbl td {
+  color: #1e293b !important;
+  border-bottom-color: rgba(0,0,0,0.05) !important;
+}
+
+/* Recent transaction rows */
+html.light-theme .rec-row {
+  border-bottom-color: rgba(0,0,0,0.06) !important;
+}
+
+/* Profit display */
+html.light-theme .profit-bar {
+  background: rgba(0,0,0,0.08) !important;
+}
+
+/* Loader text */
+html.light-theme .loader {
+  color: #94a3b8 !important;
+}
+
+/* Low stock pills */
+html.light-theme .stock-pill.stock-low {
+  background: rgba(217,119,6,0.12) !important;
+}
+
+html.light-theme .stock-pill.stock-zero {
+  background: rgba(220,38,38,0.10) !important;
+}
+
+/* Quick action buttons */
+html.light-theme .q-btn {
+  background: rgba(255,255,255,0.85) !important;
+  border-color: rgba(0,0,0,0.10) !important;
+  color: #1e293b !important;
+}
+
+html.light-theme .q-btn:hover {
+  background: rgba(59,130,246,0.08) !important;
+  color: #0f172a !important;
+}
+
+/* Customer/merchant cards */
+html.light-theme .customer-card,
+html.light-theme .merchant-card {
+  background: rgba(255,255,255,0.85) !important;
+  border-color: rgba(0,0,0,0.08) !important;
+}
+
+html.light-theme .cc-name,
+html.light-theme .mc-name {
+  color: #0f172a !important;
+}
+
+html.light-theme .cc-stat-value,
+html.light-theme .mc-stat-value {
+  color: #0f172a !important;
 }
