@@ -1073,13 +1073,32 @@ window.viewBill = async function(billNo, customerName, customerPhone) {
 
 // Store current viewed bill phone for WhatsApp
 window.whatsappBill = async function() {
-  const billNo=document.getElementById('vInvoiceNo').innerText
-  const custName=document.getElementById('vCustomer').innerText
-  const phone=document.getElementById('vPhone').innerText
-  const total=document.getElementById('vTotal').innerText
-  const el=document.getElementById('viewBillPrintArea')
-  const msg=`*Abhinandan Auto Mobiles*\nYour bill *${billNo}* for ₹${total} is attached.\nCustomer: *${custName}*\n📞 +91 98700 37002`
-  await generatePDFAndWhatsApp(el,'Bill-'+billNo+'.pdf', phone==='—'?'':phone, msg)
+  if(!currentCustomerData) return
+  const billNo = document.getElementById('vInvoiceNo').innerText
+  const custName = document.getElementById('vCustomer').innerText
+  const phone = document.getElementById('vPhone').innerText === '—' ? '' : document.getElementById('vPhone').innerText
+  const { data: sale } = await supabase.from('sales').select('*').eq('bill_number', billNo).single()
+  if(!sale){alert('Bill data not found');return}
+  const { data: items } = await supabase.from('bill_items').select('*').eq('sale_id', sale.id)
+  const missingIds = (items||[]).filter(i=>!i.item_name&&i.item_id).map(i=>i.item_id)
+  const invNames = {}
+  if(missingIds.length){const{data:prods}=await supabase.from('inventory').select('id,item_name').in('id',missingIds);(prods||[]).forEach(p=>{invNames[p.id]=p.item_name})}
+  const modes = [sale.cash>0?'Cash':'',sale.upi>0?'UPI':'',sale.credit>0?'Credit':''].filter(Boolean)
+  const subtotal = (items||[]).reduce((s,i)=>s+(Math.abs(i.total)||0),0)
+  const opts = {
+    isReturn: sale.bill_type==='return', isPurchase: false,
+    billType: 'GST Invoice', billNo: sale.bill_number,
+    date: new Date(sale.created_at).toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}),
+    partyName: custName, partyPhone: document.getElementById('vPhone').innerText,
+    vehicle: sale.vehicle_number||'',
+    items: (items||[]).map(item=>({name:item.item_name||invNames[item.item_id]||'Unknown Item',qty:Math.abs(item.quantity||0),price:item.price||0})),
+    subtotal: subtotal, final: sale.total_amount, gstEnabled: false,
+    discount: sale.discount||0, delivery: sale.delivery_charges||0,
+    cash: sale.cash||0, upi: sale.upi||0, credit: sale.credit||0,
+    payMode: modes.join(' + ')||'—'
+  }
+  const msg = `*Abhinandan Auto Mobiles*\nBill *${billNo}* for Rs ${Math.round(Math.abs(sale.total_amount)).toLocaleString('en-IN')}\nCustomer: *${custName}*\n\nPlease find the attached bill PDF.\n+91 98700 37002`
+  await sendPDFToWhatsApp(buildSingleBillPDF(opts), 'Bill-'+billNo+'.pdf', phone, msg)
 }
 
 window.closeViewBill=()=>{document.getElementById('viewBillModal').style.display='none'}
