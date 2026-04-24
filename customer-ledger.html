@@ -569,115 +569,220 @@ function cleanPhone(raw) {
   return null
 }
 
-async function generatePDFAndWhatsApp(element, filename, phone, message) {
-  const cleanedPhone = cleanPhone(phone)
-  if (!phone || phone.trim() === '') {
-    alert('📱 Add Phone Number First!\n\nPlease add the customer\'s phone number.')
-    return
+function buildStatementPDF(data) {
+  const { jsPDF } = window.jspdf
+  const doc = new jsPDF({ unit:'pt', format:'a4' })
+  const W = 595.28, mg = 36
+  let y = 0
+  const { cust, sales, payments, totalPurchased, netCredit } = data
+  const saleBills = (sales||[]).filter(s => s.bill_type !== 'return')
+  const retBills  = (sales||[]).filter(s => s.bill_type === 'return')
+  const nc = Math.round(netCredit)
+  const totalPaid = (payments||[]).reduce((s,p) => s+(p.amount||0), 0)
+  const balStr = nc===0 ? 'Rs 0 - Clear' : (nc>0?'-Rs ':'+Rs ')+Math.abs(nc).toLocaleString('en-IN')
+
+  doc.setFillColor(30,58,95); doc.rect(0,0,W,80,'F')
+  doc.setTextColor(255,255,255)
+  doc.setFont('helvetica','bold'); doc.setFontSize(18)
+  doc.text('Abhinandan Auto Mobiles', mg, 28)
+  doc.setFont('helvetica','normal'); doc.setFontSize(9)
+  doc.text('Santalpur - Palanpur Highway  |  +91 98700 37002', mg, 44)
+  doc.setFont('helvetica','bold'); doc.setFontSize(14)
+  doc.text('CUSTOMER STATEMENT', W-mg, 27, {align:'right'})
+  doc.setFont('helvetica','normal'); doc.setFontSize(9)
+  doc.text('As of '+new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'}), W-mg, 44, {align:'right'})
+  y = 80
+
+  doc.setFillColor(239,246,255); doc.rect(0,y,W,50,'F')
+  doc.setDrawColor(199,219,255); doc.line(0,y+50,W,y+50)
+  const ic = (lbl,val,x) => {
+    doc.setFont('helvetica','bold'); doc.setFontSize(7.5); doc.setTextColor(107,114,128)
+    doc.text(lbl, x, y+13)
+    doc.setFont('helvetica','bold'); doc.setFontSize(12); doc.setTextColor(17,24,39)
+    doc.text(String(val||'—'), x, y+30)
   }
-  if (!cleanedPhone) {
-    alert('❌ Invalid Phone Number!\n\n"' + phone + '" is not a valid Indian mobile number.\nPlease check and update.')
-    return
+  ic('CUSTOMER', cust.name, mg)
+  ic('PHONE', cust.phone||'—', 220)
+  doc.setFont('helvetica','bold'); doc.setFontSize(7.5); doc.setTextColor(107,114,128)
+  doc.text('BALANCE', 430, y+13)
+  doc.setFont('helvetica','bold'); doc.setFontSize(12)
+  doc.setTextColor(...(nc>0?[220,38,38]:[5,150,105]))
+  doc.text(balStr, 430, y+30)
+  y += 62
+
+  const sh = (title) => {
+    if(y>760){doc.addPage();y=36}
+    doc.setFillColor(30,58,95); doc.rect(0,y,W,18,'F')
+    doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(9)
+    doc.text(title, mg, y+12); y+=22
+  }
+  const th = (cols) => {
+    if(y>760){doc.addPage();y=36}
+    doc.setFillColor(240,245,255); doc.rect(0,y,W,17,'F')
+    doc.setFont('helvetica','bold'); doc.setFontSize(8.5); doc.setTextColor(75,85,99)
+    cols.forEach(c => doc.text(c.lbl, c.x, y+11, c.a||{})); y+=19
+  }
+  const tr = (cols, even) => {
+    if(y>760){doc.addPage();y=36}
+    if(even){doc.setFillColor(249,250,251);doc.rect(0,y-11,W,19,'F')}
+    doc.setFont('helvetica','normal'); doc.setFontSize(9.5)
+    cols.forEach(c=>{doc.setTextColor(...(c.rgb||[55,65,81]));doc.text(String(c.v||'—'),c.x,y,c.a||{})})
+    doc.setDrawColor(229,231,235); doc.line(0,y+5,W,y+5); y+=19
   }
 
+  if(saleBills.length){
+    sh('SALES BILLS ('+saleBills.length+')')
+    th([{lbl:'Bill No',x:mg},{lbl:'Date',x:165},{lbl:'Total',x:280},{lbl:'Cash',x:360},{lbl:'UPI',x:430},{lbl:'Credit',x:W-mg,a:{align:'right'}}])
+    saleBills.forEach((b,i)=>tr([
+      {v:b.bill_number,x:mg,rgb:[107,114,128]},
+      {v:new Date(b.created_at).toLocaleDateString('en-IN'),x:165},
+      {v:'Rs '+Math.round(b.total_amount).toLocaleString('en-IN'),x:280},
+      {v:b.cash>0?'Rs '+Math.round(b.cash).toLocaleString('en-IN'):'—',x:360},
+      {v:b.upi>0?'Rs '+Math.round(b.upi).toLocaleString('en-IN'):'—',x:430},
+      {v:b.credit>0?'Rs '+Math.round(b.credit).toLocaleString('en-IN'):'—',x:W-mg,a:{align:'right'},rgb:b.credit>0?[220,38,38]:[156,163,175]}
+    ],i%2===1)); y+=8
+  }
+  if(retBills.length){
+    sh('RETURNS ('+retBills.length+')')
+    th([{lbl:'Return No',x:mg},{lbl:'Date',x:200},{lbl:'Original Bill',x:320},{lbl:'Amount',x:W-mg,a:{align:'right'}}])
+    retBills.forEach((b,i)=>tr([
+      {v:b.bill_number,x:mg,rgb:[107,114,128]},
+      {v:new Date(b.created_at).toLocaleDateString('en-IN'),x:200},
+      {v:b.original_bill_ref||'—',x:320},
+      {v:'Rs '+Math.round(Math.abs(b.total_amount)).toLocaleString('en-IN'),x:W-mg,a:{align:'right'},rgb:[220,38,38]}
+    ],i%2===1)); y+=8
+  }
+  if((payments||[]).length){
+    sh('PAYMENTS RECEIVED ('+payments.length+')')
+    th([{lbl:'Receipt No',x:mg},{lbl:'Date',x:210},{lbl:'Mode',x:320},{lbl:'Amount',x:W-mg,a:{align:'right'}}])
+    payments.forEach((p,i)=>tr([
+      {v:p.receipt_no,x:mg,rgb:[107,114,128]},
+      {v:new Date(p.created_at).toLocaleDateString('en-IN'),x:210},
+      {v:p.mode||'—',x:320},
+      {v:'Rs '+Math.round(p.amount).toLocaleString('en-IN'),x:W-mg,a:{align:'right'},rgb:[5,150,105]}
+    ],i%2===1)); y+=8
+  }
+
+  if(y>680){doc.addPage();y=36}
+  y+=10
+  const SX=W-mg-230
+  doc.setFillColor(248,250,252); doc.rect(SX,y,230,108,'F')
+  doc.setDrawColor(229,231,235); doc.rect(SX,y,230,108)
+  let sy=y+16
+  const sr2 = (lbl,val,bold,rgb) => {
+    doc.setFont('helvetica',bold?'bold':'normal'); doc.setFontSize(bold?12:10)
+    doc.setTextColor(...(rgb||[55,65,81]))
+    doc.text(lbl,SX+10,sy); doc.text(val,SX+220,sy,{align:'right'})
+    if(!bold){doc.setDrawColor(229,231,235);doc.line(SX+10,sy+4,SX+220,sy+4)}
+    sy+=18
+  }
+  sr2('Total Billed','Rs '+Math.round(totalPurchased).toLocaleString('en-IN'))
+  sr2('Returns',retBills.length?('Rs '+Math.round(retBills.reduce((s,b)=>s+Math.abs(b.total_amount||0),0)).toLocaleString('en-IN')):'—')
+  sr2('Payments Rcvd','Rs '+Math.round(totalPaid).toLocaleString('en-IN'))
+  sr2(nc>0?'Credit Due':nc<0?'Advance':'Balance', balStr, true, nc>0?[220,38,38]:[5,150,105])
+  y+=130
+  doc.setFont('helvetica','normal'); doc.setFontSize(8.5); doc.setTextColor(156,163,175)
+  doc.text('Computer-generated statement — Abhinandan Auto Mobiles', mg, y)
+  return doc
+}
+
+function buildSingleBillPDF(opts) {
+  const { jsPDF } = window.jspdf
+  const doc = new jsPDF({ unit:'pt', format:'a4' })
+  const W = 595.28, mg = 36
+  let y = 0
+  const hc = opts.isReturn ? [127,29,29] : [30,58,95]
+  doc.setFillColor(...hc); doc.rect(0,0,W,88,'F')
+  doc.setTextColor(255,255,255)
+  doc.setFont('helvetica','bold'); doc.setFontSize(18)
+  doc.text('Abhinandan Auto Mobiles', mg, 28)
+  doc.setFont('helvetica','normal'); doc.setFontSize(9)
+  doc.text('Santalpur - Palanpur Highway  |  +91 98700 37002', mg, 44)
+  doc.setFont('helvetica','bold'); doc.setFontSize(11)
+  doc.text(opts.isReturn?'SALES RETURN':'GST INVOICE', W-mg, 27, {align:'right'})
+  doc.setFont('helvetica','normal'); doc.setFontSize(9)
+  doc.text('Bill # '+(opts.billNo||''), W-mg, 43, {align:'right'})
+  doc.text(opts.date||'', W-mg, 57, {align:'right'})
+  y=88
+  doc.setFillColor(248,250,252); doc.rect(0,y,W,50,'F')
+  doc.setDrawColor(229,231,235); doc.line(0,y+50,W,y+50)
+  const ic=(lbl,val,x)=>{
+    doc.setFont('helvetica','bold'); doc.setFontSize(7.5); doc.setTextColor(107,114,128)
+    doc.text(lbl,x,y+13)
+    doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor(17,24,39)
+    doc.text(String(val||'—'),x,y+30)
+  }
+  ic('BILLED TO',opts.partyName||'—',mg)
+  ic('PHONE',opts.partyPhone||'—',220)
+  ic('PAYMENT MODE',opts.payMode||'—',390)
+  y+=62
+  doc.setFillColor(...hc); doc.rect(0,y,W,22,'F')
+  doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(9)
+  doc.text('#',mg,y+14); doc.text('Item',mg+24,y+14); doc.text('Qty',368,y+14,{align:'center'}); doc.text('Price',455,y+14,{align:'center'}); doc.text('Amount',W-mg,y+14,{align:'right'})
+  y+=24
+  let sub=0
+  ;(opts.items||[]).forEach((item,i)=>{
+    if(y>745){doc.addPage();y=40}
+    const amt=Math.abs((item.qty||0)*(item.price||0)); sub+=amt
+    if(i%2===1){doc.setFillColor(249,250,251);doc.rect(0,y-12,W,20,'F')}
+    doc.setFont('helvetica','normal'); doc.setFontSize(9.5); doc.setTextColor(156,163,175)
+    doc.text(String(i+1),mg,y); doc.setTextColor(55,65,81)
+    const nm=(item.name||'').length>55?(item.name||'').slice(0,52)+'...':item.name||''
+    doc.text(nm,mg+24,y)
+    doc.text(String(Math.abs(item.qty||0)),368,y,{align:'center'})
+    doc.text('Rs '+(item.price||0).toLocaleString('en-IN'),455,y,{align:'center'})
+    doc.setFont('helvetica','bold')
+    doc.text('Rs '+amt.toLocaleString('en-IN'),W-mg,y,{align:'right'})
+    y+=21
+  })
+  doc.setDrawColor(229,231,235); doc.line(0,y,W,y); y+=18
+  const trow=(lbl,val,bold,rgb)=>{
+    doc.setFont('helvetica',bold?'bold':'normal'); doc.setFontSize(bold?13:10)
+    doc.setTextColor(...(rgb||[55,65,81]))
+    doc.text(lbl,380,y); doc.text(val,W-mg,y,{align:'right'})
+    if(!bold){doc.setDrawColor(229,231,235);doc.line(380,y+4,W-mg,y+4)}
+    y+=18
+  }
+  trow('Subtotal','Rs '+sub.toLocaleString('en-IN'))
+  if((opts.discount||0)>0) trow('Discount','- Rs '+Math.round(opts.discount).toLocaleString('en-IN'),false,[5,150,105])
+  y+=4
+  doc.setFillColor(239,246,255); doc.rect(0,y-14,W,26,'F')
+  doc.setFont('helvetica','bold'); doc.setFontSize(14); doc.setTextColor(...hc)
+  doc.text('Grand Total',380,y); doc.text('Rs '+Math.abs(opts.final||0).toLocaleString('en-IN'),W-mg,y,{align:'right'})
+  y+=32
+  doc.setFillColor(248,250,252); doc.rect(mg,y,W-2*mg,48,'F')
+  doc.setDrawColor(229,231,235); doc.rect(mg,y,W-2*mg,48)
+  y+=13
+  doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(107,114,128)
+  doc.text('PAYMENT BREAKDOWN',mg+10,y); y+=14
+  doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(17,24,39)
+  doc.text('Cash: Rs '+Math.abs(opts.cash||0).toLocaleString('en-IN'),mg+10,y)
+  doc.text('UPI: Rs '+Math.abs(opts.upi||0).toLocaleString('en-IN'),mg+160,y)
+  doc.text('Credit: Rs '+Math.abs(opts.credit||0).toLocaleString('en-IN'),mg+310,y)
+  y+=38
+  doc.setDrawColor(229,231,235); doc.line(mg,y,W-mg,y); y+=14
+  doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor(...hc)
+  doc.text(opts.isReturn?'Return processed. Thank you.':'Thank you for your business!',mg,y); y+=34
+  doc.line(mg,y,mg+140,y); doc.line(W-mg-140,y,W-mg,y); y+=10
+  doc.text('Customer Signature',mg,y,{fontSize:9})
+  doc.text('For Abhinandan Auto Mobiles',W-mg,y,{align:'right'})
+  return doc
+}
+
+async function sendPDFToWhatsApp(doc, filename, phone, message) {
+  const cp = cleanPhone(phone)
+  if(!phone||!phone.trim()){alert('Please add the phone number first.');return}
+  if(!cp){alert('Invalid phone number: "'+phone+'"\n\nPlease update it.');return}
   showWaToast('📄 Generating PDF...')
-
   try {
-    // ── CORE FIX: Use iframe to isolate white background ──
-    // This prevents dark page background from bleeding into PDF
-    const iframe = document.createElement('iframe')
-    iframe.style.cssText = 'position:fixed;left:-9999px;top:0;width:794px;height:1px;border:none;visibility:hidden;'
-    document.body.appendChild(iframe)
-
-    // Clone the element's HTML into the iframe with white bg + same fonts
-    const iDoc = iframe.contentDocument || iframe.contentWindow.document
-    iDoc.open()
-    iDoc.write(`<!DOCTYPE html>
-<html>
-<head>
-<meta charset="utf-8">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-<style>
-  *{box-sizing:border-box;margin:0;padding:0;}
-  body{background:white!important;color:#111;font-family:'DM Sans',sans-serif;padding:20px;width:754px;}
-  table{width:100%;border-collapse:collapse;}
-  ${Array.from(document.styleSheets).reduce((acc, sheet) => {
-    try { return acc + Array.from(sheet.cssRules).map(r => r.cssText).join('\n') }
-    catch(e) { return acc }
-  }, '')}
-</style>
-</head>
-<body>
-${element.outerHTML}
-</body>
-</html>`)
-    iDoc.close()
-
-    // Wait for fonts to load inside iframe
-    await new Promise(r => setTimeout(r, 800))
-
-    // Resize iframe to content height
-    const body = iDoc.body
-    iframe.style.height = body.scrollHeight + 'px'
-    iframe.style.visibility = 'visible'
-
-    await new Promise(r => setTimeout(r, 200))
-
-    const canvas = await html2canvas(body, {
-      scale: 2,
-      useCORS: true,
-      logging: false,
-      backgroundColor: '#ffffff',
-      scrollX: 0,
-      scrollY: 0,
-      windowWidth: 794,
-      windowHeight: body.scrollHeight
-    })
-
-    document.body.removeChild(iframe)
-
-    const { jsPDF } = window.jspdf
-    const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
-    const pdfW = pdf.internal.pageSize.getWidth()  // 210mm
-    const pdfH = pdf.internal.pageSize.getHeight() // 297mm
-
-    // Convert canvas to pages properly — no black fill
-    const canvasWidthPx  = canvas.width
-    const canvasHeightPx = canvas.height
-    const pdfWidthPx     = canvasWidthPx  // full width = one page width
-    const pageHeightPx   = Math.floor(canvasHeightPx * (pdfW / (canvasWidthPx / 2))) // proportional
-
-    // Simpler: just scale canvas to A4 width and let it flow
-    const imgData = canvas.toDataURL('image/jpeg', 0.95)
-    const imgWidthMm  = pdfW
-    const imgHeightMm = (canvas.height / canvas.width) * pdfW * (1/2) // scale factor 2
-
-    let yPosition = 0
-    let remainingHeight = imgHeightMm
-
-    while (remainingHeight > 0) {
-      if (yPosition > 0) pdf.addPage()
-      // Clip to only draw the portion for this page
-      pdf.addImage(imgData, 'JPEG', 0, -yPosition, imgWidthMm, imgHeightMm)
-      yPosition   += pdfH
-      remainingHeight -= pdfH
-    }
-
-    pdf.save(filename)
-    showWaToast('✅ PDF Downloaded! Opening WhatsApp...')
-    await new Promise(r => setTimeout(r, 1200))
-
-    const waText = encodeURIComponent(message || 'Please find the attached document from Abhinandan Auto Mobiles.')
-    window.open('https://wa.me/' + cleanedPhone + '?text=' + waText, '_blank')
-    showWaToast('📲 Attach the downloaded PDF in WhatsApp!')
-
-  } catch (err) {
-    console.error('PDF generation error:', err)
-    // Cleanup iframe if error
-    const frames = document.querySelectorAll('iframe[style*="-9999px"]')
-    frames.forEach(f => f.remove())
-    showWaToast('❌ PDF error — check console')
-    alert('❌ PDF generation failed: ' + err.message + '\n\nTry using the 🖨 Print button instead.')
+    doc.save(filename)
+    showWaToast('✅ PDF saved! Opening WhatsApp...')
+    await new Promise(r=>setTimeout(r,1500))
+    window.open('https://wa.me/'+cp+'?text='+encodeURIComponent(message),'_blank')
+    showWaToast('📲 Tap the paperclip icon in WhatsApp to attach the PDF!')
+  } catch(err) {
+    console.error(err); showWaToast('❌ Error: '+err.message)
+    alert('PDF failed: '+err.message)
   }
 }
   
@@ -903,17 +1008,18 @@ window.closeModal=function(){document.getElementById('ledgerModal').style.displa
 document.getElementById('ledgerModal').addEventListener('click',e=>{if(e.target===document.getElementById('ledgerModal'))closeModal()})
 
 // ── WHATSAPP STATEMENT ──
+  
 window.whatsappStatement = async function() {
-  if(!currentCustomerData)return
-  const{cust,netCredit}=currentCustomerData
-  const phone=cust.phone||''
-  // Build statement first
-  await buildStatementDOM()
-  const el=document.getElementById('statementArea')
-  const nc=Math.round(netCredit)
-  const balText=nc===0?'Clear':nc>0?'Due: -'+fmt(nc):'Advance: +'+fmt(Math.abs(nc))
-  const msg=`*Abhinandan Auto Mobiles*\nCustomer Statement for: *${cust.name}*\nBalance: *${balText}*\n📞 +91 98700 37002`
-  await generatePDFAndWhatsApp(el,'Statement-'+cust.name+'.pdf',phone,msg)
+  if(!currentCustomerData) return
+  const { cust, netCredit } = currentCustomerData
+  const phone = cust.phone || ''
+  const cp = cleanPhone(phone)
+  if(!phone||!phone.trim()){alert('Add phone number first.');return}
+  if(!cp){alert('Invalid phone: '+phone+'\n\nPlease update it.');return}
+  const nc = Math.round(netCredit)
+  const balText = nc===0?'Clear':nc>0?('Due: Rs '+Math.abs(nc).toLocaleString('en-IN')):('Advance: Rs '+Math.abs(nc).toLocaleString('en-IN'))
+  const msg = `*Abhinandan Auto Mobiles*\nStatement for: *${cust.name}*\nBalance: *${balText}*\n\nPlease find the attached statement PDF.\n+91 98700 37002`
+  await sendPDFToWhatsApp(buildStatementPDF(currentCustomerData), 'Statement-'+cust.name+'.pdf', phone, msg)
 }
 
 // ── VIEW BILL ──
