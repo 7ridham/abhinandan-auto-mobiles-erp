@@ -563,126 +563,96 @@ function cleanPhone(raw) {
   if(digits.length===12&&digits.startsWith('91'))return digits
   if(digits.length===11&&digits.startsWith('0'))return '91'+digits.slice(1)
   return null
+}function buildMerchantStatementPDF(data) {
+  const { jsPDF } = window.jspdf
+  const doc = new jsPDF({ unit:'pt', format:'a4' })
+  const W = 595.28, mg = 36
+  let y = 0
+  const { merchantName, purchases, payments, totalPurchased, netBalance, phone: mPhone } = data
+  const purchBills = (purchases||[]).filter(b => b.bill_type !== 'return')
+  const retBills   = (purchases||[]).filter(b => b.bill_type === 'return')
+  const nb = Math.round(netBalance)
+  const totalPaid = (payments||[]).reduce((s,p)=>s+(p.amount||0),0)
+  const balStr = nb===0?'Rs 0 - Clear':(nb>0?'-Rs ':'+Rs ')+Math.abs(nb).toLocaleString('en-IN')
+
+  doc.setFillColor(76,29,149); doc.rect(0,0,W,80,'F')
+  doc.setTextColor(255,255,255)
+  doc.setFont('helvetica','bold'); doc.setFontSize(18)
+  doc.text('Abhinandan Auto Mobiles', mg, 28)
+  doc.setFont('helvetica','normal'); doc.setFontSize(9)
+  doc.text('Santalpur - Palanpur Highway  |  +91 98700 37002', mg, 44)
+  doc.setFont('helvetica','bold'); doc.setFontSize(14)
+  doc.text('MERCHANT STATEMENT', W-mg, 27, {align:'right'})
+  doc.setFont('helvetica','normal'); doc.setFontSize(9)
+  doc.text('As of '+new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'}), W-mg, 44, {align:'right'})
+  y=80
+  doc.setFillColor(245,240,255); doc.rect(0,y,W,50,'F')
+  doc.setDrawColor(221,214,254); doc.line(0,y+50,W,y+50)
+  const ic=(lbl,val,x)=>{
+    doc.setFont('helvetica','bold'); doc.setFontSize(7.5); doc.setTextColor(107,114,128)
+    doc.text(lbl,x,y+13)
+    doc.setFont('helvetica','bold'); doc.setFontSize(12); doc.setTextColor(17,24,39)
+    doc.text(String(val||'—'),x,y+30)
+  }
+  ic('MERCHANT',merchantName,mg); ic('PHONE',mPhone||'—',220)
+  doc.setFont('helvetica','bold'); doc.setFontSize(7.5); doc.setTextColor(107,114,128)
+  doc.text('BALANCE',430,y+13)
+  doc.setFont('helvetica','bold'); doc.setFontSize(12)
+  doc.setTextColor(...(nb>0?[220,38,38]:[5,150,105]))
+  doc.text(balStr,430,y+30)
+  y+=62
+
+  const sh=(title)=>{if(y>760){doc.addPage();y=36}; doc.setFillColor(76,29,149); doc.rect(0,y,W,18,'F'); doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.text(title,mg,y+12); y+=22}
+  const th=(cols)=>{if(y>760){doc.addPage();y=36}; doc.setFillColor(245,240,255); doc.rect(0,y,W,17,'F'); doc.setFont('helvetica','bold'); doc.setFontSize(8.5); doc.setTextColor(75,85,99); cols.forEach(c=>doc.text(c.lbl,c.x,y+11,c.a||{})); y+=19}
+  const tr2=(cols,even)=>{if(y>760){doc.addPage();y=36}; if(even){doc.setFillColor(249,250,251);doc.rect(0,y-11,W,19,'F')}; doc.setFont('helvetica','normal'); doc.setFontSize(9.5); cols.forEach(c=>{doc.setTextColor(...(c.rgb||[55,65,81]));doc.text(String(c.v||'—'),c.x,y,c.a||{})}); doc.setDrawColor(229,231,235); doc.line(0,y+5,W,y+5); y+=19}
+
+  if(purchBills.length){
+    sh('PURCHASE BILLS ('+purchBills.length+')')
+    th([{lbl:'Bill No',x:mg},{lbl:'Date',x:165},{lbl:'Total',x:280},{lbl:'Cash',x:360},{lbl:'UPI',x:430},{lbl:'Payable',x:W-mg,a:{align:'right'}}])
+    purchBills.forEach((b,i)=>tr2([{v:b.bill_number,x:mg,rgb:[107,114,128]},{v:new Date(b.created_at).toLocaleDateString('en-IN'),x:165},{v:'Rs '+Math.round(b.total_amount).toLocaleString('en-IN'),x:280},{v:b.cash>0?'Rs '+Math.round(b.cash).toLocaleString('en-IN'):'—',x:360},{v:b.upi>0?'Rs '+Math.round(b.upi).toLocaleString('en-IN'):'—',x:430},{v:b.credit>0?'Rs '+Math.round(b.credit).toLocaleString('en-IN'):'—',x:W-mg,a:{align:'right'},rgb:b.credit>0?[220,38,38]:[156,163,175]}],i%2===1)); y+=8
+  }
+  if(retBills.length){
+    sh('PURCHASE RETURNS ('+retBills.length+')')
+    th([{lbl:'Return No',x:mg},{lbl:'Date',x:200},{lbl:'Original Bill',x:320},{lbl:'Amount',x:W-mg,a:{align:'right'}}])
+    retBills.forEach((b,i)=>tr2([{v:b.bill_number,x:mg,rgb:[107,114,128]},{v:new Date(b.created_at).toLocaleDateString('en-IN'),x:200},{v:b.original_bill_ref||'—',x:320},{v:'Rs '+Math.round(Math.abs(b.total_amount)).toLocaleString('en-IN'),x:W-mg,a:{align:'right'},rgb:[220,38,38]}],i%2===1)); y+=8
+  }
+  if((payments||[]).length){
+    sh('PAYMENTS MADE ('+payments.length+')')
+    th([{lbl:'Voucher No',x:mg},{lbl:'Date',x:200},{lbl:'Mode',x:310},{lbl:'Amount',x:W-mg,a:{align:'right'}}])
+    payments.forEach((p,i)=>tr2([{v:p.receipt_no,x:mg,rgb:[107,114,128]},{v:new Date(p.created_at).toLocaleDateString('en-IN'),x:200},{v:p.mode||'—',x:310},{v:'Rs '+Math.round(p.amount).toLocaleString('en-IN'),x:W-mg,a:{align:'right'},rgb:[5,150,105]}],i%2===1)); y+=8
+  }
+
+  if(y>680){doc.addPage();y=36}
+  y+=10
+  const SX=W-mg-230
+  doc.setFillColor(248,250,252); doc.rect(SX,y,230,108,'F')
+  doc.setDrawColor(229,231,235); doc.rect(SX,y,230,108)
+  let sy=y+16
+  const sr2=(lbl,val,bold,rgb)=>{doc.setFont('helvetica',bold?'bold':'normal');doc.setFontSize(bold?12:10);doc.setTextColor(...(rgb||[55,65,81]));doc.text(lbl,SX+10,sy);doc.text(val,SX+220,sy,{align:'right'});if(!bold){doc.setDrawColor(229,231,235);doc.line(SX+10,sy+4,SX+220,sy+4)};sy+=18}
+  sr2('Total Purchased','Rs '+Math.round(totalPurchased).toLocaleString('en-IN'))
+  sr2('Returns',retBills.length?('Rs '+Math.round(retBills.reduce((s,b)=>s+Math.abs(b.total_amount||0),0)).toLocaleString('en-IN')):'—')
+  sr2('Payments Made','Rs '+Math.round(totalPaid).toLocaleString('en-IN'))
+  sr2(nb>0?'Payable Due':nb<0?'Overpaid':'Balance',balStr,true,nb>0?[220,38,38]:[5,150,105])
+  y+=130
+  doc.setFont('helvetica','normal'); doc.setFontSize(8.5); doc.setTextColor(156,163,175)
+  doc.text('Computer-generated statement — Abhinandan Auto Mobiles',mg,y)
+  return doc
 }
-async function generatePDFAndWhatsApp(element, filename, phone, message) {
-  const cleanedPhone = cleanPhone(phone)
-  if (!phone || phone.trim() === '') {
-    alert('📱 Add Phone Number First!\n\nPlease add the merchant\'s phone number.')
-    return
-  }
-  if (!cleanedPhone) {
-    alert('❌ Invalid Phone Number!\n\n"' + phone + '" is not a valid Indian mobile number.\nPlease check and update it.')
-    return
-  }
 
+async function sendPDFToWhatsApp(doc, filename, phone, message) {
+  const cp = cleanPhone(phone)
+  if(!phone||!phone.trim()){alert('Please add the phone number first.');return}
+  if(!cp){alert('Invalid phone: "'+phone+'"\n\nPlease update it.');return}
   showWaToast('📄 Generating PDF...')
-
   try {
-    // ── THE REAL FIX: Build a clean white HTML string and render it in a hidden div ──
-    // We copy the element's innerHTML into a clean white wrapper so no dark page
-    // background bleeds into the PDF capture.
-
-    // 1. Create a clean white container off-screen
-    const wrapper = document.createElement('div')
-    wrapper.style.cssText = [
-      'position:fixed',
-      'left:-9999px',
-      'top:0',
-      'width:794px',
-      'background:white',
-      'color:#111',
-      'font-family:DM Sans,sans-serif',
-      'padding:20px',
-      'z-index:-9999'
-    ].join(';')
-
-    // 2. Copy the statement/bill content into wrapper
-    wrapper.innerHTML = element.innerHTML
-
-    // 3. Fix any dark colors inside the cloned content
-    document.body.appendChild(wrapper)
-
-    // Force all elements inside wrapper to have visible (light) colors
-    wrapper.querySelectorAll('*').forEach(el => {
-      const cs = window.getComputedStyle(el)
-      const bg = cs.backgroundColor
-
-      // Check if background color is dark
-      const m = bg.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/)
-      if (m) {
-        const brightness = (parseInt(m[1]) * 299 + parseInt(m[2]) * 587 + parseInt(m[3]) * 114) / 1000
-        if (brightness < 80) {
-          el.style.backgroundColor = 'transparent'
-          el.style.background = 'transparent'
-        }
-      }
-
-      // Fix white/light text that would be invisible on white background
-      const color = cs.color
-      const cm = color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/)
-      if (cm) {
-        const brightness = (parseInt(cm[1]) * 299 + parseInt(cm[2]) * 587 + parseInt(cm[3]) * 114) / 1000
-        if (brightness > 200) {
-          // Very light text — make it dark for PDF
-          el.style.color = '#111111'
-        }
-      }
-    })
-
-    // 4. Wait for render to complete
-    await new Promise(r => setTimeout(r, 600))
-
-    // 5. Capture wrapper (which is white background, dark text)
-    const canvas = await html2canvas(wrapper, {
-      scale: 2,
-      useCORS: true,
-      logging: false,
-      backgroundColor: '#ffffff',
-      scrollX: 0,
-      scrollY: 0
-    })
-
-    // 6. Clean up wrapper
-    document.body.removeChild(wrapper)
-
-    // 7. Build PDF — handle multi-page correctly
-    const { jsPDF } = window.jspdf
-    const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' })
-
-    const pageW = pdf.internal.pageSize.getWidth()   // 595.28 pt
-    const pageH = pdf.internal.pageSize.getHeight()  // 841.89 pt
-
-    // Scale canvas to page width
-    const imgW = pageW
-    const imgH = (canvas.height / canvas.width) * pageW  // maintain aspect ratio
-
-    const imgData = canvas.toDataURL('image/jpeg', 0.95)
-
-    // Add pages — only draw what fits on each page, no black fill
-    let drawnY = 0
-    while (drawnY < imgH) {
-      if (drawnY > 0) pdf.addPage()
-      // Draw image shifted up so only the current page's slice is visible
-      pdf.addImage(imgData, 'JPEG', 0, -drawnY, imgW, imgH)
-      drawnY += pageH
-    }
-
-    pdf.save(filename)
-    showWaToast('✅ PDF Downloaded! Opening WhatsApp...')
-    await new Promise(r => setTimeout(r, 1500))
-
-    const waMsg = encodeURIComponent(message || 'Please find the attached document from Abhinandan Auto Mobiles.')
-    window.open('https://wa.me/' + cleanedPhone + '?text=' + waMsg, '_blank')
-    showWaToast('📲 WhatsApp opened — tap 📎 and attach the PDF!')
-
-  } catch (err) {
-    console.error('PDF error:', err)
-    // Cleanup any leftover wrapper
-    document.querySelectorAll('div[style*="-9999px"]').forEach(el => {
-      if (el.style.zIndex === '-9999') el.remove()
-    })
-    showWaToast('❌ Error generating PDF')
-    alert('PDF failed: ' + err.message + '\n\nUse the 🖨 Print button as backup.')
+    doc.save(filename)
+    showWaToast('✅ PDF saved! Opening WhatsApp...')
+    await new Promise(r=>setTimeout(r,1500))
+    window.open('https://wa.me/'+cp+'?text='+encodeURIComponent(message),'_blank')
+    showWaToast('📲 Tap the paperclip icon in WhatsApp to attach the PDF!')
+  } catch(err) {
+    console.error(err); showWaToast('❌ Error: '+err.message)
+    alert('PDF failed: '+err.message)
   }
 }
   
@@ -883,19 +853,13 @@ document.getElementById('ledgerModal').addEventListener('click',e=>{if(e.target=
 window.whatsappStatement=async function(){
   if(!currentMerchData)return
   const{merchantName,netBalance,phone}=currentMerchData
-
-  // Build the statement data into the DOM first
-  await buildStatementDOM()
-
-  // ── CRITICAL FIX: Wait for DOM to fully render before capturing ──
-  // Without this delay, html2canvas captures an empty/half-rendered element
-  await new Promise(r => setTimeout(r, 300))
-
-  const el=document.getElementById('statementArea')
+  const cp=cleanPhone(phone||'')
+  if(!phone||!phone.trim()){alert('Add phone number first.');return}
+  if(!cp){alert('Invalid phone: '+phone+'\n\nPlease update it.');return}
   const nb=Math.round(netBalance)
-  const balText=nb===0?'Clear':nb>0?'Payable: -'+fmt(nb):'Advance: +'+fmt(Math.abs(nb))
-  const msg=`*Abhinandan Auto Mobiles*\nMerchant Statement for: *${merchantName}*\nBalance: *${balText}*\n📞 +91 98700 37002`
-  await generatePDFAndWhatsApp(el,'Statement-'+merchantName+'.pdf',phone,msg)
+  const balText=nb===0?'Clear':nb>0?('Payable: Rs '+Math.abs(nb).toLocaleString('en-IN')):('Advance: Rs '+Math.abs(nb).toLocaleString('en-IN'))
+  const msg=`*Abhinandan Auto Mobiles*\nMerchant Statement: *${merchantName}*\nBalance: *${balText}*\n\nPlease find the attached statement PDF.\n+91 98700 37002`
+  await sendPDFToWhatsApp(buildMerchantStatementPDF(currentMerchData),'Statement-'+merchantName+'.pdf',phone,msg)
 }
   
 
@@ -960,10 +924,75 @@ window.viewPurchase=async function(billNo,encodedName){
 window.whatsappPurchaseBill=async function(){
   const billNo=document.getElementById('vPurchaseNo').innerText
   const merchant=document.getElementById('vMerchant').innerText
-  const total=document.getElementById('vPurTotal').innerText
-  const el=document.getElementById('viewPurchasePrintArea')
-  const msg=`*Abhinandan Auto Mobiles*\nPurchase Bill *${billNo}* for ₹${total}\nMerchant: *${merchant}*\n📞 +91 98700 37002`
-  await generatePDFAndWhatsApp(el,'Purchase-'+billNo+'.pdf',_currentViewedBillPhone,msg)
+  const phone=_currentViewedBillPhone||''
+  const{data:pur}=await supabase.from('purchases').select('*').eq('bill_number',billNo).single()
+  if(!pur){alert('Bill not found');return}
+  const{data:items}=await supabase.from('purchase_items').select('*').eq('purchase_id',pur.id)
+  const missingIds=(items||[]).filter(i=>!i.item_name&&i.item_id).map(i=>i.item_id)
+  const invNames={}
+  if(missingIds.length){const{data:prods}=await supabase.from('inventory').select('id,item_name').in('id',missingIds);(prods||[]).forEach(p=>{invNames[p.id]=p.item_name})}
+  const modes=[pur.cash>0?'Cash':'',pur.upi>0?'UPI':'',pur.credit>0?'Credit':''].filter(Boolean)
+  const { jsPDF } = window.jspdf
+  const doc = new jsPDF({ unit:'pt', format:'a4' })
+  const W=595.28, mg=36
+  let y=0
+  const hc=pur.bill_type==='return'?[127,29,29]:[76,29,149]
+  doc.setFillColor(...hc); doc.rect(0,0,W,88,'F')
+  doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(18)
+  doc.text('Abhinandan Auto Mobiles',mg,28)
+  doc.setFont('helvetica','normal'); doc.setFontSize(9)
+  doc.text('Santalpur - Palanpur Highway  |  +91 98700 37002',mg,44)
+  doc.setFont('helvetica','bold'); doc.setFontSize(11)
+  doc.text(pur.bill_type==='return'?'PURCHASE RETURN':'PURCHASE INVOICE',W-mg,27,{align:'right'})
+  doc.setFont('helvetica','normal'); doc.setFontSize(9)
+  doc.text('Bill # '+pur.bill_number,W-mg,43,{align:'right'})
+  doc.text(new Date(pur.created_at).toLocaleString('en-IN'),W-mg,57,{align:'right'})
+  y=88
+  doc.setFillColor(245,240,255); doc.rect(0,y,W,50,'F')
+  doc.setDrawColor(221,214,254); doc.line(0,y+50,W,y+50)
+  const ic2=(lbl,val,x)=>{doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.setTextColor(107,114,128);doc.text(lbl,x,y+13);doc.setFont('helvetica','bold');doc.setFontSize(11);doc.setTextColor(17,24,39);doc.text(String(val||'—'),x,y+30)}
+  ic2('MERCHANT',pur.merchant_name||'—',mg); ic2('PHONE',pur.merchant_phone||'—',220); ic2('PAYMENT',modes.join(' + ')||'—',390)
+  y+=62
+  doc.setFillColor(...hc); doc.rect(0,y,W,22,'F')
+  doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(9)
+  doc.text('#',mg,y+14); doc.text('Item',mg+24,y+14); doc.text('Qty',368,y+14,{align:'center'}); doc.text('Price',455,y+14,{align:'center'}); doc.text('Amount',W-mg,y+14,{align:'right'})
+  y+=24
+  let sub=0
+  ;(items||[]).forEach((item,i)=>{
+    if(y>745){doc.addPage();y=40}
+    const name=item.item_name||invNames[item.item_id]||'Unknown'
+    const amt=Math.abs((item.quantity||0)*(item.purchase_price||0)); sub+=amt
+    if(i%2===1){doc.setFillColor(249,250,251);doc.rect(0,y-12,W,20,'F')}
+    doc.setFont('helvetica','normal'); doc.setFontSize(9.5); doc.setTextColor(156,163,175)
+    doc.text(String(i+1),mg,y); doc.setTextColor(55,65,81)
+    doc.text(name.length>55?name.slice(0,52)+'...':name,mg+24,y)
+    doc.text(String(Math.abs(item.quantity||0)),368,y,{align:'center'})
+    doc.text('Rs '+(item.purchase_price||0).toLocaleString('en-IN'),455,y,{align:'center'})
+    doc.setFont('helvetica','bold'); doc.text('Rs '+amt.toLocaleString('en-IN'),W-mg,y,{align:'right'})
+    y+=21
+  })
+  doc.setDrawColor(229,231,235); doc.line(0,y,W,y); y+=18
+  doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(55,65,81)
+  doc.text('Subtotal',380,y); doc.text('Rs '+sub.toLocaleString('en-IN'),W-mg,y,{align:'right'}); doc.line(380,y+4,W-mg,y+4); y+=18
+  if((pur.discount||0)>0){doc.setTextColor(5,150,105);doc.text('Discount',380,y);doc.text('- Rs '+Math.round(pur.discount).toLocaleString('en-IN'),W-mg,y,{align:'right'});doc.line(380,y+4,W-mg,y+4);y+=18}
+  y+=4
+  doc.setFillColor(245,240,255); doc.rect(0,y-14,W,26,'F')
+  doc.setFont('helvetica','bold'); doc.setFontSize(14); doc.setTextColor(...hc)
+  doc.text('Grand Total',380,y); doc.text('Rs '+Math.abs(pur.total_amount||0).toLocaleString('en-IN'),W-mg,y,{align:'right'})
+  y+=32
+  doc.setFillColor(245,240,255); doc.rect(mg,y,W-2*mg,48,'F')
+  doc.setDrawColor(221,214,254); doc.rect(mg,y,W-2*mg,48)
+  y+=13; doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(107,114,128)
+  doc.text('PAYMENT BREAKDOWN',mg+10,y); y+=14
+  doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(17,24,39)
+  doc.text('Cash: Rs '+Math.abs(pur.cash||0).toLocaleString('en-IN'),mg+10,y)
+  doc.text('UPI: Rs '+Math.abs(pur.upi||0).toLocaleString('en-IN'),mg+160,y)
+  doc.text('Credit: Rs '+Math.abs(pur.credit||0).toLocaleString('en-IN'),mg+310,y)
+  y+=38; doc.setDrawColor(229,231,235); doc.line(mg,y,W-mg,y); y+=14
+  doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor(...hc)
+  doc.text(pur.bill_type==='return'?'Return Processed.':'Stock Received.',mg,y)
+  const msg=`*Abhinandan Auto Mobiles*\nPurchase Bill *${billNo}* for Rs ${Math.round(Math.abs(pur.total_amount)).toLocaleString('en-IN')}\nMerchant: *${merchant}*\n\nPlease find the attached bill PDF.\n+91 98700 37002`
+  await sendPDFToWhatsApp(doc,'Purchase-'+billNo+'.pdf',phone,msg)
 }
 
 window.closeViewPurchase=()=>{document.getElementById('viewPurchaseModal').style.display='none'}
