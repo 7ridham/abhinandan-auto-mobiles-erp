@@ -103,10 +103,18 @@
 
   // ── 5. Notification helper ──
   // Called from billing.html after a bill is saved
-  window.AAMNotify = function (opts) {
+ window.AAMNotify = function (opts) {
     var s = getSession()
-    withSB(function(sb) {
-      sb.from('notifications').insert([{
+    // Retry up to 5 times with 500ms gap if Supabase not ready
+    var attempts = 0
+    function tryInsert() {
+      attempts++
+      if (!_authSBReady || !_authSB) {
+        if (attempts < 10) { setTimeout(tryInsert, 500); return }
+        console.warn('AAMNotify: Supabase not ready after retries')
+        return
+      }
+      _authSB.from('notifications').insert([{
         type:        opts.type        || 'bill',
         title:       opts.title       || 'Activity',
         message:     opts.message     || '',
@@ -116,8 +124,10 @@
         is_read:     false
       }]).then(function(res){
         if (res.error) console.warn('Notification error:', res.error.message)
+        else console.log('AAMNotify: saved notification', opts.bill_number)
       })
-    })
+    }
+    tryInsert()
   }
 
   // ── 6. Business details ──
