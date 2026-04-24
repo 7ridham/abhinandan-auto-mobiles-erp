@@ -1230,6 +1230,56 @@ if (pf) {
 
 // ── WHATSAPP PURCHASE BILL ──
 function showWaToast(msg){const t=document.getElementById('waToast');document.getElementById('waToastMsg').innerText=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3500)}
+
+function showWaDesktopModal(doc, filename, cp, message) {
+  // Remove any existing modal
+  var ex = document.getElementById('waDesktopModal')
+  if(ex) ex.remove()
+
+  // Create blob URL for preview/download
+  var blobUrl = URL.createObjectURL(doc.output('blob'))
+
+  var modal = document.createElement('div')
+  modal.id = 'waDesktopModal'
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:999999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px);'
+  modal.innerHTML = `
+    <div style="background:#0f172a;border:1px solid rgba(255,255,255,0.12);border-radius:20px;padding:32px;width:90%;max-width:460px;font-family:'DM Sans',sans-serif;">
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px;">
+        <div style="width:48px;height:48px;background:#25D366;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;">📲</div>
+        <div>
+          <div style="font-size:17px;font-weight:700;color:white;margin-bottom:3px;">Send via WhatsApp</div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.4);">${filename}</div>
+        </div>
+      </div>
+
+      <div style="background:rgba(37,211,102,0.08);border:1px solid rgba(37,211,102,0.2);border-radius:12px;padding:14px;margin-bottom:20px;font-size:13px;color:rgba(255,255,255,0.65);line-height:1.7;">
+        <strong style="color:#25D366;">Step 1:</strong> Click <strong style="color:white;">Download PDF</strong> below<br>
+        <strong style="color:#25D366;">Step 2:</strong> Click <strong style="color:white;">Open WhatsApp</strong> — chat opens automatically<br>
+        <strong style="color:#25D366;">Step 3:</strong> Click 📎 in WhatsApp and attach the downloaded PDF
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px;">
+        <a href="${blobUrl}" download="${filename}"
+           style="display:flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(135deg,#1d4ed8,#2563eb);color:white;padding:13px;border-radius:10px;font-weight:700;font-size:15px;text-decoration:none;cursor:pointer;"
+           onclick="document.getElementById('waStep1').style.color='#34d399'">
+          ⬇️ Download PDF
+        </a>
+        <a href="https://web.whatsapp.com/send?phone=${cp}&text=${encodeURIComponent(message)}" target="_blank"
+           style="display:flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(135deg,#128C7E,#25D366);color:white;padding:13px;border-radius:10px;font-weight:700;font-size:15px;text-decoration:none;cursor:pointer;">
+          💬 Open WhatsApp Web
+        </a>
+      </div>
+
+      <button onclick="document.getElementById('waDesktopModal').remove()"
+        style="width:100%;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.5);padding:10px;border-radius:10px;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;">
+        ✕ Close
+      </button>
+    </div>
+  `
+  document.body.appendChild(modal)
+  modal.addEventListener('click', function(e){ if(e.target===modal) modal.remove() })
+}  
+  
 function cleanPhone(raw){const digits=(raw||'').replace(/\D/g,'');if(digits.length===10)return '91'+digits;if(digits.length===12&&digits.startsWith('91'))return digits;if(digits.length===11&&digits.startsWith('0'))return '91'+digits.slice(1);return null}
 
 function buildBillPDF(opts) {
@@ -1238,6 +1288,8 @@ function buildBillPDF(opts) {
   const W = 595.28, mg = 36
   let y = 0
   const hc = opts.isReturn ? [127,29,29] : opts.isPurchase ? [120,53,15] : [30,58,95]
+
+  // ─ Header ─
   doc.setFillColor(...hc); doc.rect(0,0,W,88,'F')
   doc.setTextColor(255,255,255)
   doc.setFont('helvetica','bold'); doc.setFontSize(18)
@@ -1252,85 +1304,113 @@ function buildBillPDF(opts) {
   doc.text('Bill # '+(opts.billNo||''), W-mg, 43, {align:'right'})
   doc.text(opts.date||'', W-mg, 57, {align:'right'})
   y = 88
+
+  // ─ Meta row ─
   doc.setFillColor(248,250,252); doc.rect(0,y,W,50,'F')
   doc.setDrawColor(229,231,235); doc.line(0,y+50,W,y+50)
   function mcol(lbl,val,x){
     doc.setFont('helvetica','bold'); doc.setFontSize(7.5); doc.setTextColor(107,114,128)
-    doc.text(lbl,x,y+13)
+    doc.text(lbl, x, y+13)
     doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor(17,24,39)
-    doc.text(String(val||'—'),x,y+30)
+    doc.text(String(val||'—'), x, y+30)
   }
   mcol('BILLED TO', opts.partyName||'—', mg)
-  mcol('PHONE', opts.partyPhone||'—', 210)
-  if(opts.vehicle) mcol('VEHICLE', opts.vehicle, 370)
-  mcol('PAYMENT MODE', opts.payMode||'—', opts.vehicle?480:370)
+  mcol('PHONE', opts.partyPhone||'—', 200)
+  if(opts.vehicle) mcol('VEHICLE', opts.vehicle, 355)
+  mcol('PAYMENT MODE', opts.payMode||'—', opts.vehicle ? 465 : 355)
   y += 62
+
+  // ─ Table header — fixed column positions ─
+  // Col positions: # at 44, Item 70–320, Qty right@340, Price right@440, Amount right@W-mg
   doc.setFillColor(...hc); doc.rect(0,y,W,22,'F')
-  doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(9)
-  doc.text('#', mg, y+14)
-  doc.text('Item Description', mg+24, y+14)
-  doc.text('Qty', 368, y+14, {align:'center'})
-  doc.text('Price', 455, y+14, {align:'center'})
-  doc.text('Amount', W-mg, y+14, {align:'right'})
+  doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(8.5)
+  doc.text('#',      44,    y+14, {align:'center'})
+  doc.text('ITEM',   70,    y+14)
+  doc.text('QTY',    340,   y+14, {align:'right'})
+  doc.text('PRICE',  440,   y+14, {align:'right'})
+  doc.text('AMOUNT', W-mg,  y+14, {align:'right'})
   y += 24
+
+  // ─ Item rows ─
   let sub = 0
-  ;(opts.items||[]).forEach(function(item,i){
-    if(y>745){doc.addPage();y=40}
-    var amt=Math.abs((item.qty||0)*(item.price||0)); sub+=amt
-    if(i%2===1){doc.setFillColor(249,250,251);doc.rect(0,y-12,W,20,'F')}
+  ;(opts.items||[]).forEach(function(item, i){
+    if(y > 745){ doc.addPage(); y = 40 }
+    var qty = Math.abs(item.qty||0)
+    var price = item.price||0
+    var amt = Math.abs(qty * price); sub += amt
+    if(i%2===1){ doc.setFillColor(249,250,251); doc.rect(0,y-12,W,20,'F') }
+    // Row number
     doc.setFont('helvetica','normal'); doc.setFontSize(9.5)
-    doc.setTextColor(156,163,175); doc.text(String(i+1),mg,y)
+    doc.setTextColor(156,163,175)
+    doc.text(String(i+1), 44, y, {align:'center'})
+    // Item name — hard cap at 36 chars so it never reaches Qty column
     doc.setTextColor(55,65,81)
-    var nm=(item.name||'').length>53?(item.name||'').slice(0,50)+'...':(item.name||'')
-    doc.text(nm,mg+24,y)
-    doc.text(String(Math.abs(item.qty||0)),368,y,{align:'center'})
-    doc.text('Rs '+(item.price||0).toLocaleString('en-IN'),455,y,{align:'center'})
+    var nm = (item.name||'').length > 36 ? (item.name||'').slice(0,33)+'...' : (item.name||'')
+    doc.text(nm, 70, y)
+    // Qty — right-aligned at 340
+    doc.text(String(qty), 340, y, {align:'right'})
+    // Price — right-aligned at 440
+    doc.text('Rs '+price.toLocaleString('en-IN'), 440, y, {align:'right'})
+    // Amount — right-aligned at W-mg, bold
     doc.setFont('helvetica','bold')
-    doc.text('Rs '+amt.toLocaleString('en-IN'),W-mg,y,{align:'right'})
-    y+=21
+    doc.text('Rs '+amt.toLocaleString('en-IN'), W-mg, y, {align:'right'})
+    y += 21
   })
-  doc.setDrawColor(229,231,235); doc.line(0,y,W,y); y+=18
+
+  // ─ Totals ─
+  doc.setDrawColor(229,231,235); doc.line(0,y,W,y); y += 18
   function trow(lbl,val,bold,rgb){
-    if(y>760){doc.addPage();y=40}
-    doc.setFont('helvetica',bold?'bold':'normal'); doc.setFontSize(bold?12:10)
+    if(y>760){ doc.addPage(); y=40 }
+    doc.setFont('helvetica', bold?'bold':'normal'); doc.setFontSize(bold?12:10)
     doc.setTextColor(...(rgb||[55,65,81]))
-    doc.text(lbl,380,y); doc.text(val,W-mg,y,{align:'right'})
-    if(!bold){doc.setDrawColor(229,231,235);doc.line(380,y+4,W-mg,y+4)}
-    y+=18
+    doc.text(lbl, 370, y)
+    doc.text(val, W-mg, y, {align:'right'})
+    if(!bold){ doc.setDrawColor(229,231,235); doc.line(370,y+4,W-mg,y+4) }
+    y += 18
   }
-  trow('Subtotal','Rs '+sub.toLocaleString('en-IN'))
+  trow('Subtotal', 'Rs '+sub.toLocaleString('en-IN'))
   if(opts.gstEnabled){
-    var g=Math.round(sub*0.09)
-    trow('CGST (9%)','Rs '+g.toLocaleString('en-IN'),false,[107,114,128])
-    trow('SGST (9%)','Rs '+g.toLocaleString('en-IN'),false,[107,114,128])
+    var g = Math.round(sub*0.09)
+    trow('CGST (9%)', 'Rs '+g.toLocaleString('en-IN'), false, [107,114,128])
+    trow('SGST (9%)', 'Rs '+g.toLocaleString('en-IN'), false, [107,114,128])
   }
-  if((opts.delivery||0)>0) trow('Delivery','+ Rs '+(opts.delivery||0).toLocaleString('en-IN'),false,[8,145,178])
-  if((opts.discount||0)>0) trow('Discount','- Rs '+Math.round(opts.discount||0).toLocaleString('en-IN'),false,[5,150,105])
-  y+=4
+  if((opts.delivery||0)>0) trow('Delivery', '+ Rs '+(opts.delivery).toLocaleString('en-IN'), false, [8,145,178])
+  if((opts.discount||0)>0) trow('Discount', '- Rs '+Math.round(opts.discount).toLocaleString('en-IN'), false, [5,150,105])
+  y += 4
   doc.setFillColor(239,246,255); doc.rect(0,y-14,W,26,'F')
   doc.setFont('helvetica','bold'); doc.setFontSize(14); doc.setTextColor(...hc)
-  doc.text('Grand Total',380,y)
-  doc.text('Rs '+Math.abs(opts.final||0).toLocaleString('en-IN'),W-mg,y,{align:'right'})
-  y+=32
+  doc.text('Grand Total', 370, y)
+  doc.text('Rs '+Math.abs(opts.final||0).toLocaleString('en-IN'), W-mg, y, {align:'right'})
+  y += 32
+
+  // ─ Payment breakdown box ─
   doc.setFillColor(248,250,252); doc.rect(mg,y,W-2*mg,52,'F')
   doc.setDrawColor(229,231,235); doc.rect(mg,y,W-2*mg,52)
-  y+=13
+  y += 13
   doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(107,114,128)
-  doc.text('PAYMENT BREAKDOWN',mg+10,y); y+=14
+  doc.text('PAYMENT BREAKDOWN', mg+10, y); y += 14
   doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(17,24,39)
-  doc.text('Cash: Rs '+Math.abs(opts.cash||0).toLocaleString('en-IN'),mg+10,y)
-  doc.text('UPI: Rs '+Math.abs(opts.upi||0).toLocaleString('en-IN'),mg+160,y)
-  doc.text((opts.isReturn?'Credit Adj':'Credit')+': Rs '+Math.abs(opts.credit||0).toLocaleString('en-IN'),mg+310,y)
-  y+=38
-  doc.setDrawColor(229,231,235); doc.line(mg,y,W-mg,y); y+=14
+  // Three evenly spaced payment columns
+  var col1 = mg+10
+  var col2 = mg+10 + (W-2*mg-20)/3
+  var col3 = mg+10 + (W-2*mg-20)*2/3
+  doc.text('Cash: Rs '+Math.abs(opts.cash||0).toLocaleString('en-IN'),  col1, y)
+  doc.text('UPI: Rs '+Math.abs(opts.upi||0).toLocaleString('en-IN'),    col2, y)
+  doc.text((opts.isReturn?'Credit Adj':'Credit')+': Rs '+Math.abs(opts.credit||0).toLocaleString('en-IN'), col3, y)
+  y += 38
+
+  // ─ Footer ─
+  doc.setDrawColor(229,231,235); doc.line(mg,y,W-mg,y); y += 14
   doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor(...hc)
-  doc.text(opts.isReturn?'Return processed. Thank you.':'Thank you for your business!',mg,y); y+=12
+  doc.text(opts.isReturn ? 'Return processed. Thank you.' : 'Thank you for your business!', mg, y); y += 12
   doc.setFont('helvetica','normal'); doc.setFontSize(8.5); doc.setTextColor(107,114,128)
-  doc.text('All disputes subject to local jurisdiction.',mg,y); y+=34
-  doc.line(mg,y,mg+140,y); doc.line(W-mg-140,y,W-mg,y); y+=10
+  doc.text('All disputes subject to local jurisdiction.', mg, y); y += 34
+  doc.line(mg,    y, mg+140,    y)
+  doc.line(W-mg-140, y, W-mg, y)
+  y += 10
   doc.setFontSize(9)
-  doc.text(opts.isReturn?'Returned By':'Customer Signature',mg,y)
-  doc.text('For Abhinandan Auto Mobiles',W-mg,y,{align:'right'})
+  doc.text(opts.isReturn ? 'Returned By' : 'Customer Signature', mg, y)
+  doc.text('For Abhinandan Auto Mobiles', W-mg, y, {align:'right'})
   return doc
 }
 
@@ -1342,30 +1422,17 @@ async function sendPDFToWhatsApp(doc, filename, phone, message) {
   try {
     const pdfBlob = doc.output('blob')
     const file = new File([pdfBlob], filename, {type:'application/pdf'})
-    // Web Share API — on mobile opens native share sheet, tap WhatsApp = file sent directly
     if (navigator.share && navigator.canShare && navigator.canShare({files:[file]})) {
-      showWaToast('📲 Opening share menu...')
-      await navigator.share({
-        files: [file],
-        text: message,
-        title: filename
-      })
-      showWaToast('✅ PDF sent!')
+      showWaToast('📲 Opening share...')
+      await navigator.share({ files:[file], text:message, title:filename })
+      showWaToast('✅ Done!')
     } else {
-      // Desktop fallback: download + open WhatsApp
-      doc.save(filename)
-      showWaToast('✅ PDF downloaded! Opening WhatsApp...')
-      await new Promise(r=>setTimeout(r,1500))
-      window.open('https://wa.me/'+cp+'?text='+encodeURIComponent(message),'_blank')
-      showWaToast('📲 Tap 📎 in WhatsApp to attach the PDF!')
+      showWaDesktopModal(doc, filename, cp, message)
     }
   } catch(err) {
-    if(err.name==='AbortError'){showWaToast('Share cancelled');return}
+    if(err.name==='AbortError'){showWaToast('Cancelled');return}
     console.error(err)
-    try{doc.save(filename)}catch(e){}
-    showWaToast('Fallback: PDF saved, opening WhatsApp...')
-    await new Promise(r=>setTimeout(r,1200))
-    window.open('https://wa.me/'+cp+'?text='+encodeURIComponent(message),'_blank')
+    showWaToast('❌ Error: '+err.message)
   }
 }
 
