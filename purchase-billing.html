@@ -1334,21 +1334,38 @@ function buildBillPDF(opts) {
   return doc
 }
 
-async function sendWhatsAppBill(opts, filename, phone, message) {
-  var cp = cleanPhone(phone)
+async function sendPDFToWhatsApp(doc, filename, phone, message) {
+  const cp = cleanPhone(phone)
   if(!phone||!phone.trim()){alert('Please add the phone number first.');return}
-  if(!cp){alert('Invalid phone number: "'+phone+'"\n\nPlease update it.');return}
-  showWaToast('📄 Generating PDF...')
+  if(!cp){alert('Invalid phone: "'+phone+'"\n\nPlease update it.');return}
+  showWaToast('📄 Preparing PDF...')
   try {
-    buildBillPDF(opts).save(filename)
-    showWaToast('✅ PDF saved! Opening WhatsApp...')
-    await new Promise(function(r){setTimeout(r,1500)})
-    window.open('https://wa.me/'+cp+'?text='+encodeURIComponent(message),'_blank')
-    showWaToast('📲 Tap the paperclip in WhatsApp to attach the PDF!')
+    const pdfBlob = doc.output('blob')
+    const file = new File([pdfBlob], filename, {type:'application/pdf'})
+    // Web Share API — on mobile opens native share sheet, tap WhatsApp = file sent directly
+    if (navigator.share && navigator.canShare && navigator.canShare({files:[file]})) {
+      showWaToast('📲 Opening share menu...')
+      await navigator.share({
+        files: [file],
+        text: message,
+        title: filename
+      })
+      showWaToast('✅ PDF sent!')
+    } else {
+      // Desktop fallback: download + open WhatsApp
+      doc.save(filename)
+      showWaToast('✅ PDF downloaded! Opening WhatsApp...')
+      await new Promise(r=>setTimeout(r,1500))
+      window.open('https://wa.me/'+cp+'?text='+encodeURIComponent(message),'_blank')
+      showWaToast('📲 Tap 📎 in WhatsApp to attach the PDF!')
+    }
   } catch(err) {
+    if(err.name==='AbortError'){showWaToast('Share cancelled');return}
     console.error(err)
-    showWaToast('❌ Error: '+err.message)
-    alert('PDF failed: '+err.message)
+    try{doc.save(filename)}catch(e){}
+    showWaToast('Fallback: PDF saved, opening WhatsApp...')
+    await new Promise(r=>setTimeout(r,1200))
+    window.open('https://wa.me/'+cp+'?text='+encodeURIComponent(message),'_blank')
   }
 }
 
