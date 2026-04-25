@@ -492,6 +492,7 @@ var deletingBillId      = null
 var deletingBillNo      = null
 var returnOriginalSale  = null
 var returnBillItemsData = []
+var alreadyReturned     = {}
 var historyPage         = 1
 var HIST_SIZE           = 20
 var deliveryBoxOpen     = false
@@ -1252,7 +1253,7 @@ document.getElementById('findReturnBillBtn').addEventListener('click',async func
   if(sr.data.bill_type==='return'){alert('This is already a return bill!');return}
   
   // Check how many have already been returned for each item
-  var alreadyReturned = {}
+  alreadyReturned = {}
   var existingReturns = await supabase.from('sales')
     .select('id').eq('original_bill_ref', billNo).eq('bill_type','return')
   if (existingReturns.data && existingReturns.data.length) {
