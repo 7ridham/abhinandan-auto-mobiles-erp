@@ -1108,6 +1108,20 @@ window.searchReturnBill=async function(){
   if(!sr.data){alert('Bill not found');return}
   if(sr.data.bill_type==='return'){alert('This is already a return bill!');return}
   var pur=sr.data
+
+  // Check already-returned quantities
+  var purAlreadyReturned = {}
+  var purExistingReturns = await supabase.from('purchases')
+    .select('id').eq('original_bill_ref', pur.bill_number).eq('bill_type','return')
+  if (purExistingReturns.data && purExistingReturns.data.length) {
+    var purRetIds = purExistingReturns.data.map(function(r){ return r.id })
+    var purRetItems = await supabase.from('purchase_items').select('item_id,quantity').in('purchase_id', purRetIds)
+    ;(purRetItems.data||[]).forEach(function(ri){
+      if (!purAlreadyReturned[ri.item_id]) purAlreadyReturned[ri.item_id] = 0
+      purAlreadyReturned[ri.item_id] += Math.abs(ri.quantity)
+    })
+  }
+  
   var ir=await supabase.from('purchase_items').select('*').eq('purchase_id',pur.id)
   var items=ir.data||[]
   var missingIds=items.filter(function(i){return !i.item_name&&i.item_id}).map(function(i){return i.item_id})
