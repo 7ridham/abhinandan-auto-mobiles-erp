@@ -1128,10 +1128,17 @@ window.searchReturnBill=async function(){
   var invNames={}
   if(missingIds.length){var pr=await supabase.from('inventory').select('id,item_name').in('id',missingIds);(pr.data||[]).forEach(function(p){invNames[p.id]=p.item_name})}
   returnOriginalBill=pur; returnBillItems=items
+  var purPayParts = []
+  if((pur.cash||0)>0)   purPayParts.push('<span style="color:#34d399;">Cash ₹'+Math.round(pur.cash).toLocaleString('en-IN')+'</span>')
+  if((pur.upi||0)>0)    purPayParts.push('<span style="color:#60a5fa;">UPI ₹'+Math.round(pur.upi).toLocaleString('en-IN')+'</span>')
+  if((pur.credit||0)>0) purPayParts.push('<span style="color:#f87171;">Credit ₹'+Math.round(pur.credit).toLocaleString('en-IN')+'</span>')
+  if((pur.discount||0)>0) purPayParts.push('<span style="color:#34d399;">Discount ₹'+Math.round(pur.discount).toLocaleString('en-IN')+'</span>')
+
   document.getElementById('returnMerchantInfo').innerHTML=
     '<div><div style="font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Merchant</div><div style="font-size:15px;font-weight:600;color:white;">'+(pur.merchant_name||'—')+'</div></div>'+
     '<div><div style="font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Original Bill</div><div style="font-size:13px;color:#fbbf24;font-weight:600;">'+pur.bill_number+'</div></div>'+
     '<div><div style="font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Total</div><div style="font-size:13px;color:#a78bfa;font-weight:600;">₹'+Math.round(pur.total_amount).toLocaleString('en-IN')+'</div></div>'+
+    '<div><div style="font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Paid By</div><div style="font-size:13px;font-weight:600;">'+(purPayParts.join(' + ')||'—')+'</div></div>'+
     '<div><div style="font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Date</div><div style="font-size:13px;color:rgba(255,255,255,0.6);">'+new Date(pur.created_at).toLocaleDateString('en-IN')+'</div></div>'
   var tbody=document.getElementById('returnItemsBody');tbody.innerHTML=''
   items.forEach(function(item,idx){
