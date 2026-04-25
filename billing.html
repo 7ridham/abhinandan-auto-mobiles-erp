@@ -1269,10 +1269,17 @@ document.getElementById('findReturnBillBtn').addEventListener('click',async func
   var custName='Walk-in', custPhone=''
   if(sale.customer_id){var cr3=await supabase.from('customers').select('name,phone').eq('id',sale.customer_id).single();if(cr3.data){custName=cr3.data.name;custPhone=cr3.data.phone||''}}
   returnOriginalSale=sale; returnBillItemsData=items
+  var payParts = []
+  if((sale.cash||0)>0) payParts.push('<span style="color:#34d399;">Cash ₹'+Math.round(sale.cash).toLocaleString('en-IN')+'</span>')
+  if((sale.upi||0)>0)  payParts.push('<span style="color:#60a5fa;">UPI ₹'+Math.round(sale.upi).toLocaleString('en-IN')+'</span>')
+  if((sale.credit||0)>0) payParts.push('<span style="color:#f87171;">Credit ₹'+Math.round(sale.credit).toLocaleString('en-IN')+'</span>')
+  if((sale.discount||0)>0) payParts.push('<span style="color:#a78bfa;">Discount ₹'+Math.round(sale.discount).toLocaleString('en-IN')+'</span>')
+
   document.getElementById('returnCustomerInfo').innerHTML=
     '<div><div style="font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Customer</div><div style="font-size:15px;font-weight:600;color:white;">'+custName+'</div></div>'+
     '<div><div style="font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Original Bill</div><div style="font-size:13px;color:#fbbf24;font-weight:600;">'+sale.bill_number+'</div></div>'+
     '<div><div style="font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Original Total</div><div style="font-size:13px;color:#34d399;font-weight:600;">₹'+Math.round(sale.total_amount).toLocaleString('en-IN')+'</div></div>'+
+    '<div><div style="font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Paid By</div><div style="font-size:13px;font-weight:600;">'+(payParts.join(' + ')||'—')+'</div></div>'+
     '<div><div style="font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Date</div><div style="font-size:13px;color:rgba(255,255,255,0.6);">'+new Date(sale.created_at).toLocaleDateString('en-IN')+'</div></div>'
   var tbody=document.getElementById('returnItemsBody'); tbody.innerHTML=''
   items.forEach(function(item,idx){
