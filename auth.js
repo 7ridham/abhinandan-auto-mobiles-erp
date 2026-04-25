@@ -843,8 +843,51 @@
     if (tabName === 'staff')  window.AAMAuth.loadStaffList()
   }
 
-  // Auto-run
-  function runUI() { if (window.AAMAuth) window.AAMAuth.applyUI() }
+ // ── LIGHT THEME INLINE STYLE FIXER ──
+  function applyLightThemePatch() {
+    var t = localStorage.getItem(THEME_KEY) || 'dark'
+    if (t !== 'light') return
+    function patchDOM() {
+      document.querySelectorAll('*').forEach(function(el) {
+        var cs = el.style
+        if (!cs) return
+        if (cs.color === 'white' || cs.color === 'rgb(255, 255, 255)') { el.style.color = '#0f172a' }
+        if (cs.color && cs.color.indexOf('rgba(255,255,255,0.8') !== -1) { el.style.color = '#334155' }
+        if (cs.color && cs.color.indexOf('rgba(255,255,255,0.7') !== -1) { el.style.color = '#334155' }
+        if (cs.color && cs.color.indexOf('rgba(255,255,255,0.6') !== -1) { el.style.color = '#334155' }
+        if (cs.color && cs.color.indexOf('rgba(255,255,255,0.5') !== -1) { el.style.color = '#475569' }
+        if (cs.color && cs.color.indexOf('rgba(255,255,255,0.4') !== -1) { el.style.color = '#64748b' }
+        if (cs.color && cs.color.indexOf('rgba(255,255,255,0.3') !== -1) { el.style.color = '#64748b' }
+        if (cs.color && cs.color.indexOf('rgba(255,255,255,0.2') !== -1) { el.style.color = '#94a3b8' }
+        if (cs.background) {
+          if (cs.background === '#0f172a' || cs.background === '#0d1117' || cs.background === 'rgb(15, 23, 42)' || cs.background === 'rgb(13, 17, 23)') {
+            el.style.background = 'rgba(255,255,255,0.9)'; el.style.color = '#0f172a'
+          }
+          if (cs.background.indexOf('linear-gradient(135deg,#0d1117') !== -1 || cs.background.indexOf('linear-gradient(135deg, #0d1117') !== -1 || cs.background.indexOf('linear-gradient(135deg,#0f172a') !== -1) {
+            el.style.background = 'linear-gradient(135deg,#f0f4ff,#ffffff)'; el.style.color = '#0f172a'
+          }
+          if (cs.background.indexOf('rgba(255,255,255,0.02)') !== -1 || cs.background.indexOf('rgba(255,255,255,0.03)') !== -1 || cs.background.indexOf('rgba(255,255,255,0.04)') !== -1) { el.style.background = 'rgba(0,0,0,0.025)' }
+          if (cs.background.indexOf('rgba(255,255,255,0.05)') !== -1 || cs.background.indexOf('rgba(255,255,255,0.06)') !== -1) { el.style.background = 'rgba(0,0,0,0.035)' }
+          if (cs.background.indexOf('rgba(255,255,255,0.07)') !== -1 || cs.background.indexOf('rgba(255,255,255,0.08)') !== -1) { el.style.background = 'rgba(255,255,255,0.92)' }
+        }
+        if (cs.borderBottom && cs.borderBottom.indexOf('rgba(255,255,255,') !== -1) { el.style.borderBottom = '1px solid rgba(0,0,0,0.07)' }
+        if (cs.borderTop    && cs.borderTop.indexOf('rgba(255,255,255,')    !== -1) { el.style.borderTop    = '1px solid rgba(0,0,0,0.07)' }
+        if (cs.border       && cs.border.indexOf('rgba(255,255,255,')       !== -1) { el.style.border       = '1px solid rgba(0,0,0,0.09)' }
+      })
+    }
+    patchDOM()
+    var obs = new MutationObserver(function(muts) {
+      var hasNew = false
+      muts.forEach(function(m){ if(m.addedNodes.length) hasNew = true })
+      if (hasNew) setTimeout(patchDOM, 80)
+    })
+    if (document.body) obs.observe(document.body, { childList: true, subtree: true })
+  }
+
+  function runUI() {
+    if (window.AAMAuth) window.AAMAuth.applyUI()
+    setTimeout(function(){ applyLightThemePatch() }, 300)
+  }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', runUI)
   else setTimeout(runUI, 0)
 
