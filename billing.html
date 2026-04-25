@@ -893,6 +893,9 @@ async function saveBill() {
       await supabase.from('sales').update({customer_id:customerId,total_amount:final,cash:cash,upi:upi,credit:cred,discount:disc,delivery_charges:deliv,delivery_note:delivNote||null,receiver_name:receiver||null,vehicle_number:vehicle||null}).eq('id',editingBillId)
       for(var oi=0;oi<(oldR.data||[]).length;oi++){var ov=oldR.data[oi];if(ov.item_id&&ov.quantity>0)await supabase.rpc('increment_inventory',{p_item_id:ov.item_id,p_qty:ov.quantity})}
       for(var ni=0;ni<billItems.length;ni++){var nv=billItems[ni];if(nv.id)await supabase.rpc('decrement_inventory',{p_item_id:nv.id,p_qty:nv.qty})}
+     if (window.AAMNotify) {
+        window.AAMNotify({ type:'bill', title:'✏️ Bill Edited', message:'Bill '+editingBillNumber+' was edited. New total: ₹'+Math.round(final).toLocaleString('en-IN'), bill_number:editingBillNumber, amount:final })
+      }
       if(!window.isPrinting) alert('✅ Bill Updated — '+editingBillNumber)
       cancelEdit(); window.isSaving=false; saveBtn.innerText=origText; saveBtn.disabled=false; return
     }
