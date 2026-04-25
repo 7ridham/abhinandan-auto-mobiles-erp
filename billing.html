@@ -893,7 +893,8 @@ async function saveBill() {
       await supabase.from('sales').update({customer_id:customerId,total_amount:final,cash:cash,upi:upi,credit:cred,discount:disc,delivery_charges:deliv,delivery_note:delivNote||null,receiver_name:receiver||null,vehicle_number:vehicle||null}).eq('id',editingBillId)
       for(var oi=0;oi<(oldR.data||[]).length;oi++){var ov=oldR.data[oi];if(ov.item_id&&ov.quantity>0)await supabase.rpc('increment_inventory',{p_item_id:ov.item_id,p_qty:ov.quantity})}
       for(var ni=0;ni<billItems.length;ni++){var nv=billItems[ni];if(nv.id)await supabase.rpc('decrement_inventory',{p_item_id:nv.id,p_qty:nv.qty})}
-     if (window.AAMNotify) {
+     var sessE = window.AAMAuth ? window.AAMAuth.getSession() : null
+      if (window.AAMNotify && sessE && sessE.role === 'staff') {
         window.AAMNotify({ type:'bill', title:'✏️ Bill Edited', message:'Bill '+editingBillNumber+' was edited. New total: ₹'+Math.round(final).toLocaleString('en-IN'), bill_number:editingBillNumber, amount:final })
       }
       if(!window.isPrinting) alert('✅ Bill Updated — '+editingBillNumber)
@@ -925,7 +926,8 @@ async function saveBill() {
 
     if (!window.isPrinting) {
       var custDisplayName = selectedCustomer ? selectedCustomer.name : 'Walk-in Customer'
-      if (window.AAMNotify) {
+     var sess = window.AAMAuth ? window.AAMAuth.getSession() : null
+      if (window.AAMNotify && sess && sess.role === 'staff') {
         window.AAMNotify({
           type:'bill', title:'🧾 New Bill Created',
           message:'Bill of ₹'+Math.round(final).toLocaleString('en-IN')+' made for customer: '+custDisplayName+' | Bill No: '+billNumber,
@@ -1232,7 +1234,8 @@ document.getElementById('confirmDeleteBtn').addEventListener('click',async funct
   for(var i=0;i<(ir.data||[]).length;i++){var item=ir.data[i];if(item.item_id&&item.quantity>0)await supabase.rpc('increment_inventory',{p_item_id:item.item_id,p_qty:item.quantity})}
   await supabase.from('bill_items').delete().eq('sale_id',deletingBillId)
   await supabase.from('sales').delete().eq('id',deletingBillId)
-  if (window.AAMNotify) {
+  var sessD = window.AAMAuth ? window.AAMAuth.getSession() : null
+  if (window.AAMNotify && sessD && sessD.role === 'staff') {
     window.AAMNotify({ type:'bill', title:'🗑️ Bill Deleted', message:'Bill '+deletingBillNo+' was deleted and inventory restored.', bill_number:deletingBillNo, amount:0 })
   }
   document.getElementById('deleteModal').style.display='none'; deletingBillId=null; deletingBillNo=null
@@ -1378,7 +1381,8 @@ async function processReturn(shouldPrint){
     var ot=document.title; document.title='Return-'+returnNo; window.print()
     setTimeout(function(){document.title=ot;document.getElementById('printArea').style.display='none'},800)
   }
-  if (window.AAMNotify) {
+  var sessR = window.AAMAuth ? window.AAMAuth.getSession() : null
+  if (window.AAMNotify && sessR && sessR.role === 'staff') {
     window.AAMNotify({type:'return',title:'↩️ Sales Return Processed',message:'Return of ₹'+returnTotal.toLocaleString('en-IN')+' processed. Return No: '+returnNo+' | Original Bill: '+returnOriginalSale.bill_number,bill_number:returnNo,amount:returnTotal})
   }
   var refundMsg=[]
