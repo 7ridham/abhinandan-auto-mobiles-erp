@@ -1339,7 +1339,9 @@ async function processReturn(shouldPrint){
     var qi=document.querySelector('.returnQtyInput[data-idx="'+idx+'"]')
     var qty=parseInt(qi?qi.value:0)||0; if(qty<=0)return
     var orig=returnBillItemsData[idx]; if(!orig)return
-    if(qty>orig.quantity){alert('Return qty exceeds billed qty for one item');valid=false;return}
+   var alreadyRetQty2 = alreadyReturned[orig.item_id] || 0
+    var maxAllowed = orig.quantity - alreadyRetQty2
+    if(qty>maxAllowed){alert('Cannot return '+qty+' of "'+orig.item_name+'". Only '+maxAllowed+' available for return ('+alreadyRetQty2+' already returned).');valid=false;return}
     checkedItems.push({item_id:orig.item_id,item_name:orig.item_name||('Product #'+orig.item_id),qty:qty,price:orig.price})
   })
   if(!valid)return
