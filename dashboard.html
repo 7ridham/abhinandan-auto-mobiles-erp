@@ -172,6 +172,7 @@
       </div>
       <div style="display:flex;gap:8px;">
         <button onclick="markAllRead()" style="background:rgba(52,211,153,0.12);border:1px solid rgba(52,211,153,0.25);color:#34d399;padding:6px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;">✅ Mark all read</button>
+        <button onclick="deleteAllNotifications()" style="background:rgba(220,38,38,0.12);border:1px solid rgba(220,38,38,0.25);color:#f87171;padding:6px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;">🗑️ Delete All</button>
         <button onclick="loadNotifications()" style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.6);padding:6px 12px;border-radius:8px;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;">🔄 Refresh</button>
       </div>
     </div>
@@ -355,7 +356,6 @@ async function loadNotifications() {
       'background:' + (isNew ? tc.bg : 'rgba(255,255,255,0.02)') + ';' +
       'border:1px solid ' + (isNew ? tc.border : 'rgba(255,255,255,0.06)') + ';' +
       'border-radius:10px;transition:all 0.2s;">' +
-      // Dot for unread
       '<div style="margin-top:4px;width:8px;height:8px;border-radius:50%;flex-shrink:0;background:' +
         (isNew ? tc.dot : 'rgba(255,255,255,0.15)') + ';"></div>' +
       '<div style="flex:1;min-width:0;">' +
@@ -363,7 +363,10 @@ async function loadNotifications() {
           '<div style="font-size:13px;font-weight:600;color:' + (isNew?'white':'rgba(255,255,255,0.6)') + ';">' +
             tc.icon + ' ' + (n.title||'Activity') +
           '</div>' +
-          '<div style="font-size:10px;color:rgba(255,255,255,0.3);white-space:nowrap;">' + timeStr + '</div>' +
+          '<div style="display:flex;align-items:center;gap:8px;">' +
+            '<div style="font-size:10px;color:rgba(255,255,255,0.3);white-space:nowrap;">' + timeStr + '</div>' +
+            '<button onclick="deleteOneNotification(' + n.id + ')" style="background:rgba(220,38,38,0.15);border:1px solid rgba(220,38,38,0.25);color:#f87171;padding:2px 8px;font-size:10px;border-radius:5px;cursor:pointer;font-family:\'DM Sans\',sans-serif;box-shadow:none;line-height:1.5;">✕</button>' +
+          '</div>' +
         '</div>' +
         '<div style="font-size:12px;color:rgba(255,255,255,0.5);margin-top:3px;line-height:1.5;">' + (n.message||'') + '</div>' +
         '<div style="font-size:11px;color:rgba(255,255,255,0.3);margin-top:4px;">By: <strong style="color:rgba(255,255,255,0.5);">' + (n.done_by||'Staff') + '</strong>' +
@@ -376,6 +379,17 @@ async function loadNotifications() {
 
 window.markAllRead = async function() {
   await supabase.from('notifications').update({ is_read: true }).eq('is_read', false)
+  loadNotifications()
+}
+
+window.deleteAllNotifications = async function() {
+  if (!confirm('Delete ALL notifications? This cannot be undone.')) return
+  await supabase.from('notifications').delete().neq('id', 0)
+  loadNotifications()
+}
+
+window.deleteOneNotification = async function(id) {
+  await supabase.from('notifications').delete().eq('id', id)
   loadNotifications()
 }
   
