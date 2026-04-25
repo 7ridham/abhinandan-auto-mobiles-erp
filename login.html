@@ -176,11 +176,12 @@ if (existing) {
   try {
     var s = JSON.parse(existing)
     if (s && s.expiry && Date.now() < s.expiry) {
-      window.location.href = s.role === 'staff' ? 'billing.html' : 'dashboard.html'
-    } else {
-      localStorage.removeItem('aam_erp_session')
+      // Valid session — redirect immediately, stop all other scripts
+      window.location.replace(s.role === 'staff' ? 'billing.html' : 'dashboard.html')
     }
-  } catch(e) { localStorage.removeItem('aam_erp_session') }
+    // Don't clear session here — only clear if truly expired
+    // Expired sessions stay until explicitly needed, avoiding false clears
+  } catch(e) { /* malformed JSON only */ localStorage.removeItem('aam_erp_session') }
 }
 
 // Load Supabase
