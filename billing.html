@@ -1247,6 +1247,19 @@ document.getElementById('findReturnBillBtn').addEventListener('click',async func
   var sr=await supabase.from('sales').select('*').eq('bill_number',billNo).single()
   if(!sr.data){alert('Bill not found. Check the bill number.');return}
   if(sr.data.bill_type==='return'){alert('This is already a return bill!');return}
+  
+  // Check how many have already been returned for each item
+  var alreadyReturned = {}
+  var existingReturns = await supabase.from('sales')
+    .select('id').eq('original_bill_ref', billNo).eq('bill_type','return')
+  if (existingReturns.data && existingReturns.data.length) {
+    var retIds = existingReturns.data.map(function(r){ return r.id })
+    var retItems = await supabase.from('bill_items').select('item_id,quantity').in('sale_id', retIds)
+    ;(retItems.data||[]).forEach(function(ri){
+      if (!alreadyReturned[ri.item_id]) alreadyReturned[ri.item_id] = 0
+      alreadyReturned[ri.item_id] += Math.abs(ri.quantity)
+    })
+  }
   var sale=sr.data
   var ir=await supabase.from('bill_items').select('*').eq('sale_id',sale.id)
   var items=ir.data||[]
