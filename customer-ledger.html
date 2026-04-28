@@ -976,11 +976,18 @@ async function sendPDFToWhatsApp(doc, filename, phone, message) {
 
 function updateGlobalStats(list) {
   let withDue=0, totalDue=0, totalAdv=0
-  list.forEach(c=>{ if(c.netCredit>0.01){withDue++;totalDue+=c.netCredit} if(c.netCredit<-0.01)totalAdv+=Math.abs(c.netCredit) })
+  list.forEach(c=>{ 
+    if(c.netCredit>0.01){withDue++;totalDue+=c.netCredit} 
+    if(c.netCredit<-0.01)totalAdv+=Math.abs(c.netCredit) 
+  })
   document.getElementById('gsTotal').innerText    = totalCount
+  document.getElementById('gsTotal').style.color  = '#60a5fa'
   document.getElementById('gsWithDue').innerText  = withDue
-  document.getElementById('gsTotalDue').innerText = fmt(totalDue)
-  document.getElementById('gsTotalAdv').innerText = fmt(totalAdv)
+  document.getElementById('gsWithDue').style.color = '#dc2626'
+  document.getElementById('gsTotalDue').innerText = '₹'+Math.round(totalDue).toLocaleString('en-IN')
+  document.getElementById('gsTotalDue').style.color = '#dc2626'
+  document.getElementById('gsTotalAdv').innerText = '₹'+Math.round(totalAdv).toLocaleString('en-IN')
+  document.getElementById('gsTotalAdv').style.color = '#059669'
   document.getElementById('lastRefreshed').innerText = 'Updated '+new Date().toLocaleTimeString('en-IN')
 }
 
