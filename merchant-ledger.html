@@ -831,12 +831,18 @@ function renderGrid(list){
   if(!list.length){grid.innerHTML='<div class="empty-state">No merchants found</div>';return}
   grid.innerHTML=list.map(m=>{
     const nb=Math.round(m.netBalance), isOwed=nb>0, isAdv=nb<0, isZero=nb===0
-    const display=isZero?'✓ Clear':(isAdv?'+':'-')+fmt(nb)
-    const color=isZero?'green':isOwed?'red':'green'
-    const sub=isZero?'No dues':isOwed?'You owe them':'They owe you'
+
+    // ── FIXED COLORS ──
+    let displayText, displayColor, subText
+    if (isZero)  { displayText = '✓ Clear';  displayColor = '#059669'; subText = 'No dues' }
+    if (isOwed)  { displayText = '-₹'+Math.abs(nb).toLocaleString('en-IN'); displayColor = '#dc2626'; subText = 'You owe them' }
+    if (isAdv)   { displayText = '+₹'+Math.abs(nb).toLocaleString('en-IN'); displayColor = '#059669'; subText = 'They owe you' }
+
     const dotCls=isZero||isAdv?'g':m.maxAge<=30?'g':m.maxAge<=60?'y':m.maxAge<=90?'o':'r'
     const ini=(m.name||'?')[0].toUpperCase()
-    return `<div class="merchant-card" onclick="openLedger('${encodeURIComponent(m.name)}')">
+    const cardBorder = isOwed ? 'border-color:rgba(220,38,38,0.35);' : isAdv ? 'border-color:rgba(52,211,153,0.35);' : ''
+
+    return `<div class="merchant-card" onclick="openLedger('${encodeURIComponent(m.name)}')" style="${cardBorder}">
       <div class="aging-dot ${dotCls}"></div>
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
         <div class="mc-avatar">${ini}</div>
@@ -846,7 +852,10 @@ function renderGrid(list){
       <div class="mc-stats">
         <div><div class="mc-stat-label">Bills</div><div class="mc-stat-value">${m.totalBills}</div></div>
         <div><div class="mc-stat-label">Total Bought</div><div class="mc-stat-value" style="font-size:12px;">₹${Math.round(m.totalAmount).toLocaleString('en-IN')}</div></div>
-        <div><div class="mc-stat-label">${sub}</div><div class="mc-stat-value ${color}">${display}</div></div>
+        <div>
+          <div class="mc-stat-label">${subText}</div>
+          <div class="mc-stat-value" style="color:${displayColor};font-weight:700;">${displayText}</div>
+        </div>
       </div>
     </div>`
   }).join('')
