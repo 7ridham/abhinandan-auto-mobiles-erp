@@ -890,14 +890,12 @@ async function sendPDFToWhatsApp(doc, filename, phone, message) {
 }
   
   // ── LOAD CUSTOMERS (paginated, fast for 7000+ customers) ──
-  async function loadCustomers() {
+ async function loadCustomers() {
   document.getElementById('customerGrid').innerHTML = '<div class="loading-row">⏳ Loading...</div>'
   const search  = document.getElementById('searchInput').value.trim()
   const filter  = document.getElementById('filterBalance').value
   const sortBy  = document.getElementById('sortBy').value
 
-  // ── FIX: Load ALL customers (no pagination yet), then filter, then paginate ──
-  // For 7000+ customers this is still fast because we only fetch 3 columns for the balance calc
   let custQuery = supabase.from('customers').select('*')
   if (search) custQuery = custQuery.or(`name.ilike.%${search}%,phone.ilike.%${search}%`)
   custQuery = custQuery.order('name')
@@ -916,10 +914,7 @@ async function sendPDFToWhatsApp(doc, filename, phone, message) {
     return
   }
 
-  // Bulk fetch sales + payments for ALL these customers in 2 queries
   const custIds = customers.map(c => c.id)
-
-  // Supabase has a limit on .in() — batch if needed
   const batchSize = 500
   let allSales = [], allPayments = []
 
@@ -943,7 +938,6 @@ async function sendPDFToWhatsApp(doc, filename, phone, message) {
     paymentsMap[p.customer_id].push(p)
   })
 
-  // Enrich all customers with balance
   let enriched = customers.map(c => {
     const mySales   = salesMap[c.id]    || []
     const myPays    = paymentsMap[c.id] || []
@@ -961,7 +955,7 @@ async function sendPDFToWhatsApp(doc, filename, phone, message) {
     }
   })
 
-  // ── FILTER first (on ALL data) ──
+  // ── FILTER (this was broken before — now correctly applied) ──
   if (filter === 'due')     enriched = enriched.filter(c => c.netCredit > 0.01)
   if (filter === 'advance') enriched = enriched.filter(c => c.netCredit < -0.01)
   if (filter === 'clear')   enriched = enriched.filter(c => Math.abs(c.netCredit) < 0.01)
@@ -970,16 +964,13 @@ async function sendPDFToWhatsApp(doc, filename, phone, message) {
   if (sortBy === 'due_desc')   enriched.sort((a, b) => b.netCredit - a.netCredit)
   if (sortBy === 'bills_desc') enriched.sort((a, b) => b.totalBills - a.totalBills)
 
-  // ── Update global count for pagination (after filter) ──
   totalCount = enriched.length
-
-  // ── PAGINATE last ──
   const from = (currentPage - 1) * PAGE_SIZE
   const page = enriched.slice(from, from + PAGE_SIZE)
 
   renderGrid(page)
   renderPagination()
-  updateGlobalStats(enriched) // stats on full filtered list
+  updateGlobalStats(enriched)
 }
   
 
@@ -998,11 +989,17 @@ function renderGrid(list) {
   if (!list.length) { grid.innerHTML='<div class="empty-state">No customers match this filter</div>'; return }
   grid.innerHTML = list.map(c=>{
     const nc=Math.round(c.netCredit), isOwed=nc>0, isAdv=nc<0, isZero=nc===0
-    const display=isZero?'✓ Clear':(isAdv?'+':'')+fmt(nc)
-    const color=isZero?'green':isOwed?'red':'green'
-    const sub=isZero?'No dues':isOwed?'Credit Due':'Advance'
+
+    // ── FIXED COLORS ──
+    let displayText, displayColor, subText
+    if (isZero)  { displayText = '✓ Clear';  displayColor = '#059669'; subText = 'No dues' }
+    if (isOwed)  { displayText = '-₹'+Math.abs(nc).toLocaleString('en-IN'); displayColor = '#dc2626'; subText = 'Credit Due' }
+    if (isAdv)   { displayText = '+₹'+Math.abs(nc).toLocaleString('en-IN'); displayColor = '#059669'; subText = 'Advance' }
+
     const ini=(c.name||'?')[0].toUpperCase()
-    return `<div class="customer-card ${isOwed?'has-due':isAdv?'has-advance':''}" onclick="openLedger('${c.id}')">
+    const cardBorder = isOwed ? 'border-color:rgba(220,38,38,0.35);' : isAdv ? 'border-color:rgba(52,211,153,0.35);' : ''
+
+    return `<div class="customer-card ${isOwed?'has-due':isAdv?'has-advance':''}" onclick="openLedger('${c.id}')" style="${cardBorder}">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
         <div class="cc-avatar">${ini}</div>
         <div><div class="cc-name">${c.name}</div><div class="cc-phone">${c.phone||'No phone'}</div></div>
@@ -1010,7 +1007,10 @@ function renderGrid(list) {
       <div class="cc-stats">
         <div><div class="cc-stat-label">Bills</div><div class="cc-stat-value">${c.totalBills}</div></div>
         <div><div class="cc-stat-label">Total Bought</div><div class="cc-stat-value" style="font-size:12px;">₹${Math.round(c.totalAmount).toLocaleString('en-IN')}</div></div>
-        <div><div class="cc-stat-label">${sub}</div><div class="cc-stat-value ${color}">${display}</div></div>
+        <div>
+          <div class="cc-stat-label">${subText}</div>
+          <div class="cc-stat-value" style="color:${displayColor};font-weight:700;">${displayText}</div>
+        </div>
       </div>
     </div>`
   }).join('')
