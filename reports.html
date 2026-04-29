@@ -402,9 +402,10 @@ html.light-theme .bs-ff textarea {
           Auto-computed from live data + your manual entries. As of <strong id="bsDateLabel" style="color:rgba(255,255,255,0.6);">today</strong>.
         </div>
       </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+     <div style="display:flex;gap:8px;flex-wrap:wrap;">
         <button onclick="openBsEntryModal()" style="background:linear-gradient(135deg,#059669,#34d399);border:none;color:white;padding:9px 20px;border-radius:10px;font-size:13px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;box-shadow:0 4px 14px rgba(5,150,105,0.3);">+ Add Entry</button>
         <button class="export-btn" onclick="exportCSV('balancesheet')">⬇ Export CSV</button>
+        <button onclick="downloadBalanceSheetPDF()" style="display:inline-flex;align-items:center;gap:6px;padding:7px 16px;background:rgba(220,38,38,0.12);border:1px solid rgba(220,38,38,0.25);border-radius:20px;color:#f87171;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.18s;">🖨️ Download PDF</button>
       </div>
     </div>
 
@@ -1877,6 +1878,429 @@ window.switchTab = function(tab, btn) {
   if (tab === 'balancesheet') loadBalanceSheet(false)
 } 
 
+// ═══════════════════════════════════════
+// BALANCE SHEET PDF DOWNLOAD
+// Builds a clean A4 print-ready HTML page
+// opens it in a new tab and triggers print
+// ═══════════════════════════════════════
+window.downloadBalanceSheetPDF = function() {
+
+  // ── Grab all rendered data from the live DOM ──
+  const assetRows  = document.querySelectorAll('#bsMainGrid .bs-side:first-child .bs-row')
+  const liabRows   = document.querySelectorAll('#bsMainGrid .bs-side:last-child .bs-row')
+
+  // ── Read live indicator values from the 4-card strip ──
+  const liveCards  = document.querySelectorAll('#bsMainGrid [style*="grid-template-columns:repeat(4"]  > div')
+
+  // ── Business name from cache ──
+  let bizName = 'Abhinandan Auto Mobiles'
+  try {
+    const biz = JSON.parse(localStorage.getItem('aam_biz_cache') || '{}')
+    if (biz.biz_name) bizName = biz.biz_name
+  } catch(e) {}
+
+  const today = new Date().toLocaleDateString('en-IN', {
+    day: '2-digit', month: 'long', year: 'numeric'
+  })
+
+  // ── Helper: convert a bs-row DOM node into a table row ──
+  function rowToHTML(node, side) {
+    if (!node) return ''
+    const cls = node.className || ''
+
+    // Group heading
+    if (cls.includes('bs-group-head')) {
+      const txt = (node.textContent || '').trim()
+      return `<tr class="grp-head"><td colspan="2">${txt}</td></tr>`
+    }
+
+    // Total row
+    if (cls.includes('bs-total')) {
+      const cells = node.querySelectorAll('span')
+      const label = cells[0] ? cells[0].textContent.trim() : ''
+      const amt   = cells[1] ? cells[1].textContent.trim() : ''
+      return `<tr class="total-row"><td>${label}</td><td class="amt">${amt}</td></tr>`
+    }
+
+    // Normal row — extract label and amount
+    const labelEl = node.querySelector('.bs-label')
+    const amtEl   = node.querySelector('span:last-child')
+    if (!labelEl || !amtEl) return ''
+
+    // Clean label: remove badge text (AUTO LIVE, MANUAL)
+    const badges  = labelEl.querySelectorAll('span')
+    badges.forEach(b => b.remove())
+    const labelTxt = labelEl.textContent.trim()
+
+    // Restore badges (we removed from DOM temporarily — rebuild from scratch)
+    const amtTxt = amtEl.textContent.trim()
+
+    // Detect sub-note (the small grey formula line)
+    const note = node.querySelector('span[style*="font-size:10px"]')
+    const noteTxt = note ? note.textContent.trim() : ''
+
+    return `<tr>
+      <td>
+        <span class="row-label">${labelTxt}</span>
+        ${noteTxt ? `<span class="row-note">${noteTxt}</span>` : ''}
+      </td>
+      <td class="amt ${side === 'asset' ? 'green' : 'red'}">${amtTxt}</td>
+    </tr>`
+  }
+
+  // ── Build asset table rows ──
+  let assetTableHTML = ''
+  assetRows.forEach(row => { assetTableHTML += rowToHTML(row, 'asset') })
+
+  // ── Build liability table rows ──
+  let liabTableHTML = ''
+  liabRows.forEach(row => { liabTableHTML += rowToHTML(row, 'liab') })
+
+  // ── Read summary values ──
+  const summaryCards = document.querySelectorAll('#bsSummaryBanner .pm-card')
+  const totalAssets  = summaryCards[0] ? summaryCards[0].querySelector('.pm-value')?.textContent?.trim() : '—'
+  const totalLiabs   = summaryCards[1] ? summaryCards[1].querySelector('.pm-value')?.textContent?.trim() : '—'
+  const balStatus    = summaryCards[2] ? summaryCards[2].querySelector('.pm-value')?.textContent?.trim() : '—'
+
+  // ── Read 4 live indicator cards ──
+  const indicators   = document.querySelectorAll('#bsMainGrid > div:first-child > div')
+  let indicatorHTML  = ''
+  indicators.forEach(card => {
+    const lbl = card.querySelector('div:first-child')?.textContent?.trim() || ''
+    const val = card.querySelector('div:nth-child(2)')?.textContent?.trim() || ''
+    const sub = card.querySelector('div:last-child')?.textContent?.trim() || ''
+    indicatorHTML += `<div class="ind-card">
+      <div class="ind-label">${lbl}</div>
+      <div class="ind-value">${val}</div>
+      <div class="ind-sub">${sub}</div>
+    </div>`
+  })
+
+  // ── Build complete PDF HTML ──
+  const html = `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Balance Sheet — ${bizName}</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', Arial, sans-serif;
+    font-size: 13px;
+    color: #1e293b;
+    background: white;
+    padding: 0;
+  }
+
+  @page {
+    size: A4;
+    margin: 14mm 12mm;
+  }
+
+  /* ── HEADER ── */
+  .pdf-header {
+    background: linear-gradient(135deg, #1e3a5f, #2563eb);
+    color: white;
+    padding: 22px 28px;
+    border-radius: 10px;
+    margin-bottom: 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+  .pdf-header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .pdf-header .sub {
+    font-size: 12px;
+    opacity: 0.75;
+  }
+  .pdf-header .date-block {
+    text-align: right;
+  }
+  .pdf-header .date-block .date-label {
+    font-size: 10px;
+    opacity: 0.6;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 3px;
+  }
+  .pdf-header .date-block .date-val {
+    font-size: 15px;
+    font-weight: 700;
+  }
+
+  /* ── LIVE INDICATORS ── */
+  .indicators {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .ind-card {
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 12px;
+    text-align: center;
+    background: #f8faff;
+  }
+  .ind-label {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #64748b;
+    margin-bottom: 5px;
+  }
+  .ind-value {
+    font-size: 16px;
+    font-weight: 700;
+    color: #0f172a;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .ind-sub {
+    font-size: 9px;
+    color: #94a3b8;
+    margin-top: 3px;
+  }
+
+  /* ── SUMMARY BANNER ── */
+  .summary-banner {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+  .sum-card {
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 14px 16px;
+    text-align: center;
+  }
+  .sum-label {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: #64748b;
+    margin-bottom: 5px;
+  }
+  .sum-value {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    font-weight: 700;
+  }
+  .sum-value.green  { color: #059669; }
+  .sum-value.red    { color: #dc2626; }
+  .sum-value.status { color: #2563eb; }
+
+  /* ── MAIN BALANCE SHEET GRID ── */
+  .bs-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 18px;
+  }
+  .bs-side {
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .bs-side-header {
+    padding: 10px 14px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    display: flex;
+    justify-content: space-between;
+  }
+  .bs-side-header.assets {
+    background: #f0fdf4;
+    color: #059669;
+    border-bottom: 1px solid #bbf7d0;
+  }
+  .bs-side-header.liabs {
+    background: #fef2f2;
+    color: #dc2626;
+    border-bottom: 1px solid #fecaca;
+  }
+
+  /* ── TABLE STYLES ── */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  tr.grp-head td {
+    padding: 7px 14px 3px;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: #94a3b8;
+    background: #f8faff;
+    border-bottom: 1px solid #f1f5f9;
+  }
+  tr td {
+    padding: 8px 14px;
+    border-bottom: 1px solid #f1f5f9;
+    vertical-align: top;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr.total-row td {
+    padding: 11px 14px;
+    font-weight: 700;
+    font-size: 13px;
+    background: #f8faff;
+    border-top: 2px solid #e2e8f0;
+    border-bottom: none;
+  }
+  td.amt {
+    text-align: right;
+    font-weight: 600;
+    white-space: nowrap;
+    font-family: 'DM Sans', sans-serif;
+  }
+  td.amt.green { color: #059669; }
+  td.amt.red   { color: #dc2626; }
+  .row-label { display: block; color: #1e293b; font-size: 12px; }
+  .row-note  { display: block; font-size: 9px; color: #94a3b8; margin-top: 2px; line-height: 1.4; }
+
+  /* ── FOOTER ── */
+  .pdf-footer {
+    margin-top: 16px;
+    padding-top: 10px;
+    border-top: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    color: #94a3b8;
+  }
+  .disclaimer {
+    margin-top: 10px;
+    padding: 10px 14px;
+    background: #f8faff;
+    border-radius: 6px;
+    border: 1px solid #e2e8f0;
+    font-size: 10px;
+    color: #64748b;
+    line-height: 1.6;
+  }
+
+  /* ── PRINT CONTROL ── */
+  @media print {
+    body { padding: 0; }
+    button { display: none !important; }
+  }
+</style>
+</head>
+<body>
+
+  <!-- PRINT BUTTON (only visible on screen, hidden when printing) -->
+  <div style="text-align:right;padding:12px 16px;background:#f8faff;border-bottom:1px solid #e2e8f0;margin-bottom:16px;">
+    <span style="font-size:13px;color:#64748b;margin-right:14px;">Your Balance Sheet is ready.</span>
+    <button onclick="window.print()" style="background:linear-gradient(135deg,#2563eb,#3b82f6);color:white;border:none;padding:9px 22px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;">🖨️ Print / Save as PDF</button>
+    <button onclick="window.close()" style="background:#f1f5f9;color:#475569;border:1px solid #e2e8f0;padding:9px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;margin-left:8px;">✕ Close</button>
+  </div>
+
+  <div style="padding:0 16px 24px;">
+
+    <!-- HEADER -->
+    <div class="pdf-header">
+      <div>
+        <h1>${bizName}</h1>
+        <div class="sub">Balance Sheet — Financial Statement</div>
+        <div class="sub" style="margin-top:4px;">All amounts computed automatically from live business data</div>
+      </div>
+      <div class="date-block">
+        <div class="date-label">As of Date</div>
+        <div class="date-val">${today}</div>
+        <div style="font-size:10px;opacity:0.6;margin-top:4px;">Auto ERP v1.0</div>
+      </div>
+    </div>
+
+    <!-- LIVE INDICATORS -->
+    <div class="indicators">
+      ${indicatorHTML}
+    </div>
+
+    <!-- SUMMARY -->
+    <div class="summary-banner">
+      <div class="sum-card">
+        <div class="sum-label">Total Assets</div>
+        <div class="sum-value green">${totalAssets}</div>
+      </div>
+      <div class="sum-card">
+        <div class="sum-label">Total Liabilities + Capital</div>
+        <div class="sum-value red">${totalLiabs}</div>
+      </div>
+      <div class="sum-card">
+        <div class="sum-label">Balance Status</div>
+        <div class="sum-value status">${balStatus}</div>
+      </div>
+    </div>
+
+    <!-- MAIN BALANCE SHEET -->
+    <div class="bs-grid">
+      <div class="bs-side">
+        <div class="bs-side-header assets">
+          <span>📦 Assets (What Business Owns)</span>
+          <span>${totalAssets}</span>
+        </div>
+        <table>${assetTableHTML}</table>
+      </div>
+      <div class="bs-side">
+        <div class="bs-side-header liabs">
+          <span>🏛️ Liabilities &amp; Capital</span>
+          <span>${totalLiabs}</span>
+        </div>
+        <table>${liabTableHTML}</table>
+      </div>
+    </div>
+
+    <!-- DISCLAIMER -->
+    <div class="disclaimer">
+      <strong>Note:</strong> Cash in Hand and Bank Balance are auto-computed from all recorded transactions (sales bills, purchase bills, payment receipts, and merchant payment vouchers) plus your set opening balances.
+      Debtors and Creditors are auto-computed from outstanding credit in sales and purchase bills respectively.
+      Stock value is computed at cost price from current inventory.
+      Capital includes opening capital adjusted for net profit/loss and drawings.
+      Manual entries (Fixed Assets, Loans, Drawings) are entered and maintained by the owner.
+    </div>
+
+    <!-- FOOTER -->
+    <div class="pdf-footer">
+      <span>${bizName} — Confidential Financial Statement</span>
+      <span>Generated: ${new Date().toLocaleString('en-IN')} | Auto ERP v1.0</span>
+    </div>
+
+  </div>
+
+</body>
+</html>`
+
+  // ── Open in new tab and trigger print ──
+  const win = window.open('', '_blank')
+  if (!win) {
+    alert('Please allow popups for this site to download the PDF.')
+    return
+  }
+  win.document.write(html)
+  win.document.close()
+
+  // Wait for fonts to load then auto-trigger print dialog
+  win.onload = function() {
+    setTimeout(() => { win.focus(); win.print() }, 800)
+  }
+}
+
+
+  
 </script>
 
 <!-- BALANCE SHEET ENTRY MODAL -->
