@@ -1197,245 +1197,503 @@ if (document.readyState === 'loading') {
 }
 
 // ═══════════════════════════════════════
-// BALANCE SHEET
+// BALANCE SHEET — FULLY AUTOMATIC
+// Live cash, bank, debtors, creditors all
+// computed from actual transaction data
 // ═══════════════════════════════════════
 
-// These are fetched fresh every time (no period filter — BS is always "as of today")
-let bsEntries = []       // manual entries from DB
-let bsEditingId = null   // for edit mode in modal
+let bsEntries    = []
+let bsEditingId  = null
 
-// Category definitions — drives grouping in the visual
+// Category display definitions
 const BS_CATEGORIES = {
-  fixed_asset:      { label: 'Fixed Assets',        side: 'asset' },
-  cash:             { label: 'Cash & Cash Equivalents', side: 'asset' },
-  bank:             { label: 'Bank Balance',         side: 'asset' },
-  debtor:           { label: 'Debtors (Customer Credit)', side: 'asset' },
-  stock:            { label: 'Stock / Inventory',    side: 'asset' },
-  other_asset:      { label: 'Other Assets',         side: 'asset' },
-  capital:          { label: 'Capital',              side: 'liability' },
-  drawing:          { label: 'Drawings (Deducted from Capital)', side: 'liability' },
-  loan:             { label: 'Loans & Borrowings',   side: 'liability' },
-  creditor:         { label: 'Creditors (Merchant Payable)', side: 'liability' },
-  bad_debt:         { label: 'Bad Debts / Write-offs',side: 'liability' },
-  other_liability:  { label: 'Other Liabilities',   side: 'liability' },
+  fixed_asset:     { label: 'Fixed Assets',                  side: 'asset'     },
+  cash:            { label: 'Cash in Hand',                  side: 'asset'     },
+  bank:            { label: 'Bank / Cheque Account',         side: 'asset'     },
+  debtor:          { label: 'Debtors (Customer Credit Due)', side: 'asset'     },
+  stock:           { label: 'Stock / Inventory at Cost',     side: 'asset'     },
+  other_asset:     { label: 'Other Assets',                  side: 'asset'     },
+  capital:         { label: 'Capital',                       side: 'liability' },
+  drawing:         { label: 'Drawings',                      side: 'liability' },
+  loan:            { label: 'Loans & Borrowings',            side: 'liability' },
+  creditor:        { label: 'Creditors (Merchant Payable)',  side: 'liability' },
+  bad_debt:        { label: 'Bad Debts / Write-offs',        side: 'liability' },
+  other_liability: { label: 'Other Liabilities',             side: 'liability' },
 }
 
+// ── MAIN LOADER ──
 async function loadBalanceSheet(forceRefresh) {
-  const k = 'balancesheet|static'
+  const k = 'bs|static'
   if (!forceRefresh && cache[k]) return
-  
-  document.getElementById('bsDateLabel').textContent = new Date().toLocaleDateString('en-IN', { day:'2-digit', month:'long', year:'numeric' })
 
-  // ── PARALLEL: fetch manual entries + auto-computed values ──
+  // Update date label
+  document.getElementById('bsDateLabel').textContent =
+    new Date().toLocaleDateString('en-IN', { day:'2-digit', month:'long', year:'numeric' })
+
+  // Show loading state
+  document.getElementById('bsSummaryBanner').innerHTML =
+    '<div class="skel" style="height:80px;border-radius:14px;"></div>'.repeat(3).replace(/(<div)/g, '<div style="flex:1;"')
+  document.getElementById('bsSummaryBanner').style.display = 'grid'
+
+  // ── FETCH EVERYTHING IN PARALLEL ──
+  // All 8 queries fire at the same time — fastest possible load
   const [
-    entriesRes,
-    salesCreditRes,     // customer debtors
-    purchCreditRes,     // merchant creditors
-    stockRes,           // inventory value
-    salesCashRes,       // total cash collected from sales
-    purchCashRes,       // total cash paid in purchases
+    entriesRes,       // manual entries (opening balances + fixed assets etc)
+    salesRes,         // all sales for cash/UPI/credit inflow
+    purchRes,         // all purchases for cash/UPI/credit outflow
+    custPayRes,       // customer payment receipts (cash received outside bills)
+    merPayRes,        // merchant payment vouchers (cash paid outside bills)
+    stockRes,         // inventory for stock valuation
+    custCreditRes,    // for debtors calculation
+    merCreditRes,     // for creditors calculation
   ] = await Promise.all([
-    supabase.from('balance_sheet_entries').select('*').eq('is_active', true).order('entry_type').order('category').order('label'),
-    
-    // Net credit outstanding to customers (debtors)
-    supabase.from('sales').select('credit,bill_type'),
-    
-    // Net credit outstanding to merchants (creditors)  
-    supabase.from('purchases').select('credit,bill_type'),
-    
-    // Stock value = sum(quantity * purchase_price)
+    supabase.from('balance_sheet_entries').select('*').eq('is_active', true).order('category'),
+    supabase.from('sales').select('cash,upi,credit,discount,total_amount,bill_type'),
+    supabase.from('purchases').select('cash,upi,credit,discount,total_amount,bill_type'),
+    supabase.from('payments').select('amount,mode'),
+    supabase.from('merchant_payments').select('amount,mode'),
     supabase.from('inventory').select('quantity,purchase_price'),
-    
-    // Total cash inflow
-    supabase.from('sales').select('cash,bill_type'),
-    
-    // Total cash outflow
-    supabase.from('purchases').select('cash,bill_type'),
+    supabase.from('sales').select('credit,bill_type'),
+    supabase.from('purchases').select('credit,bill_type'),
   ])
 
   bsEntries = entriesRes.data || []
 
-  // ── AUTO-COMPUTE: Debtors ──
-  // Net debtors = total credit from sales - credit from sales returns
-  let autoDebtors = 0
-  ;(salesCreditRes.data || []).forEach(r => {
-    const sign = r.bill_type === 'return' ? -1 : 1
-    autoDebtors += sign * Number(r.credit || 0)
-  })
-  autoDebtors = Math.max(0, autoDebtors)
+  // ════════════════════════════════════
+  // AUTO-COMPUTE: CASH IN HAND
+  // Opening cash + all cash inflows - all cash outflows
+  // ════════════════════════════════════
+  const openingCashEntry = bsEntries.find(e => e.account_type === 'opening_cash')
+  const openingCash      = Number(openingCashEntry?.amount || 0)
 
-  // ── AUTO-COMPUTE: Creditors ──
-  let autoCreditors = 0
-  ;(purchCreditRes.data || []).forEach(r => {
+  // Cash IN from sales bills
+  let cashInSales = 0
+  ;(salesRes.data || []).forEach(r => {
     const sign = r.bill_type === 'return' ? -1 : 1
-    autoCreditors += sign * Number(r.credit || 0)
+    cashInSales += sign * Number(r.cash || 0)
   })
-  autoCreditors = Math.max(0, autoCreditors)
 
-  // ── AUTO-COMPUTE: Stock Value ──
-  let autoStock = 0
+  // Cash IN from customer payment receipts
+  let cashInReceipts = 0
+  ;(custPayRes.data || []).forEach(r => {
+    if ((r.mode || '').toLowerCase() === 'cash') {
+      cashInReceipts += Number(r.amount || 0)
+    }
+  })
+
+  // Cash OUT from purchase bills
+  let cashOutPurch = 0
+  ;(purchRes.data || []).forEach(r => {
+    const sign = r.bill_type === 'return' ? -1 : 1
+    cashOutPurch += sign * Number(r.cash || 0)
+  })
+
+  // Cash OUT from merchant payment vouchers
+  let cashOutMerPay = 0
+  ;(merPayRes.data || []).forEach(r => {
+    if ((r.mode || '').toLowerCase() === 'cash') {
+      cashOutMerPay += Number(r.amount || 0)
+    }
+  })
+
+  const liveCash = openingCash + cashInSales + cashInReceipts - cashOutPurch - cashOutMerPay
+
+  // ════════════════════════════════════
+  // AUTO-COMPUTE: BANK BALANCE
+  // Opening bank + UPI inflows - UPI/cheque outflows
+  // Negative = Bank Overdraft (BOD)
+  // ════════════════════════════════════
+  const openingBankEntry = bsEntries.find(e => e.account_type === 'opening_bank')
+  const openingBank      = Number(openingBankEntry?.amount || 0)
+
+  // UPI IN from sales bills
+  let upiInSales = 0
+  ;(salesRes.data || []).forEach(r => {
+    const sign = r.bill_type === 'return' ? -1 : 1
+    upiInSales += sign * Number(r.upi || 0)
+  })
+
+  // UPI IN from customer payment receipts
+  let upiInReceipts = 0
+  ;(custPayRes.data || []).forEach(r => {
+    const mode = (r.mode || '').toLowerCase()
+    if (mode === 'upi' || mode === 'cheque' || mode === 'bank transfer' || mode === 'neft' || mode === 'rtgs') {
+      upiInReceipts += Number(r.amount || 0)
+    }
+  })
+
+  // UPI OUT from purchase bills
+  let upiOutPurch = 0
+  ;(purchRes.data || []).forEach(r => {
+    const sign = r.bill_type === 'return' ? -1 : 1
+    upiOutPurch += sign * Number(r.upi || 0)
+  })
+
+  // UPI/Cheque OUT from merchant payment vouchers
+  let upiOutMerPay = 0
+  ;(merPayRes.data || []).forEach(r => {
+    const mode = (r.mode || '').toLowerCase()
+    if (mode !== 'cash') { // anything that is not cash = bank transaction
+      upiOutMerPay += Number(r.amount || 0)
+    }
+  })
+
+  const liveBank    = openingBank + upiInSales + upiInReceipts - upiOutPurch - upiOutMerPay
+  const isOverdraft = liveBank < 0
+
+  // ════════════════════════════════════
+  // AUTO-COMPUTE: DEBTORS
+  // Total credit given in sales - credit recovered via returns
+  // This is what customers OWE you
+  // ════════════════════════════════════
+  let liveDebtors = 0
+  ;(custCreditRes.data || []).forEach(r => {
+    const sign = r.bill_type === 'return' ? -1 : 1
+    liveDebtors += sign * Number(r.credit || 0)
+  })
+  // Also subtract customer payment receipts (they reduce debtor balance)
+  ;(custPayRes.data || []).forEach(r => {
+    liveDebtors -= Number(r.amount || 0)
+  })
+  liveDebtors = Math.max(0, liveDebtors)
+
+  // ════════════════════════════════════
+  // AUTO-COMPUTE: CREDITORS
+  // Total credit taken in purchases - credit from purchase returns
+  // This is what you OWE merchants
+  // ════════════════════════════════════
+  let liveCreditors = 0
+  ;(merCreditRes.data || []).forEach(r => {
+    const sign = r.bill_type === 'return' ? -1 : 1
+    liveCreditors += sign * Number(r.credit || 0)
+  })
+  // Also subtract merchant payments made (they reduce creditor balance)
+  ;(merPayRes.data || []).forEach(r => {
+    liveCreditors -= Number(r.amount || 0)
+  })
+  liveCreditors = Math.max(0, liveCreditors)
+
+  // ════════════════════════════════════
+  // AUTO-COMPUTE: STOCK VALUE
+  // Current inventory qty × purchase price
+  // ════════════════════════════════════
+  let liveStock = 0
   ;(stockRes.data || []).forEach(item => {
-    autoStock += Number(item.quantity || 0) * Number(item.purchase_price || 0)
+    liveStock += Number(item.quantity || 0) * Number(item.purchase_price || 0)
   })
 
-  // ── BUILD ASSET SIDE ──
-  // Group manual entries by category
-  const manualByCategory = {}
-  bsEntries.forEach(e => {
-    if (!manualByCategory[e.category]) manualByCategory[e.category] = []
-    manualByCategory[e.category].push(e)
+  // ════════════════════════════════════
+  // AUTO-COMPUTE: NET PROFIT
+  // This gets added to capital automatically
+  // ════════════════════════════════════
+  let totalSales = 0, totalPurch = 0
+  ;(salesRes.data || []).forEach(r => {
+    const sign = r.bill_type === 'return' ? -1 : 1
+    totalSales += sign * Number(r.total_amount || 0)
   })
+  ;(purchRes.data || []).forEach(r => {
+    const sign = r.bill_type === 'return' ? -1 : 1
+    totalPurch += sign * Number(r.total_amount || 0)
+  })
+  const netProfit = totalSales - totalPurch
 
-  // Asset categories to display (in order)
-  const assetGroups = ['fixed_asset','cash','bank','debtor','stock','other_asset']
-  // Liability/Capital categories to display (in order)
-  const liabGroups  = ['capital','drawing','loan','creditor','bad_debt','other_liability']
+  // ════════════════════════════════════
+  // AUTO-COMPUTE: CAPITAL
+  // Opening capital + net profit - drawings
+  // ════════════════════════════════════
+  const openingCapEntry  = bsEntries.find(e => e.account_type === 'opening_capital')
+  const openingCapital   = Number(openingCapEntry?.amount || 0)
+  const manualDrawings   = bsEntries.filter(e => e.category === 'drawing')
+                                    .reduce((s,e) => s + Number(e.amount), 0)
+  const liveCapital      = openingCapital + netProfit - manualDrawings
 
+  // ════════════════════════════════════
+  // BUILD ASSET SIDE
+  // ════════════════════════════════════
   let totalAssets = 0
-  let totalLiabs  = 0
 
-  // ── RENDER ASSET SIDE ──
+  // Filter manual entries — exclude opening balances (those are baked into auto values)
+  const manualEntries = bsEntries.filter(e => !e.is_opening_balance)
+  const manualBycat   = {}
+  manualEntries.forEach(e => {
+    if (!manualBycat[e.category]) manualBycat[e.category] = []
+    manualBycat[e.category].push(e)
+  })
+
+  // Helper to build a section row
+  const bsRow = (label, amount, badge, color, note) => {
+    const amtColor = color || (amount >= 0 ? 'green' : 'red')
+    const amtDisplay = amount < 0
+      ? `<span style="color:#f87171;">BOD ₹${Math.abs(Math.round(amount)).toLocaleString('en-IN')}</span>`
+      : `<span style="color:#34d399;">₹${Math.round(amount).toLocaleString('en-IN')}</span>`
+    return `<div class="bs-row">
+      <span class="bs-label">
+        ${label}
+        ${badge ? `<span class="${badge.cls}">${badge.text}</span>` : ''}
+        ${note ? `<span style="font-size:10px;color:rgba(255,255,255,0.25);display:block;margin-top:2px;">${note}</span>` : ''}
+      </span>
+      ${amtDisplay}
+    </div>`
+  }
+
   let assetHTML = ''
-  for (const cat of assetGroups) {
-    const catDef  = BS_CATEGORIES[cat]
-    const entries = manualByCategory[cat] || []
-    
-    // Auto values for special categories
-    let autoRow = null
-    if (cat === 'debtor' && autoDebtors > 0) {
-      autoRow = { label: 'Customer Credit Outstanding', amount: autoDebtors, isAuto: true }
-    }
-    if (cat === 'stock') {
-      autoRow = { label: 'Inventory at Cost Price', amount: autoStock, isAuto: true }
-    }
 
-    // Check if there are any items to show for this category
-    const hasItems = entries.length > 0 || autoRow
-    if (!hasItems) continue
-
-    assetHTML += `<div class="bs-row bs-group-head">${catDef.label}</div>`
-
-    // Auto row first (if exists)
-    if (autoRow) {
-      totalAssets += autoRow.amount
-      assetHTML += `<div class="bs-row">
-        <span class="bs-label auto">${autoRow.label}<span class="bs-badge-auto">AUTO</span></span>
-        <span class="bs-amount green">${fmtAmt(autoRow.amount)}</span>
-      </div>`
-    }
-
-    // Manual entries
-    entries.forEach(e => {
+  // Fixed Assets (manual only)
+  const fixedAssets = manualBycat['fixed_asset'] || []
+  if (fixedAssets.length) {
+    assetHTML += `<div class="bs-row bs-group-head">FIXED ASSETS</div>`
+    fixedAssets.forEach(e => {
       totalAssets += Number(e.amount)
-      assetHTML += `<div class="bs-row">
-        <span class="bs-label">${e.label}<span class="bs-badge-manual">MANUAL</span></span>
-        <span class="bs-amount green">${fmtAmt(e.amount)}</span>
-      </div>`
+      assetHTML += bsRow(e.label, Number(e.amount), {cls:'bs-badge-manual',text:'MANUAL'}, 'green', e.note)
     })
   }
+
+  // Cash in Hand (AUTO)
+  assetHTML += `<div class="bs-row bs-group-head">CASH IN HAND</div>`
+  totalAssets += liveCash
+  assetHTML += `<div class="bs-row">
+    <span class="bs-label">
+      Cash in Hand<span class="bs-badge-auto">AUTO LIVE</span>
+      <span style="font-size:10px;color:rgba(255,255,255,0.25);display:block;margin-top:2px;">
+        Opening ₹${fmtNum(openingCash)} + Sales Cash ₹${fmtNum(cashInSales)} + Receipts ₹${fmtNum(cashInReceipts)} − Purchase Cash ₹${fmtNum(cashOutPurch)} − Payments ₹${fmtNum(cashOutMerPay)}
+      </span>
+    </span>
+    <span style="color:${liveCash >= 0 ? '#34d399':'#f87171'};font-weight:700;">
+      ${liveCash < 0 ? '⚠️ ' : ''}₹${Math.round(Math.abs(liveCash)).toLocaleString('en-IN')}
+      ${liveCash < 0 ? '<span style="font-size:10px;display:block;color:#f87171;">Cash Deficit</span>' : ''}
+    </span>
+  </div>`
+
+  // Additional manual cash entries if any
+  ;(manualBycat['cash'] || []).forEach(e => {
+    totalAssets += Number(e.amount)
+    assetHTML += bsRow(e.label + ' (Adjustment)', Number(e.amount), {cls:'bs-badge-manual',text:'MANUAL'}, 'green', e.note)
+  })
+
+  // Bank Balance (AUTO — can show overdraft)
+  assetHTML += `<div class="bs-row bs-group-head">BANK / UPI ACCOUNT</div>`
+  if (!isOverdraft) totalAssets += liveBank
+  assetHTML += `<div class="bs-row">
+    <span class="bs-label">
+      Bank Balance<span class="bs-badge-auto">AUTO LIVE</span>
+      <span style="font-size:10px;color:rgba(255,255,255,0.25);display:block;margin-top:2px;">
+        Opening ₹${fmtNum(openingBank)} + UPI Sales ₹${fmtNum(upiInSales)} + UPI Receipts ₹${fmtNum(upiInReceipts)} − UPI Purchases ₹${fmtNum(upiOutPurch)} − Merchant Payments ₹${fmtNum(upiOutMerPay)}
+      </span>
+    </span>
+    <span style="color:${isOverdraft ? '#f87171':'#34d399'};font-weight:700;">
+      ${isOverdraft ? '⚠️ BOD ' : ''}₹${Math.round(Math.abs(liveBank)).toLocaleString('en-IN')}
+      ${isOverdraft ? '<span style="font-size:10px;display:block;color:#f87171;">Bank Overdraft</span>' : ''}
+    </span>
+  </div>`
+
+  // Additional manual bank entries if any
+  ;(manualBycat['bank'] || []).forEach(e => {
+    totalAssets += Number(e.amount)
+    assetHTML += bsRow(e.label + ' (Adjustment)', Number(e.amount), {cls:'bs-badge-manual',text:'MANUAL'}, 'green', e.note)
+  })
+
+  // Debtors (AUTO)
+  assetHTML += `<div class="bs-row bs-group-head">DEBTORS (CUSTOMERS OWE YOU)</div>`
+  totalAssets += liveDebtors
+  assetHTML += `<div class="bs-row">
+    <span class="bs-label">Customer Credit Outstanding<span class="bs-badge-auto">AUTO LIVE</span></span>
+    <span style="color:#34d399;font-weight:700;">₹${Math.round(liveDebtors).toLocaleString('en-IN')}</span>
+  </div>`
+
+  // Stock (AUTO)
+  assetHTML += `<div class="bs-row bs-group-head">STOCK / INVENTORY</div>`
+  totalAssets += liveStock
+  assetHTML += `<div class="bs-row">
+    <span class="bs-label">Inventory at Cost Price<span class="bs-badge-auto">AUTO LIVE</span></span>
+    <span style="color:#34d399;font-weight:700;">₹${Math.round(liveStock).toLocaleString('en-IN')}</span>
+  </div>`
+
+  // Other Assets (manual)
+  ;(manualBycat['other_asset'] || []).forEach(e => {
+    assetHTML += `<div class="bs-row bs-group-head">OTHER ASSETS</div>`
+    totalAssets += Number(e.amount)
+    assetHTML += bsRow(e.label, Number(e.amount), {cls:'bs-badge-manual',text:'MANUAL'}, 'green', e.note)
+  })
+
   assetHTML += `<div class="bs-row bs-total">
     <span>TOTAL ASSETS</span>
-    <span class="bs-amount" style="color:#34d399;font-size:16px;">${fmtAmt(totalAssets)}</span>
+    <span style="color:#34d399;font-size:16px;font-weight:700;">₹${Math.round(totalAssets).toLocaleString('en-IN')}</span>
   </div>`
 
-  // ── RENDER LIABILITY + CAPITAL SIDE ──
-  let liabHTML = ''
-  for (const cat of liabGroups) {
-    const catDef  = BS_CATEGORIES[cat]
-    const entries = manualByCategory[cat] || []
+  // ════════════════════════════════════
+  // BUILD LIABILITY + CAPITAL SIDE
+  // ════════════════════════════════════
+  let totalLiabs = 0
+  let liabHTML   = ''
 
-    let autoRow = null
-    if (cat === 'creditor' && autoCreditors > 0) {
-      autoRow = { label: 'Merchant Payable Outstanding', amount: autoCreditors, isAuto: true }
-    }
+  // Capital (AUTO — includes net profit)
+  liabHTML += `<div class="bs-row bs-group-head">CAPITAL ACCOUNT</div>`
+  totalLiabs += liveCapital
+  liabHTML += `<div class="bs-row">
+    <span class="bs-label">
+      Owner Capital<span class="bs-badge-auto">AUTO LIVE</span>
+      <span style="font-size:10px;color:rgba(255,255,255,0.25);display:block;margin-top:2px;">
+        Opening ₹${fmtNum(openingCapital)} + Net Profit ₹${fmtNum(netProfit)} − Drawings ₹${fmtNum(manualDrawings)}
+      </span>
+    </span>
+    <span style="color:${liveCapital >= 0 ? '#fbbf24':'#f87171'};font-weight:700;">
+      ₹${Math.round(Math.abs(liveCapital)).toLocaleString('en-IN')}
+    </span>
+  </div>`
 
-    // Drawings are subtracted from capital — shown as negative
-    const isDrawing = cat === 'drawing'
-    
-    const hasItems = entries.length > 0 || autoRow
-    if (!hasItems) continue
+  // Drawings (manual — already baked into capital above, show for transparency)
+  ;(manualBycat['drawing'] || []).forEach(e => {
+    liabHTML += `<div class="bs-row">
+      <span class="bs-label" style="color:rgba(255,255,255,0.5);">↳ Drawings: ${e.label}<span class="bs-badge-manual">MANUAL</span></span>
+      <span style="color:#f87171;">(₹${Math.round(Number(e.amount)).toLocaleString('en-IN')})</span>
+    </div>`
+  })
 
-    liabHTML += `<div class="bs-row bs-group-head">${catDef.label}</div>`
+  // Bank Overdraft (LIABILITY — appears here when bank is negative)
+  if (isOverdraft) {
+    liabHTML += `<div class="bs-row bs-group-head">BANK OVERDRAFT (BOD)</div>`
+    totalLiabs += Math.abs(liveBank)
+    liabHTML += `<div class="bs-row">
+      <span class="bs-label" style="color:#f87171;">
+        Bank Overdraft<span class="bs-badge-auto">AUTO LIVE</span>
+        <span style="font-size:10px;display:block;margin-top:2px;color:rgba(248,113,113,0.6);">Bank balance went negative — this is a liability</span>
+      </span>
+      <span style="color:#f87171;font-weight:700;">₹${Math.round(Math.abs(liveBank)).toLocaleString('en-IN')}</span>
+    </div>`
+  }
 
-    if (autoRow) {
-      totalLiabs += autoRow.amount
-      liabHTML += `<div class="bs-row">
-        <span class="bs-label auto">${autoRow.label}<span class="bs-badge-auto">AUTO</span></span>
-        <span class="bs-amount red">${fmtAmt(autoRow.amount)}</span>
-      </div>`
-    }
-
-    entries.forEach(e => {
-      const sign = isDrawing ? -1 : 1
-      totalLiabs += sign * Number(e.amount)
-      const amtColor = isDrawing ? 'red' : (cat === 'capital' ? 'amber' : 'red')
-      const display  = isDrawing ? `(${fmtAmt(e.amount)})` : fmtAmt(e.amount)
-      liabHTML += `<div class="bs-row">
-        <span class="bs-label">${e.label}<span class="bs-badge-manual">MANUAL</span></span>
-        <span class="bs-amount ${amtColor}">${display}</span>
-      </div>`
+  // Loans (manual)
+  const loans = manualBycat['loan'] || []
+  if (loans.length) {
+    liabHTML += `<div class="bs-row bs-group-head">LOANS & BORROWINGS</div>`
+    loans.forEach(e => {
+      totalLiabs += Number(e.amount)
+      liabHTML += bsRow(e.label, Number(e.amount), {cls:'bs-badge-manual',text:'MANUAL'}, 'red', e.note)
     })
   }
+
+  // Creditors (AUTO)
+  if (liveCreditors > 0) {
+    liabHTML += `<div class="bs-row bs-group-head">CREDITORS (YOU OWE MERCHANTS)</div>`
+    totalLiabs += liveCreditors
+    liabHTML += `<div class="bs-row">
+      <span class="bs-label">Merchant Payable Outstanding<span class="bs-badge-auto">AUTO LIVE</span></span>
+      <span style="color:#f87171;font-weight:700;">₹${Math.round(liveCreditors).toLocaleString('en-IN')}</span>
+    </div>`
+  }
+
+  // Bad Debts (manual)
+  const badDebts = manualBycat['bad_debt'] || []
+  if (badDebts.length) {
+    liabHTML += `<div class="bs-row bs-group-head">BAD DEBTS / WRITE-OFFS</div>`
+    badDebts.forEach(e => {
+      totalLiabs += Number(e.amount)
+      liabHTML += bsRow(e.label, Number(e.amount), {cls:'bs-badge-manual',text:'MANUAL'}, 'red', e.note)
+    })
+  }
+
+  // Other Liabilities (manual)
+  const otherLiabs = manualBycat['other_liability'] || []
+  if (otherLiabs.length) {
+    liabHTML += `<div class="bs-row bs-group-head">OTHER LIABILITIES</div>`
+    otherLiabs.forEach(e => {
+      totalLiabs += Number(e.amount)
+      liabHTML += bsRow(e.label, Number(e.amount), {cls:'bs-badge-manual',text:'MANUAL'}, 'red', e.note)
+    })
+  }
+
   liabHTML += `<div class="bs-row bs-total">
     <span>TOTAL LIABILITIES + CAPITAL</span>
-    <span class="bs-amount" style="color:#f87171;font-size:16px;">${fmtAmt(totalLiabs)}</span>
+    <span style="color:#f87171;font-size:16px;font-weight:700;">₹${Math.round(totalLiabs).toLocaleString('en-IN')}</span>
   </div>`
 
-  // ── DIFFERENCE (should be 0 if balanced) ──
-  const diff = totalAssets - totalLiabs
-  const diffColor = Math.abs(diff) < 1 ? '#34d399' : '#f87171'
-  const diffLabel = Math.abs(diff) < 1 ? '✅ Balanced' : (diff > 0 ? '⚠️ Assets exceed Liabilities by' : '⚠️ Liabilities exceed Assets by')
+  // ════════════════════════════════════
+  // BALANCE CHECK
+  // ════════════════════════════════════
+  const diff     = Math.abs(totalAssets - totalLiabs)
+  const balanced = diff < 1
+  const diffCol  = balanced ? '#34d399' : '#f87171'
 
   // ── SUMMARY BANNER ──
   document.getElementById('bsSummaryBanner').innerHTML = `
     <div class="pm-card">
       <div class="pm-label">Total Assets</div>
-      <div class="pm-value" style="color:#34d399;">${fmtAmt(totalAssets)}</div>
-      <div style="font-size:11px;color:rgba(255,255,255,0.3);margin-top:5px;font-family:'DM Sans',sans-serif;">What the business owns</div>
+      <div class="pm-value" style="color:#34d399;">₹${Math.round(totalAssets).toLocaleString('en-IN')}</div>
+      <div style="font-size:11px;color:rgba(255,255,255,0.3);margin-top:5px;font-family:'DM Sans',sans-serif;">Cash + Bank + Stock + Debtors + Fixed Assets</div>
     </div>
     <div class="pm-card">
       <div class="pm-label">Total Liabilities + Capital</div>
-      <div class="pm-value" style="color:#f87171;">${fmtAmt(totalLiabs)}</div>
-      <div style="font-size:11px;color:rgba(255,255,255,0.3);margin-top:5px;font-family:'DM Sans',sans-serif;">What the business owes + owner capital</div>
+      <div class="pm-value" style="color:#f87171;">₹${Math.round(totalLiabs).toLocaleString('en-IN')}</div>
+      <div style="font-size:11px;color:rgba(255,255,255,0.3);margin-top:5px;font-family:'DM Sans',sans-serif;">Capital + Loans + Creditors ${isOverdraft ? '+ Bank OD' : ''}</div>
     </div>
     <div class="pm-card">
-      <div class="pm-label">${Math.abs(diff) < 1 ? 'Balance Status' : diffLabel}</div>
-      <div class="pm-value" style="color:${diffColor};">${Math.abs(diff) < 1 ? '✅ Balanced' : fmtAmt(Math.abs(diff))}</div>
-      <div style="font-size:11px;color:rgba(255,255,255,0.3);margin-top:5px;font-family:'DM Sans',sans-serif;">${Math.abs(diff) < 1 ? 'Assets = Liabilities + Capital' : 'Please add missing entries'}</div>
+      <div class="pm-label">Balance Status</div>
+      <div class="pm-value" style="color:${diffCol};">${balanced ? '✅ Balanced' : '⚠️ ₹' + Math.round(diff).toLocaleString('en-IN')}</div>
+      <div style="font-size:11px;color:rgba(255,255,255,0.3);margin-top:5px;font-family:'DM Sans',sans-serif;">${balanced ? 'Assets = Liabilities + Capital' : 'Difference — add missing entries to balance'}</div>
+    </div>`
+
+  // ── LIVE INDICATORS ROW ──
+  const liveRow = `
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;">
+      <div style="background:rgba(52,211,153,0.08);border:1px solid rgba(52,211,153,0.2);border-radius:12px;padding:14px;text-align:center;">
+        <div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(52,211,153,0.6);margin-bottom:6px;">💵 Cash in Hand</div>
+        <div style="font-size:20px;font-weight:700;color:${liveCash>=0?'#34d399':'#f87171'};">₹${Math.round(Math.abs(liveCash)).toLocaleString('en-IN')}</div>
+        <div style="font-size:10px;color:rgba(255,255,255,0.3);margin-top:3px;">${liveCash < 0 ? '⚠️ Deficit' : 'Available'}</div>
+      </div>
+      <div style="background:${isOverdraft?'rgba(248,113,113,0.08)':'rgba(96,165,250,0.08)'};border:1px solid ${isOverdraft?'rgba(248,113,113,0.2)':'rgba(96,165,250,0.2)'};border-radius:12px;padding:14px;text-align:center;">
+        <div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:${isOverdraft?'rgba(248,113,113,0.6)':'rgba(96,165,250,0.6)'};margin-bottom:6px;">🏦 Bank Balance</div>
+        <div style="font-size:20px;font-weight:700;color:${isOverdraft?'#f87171':'#60a5fa'};">${isOverdraft?'BOD ':''} ₹${Math.round(Math.abs(liveBank)).toLocaleString('en-IN')}</div>
+        <div style="font-size:10px;color:rgba(255,255,255,0.3);margin-top:3px;">${isOverdraft ? '⚠️ Overdraft' : 'Available'}</div>
+      </div>
+      <div style="background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.2);border-radius:12px;padding:14px;text-align:center;">
+        <div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(251,191,36,0.6);margin-bottom:6px;">📈 Net Profit</div>
+        <div style="font-size:20px;font-weight:700;color:${netProfit>=0?'#fbbf24':'#f87171'};">₹${Math.round(Math.abs(netProfit)).toLocaleString('en-IN')}</div>
+        <div style="font-size:10px;color:rgba(255,255,255,0.3);margin-top:3px;">${netProfit >= 0 ? 'Sales − Purchases' : '⚠️ Net Loss'}</div>
+      </div>
+      <div style="background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.2);border-radius:12px;padding:14px;text-align:center;">
+        <div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(167,139,250,0.6);margin-bottom:6px;">📦 Stock Value</div>
+        <div style="font-size:20px;font-weight:700;color:#a78bfa;">₹${Math.round(liveStock).toLocaleString('en-IN')}</div>
+        <div style="font-size:10px;color:rgba(255,255,255,0.3);margin-top:3px;">At cost price</div>
+      </div>
     </div>`
 
   // ── MAIN GRID ──
-  document.getElementById('bsMainGrid').innerHTML = `
-    <div class="bs-side">
-      <div class="bs-side-header" style="background:linear-gradient(135deg,rgba(52,211,153,0.15),rgba(16,185,129,0.08));border-bottom:1px solid rgba(52,211,153,0.15);">
-        <span style="color:#34d399;">📦 ASSETS</span>
-        <span style="color:#34d399;font-size:14px;font-weight:700;">${fmtAmt(totalAssets)}</span>
+  document.getElementById('bsMainGrid').innerHTML = liveRow + `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+      <div class="bs-side">
+        <div class="bs-side-header" style="background:linear-gradient(135deg,rgba(52,211,153,0.15),rgba(16,185,129,0.08));border-bottom:1px solid rgba(52,211,153,0.15);">
+          <span style="color:#34d399;">📦 ASSETS (What Business Owns)</span>
+          <span style="color:#34d399;font-size:14px;font-weight:700;">₹${Math.round(totalAssets).toLocaleString('en-IN')}</span>
+        </div>
+        ${assetHTML}
       </div>
-      ${assetHTML}
-    </div>
-    <div class="bs-side">
-      <div class="bs-side-header" style="background:linear-gradient(135deg,rgba(248,113,113,0.15),rgba(220,38,38,0.08));border-bottom:1px solid rgba(248,113,113,0.15);">
-        <span style="color:#f87171;">🏛️ LIABILITIES & CAPITAL</span>
-        <span style="color:#f87171;font-size:14px;font-weight:700;">${fmtAmt(totalLiabs)}</span>
+      <div class="bs-side">
+        <div class="bs-side-header" style="background:linear-gradient(135deg,rgba(248,113,113,0.15),rgba(220,38,38,0.08));border-bottom:1px solid rgba(248,113,113,0.15);">
+          <span style="color:#f87171;">🏛️ LIABILITIES & CAPITAL</span>
+          <span style="color:#f87171;font-size:14px;font-weight:700;">₹${Math.round(totalLiabs).toLocaleString('en-IN')}</span>
+        </div>
+        ${liabHTML}
       </div>
-      ${liabHTML}
     </div>`
 
   // ── MANUAL ENTRIES TABLE ──
   renderBsEntriesTable()
 
-  // ── EXPORT DATA ──
+  // ── EXPORT ──
   exportStore.balancesheet = {
-    headers: ['Side','Category','Label','Amount','Note','Date','Type'],
+    headers: ['Side','Category','Label','Amount (₹)','Note','Date'],
     rows: [
-      ...bsEntries.map(e => [
-        BS_CATEGORIES[e.category]?.side || e.entry_type,
-        BS_CATEGORIES[e.category]?.label || e.category,
-        e.label, e.amount, e.note || '', e.effective_date, 'Manual'
-      ]),
-      ['Asset','Debtors','Customer Credit Outstanding', autoDebtors, 'Auto-computed from bills', 'Today', 'Auto'],
-      ['Asset','Stock','Inventory at Cost Price', autoStock, 'Auto-computed from inventory', 'Today', 'Auto'],
-      ['Liability','Creditors','Merchant Payable Outstanding', autoCreditors, 'Auto-computed from purchases', 'Today', 'Auto'],
+      ['Asset','Cash','Cash in Hand (AUTO)', Math.round(liveCash), 'Auto-computed from all transactions', 'Live'],
+      ['Asset','Bank', isOverdraft?'Bank Overdraft (AUTO)':'Bank Balance (AUTO)', Math.round(liveBank), 'Auto-computed from UPI/cheque transactions', 'Live'],
+      ['Asset','Debtors','Customer Credit Outstanding (AUTO)', Math.round(liveDebtors), 'Auto from sales credit', 'Live'],
+      ['Asset','Stock','Inventory at Cost (AUTO)', Math.round(liveStock), 'Auto from inventory', 'Live'],
+      ['Liability','Capital','Owner Capital (AUTO)', Math.round(liveCapital), `Opening ${openingCapital} + Profit ${netProfit} - Drawings ${manualDrawings}`, 'Live'],
+      ['Liability','Creditors','Merchant Payable (AUTO)', Math.round(liveCreditors), 'Auto from purchase credit', 'Live'],
+      ...bsEntries.filter(e=>!e.is_opening_balance).map(e=>[
+        BS_CATEGORIES[e.category]?.side||e.entry_type,
+        BS_CATEGORIES[e.category]?.label||e.category,
+        e.label, Math.round(Number(e.amount)), e.note||'', e.effective_date||''
+      ])
     ]
   }
 
@@ -1445,28 +1703,67 @@ async function loadBalanceSheet(forceRefresh) {
 // ── RENDER ENTRIES TABLE ──
 function renderBsEntriesTable() {
   const tbody = document.getElementById('bsEntriesBody')
-  if (!bsEntries.length) {
-    tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state">No manual entries yet. Click "+ Add Entry" to start.</div></td></tr>`
-    return
-  }
+  const manual = bsEntries.filter(e => !e.is_opening_balance)
 
-  tbody.innerHTML = bsEntries.map(e => {
-    const catLabel  = BS_CATEGORIES[e.category]?.label || e.category
-    const typeClass = `bs-type-${e.entry_type}`
-    const dateStr   = e.effective_date ? new Date(e.effective_date).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'2-digit'}) : '—'
-    return `<tr>
-      <td><span class="mode-pill ${typeClass}">${e.entry_type}</span></td>
-      <td style="color:rgba(255,255,255,0.55);font-size:12px;">${catLabel}</td>
-      <td style="font-weight:600;color:white;">${e.label}</td>
-      <td class="tr" style="color:#34d399;font-weight:600;">${fmtAmt(e.amount)}</td>
-      <td style="color:rgba(255,255,255,0.4);font-size:12px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${e.note || '—'}</td>
-      <td style="color:rgba(255,255,255,0.4);font-size:12px;">${dateStr}</td>
-      <td>
-        <button onclick="openBsEntryModal(${e.id})" style="background:rgba(37,99,235,0.2);border:1px solid rgba(37,99,235,0.35);color:#60a5fa;padding:4px 10px;font-size:11px;border-radius:6px;box-shadow:none;font-family:'DM Sans',sans-serif;cursor:pointer;margin-right:4px;">✏️ Edit</button>
-        <button onclick="deleteBsEntry(${e.id},'${e.label.replace(/'/g,"\\'")}')" style="background:rgba(220,38,38,0.15);border:1px solid rgba(220,38,38,0.3);color:#f87171;padding:4px 10px;font-size:11px;border-radius:6px;box-shadow:none;font-family:'DM Sans',sans-serif;cursor:pointer;">🗑</button>
+  // Opening balance entries shown separately
+  const opening = bsEntries.filter(e => e.is_opening_balance)
+
+  let html = ''
+
+  // Opening balances section
+  if (opening.length) {
+    html += `<tr style="background:rgba(59,130,246,0.05);">
+      <td colspan="7" style="padding:8px 16px;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(96,165,250,0.6);">
+        📌 OPENING BALANCES — Set these once to match your real starting figures
       </td>
     </tr>`
-  }).join('')
+    opening.forEach(e => {
+      const dateStr = e.effective_date ? new Date(e.effective_date).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'2-digit'}) : '—'
+      html += `<tr>
+        <td><span class="mode-pill bs-type-asset" style="background:rgba(59,130,246,0.12);color:#60a5fa;">Opening</span></td>
+        <td style="color:rgba(255,255,255,0.55);font-size:12px;">${BS_CATEGORIES[e.category]?.label || e.category}</td>
+        <td style="font-weight:600;color:white;">${e.label}</td>
+        <td class="tr" style="color:#60a5fa;font-weight:600;">₹${Math.round(Number(e.amount)).toLocaleString('en-IN')}</td>
+        <td style="color:rgba(255,255,255,0.4);font-size:12px;">${e.note || '—'}</td>
+        <td style="color:rgba(255,255,255,0.4);font-size:12px;">${dateStr}</td>
+        <td>
+          <button onclick="openBsEntryModal(${e.id})" style="background:rgba(37,99,235,0.2);border:1px solid rgba(37,99,235,0.35);color:#60a5fa;padding:4px 10px;font-size:11px;border-radius:6px;box-shadow:none;font-family:'DM Sans',sans-serif;cursor:pointer;">✏️ Edit</button>
+        </td>
+      </tr>`
+    })
+  }
+
+  // Manual entries section
+  if (manual.length) {
+    html += `<tr style="background:rgba(52,211,153,0.04);">
+      <td colspan="7" style="padding:8px 16px;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(52,211,153,0.5);">
+        ✏️ MANUAL ENTRIES — Fixed assets, loans, drawings, adjustments
+      </td>
+    </tr>`
+    manual.forEach(e => {
+      const catLabel = BS_CATEGORIES[e.category]?.label || e.category
+      const dateStr  = e.effective_date ? new Date(e.effective_date).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'2-digit'}) : '—'
+      const typeCls  = e.entry_type === 'asset' ? 'bs-type-asset' : 'bs-type-liability'
+      html += `<tr>
+        <td><span class="mode-pill ${typeCls}">${e.entry_type}</span></td>
+        <td style="color:rgba(255,255,255,0.55);font-size:12px;">${catLabel}</td>
+        <td style="font-weight:600;color:white;">${e.label}</td>
+        <td class="tr" style="color:#34d399;font-weight:600;">₹${Math.round(Number(e.amount)).toLocaleString('en-IN')}</td>
+        <td style="color:rgba(255,255,255,0.4);font-size:12px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${e.note||''}">${e.note || '—'}</td>
+        <td style="color:rgba(255,255,255,0.4);font-size:12px;">${dateStr}</td>
+        <td>
+          <button onclick="openBsEntryModal(${e.id})" style="background:rgba(37,99,235,0.2);border:1px solid rgba(37,99,235,0.35);color:#60a5fa;padding:4px 10px;font-size:11px;border-radius:6px;box-shadow:none;font-family:'DM Sans',sans-serif;cursor:pointer;margin-right:4px;">✏️ Edit</button>
+          <button onclick="deleteBsEntry(${e.id},'${e.label.replace(/'/g,"\\'")}' )" style="background:rgba(220,38,38,0.15);border:1px solid rgba(220,38,38,0.3);color:#f87171;padding:4px 10px;font-size:11px;border-radius:6px;box-shadow:none;font-family:'DM Sans',sans-serif;cursor:pointer;">🗑</button>
+        </td>
+      </tr>`
+    })
+  }
+
+  if (!manual.length && !opening.length) {
+    html = `<tr><td colspan="7"><div class="empty-state">No entries yet</div></td></tr>`
+  }
+
+  tbody.innerHTML = html
 }
 
 // ── OPEN ADD / EDIT MODAL ──
@@ -1474,42 +1771,49 @@ window.openBsEntryModal = function(id) {
   bsEditingId = id || null
   const modal = document.getElementById('bsEntryModal')
   modal.classList.add('open')
-  
-  const titleEl = document.getElementById('bsModalTitle')
-  const msgEl   = document.getElementById('bsMsg')
-  if (msgEl) { msgEl.style.display = 'none' }
+  const msgEl = document.getElementById('bsMsg')
+  if (msgEl) msgEl.style.display = 'none'
 
   if (id) {
-    // Edit mode — prefill
     const entry = bsEntries.find(e => e.id === id)
     if (!entry) return
-    titleEl.textContent = 'Edit Balance Sheet Entry'
-    document.getElementById('bsEntryType').value     = entry.entry_type
-    document.getElementById('bsCategory').value      = entry.category
-    document.getElementById('bsLabel').value         = entry.label
-    document.getElementById('bsAmount').value        = entry.amount
-    document.getElementById('bsNote').value          = entry.note || ''
-    document.getElementById('bsDate').value          = entry.effective_date || ''
+    document.getElementById('bsModalTitle').textContent = entry.is_opening_balance ? 'Edit Opening Balance' : 'Edit Entry'
+    document.getElementById('bsEntryType').value = entry.entry_type
     updateBsCategoryOptions()
+    document.getElementById('bsCategory').value  = entry.category
+    document.getElementById('bsLabel').value     = entry.label
+    document.getElementById('bsAmount').value    = entry.amount
+    document.getElementById('bsNote').value      = entry.note || ''
+    document.getElementById('bsDate').value      = entry.effective_date || ''
+
+    // If opening balance, disable type/category/label changes
+    const isOpening = entry.is_opening_balance
+    document.getElementById('bsEntryType').disabled = isOpening
+    document.getElementById('bsCategory').disabled  = isOpening
+    document.getElementById('bsLabel').disabled     = isOpening
   } else {
-    // Add mode
-    titleEl.textContent = 'Add Balance Sheet Entry'
+    document.getElementById('bsModalTitle').textContent = 'Add Manual Entry'
     document.getElementById('bsEntryType').value = 'asset'
+    document.getElementById('bsEntryType').disabled = false
+    document.getElementById('bsCategory').disabled  = false
+    document.getElementById('bsLabel').disabled     = false
     updateBsCategoryOptions()
-    document.getElementById('bsCategory').value  = 'fixed_asset'
-    document.getElementById('bsLabel').value     = ''
-    document.getElementById('bsAmount').value    = ''
-    document.getElementById('bsNote').value      = ''
-    document.getElementById('bsDate').value      = new Date().toISOString().split('T')[0]
+    document.getElementById('bsCategory').value = 'fixed_asset'
+    document.getElementById('bsLabel').value    = ''
+    document.getElementById('bsAmount').value   = ''
+    document.getElementById('bsNote').value     = ''
+    document.getElementById('bsDate').value     = new Date().toISOString().split('T')[0]
   }
 }
 
 window.closeBsModal = function() {
   document.getElementById('bsEntryModal').classList.remove('open')
+  document.getElementById('bsEntryType').disabled = false
+  document.getElementById('bsCategory').disabled  = false
+  document.getElementById('bsLabel').disabled     = false
   bsEditingId = null
 }
 
-// ── UPDATE CATEGORY DROPDOWN BASED ON TYPE ──
 window.updateBsCategoryOptions = function() {
   const type = document.getElementById('bsEntryType').value
   const sel  = document.getElementById('bsCategory')
@@ -1519,7 +1823,6 @@ window.updateBsCategoryOptions = function() {
   sel.innerHTML = opts.map(c => `<option value="${c}">${BS_CATEGORIES[c]?.label || c}</option>`).join('')
 }
 
-// ── SAVE ENTRY ──
 window.saveBsEntry = async function() {
   const showMsg = (type, text) => {
     const el = document.getElementById('bsMsg')
@@ -1535,25 +1838,31 @@ window.saveBsEntry = async function() {
   const note      = document.getElementById('bsNote').value.trim()
   const date      = document.getElementById('bsDate').value
 
-  if (!label)        return showMsg('err', 'Label is required')
+  if (!label)                      return showMsg('err', 'Label / description is required')
   if (isNaN(amount) || amount < 0) return showMsg('err', 'Enter a valid positive amount')
 
-  const payload = { entry_type: entryType, category, label, amount, note: note || null, effective_date: date || null, updated_at: new Date().toISOString() }
+  const payload = {
+    entry_type:     entryType,
+    category,
+    label,
+    amount,
+    note:           note || null,
+    effective_date: date || null,
+    updated_at:     new Date().toISOString()
+  }
 
   let error
   if (bsEditingId) {
-    ({ error } = await supabase.from('balance_sheet_entries').update(payload).eq('id', bsEditingId))
+    ;({ error } = await supabase.from('balance_sheet_entries').update(payload).eq('id', bsEditingId))
   } else {
-    ({ error } = await supabase.from('balance_sheet_entries').insert([{ ...payload, is_active: true }]))
+    ;({ error } = await supabase.from('balance_sheet_entries').insert([{ ...payload, is_active: true, is_opening_balance: false, account_type: 'manual' }]))
   }
 
   if (error) return showMsg('err', 'Error: ' + error.message)
-
-  showMsg('ok', bsEditingId ? 'Entry updated!' : 'Entry added!')
-  setTimeout(() => { closeBsModal(); loadBalanceSheet(true) }, 800)
+  showMsg('ok', bsEditingId ? '✅ Updated!' : '✅ Entry added!')
+  setTimeout(() => { closeBsModal(); loadBalanceSheet(true) }, 700)
 }
 
-// ── DELETE ENTRY ──
 window.deleteBsEntry = async function(id, label) {
   if (!confirm(`Delete "${label}"? This cannot be undone.`)) return
   const { error } = await supabase.from('balance_sheet_entries').delete().eq('id', id)
@@ -1561,14 +1870,12 @@ window.deleteBsEntry = async function(id, label) {
   loadBalanceSheet(true)
 }
 
-// ── Hook into tab switch ──
-const _origLoadTab = loadTab
-// We patch the switch to call loadBalanceSheet when that tab is opened
+// Patch tab switch to trigger BS load
 const origSwitchTab = window.switchTab
 window.switchTab = function(tab, btn) {
   origSwitchTab(tab, btn)
   if (tab === 'balancesheet') loadBalanceSheet(false)
-}  
+} 
 
 </script>
 
