@@ -858,7 +858,12 @@ async function savePurchase(){
   try{
     var m=getMerchantInfo()
     if(!m.name){alert('❌ Please enter or select a merchant name');window.isSavingPurchase=false;return}
-    if(!purchaseItems.length){alert('❌ Add at least one product first');window.isSavingPurchase=false;return}
+   if(!purchaseItems.length){alert('❌ Add at least one product first');window.isSavingPurchase=false;return}
+    for(var vi=0;vi<purchaseItems.length;vi++){
+      var vi_item=purchaseItems[vi]
+      if(!vi_item.buyPrice||vi_item.buyPrice<=0){alert('❌ "'+vi_item.name+'" has ₹0 price. Set the purchase price before saving.');window.isSavingPurchase=false;return}
+      if(!vi_item.qty||vi_item.qty<=0){alert('❌ "'+vi_item.name+'" has 0 quantity. Set quantity before saving.');window.isSavingPurchase=false;return}
+    }
     var cash=parseFloat(document.getElementById('purCash').value)||0
     var upi =parseFloat(document.getElementById('purUpi').value)||0
     var cred=parseFloat(document.getElementById('purCredit').value)||0
