@@ -1091,6 +1091,7 @@ html.light-theme .custom-range input[type="date"] {
   border-color: rgba(0,0,0,0.15) !important;
   color: #0f172a !important;
 }
+
 html.light-theme .custom-range input[type="date"]::-webkit-calendar-picker-indicator {
   filter: none !important;
 }
@@ -1104,3 +1105,22 @@ html.light-theme .empty-state {
 html.light-theme .mode-pill {
   border-color: rgba(0,0,0,0.10) !important;
 }
+/* ── Dark theme: ensure card names use theme variable ── */
+.cc-name, .mc-name {
+  color: var(--text-primary) !important;
+}
+
+/* Dark theme: force white text in all inputs that may have inherited black */
+html:not(.light-theme) input:not([type="checkbox"]),
+html:not(.light-theme) select,
+html:not(.light-theme) textarea {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* Light theme: ensure inputs stay dark */
+html.light-theme input:not([type="checkbox"]),
+html.light-theme select,
+html.light-theme textarea {
+  color: #0f172a !important;
+}
+
