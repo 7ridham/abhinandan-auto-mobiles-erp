@@ -371,6 +371,28 @@ html.light-theme .bs-ff textarea {
         </table>
       </div>
     </div>
+  <div class="report-card" style="margin-top:20px;">
+      <div class="report-card-header">
+        <div class="report-card-title">💰 Estimated Gross Profit Per Sales Bill</div>
+        <button class="export-btn" onclick="exportCSV('billprofit')">⬇ Export CSV</button>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="rtbl">
+          <thead><tr>
+            <th>Bill No</th><th>Date</th><th>Customer</th>
+            <th class="tr">Revenue</th><th class="tr">Est. Buy Cost</th>
+            <th class="tr">Gross Profit</th><th class="tr">Margin %</th>
+          </tr></thead>
+          <tbody id="billProfitBody">
+            <tr><td colspan="7" style="text-align:center;padding:24px;color:rgba(255,255,255,0.3);">Load Profit &amp; Loss tab to see per-bill profit</td></tr>
+          </tbody>
+          <tfoot id="billProfitFoot"></tfoot>
+        </table>
+      </div>
+      <div style="margin:10px 20px 14px;padding:10px 14px;background:rgba(251,191,36,0.07);border:1px solid rgba(251,191,36,0.15);border-radius:8px;font-size:12px;color:rgba(255,255,255,0.4);">
+        ⚠️ Cost is estimated using the <strong style="color:rgba(255,255,255,0.6);">current purchase price</strong> from your inventory. If a product's price was updated after the sale, profit for that old bill will reflect the new price.
+      </div>
+    </div>
   </div>
 
   <!-- TAB: TOP PRODUCTS -->
@@ -994,6 +1016,105 @@ async function loadPayments(range) {
   cache[k] = true
 }
 
+// ═══════════════════════════════════════
+// PROFIT PER BILL
+// Computes estimated gross profit for each sales bill
+// by matching bill_items selling price against current
+// inventory purchase price. Cap at 200 bills for speed.
+// ═══════════════════════════════════════
+async function loadBillProfit(range) {
+  const profBody = document.getElementById('billProfitBody')
+  const profFoot = document.getElementById('billProfitFoot')
+  if (!profBody) return
+
+  profBody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:20px;"><div class="skel skel-row" style="max-width:400px;margin:auto;"></div></td></tr>'
+
+  const { data: sales } = await supabase.from('sales')
+    .select('id,bill_number,created_at,customer_id')
+    .eq('bill_type','sale')
+    .gte('created_at', range.from + 'T00:00:00')
+    .lte('created_at', range.to   + 'T23:59:59')
+    .order('created_at', { ascending: false })
+    .limit(200)
+
+  if (!sales || !sales.length) {
+    profBody.innerHTML = `<tr><td colspan="7"><div class="empty-state">No sales in this period</div></td></tr>`
+    return
+  }
+
+  const saleIds = sales.map(s => s.id)
+
+  // Fetch bill items and inventory prices in parallel
+  const [itemsRes, custMap] = await Promise.all([
+    supabase.from('bill_items').select('sale_id,item_id,quantity,price').in('sale_id', saleIds),
+    getCustomerNames(sales.map(s => s.customer_id))
+  ])
+
+  const items = itemsRes.data || []
+  const itemIds = [...new Set(items.map(i => i.item_id).filter(Boolean))]
+
+  let purchMap = {}
+  if (itemIds.length) {
+    const { data: inv } = await supabase.from('inventory').select('id,purchase_price').in('id', itemIds)
+    ;(inv||[]).forEach(i => { purchMap[i.id] = Number(i.purchase_price||0) })
+  }
+
+  // Group items by sale
+  const byBill = {}
+  items.forEach(item => {
+    if (!byBill[item.sale_id]) byBill[item.sale_id] = []
+    byBill[item.sale_id].push(item)
+  })
+
+  let grandRev = 0, grandCost = 0
+  const rows = sales.map(sale => {
+    const billItems = byBill[sale.id] || []
+    let rev = 0, cost = 0
+    billItems.forEach(item => {
+      const qty = Number(item.quantity||0)
+      rev  += qty * Number(item.price||0)
+      cost += qty * (purchMap[item.item_id]||0)
+    })
+    const profit   = rev - cost
+    const margin   = rev > 0 ? ((profit/rev)*100).toFixed(1) : '—'
+    const profCol  = profit >= 0 ? 'green' : 'red'
+    const custName = custMap[sale.customer_id]?.name || 'Walk-in'
+    grandRev += rev; grandCost += cost
+    return `<tr>
+      <td style="font-family:monospace;font-size:12px;color:rgba(255,255,255,0.5);">${sale.bill_number}</td>
+      <td>${fmtDate(sale.created_at)}</td>
+      <td>${custName}</td>
+      <td class="tr green">${fmtAmt(rev)}</td>
+      <td class="tr amber">${fmtAmt(cost)}</td>
+      <td class="tr ${profCol}"><strong>${fmtAmt(profit)}</strong></td>
+      <td class="tr ${profCol}">${margin}${margin!=='—'?'%':''}</td>
+    </tr>`
+  }).join('')
+
+  const grandProfit = grandRev - grandCost
+  const grandMargin = grandRev > 0 ? ((grandProfit/grandRev)*100).toFixed(1) : '0.0'
+
+  profBody.innerHTML = rows
+  profFoot.innerHTML = `<tr>
+    <td colspan="3"><strong>TOTAL (${sales.length} bills)</strong></td>
+    <td class="tr"><strong>${fmtAmt(grandRev)}</strong></td>
+    <td class="tr"><strong>${fmtAmt(grandCost)}</strong></td>
+    <td class="tr ${grandProfit>=0?'green':'red'}"><strong>${fmtAmt(grandProfit)}</strong></td>
+    <td class="tr ${grandProfit>=0?'green':'red'}"><strong>${grandMargin}%</strong></td>
+  </tr>`
+
+  exportStore.billprofit = {
+    headers: ['Bill No','Date','Customer','Revenue (₹)','Est. Buy Cost (₹)','Gross Profit (₹)','Margin %'],
+    rows: sales.map(sale => {
+      const bi = byBill[sale.id]||[]
+      let rev=0,cost=0
+      bi.forEach(i=>{const q=Number(i.quantity||0);rev+=q*Number(i.price||0);cost+=q*(purchMap[i.item_id]||0)})
+      const p=rev-cost
+      return [sale.bill_number,fmtDate(sale.created_at),custMap[sale.customer_id]?.name||'Walk-in',rev,cost,p,rev>0?(((p/rev)*100).toFixed(1)+'%'):'—']
+    })
+  }
+}
+  
 // ═══════════════════════════════════════
 // TAB: TOP PRODUCTS
 // WHY: bill_items already stores item_name directly —
