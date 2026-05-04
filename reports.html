@@ -698,11 +698,11 @@ async function loadSales(range) {
     const maxV = Math.max(...Object.values(mMap), 1)
     months.forEach(mo => {
       const val = mMap[mo]
-      const pct = Math.max(Math.round((val / maxV) * 100), 3)
+      const barPx = Math.max(Math.round((val / maxV) * 110), 4)
       const lbl = new Date(mo + '-15').toLocaleDateString('en-IN', { month:'short', year:'2-digit' })
       chartEl.innerHTML += `<div class="bc-item">
         <div class="bc-val">${shortAmt(val)}</div>
-        <div class="bc-bar" style="height:${pct}%;background:linear-gradient(180deg,#2563eb,rgba(37,99,235,0.4));"></div>
+        <div class="bc-bar" style="height:${barPx}px;background:linear-gradient(180deg,#2563eb,rgba(37,99,235,0.4));"></div>
         <div class="bc-label">${lbl}</div>
       </div>`
     })
@@ -1885,6 +1885,12 @@ window.switchTab = function(tab, btn) {
 // ═══════════════════════════════════════
 window.downloadBalanceSheetPDF = function() {
 
+  // Guard: balance sheet must be loaded first
+  if (!document.querySelector('#bsMainGrid .bs-side')) {
+    alert('⚠️ Please click the Balance Sheet tab first to load the data, then click Download PDF.')
+    return
+  }
+
   // ── Grab all rendered data from the live DOM ──
   const assetRows  = document.querySelectorAll('#bsMainGrid .bs-side:first-child .bs-row')
   const liabRows   = document.querySelectorAll('#bsMainGrid .bs-side:last-child .bs-row')
@@ -1904,47 +1910,51 @@ window.downloadBalanceSheetPDF = function() {
   })
 
   // ── Helper: convert a bs-row DOM node into a table row ──
+  // FIXED: Only reads text, never removes DOM nodes (old code deleted spans from the live page, making PDF empty)
   function rowToHTML(node, side) {
     if (!node) return ''
     const cls = node.className || ''
 
     // Group heading
     if (cls.includes('bs-group-head')) {
-      const txt = (node.textContent || '').trim()
-      return `<tr class="grp-head"><td colspan="2">${txt}</td></tr>`
+      return `<tr class="grp-head"><td colspan="2">${(node.textContent||'').trim()}</td></tr>`
     }
 
     // Total row
     if (cls.includes('bs-total')) {
-      const cells = node.querySelectorAll('span')
-      const label = cells[0] ? cells[0].textContent.trim() : ''
-      const amt   = cells[1] ? cells[1].textContent.trim() : ''
+      const ch = Array.from(node.children)
+      const label = ch[0] ? (ch[0].textContent||'').trim() : ''
+      const amt   = ch[ch.length-1] ? (ch[ch.length-1].textContent||'').trim() : ''
       return `<tr class="total-row"><td>${label}</td><td class="amt">${amt}</td></tr>`
     }
 
-    // Normal row — extract label and amount
+    // Normal row — read text only, no DOM modification
     const labelEl = node.querySelector('.bs-label')
-    const amtEl   = node.querySelector('span:last-child')
+    const allCh   = Array.from(node.children)
+    const amtEl   = allCh[allCh.length - 1]
     if (!labelEl || !amtEl) return ''
 
-    // Clean label: remove badge text (AUTO LIVE, MANUAL)
-    const badges  = labelEl.querySelectorAll('span')
-    badges.forEach(b => b.remove())
-    const labelTxt = labelEl.textContent.trim()
+    // Get label text from direct text nodes only (skips badge and note child spans)
+    let labelTxt = ''
+    labelEl.childNodes.forEach(n => {
+      if (n.nodeType === 3 && n.textContent.trim()) {
+        labelTxt += n.textContent.trim() + ' '
+      }
+    })
+    labelTxt = labelTxt.trim()
+    // Fallback if no direct text nodes
+    if (!labelTxt) {
+      const skip = ['AUTO LIVE','MANUAL','Opening']
+      labelTxt = (labelEl.textContent||'').split('\n')
+        .map(l => l.trim())
+        .filter(l => l && !skip.includes(l))[0] || ''
+    }
 
-    // Restore badges (we removed from DOM temporarily — rebuild from scratch)
-    const amtTxt = amtEl.textContent.trim()
-
-    // Detect sub-note (the small grey formula line)
-    const note = node.querySelector('span[style*="font-size:10px"]')
-    const noteTxt = note ? note.textContent.trim() : ''
+    const amtTxt = (amtEl.textContent||'').trim()
 
     return `<tr>
-      <td>
-        <span class="row-label">${labelTxt}</span>
-        ${noteTxt ? `<span class="row-note">${noteTxt}</span>` : ''}
-      </td>
-      <td class="amt ${side === 'asset' ? 'green' : 'red'}">${amtTxt}</td>
+      <td><span class="row-label">${labelTxt}</span></td>
+      <td class="amt">${amtTxt}</td>
     </tr>`
   }
 
