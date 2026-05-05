@@ -161,6 +161,23 @@
     </div>
   </div>
 
+<!-- ── WEBSITE VISITORS PANEL ── -->
+<div class="card" id="visitorsPanel" style="margin-bottom:24px;">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div style="font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.35);">
+        🌐 Website Visitors
+      </div>
+      <span id="visitorCountBadge" style="background:rgba(52,211,153,0.15);color:#34d399;font-size:11px;font-weight:700;padding:2px 10px;border-radius:10px;border:1px solid rgba(52,211,153,0.25);">0 visitors</span>
+    </div>
+    <button onclick="loadVisitors()" style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.6);padding:6px 12px;border-radius:8px;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;">🔄 Refresh</button>
+  </div>
+  <div id="visitorList" style="max-height:280px;overflow-y:auto;">
+    <div style="text-align:center;padding:20px;color:rgba(255,255,255,0.3);font-size:13px;">Loading...</div>
+  </div>
+</div>
+
+  
 <!-- ── NOTIFICATIONS PANEL ── -->
   <div class="card" id="notificationsPanel" style="margin-bottom:24px;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
@@ -392,11 +409,52 @@ window.deleteOneNotification = async function(id) {
   await supabase.from('notifications').delete().eq('id', id)
   loadNotifications()
 }
-  
+
+ // ── WEBSITE VISITORS ──
+async function loadVisitors() {
+  var list = document.getElementById('visitorList')
+  var { data, error } = await supabase
+    .from('website_visitors')
+    .select('*')
+    .order('visited_at', { ascending: false })
+    .limit(50)
+
+  if (error || !data || !data.length) {
+    list.innerHTML = '<div style="text-align:center;padding:20px;color:rgba(255,255,255,0.3);font-size:13px;">No website visitors yet. Share your login page with customers!</div>'
+    return
+  }
+
+  document.getElementById('visitorCountBadge').innerText = data.length + ' visitor' + (data.length !== 1 ? 's' : '')
+
+  list.innerHTML = '<table style="width:100%;border-collapse:collapse;">' +
+    '<thead><tr>' +
+    '<th style="padding:8px 12px;font-size:10px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid rgba(255,255,255,0.07);text-align:left;">Name</th>' +
+    '<th style="padding:8px 12px;font-size:10px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid rgba(255,255,255,0.07);text-align:left;">Phone</th>' +
+    '<th style="padding:8px 12px;font-size:10px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid rgba(255,255,255,0.07);text-align:left;">Visited At</th>' +
+    '<th style="padding:8px 12px;font-size:10px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid rgba(255,255,255,0.07);text-align:left;">Rating</th>' +
+    '</tr></thead><tbody>' +
+    data.map(function(v) {
+      var t = new Date(v.visited_at)
+      var timeStr = t.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}) + ' ' +
+                    t.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true})
+      var stars = v.rating > 0 ? '★'.repeat(v.rating) : '—'
+      return '<tr>' +
+        '<td style="padding:9px 12px;font-size:13px;color:white;border-bottom:1px solid rgba(255,255,255,0.04);">' +
+          (v.name || '<span style="color:rgba(255,255,255,0.3);">Anonymous</span>') + '</td>' +
+        '<td style="padding:9px 12px;font-size:13px;color:rgba(255,255,255,0.5);border-bottom:1px solid rgba(255,255,255,0.04);">' +
+          (v.phone || '—') + '</td>' +
+        '<td style="padding:9px 12px;font-size:12px;color:rgba(255,255,255,0.4);border-bottom:1px solid rgba(255,255,255,0.04);">' +
+          timeStr + '</td>' +
+        '<td style="padding:9px 12px;font-size:14px;color:#fbbf24;border-bottom:1px solid rgba(255,255,255,0.04);">' +
+          stars + (v.review_text ? ' <span title="' + v.review_text.replace(/"/g,"'") + '" style="cursor:help;font-size:11px;color:rgba(255,255,255,0.4);">💬</span>' : '') + '</td>' +
+      '</tr>'
+    }).join('') +
+    '</tbody></table>'
+} 
   
 // ── AUTO REFRESH every 60 seconds ──
 async function loadAll() {
-  await Promise.all([loadStats(), loadWeekChart(), loadLowStock(), loadRecentBills(), loadNotifications()])
+  await Promise.all([loadStats(), loadWeekChart(), loadLowStock(), loadRecentBills(), loadNotifications(), loadVisitors()])
 }
 loadAll()
 setInterval(loadAll, 60000)
