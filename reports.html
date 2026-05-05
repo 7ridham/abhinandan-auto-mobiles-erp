@@ -2191,429 +2191,155 @@ window.switchTab = function(tab, btn) {
 // opens it in a new tab and triggers print
 // ═══════════════════════════════════════
 window.downloadBalanceSheetPDF = function() {
-
-  // Guard: balance sheet must be loaded first
-  if (!document.querySelector('#bsMainGrid .bs-side')) {
+  if (!_bsData) {
     alert('⚠️ Please click the Balance Sheet tab first to load the data, then click Download PDF.')
     return
   }
+  const d = _bsData
+  const fN = n => Number(Math.round(Math.abs(n))).toLocaleString('en-IN')
+  const fmtN = n => '&#8377;' + fN(n)
 
-  // ── Grab all rendered data from the live DOM ──
-  const assetRows  = document.querySelectorAll('#bsMainGrid .bs-side:first-child .bs-row')
-  const liabRows   = document.querySelectorAll('#bsMainGrid .bs-side:last-child .bs-row')
-
-  // ── Read live indicator values from the 4-card strip ──
-  const liveCards  = document.querySelectorAll('#bsMainGrid [style*="grid-template-columns:repeat(4"]  > div')
-
-  // ── Business name from cache ──
   let bizName = 'Abhinandan Auto Mobiles'
-  try {
-    const biz = JSON.parse(localStorage.getItem('aam_biz_cache') || '{}')
-    if (biz.biz_name) bizName = biz.biz_name
-  } catch(e) {}
+  try { const b=JSON.parse(localStorage.getItem('aam_biz_cache')||'{}'); if(b.biz_name)bizName=b.biz_name } catch(e){}
+  const today = new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'})
+  const pnlMax = Math.max(d.totalSales, d.totalPurch)
+  const isProfit = d.netProfit >= 0
+  const diff = Math.abs(d.totalAssets - d.totalLiabs)
+  const balanced = diff < 1
 
-  const today = new Date().toLocaleDateString('en-IN', {
-    day: '2-digit', month: 'long', year: 'numeric'
-  })
+  // Build P&L rows
+  const pnlRows = [
+    ['To Purchases (Net of Returns)', 'All purchases &minus; purchase returns', fmtN(d.totalPurch),
+     'By Sales (Net of Returns)', 'All sales &minus; sales returns', fmtN(d.totalSales), '#155724', '#0d4a1e'],
+    [isProfit?'To Net Profit c/d':'', isProfit?'Transferred to Capital A/c':'', isProfit?`<span style="color:#155724;font-weight:700;">${fmtN(d.netProfit)}</span>`:'',
+     !isProfit?'By Net Loss':'','',!isProfit?`<span style="color:#721c24;font-weight:700;">${fmtN(Math.abs(d.netProfit))}</span>`:'', '',''],
+    [`<strong>Total</strong>`, '', `<strong>${fmtN(pnlMax)}</strong>`, `<strong>Total</strong>`, '', `<strong>${fmtN(pnlMax)}</strong>`, '#dee2e6','#dee2e6']
+  ]
 
-  // ── Helper: convert a bs-row DOM node into a table row ──
-  // FIXED: Only reads text, never removes DOM nodes (old code deleted spans from the live page, making PDF empty)
-  function rowToHTML(node, side) {
-    if (!node) return ''
-    const cls = node.className || ''
+  // Build BS liabilities
+  const liabItems = []
+  liabItems.push({head:'Capital Account'})
+  liabItems.push({t:'Opening Capital', v:d.openingCapital, i:true})
+  if(isProfit) liabItems.push({t:'Add: Net Profit', v:d.netProfit, i:true, g:true})
+  else liabItems.push({t:'Less: Net Loss', v:Math.abs(d.netProfit), i:true, r:true, neg:true})
+  if(d.manualDrawings>0) liabItems.push({t:'Less: Drawings', v:d.manualDrawings, i:true, r:true, neg:true})
+  liabItems.push({t:'Net Capital (Closing)', v:d.liveCapital, i:true, bold:true, col:d.liveCapital>=0?'#856404':'#721c24'})
+  liabItems.push({head:'Loans & Borrowings'})
+  if(d.loans.length) d.loans.forEach(e=>liabItems.push({t:e.label,v:Number(e.amount),i:true}))
+  else liabItems.push({t:'Nil',v:0,i:true,grey:true})
+  liabItems.push({head:'Creditors (Merchant Payable)'})
+  liabItems.push({t:'Merchant Outstanding',v:d.liveCreditors,i:true,r:d.liveCreditors>0})
+  if(d.isOverdraft){liabItems.push({head:'Bank Overdraft (BOD)'}); liabItems.push({t:'Bank Overdraft',v:Math.abs(d.liveBank),i:true,r:true})}
+  d.otherLiabs.forEach((e,idx)=>{if(idx===0)liabItems.push({head:'Other Liabilities'});liabItems.push({t:e.label,v:Number(e.amount),i:true})})
+  liabItems.push({total:true, t:'TOTAL LIABILITIES + CAPITAL', v:d.totalLiabs})
 
-    // Group heading
-    if (cls.includes('bs-group-head')) {
-      return `<tr class="grp-head"><td colspan="2">${(node.textContent||'').trim()}</td></tr>`
-    }
+  // Build BS assets
+  const assetItems = []
+  assetItems.push({head:'Fixed Assets'})
+  if(d.fixedAssets.length) d.fixedAssets.forEach(e=>assetItems.push({t:e.label,v:Number(e.amount),i:true}))
+  else assetItems.push({t:'Nil',v:0,i:true,grey:true})
+  assetItems.push({head:'Current Assets'})
+  assetItems.push({t:'Closing Stock (at cost)',v:d.liveStock,i:true})
+  assetItems.push({t:'Debtors (Customer Credit)',v:d.liveDebtors,i:true})
+  assetItems.push({t:'Cash in Hand'+(d.liveCash<0?' — DEFICIT':''),v:Math.abs(d.liveCash),i:true,r:d.liveCash<0,g:d.liveCash>=0})
+  if(!d.isOverdraft) assetItems.push({t:'Bank Balance (UPI/Cheque)',v:d.liveBank,i:true,g:true})
+  d.otherAssets.forEach((e,idx)=>{if(idx===0)assetItems.push({head:'Other Assets'});assetItems.push({t:e.label,v:Number(e.amount),i:true})})
+  assetItems.push({total:true, t:'TOTAL ASSETS', v:d.totalAssets})
 
-    // Total row
-    if (cls.includes('bs-total')) {
-      const ch = Array.from(node.children)
-      const label = ch[0] ? (ch[0].textContent||'').trim() : ''
-      const amt   = ch[ch.length-1] ? (ch[ch.length-1].textContent||'').trim() : ''
-      return `<tr class="total-row"><td>${label}</td><td class="amt">${amt}</td></tr>`
-    }
+  const maxR = Math.max(liabItems.length, assetItems.length)
+  while(liabItems.length<maxR) liabItems.push({empty:true})
+  while(assetItems.length<maxR) assetItems.push({empty:true})
 
-    // Normal row — read text only, no DOM modification
-    const labelEl = node.querySelector('.bs-label')
-    const allCh   = Array.from(node.children)
-    const amtEl   = allCh[allCh.length - 1]
-    if (!labelEl || !amtEl) return ''
-
-    // Get label text from direct text nodes only (skips badge and note child spans)
-    let labelTxt = ''
-    labelEl.childNodes.forEach(n => {
-      if (n.nodeType === 3 && n.textContent.trim()) {
-        labelTxt += n.textContent.trim() + ' '
-      }
-    })
-    labelTxt = labelTxt.trim()
-    // Fallback if no direct text nodes
-    if (!labelTxt) {
-      const skip = ['AUTO LIVE','MANUAL','Opening']
-      labelTxt = (labelEl.textContent||'').split('\n')
-        .map(l => l.trim())
-        .filter(l => l && !skip.includes(l))[0] || ''
-    }
-
-    const amtTxt = (amtEl.textContent||'').trim()
-
-    return `<tr>
-      <td><span class="row-label">${labelTxt}</span></td>
-      <td class="amt">${amtTxt}</td>
-    </tr>`
+  function cellHTML(r, border) {
+    const b = border ? 'border-left:1px solid #dee2e6;' : ''
+    if(!r||r.empty) return `<td style="${b}"></td><td></td>`
+    if(r.head) return `<td colspan="2" style="${b}background:#f3f4f6;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#6b7280;padding:6px 12px;">${r.head}</td>`
+    if(r.total) return `<td style="${b}background:#e8f0fe;border-top:2px solid #4a6fa5;font-weight:700;font-size:13px;padding:10px 12px;">${r.t}</td><td style="background:#e8f0fe;border-top:2px solid #4a6fa5;font-weight:700;font-size:13px;text-align:right;padding:10px 12px;">${fmtN(r.v)}</td>`
+    const ps = r.i ? 'padding-left:22px;' : ''
+    const fw = r.bold ? 'font-weight:700;' : ''
+    const col = r.g ? 'color:#155724;' : r.r ? 'color:#721c24;' : r.grey ? 'color:#9ca3af;' : r.col ? 'color:'+r.col+';' : ''
+    return `<td style="${b}${ps}${fw}padding:8px 12px;">${r.t}</td><td style="text-align:right;${fw}${col}padding:8px 12px;">${r.v!==undefined?(r.neg?'(-) ':'')+fmtN(r.v):''}</td>`
   }
 
-  // ── Build asset table rows ──
-  let assetTableHTML = ''
-  assetRows.forEach(row => { assetTableHTML += rowToHTML(row, 'asset') })
+  const bsBody = liabItems.map((lr,i) => `<tr>${cellHTML(lr,false)}${cellHTML(assetItems[i],true)}</tr>`).join('')
 
-  // ── Build liability table rows ──
-  let liabTableHTML = ''
-  liabRows.forEach(row => { liabTableHTML += rowToHTML(row, 'liab') })
+  const pnlBody = pnlRows.map((r,i) => `
+    <tr style="${i===2?'background:#f3f4f6;border-top:2px solid #dee2e6;font-weight:700;':''}">
+      <td style="padding:8px 12px;">${r[0]}<small style="display:block;color:#6b7280;font-size:10px;">${r[1]}</small></td>
+      <td style="text-align:right;padding:8px 12px;">${r[2]}</td>
+      <td style="padding:8px 12px;border-left:1px solid #dee2e6;">${r[3]}<small style="display:block;color:#6b7280;font-size:10px;">${r[4]}</small></td>
+      <td style="text-align:right;padding:8px 12px;">${r[5]}</td>
+    </tr>`).join('')
 
-  // ── Read summary values ──
-  const summaryCards = document.querySelectorAll('#bsSummaryBanner .pm-card')
-  const totalAssets  = summaryCards[0] ? summaryCards[0].querySelector('.pm-value')?.textContent?.trim() : '—'
-  const totalLiabs   = summaryCards[1] ? summaryCards[1].querySelector('.pm-value')?.textContent?.trim() : '—'
-  const balStatus    = summaryCards[2] ? summaryCards[2].querySelector('.pm-value')?.textContent?.trim() : '—'
-
-  // ── Read 4 live indicator cards ──
-  const indicators   = document.querySelectorAll('#bsMainGrid > div:first-child > div')
-  let indicatorHTML  = ''
-  indicators.forEach(card => {
-    const lbl = card.querySelector('div:first-child')?.textContent?.trim() || ''
-    const val = card.querySelector('div:nth-child(2)')?.textContent?.trim() || ''
-    const sub = card.querySelector('div:last-child')?.textContent?.trim() || ''
-    indicatorHTML += `<div class="ind-card">
-      <div class="ind-label">${lbl}</div>
-      <div class="ind-value">${val}</div>
-      <div class="ind-sub">${sub}</div>
-    </div>`
-  })
-
-  // ── Build complete PDF HTML ──
-  const html = `<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
+  const html = `<!DOCTYPE html><html><head><meta charset="UTF-8">
 <title>Balance Sheet — ${bizName}</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap');
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'DM Sans',Arial,sans-serif;font-size:13px;color:#1e293b;background:white;padding:20px;}
+  @page{size:A4;margin:14mm 12mm;}
+  @media print{body{padding:0}button{display:none!important}}
+  .hdr{background:linear-gradient(135deg,#1e3a5f,#2563eb);color:white;padding:20px 24px;border-radius:8px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:flex-start;}
+  .hdr h1{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;margin-bottom:4px;}
+  .hdr .sub{font-size:11px;opacity:0.75;}
+  .hdr .dt{text-align:right;font-size:11px;opacity:0.7;}
+  .kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;}
+  .kpi{border:1px solid #e2e8f0;border-radius:8px;padding:10px 12px;text-align:center;background:#f8faff;}
+  .kpi .kl{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#64748b;margin-bottom:4px;}
+  .kpi .kv{font-size:14px;font-weight:700;color:#0f172a;}
+  .sec-title{font-family:'Playfair Display',serif;font-size:14px;font-weight:700;text-align:center;background:#1e3a5f;color:white;padding:10px;border-radius:8px 8px 0 0;margin-bottom:0;}
+  .sec-title.amber{background:linear-gradient(135deg,#78350f,#d97706);}
+  table.acct{width:100%;border-collapse:collapse;border:1px solid #e2e8f0;margin-bottom:12px;}
+  table.acct th{background:#f1f5f9;padding:8px 12px;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#64748b;text-align:left;border-bottom:1px solid #e2e8f0;}
+  table.acct td{padding:8px 12px;border-bottom:1px solid #f1f5f9;color:#374151;vertical-align:top;}
+  .status{margin-top:10px;padding:10px 14px;border-radius:6px;font-size:12px;font-weight:600;background:${balanced?'#f0fdf4':'#fef2f2'};color:${balanced?'#166534':'#991b1b'};border:1px solid ${balanced?'#86efac':'#fecaca'};}
+  .pnl-row{margin-bottom:12px;}
+  .printbtn{text-align:right;margin-bottom:16px;}
+  .printbtn button{background:#1e3a5f;color:white;border:none;padding:9px 22px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;margin-right:8px;}
+</style></head><body>
+<div class="printbtn">
+  <button onclick="window.print()">🖨️ Print / Save as PDF</button>
+  <button onclick="window.close()" style="background:#64748b;">✕ Close</button>
+</div>
+<div class="hdr">
+  <div><h1>${bizName}</h1><div class="sub">Balance Sheet &amp; Profit &amp; Loss Statement</div><div class="sub" style="margin-top:4px;">All figures auto-computed from live business data</div></div>
+  <div class="dt"><div style="font-weight:700;font-size:14px;">As of ${today}</div><div style="margin-top:4px;">Auto ERP v1.0</div></div>
+</div>
+<div class="kpi-row">
+  <div class="kpi"><div class="kl">Cash in Hand</div><div class="kv" style="color:${d.liveCash>=0?'#166534':'#991b1b'};">${d.liveCash<0?'Deficit ':'' }&#8377;${fN(d.liveCash)}</div></div>
+  <div class="kpi"><div class="kl">Bank Balance</div><div class="kv" style="color:${d.isOverdraft?'#991b1b':'#1e3a5f'};">${d.isOverdraft?'BOD ':'' }&#8377;${fN(d.liveBank)}</div></div>
+  <div class="kpi"><div class="kl">Net ${isProfit?'Profit':'Loss'}</div><div class="kv" style="color:${isProfit?'#166534':'#991b1b'};">&#8377;${fN(d.netProfit)}</div></div>
+  <div class="kpi"><div class="kl">Stock Value</div><div class="kv">&#8377;${fN(d.liveStock)}</div></div>
+</div>
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+<div class="sec-title">PROFIT &amp; LOSS ACCOUNT (All Periods)</div>
+<table class="acct">
+  <thead><tr>
+    <th style="width:35%">Dr — Expenses</th><th style="width:15%;text-align:right">Amount</th>
+    <th style="width:35%;border-left:1px solid #e2e8f0">Cr — Income</th><th style="width:15%;text-align:right">Amount</th>
+  </tr></thead>
+  <tbody>${pnlBody}</tbody>
+</table>
 
-  body {
-    font-family: 'DM Sans', Arial, sans-serif;
-    font-size: 13px;
-    color: #1e293b;
-    background: white;
-    padding: 0;
-  }
+<div class="sec-title amber">BALANCE SHEET as on ${today}</div>
+<table class="acct">
+  <thead><tr>
+    <th style="width:35%">Liabilities — Particulars</th><th style="width:15%;text-align:right">Amount</th>
+    <th style="width:35%;border-left:1px solid #e2e8f0">Assets — Particulars</th><th style="width:15%;text-align:right">Amount</th>
+  </tr></thead>
+  <tbody>${bsBody}</tbody>
+</table>
+<div class="status">${balanced?'✅ Balance Sheet is balanced — Total Assets = Total Liabilities + Capital':'⚠️ Difference of &#8377;'+Math.round(diff).toLocaleString('en-IN')+' — add missing entries to balance the sheet.'}</div>
+<div style="margin-top:16px;padding-top:12px;border-top:1px solid #e2e8f0;display:flex;justify-content:space-between;font-size:10px;color:#9ca3af;">
+  <span>${bizName} — Confidential Financial Statement</span>
+  <span>Generated: ${new Date().toLocaleString('en-IN')} | Auto ERP v1.0</span>
+</div>
+</body></html>`
 
-  @page {
-    size: A4;
-    margin: 14mm 12mm;
-  }
-
-  /* ── HEADER ── */
-  .pdf-header {
-    background: linear-gradient(135deg, #1e3a5f, #2563eb);
-    color: white;
-    padding: 22px 28px;
-    border-radius: 10px;
-    margin-bottom: 18px;
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-  }
-  .pdf-header h1 {
-    font-family: 'Playfair Display', serif;
-    font-size: 22px;
-    font-weight: 700;
-    margin-bottom: 4px;
-  }
-  .pdf-header .sub {
-    font-size: 12px;
-    opacity: 0.75;
-  }
-  .pdf-header .date-block {
-    text-align: right;
-  }
-  .pdf-header .date-block .date-label {
-    font-size: 10px;
-    opacity: 0.6;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 3px;
-  }
-  .pdf-header .date-block .date-val {
-    font-size: 15px;
-    font-weight: 700;
-  }
-
-  /* ── LIVE INDICATORS ── */
-  .indicators {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 10px;
-    margin-bottom: 16px;
-  }
-  .ind-card {
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    padding: 12px;
-    text-align: center;
-    background: #f8faff;
-  }
-  .ind-label {
-    font-size: 9px;
-    font-weight: 700;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    color: #64748b;
-    margin-bottom: 5px;
-  }
-  .ind-value {
-    font-size: 16px;
-    font-weight: 700;
-    color: #0f172a;
-    font-family: 'DM Sans', sans-serif;
-  }
-  .ind-sub {
-    font-size: 9px;
-    color: #94a3b8;
-    margin-top: 3px;
-  }
-
-  /* ── SUMMARY BANNER ── */
-  .summary-banner {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 10px;
-    margin-bottom: 18px;
-  }
-  .sum-card {
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    padding: 14px 16px;
-    text-align: center;
-  }
-  .sum-label {
-    font-size: 9px;
-    font-weight: 700;
-    letter-spacing: 1.2px;
-    text-transform: uppercase;
-    color: #64748b;
-    margin-bottom: 5px;
-  }
-  .sum-value {
-    font-family: 'Playfair Display', serif;
-    font-size: 20px;
-    font-weight: 700;
-  }
-  .sum-value.green  { color: #059669; }
-  .sum-value.red    { color: #dc2626; }
-  .sum-value.status { color: #2563eb; }
-
-  /* ── MAIN BALANCE SHEET GRID ── */
-  .bs-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-    margin-bottom: 18px;
-  }
-  .bs-side {
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    overflow: hidden;
-  }
-  .bs-side-header {
-    padding: 10px 14px;
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    display: flex;
-    justify-content: space-between;
-  }
-  .bs-side-header.assets {
-    background: #f0fdf4;
-    color: #059669;
-    border-bottom: 1px solid #bbf7d0;
-  }
-  .bs-side-header.liabs {
-    background: #fef2f2;
-    color: #dc2626;
-    border-bottom: 1px solid #fecaca;
-  }
-
-  /* ── TABLE STYLES ── */
-  table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-  tr.grp-head td {
-    padding: 7px 14px 3px;
-    font-size: 9px;
-    font-weight: 700;
-    letter-spacing: 1.2px;
-    text-transform: uppercase;
-    color: #94a3b8;
-    background: #f8faff;
-    border-bottom: 1px solid #f1f5f9;
-  }
-  tr td {
-    padding: 8px 14px;
-    border-bottom: 1px solid #f1f5f9;
-    vertical-align: top;
-  }
-  tr:last-child td { border-bottom: none; }
-  tr.total-row td {
-    padding: 11px 14px;
-    font-weight: 700;
-    font-size: 13px;
-    background: #f8faff;
-    border-top: 2px solid #e2e8f0;
-    border-bottom: none;
-  }
-  td.amt {
-    text-align: right;
-    font-weight: 600;
-    white-space: nowrap;
-    font-family: 'DM Sans', sans-serif;
-  }
-  td.amt.green { color: #059669; }
-  td.amt.red   { color: #dc2626; }
-  .row-label { display: block; color: #1e293b; font-size: 12px; }
-  .row-note  { display: block; font-size: 9px; color: #94a3b8; margin-top: 2px; line-height: 1.4; }
-
-  /* ── FOOTER ── */
-  .pdf-footer {
-    margin-top: 16px;
-    padding-top: 10px;
-    border-top: 1px solid #e2e8f0;
-    display: flex;
-    justify-content: space-between;
-    font-size: 10px;
-    color: #94a3b8;
-  }
-  .disclaimer {
-    margin-top: 10px;
-    padding: 10px 14px;
-    background: #f8faff;
-    border-radius: 6px;
-    border: 1px solid #e2e8f0;
-    font-size: 10px;
-    color: #64748b;
-    line-height: 1.6;
-  }
-
-  /* ── PRINT CONTROL ── */
-  @media print {
-    body { padding: 0; }
-    button { display: none !important; }
-  }
-</style>
-</head>
-<body>
-
-  <!-- PRINT BUTTON (only visible on screen, hidden when printing) -->
-  <div style="text-align:right;padding:12px 16px;background:#f8faff;border-bottom:1px solid #e2e8f0;margin-bottom:16px;">
-    <span style="font-size:13px;color:#64748b;margin-right:14px;">Your Balance Sheet is ready.</span>
-    <button onclick="window.print()" style="background:linear-gradient(135deg,#2563eb,#3b82f6);color:white;border:none;padding:9px 22px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;">🖨️ Print / Save as PDF</button>
-    <button onclick="window.close()" style="background:#f1f5f9;color:#475569;border:1px solid #e2e8f0;padding:9px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;margin-left:8px;">✕ Close</button>
-  </div>
-
-  <div style="padding:0 16px 24px;">
-
-    <!-- HEADER -->
-    <div class="pdf-header">
-      <div>
-        <h1>${bizName}</h1>
-        <div class="sub">Balance Sheet — Financial Statement</div>
-        <div class="sub" style="margin-top:4px;">All amounts computed automatically from live business data</div>
-      </div>
-      <div class="date-block">
-        <div class="date-label">As of Date</div>
-        <div class="date-val">${today}</div>
-        <div style="font-size:10px;opacity:0.6;margin-top:4px;">Auto ERP v1.0</div>
-      </div>
-    </div>
-
-    <!-- LIVE INDICATORS -->
-    <div class="indicators">
-      ${indicatorHTML}
-    </div>
-
-    <!-- SUMMARY -->
-    <div class="summary-banner">
-      <div class="sum-card">
-        <div class="sum-label">Total Assets</div>
-        <div class="sum-value green">${totalAssets}</div>
-      </div>
-      <div class="sum-card">
-        <div class="sum-label">Total Liabilities + Capital</div>
-        <div class="sum-value red">${totalLiabs}</div>
-      </div>
-      <div class="sum-card">
-        <div class="sum-label">Balance Status</div>
-        <div class="sum-value status">${balStatus}</div>
-      </div>
-    </div>
-
-    <!-- MAIN BALANCE SHEET -->
-    <div class="bs-grid">
-      <div class="bs-side">
-        <div class="bs-side-header assets">
-          <span>📦 Assets (What Business Owns)</span>
-          <span>${totalAssets}</span>
-        </div>
-        <table>${assetTableHTML}</table>
-      </div>
-      <div class="bs-side">
-        <div class="bs-side-header liabs">
-          <span>🏛️ Liabilities &amp; Capital</span>
-          <span>${totalLiabs}</span>
-        </div>
-        <table>${liabTableHTML}</table>
-      </div>
-    </div>
-
-    <!-- DISCLAIMER -->
-    <div class="disclaimer">
-      <strong>Note:</strong> Cash in Hand and Bank Balance are auto-computed from all recorded transactions (sales bills, purchase bills, payment receipts, and merchant payment vouchers) plus your set opening balances.
-      Debtors and Creditors are auto-computed from outstanding credit in sales and purchase bills respectively.
-      Stock value is computed at cost price from current inventory.
-      Capital includes opening capital adjusted for net profit/loss and drawings.
-      Manual entries (Fixed Assets, Loans, Drawings) are entered and maintained by the owner.
-    </div>
-
-    <!-- FOOTER -->
-    <div class="pdf-footer">
-      <span>${bizName} — Confidential Financial Statement</span>
-      <span>Generated: ${new Date().toLocaleString('en-IN')} | Auto ERP v1.0</span>
-    </div>
-
-  </div>
-
-</body>
-</html>`
-
-  // ── Open in new tab and trigger print ──
   const win = window.open('', '_blank')
-  if (!win) {
-    alert('Please allow popups for this site to download the PDF.')
-    return
-  }
-  win.document.write(html)
-  win.document.close()
-
-  // Wait for fonts to load then auto-trigger print dialog
-  win.onload = function() {
-    setTimeout(() => { win.focus(); win.print() }, 800)
-  }
+  if (!win) { alert('Please allow popups to download the PDF.'); return }
+  win.document.open(); win.document.write(html); win.document.close()
+  win.onload = function() { setTimeout(function(){ win.focus(); win.print() }, 600) }
 }
 
 
