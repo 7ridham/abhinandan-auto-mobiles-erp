@@ -618,6 +618,58 @@ function rankBadge(i) {
 }
 
 // ═══════════════════════════════════════
+// ERROR DISPLAY + RETRY
+// WHY: Every async load function can fail — Supabase free-tier
+// pauses projects after 1 week of inactivity. Without this,
+// failures are invisible and leave skeleton screens forever.
+// ═══════════════════════════════════════
+function showTabError(containerId, tabName, err) {
+  const el = document.getElementById(containerId)
+  if (!el) return
+  const msg = (err && err.message) ? err.message : String(err || 'Unknown error')
+  const isNetwork = msg.toLowerCase().includes('fetch') ||
+                    msg.toLowerCase().includes('network') ||
+                    msg.toLowerCase().includes('failed') ||
+                    msg.toLowerCase().includes('load')
+  el.innerHTML = `
+    <div style="grid-column:1/-1;background:rgba(220,38,38,0.08);border:1px solid rgba(220,38,38,0.2);
+                border-radius:14px;padding:32px;text-align:center;">
+      <div style="font-size:36px;margin-bottom:12px;">⚠️</div>
+      <div style="font-family:'Playfair Display',serif;font-size:18px;color:#f87171;margin-bottom:8px;">
+        Could not load ${tabName}
+      </div>
+      <div style="font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:12px;font-family:'DM Sans',sans-serif;">
+        ${msg}
+      </div>
+      ${isNetwork ? `<div style="font-size:11px;color:rgba(251,191,36,0.8);margin-bottom:16px;
+          padding:10px 16px;background:rgba(251,191,36,0.07);border-radius:8px;
+          border:1px solid rgba(251,191,36,0.15);font-family:'DM Sans',sans-serif;">
+        💡 <strong>Supabase free-tier projects pause after 7 days of inactivity.</strong>
+        If this is your first visit in a while, wait 30 seconds and click Retry — 
+        the project needs time to wake up.
+      </div>` : ''}
+      <button onclick="window.retryCurrentTab()"
+        style="background:linear-gradient(135deg,#2563eb,#7c3aed);border:none;color:white;
+               padding:10px 26px;border-radius:10px;font-size:13px;font-weight:600;
+               font-family:'DM Sans',sans-serif;cursor:pointer;box-shadow:0 4px 14px rgba(37,99,235,0.35);">
+        ↺ Retry
+      </button>
+    </div>`
+}
+
+// Called by the Retry button — clears cache and reloads the active tab
+window.retryCurrentTab = function() {
+  const k = cacheKey(activeTab)
+  if (k) delete cache[k]
+  if (activeTab === 'balancesheet') {
+    loadBalanceSheet(true)
+  } else {
+    loadTab(activeTab)
+  }
+}
+
+  
+// ═══════════════════════════════════════
 // CUSTOMER NAME LOOKUP (no FK → manual join)
 // WHY: sales.customer_id has NO foreign key constraint to
 // customers.id, so Supabase cannot auto-join them.
