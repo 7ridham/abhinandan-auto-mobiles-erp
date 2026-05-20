@@ -740,113 +740,112 @@ function loadTab(tab) {
 // ═══════════════════════════════════════
 async function loadSales(range) {
   const k = cacheKey('sales')
+  try {
+    const [salesRes, retRes] = await Promise.all([
+      supabase.from('sales')
+        .select('id,bill_number,created_at,total_amount,cash,upi,credit,discount,customer_id')
+        .eq('bill_type','sale')
+        .gte('created_at', range.from + 'T00:00:00')
+        .lte('created_at', range.to   + 'T23:59:59')
+        .order('created_at', { ascending: false }),
+      supabase.from('sales')
+        .select('total_amount')
+        .eq('bill_type','return')
+        .gte('created_at', range.from + 'T00:00:00')
+        .lte('created_at', range.to   + 'T23:59:59')
+    ])
 
-  // PARALLEL fetch — both queries fire at the same time
-  const [salesRes, retRes] = await Promise.all([
-    supabase.from('sales')
-      .select('id,bill_number,created_at,total_amount,cash,upi,credit,discount,customer_id')
-      .eq('bill_type','sale')
-      .gte('created_at', range.from + 'T00:00:00')
-      .lte('created_at', range.to   + 'T23:59:59')
-      .order('created_at', { ascending: false }),
-    supabase.from('sales')
-      .select('total_amount')
-      .eq('bill_type','return')
-      .gte('created_at', range.from + 'T00:00:00')
-      .lte('created_at', range.to   + 'T23:59:59')
-  ])
+    if (salesRes.error) throw new Error('Sales query: ' + salesRes.error.message)
+    if (retRes.error)   throw new Error('Returns query: ' + retRes.error.message)
 
-  const sales   = salesRes.data || []
-  const returns = retRes.data   || []
+    const sales   = salesRes.data || []
+    const returns = retRes.data   || []
+    const custMap = await getCustomerNames(sales.map(s => s.customer_id))
 
-  // Manual customer name lookup (no FK exists)
-  const custMap = await getCustomerNames(sales.map(s => s.customer_id))
+    const totalSales   = sales.reduce((s,r)   => s + Number(r.total_amount), 0)
+    const totalReturns = returns.reduce((s,r) => s + Number(r.total_amount), 0)
+    const netSales     = totalSales - totalReturns
+    const tCash        = sales.reduce((s,r) => s + Number(r.cash    || 0), 0)
+    const tUpi         = sales.reduce((s,r) => s + Number(r.upi     || 0), 0)
+    const tCredit      = sales.reduce((s,r) => s + Number(r.credit  || 0), 0)
+    const tDisc        = sales.reduce((s,r) => s + Number(r.discount|| 0), 0)
+    const avgBill      = sales.length ? totalSales / sales.length : 0
 
-  // Compute totals
-  const totalSales   = sales.reduce((s,r)   => s + Number(r.total_amount), 0)
-  const totalReturns = returns.reduce((s,r) => s + Number(r.total_amount), 0)
-  const netSales     = totalSales - totalReturns
-  const tCash        = sales.reduce((s,r) => s + Number(r.cash    || 0), 0)
-  const tUpi         = sales.reduce((s,r) => s + Number(r.upi     || 0), 0)
-  const tCredit      = sales.reduce((s,r) => s + Number(r.credit  || 0), 0)
-  const tDisc        = sales.reduce((s,r) => s + Number(r.discount|| 0), 0)
-  const avgBill      = sales.length ? totalSales / sales.length : 0
+    document.getElementById('salesKpis').innerHTML =
+      kpiCard('💰','Net Sales',     fmtAmt(netSales),     `${sales.length} bills`,       'linear-gradient(90deg,#2563eb,#06b6d4)') +
+      kpiCard('↩️','Returns',       fmtAmt(totalReturns), `${returns.length} returns`,    'linear-gradient(90deg,#dc2626,#f97316)') +
+      kpiCard('💸','Total Discount',fmtAmt(tDisc),        'given to customers',           'linear-gradient(90deg,#d97706,#f59e0b)') +
+      kpiCard('📊','Avg Bill Value',fmtAmt(avgBill),      'per invoice',                  'linear-gradient(90deg,#7c3aed,#a855f7)')
 
-  // KPIs
-  document.getElementById('salesKpis').innerHTML =
-    kpiCard('💰','Net Sales',     fmtAmt(netSales),     `${sales.length} bills`,       'linear-gradient(90deg,#2563eb,#06b6d4)') +
-    kpiCard('↩️','Returns',       fmtAmt(totalReturns), `${returns.length} returns`,    'linear-gradient(90deg,#dc2626,#f97316)') +
-    kpiCard('💸','Total Discount',fmtAmt(tDisc),        'given to customers',           'linear-gradient(90deg,#d97706,#f59e0b)') +
-    kpiCard('📊','Avg Bill Value',fmtAmt(avgBill),      'per invoice',                  'linear-gradient(90deg,#7c3aed,#a855f7)')
-
-  // Monthly bar chart — group by month
-  const mMap = {}
-  sales.forEach(s => {
-    const mo = s.created_at.slice(0,7)
-    mMap[mo] = (mMap[mo] || 0) + Number(s.total_amount)
-  })
-  const months = Object.keys(mMap).sort()
-  const chartEl = document.getElementById('salesChart')
-  chartEl.innerHTML = ''
-  if (months.length) {
-    const maxV = Math.max(...Object.values(mMap), 1)
-    months.forEach(mo => {
-      const val = mMap[mo]
-      const barPx = Math.max(Math.round((val / maxV) * 110), 4)
-      const lbl = new Date(mo + '-15').toLocaleDateString('en-IN', { month:'short', year:'2-digit' })
-      chartEl.innerHTML += `<div class="bc-item">
-        <div class="bc-val">${shortAmt(val)}</div>
-        <div class="bc-bar" style="height:${barPx}px;background:linear-gradient(180deg,#2563eb,rgba(37,99,235,0.4));"></div>
-        <div class="bc-label">${lbl}</div>
-      </div>`
+    const mMap = {}
+    sales.forEach(s => {
+      const mo = s.created_at.slice(0,7)
+      mMap[mo] = (mMap[mo] || 0) + Number(s.total_amount)
     })
-  } else {
-    chartEl.innerHTML = '<div class="empty-state">No data for this period</div>'
+    const months = Object.keys(mMap).sort()
+    const chartEl = document.getElementById('salesChart')
+    chartEl.innerHTML = ''
+    if (months.length) {
+      const maxV = Math.max(...Object.values(mMap), 1)
+      months.forEach(mo => {
+        const val = mMap[mo]
+        const barPx = Math.max(Math.round((val / maxV) * 110), 4)
+        const lbl = new Date(mo + '-15').toLocaleDateString('en-IN', { month:'short', year:'2-digit' })
+        chartEl.innerHTML += `<div class="bc-item">
+          <div class="bc-val">${shortAmt(val)}</div>
+          <div class="bc-bar" style="height:${barPx}px;background:linear-gradient(180deg,#2563eb,rgba(37,99,235,0.4));"></div>
+          <div class="bc-label">${lbl}</div>
+        </div>`
+      })
+    } else {
+      chartEl.innerHTML = '<div class="empty-state">No sales for this period</div>'
+    }
+
+    const sp = tCash + tUpi + tCredit || 1
+    document.getElementById('salesPaySplit').innerHTML =
+      payBlock('💵','Cash',   'pill-cash',   tCash,   sp) +
+      payBlock('📱','UPI',    'pill-upi',    tUpi,    sp) +
+      payBlock('🔴','Credit', 'pill-credit', tCredit, sp)
+
+    const rows = sales.map(s => {
+      const cust = custMap[s.customer_id]
+      const name = cust ? cust.name : (s.customer_id ? `ID:${s.customer_id}` : 'Walk-in')
+      return `<tr>
+        <td style="font-family:monospace;font-size:12px;color:rgba(255,255,255,0.5);">${s.bill_number}</td>
+        <td>${fmtDate(s.created_at)}</td>
+        <td>${name}</td>
+        <td class="tr green">${fmtAmt(s.total_amount)}</td>
+        <td class="tr">${fmtAmt(s.cash)}</td>
+        <td class="tr blue">${fmtAmt(s.upi)}</td>
+        <td class="tr red">${fmtAmt(s.credit)}</td>
+        <td class="tr amber">${fmtAmt(s.discount)}</td>
+      </tr>`
+    }).join('')
+
+    document.getElementById('salesBody').innerHTML = rows ||
+      `<tr><td colspan="8"><div class="empty-state">No sales in this period</div></td></tr>`
+    document.getElementById('salesFoot').innerHTML = sales.length ? `<tr>
+      <td colspan="3"><strong>TOTAL (${sales.length} bills)</strong></td>
+      <td class="tr"><strong>${fmtAmt(totalSales)}</strong></td>
+      <td class="tr"><strong>${fmtAmt(tCash)}</strong></td>
+      <td class="tr"><strong>${fmtAmt(tUpi)}</strong></td>
+      <td class="tr"><strong>${fmtAmt(tCredit)}</strong></td>
+      <td class="tr"><strong>${fmtAmt(tDisc)}</strong></td>
+    </tr>` : ''
+
+    exportStore.sales = {
+      headers: ['Bill No','Date','Customer','Amount','Cash','UPI','Credit','Discount'],
+      rows: sales.map(s => {
+        const n = custMap[s.customer_id]?.name || 'Walk-in'
+        return [s.bill_number, fmtDate(s.created_at), n, s.total_amount, s.cash||0, s.upi||0, s.credit||0, s.discount||0]
+      })
+    }
+    cache[k] = true
+
+  } catch (err) {
+    console.error('[Reports] loadSales error:', err)
+    showTabError('salesKpis', 'Sales Data', err)
   }
-
-  // Payment split bars
-  const sp = tCash + tUpi + tCredit || 1
-  document.getElementById('salesPaySplit').innerHTML =
-    payBlock('💵','Cash',   'pill-cash',   tCash,   sp) +
-    payBlock('📱','UPI',    'pill-upi',    tUpi,    sp) +
-    payBlock('🔴','Credit', 'pill-credit', tCredit, sp)
-
-  // Sales table rows
-  const rows = sales.map(s => {
-    const cust = custMap[s.customer_id]
-    const name = cust ? cust.name : (s.customer_id ? `ID:${s.customer_id}` : 'Walk-in')
-    return `<tr>
-      <td style="font-family:monospace;font-size:12px;color:rgba(255,255,255,0.5);">${s.bill_number}</td>
-      <td>${fmtDate(s.created_at)}</td>
-      <td>${name}</td>
-      <td class="tr green">${fmtAmt(s.total_amount)}</td>
-      <td class="tr">${fmtAmt(s.cash)}</td>
-      <td class="tr blue">${fmtAmt(s.upi)}</td>
-      <td class="tr red">${fmtAmt(s.credit)}</td>
-      <td class="tr amber">${fmtAmt(s.discount)}</td>
-    </tr>`
-  }).join('')
-
-  document.getElementById('salesBody').innerHTML = rows ||
-    `<tr><td colspan="8"><div class="empty-state">No sales in this period</div></td></tr>`
-  document.getElementById('salesFoot').innerHTML = sales.length ? `<tr>
-    <td colspan="3"><strong>TOTAL (${sales.length} bills)</strong></td>
-    <td class="tr"><strong>${fmtAmt(totalSales)}</strong></td>
-    <td class="tr"><strong>${fmtAmt(tCash)}</strong></td>
-    <td class="tr"><strong>${fmtAmt(tUpi)}</strong></td>
-    <td class="tr"><strong>${fmtAmt(tCredit)}</strong></td>
-    <td class="tr"><strong>${fmtAmt(tDisc)}</strong></td>
-  </tr>` : ''
-
-  exportStore.sales = {
-    headers: ['Bill No','Date','Customer','Amount','Cash','UPI','Credit','Discount'],
-    rows: sales.map(s => {
-      const n = custMap[s.customer_id]?.name || 'Walk-in'
-      return [s.bill_number, fmtDate(s.created_at), n, s.total_amount, s.cash||0, s.upi||0, s.credit||0, s.discount||0]
-    })
-  }
-
-  cache[k] = true
 }
 
 // ═══════════════════════════════════════
@@ -854,65 +853,72 @@ async function loadSales(range) {
 // ═══════════════════════════════════════
 async function loadPurchases(range) {
   const k = cacheKey('purchases')
+  try {
+    const [purRes, retRes] = await Promise.all([
+      supabase.from('purchases')
+        .select('id,bill_number,created_at,total_amount,cash,upi,credit,discount,merchant_name')
+        .eq('bill_type','purchase')
+        .gte('created_at', range.from + 'T00:00:00')
+        .lte('created_at', range.to   + 'T23:59:59')
+        .order('created_at', { ascending: false }),
+      supabase.from('purchases')
+        .select('total_amount')
+        .eq('bill_type','return')
+        .gte('created_at', range.from + 'T00:00:00')
+        .lte('created_at', range.to   + 'T23:59:59')
+    ])
 
-  const [purRes, retRes] = await Promise.all([
-    supabase.from('purchases')
-      .select('id,bill_number,created_at,total_amount,cash,upi,credit,discount,merchant_name')
-      .eq('bill_type','purchase')
-      .gte('created_at', range.from + 'T00:00:00')
-      .lte('created_at', range.to   + 'T23:59:59')
-      .order('created_at', { ascending: false }),
-    supabase.from('purchases')
-      .select('total_amount')
-      .eq('bill_type','return')
-      .gte('created_at', range.from + 'T00:00:00')
-      .lte('created_at', range.to   + 'T23:59:59')
-  ])
+    if (purRes.error) throw new Error('Purchases query: ' + purRes.error.message)
+    if (retRes.error) throw new Error('Returns query: '   + retRes.error.message)
 
-  const purch  = purRes.data || []
-  const rets   = retRes.data || []
-  const total  = purch.reduce((s,r) => s + Number(r.total_amount), 0)
-  const retTot = rets.reduce((s,r)  => s + Number(r.total_amount), 0)
-  const net    = total - retTot
-  const tCash  = purch.reduce((s,r) => s + Number(r.cash    || 0), 0)
-  const tUpi   = purch.reduce((s,r) => s + Number(r.upi     || 0), 0)
-  const tCred  = purch.reduce((s,r) => s + Number(r.credit  || 0), 0)
-  const tDisc  = purch.reduce((s,r) => s + Number(r.discount|| 0), 0)
+    const purch  = purRes.data || []
+    const rets   = retRes.data || []
+    const total  = purch.reduce((s,r) => s + Number(r.total_amount), 0)
+    const retTot = rets.reduce((s,r)  => s + Number(r.total_amount), 0)
+    const net    = total - retTot
+    const tCash  = purch.reduce((s,r) => s + Number(r.cash    || 0), 0)
+    const tUpi   = purch.reduce((s,r) => s + Number(r.upi     || 0), 0)
+    const tCred  = purch.reduce((s,r) => s + Number(r.credit  || 0), 0)
+    const tDisc  = purch.reduce((s,r) => s + Number(r.discount|| 0), 0)
 
-  document.getElementById('purchKpis').innerHTML =
-    kpiCard('📦','Net Purchases',    fmtAmt(net),    `${purch.length} bills`,     'linear-gradient(90deg,#d97706,#f59e0b)') +
-    kpiCard('↩️','Purchase Returns', fmtAmt(retTot), `${rets.length} returns`,    'linear-gradient(90deg,#dc2626,#f97316)') +
-    kpiCard('🎁','Discount Received',fmtAmt(tDisc),  'from merchants',            'linear-gradient(90deg,#16a34a,#34d399)') +
-    kpiCard('💳','On Credit',        fmtAmt(tCred),  total>0?(tCred/total*100).toFixed(0)+'% of total':'0%', 'linear-gradient(90deg,#7c3aed,#a855f7)')
+    document.getElementById('purchKpis').innerHTML =
+      kpiCard('📦','Net Purchases',    fmtAmt(net),    `${purch.length} bills`,     'linear-gradient(90deg,#d97706,#f59e0b)') +
+      kpiCard('↩️','Purchase Returns', fmtAmt(retTot), `${rets.length} returns`,    'linear-gradient(90deg,#dc2626,#f97316)') +
+      kpiCard('🎁','Discount Received',fmtAmt(tDisc),  'from merchants',            'linear-gradient(90deg,#16a34a,#34d399)') +
+      kpiCard('💳','On Credit',        fmtAmt(tCred),  total>0?(tCred/total*100).toFixed(0)+'% of total':'0%','linear-gradient(90deg,#7c3aed,#a855f7)')
 
-  const rows = purch.map(p => `<tr>
-    <td style="font-family:monospace;font-size:12px;color:rgba(255,255,255,0.5);">${p.bill_number}</td>
-    <td>${fmtDate(p.created_at)}</td>
-    <td>${p.merchant_name || '—'}</td>
-    <td class="tr amber">${fmtAmt(p.total_amount)}</td>
-    <td class="tr">${fmtAmt(p.cash)}</td>
-    <td class="tr blue">${fmtAmt(p.upi)}</td>
-    <td class="tr red">${fmtAmt(p.credit)}</td>
-    <td class="tr green">${fmtAmt(p.discount)}</td>
-  </tr>`).join('')
+    const rows = purch.map(p => `<tr>
+      <td style="font-family:monospace;font-size:12px;color:rgba(255,255,255,0.5);">${p.bill_number}</td>
+      <td>${fmtDate(p.created_at)}</td>
+      <td>${p.merchant_name || '—'}</td>
+      <td class="tr amber">${fmtAmt(p.total_amount)}</td>
+      <td class="tr">${fmtAmt(p.cash)}</td>
+      <td class="tr blue">${fmtAmt(p.upi)}</td>
+      <td class="tr red">${fmtAmt(p.credit)}</td>
+      <td class="tr green">${fmtAmt(p.discount)}</td>
+    </tr>`).join('')
 
-  document.getElementById('purchBody').innerHTML = rows ||
-    `<tr><td colspan="8"><div class="empty-state">No purchases in this period</div></td></tr>`
-  document.getElementById('purchFoot').innerHTML = purch.length ? `<tr>
-    <td colspan="3"><strong>TOTAL (${purch.length} bills)</strong></td>
-    <td class="tr"><strong>${fmtAmt(total)}</strong></td>
-    <td class="tr"><strong>${fmtAmt(tCash)}</strong></td>
-    <td class="tr"><strong>${fmtAmt(tUpi)}</strong></td>
-    <td class="tr"><strong>${fmtAmt(tCred)}</strong></td>
-    <td class="tr"><strong>${fmtAmt(tDisc)}</strong></td>
-  </tr>` : ''
+    document.getElementById('purchBody').innerHTML = rows ||
+      `<tr><td colspan="8"><div class="empty-state">No purchases in this period</div></td></tr>`
+    document.getElementById('purchFoot').innerHTML = purch.length ? `<tr>
+      <td colspan="3"><strong>TOTAL (${purch.length} bills)</strong></td>
+      <td class="tr"><strong>${fmtAmt(total)}</strong></td>
+      <td class="tr"><strong>${fmtAmt(tCash)}</strong></td>
+      <td class="tr"><strong>${fmtAmt(tUpi)}</strong></td>
+      <td class="tr"><strong>${fmtAmt(tCred)}</strong></td>
+      <td class="tr"><strong>${fmtAmt(tDisc)}</strong></td>
+    </tr>` : ''
 
-  exportStore.purchases = {
-    headers: ['Bill No','Date','Merchant','Amount','Cash','UPI','Credit','Discount'],
-    rows: purch.map(p => [p.bill_number, fmtDate(p.created_at), p.merchant_name||'', p.total_amount, p.cash||0, p.upi||0, p.credit||0, p.discount||0])
+    exportStore.purchases = {
+      headers: ['Bill No','Date','Merchant','Amount','Cash','UPI','Credit','Discount'],
+      rows: purch.map(p => [p.bill_number, fmtDate(p.created_at), p.merchant_name||'', p.total_amount, p.cash||0, p.upi||0, p.credit||0, p.discount||0])
+    }
+    cache[k] = true
+
+  } catch (err) {
+    console.error('[Reports] loadPurchases error:', err)
+    showTabError('purchKpis', 'Purchases Data', err)
   }
-
-  cache[k] = true
 }
 
 // ═══════════════════════════════════════
@@ -920,96 +926,102 @@ async function loadPurchases(range) {
 // ═══════════════════════════════════════
 async function loadPnL(range) {
   const k = cacheKey('pnl')
+  try {
+    const [sRes, pRes] = await Promise.all([
+      supabase.from('sales')
+        .select('created_at,total_amount,bill_type')
+        .gte('created_at', range.from + 'T00:00:00')
+        .lte('created_at', range.to   + 'T23:59:59'),
+      supabase.from('purchases')
+        .select('created_at,total_amount,bill_type')
+        .gte('created_at', range.from + 'T00:00:00')
+        .lte('created_at', range.to   + 'T23:59:59')
+    ])
 
-  const [sRes, pRes] = await Promise.all([
-    supabase.from('sales')
-      .select('created_at,total_amount,bill_type')
-      .gte('created_at', range.from + 'T00:00:00')
-      .lte('created_at', range.to   + 'T23:59:59'),
-    supabase.from('purchases')
-      .select('created_at,total_amount,bill_type')
-      .gte('created_at', range.from + 'T00:00:00')
-      .lte('created_at', range.to   + 'T23:59:59')
-  ])
+    if (sRes.error) throw new Error('Sales P&L query: ' + sRes.error.message)
+    if (pRes.error) throw new Error('Purchases P&L query: ' + pRes.error.message)
 
-  const mS = {}, mP = {}
-  ;(sRes.data || []).forEach(r => {
-    const mo   = r.created_at.slice(0,7)
-    const sign = r.bill_type === 'return' ? -1 : 1
-    mS[mo] = (mS[mo] || 0) + sign * Number(r.total_amount)
-  })
-  ;(pRes.data || []).forEach(r => {
-    const mo   = r.created_at.slice(0,7)
-    const sign = r.bill_type === 'return' ? -1 : 1
-    mP[mo] = (mP[mo] || 0) + sign * Number(r.total_amount)
-  })
-
-  const months = [...new Set([...Object.keys(mS), ...Object.keys(mP)])].sort()
-  let gS = 0, gP = 0
-
-  const rows = months.map(mo => {
-    const s = mS[mo] || 0, p = mP[mo] || 0, profit = s - p
-    gS += s; gP += p
-    const margin  = s > 0 ? ((profit/s)*100).toFixed(1) : '0.0'
-    const col     = profit >= 0 ? 'green' : 'red'
-    const lbl     = new Date(mo + '-15').toLocaleDateString('en-IN', { month:'long', year:'numeric' })
-    return `<tr>
-      <td>${lbl}</td>
-      <td class="tr green">${fmtAmt(s)}</td>
-      <td class="tr amber">${fmtAmt(p)}</td>
-      <td class="tr ${col}"><strong>${fmtAmt(profit)}</strong></td>
-      <td class="tr ${col}">${margin}%</td>
-    </tr>`
-  }).join('')
-
-  const gProfit  = gS - gP
-  const gMargin  = gS > 0 ? ((gProfit/gS)*100).toFixed(1) : '0.0'
-  const profCol  = gProfit >= 0 ? '#34d399' : '#f87171'
-  const pct      = gS > 0 ? Math.min((gProfit/gS)*100, 100) : 0
-  const barGrad  = gProfit >= 0
-    ? 'linear-gradient(90deg,#059669,#34d399)'
-    : 'linear-gradient(90deg,#dc2626,#f87171)'
-
-  document.getElementById('pnlMeter').innerHTML = `
-    <div class="pm-card">
-      <div class="pm-label">Total Revenue</div>
-      <div class="pm-value" style="color:#34d399;">${fmtAmt(gS)}</div>
-      <div style="font-size:11px;color:rgba(255,255,255,0.3);margin-top:6px;font-family:'DM Sans',sans-serif;">Net of sales returns</div>
-    </div>
-    <div class="pm-card">
-      <div class="pm-label">Total Cost</div>
-      <div class="pm-value" style="color:#f87171;">${fmtAmt(gP)}</div>
-      <div style="font-size:11px;color:rgba(255,255,255,0.3);margin-top:6px;font-family:'DM Sans',sans-serif;">Net of purchase returns</div>
-    </div>
-    <div class="pm-card">
-      <div class="pm-label">Gross Profit</div>
-      <div class="pm-value" style="color:${profCol};">${fmtAmt(gProfit)}</div>
-      <div class="profit-bar-wrap"><div class="profit-bar-fill" style="width:${Math.max(pct,0)}%;background:${barGrad};"></div></div>
-      <div class="profit-split"><span>${gMargin}% margin</span><span>on ${fmtAmt(gS)}</span></div>
-    </div>`
-
-  document.getElementById('pnlBody').innerHTML = rows ||
-    `<tr><td colspan="5"><div class="empty-state">No data for this period</div></td></tr>`
-  document.getElementById('pnlFoot').innerHTML = months.length ? `<tr>
-    <td><strong>TOTAL</strong></td>
-    <td class="tr"><strong>${fmtAmt(gS)}</strong></td>
-    <td class="tr"><strong>${fmtAmt(gP)}</strong></td>
-    <td class="tr ${gProfit>=0?'green':'red'}"><strong>${fmtAmt(gProfit)}</strong></td>
-    <td class="tr ${gProfit>=0?'green':'red'}"><strong>${gMargin}%</strong></td>
-  </tr>` : ''
-
-  exportStore.pnl = {
-    headers: ['Month','Net Sales','Net Purchases','Gross Profit','Margin%'],
-    rows: months.map(mo => {
-      const s=mS[mo]||0, p=mP[mo]||0
-      return [new Date(mo+'-15').toLocaleDateString('en-IN',{month:'long',year:'numeric'}), s, p, s-p, s>0?(((s-p)/s)*100).toFixed(1)+'%':'0%']
+    const mS = {}, mP = {}
+    ;(sRes.data || []).forEach(r => {
+      const mo   = r.created_at.slice(0,7)
+      const sign = r.bill_type === 'return' ? -1 : 1
+      mS[mo] = (mS[mo] || 0) + sign * Number(r.total_amount)
     })
+    ;(pRes.data || []).forEach(r => {
+      const mo   = r.created_at.slice(0,7)
+      const sign = r.bill_type === 'return' ? -1 : 1
+      mP[mo] = (mP[mo] || 0) + sign * Number(r.total_amount)
+    })
+
+    const months = [...new Set([...Object.keys(mS), ...Object.keys(mP)])].sort()
+    let gS = 0, gP = 0
+
+    const rows = months.map(mo => {
+      const s = mS[mo] || 0, p = mP[mo] || 0, profit = s - p
+      gS += s; gP += p
+      const margin  = s > 0 ? ((profit/s)*100).toFixed(1) : '0.0'
+      const col     = profit >= 0 ? 'green' : 'red'
+      const lbl     = new Date(mo + '-15').toLocaleDateString('en-IN', { month:'long', year:'numeric' })
+      return `<tr>
+        <td>${lbl}</td>
+        <td class="tr green">${fmtAmt(s)}</td>
+        <td class="tr amber">${fmtAmt(p)}</td>
+        <td class="tr ${col}"><strong>${fmtAmt(profit)}</strong></td>
+        <td class="tr ${col}">${margin}%</td>
+      </tr>`
+    }).join('')
+
+    const gProfit  = gS - gP
+    const gMargin  = gS > 0 ? ((gProfit/gS)*100).toFixed(1) : '0.0'
+    const profCol  = gProfit >= 0 ? '#34d399' : '#f87171'
+    const pct      = gS > 0 ? Math.min((gProfit/gS)*100, 100) : 0
+    const barGrad  = gProfit >= 0
+      ? 'linear-gradient(90deg,#059669,#34d399)'
+      : 'linear-gradient(90deg,#dc2626,#f87171)'
+
+    document.getElementById('pnlMeter').innerHTML = `
+      <div class="pm-card">
+        <div class="pm-label">Total Revenue</div>
+        <div class="pm-value" style="color:#34d399;">${fmtAmt(gS)}</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.3);margin-top:6px;font-family:'DM Sans',sans-serif;">Net of sales returns</div>
+      </div>
+      <div class="pm-card">
+        <div class="pm-label">Total Cost</div>
+        <div class="pm-value" style="color:#f87171;">${fmtAmt(gP)}</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.3);margin-top:6px;font-family:'DM Sans',sans-serif;">Net of purchase returns</div>
+      </div>
+      <div class="pm-card">
+        <div class="pm-label">Gross Profit</div>
+        <div class="pm-value" style="color:${profCol};">${fmtAmt(gProfit)}</div>
+        <div class="profit-bar-wrap"><div class="profit-bar-fill" style="width:${Math.max(pct,0)}%;background:${barGrad};"></div></div>
+        <div class="profit-split"><span>${gMargin}% margin</span><span>on ${fmtAmt(gS)}</span></div>
+      </div>`
+
+    document.getElementById('pnlBody').innerHTML = rows ||
+      `<tr><td colspan="5"><div class="empty-state">No data for this period</div></td></tr>`
+    document.getElementById('pnlFoot').innerHTML = months.length ? `<tr>
+      <td><strong>TOTAL</strong></td>
+      <td class="tr"><strong>${fmtAmt(gS)}</strong></td>
+      <td class="tr"><strong>${fmtAmt(gP)}</strong></td>
+      <td class="tr ${gProfit>=0?'green':'red'}"><strong>${fmtAmt(gProfit)}</strong></td>
+      <td class="tr ${gProfit>=0?'green':'red'}"><strong>${gMargin}%</strong></td>
+    </tr>` : ''
+
+    exportStore.pnl = {
+      headers: ['Month','Net Sales','Net Purchases','Gross Profit','Margin%'],
+      rows: months.map(mo => {
+        const s=mS[mo]||0, p=mP[mo]||0
+        return [new Date(mo+'-15').toLocaleDateString('en-IN',{month:'long',year:'numeric'}), s, p, s-p, s>0?(((s-p)/s)*100).toFixed(1)+'%':'0%']
+      })
+    }
+
+    loadBillProfit(range)
+    cache[k] = true
+
+  } catch (err) {
+    console.error('[Reports] loadPnL error:', err)
+    showTabError('pnlMeter', 'Profit & Loss Data', err)
   }
-
- // Load per-bill profit alongside P&L
-  loadBillProfit(range)
-
-  cache[k] = true
 }
 
 // ═══════════════════════════════════════
@@ -1017,78 +1029,84 @@ async function loadPnL(range) {
 // ═══════════════════════════════════════
 async function loadPayments(range) {
   const k = cacheKey('payments')
+  try {
+    const [sRes, pRes, recRes] = await Promise.all([
+      supabase.from('sales')
+        .select('cash,upi,credit')
+        .eq('bill_type','sale')
+        .gte('created_at', range.from + 'T00:00:00')
+        .lte('created_at', range.to   + 'T23:59:59'),
+      supabase.from('purchases')
+        .select('cash,upi,credit')
+        .eq('bill_type','purchase')
+        .gte('created_at', range.from + 'T00:00:00')
+        .lte('created_at', range.to   + 'T23:59:59'),
+      supabase.from('payments')
+        .select('receipt_no,created_at,amount,mode,note,customer_id')
+        .gte('created_at', range.from + 'T00:00:00')
+        .lte('created_at', range.to   + 'T23:59:59')
+        .order('created_at', { ascending: false })
+    ])
 
-  const [sRes, pRes, recRes] = await Promise.all([
-    supabase.from('sales')
-      .select('cash,upi,credit')
-      .eq('bill_type','sale')
-      .gte('created_at', range.from + 'T00:00:00')
-      .lte('created_at', range.to   + 'T23:59:59'),
-    supabase.from('purchases')
-      .select('cash,upi,credit')
-      .eq('bill_type','purchase')
-      .gte('created_at', range.from + 'T00:00:00')
-      .lte('created_at', range.to   + 'T23:59:59'),
-    supabase.from('payments')
-      .select('receipt_no,created_at,amount,mode,note,customer_id')
-      .gte('created_at', range.from + 'T00:00:00')
-      .lte('created_at', range.to   + 'T23:59:59')
-      .order('created_at', { ascending: false })
-  ])
+    if (sRes.error)   throw new Error('Sales payments: '    + sRes.error.message)
+    if (pRes.error)   throw new Error('Purchase payments: ' + pRes.error.message)
+    if (recRes.error) throw new Error('Receipts: '          + recRes.error.message)
 
-  const sales    = sRes.data   || []
-  const purch    = pRes.data   || []
-  const receipts = recRes.data || []
+    const sales    = sRes.data   || []
+    const purch    = pRes.data   || []
+    const receipts = recRes.data || []
+    const custMap  = await getCustomerNames(receipts.map(r => r.customer_id))
 
-  // Manual customer lookup for receipts
-  const custMap = await getCustomerNames(receipts.map(r => r.customer_id))
+    const sc = { cash:0, upi:0, credit:0 }
+    const pc = { cash:0, upi:0, credit:0 }
+    sales.forEach(r => { sc.cash+=Number(r.cash||0); sc.upi+=Number(r.upi||0); sc.credit+=Number(r.credit||0) })
+    purch.forEach(r => { pc.cash+=Number(r.cash||0); pc.upi+=Number(r.upi||0); pc.credit+=Number(r.credit||0) })
 
-  const sc = { cash:0, upi:0, credit:0 }
-  const pc = { cash:0, upi:0, credit:0 }
-  sales.forEach(r => { sc.cash+=Number(r.cash||0); sc.upi+=Number(r.upi||0); sc.credit+=Number(r.credit||0) })
-  purch.forEach(r => { pc.cash+=Number(r.cash||0); pc.upi+=Number(r.upi||0); pc.credit+=Number(r.credit||0) })
+    const sTotal   = sc.cash + sc.upi + sc.credit || 1
+    const pTotal   = pc.cash + pc.upi + pc.credit || 1
+    const recTotal = receipts.reduce((s,r) => s + Number(r.amount), 0)
 
-  const sTotal   = sc.cash + sc.upi + sc.credit || 1
-  const pTotal   = pc.cash + pc.upi + pc.credit || 1
-  const recTotal = receipts.reduce((s,r) => s + Number(r.amount), 0)
+    document.getElementById('payKpis').innerHTML =
+      kpiCard('💵','Cash Collected (Sales)', fmtAmt(sc.cash),  (sc.cash/sTotal*100).toFixed(0)+'% of sales',    'linear-gradient(90deg,#059669,#34d399)') +
+      kpiCard('📱','UPI Collected (Sales)',  fmtAmt(sc.upi),   (sc.upi/sTotal*100).toFixed(0)+'% of sales',     'linear-gradient(90deg,#4f46e5,#60a5fa)') +
+      kpiCard('💸','Payment Receipts',       fmtAmt(recTotal), `${receipts.length} receipts recorded`,          'linear-gradient(90deg,#7c3aed,#a855f7)')
 
-  document.getElementById('payKpis').innerHTML =
-    kpiCard('💵','Cash Collected (Sales)', fmtAmt(sc.cash),  (sc.cash/sTotal*100).toFixed(0)+'% of sales',    'linear-gradient(90deg,#059669,#34d399)') +
-    kpiCard('📱','UPI Collected (Sales)',  fmtAmt(sc.upi),   (sc.upi/sTotal*100).toFixed(0)+'% of sales',     'linear-gradient(90deg,#4f46e5,#60a5fa)') +
-    kpiCard('💸','Payment Receipts',       fmtAmt(recTotal), `${receipts.length} receipts recorded`,          'linear-gradient(90deg,#7c3aed,#a855f7)')
+    document.getElementById('salesCollect').innerHTML =
+      payBlock('💵','Cash',   'pill-cash',   sc.cash,   sTotal) +
+      payBlock('📱','UPI',    'pill-upi',    sc.upi,    sTotal) +
+      payBlock('🔴','Credit', 'pill-credit', sc.credit, sTotal)
 
-  document.getElementById('salesCollect').innerHTML =
-    payBlock('💵','Cash',   'pill-cash',   sc.cash,   sTotal) +
-    payBlock('📱','UPI',    'pill-upi',    sc.upi,    sTotal) +
-    payBlock('🔴','Credit', 'pill-credit', sc.credit, sTotal)
+    document.getElementById('purchCollect').innerHTML =
+      payBlock('💵','Cash',   'pill-cash',   pc.cash,   pTotal) +
+      payBlock('📱','UPI',    'pill-upi',    pc.upi,    pTotal) +
+      payBlock('🔴','Credit', 'pill-credit', pc.credit, pTotal)
 
-  document.getElementById('purchCollect').innerHTML =
-    payBlock('💵','Cash',   'pill-cash',   pc.cash,   pTotal) +
-    payBlock('📱','UPI',    'pill-upi',    pc.upi,    pTotal) +
-    payBlock('🔴','Credit', 'pill-credit', pc.credit, pTotal)
+    const recRows = receipts.map(r => {
+      const name    = custMap[r.customer_id]?.name || '—'
+      const pillCls = r.mode==='cash'?'pill-cash': r.mode==='upi'?'pill-upi':'pill-credit'
+      return `<tr>
+        <td style="font-family:monospace;font-size:12px;color:rgba(255,255,255,0.5);">${r.receipt_no || '—'}</td>
+        <td>${fmtDate(r.created_at)}</td>
+        <td>${name}</td>
+        <td><span class="mode-pill ${pillCls}">${r.mode || '—'}</span></td>
+        <td class="tr green">${fmtAmt(r.amount)}</td>
+        <td style="color:rgba(255,255,255,0.4);font-size:12px;">${r.note || ''}</td>
+      </tr>`
+    }).join('')
 
-  const recRows = receipts.map(r => {
-    const name = custMap[r.customer_id]?.name || '—'
-    const pillCls = r.mode==='cash'?'pill-cash': r.mode==='upi'?'pill-upi':'pill-credit'
-    return `<tr>
-      <td style="font-family:monospace;font-size:12px;color:rgba(255,255,255,0.5);">${r.receipt_no || '—'}</td>
-      <td>${fmtDate(r.created_at)}</td>
-      <td>${name}</td>
-      <td><span class="mode-pill ${pillCls}">${r.mode || '—'}</span></td>
-      <td class="tr green">${fmtAmt(r.amount)}</td>
-      <td style="color:rgba(255,255,255,0.4);font-size:12px;">${r.note || ''}</td>
-    </tr>`
-  }).join('')
+    document.getElementById('receiptsBody').innerHTML = recRows ||
+      `<tr><td colspan="6"><div class="empty-state">No payment receipts in this period</div></td></tr>`
 
-  document.getElementById('receiptsBody').innerHTML = recRows ||
-    `<tr><td colspan="6"><div class="empty-state">No payment receipts in this period</div></td></tr>`
+    exportStore.receipts = {
+      headers: ['Receipt No','Date','Customer','Mode','Amount','Note'],
+      rows: receipts.map(r => [r.receipt_no||'', fmtDate(r.created_at), custMap[r.customer_id]?.name||'', r.mode||'', r.amount, r.note||''])
+    }
+    cache[k] = true
 
-  exportStore.receipts = {
-    headers: ['Receipt No','Date','Customer','Mode','Amount','Note'],
-    rows: receipts.map(r => [r.receipt_no||'', fmtDate(r.created_at), custMap[r.customer_id]?.name||'', r.mode||'', r.amount, r.note||''])
+  } catch (err) {
+    console.error('[Reports] loadPayments error:', err)
+    showTabError('payKpis', 'Payments Data', err)
   }
-
-  cache[k] = true
 }
 
 // ═══════════════════════════════════════
@@ -1192,156 +1210,161 @@ async function loadBillProfit(range) {
   
 // ═══════════════════════════════════════
 // TAB: TOP PRODUCTS
-// WHY: bill_items already stores item_name directly —
-// no join to inventory needed. This makes the query
-// much faster even with 100,000 bill_item rows.
 // ═══════════════════════════════════════
 async function loadProducts(range) {
   const k = cacheKey('products')
+  try {
+    const { data: salesInRange, error: sErr } = await supabase.from('sales')
+      .select('id')
+      .eq('bill_type','sale')
+      .gte('created_at', range.from + 'T00:00:00')
+      .lte('created_at', range.to   + 'T23:59:59')
 
-  // Get sale IDs in range first, then fetch their bill_items
-  // This is faster than a join filter for large datasets
-  const { data: salesInRange } = await supabase.from('sales')
-    .select('id')
-    .eq('bill_type','sale')
-    .gte('created_at', range.from + 'T00:00:00')
-    .lte('created_at', range.to   + 'T23:59:59')
+    if (sErr) throw new Error('Sales range: ' + sErr.message)
 
-  const saleIds = (salesInRange || []).map(s => s.id)
+    const saleIds = (salesInRange || []).map(s => s.id)
 
-  if (!saleIds.length) {
+    if (!saleIds.length) {
+      document.getElementById('prodKpis').innerHTML =
+        kpiCard('📦','Unique Products','0','no sales in period','linear-gradient(90deg,#7c3aed,#a855f7)') +
+        kpiCard('🔢','Units Sold',     '0','pieces / units',    'linear-gradient(90deg,#2563eb,#06b6d4)') +
+        kpiCard('🏆','Top Product',    '—','no data',           'linear-gradient(90deg,#d97706,#f59e0b)')
+      document.getElementById('prodBody').innerHTML =
+        `<tr><td colspan="5"><div class="empty-state">No product sales in this period</div></td></tr>`
+      cache[k] = true
+      return
+    }
+
+    const { data: items, error: iErr } = await supabase.from('bill_items')
+      .select('item_id,item_name,quantity,total')
+      .in('sale_id', saleIds)
+
+    if (iErr) throw new Error('Bill items: ' + iErr.message)
+
+    const prodMap = {}
+    ;(items || []).forEach(row => {
+      const id = row.item_id || row.item_name
+      if (!prodMap[id]) prodMap[id] = { name: row.item_name || 'Unknown', qty: 0, revenue: 0 }
+      prodMap[id].qty     += Number(row.quantity)
+      prodMap[id].revenue += Number(row.total)
+    })
+
+    const sorted   = Object.values(prodMap).sort((a,b) => b.revenue - a.revenue).slice(0,25)
+    const grandRev = sorted.reduce((s,p) => s + p.revenue, 0) || 1
+    const grandQty = sorted.reduce((s,p) => s + p.qty,     0)
+
     document.getElementById('prodKpis').innerHTML =
-      kpiCard('📦','Unique Products','0','no sales in period','linear-gradient(90deg,#7c3aed,#a855f7)') +
-      kpiCard('🔢','Units Sold',     '0','pieces / units',    'linear-gradient(90deg,#2563eb,#06b6d4)') +
-      kpiCard('🏆','Top Product',    '—','no data',           'linear-gradient(90deg,#d97706,#f59e0b)')
-    document.getElementById('prodBody').innerHTML =
-      `<tr><td colspan="5"><div class="empty-state">No product sales in this period</div></td></tr>`
+      kpiCard('📦','Unique Products', fmtNum(Object.keys(prodMap).length), 'different SKUs',        'linear-gradient(90deg,#7c3aed,#a855f7)') +
+      kpiCard('🔢','Total Units Sold',fmtNum(grandQty),                    'pieces / units',        'linear-gradient(90deg,#2563eb,#06b6d4)') +
+      kpiCard('🏆','Top Product Rev', fmtAmt(sorted[0]?.revenue || 0),     sorted[0]?.name || '—', 'linear-gradient(90deg,#d97706,#f59e0b)')
+
+    const rows = sorted.map((p,i) => {
+      const share  = ((p.revenue / grandRev)*100).toFixed(1)
+      const barPct = ((p.revenue / grandRev)*100)
+      const barCol = i===0?'#fbbf24': i===1?'#94a3b8': i===2?'#b45309':'#2563eb'
+      return `<tr>
+        <td class="tc">${rankBadge(i)}</td>
+        <td><strong style="color:#fff;">${p.name}</strong></td>
+        <td class="tr">${fmtNum(p.qty)}</td>
+        <td class="tr green">${fmtAmt(p.revenue)}</td>
+        <td class="tr">
+          <div class="tbl-bar-wrap">
+            <span style="font-size:12px;color:rgba(255,255,255,0.5);min-width:38px;text-align:right;">${share}%</span>
+            <div class="tbl-bar"><div class="tbl-bar-fill" style="width:${barPct}%;background:${barCol};"></div></div>
+          </div>
+        </td>
+      </tr>`
+    }).join('')
+
+    document.getElementById('prodBody').innerHTML = rows ||
+      `<tr><td colspan="5"><div class="empty-state">No product data</div></td></tr>`
+
+    exportStore.products = {
+      headers: ['Rank','Product','Qty Sold','Revenue','Share%'],
+      rows: sorted.map((p,i) => [i+1, p.name, p.qty, p.revenue, ((p.revenue/grandRev)*100).toFixed(1)+'%'])
+    }
     cache[k] = true
-    return
+
+  } catch (err) {
+    console.error('[Reports] loadProducts error:', err)
+    showTabError('prodKpis', 'Top Products Data', err)
   }
-
-  const { data: items } = await supabase.from('bill_items')
-    .select('item_id,item_name,quantity,total')
-    .in('sale_id', saleIds)
-
-  // Aggregate by item_id in JS
-  const prodMap = {}
-  ;(items || []).forEach(row => {
-    const id = row.item_id || row.item_name // fallback key
-    if (!prodMap[id]) prodMap[id] = { name: row.item_name || 'Unknown', qty: 0, revenue: 0 }
-    prodMap[id].qty     += Number(row.quantity)
-    prodMap[id].revenue += Number(row.total)
-  })
-
-  const sorted   = Object.values(prodMap).sort((a,b) => b.revenue - a.revenue).slice(0,25)
-  const grandRev = sorted.reduce((s,p) => s + p.revenue, 0) || 1
-  const grandQty = sorted.reduce((s,p) => s + p.qty,     0)
-
-  document.getElementById('prodKpis').innerHTML =
-    kpiCard('📦','Unique Products', fmtNum(Object.keys(prodMap).length), 'different SKUs',          'linear-gradient(90deg,#7c3aed,#a855f7)') +
-    kpiCard('🔢','Total Units Sold',fmtNum(grandQty),                    'pieces / units',          'linear-gradient(90deg,#2563eb,#06b6d4)') +
-    kpiCard('🏆','Top Product Rev', fmtAmt(sorted[0]?.revenue || 0),     sorted[0]?.name || '—',   'linear-gradient(90deg,#d97706,#f59e0b)')
-
-  const rows = sorted.map((p,i) => {
-    const share  = ((p.revenue / grandRev)*100).toFixed(1)
-    const barPct = ((p.revenue / grandRev)*100)
-    const barCol = i===0?'#fbbf24': i===1?'#94a3b8': i===2?'#b45309':'#2563eb'
-    return `<tr>
-      <td class="tc">${rankBadge(i)}</td>
-      <td><strong style="color:#fff;">${p.name}</strong></td>
-      <td class="tr">${fmtNum(p.qty)}</td>
-      <td class="tr green">${fmtAmt(p.revenue)}</td>
-      <td class="tr">
-        <div class="tbl-bar-wrap">
-          <span style="font-size:12px;color:rgba(255,255,255,0.5);min-width:38px;text-align:right;">${share}%</span>
-          <div class="tbl-bar"><div class="tbl-bar-fill" style="width:${barPct}%;background:${barCol};"></div></div>
-        </div>
-      </td>
-    </tr>`
-  }).join('')
-
-  document.getElementById('prodBody').innerHTML = rows ||
-    `<tr><td colspan="5"><div class="empty-state">No product data</div></td></tr>`
-
-  exportStore.products = {
-    headers: ['Rank','Product','Qty Sold','Revenue','Share%'],
-    rows: sorted.map((p,i) => [i+1, p.name, p.qty, p.revenue, ((p.revenue/grandRev)*100).toFixed(1)+'%'])
-  }
-
-  cache[k] = true
 }
-
 // ═══════════════════════════════════════
 // TAB: TOP CUSTOMERS
 // ═══════════════════════════════════════
 async function loadCustomers(range) {
   const k = cacheKey('customers')
+  try {
+    const { data: sales, error: sErr } = await supabase.from('sales')
+      .select('customer_id,total_amount,discount')
+      .eq('bill_type','sale')
+      .gte('created_at', range.from + 'T00:00:00')
+      .lte('created_at', range.to   + 'T23:59:59')
 
-  const { data: sales } = await supabase.from('sales')
-    .select('customer_id,total_amount,discount')
-    .eq('bill_type','sale')
-    .gte('created_at', range.from + 'T00:00:00')
-    .lte('created_at', range.to   + 'T23:59:59')
+    if (sErr) throw new Error('Customers sales: ' + sErr.message)
 
-  const allSales = sales || []
+    const allSales = sales || []
+    const custMap  = await getCustomerNames(allSales.map(s => s.customer_id))
 
-  // Manual customer name lookup
-  const custMap = await getCustomerNames(allSales.map(s => s.customer_id))
+    const aggMap = {}
+    allSales.forEach(s => {
+      const id   = s.customer_id || '__walkin__'
+      const cust = custMap[s.customer_id]
+      if (!aggMap[id]) aggMap[id] = {
+        name:     cust?.name  || 'Walk-in / Cash',
+        phone:    cust?.phone || '—',
+        bills:    0,
+        total:    0,
+        discount: 0
+      }
+      aggMap[id].bills++
+      aggMap[id].total    += Number(s.total_amount)
+      aggMap[id].discount += Number(s.discount || 0)
+    })
 
-  const aggMap = {}
-  allSales.forEach(s => {
-    const id   = s.customer_id || '__walkin__'
-    const cust = custMap[s.customer_id]
-    if (!aggMap[id]) aggMap[id] = {
-      name:     cust?.name  || 'Walk-in / Cash',
-      phone:    cust?.phone || '—',
-      bills:    0,
-      total:    0,
-      discount: 0
+    const sorted   = Object.values(aggMap).sort((a,b) => b.total - a.total).slice(0,25)
+    const grandTot = sorted.reduce((s,c) => s + c.total, 0) || 1
+
+    document.getElementById('custKpis').innerHTML =
+      kpiCard('👥','Unique Customers', fmtNum(Object.keys(aggMap).length), 'made purchases',        'linear-gradient(90deg,#2563eb,#7c3aed)') +
+      kpiCard('🧾','Total Bills',      fmtNum(allSales.length),            'in selected period',    'linear-gradient(90deg,#2563eb,#06b6d4)') +
+      kpiCard('🏆','Top Customer',     fmtAmt(sorted[0]?.total || 0),      sorted[0]?.name || '—', 'linear-gradient(90deg,#d97706,#f59e0b)')
+
+    const rows = sorted.map((c,i) => {
+      const share   = ((c.total / grandTot)*100).toFixed(1)
+      const avgBill = c.bills ? Math.round(c.total / c.bills) : 0
+      const barPct  = ((c.total / grandTot)*100)
+      return `<tr>
+        <td class="tc">${rankBadge(i)}</td>
+        <td><strong style="color:#fff;">${c.name}</strong></td>
+        <td style="color:rgba(255,255,255,0.4);">${c.phone}</td>
+        <td class="tc" style="color:rgba(255,255,255,0.6);">${c.bills}</td>
+        <td class="tr green">${fmtAmt(c.total)}</td>
+        <td class="tr">${fmtAmt(avgBill)}</td>
+        <td class="tr">
+          <div class="tbl-bar-wrap">
+            <span style="font-size:12px;color:rgba(255,255,255,0.5);min-width:38px;text-align:right;">${share}%</span>
+            <div class="tbl-bar"><div class="tbl-bar-fill" style="width:${barPct}%;background:#2563eb;"></div></div>
+          </div>
+        </td>
+      </tr>`
+    }).join('')
+
+    document.getElementById('custBody').innerHTML = rows ||
+      `<tr><td colspan="7"><div class="empty-state">No customer data for this period</div></td></tr>`
+
+    exportStore.customers = {
+      headers: ['Rank','Customer','Phone','Bills','Total Revenue','Avg Bill','Share%'],
+      rows: sorted.map((c,i) => [i+1, c.name, c.phone, c.bills, c.total,
+        c.bills?Math.round(c.total/c.bills):0, ((c.total/grandTot)*100).toFixed(1)+'%'])
     }
-    aggMap[id].bills++
-    aggMap[id].total    += Number(s.total_amount)
-    aggMap[id].discount += Number(s.discount || 0)
-  })
+    cache[k] = true
 
-  const sorted   = Object.values(aggMap).sort((a,b) => b.total - a.total).slice(0,25)
-  const grandTot = sorted.reduce((s,c) => s + c.total, 0) || 1
-
-  document.getElementById('custKpis').innerHTML =
-    kpiCard('👥','Unique Customers', fmtNum(Object.keys(aggMap).length), 'made purchases',        'linear-gradient(90deg,#2563eb,#7c3aed)') +
-    kpiCard('🧾','Total Bills',      fmtNum(allSales.length),            'in selected period',    'linear-gradient(90deg,#2563eb,#06b6d4)') +
-    kpiCard('🏆','Top Customer',     fmtAmt(sorted[0]?.total || 0),      sorted[0]?.name || '—', 'linear-gradient(90deg,#d97706,#f59e0b)')
-
-  const rows = sorted.map((c,i) => {
-    const share   = ((c.total / grandTot)*100).toFixed(1)
-    const avgBill = c.bills ? Math.round(c.total / c.bills) : 0
-    const barPct  = ((c.total / grandTot)*100)
-    return `<tr>
-      <td class="tc">${rankBadge(i)}</td>
-      <td><strong style="color:#fff;">${c.name}</strong></td>
-      <td style="color:rgba(255,255,255,0.4);">${c.phone}</td>
-      <td class="tc" style="color:rgba(255,255,255,0.6);">${c.bills}</td>
-      <td class="tr green">${fmtAmt(c.total)}</td>
-      <td class="tr">${fmtAmt(avgBill)}</td>
-      <td class="tr">
-        <div class="tbl-bar-wrap">
-          <span style="font-size:12px;color:rgba(255,255,255,0.5);min-width:38px;text-align:right;">${share}%</span>
-          <div class="tbl-bar"><div class="tbl-bar-fill" style="width:${barPct}%;background:#2563eb;"></div></div>
-        </div>
-      </td>
-    </tr>`
-  }).join('')
-
-  document.getElementById('custBody').innerHTML = rows ||
-    `<tr><td colspan="7"><div class="empty-state">No customer data for this period</div></td></tr>`
-
-  exportStore.customers = {
-    headers: ['Rank','Customer','Phone','Bills','Total Revenue','Avg Bill','Share%'],
-    rows: sorted.map((c,i) => [i+1, c.name, c.phone, c.bills, c.total,
-      c.bills?Math.round(c.total/c.bills):0, ((c.total/grandTot)*100).toFixed(1)+'%'])
+  } catch (err) {
+    console.error('[Reports] loadCustomers error:', err)
+    showTabError('custKpis', 'Top Customers Data', err)
   }
-
-  cache[k] = true
 }
 
 // ═══════════════════════════════════════
