@@ -1446,6 +1446,7 @@ const BS_CATEGORIES = {
 async function loadBalanceSheet(forceRefresh) {
   const k = 'bs|static'
   if (!forceRefresh && cache[k]) return
+  try {
 
   // Update date label
   document.getElementById('bsDateLabel').textContent =
@@ -2082,6 +2083,27 @@ async function loadBalanceSheet(forceRefresh) {
   }
 
   cache[k] = true
+
+  } catch (err) {
+    console.error('[Reports] loadBalanceSheet error:', err)
+    document.getElementById('bsMainGrid').innerHTML = `
+      <div style="background:rgba(220,38,38,0.08);border:1px solid rgba(220,38,38,0.2);
+                  border-radius:14px;padding:32px;text-align:center;">
+        <div style="font-size:36px;margin-bottom:12px;">⚠️</div>
+        <div style="font-family:'Playfair Display',serif;font-size:18px;color:#f87171;margin-bottom:8px;">
+          Could not load Balance Sheet
+        </div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:14px;font-family:'DM Sans',sans-serif;">
+          ${err.message || 'Network error — check your Supabase connection'}
+        </div>
+        <button onclick="loadBalanceSheet(true)"
+          style="background:linear-gradient(135deg,#2563eb,#7c3aed);border:none;color:white;
+                 padding:10px 26px;border-radius:10px;font-size:13px;font-weight:600;
+                 font-family:'DM Sans',sans-serif;cursor:pointer;">
+          ↺ Retry
+        </button>
+      </div>`
+  }
 }
 
 // ── RENDER ENTRIES TABLE ──
