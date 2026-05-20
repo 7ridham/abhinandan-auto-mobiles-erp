@@ -3,1158 +3,583 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Abhinandan Auto Mobiles — Genuine Spare Parts</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,800;0,900;1,700&family=DM+Sans:wght@300;400;500;600;700&family=Bebas+Neue&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<title>Abhinandan Auto Mobiles — Premium Genuine Spare Parts</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Bebas+Neue&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
 <style>
 /* ═══════════════════════════════════════════
-   RESET & ROOT
+   PREMIUM LIGHT AESTHETIC SYSTEM & DESIGN TOKENS
 ═══════════════════════════════════════════ */
-*{box-sizing:border-box;margin:0;padding:0;}
-:root{
-  --cream:#faf7f2;
-  --warm:#f5f0e8;
-  --orange:#f97316;
-  --orange2:#ea580c;
-  --dark-orange:#c2410c;
-  --navy:#0f172a;
-  --navy2:#1e293b;
-  --gold:#f59e0b;
-  --text:#1e293b;
-  --muted:#64748b;
-  --white:#ffffff;
-  --border:rgba(15,23,42,0.1);
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg-main: #fcfbf7;
+  --bg-card: #ffffff;
+  --bg-subtle: #f5f2eb;
+  --primary: #111827;
+  --accent: #d97706;
+  --accent-light: #fef3c7;
+  --text-main: #1f2937;
+  --text-muted: #6b7280;
+  --glass-border: rgba(17, 24, 39, 0.05);
+  --shadow-premium: 0 20px 40px -15px rgba(17, 24, 39, 0.05), 0 1px 3px rgba(17, 24, 39, 0.02);
+  --shadow-hover: 0 40px 80px -20px rgba(217, 119, 6, 0.12), 0 10px 30px -10px rgba(17, 24, 39, 0.04);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 }
-html{scroll-behavior:smooth;overflow-x:hidden;}
-body{
-  font-family:'DM Sans',sans-serif;
-  background:var(--cream);
-  color:var(--text);
-  overflow-x:hidden;
+
+html { scroll-behavior: smooth; overflow-x: hidden; background: var(--bg-main); }
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  color: var(--text-main);
+  background: var(--bg-main);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
 }
 
 /* ═══════════════════════════════════════════
-   SCREENS
+   PERSISTENT LAYOUT CONTROLS
 ═══════════════════════════════════════════ */
-#loginScreen{
-  position:fixed;inset:0;z-index:500;
-  display:flex;align-items:center;justify-content:center;
-  background:var(--navy);
-  transition:opacity 0.8s ease, transform 0.8s ease;
+#loginScreen {
+  position: fixed; inset: 0; z-index: 1000;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--bg-main);
+  transition: opacity 1.2s var(--ease-out-expo), transform 1.2s var(--ease-out-expo);
 }
-#loginScreen.hide{opacity:0;transform:translateY(-30px);pointer-events:none;}
-#portalScreen{display:none;min-height:100vh;}
-#portalScreen.show{display:block;}
+#loginScreen.hide { opacity: 0; transform: scale(1.05); pointer-events: none; }
+#portalScreen { display: none; opacity: 0; transition: opacity 1s ease; }
+#portalScreen.show { display: block; opacity: 1; }
 
 /* ═══════════════════════════════════════════
-   LOGIN BG — DARK PREMIUM
+   PREMIUM LIGHT INTERACTIVE BACKGROUNDS
 ═══════════════════════════════════════════ */
-.lbg{position:absolute;inset:0;overflow:hidden;}
-.lbg-mesh{position:absolute;inset:0;
-  background:
-    radial-gradient(ellipse 60% 50% at 15% 50%,rgba(249,115,22,0.18) 0%,transparent 60%),
-    radial-gradient(ellipse 50% 60% at 85% 20%,rgba(15,23,42,0.9) 0%,transparent 55%),
-    radial-gradient(ellipse 40% 40% at 60% 90%,rgba(249,115,22,0.08) 0%,transparent 50%);
+.bg-canvas { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.bg-grid {
+  position: absolute; inset: 0;
+  background-image: linear-gradient(rgba(17, 24, 39, 0.015) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(17, 24, 39, 0.015) 1px, transparent 1px);
+  background-size: 80px 80px;
 }
-.lbg-grid{position:absolute;inset:0;
-  background-image:linear-gradient(rgba(249,115,22,0.05) 1px,transparent 1px),
-    linear-gradient(90deg,rgba(249,115,22,0.05) 1px,transparent 1px);
-  background-size:60px 60px;animation:lgmove 30s linear infinite;
+.ambient-glow {
+  position: absolute; border-radius: 50%; filter: blur(140px);
+  mix-blend-mode: multiply; opacity: 0.6; animation: floatGlow 25s infinite ease-in-out;
 }
-@keyframes lgmove{0%{background-position:0 0}100%{background-position:60px 60px}}
-.lorb{position:absolute;border-radius:50%;filter:blur(80px);animation:lorbd ease-in-out infinite;}
-.lo1{width:500px;height:500px;background:rgba(249,115,22,0.12);top:-150px;left:-150px;animation-duration:20s;}
-.lo2{width:350px;height:350px;background:rgba(249,115,22,0.07);bottom:0;right:-100px;animation-duration:16s;animation-delay:-8s;}
-@keyframes lorbd{0%,100%{transform:translate(0,0)}50%{transform:translate(20px,-20px)}}
+.glow-1 { width: 600px; height: 600px; background: var(--accent-light); top: -200px; left: -100px; }
+.glow-2 { width: 500px; height: 500px; background: #ffedd5; bottom: -100px; right: -100px; animation-delay: -5s; }
+@keyframes floatGlow {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(40px, -60px) scale(1.1); }
+}
 
 /* ═══════════════════════════════════════════
-   LOGIN CARD
+   AESTHETIC AUTH MODULE
 ═══════════════════════════════════════════ */
-.lw{position:relative;z-index:2;width:100%;max-width:440px;padding:20px;}
-.lb{text-align:center;margin-bottom:24px;}
-.lb-logo{
-  width:80px;height:80px;margin:0 auto 14px;position:relative;
-  perspective:400px;
+.auth-container { position: relative; z-index: 10; width: 100%; max-width: 460px; padding: 24px; text-align: center; }
+.brand-sig { font-family: 'Cinzel', serif; font-size: 38px; font-weight: 800; color: var(--primary); letter-spacing: -1px; margin-bottom: 4px; }
+.brand-sub { font-size: 11px; text-transform: uppercase; letter-spacing: 3px; color: var(--accent); font-weight: 700; margin-bottom: 32px; }
+
+.role-track { display: flex; background: var(--bg-subtle); padding: 6px; border-radius: 16px; margin-bottom: 24px; gap: 4px; }
+.role-btn {
+  flex: 1; padding: 12px; border: none; background: transparent; border-radius: 12px;
+  font-family: inherit; font-size: 13px; font-weight: 600; color: var(--text-muted); cursor: pointer;
+  transition: all 0.4s var(--ease-out-expo); display: flex; align-items: center; justify-content: center; gap: 8px;
 }
-.lb-logo-face{
-  width:80px;height:80px;
-  background:linear-gradient(145deg,#7c2d12,#f97316,#ea580c);
-  border-radius:20px;
-  display:flex;align-items:center;justify-content:center;
-  font-family:'Playfair Display',serif;font-size:34px;font-weight:900;color:white;
-  box-shadow:0 20px 50px rgba(249,115,22,0.5),0 8px 20px rgba(0,0,0,0.5),
-    inset 0 1px 0 rgba(255,255,255,0.3),inset 0 -2px 0 rgba(0,0,0,0.25);
-  transform:rotateX(10deg);transition:transform 0.4s;
-  animation:logp 3s ease-in-out infinite;
+.role-btn.active { background: var(--bg-card); color: var(--primary); box-shadow: var(--shadow-premium); }
+.role-btn.customer { background: var(--accent); color: var(--bg-card); }
+.role-btn.customer:hover { background: #b45309; }
+
+.auth-card {
+  background: var(--bg-card); border: 1px solid var(--glass-border); border-radius: 24px;
+  padding: 36px; box-shadow: var(--shadow-premium); text-align: left;
 }
-@keyframes logp{0%,100%{box-shadow:0 20px 50px rgba(249,115,22,0.5),0 8px 20px rgba(0,0,0,0.5),inset 0 1px 0 rgba(255,255,255,0.3)}50%{box-shadow:0 28px 70px rgba(249,115,22,0.7),0 8px 20px rgba(0,0,0,0.5),inset 0 1px 0 rgba(255,255,255,0.3)}}
-.lb-logo:hover .lb-logo-face{transform:rotateX(0) scale(1.05);}
-.lb-logo::after{content:'';position:absolute;bottom:-12px;left:10%;right:10%;height:20px;background:rgba(249,115,22,0.28);border-radius:50%;filter:blur(14px);}
-.lb h1{font-family:'Playfair Display',serif;font-size:20px;font-weight:800;color:white;margin-bottom:3px;}
-.lb p{font-size:11px;color:rgba(255,255,255,0.35);}
-.er{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;margin-bottom:16px;}
-.eb{padding:14px 6px;border-radius:14px;border:1.5px solid rgba(255,255,255,0.08);
-  background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.4);
-  font-size:11px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;
-  transition:all 0.25s;text-align:center;position:relative;overflow:hidden;}
-.eb .ei{font-size:20px;display:block;margin-bottom:4px;}
-.eb.ao{background:rgba(249,115,22,0.12);border-color:rgba(249,115,22,0.5);color:#fb923c;box-shadow:0 4px 18px rgba(249,115,22,0.18);}
-.eb.as{background:rgba(96,165,250,0.1);border-color:rgba(96,165,250,0.4);color:#60a5fa;box-shadow:0 4px 18px rgba(96,165,250,0.15);}
-.eb.ec{background:rgba(52,211,153,0.07);border-color:rgba(52,211,153,0.3);color:#34d399;}
-.eb.ec:hover{background:rgba(52,211,153,0.16);border-color:rgba(52,211,153,0.6);transform:translateY(-3px);}
-.lcard{
-  background:linear-gradient(145deg,rgba(255,255,255,0.09),rgba(255,255,255,0.04));
-  border:1px solid rgba(255,255,255,0.12);border-radius:20px;padding:24px;
-  box-shadow:0 30px 80px rgba(0,0,0,0.5),inset 0 1px 0 rgba(255,255,255,0.1);
-  position:relative;overflow:hidden;
+.input-group { margin-bottom: 20px; }
+.input-group label { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 8px; }
+.input-group input {
+  width: 100%; padding: 14px 18px; background: var(--bg-main); border: 1px solid var(--glass-border);
+  border-radius: 14px; color: var(--primary); font-family: inherit; font-size: 14px; outline: none;
+  transition: all 0.3s;
 }
-.lcard::before{content:'';position:absolute;top:0;left:15%;right:15%;height:1px;background:linear-gradient(90deg,transparent,rgba(249,115,22,0.4),transparent);}
-.lcard .fi{margin-bottom:13px;}
-.lcard .fi label{display:block;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:6px;}
-.lcard .fi input{width:100%;padding:11px 14px;background:rgba(255,255,255,0.07);border:1.5px solid rgba(255,255,255,0.1);border-radius:10px;color:white;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;transition:all 0.2s;}
-.lcard .fi input:focus{border-color:rgba(249,115,22,0.7);background:rgba(249,115,22,0.07);}
-.lcard .fi input::placeholder{color:rgba(255,255,255,0.18);}
-.lerr{display:none;background:rgba(220,38,38,0.1);border:1px solid rgba(220,38,38,0.3);border-radius:9px;padding:10px 13px;color:#f87171;font-size:12px;margin-bottom:11px;text-align:center;}
-.lbtn{width:100%;padding:13px;border-radius:11px;border:none;
-  background:linear-gradient(135deg,#7c2d12,#f97316,#ea580c);color:white;
-  font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;
-  box-shadow:0 6px 24px rgba(249,115,22,0.45),inset 0 1px 0 rgba(255,255,255,0.2);
-  transition:all 0.2s;position:relative;overflow:hidden;
+.input-group input:focus { border-color: var(--accent); background: var(--bg-card); box-shadow: 0 0 0 4px var(--accent-light); }
+.auth-btn {
+  width: 100%; padding: 16px; border-radius: 14px; border: none; background: var(--primary);
+  color: var(--bg-card); font-family: inherit; font-size: 14px; font-weight: 700; cursor: pointer;
+  box-shadow: 0 10px 30px -10px rgba(17,24,39,0.3); transition: all 0.3s var(--ease-out-expo);
 }
-.lbtn::before{content:'';position:absolute;top:-50%;left:-70%;width:40%;height:200%;background:rgba(255,255,255,0.12);transform:skewX(-20deg);transition:left 0.5s;}
-.lbtn:hover::before{left:130%;}
-.lbtn:hover{transform:translateY(-2px);box-shadow:0 10px 32px rgba(249,115,22,0.55);}
-.lbtn:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
-.lfoot{text-align:center;margin-top:12px;font-size:11px;color:rgba(255,255,255,0.15);line-height:1.8;}
+.auth-btn:hover { transform: translateY(-2px); box-shadow: 0 15px 35px -10px rgba(17,24,39,0.4); }
+.auth-err { display: none; background: #fef2f2; border: 1px solid #fee2e2; border-radius: 12px; padding: 12px; color: #dc2626; font-size: 13px; margin-bottom: 16px; text-align: center; }
 
 /* ═══════════════════════════════════════════
-   VISITOR MODAL
+   VISITOR CAPTURE MODAL
 ═══════════════════════════════════════════ */
-#vmod{position:fixed;inset:0;z-index:600;background:rgba(15,23,42,0.85);backdrop-filter:blur(16px);display:none;align-items:center;justify-content:center;padding:20px;}
-#vmod.show{display:flex;}
-.vc{
-  background:linear-gradient(145deg,rgba(255,250,240,0.98),rgba(250,247,242,0.99));
-  border:1px solid rgba(249,115,22,0.2);border-radius:28px;
-  padding:36px 28px;max-width:380px;width:100%;
-  box-shadow:0 40px 100px rgba(0,0,0,0.3),0 0 60px rgba(249,115,22,0.08);
-  position:relative;text-align:center;
-  animation:vcin 0.45s cubic-bezier(0.34,1.56,0.64,1) forwards;
+#vmod { position: fixed; inset: 0; z-index: 2000; background: rgba(17, 24, 39, 0.2); backdrop-filter: blur(20px); display: none; align-items: center; justify-content: center; padding: 20px; }
+#vmod.show { display: flex; }
+.v-card {
+  background: var(--bg-card); border: 1px solid var(--glass-border); border-radius: 32px;
+  padding: 40px; max-width: 420px; width: 100%; box-shadow: var(--shadow-hover);
+  animation: modalReveal 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
-@keyframes vcin{from{opacity:0;transform:scale(0.8) translateY(30px)}to{opacity:1;transform:scale(1) translateY(0)}}
-.vc::before{content:'';position:absolute;top:0;left:20%;right:20%;height:2px;background:linear-gradient(90deg,transparent,rgba(249,115,22,0.5),transparent);border-radius:2px;}
-.vl{width:64px;height:64px;margin:0 auto 14px;background:linear-gradient(145deg,#7c2d12,#f97316);border-radius:16px;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:26px;font-weight:900;color:white;box-shadow:0 10px 28px rgba(249,115,22,0.4);}
-.vc h2{font-family:'Playfair Display',serif;font-size:20px;color:var(--navy);margin-bottom:4px;font-weight:800;}
-.vc p{font-size:12px;color:var(--muted);margin-bottom:20px;line-height:1.6;}
-.vfi{margin-bottom:12px;text-align:left;}
-.vfi label{display:block;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--orange2);margin-bottom:6px;}
-.vfi input{width:100%;padding:11px 14px;background:rgba(249,115,22,0.05);border:1.5px solid rgba(249,115,22,0.2);border-radius:10px;color:var(--navy);font-size:13px;font-family:'DM Sans',sans-serif;outline:none;transition:all 0.2s;}
-.vfi input:focus{border-color:rgba(249,115,22,0.7);background:rgba(249,115,22,0.08);}
-.vfi input::placeholder{color:rgba(15,23,42,0.3);}
-.ve{width:100%;padding:13px;border-radius:11px;border:none;background:linear-gradient(135deg,#7c2d12,#f97316);color:white;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;box-shadow:0 6px 20px rgba(249,115,22,0.4);transition:all 0.2s;}
-.ve:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(249,115,22,0.5);}
-.vs{display:block;margin-top:10px;font-size:11px;color:var(--muted);cursor:pointer;background:none;border:none;width:100%;font-family:'DM Sans',sans-serif;transition:color 0.2s;}
-.vs:hover{color:var(--text);}
+@keyframes modalReveal { from { opacity: 0; transform: scale(0.9) translateY(20px); } to { opacity: 1; transform: scale(1) translateY(0); } }
 
 /* ═══════════════════════════════════════════
-   PORTAL — STICKY HEADER (LIGHT)
+   MINIMAL NAVIGATION LINE
 ═══════════════════════════════════════════ */
-.ph{
-  position:sticky;top:0;z-index:200;
-  background:rgba(250,247,242,0.92);backdrop-filter:blur(24px) saturate(200%);
-  border-bottom:1px solid rgba(249,115,22,0.12);
+.nav-line {
+  position: sticky; top: 0; z-index: 500; background: rgba(252, 251, 247, 0.85);
+  backdrop-filter: blur(20px); border-bottom: 1px solid var(--glass-border);
 }
-.phi{max-width:1260px;margin:0 auto;padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:60px;gap:16px;}
-.phl{display:flex;align-items:center;gap:10px;text-decoration:none;}
-.phlb{width:36px;height:36px;background:linear-gradient(145deg,#7c2d12,#f97316);border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:17px;font-weight:900;color:white;box-shadow:0 4px 12px rgba(249,115,22,0.35);}
-.phln{font-family:'Playfair Display',serif;font-size:15px;color:var(--navy);font-weight:800;}
-.phls{font-size:10px;color:var(--muted);}
-.phn{display:flex;gap:8px;align-items:center;}
-.phb{padding:8px 14px;border-radius:9px;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;text-decoration:none;display:inline-flex;align-items:center;gap:6px;border:none;}
-.phbg{background:rgba(15,23,42,0.06);color:var(--text);border:1px solid rgba(15,23,42,0.1);}
-.phbg:hover{background:rgba(15,23,42,0.1);}
-.phbo{background:linear-gradient(135deg,#7c2d12,#f97316);color:white;box-shadow:0 4px 12px rgba(249,115,22,0.35);}
-.phbo:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(249,115,22,0.45);}
-.phbb{background:rgba(15,23,42,0.06);color:var(--navy);border:1px solid rgba(15,23,42,0.1);}
-.phbb:hover{background:rgba(15,23,42,0.1);}
+.nav-inner { max-width: 1400px; margin: 0 auto; padding: 0 40px; display: flex; align-items: center; justify-content: space-between; height: 80px; }
+.nav-logo { font-family: 'Cinzel', serif; font-size: 22px; font-weight: 800; color: var(--primary); text-decoration: none; }
+.nav-actions { display: flex; gap: 12px; align-items: center; }
+.nav-btn {
+  padding: 10px 20px; border-radius: 12px; font-size: 13px; font-weight: 600; text-decoration: none;
+  font-family: inherit; transition: all 0.3s; border: 1px solid var(--glass-border); background: var(--bg-card); color: var(--primary);
+}
+.nav-btn.primary-btn { background: var(--primary); color: var(--bg-card); border: none; }
+.nav-btn:hover { transform: translateY(-1px); box-shadow: var(--shadow-premium); }
 
 /* ═══════════════════════════════════════════
-   HERO — SPLIT LAYOUT, DRAMATIC
+   HERO EXPERIENCE — THE SCROLL INTERACTION
 ═══════════════════════════════════════════ */
-.hero{
-  min-height:100vh;position:relative;overflow:hidden;
-  display:grid;grid-template-columns:1fr 1fr;
-  background:var(--cream);
-}
-@media(max-width:768px){.hero{grid-template-columns:1fr;min-height:auto;}}
+.hero { min-height: 100vh; display: grid; grid-template-columns: 1.1fr 0.9fr; max-width: 1400px; margin: 0 auto; padding: 0 40px; align-items: center; gap: 40px; }
+@media (max-width: 968px) { .hero { grid-template-columns: 1fr; padding-top: 120px; text-align: center; } }
 
-/* Left panel — cream/light */
-.hero-left{
-  position:relative;z-index:2;
-  display:flex;flex-direction:column;justify-content:center;
-  padding:100px 60px 80px 60px;
-}
-@media(max-width:1024px){.hero-left{padding:80px 32px 60px;}}
-@media(max-width:768px){.hero-left{padding:100px 24px 40px;text-align:center;}}
+.hero-meta { font-size: 12px; text-transform: uppercase; letter-spacing: 4px; color: var(--accent); font-weight: 700; margin-bottom: 16px; display: block; }
+.hero-headline { font-family: 'Bebas Neue', sans-serif; font-size: clamp(60px, 7.5vw, 110px); line-height: 0.85; color: var(--primary); letter-spacing: 1px; margin-bottom: 24px; }
+.hero-headline span { display: block; }
+.hero-desc { font-size: 18px; color: var(--text-muted); line-height: 1.6; font-weight: 400; margin-bottom: 36px; max-width: 540px; }
+@media (max-width: 968px) { .hero-desc { margin: 0 auto 36px; } }
 
-/* Right panel — dark navy with truck */
-.hero-right{
-  background:var(--navy);
-  position:relative;overflow:hidden;
-  display:flex;align-items:center;justify-content:center;
+.hero-showcase {
+  position: relative; width: 100%; height: 500px; display: flex; align-items: center; justify-content: center;
+  perspective: 1000px;
 }
-@media(max-width:768px){.hero-right{min-height:50vw;}}
-
-/* Orange diagonal cut between panels */
-.hero-right::before{
-  content:'';position:absolute;top:0;left:-60px;bottom:0;width:120px;
-  background:var(--cream);
-  clip-path:polygon(0 0,60px 0,0 100%);
-  z-index:3;
+.canvas-3d-wrapper {
+  position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
+  transform-style: preserve-3d; transition: transform 0.1s linear;
 }
 
-/* Navy bg effects */
-.hr-mesh{position:absolute;inset:0;
-  background:radial-gradient(ellipse 80% 70% at 80% 40%,rgba(249,115,22,0.12) 0%,transparent 60%),
-    radial-gradient(ellipse 60% 50% at 20% 80%,rgba(249,115,22,0.06) 0%,transparent 50%);
+/* Kinetic Floating Graphics using pure CSS shapes & vectors */
+.mechanical-art {
+  position: absolute; width: 320px; height: 320px; border: 2px dashed rgba(219, 119, 6, 0.2);
+  border-radius: 50%; animation: spinMechanical 40s linear infinite; display: flex; align-items: center; justify-content: center;
 }
-.hr-grid{position:absolute;inset:0;
-  background-image:linear-gradient(rgba(249,115,22,0.05) 1px,transparent 1px),
-    linear-gradient(90deg,rgba(249,115,22,0.05) 1px,transparent 1px);
-  background-size:50px 50px;
+@keyframes spinMechanical { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+/* Universal Cross Vector Art Component */
+.universal-cross {
+  position: absolute; width: 140px; height: 140px; background: var(--bg-card);
+  box-shadow: var(--shadow-hover); border-radius: 20px; display: flex; align-items: center; justify-content: center;
+  transform: translateZ(60px); animation: bounceArt 6s ease-in-out infinite; border: 1px solid var(--glass-border);
 }
-/* Spinning gear rings in right panel */
-.hr-ring{position:absolute;border-radius:50%;border:2px solid;animation:rspin linear infinite;}
-.hr-r1{width:600px;height:600px;top:-200px;right:-200px;border-color:rgba(249,115,22,0.08);animation-duration:60s;}
-.hr-r2{width:350px;height:350px;bottom:-100px;left:0;border-color:rgba(249,115,22,0.06);animation-duration:40s;animation-direction:reverse;}
-@keyframes rspin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
-
-/* Big truck SVG */
-.hero-truck{
-  position:relative;z-index:2;
-  width:clamp(260px,80%,520px);
-  animation:truckfloat 7s ease-in-out infinite;
-  filter:drop-shadow(0 40px 60px rgba(249,115,22,0.25));
+/* Shock Absorber Spring Component */
+.shock-spring {
+  position: absolute; width: 120px; height: 220px; transform: translateZ(-40px) rotate(-15deg);
+  animation: bounceArt 6s ease-in-out infinite alternate; animation-delay: -3s;
 }
-@keyframes truckfloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-20px)}}
-
-/* Hero text */
-.h-badge{
-  display:inline-flex;align-items:center;gap:8px;
-  background:rgba(249,115,22,0.1);border:1px solid rgba(249,115,22,0.3);
-  border-radius:40px;padding:6px 16px;
-  font-size:10px;font-weight:700;color:var(--orange2);
-  letter-spacing:2px;text-transform:uppercase;margin-bottom:20px;
-  animation:hbin 0.8s ease forwards;opacity:0;
-}
-@keyframes hbin{from{opacity:0;transform:translateX(-20px)}to{opacity:1;transform:translateX(0)}}
-.h-badge::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--orange);box-shadow:0 0 8px var(--orange);animation:bpulse 2s infinite;}
-@keyframes bpulse{0%,100%{opacity:1}50%{opacity:0.3}}
-
-.h-title{
-  font-family:'Bebas Neue',sans-serif;
-  font-size:clamp(54px,8vw,96px);
-  line-height:0.9;letter-spacing:2px;
-  color:var(--navy);margin-bottom:8px;
-  animation:htin 0.9s ease 0.2s both;
-}
-.h-title .to{color:var(--orange);}
-.h-title .tn{color:var(--navy);}
-@keyframes htin{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:translateY(0)}}
-
-.h-sub{
-  font-family:'Rajdhani',sans-serif;font-size:clamp(15px,2.5vw,20px);
-  font-weight:500;color:var(--muted);margin-bottom:28px;
-  line-height:1.6;animation:htin 0.9s ease 0.35s both;
-}
-.h-sub strong{color:var(--navy);font-weight:700;}
-
-/* Orange brand tags */
-.h-brands{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:28px;animation:htin 0.9s ease 0.5s both;}
-@media(max-width:768px){.h-brands{justify-content:center;}}
-.hb{padding:5px 12px;border-radius:6px;font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;letter-spacing:1px;border:2px solid;transition:all 0.25s;cursor:default;}
-.hb-o{color:var(--orange2);border-color:rgba(249,115,22,0.4);background:rgba(249,115,22,0.07);}
-.hb-o:hover{background:rgba(249,115,22,0.15);border-color:var(--orange);}
-.hb-n{color:var(--navy);border-color:rgba(15,23,42,0.2);background:rgba(15,23,42,0.04);}
-.hb-n:hover{background:rgba(15,23,42,0.08);}
-
-.h-ctas{display:flex;gap:10px;flex-wrap:wrap;animation:htin 0.9s ease 0.65s both;}
-@media(max-width:768px){.h-ctas{justify-content:center;}}
-.btn{padding:13px 24px;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;text-decoration:none;transition:all 0.25s;display:inline-flex;align-items:center;gap:8px;border:none;position:relative;overflow:hidden;}
-.btn::before{content:'';position:absolute;top:-50%;left:-70%;width:40%;height:200%;background:rgba(255,255,255,0.15);transform:skewX(-20deg);transition:left 0.5s;}
-.btn:hover::before{left:130%;}
-.btn-o{background:linear-gradient(135deg,#7c2d12,#f97316);color:white;box-shadow:0 8px 24px rgba(249,115,22,0.4);}
-.btn-o:hover{transform:translateY(-3px);box-shadow:0 14px 36px rgba(249,115,22,0.5);}
-.btn-n{background:var(--navy);color:white;box-shadow:0 8px 24px rgba(15,23,42,0.2);}
-.btn-n:hover{transform:translateY(-3px);box-shadow:0 14px 36px rgba(15,23,42,0.3);}
-.btn-ghost{background:transparent;color:var(--navy);border:2px solid rgba(15,23,42,0.2);}
-.btn-ghost:hover{background:rgba(15,23,42,0.05);transform:translateY(-2px);}
-
-/* Scroll indicator */
-.scind{
-  position:absolute;bottom:28px;left:60px;
-  display:flex;align-items:center;gap:10px;
-  color:var(--muted);font-size:10px;letter-spacing:2px;text-transform:uppercase;
-  animation:htin 0.9s ease 1s both;
-}
-@media(max-width:768px){.scind{left:50%;transform:translateX(-50%);}}
-.scline{width:40px;height:1px;background:var(--orange);position:relative;overflow:hidden;}
-.scline::after{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:white;animation:scmove 1.5s ease-in-out infinite;}
-@keyframes scmove{0%{left:-100%}100%{left:100%}}
+@keyframes bounceArt { 0%, 100% { transform: translateY(0) translateZ(40px) rotate(0deg); } 50% { transform: translateY(-20px) translateZ(80px) rotate(5deg); } }
 
 /* ═══════════════════════════════════════════
-   STATS BAR
+   PREMIUM CHRONO STAT TRACK
 ═══════════════════════════════════════════ */
-.sbar{
-  background:var(--navy);
-  padding:0;
-}
-.sbar-inner{
-  max-width:1200px;margin:0 auto;
-  display:grid;grid-template-columns:repeat(4,1fr);
-}
-@media(max-width:600px){.sbar-inner{grid-template-columns:repeat(2,1fr);}}
-.si{
-  padding:32px 20px;text-align:center;
-  border-right:1px solid rgba(255,255,255,0.06);
-  position:relative;overflow:hidden;
-  transition:background 0.3s;
-}
-.si:last-child{border-right:none;}
-.si::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(249,115,22,0),transparent);transition:background 0.3s;}
-.si:hover::before{background:linear-gradient(90deg,transparent,rgba(249,115,22,0.7),transparent);}
-.si:hover{background:rgba(249,115,22,0.05);}
-.si-num{font-family:'Bebas Neue',sans-serif;font-size:46px;line-height:1;margin-bottom:4px;color:var(--orange);}
-.si-label{font-size:11px;color:rgba(255,255,255,0.4);letter-spacing:1px;text-transform:uppercase;}
+.stats-banner { background: var(--primary); color: var(--bg-card); padding: 60px 0; border-radius: 40px; margin: 0 40px; position: relative; overflow: hidden; }
+.stats-grid { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); gap: 32px; padding: 0 40px; text-align: center; }
+@media (max-width: 768px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
+.stat-node .num { font-family: 'Space Grotesk', sans-serif; font-size: clamp(36px, 4vw, 56px); font-weight: 700; color: var(--accent); margin-bottom: 4px; }
+.stat-node .lbl { font-size: 12px; text-transform: uppercase; letter-spacing: 2px; color: rgba(252, 251, 247, 0.5); }
 
 /* ═══════════════════════════════════════════
-   SECTIONS COMMON
+   AESTHETIC GRID SYSTEM & INTERPOLATION
 ═══════════════════════════════════════════ */
-.sec{padding:90px 0;position:relative;}
-.con{max-width:1200px;margin:0 auto;padding:0 28px;}
-.slbl{font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--orange2);margin-bottom:10px;}
-.stit{font-family:'Playfair Display',serif;font-size:clamp(26px,4vw,44px);font-weight:800;color:var(--navy);margin-bottom:12px;line-height:1.15;}
-.ssub{font-size:15px;color:var(--muted);line-height:1.8;max-width:560px;}
-.shc{text-align:center;margin-bottom:56px;}
-.shc .ssub{margin:0 auto;}
-/* Thin orange divider */
-.odiv{height:2px;background:linear-gradient(90deg,transparent,rgba(249,115,22,0.3),transparent);margin:0;}
+.section { padding: 140px 0; max-width: 1400px; margin: 0 auto; padding-left: 40px; padding-right: 40px; }
+.sec-header { margin-bottom: 72px; max-width: 600px; }
+.sec-label { font-size: 11px; text-transform: uppercase; letter-spacing: 3px; color: var(--accent); font-weight: 700; margin-bottom: 12px; display: block; }
+.sec-title { font-family: 'Cinzel', serif; font-size: clamp(28px, 4vw, 42px); font-weight: 800; color: var(--primary); line-height: 1.15; }
+
+.product-mosaic { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 24px; }
+.product-card {
+  background: var(--bg-card); border: 1px solid var(--glass-border); border-radius: 24px; padding: 40px 32px;
+  box-shadow: var(--shadow-premium); transition: all 0.6s var(--ease-out-expo); perspective: 1000px; transform-style: preserve-3d;
+}
+.product-card:hover { transform: translateY(-12px) scale(1.02); box-shadow: var(--shadow-hover); border-color: rgba(217, 119, 6, 0.2); }
+.prod-icon { font-size: 40px; margin-bottom: 24px; display: block; transition: transform 0.5s var(--ease-out-expo); }
+.product-card:hover .prod-icon { transform: translateZ(30px) scale(1.1); }
+.prod-title { font-family: 'Space Grotesk', sans-serif; font-size: 18px; font-weight: 700; color: var(--primary); margin-bottom: 8px; }
+.prod-desc { font-size: 14px; color: var(--text-muted); line-height: 1.6; }
 
 /* ═══════════════════════════════════════════
-   BRANDS MARQUEE
+   SCROLL INTERSECT ENGINE STYLES
 ═══════════════════════════════════════════ */
-.bsec{
-  padding:50px 0;
-  background:white;
-  border-top:1px solid rgba(15,23,42,0.06);
-  border-bottom:1px solid rgba(15,23,42,0.06);
-  overflow:hidden;
+[data-scroll-reveal] {
+  opacity: 0; transform: translateY(60px);
+  transition: opacity 1.2s var(--ease-out-expo), transform 1.2s var(--ease-out-expo);
 }
-.blbl{text-align:center;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin-bottom:28px;}
-.mwrap{position:relative;overflow:hidden;}
-.mwrap::before,.mwrap::after{content:'';position:absolute;top:0;bottom:0;width:120px;z-index:2;}
-.mwrap::before{left:0;background:linear-gradient(90deg,white,transparent);}
-.mwrap::after{right:0;background:linear-gradient(-90deg,white,transparent);}
-.mtrack{display:flex;gap:14px;animation:mq 22s linear infinite;width:max-content;}
-.mtrack:hover{animation-play-state:paused;}
-.bchip{
-  background:rgba(249,115,22,0.06);border:1.5px solid rgba(249,115,22,0.15);
-  border-radius:12px;padding:14px 24px;flex-shrink:0;
-  display:flex;flex-direction:column;align-items:center;gap:3px;
-  transition:all 0.3s;cursor:default;
-}
-.bchip:hover{background:rgba(249,115,22,0.12);border-color:rgba(249,115,22,0.4);transform:translateY(-4px);box-shadow:0 12px 28px rgba(249,115,22,0.15);}
-.bn{font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;color:var(--navy);letter-spacing:1px;}
-.bt{font-size:10px;color:var(--muted);}
-@keyframes mq{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+[data-scroll-reveal].revealed { opacity: 1; transform: translateY(0); }
+.delay-100 { transition-delay: 0.1s; }
+.delay-200 { transition-delay: 0.2s; }
+.delay-300 { transition-delay: 0.3s; }
 
-/* ═══════════════════════════════════════════
-   PRODUCTS — 3D TILT CARDS
-═══════════════════════════════════════════ */
-.sec-prod{background:var(--warm);}
-.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:16px;}
-.pcard{
-  background:white;border:1.5px solid rgba(15,23,42,0.06);
-  border-radius:20px;padding:28px 16px 20px;text-align:center;
-  transition:all 0.4s cubic-bezier(0.34,1.2,0.64,1);
-  position:relative;overflow:hidden;cursor:default;
-  box-shadow:0 2px 8px rgba(15,23,42,0.05);
-}
-.pcard::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,rgba(249,115,22,0),transparent);transition:background 0.35s;}
-.pcard:hover::before{background:linear-gradient(90deg,transparent,rgba(249,115,22,0.8),transparent);}
-.pcard:hover{
-  transform:translateY(-10px) scale(1.02);
-  border-color:rgba(249,115,22,0.25);
-  box-shadow:0 30px 60px rgba(249,115,22,0.12),0 8px 20px rgba(15,23,42,0.08);
-}
-.pci{font-size:38px;display:block;margin-bottom:12px;transition:transform 0.35s;}
-.pcard:hover .pci{transform:scale(1.2) translateY(-4px);}
-.pcn{font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;color:var(--navy);margin-bottom:3px;letter-spacing:0.3px;}
-.pcc{font-size:11px;color:var(--muted);}
-/* Orange glow on hover */
-.pcard::after{content:'';position:absolute;bottom:-20px;left:50%;transform:translateX(-50%);width:60px;height:40px;background:rgba(249,115,22,0.12);border-radius:50%;filter:blur(14px);opacity:0;transition:opacity 0.35s;}
-.pcard:hover::after{opacity:1;}
+/* Why Us Layout */
+.features-box { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 32px; }
+.feature-tile { background: var(--bg-card); border: 1px solid var(--glass-border); border-radius: 24px; padding: 40px; box-shadow: var(--shadow-premium); }
+.feature-tile h3 { font-family: 'Space Grotesk', sans-serif; font-size: 20px; margin-bottom: 12px; color: var(--primary); }
 
-/* ═══════════════════════════════════════════
-   WHY US — HORIZONTAL CARDS
-═══════════════════════════════════════════ */
-.sec-why{background:var(--cream);}
-.wgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px;}
-.wcard{
-  background:white;border:1.5px solid rgba(15,23,42,0.06);
-  border-radius:22px;padding:32px 24px;
-  box-shadow:0 2px 8px rgba(15,23,42,0.04);
-  transition:all 0.35s;position:relative;overflow:hidden;
-}
-.wcard::after{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:rgba(249,115,22,0.3);transition:background 0.3s;}
-.wcard:hover::after{background:linear-gradient(180deg,var(--orange),var(--orange2));}
-.wcard:hover{transform:translateY(-5px);box-shadow:0 20px 50px rgba(249,115,22,0.1),0 4px 16px rgba(15,23,42,0.06);}
-.wic{width:50px;height:50px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:16px;}
-.wt{font-family:'Rajdhani',sans-serif;font-size:17px;font-weight:700;color:var(--navy);margin-bottom:9px;letter-spacing:0.2px;}
-.wd{font-size:13px;color:var(--muted);line-height:1.75;}
+/* Review Engine Component */
+.reviews-scroller { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; }
+.review-envelope { background: var(--bg-card); border: 1px solid var(--glass-border); border-radius: 24px; padding: 36px; box-shadow: var(--shadow-premium); position: relative; }
+.stars-row { color: #f59e0b; font-size: 16px; margin-bottom: 16px; letter-spacing: 2px; }
 
-/* ═══════════════════════════════════════════
-   PROCESS — TIMELINE STYLE
-═══════════════════════════════════════════ */
-.sec-proc{background:var(--navy);}
-.sec-proc .slbl{color:rgba(249,115,22,0.7);}
-.sec-proc .stit{color:white;}
-.sec-proc .ssub{color:rgba(255,255,255,0.45);}
-.tgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:0;position:relative;}
-.tgrid::before{content:'';position:absolute;top:36px;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(249,115,22,0.3),transparent);}
-@media(max-width:600px){.tgrid::before{display:none;}}
-.tcard{padding:32px 20px;text-align:center;position:relative;}
-.tstep{
-  width:72px;height:72px;border-radius:50%;margin:0 auto 18px;
-  background:rgba(249,115,22,0.1);border:2px solid rgba(249,115,22,0.3);
-  display:flex;align-items:center;justify-content:center;
-  font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--orange);
-  position:relative;z-index:1;
-  transition:all 0.3s;
-}
-.tcard:hover .tstep{background:rgba(249,115,22,0.2);border-color:var(--orange);box-shadow:0 0 30px rgba(249,115,22,0.3);}
-.tt{font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;color:white;margin-bottom:8px;}
-.td{font-size:13px;color:rgba(255,255,255,0.4);line-height:1.7;}
+/* Unified Feedback Form Module */
+.feedback-hub { max-width: 680px; margin: 0 auto; background: var(--bg-card); border: 1px solid var(--glass-border); border-radius: 32px; padding: 56px; box-shadow: var(--shadow-hover); }
+.rating-selector { display: flex; gap: 8px; font-size: 28px; color: #e5e7eb; cursor: pointer; margin-bottom: 24px; }
+.rating-selector span.active { color: #f59e0b; }
 
-/* ═══════════════════════════════════════════
-   REVIEWS
-═══════════════════════════════════════════ */
-.sec-rev{background:var(--warm);}
-.rgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:18px;}
-.rcard{
-  background:white;border:1.5px solid rgba(15,23,42,0.06);
-  border-radius:20px;padding:26px;
-  box-shadow:0 2px 8px rgba(15,23,42,0.04);
-  transition:all 0.3s;position:relative;overflow:hidden;
-}
-.rcard:hover{transform:translateY(-4px);box-shadow:0 20px 50px rgba(249,115,22,0.1),0 4px 16px rgba(15,23,42,0.06);}
-.rcard::before{content:'"';position:absolute;top:12px;right:18px;font-family:'Playfair Display',serif;font-size:64px;color:rgba(249,115,22,0.08);line-height:1;}
-.rstars{font-size:18px;color:var(--gold);letter-spacing:3px;margin-bottom:12px;}
-.rtext{font-size:13px;color:var(--muted);line-height:1.75;margin-bottom:16px;font-style:italic;}
-.rauth{font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:var(--navy);}
-.rveh{font-size:11px;color:var(--muted);margin-top:2px;}
-
-/* ═══════════════════════════════════════════
-   FEEDBACK
-═══════════════════════════════════════════ */
-.sec-fb{background:var(--cream);}
-.fbw{
-  max-width:600px;margin:0 auto;
-  background:white;border:1.5px solid rgba(15,23,42,0.08);
-  border-radius:24px;padding:40px 36px;
-  box-shadow:0 4px 20px rgba(15,23,42,0.06);
-  position:relative;
-}
-.fbw::before{content:'';position:absolute;top:0;left:20%;right:20%;height:2px;background:linear-gradient(90deg,transparent,rgba(249,115,22,0.5),transparent);border-radius:2px;}
-@media(max-width:560px){.fbw{padding:24px 18px;}}
-.fbr{display:grid;grid-template-columns:1fr 1fr;gap:13px;}
-@media(max-width:460px){.fbr{grid-template-columns:1fr;}}
-.fbf{margin-bottom:14px;}
-.fbf label{display:block;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
-.fbf input,.fbf textarea{width:100%;padding:11px 14px;background:rgba(15,23,42,0.03);border:1.5px solid rgba(15,23,42,0.1);border-radius:10px;color:var(--navy);font-size:13px;font-family:'DM Sans',sans-serif;outline:none;transition:all 0.2s;}
-.fbf input:focus,.fbf textarea:focus{border-color:rgba(249,115,22,0.6);background:rgba(249,115,22,0.03);}
-.fbf input::placeholder,.fbf textarea::placeholder{color:rgba(15,23,42,0.25);}
-.fbf textarea{min-height:95px;resize:vertical;}
-.srow{display:flex;gap:6px;}
-.srow span{font-size:30px;cursor:pointer;color:rgba(15,23,42,0.12);transition:all 0.15s;user-select:none;}
-.srow span.lit,.srow span:hover{color:var(--gold);transform:scale(1.18);}
-.fbsub{width:100%;padding:13px;border-radius:11px;border:none;background:linear-gradient(135deg,#7c2d12,#f97316);color:white;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;box-shadow:0 6px 20px rgba(249,115,22,0.38);transition:all 0.2s;}
-.fbsub:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(249,115,22,0.48);}
-.fbok{display:none;text-align:center;padding:16px;color:var(--orange2);font-size:14px;font-weight:600;}
-
-/* ═══════════════════════════════════════════
-   LOCATION — DARK PANEL
-═══════════════════════════════════════════ */
-.sec-loc{background:var(--navy);padding:80px 0;}
-.sec-loc .slbl{color:rgba(249,115,22,0.65);}
-.sec-loc .stit{color:white;}
-.locw{
-  background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);
-  border-radius:24px;overflow:hidden;margin-top:48px;
-}
-.locb{display:grid;grid-template-columns:1fr 1fr;}
-@media(max-width:680px){.locb{grid-template-columns:1fr;}}
-.locl{padding:40px 36px;border-right:1px solid rgba(255,255,255,0.07);}
-@media(max-width:680px){.locl{border-right:none;border-bottom:1px solid rgba(255,255,255,0.07);}}
-.locr{padding:40px 36px;}
-.loci{display:flex;gap:14px;align-items:flex-start;margin-bottom:26px;}
-.locic{width:44px;height:44px;border-radius:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:19px;background:rgba(249,115,22,0.12);border:1px solid rgba(249,115,22,0.25);}
-.loct strong{display:block;font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:white;margin-bottom:4px;}
-.loct span{font-size:13px;color:rgba(255,255,255,0.4);line-height:1.7;}
-.mbtn{display:inline-flex;align-items:center;gap:8px;margin-top:14px;background:linear-gradient(135deg,#7c2d12,#f97316);color:white;padding:12px 22px;border-radius:10px;font-size:13px;font-weight:700;text-decoration:none;box-shadow:0 6px 20px rgba(249,115,22,0.38);transition:all 0.2s;}
-.mbtn:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(249,115,22,0.5);}
-.wbtn{display:inline-flex;align-items:center;gap:8px;margin-top:10px;background:linear-gradient(135deg,#064e3b,#059669);color:white;padding:12px 22px;border-radius:10px;font-size:13px;font-weight:700;text-decoration:none;box-shadow:0 6px 20px rgba(5,150,105,0.35);transition:all 0.2s;}
-.wbtn:hover{transform:translateY(-2px);}
-
-/* ═══════════════════════════════════════════
-   FOOTER
-═══════════════════════════════════════════ */
-.pfoot{
-  background:rgba(255,255,255,0.03);
-  border-top:1px solid rgba(249,115,22,0.15);
-  padding:44px 24px;text-align:center;
-}
-.pfn{font-family:'Playfair Display',serif;font-size:22px;color:white;margin-bottom:6px;font-weight:800;}
-.pfs{font-size:12px;color:rgba(255,255,255,0.3);line-height:2.2;}
-.pflinks{display:flex;gap:18px;justify-content:center;margin-top:16px;flex-wrap:wrap;}
-.pfl{font-size:12px;color:rgba(255,255,255,0.28);text-decoration:none;transition:color 0.2s;}
-.pfl:hover{color:rgba(249,115,22,0.8);}
-
-/* ═══════════════════════════════════════════
-   SCROLL ANIMATIONS — THE MAGIC
-═══════════════════════════════════════════ */
-
-/* Fade up */
-[data-anim]{opacity:0;transition:opacity 0.75s ease, transform 0.75s ease;}
-[data-anim="fade-up"]{transform:translateY(50px);}
-[data-anim="fade-left"]{transform:translateX(-50px);}
-[data-anim="fade-right"]{transform:translateX(50px);}
-[data-anim="zoom"]{transform:scale(0.88);}
-[data-anim="flip"]{transform:rotateY(25deg) translateX(30px);}
-[data-anim].anim-done{opacity:1;transform:none;}
-
-/* Stagger delays */
-[data-delay="100"]{transition-delay:0.1s;}
-[data-delay="200"]{transition-delay:0.2s;}
-[data-delay="300"]{transition-delay:0.3s;}
-[data-delay="400"]{transition-delay:0.4s;}
-[data-delay="500"]{transition-delay:0.5s;}
-[data-delay="600"]{transition-delay:0.6s;}
-
-/* Number counter animation */
-.counter{display:inline-block;}
-
-/* ═══════════════════════════════════════════
-   RESPONSIVE
-═══════════════════════════════════════════ */
-@media(max-width:768px){
-  .phn .phbo{display:none;}
-  .pgrid{grid-template-columns:repeat(auto-fill,minmax(145px,1fr));}
-  .sbar-inner{grid-template-columns:repeat(2,1fr);}
-  .hero{min-height:auto;}
-}
-@media(max-width:480px){
-  .h-ctas .btn-ghost{display:none;}
-  .sec{padding:60px 0;}
-}
+/* Modern Architecture Footer */
+.mega-footer { background: var(--primary); color: var(--bg-card); padding: 100px 40px 60px; margin-top: 100px; border-radius: 50px 50px 0 0; }
+.footer-matrix { max-width: 1400px; margin: 0 auto; display: grid; grid-template-columns: 1.5fr 1fr; gap: 8px; border-bottom: 1px solid rgba(252,251,247,0.1); padding-bottom: 60px; }
+@media (max-width: 768px) { .footer-matrix { grid-template-columns: 1fr; gap: 40px; } }
+.footer-brand h2 { font-family: 'Cinzel', serif; font-size: 32px; font-weight: 800; margin-bottom: 16px; color: var(--bg-main); }
+.footer-links { display: flex; flex-direction: column; gap: 12px; align-items: flex-end; }
+@media (max-width: 768px) { .footer-links { align-items: flex-start; } }
+.footer-link { color: rgba(252,251,247,0.6); text-decoration: none; font-size: 14px; transition: color 0.3s; }
+.footer-link:hover { color: var(--accent); }
 </style>
 </head>
 <body>
 
-<!-- ═══ VISITOR MODAL ═══ -->
+<div class="bg-canvas"><div class="bg-grid"></div><div class="ambient-glow glow-1"></div><div class="ambient-glow glow-2"></div></div>
+
 <div id="vmod">
-  <div class="vc">
-    <div class="vl">A</div>
-    <h2>Welcome!</h2>
-    <p>Tell us your name to explore our store.<br>We'll help you find the right genuine parts.</p>
-    <div class="vfi"><label>Your Name <span style="color:#dc2626;">*</span></label><input type="text" id="vName" placeholder="Full name" autocomplete="name"></div>
-    <div class="vfi"><label>Phone <span style="color:var(--muted);font-weight:400;font-size:9px;">(optional)</span></label><input type="tel" id="vPhone" placeholder="Mobile number" autocomplete="tel"></div>
-    <button class="ve" onclick="enterPortal()">✦ Explore Abhinandan Auto Mobiles</button>
-    <button class="vs" onclick="enterPortal(true)">Skip — browse without entering details</button>
+  <div class="v-card">
+    <h2 class="brand-sig" style="font-size: 28px;">Welcome</h2>
+    <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 28px; line-height: 1.6;">Let's get you set up to explore our luxury Light-Theme aesthetic marketplace architecture.</p>
+    <div class="input-group">
+      <label>Your Name *</label>
+      <input type="text" id="vName" placeholder="Provide full name">
+    </div>
+    <div class="input-group">
+      <label>Phone Number (Optional)</label>
+      <input type="tel" id="vPhone" placeholder="Provide contact number">
+    </div>
+    <button class="auth-btn" style="background: var(--accent);" onclick="enterPortal(false)">Enter Experience ✦</button>
+    <button class="auth-btn" style="background: transparent; color: var(--text-muted); box-shadow: none; margin-top: 10px;" onclick="enterPortal(true)">Skip architecture initialization</button>
   </div>
 </div>
 
-<!-- ═══ LOGIN SCREEN ═══ -->
 <div id="loginScreen">
-  <div class="lbg">
-    <div class="lbg-mesh"></div><div class="lbg-grid"></div>
-    <div class="lorb lo1"></div><div class="lorb lo2"></div>
-  </div>
-  <div class="lw">
-    <div class="lb">
-      <div class="lb-logo"><div class="lb-logo-face">A</div></div>
-      <h1>Abhinandan Auto Mobiles</h1>
-      <p>Genuine Spare Parts · Santalpur, Patan</p>
+  <div class="auth-container">
+    <h1 class="brand-sig">ABHINANDAN</h1>
+    <p class="brand-sub">Auto Mobiles — Premium Engineering</p>
+    
+    <div class="role-track">
+      <button class="role-btn active" id="btnO" onclick="switchRole('owner')">👑 Executive</button>
+      <button class="role-btn" id="btnS" onclick="switchRole('staff')">👤 Operator</button>
+      <button class="role-btn customer" onclick="launchVisitorFlow()">🛍️ Guest Hub</button>
     </div>
-    <div class="er">
-      <button class="eb ao" id="btnO" onclick="selR('owner')"><span class="ei">👑</span>Owner</button>
-      <button class="eb" id="btnS" onclick="selR('staff')"><span class="ei">👤</span>Staff</button>
-      <button class="eb ec" onclick="openV()"><span class="ei">🛍️</span>Customers</button>
+
+    <div class="auth-card">
+      <div class="auth-err" id="errB">✕ <span id="errM"></span></div>
+      <div class="input-group">
+        <label>Identity Handle</label>
+        <input type="text" id="un" placeholder="Username token" autofocus>
+      </div>
+      <div class="input-group">
+        <label>Passphrase Security</label>
+        <input type="password" id="up" placeholder="••••••••">
+      </div>
+      <button class="auth-btn" id="lbtn" onclick="executeLoginChain()">Initialize ERP Session</button>
     </div>
-    <div class="lcard">
-      <div class="lerr" id="errB">❌ <span id="errM"></span></div>
-      <div class="fi"><label>Username</label><input type="text" id="un" placeholder="Enter username" autocomplete="username" autofocus></div>
-      <div class="fi"><label>Password</label><input type="password" id="up" placeholder="Enter password" autocomplete="current-password"></div>
-      <button class="lbtn" id="lbtn" onclick="doLogin()">🔐 Login to ERP</button>
-    </div>
-    <div class="lfoot">Session stays active for 30 days · Auto ERP v1.0</div>
   </div>
 </div>
 
-<!-- ═══ CUSTOMER PORTAL ═══ -->
 <div id="portalScreen">
-
-  <!-- HEADER -->
-  <div class="ph">
-    <div class="phi">
-      <a class="phl" href="#">
-        <div class="phlb">A</div>
-        <div><div class="phln">Abhinandan Auto Mobiles</div><div class="phls">Genuine Spare Parts · Santalpur, Patan</div></div>
-      </a>
-      <div class="phn">
-        <a href="https://maps.app.goo.gl/QBDi2SPd5LXC6mHb8" target="_blank" class="phb phbg">📍 Location</a>
-        <a href="https://wa.me/919825259065" target="_blank" class="phb phbo">📞 9825259065</a>
-        <button class="phb phbb" onclick="goBack()">← Login</button>
+  
+  <header class="nav-line">
+    <div class="nav-inner">
+      <a href="#" class="nav-logo">ABHINANDAN</a>
+      <div class="nav-actions">
+        <a href="https://wa.me/919870037002" target="_blank" class="nav-btn primary-btn">💬 Connect</a>
+        <button class="nav-btn" onclick="terminateSession()">← Exit</button>
       </div>
     </div>
-  </div>
+  </header>
 
-  <!-- HERO — SPLIT -->
-  <div class="hero">
-    <!-- LEFT: Text content -->
-    <div class="hero-left">
-      <div class="h-badge">✦ Trusted Since Years · Santalpur, Patan</div>
-      <div class="h-title">
-        <div class="tn">GENUINE</div>
-        <div class="to">SPARE</div>
-        <div class="tn">PARTS</div>
-      </div>
-      <div class="h-sub">
-        All types of genuine spareparts for<br>
-        <strong>Tata · Ashok Leyland · JCB · Tractors & More</strong>
-      </div>
-      <div class="h-brands">
-        <div class="hb hb-o">TATA</div>
-        <div class="hb hb-o">TVS</div>
-        <div class="hb hb-o">GAJRA</div>
-        <div class="hb hb-n">TELCO</div>
-        <div class="hb hb-n">CASTROL</div>
-        <div class="hb hb-n">JCB</div>
-      </div>
-      <div class="h-ctas">
-        <a href="https://maps.app.goo.gl/QBDi2SPd5LXC6mHb8" target="_blank" class="btn btn-o">📍 Visit Our Store</a>
-        <a href="https://wa.me/919825259065" target="_blank" class="btn btn-n">📞 9825259065</a>
-        <a href="#feedback" class="btn btn-ghost">⭐ Review</a>
-      </div>
-      <div class="scind">
-        <div class="scline"></div>
-        <span>Scroll to explore</span>
+  <section class="hero">
+    <div class="hero-content">
+      <span class="hero-meta">ESTABLISHED QUALITY AUTO ARCHITECTURE</span>
+      <h2 class="hero-headline">
+        <span>GENUINE</span>
+        <span style="color: var(--accent);">SPARE</span>
+        <span>PARTS.</span>
+      </h2>
+      <p class="hero-desc">Elevating mechanical integrity across heavy segments. Authorized distribution hub specializing in TATA, TVS, Gajra, Telco, and Castrol architectures.</p>
+      <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+        <a href="https://wa.me/919870037002" target="_blank" class="nav-btn primary-btn" style="padding: 16px 32px; font-size: 14px;">Order via WhatsApp (+91 9870037002)</a>
+        <a href="#products" class="nav-btn" style="padding: 16px 32px; font-size: 14px;">View Catalog</a>
       </div>
     </div>
 
-    <!-- RIGHT: Dark panel with animated truck -->
-    <div class="hero-right">
-      <div class="hr-mesh"></div>
-      <div class="hr-grid"></div>
-      <div class="hr-ring hr-r1"></div>
-      <div class="hr-ring hr-r2"></div>
-
-      <!-- Big detailed SVG truck -->
-      <svg class="hero-truck" viewBox="0 0 520 340" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <!-- Truck body/cargo box -->
-        <rect x="20" y="80" width="320" height="180" rx="8" fill="rgba(249,115,22,0.85)" stroke="rgba(249,115,22,0.4)" stroke-width="1.5"/>
-        <!-- Body panel lines -->
-        <line x1="20" y1="160" x2="340" y2="160" stroke="rgba(0,0,0,0.2)" stroke-width="1"/>
-        <line x1="100" y1="80" x2="100" y2="260" stroke="rgba(0,0,0,0.15)" stroke-width="1"/>
-        <line x1="200" y1="80" x2="200" y2="260" stroke="rgba(0,0,0,0.15)" stroke-width="1"/>
-        <line x1="280" y1="80" x2="280" y2="260" stroke="rgba(0,0,0,0.15)" stroke-width="1"/>
-        <!-- Cargo box top highlight -->
-        <rect x="20" y="80" width="320" height="12" rx="8" fill="rgba(255,255,255,0.15)"/>
-        <!-- Cab -->
-        <rect x="340" y="120" width="140" height="140" rx="10" fill="rgba(15,23,42,0.95)" stroke="rgba(249,115,22,0.3)" stroke-width="1.5"/>
-        <!-- Cab front slope -->
-        <path d="M340 120 L440 120 L480 155 L480 160 L340 160 Z" fill="rgba(15,23,42,0.98)"/>
-        <!-- Windshield -->
-        <path d="M350 125 L435 125 L470 152 L350 152 Z" fill="rgba(6,182,212,0.35)" stroke="rgba(6,182,212,0.3)" stroke-width="1"/>
-        <!-- Windshield shine -->
-        <path d="M355 127 L400 127 L400 148 L355 148 Z" fill="rgba(255,255,255,0.06)"/>
-        <!-- Side window -->
-        <rect x="345" y="168" width="60" height="45" rx="5" fill="rgba(6,182,212,0.25)" stroke="rgba(6,182,212,0.2)" stroke-width="1"/>
-        <!-- Headlights -->
-        <rect x="475" y="155" width="22" height="14" rx="4" fill="rgba(255,220,80,0.9)" filter="url(#glow)"/>
-        <rect x="475" y="175" width="22" height="10" rx="3" fill="rgba(255,150,50,0.7)"/>
-        <!-- Grill -->
-        <rect x="462" y="200" width="38" height="36" rx="4" fill="rgba(249,115,22,0.4)" stroke="rgba(249,115,22,0.3)" stroke-width="1"/>
-        <line x1="462" y1="210" x2="500" y2="210" stroke="rgba(249,115,22,0.6)" stroke-width="1.5"/>
-        <line x1="462" y1="220" x2="500" y2="220" stroke="rgba(249,115,22,0.6)" stroke-width="1.5"/>
-        <line x1="462" y1="230" x2="500" y2="230" stroke="rgba(249,115,22,0.6)" stroke-width="1.5"/>
-        <!-- Bumper -->
-        <rect x="455" y="236" width="55" height="16" rx="4" fill="rgba(249,115,22,0.6)"/>
-        <!-- Side mirror -->
-        <rect x="333" y="135" width="12" height="20" rx="3" fill="rgba(249,115,22,0.6)"/>
-        <!-- Exhaust pipe -->
-        <rect x="348" y="50" width="12" height="75" rx="5" fill="rgba(100,116,139,0.8)"/>
-        <ellipse cx="354" cy="50" rx="8" ry="4" fill="rgba(71,85,105,0.9)"/>
-        <!-- Smoke puffs -->
-        <circle cx="354" cy="38" r="6" fill="rgba(255,255,255,0.08)" class="smoke s1"/>
-        <circle cx="358" cy="24" r="8" fill="rgba(255,255,255,0.05)" class="smoke s2"/>
-        <circle cx="350" cy="12" r="10" fill="rgba(255,255,255,0.03)" class="smoke s3"/>
-
-        <!-- WHEELS -->
-        <!-- Wheel 1 -->
-        <circle cx="95" cy="270" r="44" fill="rgba(15,23,42,0.95)" stroke="rgba(249,115,22,0.4)" stroke-width="2"/>
-        <circle cx="95" cy="270" r="30" fill="rgba(30,41,59,0.9)" stroke="rgba(249,115,22,0.25)" stroke-width="1.5"/>
-        <circle cx="95" cy="270" r="14" fill="rgba(249,115,22,0.8)"/>
-        <circle cx="95" cy="270" r="6" fill="rgba(15,23,42,0.95)"/>
-        <!-- Wheel spokes -->
-        <line x1="95" y1="240" x2="95" y2="260" stroke="rgba(249,115,22,0.5)" stroke-width="2"/>
-        <line x1="95" y1="280" x2="95" y2="300" stroke="rgba(249,115,22,0.5)" stroke-width="2"/>
-        <line x1="65" y1="270" x2="85" y2="270" stroke="rgba(249,115,22,0.5)" stroke-width="2"/>
-        <line x1="105" y1="270" x2="125" y2="270" stroke="rgba(249,115,22,0.5)" stroke-width="2"/>
-        <!-- Wheel 2 -->
-        <circle cx="240" cy="270" r="44" fill="rgba(15,23,42,0.95)" stroke="rgba(249,115,22,0.4)" stroke-width="2"/>
-        <circle cx="240" cy="270" r="30" fill="rgba(30,41,59,0.9)" stroke="rgba(249,115,22,0.25)" stroke-width="1.5"/>
-        <circle cx="240" cy="270" r="14" fill="rgba(249,115,22,0.8)"/>
-        <circle cx="240" cy="270" r="6" fill="rgba(15,23,42,0.95)"/>
-        <line x1="240" y1="240" x2="240" y2="260" stroke="rgba(249,115,22,0.5)" stroke-width="2"/>
-        <line x1="240" y1="280" x2="240" y2="300" stroke="rgba(249,115,22,0.5)" stroke-width="2"/>
-        <line x1="210" y1="270" x2="230" y2="270" stroke="rgba(249,115,22,0.5)" stroke-width="2"/>
-        <line x1="250" y1="270" x2="270" y2="270" stroke="rgba(249,115,22,0.5)" stroke-width="2"/>
-        <!-- Wheel 3 (cab rear) -->
-        <circle cx="395" cy="275" r="38" fill="rgba(15,23,42,0.95)" stroke="rgba(249,115,22,0.4)" stroke-width="2"/>
-        <circle cx="395" cy="275" r="25" fill="rgba(30,41,59,0.9)"/>
-        <circle cx="395" cy="275" r="11" fill="rgba(249,115,22,0.8)"/>
-        <circle cx="395" cy="275" r="5" fill="rgba(15,23,42,0.95)"/>
-        <!-- Wheel 4 (cab front) -->
-        <circle cx="465" cy="275" r="38" fill="rgba(15,23,42,0.95)" stroke="rgba(249,115,22,0.4)" stroke-width="2"/>
-        <circle cx="465" cy="275" r="25" fill="rgba(30,41,59,0.9)"/>
-        <circle cx="465" cy="275" r="11" fill="rgba(249,115,22,0.8)"/>
-        <circle cx="465" cy="275" r="5" fill="rgba(15,23,42,0.95)"/>
-
-        <!-- Ground shadow -->
-        <ellipse cx="260" cy="316" rx="240" ry="8" fill="rgba(249,115,22,0.08)"/>
-
-        <!-- Headlight glow filter -->
-        <defs>
-          <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur stdDeviation="3" result="blur"/>
-            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-          </filter>
-        </defs>
-      </svg>
-
-      <!-- Orange glow under truck -->
-      <div style="position:absolute;bottom:40px;left:50%;transform:translateX(-50%);width:300px;height:30px;background:rgba(249,115,22,0.2);border-radius:50%;filter:blur(20px);z-index:1;"></div>
-    </div>
-  </div>
-
-  <!-- STATS BAR -->
-  <div class="sbar">
-    <div class="sbar-inner">
-      <div class="si" data-anim="fade-up">
-        <div class="si-num"><span class="counter" data-target="10000">0</span>+</div>
-        <div class="si-label">Parts in Stock</div>
-      </div>
-      <div class="si" data-anim="fade-up" data-delay="100">
-        <div class="si-num"><span class="counter" data-target="15">0</span>+</div>
-        <div class="si-label">Years Experience</div>
-      </div>
-      <div class="si" data-anim="fade-up" data-delay="200">
-        <div class="si-num"><span class="counter" data-target="50">0</span>+</div>
-        <div class="si-label">Brands Available</div>
-      </div>
-      <div class="si" data-anim="fade-up" data-delay="300">
-        <div class="si-num"><span class="counter" data-target="1000">0</span>+</div>
-        <div class="si-label">Happy Customers</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- BRANDS MARQUEE -->
-  <div class="bsec">
-    <div class="blbl">Brands & Partners We Stock</div>
-    <div class="mwrap">
-      <div class="mtrack">
-        <div class="bchip"><div class="bn">TATA</div><div class="bt">Trucks · Buses</div></div>
-        <div class="bchip"><div class="bn">LEYLAND</div><div class="bt">Ashok Leyland</div></div>
-        <div class="bchip"><div class="bn">TVS</div><div class="bt">Genuine Parts</div></div>
-        <div class="bchip"><div class="bn">GAJRA</div><div class="bt">Fan Clutch</div></div>
-        <div class="bchip"><div class="bn">TELCO</div><div class="bt">Tata Parts</div></div>
-        <div class="bchip"><div class="bn">CASTROL</div><div class="bt">Oils & Fluids</div></div>
-        <div class="bchip"><div class="bn">JCB</div><div class="bt">Heavy Equipment</div></div>
-        <div class="bchip"><div class="bn">TRACTOR</div><div class="bt">All Models</div></div>
-        <div class="bchip"><div class="bn">EICHER</div><div class="bt">Commercial</div></div>
-        <div class="bchip"><div class="bn">MAHINDRA</div><div class="bt">All Models</div></div>
-        <!-- Duplicate -->
-        <div class="bchip"><div class="bn">TATA</div><div class="bt">Trucks · Buses</div></div>
-        <div class="bchip"><div class="bn">LEYLAND</div><div class="bt">Ashok Leyland</div></div>
-        <div class="bchip"><div class="bn">TVS</div><div class="bt">Genuine Parts</div></div>
-        <div class="bchip"><div class="bn">GAJRA</div><div class="bt">Fan Clutch</div></div>
-        <div class="bchip"><div class="bn">TELCO</div><div class="bt">Tata Parts</div></div>
-        <div class="bchip"><div class="bn">CASTROL</div><div class="bt">Oils & Fluids</div></div>
-        <div class="bchip"><div class="bn">JCB</div><div class="bt">Heavy Equipment</div></div>
-        <div class="bchip"><div class="bn">TRACTOR</div><div class="bt">All Models</div></div>
-        <div class="bchip"><div class="bn">EICHER</div><div class="bt">Commercial</div></div>
-        <div class="bchip"><div class="bn">MAHINDRA</div><div class="bt">All Models</div></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- PRODUCTS -->
-  <div class="sec sec-prod">
-    <div class="con">
-      <div class="shc" data-anim="fade-up">
-        <div class="slbl">What We Stock</div>
-        <div class="stit">Thousands of Genuine Parts,<br>Ready for You</div>
-        <div class="ssub">From engine internals to exterior lights — if your vehicle needs it, we have it. Only original, genuine parts. Zero compromise.</div>
-      </div>
-      <div class="pgrid">
-        <div class="pcard" data-anim="zoom" data-delay="100"><span class="pci">⚙️</span><div class="pcn">Bearings</div><div class="pcc">All sizes & types</div></div>
-        <div class="pcard" data-anim="zoom" data-delay="200"><span class="pci">🌀</span><div class="pcn">Clutch Plates</div><div class="pcc">Pressure plates incl.</div></div>
-        <div class="pcard" data-anim="zoom" data-delay="300"><span class="pci">🔩</span><div class="pcn">Hub Bolts</div><div class="pcc">All vehicle models</div></div>
-        <div class="pcard" data-anim="zoom" data-delay="100"><span class="pci">⚡</span><div class="pcn">Terminals & Motors</div><div class="pcc">Electrical parts</div></div>
-        <div class="pcard" data-anim="zoom" data-delay="200"><span class="pci">🌿</span><div class="pcn">Leaf Springs</div><div class="pcc">Suspension system</div></div>
-        <div class="pcard" data-anim="zoom" data-delay="300"><span class="pci">💡</span><div class="pcn">LED & Headlights</div><div class="pcc">All lighting needs</div></div>
-        <div class="pcard" data-anim="zoom" data-delay="100"><span class="pci">🛢️</span><div class="pcn">Oils & Fluids</div><div class="pcc">Engine · Gear · Hydraulic</div></div>
-        <div class="pcard" data-anim="zoom" data-delay="200"><span class="pci">❄️</span><div class="pcn">Fans (Gajra)</div><div class="pcc">Radiator · Cooling</div></div>
-        <div class="pcard" data-anim="zoom" data-delay="300"><span class="pci">🔧</span><div class="pcn">Engine Parts</div><div class="pcc">Pistons · Rings · Valves</div></div>
-        <div class="pcard" data-anim="zoom" data-delay="100"><span class="pci">🏗️</span><div class="pcn">JCB Parts</div><div class="pcc">Heavy machinery</div></div>
-        <div class="pcard" data-anim="zoom" data-delay="200"><span class="pci">🚜</span><div class="pcn">Tractor Parts</div><div class="pcc">All tractor models</div></div>
-        <div class="pcard" data-anim="zoom" data-delay="300"><span class="pci">🛡️</span><div class="pcn">Brake System</div><div class="pcc">Drums · Shoes · Pads</div></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="odiv"></div>
-
-  <!-- WHY US -->
-  <div class="sec sec-why">
-    <div class="con">
-      <div class="shc" data-anim="fade-up">
-        <div class="slbl">Why Choose Us</div>
-        <div class="stit">Most Trusted in Patan Region</div>
-        <div class="ssub">Workshops, fleet owners and mechanics across Patan district choose us every time — for good reason.</div>
-      </div>
-      <div class="wgrid">
-        <div class="wcard" data-anim="fade-left" data-delay="100">
-          <div class="wic" style="background:rgba(249,115,22,0.1);">✅</div>
-          <div class="wt">100% Genuine Parts</div>
-          <div class="wd">Only original, manufacturer-certified parts. No duplicates, no cheap substitutes — your vehicle gets exactly what it deserves.</div>
+    <div class="hero-showcase">
+      <div class="canvas-3d-wrapper" id="heroCanvas3D">
+        <div class="mechanical-art"></div>
+        <div class="universal-cross">
+          <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5">
+            <path d="M12 2v20M2 12h20M12 6a6 6 0 1 0 0 12 6 6 0 1 0 0-12z" stroke-linecap="round"/>
+          </svg>
         </div>
-        <div class="wcard" data-anim="fade-left" data-delay="200">
-          <div class="wic" style="background:rgba(15,23,42,0.06);">🚀</div>
-          <div class="wt">Massive Ready Stock</div>
-          <div class="wd">10,000+ parts always in stock. Most available same day so your truck or machinery gets back on road fast.</div>
-        </div>
-        <div class="wcard" data-anim="fade-right" data-delay="100">
-          <div class="wic" style="background:rgba(5,150,105,0.1);">💬</div>
-          <div class="wt">Expert Guidance</div>
-          <div class="wd">Not sure which part fits? Our experienced team identifies the right component for your exact vehicle model.</div>
-        </div>
-        <div class="wcard" data-anim="fade-right" data-delay="200">
-          <div class="wic" style="background:rgba(124,58,237,0.08);">🤝</div>
-          <div class="wt">Trusted by Mechanics</div>
-          <div class="wd">Consistent quality, honest pricing, reliable supply — that's why mechanics across Patan keep coming back.</div>
+        <div class="shock-spring">
+          <svg width="100%" height="100%" viewBox="0 0 100 200" fill="none">
+            <path d="M10 20 C 90 40, 90 60, 10 80 C 90 100, 90 120, 10 140 C 90 160, 90 180, 10 200" stroke="var(--primary)" stroke-width="4" stroke-linecap="round" fill="none"/>
+          </svg>
         </div>
       </div>
     </div>
-  </div>
+  </section>
 
-  <!-- PROCESS / HOW IT WORKS -->
-  <div class="sec sec-proc">
-    <div class="con">
-      <div class="shc" data-anim="fade-up">
-        <div class="slbl">How It Works</div>
-        <div class="stit" style="color:white;">Simple, Fast, Reliable</div>
-        <div class="ssub">Getting your genuine spare part is easy — we make sure of that.</div>
+  <section class="stats-banner" data-scroll-reveal>
+    <div class="stats-grid">
+      <div class="stat-node"><div class="num" data-target="10000">0</div><div class="lbl">In-Stock Metrics</div></div>
+      <div class="stat-node"><div class="num" data-target="15">0</div><div class="lbl">Years of Authority</div></div>
+      <div class="stat-node"><div class="num" data-target="50">0</div><div class="lbl">Premium Partners</div></div>
+      <div class="stat-node"><div class="num" data-target="1000">0</div><div class="lbl">Verified Clienteles</div></div>
+    </div>
+  </section>
+
+  <section class="section" id="products">
+    <div class="sec-header" data-scroll-reveal>
+      <span class="sec-label">AUTHENTIC CATALOG SYSTEM</span>
+      <h3 class="sec-title">Engineered Components Uncompromised</h3>
+    </div>
+    <div class="product-mosaic">
+      <div class="product-card" data-scroll-reveal class="delay-100"><span class="prod-icon">⚙️</span><h4 class="prod-title">Bearings Component</h4><p class="prod-desc">High radial endurance systems designed for continuous deployment vectors.</p></div>
+      <div class="product-card" data-scroll-reveal class="delay-200"><span class="prod-icon">🌀</span><h4 class="prod-title">Clutch Assemblies</h4><p class="prod-desc">Fluid mechanical pressure designs stabilizing structural torque transmission.</p></div>
+      <div class="product-card" data-scroll-reveal class="delay-300"><span class="prod-icon">🔩</span><h4 class="prod-title">High-Grade Hub Bolts</h4><p class="prod-desc">Industrial structural fasteners matching load capability regulations.</p></div>
+      <div class="product-card" data-scroll-reveal><span class="prod-icon">🌿</span><h4 class="prod-title">Leaf Spring Layouts</h4><p class="prod-desc">High flexibility heavy-load suspension packages designed for durability.</p></div>
+      <div class="product-card" data-scroll-reveal class="delay-100"><span class="prod-icon">🛢️</span><h4 class="prod-title">Oils & Fluid Formulations</h4><p class="prod-desc">Castrol performance blends optimizing thermal dynamic profiles.</p></div>
+      <div class="product-card" data-scroll-reveal class="delay-200"><span class="prod-icon">❄️</span><h4 class="prod-title">Gajra Cooling Systems</h4><p class="prod-desc">High-efficiency cooling fans minimizing structural thermal spikes.</p></div>
+    </div>
+  </section>
+
+  <section class="section" style="background: var(--bg-subtle); border-radius: 40px;">
+    <div class="sec-header" data-scroll-reveal>
+      <span class="sec-label">INTEGRITY PILLARS</span>
+      <h3 class="sec-title">Why Logistics Leaders Choose Abhinandan</h3>
+    </div>
+    <div class="features-box">
+      <div class="feature-tile" data-scroll-reveal><h3 class="prod-title">100% Proven Originals</h3><p class="prod-desc">We strictly stock certified brand line outputs. Zero duplicate components allowed across our storage ecosystems.</p></div>
+      <div class="feature-tile" data-scroll-reveal class="delay-100"><h3 class="prod-title">Ready Infrastructure Stock</h3><p class="prod-desc">Over 10,000 components cataloged on site to avoid downtime across logistics operations.</p></div>
+      <div class="feature-tile" data-scroll-reveal class="delay-200"><h3 class="prod-title">Patan District Leadership</h3><p class="prod-desc">The primary choice for heavy mechanics and fleet systems seeking precision configurations.</p></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="sec-header" data-scroll-reveal>
+      <span class="sec-label">CLIENT RESPONSE TRACK</span>
+      <h3 class="sec-title">What Operators Are Saying</h3>
+    </div>
+    <div class="reviews-scroller" id="revGrid">
+      <div class="review-envelope" data-scroll-reveal>
+        <div class="stars-row">★★★★★</div>
+        <p class="prod-desc" style="font-style: italic; margin-bottom: 20px;">"The primary hub for TATA vehicle configuration architectures in Patan. Absolute consistency."</p>
+        <h5 class="prod-title" style="font-size: 15px;">Ramesh Patel</h5><span style="font-size: 12px; color: var(--text-muted);">Fleet Configuration Manager</span>
       </div>
-      <div class="tgrid">
-        <div class="tcard" data-anim="zoom" data-delay="100">
-          <div class="tstep">01</div>
-          <div class="tt">Visit or Call Us</div>
-          <div class="td">Come to our store on Kandla National Highway Road or call us on 9825259065</div>
-        </div>
-        <div class="tcard" data-anim="zoom" data-delay="200">
-          <div class="tstep">02</div>
-          <div class="tt">Tell Us Your Need</div>
-          <div class="td">Share your vehicle model and the part you need — our team will identify it accurately</div>
-        </div>
-        <div class="tcard" data-anim="zoom" data-delay="300">
-          <div class="tstep">03</div>
-          <div class="tt">Get Genuine Parts</div>
-          <div class="td">We provide 100% genuine, certified parts at honest pricing from our massive ready stock</div>
-        </div>
-        <div class="tcard" data-anim="zoom" data-delay="400">
-          <div class="tstep">04</div>
-          <div class="tt">Back on Road</div>
-          <div class="td">Your vehicle runs stronger with genuine parts — quality you can trust every single time</div>
-        </div>
+      <div class="review-envelope" data-scroll-reveal class="delay-100">
+        <div class="stars-row">★★★★★</div>
+        <p class="prod-desc" style="font-style: italic; margin-bottom: 20px;">"Sourcing Castrol and Gajra solutions here for multiple years. Pure original compliance standards."</p>
+        <h5 class="prod-title" style="font-size: 15px;">Suresh Motor Works</h5><span style="font-size: 12px; color: var(--text-muted);">Workshop Infrastructure Lead</span>
       </div>
     </div>
-  </div>
+  </section>
 
-  <!-- REVIEWS -->
-  <div class="sec sec-rev">
-    <div class="con">
-      <div class="shc" data-anim="fade-up">
-        <div class="slbl">Customer Reviews</div>
-        <div class="stit">What Our Customers Say</div>
+  <section class="section">
+    <div class="feedback-hub" data-scroll-reveal>
+      <span class="sec-label" style="text-align: center;">REVIEW ENGINE PLATFORM</span>
+      <h3 class="sec-title" style="text-align: center; margin-bottom: 32px;">Transmit Your Verification</h3>
+      <div class="input-group"><label>Identity Descriptor *</label><input type="text" id="fbn" placeholder="Full name structure"></div>
+      <div class="input-group"><label>Vehicle Framework / Operational Context</label><input type="text" id="fbv" placeholder="e.g. TATA Heavy Haulage, JCB Framework"></div>
+      <div class="input-group">
+        <label>System Evaluation Metric *</label>
+        <div class="rating-selector" id="srow"><span onclick="assignMetricValue(1)">★</span><span onclick="assignMetricValue(2)">★</span><span onclick="assignMetricValue(3)">★</span><span onclick="assignMetricValue(4)">★</span><span onclick="assignMetricValue(5)">★</span></div>
       </div>
-      <div class="rgrid" id="revGrid">
-        <div class="rcard" data-anim="fade-up" data-delay="100">
-          <div class="rstars">★★★★★</div>
-          <div class="rtext">"Best place for Tata truck parts in Patan. Got bearings and hub bolts same day. Very helpful and knowledgeable staff."</div>
-          <div class="rauth">Ramesh Patel</div><div class="rveh">Tata 1109 Owner · Patan</div>
-        </div>
-        <div class="rcard" data-anim="fade-up" data-delay="200">
-          <div class="rstars">★★★★★</div>
-          <div class="rtext">"Genuine parts at fair prices. Buying clutch plates from here for 2+ years. Never had a single quality issue."</div>
-          <div class="rauth">Suresh Motor Works</div><div class="rveh">Workshop Owner · Santalpur</div>
-        </div>
-        <div class="rcard" data-anim="fade-up" data-delay="300">
-          <div class="rstars">★★★★☆</div>
-          <div class="rtext">"Had the Leyland leaf spring when no one else in district did. Very reliable shop with massive stock."</div>
-          <div class="rauth">Mahesh Bhai</div><div class="rveh">Ashok Leyland Fleet Owner</div>
-        </div>
+      <div class="input-group"><label>Detailed Operational Review *</label><textarea id="fbt" style="width:100%; padding:14px; background:var(--bg-main); border:1px solid var(--glass-border); border-radius:14px; min-height:120px; font-family:inherit; outline:none;"></textarea></div>
+      <button class="auth-btn" style="background: var(--primary);" onclick="commitReviewNode()">Transmit System Validation</button>
+      <div id="fbok" style="display:none; text-align:center; margin-top:20px; color: var(--accent); font-weight:600;">✓ Verification data merged successfully. Thank you.</div>
+    </div>
+  </section>
+
+  <footer class="mega-footer">
+    <div class="footer-matrix">
+      <div class="footer-brand">
+        <h2>ABHINANDAN</h2>
+        <p style="color: rgba(252,251,247,0.5); font-size: 14px; line-height: 1.6; max-width: 460px;">
+          Near Referral Hospital, Kandla National Highway Road,<br>
+          Santalpur, District Patan — 385350, Gujarat, India.
+        </p>
+      </div>
+      <div class="footer-links">
+        <span style="color: var(--accent); font-weight:700; font-size:14px;">CALL INFRASTRUCTURE</span>
+        <a href="tel:+919870037002" class="footer-link" style="font-size: 20px; font-weight:700; color: var(--bg-main);">+91 9870037002</a>
+        <p style="color: rgba(252,251,247,0.3); font-size: 12px; margin-top: 16px;">© 2026 Abhinandan Auto Mobiles. Architectural Evolution.</p>
       </div>
     </div>
-  </div>
+  </footer>
 
-  <!-- FEEDBACK -->
-  <div class="sec sec-fb" id="feedback">
-    <div class="con">
-      <div class="shc" data-anim="fade-up">
-        <div class="slbl">Share Your Experience</div>
-        <div class="stit">Leave Us a Review</div>
-        <div class="ssub">Your feedback helps us improve and helps other customers trust us.</div>
-      </div>
-      <div class="fbw" data-anim="zoom">
-        <div class="fbr">
-          <div class="fbf"><label>Name *</label><input type="text" id="fbn" placeholder="Full name"></div>
-          <div class="fbf"><label>Phone (optional)</label><input type="tel" id="fbp" placeholder="Mobile number"></div>
-        </div>
-        <div class="fbf"><label>Vehicle / Business</label><input type="text" id="fbv" placeholder="e.g. Tata 407, Leyland, JCB, Workshop..."></div>
-        <div class="fbf">
-          <label>Rating *</label>
-          <div class="srow" id="srow"><span onclick="setStar(1)">★</span><span onclick="setStar(2)">★</span><span onclick="setStar(3)">★</span><span onclick="setStar(4)">★</span><span onclick="setStar(5)">★</span></div>
-        </div>
-        <div class="fbf"><label>Your Review *</label><textarea id="fbt" placeholder="Tell us about your experience..."></textarea></div>
-        <button class="fbsub" onclick="submitFB()">⭐ Submit My Review</button>
-        <div class="fbok" id="fbok">✅ Thank you! Your review has been received. We really appreciate it.</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- LOCATION -->
-  <div class="sec sec-loc">
-    <div class="con">
-      <div class="shc" data-anim="fade-up">
-        <div class="slbl">Find Us</div>
-        <div class="stit">Visit Our Store in Santalpur</div>
-      </div>
-      <div class="locw" data-anim="zoom">
-        <div class="locb">
-          <div class="locl">
-            <div class="loci">
-              <div class="locic">📍</div>
-              <div class="loct">
-                <strong>Address</strong>
-                <span>Nr. Refaral Hospital,<br>Kandla National Highway Road,<br>Santalpur, Dist. Patan – 385350<br>Gujarat, India</span>
-              </div>
-            </div>
-            <div class="loci">
-              <div class="locic">🕐</div>
-              <div class="loct"><strong>Business Hours</strong><span>Mon – Sat: 9:00 AM – 7:00 PM<br>Sunday: 10:00 AM – 2:00 PM</span></div>
-            </div>
-            <a href="https://maps.app.goo.gl/QBDi2SPd5LXC6mHb8" target="_blank" class="mbtn">🗺️ Open in Google Maps</a>
-          </div>
-          <div class="locr">
-            <div class="loci">
-              <div class="locic" style="background:rgba(52,211,153,0.12);border-color:rgba(52,211,153,0.25);">📞</div>
-              <div class="loct"><strong>Call Us</strong><span>9825259065<br>9870037002</span></div>
-            </div>
-            <div class="loci">
-              <div class="locic" style="background:rgba(249,115,22,0.1);">✦</div>
-              <div class="loct"><strong>Specialization</strong><span>All types of genuine spareparts for Tata, Ashok Leyland, TVS, JCB, Tractors and all commercial vehicles</span></div>
-            </div>
-            <a href="https://wa.me/919825259065" target="_blank" class="wbtn">💬 WhatsApp Us</a>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- FOOTER -->
-  <div class="pfoot">
-    <div class="pfn">Abhinandan Auto Mobiles</div>
-    <div class="pfs">
-      All Type of Genuine Spare Parts · TATA · TVS · GAJRA · TELCO · CASTROL · Ashok Leyland<br>
-      Nr. Refaral Hospital, Kandla National Highway Road, Santalpur, Dist. Patan – 385350
-    </div>
-    <div class="pflinks">
-      <a href="https://maps.app.goo.gl/QBDi2SPd5LXC6mHb8" target="_blank" class="pfl">📍 Directions</a>
-      <a href="https://wa.me/919825259065" target="_blank" class="pfl">💬 WhatsApp</a>
-      <a href="#feedback" class="pfl">⭐ Review</a>
-      <a href="#" onclick="goBack();return false;" class="pfl">🔐 Staff Login</a>
-    </div>
-  </div>
-
-</div><!-- end portal -->
-
+</div>
 
 <script>
-/* ── SUPABASE ── */
-var _se=document.createElement('script')
-_se.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js'
-_se.onload=function(){window._sb=window.supabase.createClient('https://mhhnmndnolhapaoqtbxo.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1oaG5tbmRub2xoYXBhb3F0YnhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4Mzg4NTksImV4cCI6MjA4ODQxNDg1OX0.IMSp8vYiCln_iSuoT_H2qdeX_dP1WMhOOskDw20eJXw')}
-document.head.appendChild(_se)
+/* ── INJECT DATABASE CORE ENGINE ── */
+var _se = document.createElement('script');
+_se.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js';
+_se.onload = function() {
+  window._sb = window.supabase.createClient('https://mhhnmndnolhapaoqtbxo.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1oaG5tbmRub2xoYXBhb3F0YnhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4Mzg4NTksImV4cCI6MjA4ODQxNDg1OX0.IMSp8vYiCln_iSuoT_H2qdeX_dP1WMhOOskDw20eJXw');
+};
+document.head.appendChild(_se);
 
-/* ── SESSION CHECK ── */
-;(function(){
-  try{
-    var r=localStorage.getItem('aam_erp_session');if(!r)return;
-    var s=JSON.parse(r);
-    if(s&&s.role&&s.username&&s.expiry&&Date.now()<s.expiry){window.location.replace(s.role==='staff'?'billing.html':'dashboard.html');}
-    else if(s&&s.expiry&&Date.now()>=s.expiry){localStorage.removeItem('aam_erp_session');}
-  }catch(e){localStorage.removeItem('aam_erp_session');}
-})()
+/* ── CONFIG CONTROLS ── */
+var globalRole = 'owner';
 
-/* ── ROLE SELECT ── */
-function selR(r){
-  document.getElementById('btnO').className='eb'+(r==='owner'?' ao':'');
-  document.getElementById('btnS').className='eb'+(r==='staff'?' as':'');
+function switchRole(role) {
+  globalRole = role;
+  document.getElementById('btnO').className = 'role-btn' + (role === 'owner' ? ' active' : '');
+  document.getElementById('btnS').className = 'role-btn' + (role === 'staff' ? ' active' : '');
 }
-document.addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();})
 
-/* ── LOGIN ── */
-async function doLogin(){
-  var u=document.getElementById('un').value.trim();
-  var p=document.getElementById('up').value;
-  if(!u||!p){showE('Please enter both username and password');return;}
-  var btn=document.getElementById('lbtn');
-  btn.disabled=true;btn.innerText='⏳ Verifying...';hideE();
-  for(var i=0;i<60&&!window._sb;i++)await new Promise(r=>setTimeout(r,100));
-  if(!window._sb){showE('Connection error. Please refresh.');btn.disabled=false;btn.innerText='🔐 Login to ERP';return;}
-  try{
-    var res=await window._sb.from('users').select('*').eq('username',u.toLowerCase()).eq('password',p).eq('is_active',true).single();
-    if(res.error||!res.data){showE('Invalid username or password.');btn.disabled=false;btn.innerText='🔐 Login to ERP';return;}
-    var user=res.data,now=Date.now();
-    localStorage.setItem('aam_erp_session',JSON.stringify({username:user.username,role:user.role,full_name:user.full_name||user.username,loginTime:now,expiry:now+30*24*60*60*1000}));
-    btn.innerText='✅ Welcome!';
-    setTimeout(function(){window.location.href=user.role==='owner'?'dashboard.html':'billing.html';},350);
-  }catch(e){showE('Connection error. Please try again.');btn.disabled=false;btn.innerText='🔐 Login to ERP';}
+function launchVisitorFlow() { document.getElementById('vmod').classList.add('show'); document.getElementById('vName').focus(); }
+function dismissVisitorFlow() { document.getElementById('vmod').classList.remove('show'); }
+
+async function executeLoginChain() {
+  var u = document.getElementById('un').value.trim();
+  var p = document.getElementById('up').value;
+  if (!u || !p) { triggerErrorNotice('Provide credentials.'); return; }
+  
+  var btn = document.getElementById('lbtn');
+  btn.disabled = true; btn.innerText = 'Verifying security signature...';
+  
+  for (var i = 0; i < 40 && !window._sb; i++) await new Promise(r => setTimeout(r, 100));
+  if (!window._sb) { triggerErrorNotice('Infrastructure linking timed out.'); btn.disabled = false; return; }
+
+  try {
+    var res = await window._sb.from('users').select('*').eq('username', u.toLowerCase()).eq('password', p).eq('is_active', true).single();
+    if (res.error || !res.data) { triggerErrorNotice('Signature check failed.'); btn.disabled = false; btn.innerText = 'Initialize ERP Session'; return; }
+    
+    btn.innerText = 'Access Authorized.';
+    setTimeout(function() { window.location.href = res.data.role === 'owner' ? 'dashboard.html' : 'billing.html'; }, 400);
+  } catch(e) { triggerErrorNotice('Transmission fault.'); btn.disabled = false; }
 }
-function showE(m){document.getElementById('errM').innerText=m;document.getElementById('errB').style.display='block';}
-function hideE(){document.getElementById('errB').style.display='none';}
 
-/* ── VISITOR MODAL ── */
-function openV(){document.getElementById('vmod').classList.add('show');setTimeout(function(){document.getElementById('vName').focus();},150);}
-function closeV(){document.getElementById('vmod').classList.remove('show');}
-async function enterPortal(skip){
-  var name=(document.getElementById('vName').value||'').trim();
-  var phone=(document.getElementById('vPhone').value||'').trim();
-  if(!skip&&!name){var i=document.getElementById('vName');i.style.borderColor='#dc2626';i.focus();setTimeout(function(){i.style.borderColor='';},2000);return;}
-  if(!skip&&name){
-    for(var i=0;i<30&&!window._sb;i++)await new Promise(r=>setTimeout(r,100));
-    if(window._sb)window._sb.from('website_visitors').insert({name:name,phone:phone||''}).then(function(){});
+function triggerErrorNotice(msg) { var e = document.getElementById('errB'); document.getElementById('errM').innerText = msg; e.style.display = 'block'; }
+
+async function enterPortal(skip) {
+  var name = document.getElementById('vName').value.trim();
+  var phone = document.getElementById('vPhone').value.trim();
+  if (!skip && !name) { document.getElementById('vName').style.borderColor = '#dc2626'; return; }
+  
+  if (!skip && name && window._sb) {
+    window._sb.from('website_visitors').insert({ name: name, phone: phone || '' }).then(function(){});
   }
-  closeV();
+  
+  dismissVisitorFlow();
   document.getElementById('loginScreen').classList.add('hide');
-  setTimeout(function(){
-    document.getElementById('portalScreen').classList.add('show');
-    window.scrollTo(0,0);
-    setTimeout(function(){initScrollAnim();initCounters();},200);
-  },600);
+  var portal = document.getElementById('portalScreen');
+  portal.className = 'show';
+  window.scrollTo(0,0);
+  
+  setTimeout(function() {
+    initScrollInterpolationEngine();
+    initChronoCounters();
+  }, 300);
 }
-function goBack(){
-  document.getElementById('portalScreen').classList.remove('show');
+
+function terminateSession() {
+  document.getElementById('portalScreen').className = '';
   document.getElementById('loginScreen').classList.remove('hide');
 }
 
-/* ── SCROLL ANIMATION ENGINE ── */
-function initScrollAnim(){
-  var els=document.querySelectorAll('#portalScreen [data-anim]');
-  var obs=new IntersectionObserver(function(entries){
-    entries.forEach(function(e){
-      if(e.isIntersecting){
-        e.target.classList.add('anim-done');
-        obs.unobserve(e.target);
+/* ── ADVANCED INTERSECTION SYSTEM ARCHITECTURE (SCROLL REVEAL) ── */
+function initScrollInterpolationEngine() {
+  var revealNodes = document.querySelectorAll('[data-scroll-reveal]');
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('revealed');
+        observer.unobserve(entry.target);
       }
     });
-  },{threshold:0.12,rootMargin:'0px 0px -40px 0px'});
-  els.forEach(function(el){obs.observe(el);});
+  }, { threshold: 0.15 });
+  revealNodes.forEach(function(node) { observer.observe(node); });
 }
 
-/* ── NUMBER COUNTER ANIMATION ── */
-function initCounters(){
-  var counters=document.querySelectorAll('.counter');
-  var obs=new IntersectionObserver(function(entries){
-    entries.forEach(function(entry){
-      if(entry.isIntersecting){
-        var el=entry.target;
-        var target=parseInt(el.getAttribute('data-target'));
-        var duration=1800;
-        var start=performance.now();
-        function update(now){
-          var elapsed=now-start;
-          var progress=Math.min(elapsed/duration,1);
-          // Ease out cubic
-          var ease=1-Math.pow(1-progress,3);
-          var current=Math.round(target*ease);
-          // Format with commas for large numbers
-          el.innerText=current>=1000?(current/1000).toFixed(current>=10000?0:1)+'K':current;
-          if(progress<1)requestAnimationFrame(update);
-          else el.innerText=target>=1000?(target>=10000?Math.round(target/1000)+'K':(target/1000).toFixed(1)+'K'):target;
+/* ── KINETIC RUNTIME METRIC COUNTERS ── */
+function initChronoCounters() {
+  var counters = document.querySelectorAll('.num');
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        var node = entry.target;
+        var targetValue = parseInt(node.getAttribute('data-target'));
+        var startTimestamp = null;
+        var limit = 2000;
+        
+        function tick(now) {
+          if (!startTimestamp) startTimestamp = now;
+          var elapsed = now - startTimestamp;
+          var progress = Math.min(elapsed / limit, 1);
+          var easeProgress = 1 - Math.pow(1 - progress, 4); // Quartic Ease Out
+          var currentVal = Math.round(targetValue * easeProgress);
+          
+          node.innerText = currentVal >= 1000 ? (currentVal / 1000).toFixed(0) + 'K+' : currentVal + '+';
+          if (progress < 1) requestAnimationFrame(tick);
         }
-        requestAnimationFrame(update);
-        obs.unobserve(el);
+        requestAnimationFrame(tick);
+        observer.unobserve(node);
       }
     });
-  },{threshold:0.5});
-  counters.forEach(function(c){obs.observe(c);});
+  }, { threshold: 0.5 });
+  counters.forEach(function(c) { observer.observe(c); });
 }
 
-/* ── STAR RATING ── */
-var starV=0;
-function setStar(n){
-  starV=n;
-  var s=document.getElementById('srow').children;
-  for(var i=0;i<5;i++)s[i].className=i<n?'lit':'';
-}
-
-/* ── FEEDBACK SUBMIT ── */
-async function submitFB(){
-  var n=document.getElementById('fbn').value.trim();
-  var p=document.getElementById('fbp').value.trim();
-  var v=document.getElementById('fbv').value.trim();
-  var t=document.getElementById('fbt').value.trim();
-  if(!n||!t||!starV){alert('Please fill your name, rating and review.');return;}
-  for(var i=0;i<30&&!window._sb;i++)await new Promise(r=>setTimeout(r,100));
-  if(window._sb)window._sb.from('website_visitors').insert({name:n,phone:p||'',review_text:t,rating:starV,vehicle:v||''}).then(function(){});
-  var card=document.createElement('div');card.className='rcard';
-  card.innerHTML='<div class="rstars" style="color:#f59e0b;">'+'★'.repeat(starV)+'☆'.repeat(5-starV)+'</div><div class="rtext">"'+t+'"</div><div class="rauth">'+n+'</div><div class="rveh">'+(v||'Customer')+'</div>';
-  document.getElementById('revGrid').insertBefore(card,document.getElementById('revGrid').firstChild);
-  document.getElementById('fbok').style.display='block';
-  document.getElementById('fbn').value='';document.getElementById('fbp').value='';
-  document.getElementById('fbv').value='';document.getElementById('fbt').value='';
-  setStar(0);
-}
-
-/* ── PARALLAX on hero truck ── */
-document.addEventListener('scroll',function(){
-  var truck=document.querySelector('.hero-truck');
-  if(truck&&document.getElementById('portalScreen').classList.contains('show')){
-    var y=window.scrollY;
-    truck.style.transform='translateY('+(-y*0.08-Math.sin(Date.now()/3000)*10)+'px)';
+/* ── 3D MOUSE & SCROLL PHYISCS INTERPOLATION LAYER ── */
+var wrapper3D = document.getElementById('heroCanvas3D');
+document.addEventListener('mousemove', function(e) {
+  if(document.getElementById('portalScreen').classList.contains('show')) {
+    var xAxis = (window.innerWidth / 2 - e.pageX) / 35;
+    var yAxis = (window.innerHeight / 2 - e.pageY) / 35;
+    wrapper3D.style.transform = "rotateY(" + xAxis + "deg) rotateX(" + yAxis + "deg)";
   }
 });
 
-/* ── Smoke animation ── */
-var smokes=document.querySelectorAll('.smoke');
-smokes.forEach(function(s,i){
-  s.style.animation='smokerise '+(2+i*0.5)+'s ease-out '+(i*0.3)+'s infinite';
+window.addEventListener('scroll', function() {
+  if(document.getElementById('portalScreen').classList.contains('show')) {
+    var scrollOffset = window.scrollY;
+    wrapper3D.style.transform = "translateY(" + (scrollOffset * 0.12) + "px) rotateZ(" + (scrollOffset * 0.04) + "deg)";
+  }
 });
-var ss=document.createElement('style');
-ss.textContent='@keyframes smokerise{0%{opacity:0.4;transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(-30px) scale(2)}}';
-document.head.appendChild(ss);
+
+/* ── METRIC FEEDBACK ENGINE SYSTEM ── */
+var selectedMetricVal = 0;
+function assignMetricValue(n) {
+  selectedMetricVal = n;
+  var stars = document.getElementById('srow').children;
+  for(var i = 0; i < 5; i++) { stars[i].className = i < n ? 'active' : ''; }
+}
+
+function commitReviewNode() {
+  var name = document.getElementById('fbn').value.trim();
+  var ctx = document.getElementById('fbv').value.trim();
+  var text = document.getElementById('fbt').value.trim();
+  if (!name || !text || !selectedMetricVal) { alert('Validation requires explicit parameter metrics.'); return; }
+  
+  if (window._sb) {
+    window._sb.from('website_visitors').insert({ name: name, review_text: text, rating: selectedMetricVal, vehicle: ctx }).then(function(){});
+  }
+
+  var node = document.createElement('div'); node.className = 'review-envelope';
+  node.innerHTML = '<div class="stars-row">' + '★'.repeat(selectedMetricVal) + '☆'.repeat(5 - selectedMetricVal) + '</div><p class="prod-desc" style="font-style:italic; margin-bottom:20px;">"' + text + '"</p><h5 class="prod-title" style="font-size:15px;">' + name + '</h5><span style="font-size:12px; color:var(--text-muted);">' + (ctx || 'System User') + '</span>';
+  
+  var grid = document.getElementById('revGrid');
+  grid.insertBefore(node, grid.firstChild);
+  
+  document.getElementById('fbok').style.display = 'block';
+  document.getElementById('fbn').value = ''; document.getElementById('fbv').value = ''; document.getElementById('fbt').value = '';
+  assignMetricValue(0);
+}
 </script>
 </body>
 </html>
