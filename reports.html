@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <script src="auth.js"></script>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Reports — Abhinandan Auto Mobiles</title>
@@ -743,7 +742,7 @@ async function loadSales(range) {
     const [salesRes, retRes] = await Promise.all([
       supabase.from('sales')
         .select('id,bill_number,created_at,total_amount,cash,upi,credit,discount,customer_id')
-        .eq('bill_type','sale')
+        .or('bill_type.eq.sale,bill_type.is.null')
         .gte('created_at', range.from + 'T00:00:00')
         .lte('created_at', range.to   + 'T23:59:59')
         .order('created_at', { ascending: false }),
@@ -1401,12 +1400,35 @@ window.exportCSV = function(tab) {
 // INIT — runs after DOM is ready
 // ═══════════════════════════════════════
 function initReports() {
-  // Set "This Month" as default period
   document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'))
   const monthBtn = document.querySelectorAll('.period-btn')[2]
   if (monthBtn) monthBtn.classList.add('active')
   currentPeriod = 'month'
-  loadTab('sales')
+
+  // Test Supabase connection first — shows a clear error if DB is unreachable
+  supabase.from('sales').select('id').limit(1).then(res => {
+    if (res.error) {
+      document.getElementById('salesKpis').innerHTML = `
+        <div style="grid-column:1/-1;background:rgba(220,38,38,0.1);border:1px solid rgba(220,38,38,0.3);
+                    border-radius:14px;padding:28px;text-align:center;color:#f87171;">
+          <div style="font-size:28px;margin-bottom:10px;">⚠️</div>
+          <div style="font-size:16px;font-weight:700;margin-bottom:8px;">Database Connection Failed</div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.5);margin-bottom:16px;">
+            Error: ${res.error.message}<br><br>
+            This usually means your Supabase project is paused (free tier pauses after 7 days).<br>
+            Go to <strong style="color:#60a5fa;">supabase.com</strong> → your project → click <strong style="color:#60a5fa;">Resume</strong>, wait 30 seconds, then refresh.
+          </div>
+          <button onclick="location.reload()" style="background:#2563eb;border:none;color:white;padding:10px 24px;border-radius:8px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;">
+            🔄 Refresh Page
+          </button>
+        </div>`
+      document.getElementById('salesChart').innerHTML = ''
+      document.getElementById('salesPaySplit').innerHTML = ''
+      document.getElementById('salesBody').innerHTML = ''
+    } else {
+      loadTab('sales')
+    }
+  })
 }
 
 if (document.readyState === 'loading') {
@@ -2495,6 +2517,7 @@ window.downloadBalanceSheetPDF = function() {
   </div>
 </div>
   
+<script src="auth.js"></script>
 </body>
 </html>
 
