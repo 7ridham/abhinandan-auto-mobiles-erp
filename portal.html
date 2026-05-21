@@ -4,1750 +4,1315 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Abhinandan Auto Mobiles — Genuine Spare Parts</title>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&family=Playfair+Display:wght@500;700;800&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Playfair+Display:wght@700;800&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
-/* ═══════════════════════════════════════════
-   ROOT & RESET
-═══════════════════════════════════════════ */
+/* ═══════ RESET & ROOT ═══════ */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 :root{
-  --sky1:#87ceeb;--sky2:#ffd89b;--sky3:#4a90d9;--sky4:#ff9a56;--sky5:#2c3e6b;
-  --road:#3a3a3a;--lane:#f5c842;
-  --gold:#d97706;--gold2:#fbbf24;
-  --navy:#0c1340;--white:#fff;
-  --green:#166534;--mountain:#7c9cbf;
-  --text:#1a1a2e;
+  --gold:#e8a020;--gold2:#f5c842;
+  --warm:#c8704a;--sky:#e8b4a0;
+  --navy:#0d1a2e;--cream:#fdf6ee;
+  --text:#1a0f00;--muted:#7a6a58;
 }
 html{scroll-behavior:auto;}
 body{
   font-family:'DM Sans',sans-serif;
-  background:#1a1a2e;
+  background:#1a0f00;
   color:var(--text);
-  overflow-x:hidden;
+  overflow:hidden;   /* IMPORTANT: we control scroll manually */
+  height:100vh;
   cursor:none;
 }
-a{text-decoration:none;color:inherit;}
 
-/* ═══════════════════════════════════════════
-   CUSTOM CURSOR
-═══════════════════════════════════════════ */
-#cursor-dot{position:fixed;width:10px;height:10px;background:var(--gold);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:width .2s,height .2s,background .2s;}
-#cursor-ring{position:fixed;width:36px;height:36px;border:2px solid rgba(217,119,6,0.5);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:width .08s,height .08s;}
-@media(hover:none){#cursor-dot,#cursor-ring{display:none;}body{cursor:auto;}}
+/* ═══════ CURSOR ═══════ */
+#cur{position:fixed;width:10px;height:10px;background:var(--gold2);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);mix-blend-mode:difference;}
+#cur2{position:fixed;width:38px;height:38px;border:1.5px solid rgba(245,200,66,0.5);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:all .12s;}
+@media(hover:none){#cur,#cur2{display:none;}body{cursor:auto;}}
 
-/* ═══════════════════════════════════════════
-   GAME VIEWPORT — fixed, full screen
-═══════════════════════════════════════════ */
-#game-viewport{
-  position:fixed;
-  top:0;left:0;
-  width:100vw;height:100vh;
-  z-index:0;
-  overflow:hidden;
+/* ═══════ CANVAS ═══════ */
+#c{position:fixed;top:0;left:0;width:100%;height:100%;display:block;z-index:0;}
+
+/* ═══════ GRAIN OVERLAY ═══════ */
+#grain{
+  position:fixed;inset:0;z-index:5;pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  opacity:0.35;animation:grainA 0.3s steps(1) infinite;
 }
-#game-canvas{
-  width:100%;height:100%;
-  display:block;
+@keyframes grainA{0%{background-position:0 0}25%{background-position:-50px -30px}50%{background-position:30px 20px}75%{background-position:-20px 40px}100%{background-position:10px -10px}}
+
+/* ═══════ NAV ═══════ */
+#nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 36px;height:64px;
+  background:linear-gradient(180deg,rgba(13,10,5,0.9) 0%,transparent 100%);
+}
+.nav-logo{display:flex;align-items:center;gap:11px;text-decoration:none;}
+.nav-box{
+  width:40px;height:40px;border-radius:10px;
+  background:linear-gradient(145deg,#92400e,var(--gold));
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Playfair Display',serif;font-size:18px;font-weight:800;color:#fff;
+  box-shadow:0 4px 16px rgba(232,160,32,0.35);
+}
+.nav-title{font-family:'Playfair Display',serif;font-size:15px;color:#fff;font-weight:700;}
+.nav-sub{font-size:10px;color:rgba(255,255,255,0.4);}
+.nav-right{display:flex;gap:8px;}
+.nbtn{
+  padding:9px 18px;border-radius:9px;font-size:12px;font-weight:700;
+  font-family:'DM Sans',sans-serif;cursor:pointer;
+  border:none;text-decoration:none;transition:all .2s;
+  display:inline-flex;align-items:center;gap:6px;
+}
+.nbtn-ghost{background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.8);border:1px solid rgba(255,255,255,0.12);}
+.nbtn-ghost:hover{background:rgba(255,255,255,0.14);}
+.nbtn-gold{background:linear-gradient(135deg,#7c3200,var(--gold));color:#fff;box-shadow:0 4px 16px rgba(232,160,32,0.3);}
+.nbtn-gold:hover{transform:translateY(-1px);box-shadow:0 6px 22px rgba(232,160,32,0.45);}
+@media(max-width:600px){.nbtn-ghost{display:none;}}
+
+/* ═══════ INTRO SCREEN ═══════ */
+#intro{
+  position:fixed;inset:0;z-index:200;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:#0d0a05;
+  transition:opacity .8s ease,transform .8s ease;
+}
+#intro.gone{opacity:0;transform:scale(1.06);pointer-events:none;}
+.intro-logo{
+  width:88px;height:88px;
+  background:linear-gradient(145deg,#5c2700,#b45a00,#e8a020);
+  border-radius:22px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Playfair Display',serif;font-size:38px;font-weight:800;color:#fff;
+  box-shadow:0 20px 60px rgba(232,160,32,0.4),inset 0 1px 0 rgba(255,255,255,0.2);
+  margin-bottom:24px;
+  animation:logoPulse 2.5s ease-in-out infinite;
+}
+@keyframes logoPulse{0%,100%{box-shadow:0 20px 60px rgba(232,160,32,0.4)}50%{box-shadow:0 24px 80px rgba(232,160,32,0.7)}}
+.intro-name{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(18px,3vw,28px);
+  color:#fff;font-weight:700;margin-bottom:6px;text-align:center;
+}
+.intro-sub{font-size:12px;color:rgba(255,255,255,0.35);letter-spacing:2px;text-transform:uppercase;margin-bottom:36px;}
+.intro-start{
+  padding:15px 44px;border-radius:14px;border:none;cursor:pointer;
+  background:linear-gradient(135deg,#7c3200,#c8590a,var(--gold));
+  color:#fff;font-size:15px;font-weight:700;
+  font-family:'DM Sans',sans-serif;
+  box-shadow:0 8px 32px rgba(232,160,32,0.4),inset 0 1px 0 rgba(255,255,255,0.15);
+  transition:all .25s;letter-spacing:0.5px;
+}
+.intro-start:hover{transform:translateY(-3px);box-shadow:0 14px 44px rgba(232,160,32,0.55);}
+.intro-hint{margin-top:14px;font-size:11px;color:rgba(255,255,255,0.2);letter-spacing:1px;}
+
+/* ═══════ PROGRESS ═══════ */
+#pbar{
+  position:fixed;bottom:0;left:0;right:0;height:3px;
+  background:rgba(255,255,255,0.08);z-index:100;
+}
+#pfill{
+  height:100%;width:0%;
+  background:linear-gradient(90deg,var(--warm),var(--gold),var(--gold2));
+  transition:width .15s linear;
 }
 
-/* ═══════════════════════════════════════════
-   SCROLLABLE PAGE — drives the animation
-═══════════════════════════════════════════ */
-#scroll-driver{
-  position:relative;
-  z-index:10;
-  /* 600vh = 6 full screens of scrolling */
-  height:600vh;
+/* ═══════ ZONE LABEL ═══════ */
+#zlabel{
+  position:fixed;top:72px;right:28px;z-index:100;
+  background:rgba(13,10,5,0.75);backdrop-filter:blur(16px);
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:20px;padding:8px 18px;
+  font-size:11px;font-weight:700;letter-spacing:2px;
+  text-transform:uppercase;color:rgba(255,255,255,0.7);
+  transition:all .5s ease;
+  display:flex;align-items:center;gap:8px;
 }
+#zdot{width:7px;height:7px;border-radius:50%;background:var(--gold2);box-shadow:0 0 8px var(--gold2);animation:zp 2s ease-in-out infinite;}
+@keyframes zp{0%,100%{opacity:1}50%{opacity:.2}}
 
-/* ═══════════════════════════════════════════
-   CONTENT SECTIONS — float over the game
-═══════════════════════════════════════════ */
-.game-section{
-  position:fixed;
-  top:0;left:0;
-  width:100vw;height:100vh;
-  z-index:20;
-  display:flex;
-  align-items:center;
-  justify-content:flex-end;
-  padding:0 5vw;
-  pointer-events:none;
-  /* hidden by default */
-  opacity:0;
-  transition:opacity 0.6s ease;
+/* ═══════ CONTENT PANELS ═══════ */
+.panel{
+  position:fixed;z-index:50;
+  opacity:0;pointer-events:none;
+  transition:opacity .7s ease,transform .7s cubic-bezier(.34,1.2,.64,1);
 }
-.game-section.active{
-  opacity:1;
-  pointer-events:auto;
-}
-.game-section.left{justify-content:flex-start;}
-.game-section.center{justify-content:center;}
+.panel.show{opacity:1;pointer-events:auto;}
 
-/* Content cards */
-.content-card{
-  background:rgba(255,255,255,0.92);
-  backdrop-filter:blur(20px);
-  border-radius:28px;
-  padding:40px 44px;
-  max-width:480px;
-  width:100%;
-  box-shadow:0 32px 80px rgba(0,0,0,0.25),0 0 0 1px rgba(255,255,255,0.3);
-  transform:translateY(30px);
-  transition:transform 0.7s cubic-bezier(0.34,1.2,0.64,1),opacity 0.6s ease;
-  opacity:0;
-  position:relative;
-  overflow:hidden;
+/* Left panels */
+.panel-left{
+  left:36px;top:50%;transform:translateY(-40%);
+  max-width:min(420px,42vw);
 }
-.content-card::before{
-  content:'';position:absolute;
-  top:0;left:0;right:0;height:4px;
-  background:linear-gradient(90deg,var(--gold),var(--gold2),#f97316);
-}
-.game-section.active .content-card{
-  transform:translateY(0);
-  opacity:1;
-}
-.content-card.dark{
-  background:rgba(12,19,64,0.92);
-  color:#fff;
-}
-.content-card.dark::before{
-  background:linear-gradient(90deg,#2563eb,#06b6d4,#7c3aed);
-}
+.panel-left.show{transform:translateY(-50%);}
 
-/* Card inner elements */
-.card-eyebrow{
-  font-size:10px;font-weight:700;letter-spacing:2.5px;
-  text-transform:uppercase;color:var(--gold);
-  margin-bottom:10px;display:flex;align-items:center;gap:8px;
+/* Right panels */
+.panel-right{
+  right:36px;top:50%;transform:translateY(-40%);
+  max-width:min(380px,40vw);
 }
-.card-eyebrow::before{content:'';width:20px;height:2px;background:var(--gold);border-radius:2px;}
-.content-card.dark .card-eyebrow{color:#60a5fa;}
-.content-card.dark .card-eyebrow::before{background:#60a5fa;}
+.panel-right.show{transform:translateY(-50%);}
+
+/* Center panels */
+.panel-center{
+  left:50%;top:50%;transform:translate(-50%,-40%);
+  max-width:min(640px,80vw);text-align:center;
+}
+.panel-center.show{transform:translate(-50%,-50%);}
+
+/* Cards */
+.card{
+  background:rgba(253,246,238,0.93);
+  backdrop-filter:blur(24px) saturate(140%);
+  border-radius:24px;padding:36px 38px;
+  box-shadow:0 32px 80px rgba(0,0,0,0.35),0 0 0 1px rgba(255,255,255,0.4),inset 0 1px 0 rgba(255,255,255,0.8);
+  position:relative;overflow:hidden;
+}
+.card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--warm),var(--gold),var(--gold2));
+}
+.card-dark{
+  background:rgba(13,10,5,0.88);
+  backdrop-filter:blur(24px);color:#fff;
+  box-shadow:0 32px 80px rgba(0,0,0,0.5),0 0 0 1px rgba(255,255,255,0.08),inset 0 1px 0 rgba(255,255,255,0.06);
+}
+.card-dark::before{background:linear-gradient(90deg,#c8704a,#e8a020,#f5c842);}
+
+/* Card elements */
+.eyebrow{
+  font-size:10px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;
+  color:var(--warm);display:flex;align-items:center;gap:8px;margin-bottom:10px;
+}
+.card-dark .eyebrow{color:var(--gold2);}
+.eyebrow::before{content:'';width:18px;height:2px;background:currentColor;border-radius:1px;}
 .card-title{
   font-family:'Playfair Display',serif;
-  font-size:clamp(24px,3.5vw,38px);
-  font-weight:800;
-  color:var(--navy);
-  line-height:1.15;
-  margin-bottom:14px;
+  font-size:clamp(22px,2.8vw,36px);
+  font-weight:800;color:#1a0f00;line-height:1.12;margin-bottom:14px;
 }
-.content-card.dark .card-title{color:#fff;}
-.card-text{
-  font-size:14px;line-height:1.8;
-  color:#374151;margin-bottom:20px;
-}
-.content-card.dark .card-text{color:rgba(255,255,255,0.65);}
-.card-pills{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;}
+.card-dark .card-title{color:#fff;}
+.card-body{font-size:13.5px;line-height:1.85;color:var(--muted);margin-bottom:18px;}
+.card-dark .card-body{color:rgba(255,255,255,0.55);}
+
+/* Stat row */
+.stat-row{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:18px;}
+.stat-box{background:rgba(200,112,74,0.08);border:1px solid rgba(200,112,74,0.15);border-radius:14px;padding:12px;text-align:center;}
+.card-dark .stat-box{background:rgba(232,160,32,0.08);border-color:rgba(232,160,32,0.15);}
+.stat-n{font-family:'Bebas Neue',sans-serif;font-size:30px;color:var(--warm);line-height:1;}
+.card-dark .stat-n{color:var(--gold2);}
+.stat-l{font-size:10px;color:var(--muted);margin-top:2px;}
+.card-dark .stat-l{color:rgba(255,255,255,0.38);}
+
+/* Pills */
+.pills{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:18px;}
 .pill{
-  padding:6px 14px;border-radius:20px;
-  font-size:11px;font-weight:700;
-  background:rgba(217,119,6,0.1);color:var(--gold);
-  border:1px solid rgba(217,119,6,0.25);
+  padding:5px 12px;border-radius:20px;font-size:11px;font-weight:700;
+  background:rgba(200,112,74,0.1);color:var(--warm);
+  border:1px solid rgba(200,112,74,0.2);
 }
-.content-card.dark .pill{
-  background:rgba(96,165,250,0.1);color:#93c5fd;
-  border-color:rgba(96,165,250,0.2);
-}
-.card-btn{
-  display:inline-flex;align-items:center;gap:8px;
-  padding:12px 24px;border-radius:12px;
-  background:var(--navy);color:#fff;
-  font-size:13px;font-weight:700;
-  font-family:'DM Sans',sans-serif;
-  border:none;cursor:pointer;
-  text-decoration:none;
-  transition:transform .2s,box-shadow .2s;
-  pointer-events:auto;
-}
-.card-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(12,19,64,0.3);}
-.card-btn.gold{background:linear-gradient(135deg,#92400e,#d97706);}
+.card-dark .pill{background:rgba(232,160,32,0.1);color:var(--gold2);border-color:rgba(232,160,32,0.2);}
 
-/* Stats inline */
-.card-stats{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;}
-.cstat{
-  background:rgba(12,19,64,0.06);border-radius:14px;
-  padding:14px;text-align:center;
-}
-.content-card.dark .cstat{background:rgba(255,255,255,0.07);}
-.cstat-num{
-  font-family:'Bebas Neue',sans-serif;
-  font-size:32px;color:var(--gold);line-height:1;
-}
-.content-card.dark .cstat-num{color:#60a5fa;}
-.cstat-lbl{font-size:11px;color:#6b7280;margin-top:3px;}
-.content-card.dark .cstat-lbl{color:rgba(255,255,255,0.4);}
-
-/* Brands grid in card */
-.brands-grid{
-  display:grid;grid-template-columns:repeat(3,1fr);gap:8px;
-  margin-bottom:20px;
-}
-.brand-chip{
-  background:rgba(12,19,64,0.05);
-  border:1px solid rgba(12,19,64,0.1);
-  border-radius:10px;padding:10px 8px;
-  text-align:center;
-  font-family:'Rajdhani',sans-serif;
-  font-size:13px;font-weight:700;
-  color:var(--navy);letter-spacing:0.5px;
-}
-.content-card.dark .brand-chip{
-  background:rgba(255,255,255,0.06);
-  border-color:rgba(255,255,255,0.1);
-  color:#e2e8f0;
-}
-
-/* HUD — always visible */
-#hud{
-  position:fixed;top:0;left:0;right:0;
-  z-index:100;
-  display:flex;align-items:center;justify-content:space-between;
-  padding:0 28px;height:62px;
-  background:rgba(12,19,64,0.85);
-  backdrop-filter:blur(20px);
-  border-bottom:1px solid rgba(255,255,255,0.08);
-}
-.hud-logo{display:flex;align-items:center;gap:10px;}
-.hud-logo-box{
-  width:38px;height:38px;
-  background:linear-gradient(145deg,#1e40af,#2563eb);
-  border-radius:10px;
-  display:flex;align-items:center;justify-content:center;
-  font-family:'Playfair Display',serif;font-size:17px;font-weight:800;color:#fff;
-  box-shadow:0 4px 14px rgba(37,99,235,0.4);
-}
-.hud-name{
-  font-family:'Playfair Display',serif;
-  font-size:15px;font-weight:700;color:#fff;
-}
-.hud-sub{font-size:10px;color:rgba(255,255,255,0.4);}
-.hud-right{display:flex;align-items:center;gap:10px;}
-.hud-btn{
-  padding:8px 16px;border-radius:9px;
-  font-size:12px;font-weight:700;
-  font-family:'DM Sans',sans-serif;
-  cursor:pointer;text-decoration:none;
-  display:inline-flex;align-items:center;gap:6px;
-  border:none;transition:all .2s;
-}
-.hud-btn-ghost{
-  background:rgba(255,255,255,0.08);
-  color:rgba(255,255,255,0.8);
-  border:1px solid rgba(255,255,255,0.12);
-}
-.hud-btn-ghost:hover{background:rgba(255,255,255,0.14);}
-.hud-btn-gold{
-  background:linear-gradient(135deg,#92400e,#d97706);
-  color:#fff;box-shadow:0 4px 14px rgba(217,119,6,0.35);
-}
-.hud-btn-gold:hover{transform:translateY(-1px);}
-
-/* Progress bar */
-#progress-bar{
-  position:fixed;top:62px;left:0;right:0;z-index:101;
-  height:3px;background:rgba(255,255,255,0.1);
-}
-#progress-fill{
-  height:100%;
-  background:linear-gradient(90deg,var(--gold),var(--gold2),#f97316);
-  width:0%;transition:width 0.1s linear;
-}
-
-/* Zone indicator */
-#zone-badge{
-  position:fixed;
-  bottom:28px;left:50%;
-  transform:translateX(-50%);
-  z-index:100;
-  background:rgba(12,19,64,0.85);
-  backdrop-filter:blur(16px);
-  border:1px solid rgba(255,255,255,0.12);
-  border-radius:30px;
-  padding:10px 22px;
-  font-size:11px;font-weight:700;
-  letter-spacing:2px;text-transform:uppercase;
-  color:rgba(255,255,255,0.75);
-  transition:all 0.5s ease;
-  display:flex;align-items:center;gap:10px;
-  white-space:nowrap;
-}
-#zone-dot{
-  width:8px;height:8px;border-radius:50%;
-  background:#34d399;
-  box-shadow:0 0 10px #34d399;
-  animation:zonePulse 2s ease-in-out infinite;
-}
-@keyframes zonePulse{0%,100%{opacity:1}50%{opacity:.3}}
-
-/* Scroll hint */
-#scroll-hint{
-  position:fixed;
-  bottom:72px;left:50%;
-  transform:translateX(-50%);
-  z-index:100;
-  display:flex;flex-direction:column;align-items:center;gap:8px;
-  color:rgba(255,255,255,0.5);
-  font-size:11px;letter-spacing:1.5px;text-transform:uppercase;
-  animation:hintFloat 2.5s ease-in-out infinite;
-  transition:opacity .5s;
-}
-#scroll-hint.hidden{opacity:0;pointer-events:none;}
-.scroll-arrow{
-  width:22px;height:22px;
-  border-right:2px solid rgba(255,255,255,0.3);
-  border-bottom:2px solid rgba(255,255,255,0.3);
-  transform:rotate(45deg);
-}
-@keyframes hintFloat{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(6px)}}
-
-/* Milestone popup */
-#milestone-popup{
-  position:fixed;
-  top:80px;right:20px;
-  z-index:200;
-  background:linear-gradient(135deg,#065f46,#059669);
-  border-radius:16px;
-  padding:14px 20px;
-  display:flex;align-items:center;gap:12px;
-  font-size:13px;font-weight:700;color:#fff;
-  box-shadow:0 12px 40px rgba(5,150,105,0.5);
-  transform:translateX(120%);
-  transition:transform .5s cubic-bezier(0.34,1.2,0.64,1);
-  pointer-events:none;
-}
-#milestone-popup.show{transform:translateX(0);}
-#milestone-icon{font-size:22px;}
-
-/* Contact section overlay */
-#contact-overlay{
-  position:fixed;
-  top:0;left:0;width:100vw;height:100vh;
-  z-index:50;
-  display:flex;align-items:center;justify-content:center;
-  pointer-events:none;
-  opacity:0;
-  transition:opacity .6s ease;
-  padding:80px 20px 20px;
-}
-#contact-overlay.active{opacity:1;pointer-events:auto;}
-
-/* Feedback form modal */
-#fb-modal{
-  position:fixed;inset:0;z-index:300;
-  background:rgba(0,0,0,0.7);backdrop-filter:blur(12px);
-  display:none;align-items:center;justify-content:center;padding:20px;
-}
-#fb-modal.open{display:flex;}
-.fb-card{
-  background:#fff;border-radius:24px;
-  padding:36px 32px;max-width:480px;width:100%;
-  max-height:90vh;overflow-y:auto;
-  position:relative;
-}
-.fb-close{
-  position:absolute;top:16px;right:16px;
-  background:rgba(0,0,0,0.08);border:none;
-  width:32px;height:32px;border-radius:8px;
-  cursor:pointer;font-size:16px;
-  display:flex;align-items:center;justify-content:center;
-}
-.fb-title{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--navy);margin-bottom:4px;}
-.fb-sub{font-size:13px;color:#6b7280;margin-bottom:22px;}
-.fb-f{margin-bottom:14px;}
-.fb-f label{display:block;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#6b7280;margin-bottom:6px;}
-.fb-f input,.fb-f textarea{
-  width:100%;padding:11px 14px;
-  background:#f8fafc;border:1.5px solid #e2e8f0;
-  border-radius:10px;font-size:14px;
-  font-family:'DM Sans',sans-serif;color:var(--navy);outline:none;
-  transition:border-color .2s;
-}
-.fb-f input:focus,.fb-f textarea:focus{border-color:#2563eb;background:#f0f4ff;}
-.fb-f textarea{min-height:90px;resize:vertical;}
-.star-row-fb{display:flex;gap:6px;margin-bottom:4px;}
-.star-row-fb span{font-size:28px;cursor:pointer;color:#e5e7eb;transition:all .15s;user-select:none;}
-.star-row-fb span.lit,.star-row-fb span:hover{color:var(--gold2);transform:scale(1.15);}
-.fb-btn{
-  width:100%;padding:13px;border-radius:11px;border:none;
-  background:var(--navy);color:#fff;
-  font-size:14px;font-weight:700;cursor:pointer;
-  font-family:'DM Sans',sans-serif;
-  box-shadow:0 6px 22px rgba(12,19,64,0.3);transition:all .2s;
-}
-.fb-btn:hover{transform:translateY(-2px);}
-.fb-ok{display:none;text-align:center;padding:16px;color:#059669;font-size:14px;font-weight:600;background:#f0fdf4;border-radius:10px;margin-top:12px;border:1px solid #bbf7d0;}
-
-/* Review cards section */
-#reviews-section{
-  position:fixed;
-  top:0;left:0;width:100vw;height:100vh;
-  z-index:20;
-  padding:70px 20px 20px;
-  display:flex;flex-direction:column;
-  align-items:center;
-  pointer-events:none;
-  opacity:0;transition:opacity .6s;
-  overflow:hidden;
-}
-#reviews-section.active{opacity:1;pointer-events:auto;}
-.rev-title-bar{
-  font-family:'Bebas Neue',sans-serif;
-  font-size:clamp(32px,5vw,64px);
-  color:#fff;
-  text-shadow:0 4px 20px rgba(0,0,0,0.4);
-  letter-spacing:3px;
-  margin-bottom:20px;
-  text-align:center;
-}
-.rev-scroll-row{
-  display:flex;gap:16px;
-  overflow-x:auto;
-  max-width:900px;width:100%;
-  padding-bottom:12px;
-  scrollbar-width:thin;
-  scrollbar-color:rgba(255,255,255,0.2) transparent;
-}
-.rev-card{
-  flex-shrink:0;
-  background:rgba(255,255,255,0.93);
-  border-radius:20px;padding:22px 24px;
-  width:280px;
-  position:relative;
-}
-.rev-stars{font-size:16px;letter-spacing:2px;color:var(--gold2);margin-bottom:10px;}
-.rev-text{font-size:13px;color:#374151;line-height:1.7;margin-bottom:14px;font-style:italic;}
-.rev-author{font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;color:var(--navy);}
-.rev-veh{font-size:11px;color:#6b7280;margin-top:2px;}
-.rev-add-btn{
-  margin-top:16px;
-  padding:12px 28px;border-radius:12px;
-  background:rgba(255,255,255,0.15);
-  border:2px solid rgba(255,255,255,0.3);
-  color:#fff;font-size:13px;font-weight:700;
-  font-family:'DM Sans',sans-serif;cursor:pointer;
-  transition:all .2s;pointer-events:auto;
-}
-.rev-add-btn:hover{background:rgba(255,255,255,0.25);}
-
-/* Products grid card */
-.prod-grid-card{
-  display:grid;grid-template-columns:repeat(3,1fr);gap:10px;
-  margin-bottom:18px;
-}
-.pg-item{
-  background:rgba(12,19,64,0.06);border-radius:12px;
-  padding:12px 8px;text-align:center;
+/* Parts grid */
+.parts-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:18px;}
+.part-item{
+  background:rgba(200,112,74,0.07);border-radius:12px;
+  padding:10px 6px;text-align:center;
+  border:1px solid rgba(200,112,74,0.1);
   transition:background .2s;
 }
-.pg-item:hover{background:rgba(217,119,6,0.1);}
-.pg-icon{font-size:24px;display:block;margin-bottom:5px;}
-.pg-name{font-size:11px;font-weight:700;color:var(--navy);}
+.part-item:hover{background:rgba(200,112,74,0.16);}
+.pi-icon{font-size:22px;display:block;margin-bottom:5px;}
+.pi-name{font-size:10px;font-weight:700;color:#3a2010;}
 
-/* Location card special */
-.loc-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
-.loc-item{
-  display:flex;gap:10px;align-items:flex-start;
-  background:rgba(12,19,64,0.05);border-radius:12px;padding:12px;
+/* Brands grid */
+.brands-g{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:18px;}
+.brand-c{
+  background:rgba(13,10,5,0.06);border-radius:10px;
+  padding:10px 6px;text-align:center;
+  font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;
+  color:#1a0f00;letter-spacing:0.5px;
+  border:1px solid rgba(13,10,5,0.08);
 }
+.card-dark .brand-c{background:rgba(255,255,255,0.06);border-color:rgba(255,255,255,0.1);color:#e2d8ce;}
+
+/* Buttons */
+.cbtn{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:11px 22px;border-radius:11px;border:none;cursor:pointer;
+  font-size:13px;font-weight:700;font-family:'DM Sans',sans-serif;
+  text-decoration:none;transition:all .2s;
+}
+.cbtn-dark{background:#1a0f00;color:#fff;}
+.cbtn-dark:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(26,15,0,.3);}
+.cbtn-gold{background:linear-gradient(135deg,#7c3200,var(--gold));color:#fff;box-shadow:0 4px 16px rgba(232,160,32,.3);}
+.cbtn-gold:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(232,160,32,.45);}
+.cbtn-green{background:linear-gradient(135deg,#064e3b,#059669);color:#fff;}
+.cbtn-green:hover{transform:translateY(-2px);}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;}
+
+/* Location items */
+.loc-items{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:18px;}
+.loc-i{display:flex;gap:9px;align-items:flex-start;background:rgba(200,112,74,0.07);border-radius:12px;padding:11px;}
 .loc-ic{font-size:18px;flex-shrink:0;}
-.loc-lbl{font-size:11px;font-weight:700;color:var(--navy);margin-bottom:3px;}
-.loc-val{font-size:12px;color:#6b7280;line-height:1.5;}
+.loc-lbl{font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--warm);margin-bottom:3px;}
+.loc-val{font-size:12px;color:var(--muted);line-height:1.5;}
+
+/* Review cards row */
+.rev-row{display:flex;gap:12px;overflow-x:auto;padding-bottom:8px;margin-bottom:16px;scrollbar-width:none;}
+.rev-row::-webkit-scrollbar{display:none;}
+.rev-c{
+  flex-shrink:0;width:230px;background:rgba(253,246,238,0.95);
+  border-radius:16px;padding:18px;
+  box-shadow:0 8px 24px rgba(0,0,0,0.2);
+}
+.rev-stars{font-size:14px;color:var(--gold2);letter-spacing:2px;margin-bottom:8px;}
+.rev-txt{font-size:12px;color:var(--muted);line-height:1.65;margin-bottom:10px;font-style:italic;}
+.rev-au{font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:#1a0f00;}
+.rev-veh{font-size:10px;color:var(--muted);}
+
+/* Review panel full-width */
+.panel-full{
+  position:fixed;bottom:0;left:0;right:0;z-index:50;
+  opacity:0;pointer-events:none;
+  transition:opacity .7s ease,transform .7s cubic-bezier(.34,1.2,.64,1);
+  transform:translateY(30px);
+  padding:0 36px 36px;
+}
+.panel-full.show{opacity:1;pointer-events:auto;transform:translateY(0);}
+
+/* Feedback modal */
+#fbModal{
+  position:fixed;inset:0;z-index:300;
+  background:rgba(13,10,5,0.8);backdrop-filter:blur(14px);
+  display:none;align-items:center;justify-content:center;padding:20px;
+}
+#fbModal.open{display:flex;}
+.fb-wrap{
+  background:var(--cream);border-radius:22px;
+  padding:34px 30px;max-width:460px;width:100%;
+  max-height:90vh;overflow-y:auto;position:relative;
+}
+.fb-close{position:absolute;top:14px;right:14px;background:rgba(0,0,0,0.07);border:none;width:30px;height:30px;border-radius:7px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;}
+.fb-ht{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:#1a0f00;margin-bottom:4px;}
+.fb-hs{font-size:12px;color:var(--muted);margin-bottom:20px;}
+.ff{margin-bottom:13px;}
+.ff label{display:block;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:5px;}
+.ff input,.ff textarea{width:100%;padding:10px 13px;background:#fff;border:1.5px solid rgba(26,15,0,0.1);border-radius:10px;font-size:13px;font-family:'DM Sans',sans-serif;color:#1a0f00;outline:none;transition:border-color .2s;}
+.ff input:focus,.ff textarea:focus{border-color:var(--warm);}
+.ff textarea{min-height:80px;resize:vertical;}
+.sr{display:flex;gap:5px;}
+.sr span{font-size:26px;cursor:pointer;color:#ddd;transition:all .15s;user-select:none;}
+.sr span.lit,.sr span:hover{color:var(--gold2);transform:scale(1.12);}
+.fb-sbtn{width:100%;padding:12px;border-radius:10px;border:none;background:linear-gradient(135deg,#7c3200,var(--gold));color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;box-shadow:0 5px 20px rgba(232,160,32,.3);}
+.fb-ok{display:none;text-align:center;padding:14px;color:#059669;font-size:13px;font-weight:600;background:#f0fdf4;border-radius:10px;margin-top:10px;border:1px solid #bbf7d0;}
+
+/* Milestone toast */
+#toast{
+  position:fixed;top:76px;left:50%;transform:translateX(-50%) translateY(-80px);
+  z-index:200;background:linear-gradient(135deg,#4a2000,#c8700a);
+  color:#fff;border-radius:20px;padding:11px 22px;
+  font-size:13px;font-weight:700;
+  box-shadow:0 12px 36px rgba(200,112,42,0.5);
+  transition:transform .5s cubic-bezier(.34,1.2,.64,1);
+  pointer-events:none;white-space:nowrap;
+}
+#toast.show{transform:translateX(-50%) translateY(0);}
+
+/* SCROLL HINT */
+#scrollhint{
+  position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
+  z-index:100;display:flex;flex-direction:column;align-items:center;gap:6px;
+  color:rgba(255,255,255,0.45);font-size:10px;letter-spacing:2px;text-transform:uppercase;
+  animation:shBounce 2s ease-in-out infinite;
+  transition:opacity .5s;
+}
+#scrollhint.hidden{opacity:0;}
+.sha{width:20px;height:20px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg);}
+@keyframes shBounce{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(5px)}}
 
 /* Responsive */
 @media(max-width:768px){
-  .game-section{justify-content:center;padding:0 16px;}
-  .content-card{max-width:100%;padding:28px 22px;}
-  .hud-right .hud-btn-ghost{display:none;}
-  .brands-grid{grid-template-columns:repeat(2,1fr);}
-  .prod-grid-card{grid-template-columns:repeat(2,1fr);}
-  #zone-badge{font-size:10px;padding:8px 16px;}
-}
-@media(max-width:480px){
-  .card-title{font-size:22px;}
-  .hud-name{font-size:13px;}
+  .panel-left,.panel-right{left:12px;right:12px;max-width:100%;top:auto;bottom:90px;transform:none;}
+  .panel-left.show,.panel-right.show{transform:none;}
+  .panel-center{max-width:90vw;}
+  .card{padding:22px 18px;}
+  .brands-g{grid-template-columns:repeat(4,1fr);}
+  #nav{padding:0 16px;}
 }
 </style>
 </head>
 <body>
 
 <!-- CURSOR -->
-<div id="cursor-dot"></div>
-<div id="cursor-ring"></div>
+<div id="cur"></div>
+<div id="cur2"></div>
 
-<!-- GAME CANVAS (fixed background) -->
-<div id="game-viewport">
-  <canvas id="game-canvas"></canvas>
-</div>
+<!-- GRAIN -->
+<div id="grain"></div>
 
-<!-- HUD -->
-<div id="hud">
-  <div class="hud-logo">
-    <div class="hud-logo-box">A</div>
+<!-- CANVAS -->
+<canvas id="c"></canvas>
+
+<!-- NAV -->
+<div id="nav">
+  <a class="nav-logo" href="#">
+    <div class="nav-box">A</div>
     <div>
-      <div class="hud-name">Abhinandan Auto Mobiles</div>
-      <div class="hud-sub">Genuine Spare Parts · Santalpur, Patan</div>
+      <div class="nav-title">Abhinandan Auto Mobiles</div>
+      <div class="nav-sub">Genuine Spare Parts · Santalpur, Patan</div>
     </div>
-  </div>
-  <div class="hud-right">
-    <a href="https://maps.app.goo.gl/QBDi2SPd5LXC6mHb8" target="_blank" class="hud-btn hud-btn-ghost">📍 Location</a>
-    <a href="https://wa.me/919870037002" target="_blank" class="hud-btn hud-btn-gold">📞 WhatsApp</a>
-    <button class="hud-btn hud-btn-ghost" onclick="window.location.href='login.html'">🔐 Staff Login</button>
+  </a>
+  <div class="nav-right">
+    <a href="https://maps.app.goo.gl/QBDi2SPd5LXC6mHb8" target="_blank" class="nbtn nbtn-ghost">📍 Location</a>
+    <a href="https://wa.me/919870037002" target="_blank" class="nbtn nbtn-gold">📞 WhatsApp</a>
+    <button class="nbtn nbtn-ghost" onclick="window.location.href='login.html'">🔐 Staff Login</button>
   </div>
 </div>
-<div id="progress-bar"><div id="progress-fill"></div></div>
 
-<!-- ZONE BADGE -->
-<div id="zone-badge">
-  <div id="zone-dot"></div>
-  <span id="zone-text">Starting Journey...</span>
-</div>
+<!-- PROGRESS -->
+<div id="pbar"><div id="pfill"></div></div>
+
+<!-- ZONE LABEL -->
+<div id="zlabel"><div id="zdot"></div><span id="ztxt">Santalpur</span></div>
+
+<!-- TOAST -->
+<div id="toast"></div>
 
 <!-- SCROLL HINT -->
-<div id="scroll-hint">
-  <span>Scroll to Drive</span>
-  <div class="scroll-arrow"></div>
-</div>
+<div id="scrollhint"><span>Scroll to Explore</span><div class="sha"></div></div>
 
-<!-- MILESTONE POPUP -->
-<div id="milestone-popup">
-  <span id="milestone-icon">🏆</span>
-  <span id="milestone-text">Milestone reached!</span>
-</div>
-
-<!-- ═══════════════════════════════════════════
-     CONTENT SECTIONS (shown at scroll zones)
-═══════════════════════════════════════════ -->
-
-<!-- SECTION 0: INTRO (0% - 15%) -->
-<div class="game-section left active" id="sec-intro">
-  <div class="content-card">
-    <div class="card-eyebrow">Welcome · Santalpur, Patan</div>
+<!-- ═══ PANEL 0: HERO (0–14%) ═══ -->
+<div class="panel panel-left" id="p0">
+  <div class="card">
+    <div class="eyebrow">Welcome · Santalpur, Patan</div>
     <h1 class="card-title">Genuine<br>Spare Parts<br>You Can Trust</h1>
-    <p class="card-text">All types of genuine parts for <strong>Tata · Ashok Leyland · JCB · Tractors</strong> and all commercial vehicles. Only original. Never duplicate.</p>
-    <div class="card-pills">
+    <p class="card-body">All types of genuine parts for <strong>Tata · Ashok Leyland · JCB · Tractors</strong> and every commercial vehicle. Only original. Never duplicate.</p>
+    <div class="pills">
       <span class="pill">✅ 100% Genuine</span>
       <span class="pill">🚀 Same-Day Stock</span>
       <span class="pill">⭐ 15+ Years</span>
     </div>
-    <a href="https://wa.me/919870037002" target="_blank" class="card-btn gold">📞 Call 9870037002</a>
-  </div>
-</div>
-
-<!-- SECTION 1: CITY — About (15% - 30%) -->
-<div class="game-section" id="sec-about">
-  <div class="content-card dark">
-    <div class="card-eyebrow">Our Story</div>
-    <h2 class="card-title">Trusted by<br>Mechanics &<br>Fleet Owners</h2>
-    <p class="card-text">For over 15 years, workshops, fleet operators, and mechanics across Patan district have relied on us for consistent quality, honest pricing, and a stock that never runs dry.</p>
-    <div class="card-stats">
-      <div class="cstat"><div class="cstat-num">15+</div><div class="cstat-lbl">Years in Business</div></div>
-      <div class="cstat"><div class="cstat-num">1000+</div><div class="cstat-lbl">Happy Customers</div></div>
-      <div class="cstat"><div class="cstat-num">10K+</div><div class="cstat-lbl">Parts in Stock</div></div>
-      <div class="cstat"><div class="cstat-num">50+</div><div class="cstat-lbl">Brands Available</div></div>
+    <div class="btn-row">
+      <a href="https://wa.me/919870037002" target="_blank" class="cbtn cbtn-gold">📞 9870037002</a>
+      <a href="https://maps.app.goo.gl/QBDi2SPd5LXC6mHb8" target="_blank" class="cbtn cbtn-dark">📍 Visit Store</a>
     </div>
-    <a href="https://maps.app.goo.gl/QBDi2SPd5LXC6mHb8" target="_blank" class="card-btn">📍 Visit Our Store</a>
   </div>
 </div>
 
-<!-- SECTION 2: WAREHOUSE — Products (30% - 52%) -->
-<div class="game-section left" id="sec-products">
-  <div class="content-card">
-    <div class="card-eyebrow">What We Stock</div>
-    <h2 class="card-title">Thousands of<br>Genuine Parts</h2>
-    <div class="prod-grid-card">
-      <div class="pg-item"><span class="pg-icon">⚙️</span><div class="pg-name">Bearings</div></div>
-      <div class="pg-item"><span class="pg-icon">🌀</span><div class="pg-name">Clutch Plates</div></div>
-      <div class="pg-item"><span class="pg-icon">🔩</span><div class="pg-name">Hub Bolts</div></div>
-      <div class="pg-item"><span class="pg-icon">⚡</span><div class="pg-name">Electrical</div></div>
-      <div class="pg-item"><span class="pg-icon">🌿</span><div class="pg-name">Leaf Springs</div></div>
-      <div class="pg-item"><span class="pg-icon">💡</span><div class="pg-name">Lights & LED</div></div>
-      <div class="pg-item"><span class="pg-icon">🛢️</span><div class="pg-name">Oils & Fluids</div></div>
-      <div class="pg-item"><span class="pg-icon">🔧</span><div class="pg-name">Engine Parts</div></div>
-      <div class="pg-item"><span class="pg-icon">🛡️</span><div class="pg-name">Brake System</div></div>
+<!-- ═══ PANEL 1: ABOUT (14–30%) ═══ -->
+<div class="panel panel-right" id="p1">
+  <div class="card card-dark">
+    <div class="eyebrow">Our Story</div>
+    <h2 class="card-title">Trusted By<br>Mechanics &<br>Fleet Owners</h2>
+    <div class="stat-row">
+      <div class="stat-box"><div class="stat-n">15+</div><div class="stat-l">Years in Business</div></div>
+      <div class="stat-box"><div class="stat-n">10K+</div><div class="stat-l">Parts in Stock</div></div>
+      <div class="stat-box"><div class="stat-n">1000+</div><div class="stat-l">Happy Customers</div></div>
+      <div class="stat-box"><div class="stat-n">50+</div><div class="stat-l">Brands Available</div></div>
     </div>
-    <a href="https://wa.me/919870037002" target="_blank" class="card-btn gold">💬 Ask About a Part</a>
+    <a href="https://maps.app.goo.gl/QBDi2SPd5LXC6mHb8" target="_blank" class="cbtn cbtn-gold">📍 Come See Us</a>
   </div>
 </div>
 
-<!-- SECTION 3: HIGHWAY — Why Us (52% - 72%) -->
-<div class="game-section" id="sec-why">
-  <div class="content-card dark">
-    <div class="card-eyebrow">Why Choose Us</div>
-    <h2 class="card-title">The Patan<br>Region's Most<br>Trusted Shop</h2>
-    <div class="card-pills">
+<!-- ═══ PANEL 2: PRODUCTS (30–52%) ═══ -->
+<div class="panel panel-left" id="p2">
+  <div class="card">
+    <div class="eyebrow">What We Stock</div>
+    <h2 class="card-title">Thousands of<br>Genuine Parts<br>Ready for You</h2>
+    <div class="parts-grid">
+      <div class="part-item"><span class="pi-icon">⚙️</span><div class="pi-name">Bearings</div></div>
+      <div class="part-item"><span class="pi-icon">🌀</span><div class="pi-name">Clutch</div></div>
+      <div class="part-item"><span class="pi-icon">🔩</span><div class="pi-name">Hub Bolts</div></div>
+      <div class="part-item"><span class="pi-icon">⚡</span><div class="pi-name">Electrical</div></div>
+      <div class="part-item"><span class="pi-icon">🌿</span><div class="pi-name">Leaf Springs</div></div>
+      <div class="part-item"><span class="pi-icon">💡</span><div class="pi-name">Lighting</div></div>
+      <div class="part-item"><span class="pi-icon">🛢️</span><div class="pi-name">Oils</div></div>
+      <div class="part-item"><span class="pi-icon">🔧</span><div class="pi-name">Engine</div></div>
+      <div class="part-item"><span class="pi-icon">🛡️</span><div class="pi-name">Brakes</div></div>
+    </div>
+    <a href="https://wa.me/919870037002" target="_blank" class="cbtn cbtn-gold">💬 Ask About a Part</a>
+  </div>
+</div>
+
+<!-- ═══ PANEL 3: WHY US (52–72%) ═══ -->
+<div class="panel panel-right" id="p3">
+  <div class="card card-dark">
+    <div class="eyebrow">Why Choose Us</div>
+    <h2 class="card-title">The Most<br>Trusted Name<br>in Patan Region</h2>
+    <div class="pills">
       <span class="pill">✅ Only Genuine Parts</span>
       <span class="pill">📦 Massive Ready Stock</span>
       <span class="pill">💬 Expert Guidance</span>
       <span class="pill">🤝 Trusted by Mechanics</span>
-      <span class="pill">⚡ Same-Day Delivery</span>
+      <span class="pill">⚡ Same-Day Availability</span>
       <span class="pill">🏷️ Honest Pricing</span>
     </div>
-    <p class="card-text">We source directly from authorized distributors. Every part carries manufacturer certification. No middlemen. No duplicates. Just genuine quality.</p>
-    <a href="https://wa.me/919870037002" target="_blank" class="card-btn gold">📞 Get Expert Help</a>
+    <p class="card-body">Direct from authorized distributors. Every part carries manufacturer certification. No middlemen. No duplicates.</p>
+    <a href="https://wa.me/919870037002" target="_blank" class="cbtn cbtn-gold">📞 Get Expert Help</a>
   </div>
 </div>
 
-<!-- SECTION 4: MOUNTAINS — Brands (72% - 87%) -->
-<div class="game-section left" id="sec-brands">
-  <div class="content-card">
-    <div class="card-eyebrow">Brands We Stock</div>
+<!-- ═══ PANEL 4: BRANDS (72–87%) ═══ -->
+<div class="panel panel-left" id="p4">
+  <div class="card">
+    <div class="eyebrow">Brands We Stock</div>
     <h2 class="card-title">All Major<br>Brands. One<br>Trusted Store.</h2>
-    <div class="brands-grid">
-      <div class="brand-chip">TATA</div>
-      <div class="brand-chip">LEYLAND</div>
-      <div class="brand-chip">TVS</div>
-      <div class="brand-chip">GAJRA</div>
-      <div class="brand-chip">TELCO</div>
-      <div class="brand-chip">CASTROL</div>
-      <div class="brand-chip">JCB</div>
-      <div class="brand-chip">CUMMINS</div>
-      <div class="brand-chip">BOSCH</div>
-      <div class="brand-chip">MAHINDRA</div>
-      <div class="brand-chip">WABCO</div>
-      <div class="brand-chip">TELCO</div>
+    <div class="brands-g">
+      <div class="brand-c">TATA</div><div class="brand-c">LEYLAND</div>
+      <div class="brand-c">TVS</div><div class="brand-c">GAJRA</div>
+      <div class="brand-c">TELCO</div><div class="brand-c">CASTROL</div>
+      <div class="brand-c">JCB</div><div class="brand-c">CUMMINS</div>
+      <div class="brand-c">BOSCH</div><div class="brand-c">MAHINDRA</div>
+      <div class="brand-c">WABCO</div><div class="brand-c">TATA AIA</div>
     </div>
-    <a href="https://wa.me/919870037002" target="_blank" class="card-btn">💬 Check Stock</a>
+    <a href="https://wa.me/919870037002" target="_blank" class="cbtn cbtn-gold">💬 Check Stock</a>
   </div>
 </div>
 
-<!-- SECTION 5: REVIEWS (87% - 100%) -->
-<div id="reviews-section" class="game-section" id="sec-final">
-</div>
-
-<!-- CONTACT OVERLAY (87%+) -->
-<div id="contact-overlay">
-  <div class="content-card" style="max-width:520px;">
-    <div class="card-eyebrow">Find Us</div>
-    <h2 class="card-title">Come Visit Us<br>in Santalpur</h2>
-    <div class="loc-grid">
-      <div class="loc-item">
-        <span class="loc-ic">📍</span>
-        <div>
-          <div class="loc-lbl">Address</div>
-          <div class="loc-val">Nr. Refaral Hospital, Kandla NH Road, Santalpur, Patan – 385350</div>
-        </div>
-      </div>
-      <div class="loc-item">
-        <span class="loc-ic">🕐</span>
-        <div>
-          <div class="loc-lbl">Hours</div>
-          <div class="loc-val">Mon–Sat: 9AM–7PM<br>Sun: 10AM–2PM</div>
-        </div>
-      </div>
-      <div class="loc-item">
-        <span class="loc-ic">📞</span>
-        <div>
-          <div class="loc-lbl">Call Us</div>
-          <div class="loc-val">9825259065<br>9870037002</div>
-        </div>
-      </div>
-      <div class="loc-item">
-        <span class="loc-ic">⭐</span>
-        <div>
-          <div class="loc-lbl">Review Us</div>
-          <div class="loc-val">Share your experience and help others</div>
-        </div>
-      </div>
+<!-- ═══ PANEL 5: CONTACT + REVIEWS (87–100%) ═══ -->
+<div class="panel panel-full" id="p5">
+  <div class="card" style="max-width:900px;margin:0 auto;">
+    <div class="eyebrow">Destination Reached · Find Us</div>
+    <h2 class="card-title" style="margin-bottom:16px;">Visit Us in Santalpur</h2>
+    <!-- Reviews row -->
+    <div class="rev-row" id="revGrid">
+      <div class="rev-c"><div class="rev-stars">★★★★★</div><p class="rev-txt">"Best place for Tata truck parts in Patan region. Got bearings same day. Very knowledgeable."</p><div class="rev-au">Ramesh Patel</div><div class="rev-veh">Tata 1109 Owner · Patan</div></div>
+      <div class="rev-c"><div class="rev-stars">★★★★★</div><p class="rev-txt">"Genuine parts at fair prices. Clutch plates for 2 years. Never had a quality issue."</p><div class="rev-au">Suresh Motor Works</div><div class="rev-veh">Workshop · Santalpur</div></div>
+      <div class="rev-c"><div class="rev-stars">★★★★☆</div><p class="rev-txt">"Had the Leyland leaf spring when no one else did. Incredibly reliable shop."</p><div class="rev-au">Mahesh Bhai</div><div class="rev-veh">Leyland Fleet Owner</div></div>
+      <div class="rev-c"><div class="rev-stars">★★★★★</div><p class="rev-txt">"JCB parts available readily. Quick service, honest pricing. Highly recommend."</p><div class="rev-au">Dinesh Construction</div><div class="rev-veh">JCB Operator · Patan</div></div>
     </div>
-    <div style="display:flex;gap:10px;flex-wrap:wrap;">
-      <a href="https://maps.app.goo.gl/QBDi2SPd5LXC6mHb8" target="_blank" class="card-btn" style="flex:1;justify-content:center;">🗺️ Google Maps</a>
-      <a href="https://wa.me/919870037002" target="_blank" class="card-btn gold" style="flex:1;justify-content:center;">📞 WhatsApp</a>
-      <button onclick="openFB()" class="card-btn" style="flex:1;justify-content:center;background:#059669;">⭐ Leave Review</button>
+    <!-- Location + buttons -->
+    <div class="loc-items">
+      <div class="loc-i"><span class="loc-ic">📍</span><div><div class="loc-lbl">Address</div><div class="loc-val">Nr. Refaral Hospital, Kandla NH Road, Santalpur, Patan 385350</div></div></div>
+      <div class="loc-i"><span class="loc-ic">🕐</span><div><div class="loc-lbl">Hours</div><div class="loc-val">Mon–Sat: 9AM–7PM<br>Sun: 10AM–2PM</div></div></div>
+      <div class="loc-i"><span class="loc-ic">📞</span><div><div class="loc-lbl">Call Us</div><div class="loc-val">9825259065 · 9870037002</div></div></div>
+      <div class="loc-i"><span class="loc-ic">⭐</span><div><div class="loc-lbl">Review Us</div><div class="loc-val">Share your experience</div></div></div>
+    </div>
+    <div class="btn-row">
+      <a href="https://maps.app.goo.gl/QBDi2SPd5LXC6mHb8" target="_blank" class="cbtn cbtn-dark">🗺️ Google Maps</a>
+      <a href="https://wa.me/919870037002" target="_blank" class="cbtn cbtn-gold">📞 WhatsApp</a>
+      <button onclick="openFB()" class="cbtn cbtn-green">⭐ Leave Review</button>
     </div>
   </div>
 </div>
 
-<!-- REVIEWS SECTION (87%+) -->
-<div id="reviews-section" style="
-  position:fixed;top:0;left:0;width:100vw;height:100vh;
-  z-index:20;padding:70px 20px 180px;
-  display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
-  pointer-events:none;opacity:0;transition:opacity .6s;overflow:hidden;
-" id="reviews-panel">
-  <div class="rev-title-bar" style="margin-top:20px;">⭐ CUSTOMER REVIEWS ⭐</div>
-  <div class="rev-scroll-row" id="revGrid">
-    <div class="rev-card">
-      <div class="rev-stars">★★★★★</div>
-      <p class="rev-text">"Best place for Tata truck parts in the Patan region. Got my bearings same day. Very knowledgeable staff."</p>
-      <div class="rev-author">Ramesh Patel</div>
-      <div class="rev-veh">Tata 1109 Owner · Patan</div>
-    </div>
-    <div class="rev-card">
-      <div class="rev-stars">★★★★★</div>
-      <p class="rev-text">"Genuine parts at fair prices. Buying clutch plates from here for 2 years. Never had a single quality issue."</p>
-      <div class="rev-author">Suresh Motor Works</div>
-      <div class="rev-veh">Workshop Owner · Santalpur</div>
-    </div>
-    <div class="rev-card">
-      <div class="rev-stars">★★★★☆</div>
-      <p class="rev-text">"Had the Leyland leaf spring I was looking for when no one else in the district did. Very reliable shop."</p>
-      <div class="rev-author">Mahesh Bhai</div>
-      <div class="rev-veh">Ashok Leyland Fleet Owner</div>
-    </div>
-    <div class="rev-card">
-      <div class="rev-stars">★★★★★</div>
-      <p class="rev-text">"JCB parts available readily. They understand machinery needs. Quick service, fair pricing."</p>
-      <div class="rev-author">Dinesh Construction</div>
-      <div class="rev-veh">JCB Operator · Patan</div>
-    </div>
-  </div>
-  <button onclick="openFB()" class="rev-add-btn" style="pointer-events:auto;margin-top:14px;">⭐ Leave Your Review</button>
+<!-- INTRO SCREEN -->
+<div id="intro">
+  <div class="intro-logo">A</div>
+  <div class="intro-name">Abhinandan Auto Mobiles</div>
+  <div class="intro-sub">Genuine Spare Parts · Santalpur, Patan</div>
+  <button class="intro-start" onclick="startJourney()">▶ Start the Journey</button>
+  <div class="intro-hint">Scroll to drive through our world</div>
 </div>
-
-<!-- SCROLLABLE DRIVER -->
-<div id="scroll-driver"></div>
 
 <!-- FEEDBACK MODAL -->
-<div id="fb-modal">
-  <div class="fb-card">
+<div id="fbModal">
+  <div class="fb-wrap">
     <button class="fb-close" onclick="closeFB()">✕</button>
-    <div class="fb-title">Leave Us a Review</div>
-    <p class="fb-sub">Your feedback helps us improve and helps other customers find us.</p>
-    <div class="fb-f"><label>Your Name <span style="color:#dc2626;">*</span></label><input type="text" id="fbName" placeholder="Full name"></div>
-    <div class="fb-f"><label>Phone (optional)</label><input type="tel" id="fbPhone" placeholder="Mobile number"></div>
-    <div class="fb-f"><label>Your Vehicle / Business</label><input type="text" id="fbVehicle" placeholder="e.g. Tata 407, JCB, Workshop..."></div>
-    <div class="fb-f">
-      <label>Rating <span style="color:#dc2626;">*</span></label>
-      <div class="star-row-fb" id="starRow"><span onclick="setStar(1)">★</span><span onclick="setStar(2)">★</span><span onclick="setStar(3)">★</span><span onclick="setStar(4)">★</span><span onclick="setStar(5)">★</span></div>
-    </div>
-    <div class="fb-f"><label>Your Review <span style="color:#dc2626;">*</span></label><textarea id="fbText" placeholder="Tell us about your experience..."></textarea></div>
-    <button class="fb-btn" onclick="submitFB()">⭐ Submit Review</button>
+    <div class="fb-ht">Leave Us a Review</div>
+    <div class="fb-hs">Your feedback helps other customers trust us.</div>
+    <div class="ff"><label>Your Name *</label><input type="text" id="fbN" placeholder="Full name"></div>
+    <div class="ff"><label>Phone (optional)</label><input type="tel" id="fbP" placeholder="Mobile number"></div>
+    <div class="ff"><label>Your Vehicle / Business</label><input type="text" id="fbV" placeholder="Tata 407, JCB, Workshop..."></div>
+    <div class="ff"><label>Rating *</label><div class="sr" id="srRow"><span onclick="setStar(1)">★</span><span onclick="setStar(2)">★</span><span onclick="setStar(3)">★</span><span onclick="setStar(4)">★</span><span onclick="setStar(5)">★</span></div></div>
+    <div class="ff"><label>Your Review *</label><textarea id="fbT" placeholder="Tell us about your experience..."></textarea></div>
+    <button class="fb-sbtn" onclick="submitFB()">⭐ Submit Review</button>
     <div class="fb-ok" id="fbOk">✅ Thank you! Your review has been submitted.</div>
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════
-     SCRIPTS
-═══════════════════════════════════════════ -->
+<!-- THREE.JS -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+
 <script>
-/* ═══════════════════════════════════
-   SUPABASE LOAD
-═══════════════════════════════════ */
-var _sbEl = document.createElement('script')
-_sbEl.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js'
-_sbEl.onload = function() {
-  window._sb = window.supabase.createClient(
-    'https://mhhnmndnolhapaoqtbxo.supabase.co',
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1oaG5tbmRub2xoYXBhb3F0YnhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4Mzg4NTksImV4cCI6MjA4ODQxNDg1OX0.IMSp8vYiCln_iSuoT_H2qdeX_dP1WMhOOskDw20eJXw'
-  )
-}
-document.head.appendChild(_sbEl)
+/* ════════════════════════════════════════
+   SUPABASE
+════════════════════════════════════════ */
+var _sEl=document.createElement('script')
+_sEl.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js'
+_sEl.onload=function(){window._sb=window.supabase.createClient('https://mhhnmndnolhapaoqtbxo.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1oaG5tbmRub2xoYXBhb3F0YnhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4Mzg4NTksImV4cCI6MjA4ODQxNDg1OX0.IMSp8vYiCln_iSuoT_H2qdeX_dP1WMhOOskDw20eJXw')}
+document.head.appendChild(_sEl)
 
-/* ═══════════════════════════════════
+/* ════════════════════════════════════════
    CURSOR
-═══════════════════════════════════ */
-var cdot = document.getElementById('cursor-dot')
-var cring = document.getElementById('cursor-ring')
+════════════════════════════════════════ */
+var c1=document.getElementById('cur'),c2=document.getElementById('cur2')
 var mx=0,my=0,rx=0,ry=0
-document.addEventListener('mousemove',function(e){
-  mx=e.clientX;my=e.clientY
-  cdot.style.left=mx+'px';cdot.style.top=my+'px'
-})
-;(function animC(){
-  rx+=(mx-rx)*0.1;ry+=(my-ry)*0.1
-  cring.style.left=rx+'px';cring.style.top=ry+'px'
-  requestAnimationFrame(animC)
-})()
+document.addEventListener('mousemove',function(e){mx=e.clientX;my=e.clientY;c1.style.left=mx+'px';c1.style.top=my+'px'})
+;(function ac(){rx+=(mx-rx)*0.1;ry+=(my-ry)*0.1;c2.style.left=rx+'px';c2.style.top=ry+'px';requestAnimationFrame(ac)})()
 
-/* ═══════════════════════════════════
-   CANVAS GAME ENGINE
-═══════════════════════════════════ */
-var canvas = document.getElementById('game-canvas')
-var ctx = canvas.getContext('2d')
-var W, H
+/* ════════════════════════════════════════
+   SCROLL STATE
+   We hijack scroll: body is overflow:hidden
+   We track a virtual scroll position via
+   wheel / touch events
+════════════════════════════════════════ */
+var TOTAL = 7000   // virtual scroll height in px
+var vScroll = 0    // current virtual scroll position
+var targetScroll = 0
+var started = false
 
-function resizeCanvas() {
-  W = canvas.width = window.innerWidth
-  H = canvas.height = window.innerHeight
-}
-resizeCanvas()
-window.addEventListener('resize', resizeCanvas)
+// Wheel
+window.addEventListener('wheel',function(e){
+  if(!started) return
+  e.preventDefault()
+  targetScroll = Math.max(0,Math.min(TOTAL,targetScroll+e.deltaY*1.2))
+},{passive:false})
 
-/* Scroll state */
-var scrollProgress = 0  // 0 to 1
-var totalScrollHeight = 0
+// Touch
+var touchY=0
+window.addEventListener('touchstart',function(e){touchY=e.touches[0].clientY},{passive:true})
+window.addEventListener('touchmove',function(e){
+  if(!started) return
+  e.preventDefault()
+  var dy=(touchY-e.touches[0].clientY)*2.5
+  touchY=e.touches[0].clientY
+  targetScroll=Math.max(0,Math.min(TOTAL,targetScroll+dy))
+},{passive:false})
 
-/* Zone thresholds (scroll progress 0-1) */
-var ZONES = {
-  INTRO:     {start:0,    end:0.15, name:'Santalpur City',    color:'#ffd89b'},
-  CITY:      {start:0.15, end:0.30, name:'City Centre',       color:'#87ceeb'},
-  WAREHOUSE: {start:0.30, end:0.52, name:'Industrial Zone',   color:'#b0c4de'},
-  HIGHWAY:   {start:0.52, end:0.72, name:'National Highway',  color:'#90ee90'},
-  MOUNTAIN:  {start:0.72, end:0.87, name:'Himalaya Foothills',color:'#7c9cbf'},
-  FINAL:     {start:0.87, end:1.00, name:'Destination',       color:'#ffd700'}
-}
-
-/* Truck state */
-var truck = {
-  x: 0,           // screen X position
-  y: 0,           // screen Y position (road center)
-  width: 180,     // base size
-  height: 90,
-  speed: 0,
-  wheelAngle: 0,
-  exhaust: [],    // smoke puffs
-  bounce: 0
+function startJourney(){
+  var intro=document.getElementById('intro')
+  intro.classList.add('gone')
+  setTimeout(function(){intro.style.display='none'},1000)
+  started=true
+  // Show first panel
+  document.getElementById('p0').classList.add('show')
 }
 
-/* Points / collectibles */
-var collectibles = []
-var score = 0
+/* ════════════════════════════════════════
+   THREE.JS WORLD
+════════════════════════════════════════ */
+var renderer,scene,camera,clock
+var road,truck,truckGroup
+var cityGroup,warehouseGroup,mountainGroup,desertGroup
+var skyMesh
+var ambientLight,sunLight,fillLight
+var roadMarkings=[]
+var treeGroups=[]
+var buildingGroups=[]
+var warehouseGrps=[]
+var mountainMeshes=[]
+var dustParticles,dustMat
 
-/* Parallax layers */
-var stars = []
-for(var i=0;i<80;i++){
-  stars.push({x:Math.random(),y:Math.random(),s:Math.random()*2+0.5})
+// World camera path
+// The camera moves along a path (z axis going negative = forward)
+var CAM_Z_TOTAL = -600  // total z travel
+
+function initThree(){
+  var canvas=document.getElementById('c')
+  renderer=new THREE.WebGLRenderer({canvas:canvas,antialias:true,alpha:false})
+  renderer.setPixelRatio(Math.min(devicePixelRatio,2))
+  renderer.setSize(window.innerWidth,window.innerHeight)
+  renderer.shadowMap.enabled=true
+  renderer.shadowMap.type=THREE.PCFSoftShadowMap
+  renderer.toneMapping=THREE.ACESFilmicToneMapping
+  renderer.toneMappingExposure=1.2
+  renderer.outputColorSpace=THREE.SRGBColorSpace
+
+  scene=new THREE.Scene()
+  scene.fog=new THREE.FogExp2(0xc8b09a,0.012)
+
+  camera=new THREE.PerspectiveCamera(65,window.innerWidth/window.innerHeight,0.1,800)
+  camera.position.set(0,3.5,10)
+  camera.lookAt(0,2,-20)
+
+  clock=new THREE.Clock()
+
+  // ── LIGHTS ──
+  ambientLight=new THREE.AmbientLight(0xfff0d0,0.7)
+  scene.add(ambientLight)
+
+  sunLight=new THREE.DirectionalLight(0xffcc88,2.2)
+  sunLight.position.set(30,60,-80)
+  sunLight.castShadow=true
+  sunLight.shadow.mapSize.width=2048
+  sunLight.shadow.mapSize.height=2048
+  sunLight.shadow.camera.near=0.5
+  sunLight.shadow.camera.far=300
+  sunLight.shadow.camera.left=-80
+  sunLight.shadow.camera.right=80
+  sunLight.shadow.camera.top=80
+  sunLight.shadow.camera.bottom=-80
+  scene.add(sunLight)
+
+  fillLight=new THREE.DirectionalLight(0x88aaff,0.4)
+  fillLight.position.set(-20,10,10)
+  scene.add(fillLight)
+
+  // ── SKY ──
+  buildSky()
+
+  // ── ROAD ──
+  buildRoad()
+
+  // ── CITY ZONE (z: 0 to -150) ──
+  buildCity()
+
+  // ── WAREHOUSE ZONE (z: -150 to -300) ──
+  buildWarehouses()
+
+  // ── HIGHWAY/PLAINS ZONE (z: -300 to -450) ──
+  buildPlains()
+
+  // ── MOUNTAIN ZONE (z: -450 to -600) ──
+  buildMountains()
+
+  // ── TRUCK ──
+  buildTruck()
+
+  // ── DUST PARTICLES ──
+  buildDust()
+
+  window.addEventListener('resize',onResize)
+  animate()
 }
 
-/* Cloud objects */
-var clouds = []
-for(var c=0;c<12;c++){
-  clouds.push({x:Math.random(),y:0.05+Math.random()*0.2,w:60+Math.random()*80,s:0.0002+Math.random()*0.0003})
-}
-
-/* City buildings */
-var buildings = []
-var buildingTypes = [
-  {w:40,h:80},{w:55,h:110},{w:35,h:65},{w:60,h:140},{w:45,h:95},{w:50,h:120},
-  {w:38,h:75},{w:65,h:100},{w:42,h:85},{w:58,h:130},{w:48,h:90}
-]
-for(var b=0;b<30;b++){
-  var bt = buildingTypes[Math.floor(Math.random()*buildingTypes.length)]
-  buildings.push({
-    x: b/30,
-    w: bt.w, h: bt.h,
-    color: ['#e8eaf6','#c5cae9','#dce3f3','#b3c0d9','#eef0f8'][Math.floor(Math.random()*5)],
-    windows: Math.floor(Math.random()*8)+2,
-    side: Math.random()>0.5?'top':'bottom'
+/* ── SKY DOME ── */
+function buildSky(){
+  var geo=new THREE.SphereGeometry(500,32,16)
+  var mat=new THREE.MeshBasicMaterial({
+    color:0xe8b090,
+    side:THREE.BackSide
   })
+  skyMesh=new THREE.Mesh(geo,mat)
+  scene.add(skyMesh)
 }
 
-/* Trees */
-var trees = []
-for(var t2=0;t2<40;t2++){
-  trees.push({x:t2/40, side: t2%2===0?'top':'bottom', h:20+Math.random()*20})
-}
+/* ── ROAD ── */
+function buildRoad(){
+  // Main road surface — very long
+  var roadGeo=new THREE.PlaneGeometry(12,700)
+  var roadMat=new THREE.MeshLambertMaterial({color:0x2a2a2a})
+  road=new THREE.Mesh(roadGeo,roadMat)
+  road.rotation.x=-Math.PI/2
+  road.position.set(0,0,-340)
+  road.receiveShadow=true
+  scene.add(road)
 
-/* Mountains data */
-var mountainPeaks = [
-  {x:0.05,h:0.52},{x:0.15,h:0.40},{x:0.25,h:0.62},{x:0.35,h:0.45},
-  {x:0.42,h:0.58},{x:0.52,h:0.38},{x:0.60,h:0.65},{x:0.70,h:0.42},
-  {x:0.78,h:0.55},{x:0.87,h:0.48},{x:0.95,h:0.60},{x:1.05,h:0.40}
-]
+  // Road sides (dirt shoulders)
+  var shoulderMat=new THREE.MeshLambertMaterial({color:0x8b6b3d})
+  var sGeo=new THREE.PlaneGeometry(8,700)
+  var sL=new THREE.Mesh(sGeo,shoulderMat); sL.rotation.x=-Math.PI/2; sL.position.set(-10,0,-340); scene.add(sL)
+  var sR=new THREE.Mesh(sGeo,shoulderMat); sR.rotation.x=-Math.PI/2; sR.position.set(10,0,-340); scene.add(sR)
 
-/* Warehouse objects */
-var warehouses = [
-  {x:0.05,w:120,h:80},{x:0.25,w:90,h:65},{x:0.50,w:130,h:75},{x:0.75,w:100,h:70}
-]
+  // Ground plane (wide)
+  var groundGeo=new THREE.PlaneGeometry(600,800)
+  var groundMat=new THREE.MeshLambertMaterial({color:0xa8824a})
+  var ground=new THREE.Mesh(groundGeo,groundMat)
+  ground.rotation.x=-Math.PI/2; ground.position.set(0,-0.05,-340)
+  ground.receiveShadow=true
+  scene.add(ground)
 
-/* Collectible coins spawn */
-function spawnCollectibles() {
-  collectibles = []
-  for(var ci=0;ci<20;ci++){
-    collectibles.push({
-      progress: 0.05 + ci*0.045,
-      collected: false,
-      y: H*0.5 + (ci%3-1)*40,
-      anim: 0
-    })
-  }
-}
-spawnCollectibles()
-
-/* ─── SKY ─── */
-function drawSky(p) {
-  var grd = ctx.createLinearGradient(0,0,0,H*0.6)
-
-  if(p < 0.15) {
-    // Dawn — warm orange sunrise
-    var t = p/0.15
-    grd.addColorStop(0, lerpColor('#ff6b35','#87ceeb',t))
-    grd.addColorStop(0.4, lerpColor('#ffd89b','#c8e6fa',t))
-    grd.addColorStop(1, lerpColor('#ffe0a3','#e8f4fd',t))
-  } else if(p < 0.52) {
-    // Day — bright blue sky
-    grd.addColorStop(0,'#2980b9')
-    grd.addColorStop(0.5,'#87ceeb')
-    grd.addColorStop(1,'#e8f4fd')
-  } else if(p < 0.72) {
-    // Afternoon — slightly warmer
-    grd.addColorStop(0,'#1a6ba8')
-    grd.addColorStop(0.5,'#64b5f6')
-    grd.addColorStop(1,'#e3f2fd')
-  } else if(p < 0.87) {
-    // Dusk — mountains
-    var mt = (p-0.72)/0.15
-    grd.addColorStop(0, lerpColor('#1a6ba8','#4a1a6b',mt))
-    grd.addColorStop(0.3, lerpColor('#64b5f6','#9b59b6',mt))
-    grd.addColorStop(1, lerpColor('#e3f2fd','#f8d7f5',mt))
-  } else {
-    // Night/Destination — deep purple→gold
-    var ft = (p-0.87)/0.13
-    grd.addColorStop(0, lerpColor('#2c1a4a','#1a2a6c',ft))
-    grd.addColorStop(0.5, lerpColor('#4a1a6b','#b21f1f',ft))
-    grd.addColorStop(1, lerpColor('#f8d7f5','#fddb92',ft))
+  // White road edge lines
+  var lineMat=new THREE.MeshBasicMaterial({color:0xffffff})
+  for(var side of[-4.8,4.8]){
+    var lGeo=new THREE.PlaneGeometry(0.18,700)
+    var lMesh=new THREE.Mesh(lGeo,lineMat)
+    lMesh.rotation.x=-Math.PI/2; lMesh.position.set(side,0.01,-340)
+    scene.add(lMesh)
   }
 
-  ctx.fillStyle = grd
-  ctx.fillRect(0,0,W,H*0.6)
-}
-
-/* ─── STARS (night/dusk) ─── */
-function drawStars(p, offset) {
-  if(p < 0.65) return
-  var alpha = Math.min(1,(p-0.65)/0.15)
-  ctx.save()
-  for(var si=0;si<stars.length;si++){
-    var s = stars[si]
-    var sx = ((s.x - offset*0.002)%1+1)%1
-    ctx.beginPath()
-    ctx.arc(sx*W, s.y*H*0.55, s.s, 0, Math.PI*2)
-    ctx.fillStyle = 'rgba(255,255,255,'+alpha*0.8+')'
-    ctx.fill()
+  // Dashed centre line
+  var dashMat=new THREE.MeshBasicMaterial({color:0xf5c842})
+  for(var di=0;di<140;di++){
+    var dGeo=new THREE.PlaneGeometry(0.14,2.5)
+    var dMesh=new THREE.Mesh(dGeo,dashMat)
+    dMesh.rotation.x=-Math.PI/2
+    dMesh.position.set(0,0.01,-di*5)
+    scene.add(dMesh)
+    roadMarkings.push(dMesh)
   }
-  ctx.restore()
+
+  // Road kilometre posts along both sides
+  for(var ki=0;ki<40;ki++){
+    var pGeo=new THREE.BoxGeometry(0.12,1.2,0.12)
+    var pMat=new THREE.MeshLambertMaterial({color:ki%2===0?0xff3333:0xffffff})
+    var post=new THREE.Mesh(pGeo,pMat)
+    post.position.set(6.5,0.6,-ki*15)
+    post.castShadow=true
+    scene.add(post)
+    var post2=new THREE.Mesh(pGeo,pMat)
+    post2.position.set(-6.5,0.6,-ki*15)
+    post2.castShadow=true
+    scene.add(post2)
+  }
 }
 
-/* ─── SUN / MOON ─── */
-function drawSunMoon(p) {
-  if(p < 0.72) {
-    // Sun
-    var sunX = W*0.8 - p*W*0.4
-    var sunY = H*0.15 + Math.sin(p*Math.PI)*H*0.1
-    var grad = ctx.createRadialGradient(sunX,sunY,0,sunX,sunY,50)
-    grad.addColorStop(0,'rgba(255,255,200,1)')
-    grad.addColorStop(0.3,'rgba(255,220,50,0.8)')
-    grad.addColorStop(1,'rgba(255,180,0,0)')
-    ctx.fillStyle = grad
-    ctx.beginPath(); ctx.arc(sunX,sunY,50,0,Math.PI*2); ctx.fill()
-    // Rays
-    ctx.save()
-    ctx.translate(sunX,sunY)
-    ctx.strokeStyle='rgba(255,230,100,0.25)'; ctx.lineWidth=2
-    for(var r=0;r<8;r++){
-      ctx.rotate(Math.PI/4)
-      ctx.beginPath(); ctx.moveTo(30,0); ctx.lineTo(60,0); ctx.stroke()
+/* ── HELPER: Low-poly box building ── */
+function makeBuilding(w,h,d,color,roofColor){
+  var g=new THREE.Group()
+  var bGeo=new THREE.BoxGeometry(w,h,d)
+  var bMat=new THREE.MeshLambertMaterial({color:color})
+  var bMesh=new THREE.Mesh(bGeo,bMat); bMesh.position.y=h/2; bMesh.castShadow=true; bMesh.receiveShadow=true
+  g.add(bMesh)
+  // Roof
+  var rGeo=new THREE.BoxGeometry(w+0.2,0.3,d+0.2)
+  var rMat=new THREE.MeshLambertMaterial({color:roofColor||darken3(color,0.15)})
+  var rMesh=new THREE.Mesh(rGeo,rMat); rMesh.position.y=h+0.15; g.add(rMesh)
+  // Windows rows
+  var wMat=new THREE.MeshBasicMaterial({color:0xfff8d0})
+  var wRows=Math.floor(h/2.2), wCols=Math.floor(w/1.8)
+  for(var wr=0;wr<Math.min(wRows,6);wr++){
+    for(var wc=0;wc<Math.min(wCols,5);wc++){
+      var wGeo=new THREE.PlaneGeometry(0.55,0.65)
+      var wMesh=new THREE.Mesh(wGeo,wMat)
+      wMesh.position.set((wc-(wCols-1)/2)*1.6,1.2+wr*2.0,d/2+0.02)
+      g.add(wMesh)
     }
-    ctx.restore()
-  } else {
-    // Moon
-    var mt = (p-0.72)/0.28
-    var mx2 = W*0.75
-    var my2 = H*0.12
-    ctx.save()
-    ctx.fillStyle = 'rgba(255,248,220,0.9)'
-    ctx.shadowColor = 'rgba(255,248,220,0.5)'
-    ctx.shadowBlur = 20
-    ctx.beginPath(); ctx.arc(mx2,my2,25,0,Math.PI*2); ctx.fill()
-    ctx.fillStyle = 'rgba(44,26,74,0.85)'
-    ctx.shadowBlur = 0
-    ctx.beginPath(); ctx.arc(mx2+10,my2-5,22,0,Math.PI*2); ctx.fill()
-    ctx.restore()
   }
+  return g
 }
 
-/* ─── CLOUDS ─── */
-function drawClouds(p, offset) {
-  if(p > 0.72) return  // no clouds in mountain dusk/night
-  ctx.save()
-  ctx.fillStyle = p < 0.15 ? 'rgba(255,220,180,0.7)' : 'rgba(255,255,255,0.75)'
-  for(var cl=0;cl<clouds.length;cl++){
-    var cloud = clouds[cl]
-    var cx2 = ((cloud.x - offset*cloud.s*10)%1+1)%1 * W
-    var cy2 = cloud.y * H
-    drawCloud(cx2, cy2, cloud.w)
-  }
-  ctx.restore()
+function darken3(hexColor,factor){
+  var c=new THREE.Color(hexColor)
+  c.r=Math.max(0,c.r-factor); c.g=Math.max(0,c.g-factor); c.b=Math.max(0,c.b-factor)
+  return c
 }
 
-function drawCloud(x,y,w) {
-  ctx.beginPath()
-  ctx.arc(x,y,w*0.35,0,Math.PI*2)
-  ctx.arc(x+w*0.2,y-w*0.12,w*0.28,0,Math.PI*2)
-  ctx.arc(x+w*0.45,y,w*0.32,0,Math.PI*2)
-  ctx.arc(x+w*0.65,y+w*0.05,w*0.22,0,Math.PI*2)
-  ctx.fill()
+/* ── CITY ZONE ── */
+function buildCity(){
+  cityGroup=new THREE.Group()
+  scene.add(cityGroup)
+
+  var palLeft=[0xd4956a,0xc8845a,0xbf7a5a,0xe8a87a,0xd07060]
+  var palRight=[0xc49060,0xd8a07a,0xb87a60,0xcc9060,0xd4a070]
+
+  // Left side buildings (x < -8)
+  var leftPos=[
+    {x:-14,z:-10,w:5,h:12,d:6},{x:-20,z:-20,w:7,h:18,d:7},
+    {x:-13,z:-35,w:4,h:8,d:5},{x:-18,z:-50,w:6,h:22,d:6},
+    {x:-13,z:-65,w:5,h:14,d:5},{x:-20,z:-80,w:8,h:16,d:8},
+    {x:-14,z:-95,w:4,h:10,d:6},{x:-19,z:-110,w:7,h:20,d:7},
+    {x:-13,z:-125,w:5,h:13,d:5},{x:-21,z:-138,w:8,h:18,d:8}
+  ]
+  leftPos.forEach(function(p,i){
+    var b=makeBuilding(p.w,p.h,p.d,palLeft[i%palLeft.length])
+    b.position.set(p.x,0,p.z)
+    cityGroup.add(b)
+  })
+
+  // Right side buildings (x > 8)
+  var rightPos=[
+    {x:14,z:-15,w:6,h:15,d:6},{x:21,z:-25,w:7,h:10,d:7},
+    {x:14,z:-40,w:4,h:20,d:5},{x:20,z:-55,w:6,h:12,d:6},
+    {x:14,z:-70,w:5,h:16,d:5},{x:21,z:-85,w:8,h:24,d:8},
+    {x:14,z:-100,w:4,h:9,d:6},{x:20,z:-115,w:7,h:17,d:7},
+    {x:14,z:-130,w:6,h:14,d:5},{x:22,z:-145,w:8,h:21,d:8}
+  ]
+  rightPos.forEach(function(p,i){
+    var b=makeBuilding(p.w,p.h,p.d,palRight[i%palRight.length])
+    b.position.set(p.x,0,p.z)
+    cityGroup.add(b)
+  })
+
+  // Trees between buildings and road
+  var treePosLeft=[-8,-22,-38,-55,-72,-88,-105,-122,-140]
+  var treePosRight=[-12,-28,-45,-60,-78,-95,-110,-128,-145]
+  treePosLeft.forEach(function(z){addTree(cityGroup,-8,z)})
+  treePosRight.forEach(function(z){addTree(cityGroup,8,z)})
 }
 
-/* ─── MOUNTAINS ─── */
-function drawMountains(p, offset) {
-  var alpha = p < 0.50 ? 0 : Math.min(1,(p-0.50)/0.22)
-  if(alpha <= 0) return
-  ctx.save()
-  ctx.globalAlpha = alpha
-
-  // Back range (misty blue)
-  ctx.fillStyle = p > 0.85 ? '#3d5a7a' : '#8ba7c2'
-  ctx.beginPath()
-  ctx.moveTo(0, H*0.58)
-  for(var mi=0;mi<mountainPeaks.length;mi++){
-    var mpk = mountainPeaks[mi]
-    var mxp = ((mpk.x - offset*0.04)%1+1)%1 * W
-    var myp = H*(0.58 - mpk.h*0.25)
-    ctx.lineTo(mxp, myp)
+function addTree(parent,x,z){
+  var g=new THREE.Group()
+  // Trunk
+  var tGeo=new THREE.CylinderGeometry(0.15,0.2,1.5,6)
+  var tMat=new THREE.MeshLambertMaterial({color:0x5a3a1a})
+  var trunk=new THREE.Mesh(tGeo,tMat); trunk.position.y=0.75; trunk.castShadow=true; g.add(trunk)
+  // Canopy (3 stacked spheres — low poly look)
+  var colors=[0x2d7a2d,0x3a8a3a,0x256025]
+  for(var ci2=0;ci2<3;ci2++){
+    var cGeo=new THREE.SphereGeometry(1.1-ci2*0.12,6,5)
+    var cMat=new THREE.MeshLambertMaterial({color:colors[ci2]})
+    var cap=new THREE.Mesh(cGeo,cMat); cap.position.y=2.0+ci2*0.7; cap.castShadow=true; g.add(cap)
   }
-  ctx.lineTo(W, H*0.58); ctx.closePath(); ctx.fill()
-
-  // Snow caps
-  ctx.fillStyle = 'rgba(255,255,255,0.85)'
-  for(var sni=0;sni<mountainPeaks.length;sni++){
-    var snpk = mountainPeaks[sni]
-    var snx = ((snpk.x - offset*0.04)%1+1)%1 * W
-    var sny = H*(0.58 - snpk.h*0.25)
-    var capH = 18 + snpk.h*10
-    ctx.beginPath()
-    ctx.moveTo(snx, sny)
-    ctx.lineTo(snx-15-snpk.h*5, sny+capH)
-    ctx.lineTo(snx+15+snpk.h*5, sny+capH)
-    ctx.closePath(); ctx.fill()
-  }
-
-  // Front range (darker)
-  ctx.fillStyle = p > 0.85 ? '#2c3e50' : '#5d7a8a'
-  ctx.beginPath()
-  ctx.moveTo(0,H*0.60)
-  for(var fm=0;fm<mountainPeaks.length;fm++){
-    var fmpk = mountainPeaks[(fm+3)%mountainPeaks.length]
-    var fmx = ((fmpk.x - offset*0.07)%1+1)%1 * W
-    var fmy = H*(0.62 - fmpk.h*0.15)
-    ctx.lineTo(fmx,fmy)
-  }
-  ctx.lineTo(W,H*0.60); ctx.closePath(); ctx.fill()
-
-  ctx.restore()
+  g.position.set(x,0,z)
+  parent.add(g)
+  treeGroups.push(g)
 }
 
-/* ─── GROUND / GRASS ─── */
-function drawGround(p) {
-  var roadY = H * 0.60
-  var groundH = H - roadY
+/* ── WAREHOUSE ZONE ── */
+function buildWarehouses(){
+  warehouseGroup=new THREE.Group()
+  scene.add(warehouseGroup)
 
-  // Grass / terrain
-  var grassColor
-  if(p < 0.15) grassColor = '#8bc34a'       // lush green dawn
-  else if(p < 0.52) grassColor = '#66bb6a'  // day green
-  else if(p < 0.72) grassColor = '#81c784'  // highway green
-  else if(p < 0.87) grassColor = '#5d7a3a'  // mountain green
-  else grassColor = '#4a6c2a'               // dark
-
-  // Top grass strip
-  ctx.fillStyle = grassColor
-  ctx.fillRect(0, roadY-6, W, 14)
-  ctx.fillRect(0, roadY+H*0.12+6, W, 8)
-
-  // Ground fill
-  var gGrad = ctx.createLinearGradient(0,roadY,0,H)
-  gGrad.addColorStop(0, grassColor)
-  gGrad.addColorStop(0.15, darken(grassColor,15))
-  gGrad.addColorStop(1, darken(grassColor,30))
-  ctx.fillStyle = gGrad
-  ctx.fillRect(0, roadY, W, groundH)
-}
-
-/* ─── ROAD ─── */
-function drawRoad(p, offset) {
-  var roadY = H * 0.60
-  var roadH = H * 0.13
-
-  // Road surface
-  var roadColor = p > 0.72 ? '#2c2c2c' : '#3a3a3a'
-  ctx.fillStyle = roadColor
-  // Road has slight perspective (wider at bottom)
-  ctx.beginPath()
-  ctx.moveTo(-20, roadY)
-  ctx.lineTo(W+20, roadY)
-  ctx.lineTo(W+20, roadY+roadH)
-  ctx.lineTo(-20, roadY+roadH)
-  ctx.closePath()
-  ctx.fill()
-
-  // Road edges (white lines)
-  ctx.strokeStyle = 'rgba(255,255,255,0.4)'
-  ctx.lineWidth = 3
-  ctx.setLineDash([])
-  ctx.beginPath()
-  ctx.moveTo(0,roadY+2);ctx.lineTo(W,roadY+2);ctx.stroke()
-  ctx.beginPath()
-  ctx.moveTo(0,roadY+roadH-2);ctx.lineTo(W,roadY+roadH-2);ctx.stroke()
-
-  // Centre dashes
-  var dashLen = 40, gapLen = 30
-  var totalDash = dashLen + gapLen
-  var startX = -(offset*4 % totalDash)
-  ctx.strokeStyle = '#f5c842'
-  ctx.lineWidth = 4
-  ctx.setLineDash([dashLen, gapLen])
-  ctx.lineDashOffset = -startX
-  ctx.beginPath()
-  ctx.moveTo(0, roadY+roadH/2)
-  ctx.lineTo(W, roadY+roadH/2)
-  ctx.stroke()
-  ctx.setLineDash([])
-  ctx.lineDashOffset = 0
-
-  // Road shadow/texture
-  var shadowGrad = ctx.createLinearGradient(0,roadY,0,roadY+roadH)
-  shadowGrad.addColorStop(0,'rgba(0,0,0,0.15)')
-  shadowGrad.addColorStop(0.5,'rgba(0,0,0,0)')
-  shadowGrad.addColorStop(1,'rgba(0,0,0,0.1)')
-  ctx.fillStyle = shadowGrad
-  ctx.fillRect(0,roadY,W,roadH)
-}
-
-/* ─── BUILDINGS (city zone) ─── */
-function drawBuildings(p, offset) {
-  var showAmount = 0
-  if(p >= 0.15 && p < 0.30) showAmount = (p-0.15)/0.08
-  else if(p >= 0.30 && p < 0.50) showAmount = 1 - (p-0.30)/0.12
-  if(showAmount <= 0) return
-
-  ctx.save()
-  ctx.globalAlpha = Math.min(1, showAmount)
-  var roadY = H*0.60
-  for(var bi=0;bi<buildings.length;bi++){
-    var bg2 = buildings[bi]
-    var bx = ((bg2.x - offset*0.06)%1+1)%1 * W
-    var by = bg2.side==='top' ? roadY - bg2.h - 4 : roadY - bg2.h - 4
-
-    // Building body
-    ctx.fillStyle = bg2.color
-    ctx.fillRect(bx-bg2.w/2, by, bg2.w, bg2.h)
-
-    // Windows
-    ctx.fillStyle = Math.random()>0.3 ? 'rgba(255,230,100,0.6)' : 'rgba(180,210,255,0.5)'
-    var wRows = Math.floor(bg2.h/20)
-    var wCols = Math.floor(bg2.w/14)
-    for(var wr=0;wr<wRows;wr++){
-      for(var wc=0;wc<wCols;wc++){
-        if(Math.random()>0.3){
-          ctx.fillRect(bx-bg2.w/2+4+wc*14, by+6+wr*18, 8, 10)
-        }
-      }
-    }
-
-    // Roof line
-    ctx.fillStyle = darken(bg2.color,20)
-    ctx.fillRect(bx-bg2.w/2-2, by-4, bg2.w+4, 6)
-  }
-  ctx.restore()
-}
-
-/* ─── WAREHOUSES (industrial zone) ─── */
-function drawWarehouses(p, offset) {
-  var showAmount = 0
-  if(p >= 0.30 && p < 0.42) showAmount = (p-0.30)/0.10
-  else if(p >= 0.42 && p < 0.52) showAmount = 1
-  else if(p >= 0.52 && p < 0.60) showAmount = 1-(p-0.52)/0.08
-  if(showAmount <= 0) return
-
-  ctx.save()
-  ctx.globalAlpha = Math.min(1,showAmount)
-  var roadY = H*0.60
-  for(var wi=0;wi<warehouses.length;wi++){
-    var wh = warehouses[wi]
-    var wx = ((wh.x - offset*0.05)%1+1)%1 * W
-    var wy = roadY - wh.h
-
-    // Main body
-    ctx.fillStyle = '#b0bec5'
-    ctx.fillRect(wx-wh.w/2, wy, wh.w, wh.h)
-
-    // Roof (triangular)
-    ctx.fillStyle = '#90a4ae'
-    ctx.beginPath()
-    ctx.moveTo(wx-wh.w/2-5, wy)
-    ctx.lineTo(wx, wy-20)
-    ctx.lineTo(wx+wh.w/2+5, wy)
-    ctx.closePath(); ctx.fill()
-
-    // Door
-    ctx.fillStyle = '#546e7a'
-    ctx.fillRect(wx-15, wy+wh.h-30, 30, 30)
-
-    // Sign
-    ctx.fillStyle = '#1565c0'
-    ctx.fillRect(wx-wh.w/4, wy+10, wh.w/2, 16)
-    ctx.fillStyle = '#fff'
-    ctx.font = '8px sans-serif'
-    ctx.textAlign = 'center'
-    ctx.fillText('PARTS DEPOT', wx, wy+21)
-
-    // Chimney / pipes
-    ctx.fillStyle = '#607d8b'
-    ctx.fillRect(wx+wh.w/2-20, wy-35, 10, 36)
-
-    // Smoke from chimney
-    var smokeAlpha = 0.4+Math.sin(Date.now()*0.002)*0.2
-    ctx.fillStyle = 'rgba(200,200,200,'+smokeAlpha+')'
-    ctx.beginPath(); ctx.arc(wx+wh.w/2-15, wy-45, 10, 0, Math.PI*2); ctx.fill()
-    ctx.beginPath(); ctx.arc(wx+wh.w/2-10, wy-58, 7, 0, Math.PI*2); ctx.fill()
-  }
-  ctx.restore()
-}
-
-/* ─── TREES ─── */
-function drawTrees(p, offset) {
-  if(p > 0.85) return
-  var roadY = H*0.60
-  var roadH = H*0.13
-  ctx.save()
-  for(var ti=0;ti<trees.length;ti++){
-    var tr = trees[ti]
-    var tx = ((tr.x - offset*0.08)%1+1)%1 * W
-    var treeY = tr.side==='top' ? roadY - tr.h - 2 : roadY + roadH + 2
-
-    // Trunk
-    ctx.fillStyle = '#5d4037'
-    ctx.fillRect(tx-3, treeY, 6, tr.h*0.4)
-
-    // Canopy
-    var treeColor = p > 0.65 ? '#2e7d32' : '#43a047'
-    ctx.fillStyle = treeColor
-    ctx.beginPath()
-    ctx.arc(tx, treeY, tr.h*0.5, 0, Math.PI*2)
-    ctx.fill()
-
-    // Highlight
-    ctx.fillStyle = 'rgba(255,255,255,0.1)'
-    ctx.beginPath()
-    ctx.arc(tx-tr.h*0.15, treeY-tr.h*0.12, tr.h*0.2, 0, Math.PI*2)
-    ctx.fill()
-  }
-  ctx.restore()
-}
-
-/* ─── COLLECTIBLE COINS ─── */
-function drawCollectibles(p, offset) {
-  var roadY = H*0.60
-  var roadH = H*0.13
-  var roadCenterY = roadY + roadH/2
-
-  for(var ci=0;ci<collectibles.length;ci++){
-    var col = collectibles[ci]
-    if(col.collected) continue
-
-    // Position relative to scroll
-    var colScreenX = (col.progress - p) * W * 6 + W*0.6
-    if(colScreenX < -30 || colScreenX > W+30) continue
-
-    col.anim += 0.05
-    var cyPos = roadCenterY + Math.sin(col.anim)*8
-
-    // Check truck collision
-    if(Math.abs(colScreenX - truck.x) < 50 && Math.abs(cyPos - truck.y) < 30) {
-      col.collected = true
-      score++
-      showMilestone('🪙 +1 Point! Score: '+score, '#f59e0b')
-    }
-
-    // Draw coin
-    ctx.save()
-    ctx.translate(colScreenX, cyPos)
-    ctx.rotate(col.anim)
-
-    var coinGrad = ctx.createRadialGradient(-4,-4,0,0,0,12)
-    coinGrad.addColorStop(0,'#ffd700')
-    coinGrad.addColorStop(0.6,'#f59e0b')
-    coinGrad.addColorStop(1,'#b45309')
-    ctx.fillStyle = coinGrad
-    ctx.beginPath(); ctx.arc(0,0,12,0,Math.PI*2); ctx.fill()
-
-    ctx.fillStyle = 'rgba(255,255,255,0.4)'
-    ctx.font = 'bold 10px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle'
-    ctx.fillText('₹',0,1)
-
-    // Glow
-    ctx.shadowColor='#ffd700'; ctx.shadowBlur=15
-    ctx.strokeStyle='rgba(255,215,0,0.5)'; ctx.lineWidth=2
-    ctx.stroke()
-    ctx.restore()
-  }
-}
-
-/* ─── TRUCK ─── */
-function drawTruck(p) {
-  var roadY = H*0.60
-  var roadH = H*0.13
-
-  // Truck stays at ~35% from left, bounces on road
-  truck.x = W * 0.32
-  truck.y = roadY + roadH*0.48
-
-  // Speed based on scroll velocity
-  truck.wheelAngle += (truck.speed * 0.4 + 0.02)
-  truck.bounce = Math.sin(truck.wheelAngle * 2) * 1.5
-
-  // Exhaust smoke
-  if(Math.random() < 0.15) {
-    truck.exhaust.push({
-      x: truck.x - truck.width*0.46,
-      y: truck.y - truck.height*0.45 + truck.bounce,
-      life: 1, vx:-0.8, vy:-0.5, size:6
-    })
-  }
-  // Update exhaust
-  for(var ei=truck.exhaust.length-1;ei>=0;ei--){
-    var ep = truck.exhaust[ei]
-    ep.x += ep.vx; ep.y += ep.vy
-    ep.life -= 0.04; ep.size += 0.5
-    if(ep.life<=0) truck.exhaust.splice(ei,1)
-  }
-
-  // Draw exhaust
-  for(var edi=0;edi<truck.exhaust.length;edi++){
-    var ed = truck.exhaust[edi]
-    ctx.save()
-    ctx.globalAlpha = ed.life * 0.4
-    ctx.fillStyle = p > 0.65 ? '#aaa' : '#999'
-    ctx.beginPath(); ctx.arc(ed.x,ed.y,ed.size,0,Math.PI*2); ctx.fill()
-    ctx.restore()
-  }
-
-  // Draw truck body
-  ctx.save()
-  ctx.translate(truck.x, truck.y + truck.bounce)
-
-  var tw = truck.width, th = truck.height
-
-  // Truck shadow
-  ctx.fillStyle = 'rgba(0,0,0,0.18)'
-  ctx.beginPath()
-  ctx.ellipse(0, th*0.42, tw*0.46, 8, 0, 0, Math.PI*2)
-  ctx.fill()
-
-  // ─ TRAILER ─
-  ctx.fillStyle = '#1565c0'
-  ctx.beginPath()
-  ctx.roundRect(-tw*0.46, -th*0.6, tw*0.58, th*0.65, 4)
-  ctx.fill()
-
-  // Trailer stripe
-  ctx.fillStyle = '#ff6f00'
-  ctx.fillRect(-tw*0.46, -th*0.1, tw*0.58, 7)
-
-  // AAM Text on trailer
-  ctx.fillStyle = '#fff'
-  ctx.font = 'bold '+(tw*0.055)+'px Rajdhani, sans-serif'
-  ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
-  ctx.fillText('ABHINANDAN', -tw*0.17, -th*0.3)
-  ctx.font = (tw*0.04)+'px DM Sans, sans-serif'
-  ctx.fillText('AUTO MOBILES', -tw*0.17, -th*0.14)
-
-  // Trailer rivets
-  ctx.fillStyle = 'rgba(255,255,255,0.3)'
-  for(var ri=0;ri<4;ri++){
-    ctx.beginPath(); ctx.arc(-tw*0.44+ri*(tw*0.14), -th*0.6, 2.5, 0, Math.PI*2); ctx.fill()
-  }
-
-  // Trailer rear doors
-  ctx.strokeStyle = 'rgba(255,255,255,0.2)'; ctx.lineWidth=1.5
-  ctx.beginPath(); ctx.moveTo(tw*0.12,-th*0.6); ctx.lineTo(tw*0.12,tw*0.05-th*0.6+th*0.65); ctx.stroke()
-
-  // ─ CAB ─
-  ctx.fillStyle = '#e65100'
-  ctx.beginPath()
-  ctx.roundRect(tw*0.1, -th*0.78, tw*0.36, th*0.83, [4,16,6,4])
-  ctx.fill()
-
-  // Cab highlight
-  var cabGrad = ctx.createLinearGradient(tw*0.1,-th*0.78,tw*0.46,-th*0.78)
-  cabGrad.addColorStop(0,'rgba(255,255,255,0.12)')
-  cabGrad.addColorStop(1,'rgba(255,255,255,0)')
-  ctx.fillStyle = cabGrad
-  ctx.beginPath()
-  ctx.roundRect(tw*0.1,-th*0.78,tw*0.36,th*0.83,[4,16,6,4])
-  ctx.fill()
-
-  // Windshield
-  ctx.fillStyle = 'rgba(180,220,255,0.75)'
-  ctx.beginPath()
-  ctx.roundRect(tw*0.12,-th*0.75,tw*0.31,th*0.35,[3,12,4,3])
-  ctx.fill()
-
-  // Windshield glare
-  ctx.fillStyle = 'rgba(255,255,255,0.35)'
-  ctx.beginPath()
-  ctx.moveTo(tw*0.14,-th*0.72); ctx.lineTo(tw*0.22,-th*0.72); ctx.lineTo(tw*0.14,-th*0.55); ctx.closePath(); ctx.fill()
-
-  // Headlights
-  ctx.fillStyle = '#fff8'
-  ctx.shadowColor = '#fff'; ctx.shadowBlur = 10
-  ctx.fillRect(tw*0.39,-th*0.48,tw*0.05,th*0.1)
-  ctx.shadowBlur = 0
-
-  // Grille
-  ctx.fillStyle = '#37474f'
-  ctx.fillRect(tw*0.37,-th*0.35,tw*0.08,th*0.22)
-  ctx.strokeStyle='rgba(255,255,255,0.15)'; ctx.lineWidth=1.5
-  for(var gr=0;gr<3;gr++){
-    ctx.beginPath()
-    ctx.moveTo(tw*0.37,(-th*0.35)+(gr+1)*(th*0.05))
-    ctx.lineTo(tw*0.45,(-th*0.35)+(gr+1)*(th*0.05))
-    ctx.stroke()
-  }
-
-  // Bumper
-  ctx.fillStyle = '#546e7a'
-  ctx.beginPath()
-  ctx.roundRect(tw*0.35,tw*0.04,tw*0.12,th*0.12,3)
-  ctx.fill()
-
-  // Exhaust pipe (on cab)
-  ctx.fillStyle = '#607d8b'
-  ctx.fillRect(tw*0.34,-th*0.55,5,th*0.3)
-
-  // ─ WHEELS ─
-  var wheelPositions = [
-    {x:-tw*0.3, front:false},  // trailer rear
-    {x:-tw*0.06, front:false}, // trailer front
-    {x:tw*0.24, front:false},  // cab rear
-    {x:tw*0.38, front:true}    // cab front
+  var whData=[
+    {x:-18,z:-170,w:18,h:10,d:12,col:0x9aabb8},{x:17,z:-185,w:14,h:8,d:10,col:0x8a9ea8},
+    {x:-16,z:-215,w:16,h:9,d:11,col:0x7a90a0},{x:18,z:-230,w:12,h:11,d:10,col:0x8895a5},
+    {x:-18,z:-260,w:20,h:8,d:14,col:0x96a4b0},{x:16,z:-278,w:14,h:10,d:12,col:0x7a8898}
   ]
 
-  for(var wi2=0;wi2<wheelPositions.length;wi2++){
-    var wpos = wheelPositions[wi2]
-    var wr2 = wpos.front ? 13 : 15
-    ctx.save()
-    ctx.translate(wpos.x, th*0.22)
+  whData.forEach(function(d){
+    var g=new THREE.Group()
+    // Body
+    var bGeo=new THREE.BoxGeometry(d.w,d.h,d.d)
+    var bMat=new THREE.MeshLambertMaterial({color:d.col})
+    var bM=new THREE.Mesh(bGeo,bMat); bM.position.y=d.h/2; bM.castShadow=true; bM.receiveShadow=true; g.add(bM)
+    // Pitched roof
+    var rGeo=new THREE.CylinderGeometry(0,d.w*0.62,d.h*0.55,4)
+    var rMat=new THREE.MeshLambertMaterial({color:0x5a6a78})
+    var rM=new THREE.Mesh(rGeo,rMat); rM.rotation.y=Math.PI/4; rM.position.y=d.h+d.h*0.28; rM.castShadow=true; g.add(rM)
+    // Roller door
+    var doorGeo=new THREE.BoxGeometry(d.w*0.4,d.h*0.5,0.2)
+    var doorMat=new THREE.MeshLambertMaterial({color:0x445566})
+    var door=new THREE.Mesh(doorGeo,doorMat); door.position.set(0,d.h*0.25,d.d/2+0.1); g.add(door)
+    // Blue sign
+    var signGeo=new THREE.BoxGeometry(d.w*0.65,1.2,0.15)
+    var signMat=new THREE.MeshLambertMaterial({color:0x1a3a8a})
+    var sign=new THREE.Mesh(signGeo,signMat); sign.position.set(0,d.h-0.3,d.d/2+0.1); g.add(sign)
+    // Chimney/pipe
+    var chGeo=new THREE.CylinderGeometry(0.25,0.28,3,8)
+    var chMat=new THREE.MeshLambertMaterial({color:0x445566})
+    var ch=new THREE.Mesh(chGeo,chMat); ch.position.set(d.w*0.3,d.h+1.5,0); ch.castShadow=true; g.add(ch)
 
-    // Tyre
-    ctx.fillStyle = '#1a1a1a'
-    ctx.beginPath(); ctx.arc(0,0,wr2,0,Math.PI*2); ctx.fill()
-    ctx.strokeStyle='#333'; ctx.lineWidth=2
-    ctx.beginPath(); ctx.arc(0,0,wr2,0,Math.PI*2); ctx.stroke()
+    g.position.set(d.x,0,d.z)
+    warehouseGroup.add(g)
+  })
 
-    // Rim
-    ctx.save(); ctx.rotate(truck.wheelAngle)
-    var rimGrad = ctx.createRadialGradient(0,0,0,0,0,wr2*0.72)
-    rimGrad.addColorStop(0,'#cfd8dc')
-    rimGrad.addColorStop(0.6,'#90a4ae')
-    rimGrad.addColorStop(1,'#546e7a')
-    ctx.fillStyle = rimGrad
-    ctx.beginPath(); ctx.arc(0,0,wr2*0.72,0,Math.PI*2); ctx.fill()
+  // Lamp posts along highway
+  for(var li=0;li<12;li++){
+    addLampPost(warehouseGroup,-7.5,-160-li*12)
+    addLampPost(warehouseGroup,7.5,-160-li*12)
+  }
+}
 
-    // Spokes
-    ctx.strokeStyle='#78909c'; ctx.lineWidth=2
-    for(var sp=0;sp<5;sp++){
-      ctx.rotate(Math.PI*2/5)
-      ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(0,wr2*0.65); ctx.stroke()
+function addLampPost(parent,x,z){
+  var g=new THREE.Group()
+  var pGeo=new THREE.CylinderGeometry(0.12,0.15,5,6)
+  var pMat=new THREE.MeshLambertMaterial({color:0x607080})
+  var post=new THREE.Mesh(pGeo,pMat); post.position.y=2.5; post.castShadow=true; g.add(post)
+  var armGeo=new THREE.CylinderGeometry(0.06,0.06,1.5,5)
+  var arm=new THREE.Mesh(armGeo,pMat); arm.rotation.z=Math.PI/2; arm.position.set(x>0?-0.75:0.75,5,0); g.add(arm)
+  var lGeo=new THREE.SphereGeometry(0.22,8,6)
+  var lMat=new THREE.MeshBasicMaterial({color:0xffee88})
+  var lamp=new THREE.Mesh(lGeo,lMat); lamp.position.set(x>0?-0.75:0.75,5.2,0); g.add(lamp)
+  g.position.set(x,0,z)
+  parent.add(g)
+}
+
+/* ── PLAINS / HIGHWAY ── */
+function buildPlains(){
+  // Green fields either side
+  var fieldMat=new THREE.MeshLambertMaterial({color:0x5a8a3a})
+  var fGeo=new THREE.PlaneGeometry(100,150)
+  var fL=new THREE.Mesh(fGeo,fieldMat); fL.rotation.x=-Math.PI/2; fL.position.set(-60,0.01,-375); scene.add(fL)
+  var fR=new THREE.Mesh(fGeo,fieldMat); fR.rotation.x=-Math.PI/2; fR.position.set(60,0.01,-375); scene.add(fR)
+
+  // Scattered trees
+  var treePts=[-310,-325,-340,-355,-368,-382,-395,-408,-422,-438]
+  treePts.forEach(function(z){
+    addTree(scene,-12+Math.random()*3,z)
+    addTree(scene,12-Math.random()*3,z)
+    if(Math.random()>0.5) addTree(scene,-18+Math.random()*4,z-8)
+  })
+
+  // Billboard sign on highway
+  var bbGeo=new THREE.BoxGeometry(8,4,0.2)
+  var bbMat=new THREE.MeshLambertMaterial({color:0x1a3a8a})
+  var bb=new THREE.Mesh(bbGeo,bbMat); bb.position.set(-18,5,-360); scene.add(bb)
+  var p1Geo=new THREE.CylinderGeometry(0.2,0.25,5,6)
+  var p1Mat=new THREE.MeshLambertMaterial({color:0x607080})
+  var p1=new THREE.Mesh(p1Geo,p1Mat); p1.position.set(-20,2.5,-360); scene.add(p1)
+  var p2=new THREE.Mesh(p1Geo,p1Mat); p2.position.set(-16,2.5,-360); scene.add(p2)
+}
+
+/* ── MOUNTAINS ── */
+function buildMountains(){
+  mountainGroup=new THREE.Group()
+  scene.add(mountainGroup)
+
+  var mtPalette=[0x8090a8,0x7080a0,0x6878a0,0x9098b0]
+  var mtData=[
+    {x:-60,z:-500,s:50},{x:-30,z:-520,s:40},{x:-80,z:-540,s:55},
+    {x:60,z:-495,s:48},{x:35,z:-515,s:42},{x:75,z:-545,s:52},
+    {x:-10,z:-560,s:60},{x:20,z:-575,s:45},{x:-50,z:-580,s:58},
+    {x:50,z:-565,s:50},{x:-90,z:-510,s:65},{x:90,z:-510,s:62}
+  ]
+  mtData.forEach(function(d,i){
+    var geo=new THREE.ConeGeometry(d.s*0.7,d.s,7)
+    var mat=new THREE.MeshLambertMaterial({color:mtPalette[i%4]})
+    var m=new THREE.Mesh(geo,mat); m.position.set(d.x,d.s/2-5,d.z); m.castShadow=true
+    mountainGroup.add(m)
+    // Snow cap
+    var sGeo=new THREE.ConeGeometry(d.s*0.22,d.s*0.28,7)
+    var sMat=new THREE.MeshLambertMaterial({color:0xffffff})
+    var snow=new THREE.Mesh(sGeo,sMat); snow.position.set(d.x,d.s-5+d.s*0.14*0.5,d.z)
+    mountainGroup.add(snow)
+    mountainMeshes.push(m)
+  })
+
+  // A golden gate/arch at the destination
+  var archMat=new THREE.MeshLambertMaterial({color:0xc8900a})
+  var pillarGeo=new THREE.BoxGeometry(0.8,12,0.8)
+  var pL=new THREE.Mesh(pillarGeo,archMat); pL.position.set(-6,6,-590); scene.add(pL)
+  var pR=new THREE.Mesh(pillarGeo,archMat); pR.position.set(6,6,-590); scene.add(pR)
+  var topGeo=new THREE.BoxGeometry(13.6,1.2,0.8)
+  var top=new THREE.Mesh(topGeo,archMat); top.position.set(0,12.6,-590); scene.add(top)
+  // AAM on arch
+  var flagGeo=new THREE.PlaneGeometry(5,2)
+  var flagMat=new THREE.MeshBasicMaterial({color:0xe8a020,side:THREE.DoubleSide})
+  var flag=new THREE.Mesh(flagGeo,flagMat); flag.position.set(0,11,-589.6); scene.add(flag)
+}
+
+/* ── TATA TRUCK ── */
+function buildTruck(){
+  truckGroup=new THREE.Group()
+  scene.add(truckGroup)
+
+  // ─ TRAILER ─
+  var trailerGeo=new THREE.BoxGeometry(3.4,2.2,8)
+  var trailerMat=new THREE.MeshLambertMaterial({color:0x1a4a9a})
+  var trailer=new THREE.Mesh(trailerGeo,trailerMat)
+  trailer.position.set(0,1.8,-5.5); trailer.castShadow=true; trailer.receiveShadow=true
+  truckGroup.add(trailer)
+
+  // Orange stripe on trailer
+  var stripeGeo=new THREE.BoxGeometry(3.42,0.32,8.02)
+  var stripeMat=new THREE.MeshBasicMaterial({color:0xff6600})
+  var stripe=new THREE.Mesh(stripeGeo,stripeMat); stripe.position.set(0,1.0,-5.5)
+  truckGroup.add(stripe)
+
+  // AAM logo on trailer side
+  var logoGeo=new THREE.BoxGeometry(0.05,1.2,4.5)
+  var logoMat=new THREE.MeshBasicMaterial({color:0xffffff,side:THREE.FrontSide})
+  var logoL=new THREE.Mesh(logoGeo,logoMat); logoL.position.set(-1.72,2.2,-5.5); truckGroup.add(logoL)
+
+  // Trailer rear doors
+  var doorMat=new THREE.MeshLambertMaterial({color:0x1535788})
+  var rDoorGeo=new THREE.BoxGeometry(3.4,2.2,0.1)
+  var rDoor=new THREE.Mesh(rDoorGeo,doorMat); rDoor.position.set(0,1.8,-9.55); truckGroup.add(rDoor)
+  // Door line
+  var dlGeo=new THREE.BoxGeometry(0.06,2.2,0.12)
+  var dlMat=new THREE.MeshBasicMaterial({color:0x8899bb})
+  var dl=new THREE.Mesh(dlGeo,dlMat); dl.position.set(0,1.8,-9.6); truckGroup.add(dl)
+
+  // ─ CAB ─
+  var cabGeo=new THREE.BoxGeometry(3.2,2.8,3.5)
+  var cabMat=new THREE.MeshLambertMaterial({color:0xcc4400})
+  var cab=new THREE.Mesh(cabGeo,cabMat); cab.position.set(0,2.0,0.2); cab.castShadow=true; truckGroup.add(cab)
+
+  // Cab top sleeper
+  var slpGeo=new THREE.BoxGeometry(3.0,0.9,2.2)
+  var slpMat=new THREE.MeshLambertMaterial({color:0xbb3a00})
+  var slp=new THREE.Mesh(slpGeo,slpMat); slp.position.set(0,3.55,-0.65); cab.castShadow=true; truckGroup.add(slp)
+
+  // Wind deflector (aerodynamic top)
+  var wdGeo=new THREE.BoxGeometry(3.1,0.5,0.6)
+  var wdMat=new THREE.MeshLambertMaterial({color:0xaa3000})
+  var wd=new THREE.Mesh(wdGeo,wdMat); wd.position.set(0,4.25,1.3); truckGroup.add(wd)
+
+  // Windshield
+  var wsGeo=new THREE.BoxGeometry(2.6,1.3,0.08)
+  var wsMat=new THREE.MeshLambertMaterial({color:0x88bbdd,transparent:true,opacity:0.7})
+  var ws=new THREE.Mesh(wsGeo,wsMat); ws.position.set(0,2.45,1.78); truckGroup.add(ws)
+
+  // Headlights
+  var hlMat=new THREE.MeshBasicMaterial({color:0xffffee})
+  var hlGeo=new THREE.BoxGeometry(0.6,0.35,0.08)
+  var hlL=new THREE.Mesh(hlGeo,hlMat); hlL.position.set(-1.05,1.35,1.79); truckGroup.add(hlL)
+  var hlR=new THREE.Mesh(hlGeo,hlMat); hlR.position.set(1.05,1.35,1.79); truckGroup.add(hlR)
+
+  // Point lights from headlights
+  var hl1=new THREE.PointLight(0xfff8d0,1.5,18)
+  hl1.position.set(-1.1,1.4,2.5); truckGroup.add(hl1)
+  var hl2=new THREE.PointLight(0xfff8d0,1.5,18)
+  hl2.position.set(1.1,1.4,2.5); truckGroup.add(hl2)
+
+  // Grille
+  var grGeo=new THREE.BoxGeometry(2.2,0.9,0.1)
+  var grMat=new THREE.MeshLambertMaterial({color:0x2a2a2a})
+  var grille=new THREE.Mesh(grGeo,grMat); grille.position.set(0,1.1,1.78); truckGroup.add(grille)
+
+  // Bumper
+  var bmpGeo=new THREE.BoxGeometry(3.3,0.45,0.4)
+  var bmpMat=new THREE.MeshLambertMaterial({color:0x444444})
+  var bumper=new THREE.Mesh(bmpGeo,bmpMat); bumper.position.set(0,0.6,1.88); truckGroup.add(bumper)
+
+  // Exhaust stack (right side)
+  var exGeo=new THREE.CylinderGeometry(0.09,0.11,2.5,8)
+  var exMat=new THREE.MeshLambertMaterial({color:0x555555})
+  var ex=new THREE.Mesh(exGeo,exMat); ex.position.set(1.35,3.5,-0.5); truckGroup.add(ex)
+
+  // ─ WHEELS (6 wheels — 2 front, 4 rear) ──
+  var wheelMat=new THREE.MeshLambertMaterial({color:0x1a1a1a})
+  var rimMat=new THREE.MeshLambertMaterial({color:0xc0c8d8})
+  var wPositions=[
+    {x:-1.7,y:0.55,z:1.2,big:false},   // front left
+    {x:1.7,y:0.55,z:1.2,big:false},    // front right
+    {x:-1.85,y:0.65,z:-3.5,big:true},  // rear left outer
+    {x:1.85,y:0.65,z:-3.5,big:true},   // rear right outer
+    {x:-1.85,y:0.65,z:-5.5,big:true},  // rear left inner
+    {x:1.85,y:0.65,z:-5.5,big:true}    // rear right inner
+  ]
+
+  truckGroup.userData.wheels=[]
+  wPositions.forEach(function(wp){
+    var wr=wp.big?0.65:0.55, wt=wp.big?0.45:0.35
+    var wGeo=new THREE.CylinderGeometry(wr,wr,wt,14)
+    var wheel=new THREE.Mesh(wGeo,wheelMat)
+    wheel.rotation.z=Math.PI/2
+    wheel.position.set(wp.x,wp.y,wp.z)
+    wheel.castShadow=true
+    truckGroup.add(wheel)
+
+    var rGeo=new THREE.CylinderGeometry(wr*0.7,wr*0.7,wt+0.02,6)
+    var rim=new THREE.Mesh(rGeo,rimMat)
+    rim.rotation.z=Math.PI/2
+    rim.position.set(wp.x,wp.y,wp.z)
+    truckGroup.add(rim)
+    truckGroup.userData.wheels.push({rim:rim,big:wp.big})
+  })
+
+  // Truck follows camera
+  truckGroup.position.set(0.3,0,6)
+}
+
+/* ── DUST PARTICLES ── */
+function buildDust(){
+  var count=120
+  var positions=new Float32Array(count*3)
+  for(var i=0;i<count;i++){
+    positions[i*3]=(Math.random()-0.5)*10
+    positions[i*3+1]=Math.random()*0.8
+    positions[i*3+2]=-Math.random()*20
+  }
+  var geo=new THREE.BufferGeometry()
+  geo.setAttribute('position',new THREE.BufferAttribute(positions,3))
+  dustMat=new THREE.PointsMaterial({color:0xd4aa7a,size:0.08,transparent:true,opacity:0.6})
+  dustParticles=new THREE.Points(geo,dustMat)
+  scene.add(dustParticles)
+}
+
+/* ════════════════════════════════════════
+   ANIMATION LOOP
+════════════════════════════════════════ */
+var prevScroll=0
+function animate(){
+  requestAnimationFrame(animate)
+  var delta=clock.getDelta()
+  var elapsed=clock.getElapsedTime()
+
+  // Smooth virtual scroll
+  vScroll+=(targetScroll-vScroll)*0.08
+  var p=Math.min(1,vScroll/TOTAL)  // 0 to 1
+
+  // Camera z position along path
+  var camZ=10+p*CAM_Z_TOTAL   // 10 at start, 10+(-600) = -590 at end
+  camera.position.z=camZ
+
+  // Gentle camera sway
+  camera.position.x=Math.sin(elapsed*0.3)*0.4
+  camera.position.y=3.5+Math.sin(elapsed*0.5)*0.15
+
+  // Camera look ahead
+  camera.lookAt(Math.sin(elapsed*0.25)*0.6, 1.8, camZ-30)
+
+  // Truck follows camera (slightly behind and to right)
+  truckGroup.position.z=camZ+6.5
+  truckGroup.position.x=0.4+Math.sin(elapsed*0.3)*0.3
+  // Truck bounce
+  truckGroup.position.y=Math.abs(Math.sin(elapsed*8))*0.06
+
+  // Wheel spin
+  var speed=Math.abs(targetScroll-vScroll)*0.01+0.04
+  truckGroup.userData.wheels.forEach(function(w){
+    w.rim.rotation.y+=speed*(w.big?0.8:1)
+  })
+
+  // Exhaust smoke puff (move dustParticles)
+  if(dustParticles){
+    dustParticles.position.z=camZ
+    var pos=dustParticles.geometry.attributes.position
+    for(var i=0;i<pos.count;i++){
+      pos.setZ(i,pos.getZ(i)+0.08)
+      if(pos.getZ(i)>0) pos.setZ(i,-20)
+      pos.setY(i,pos.getY(i)+0.005)
+      if(pos.getY(i)>1.5) pos.setY(i,0)
     }
-
-    // Hub
-    ctx.fillStyle='#eceff1'
-    ctx.beginPath(); ctx.arc(0,0,3.5,0,Math.PI*2); ctx.fill()
-    ctx.restore()
-
-    // Tyre tread marks
-    ctx.strokeStyle='rgba(255,255,255,0.06)'; ctx.lineWidth=1
-    for(var trd=0;trd<8;trd++){
-      ctx.save(); ctx.rotate(trd*Math.PI/4+truck.wheelAngle)
-      ctx.beginPath(); ctx.arc(0,0,wr2-2,0,Math.PI*0.2); ctx.stroke()
-      ctx.restore()
-    }
-
-    ctx.restore()
+    pos.needsUpdate=true
   }
 
-  // Mud flaps
-  ctx.fillStyle='#263238'
-  ctx.fillRect(-tw*0.42,th*0.1,6,th*0.18)
-  ctx.fillRect(tw*0.2,th*0.1,6,th*0.18)
+  // Sky color changes by zone
+  updateSkyAndLighting(p,elapsed)
 
-  ctx.restore()
-}
+  // Fog density changes
+  if(p<0.3) scene.fog.density=0.010
+  else if(p<0.6) scene.fog.density=0.008
+  else scene.fog.density=0.015
 
-/* ─── DISTANCE MARKERS ─── */
-function drawDistanceMarkers(p, offset) {
-  var roadY = H*0.60
-  var markerInterval = 0.05
-  ctx.save()
-  for(var dm=0;dm<20;dm++){
-    var markerProg = dm * markerInterval
-    var markerX = (markerProg - p) * W * 6 + W*0.32
-    if(markerX < -10 || markerX > W+10) continue
-
-    // Post
-    ctx.fillStyle = '#ef5350'
-    ctx.fillRect(markerX-2, roadY-35, 4, 35)
-
-    // Sign board
-    ctx.fillStyle = '#fff'
-    ctx.beginPath(); ctx.roundRect(markerX-22, roadY-50, 44, 22, 4); ctx.fill()
-    ctx.strokeStyle='#ef5350'; ctx.lineWidth=1.5
-    ctx.beginPath(); ctx.roundRect(markerX-22, roadY-50, 44, 22, 4); ctx.stroke()
-
-    ctx.fillStyle='#0d47a1'; ctx.font='bold 9px sans-serif'
-    ctx.textAlign='center'; ctx.textBaseline='middle'
-    ctx.fillText((dm+1)+'KM',markerX,roadY-39)
-  }
-  ctx.restore()
-}
-
-/* ─── DESTINATION FLAG ─── */
-function drawDestinationFlag(p, offset) {
-  if(p < 0.75) return
-  var roadY = H*0.60
-  var destX = (1.0 - p) * W * 6 + W*0.6
-  if(destX < -50 || destX > W+50) return
-
-  ctx.save()
-  // Post
-  ctx.fillStyle = '#37474f'
-  ctx.fillRect(destX-3, roadY-80, 6, 80)
-
-  // Flag
-  var fAnim = Math.sin(Date.now()*0.003)*5
-  ctx.fillStyle = '#f44336'
-  ctx.beginPath()
-  ctx.moveTo(destX+3, roadY-80)
-  ctx.quadraticCurveTo(destX+25, roadY-70+fAnim, destX+3, roadY-60)
-  ctx.closePath(); ctx.fill()
-
-  // Checkered pattern
-  ctx.fillStyle = '#fff'
-  ctx.fillRect(destX+3, roadY-80, 11, 10)
-  ctx.fillRect(destX+14, roadY-70, 11, 10)
-
-  // Gold star/flag text
-  ctx.fillStyle='#ffd700'; ctx.font='bold 12px sans-serif'
-  ctx.textAlign='center'; ctx.textBaseline='middle'
-  ctx.fillText('AAM', destX, roadY-40)
-  ctx.restore()
-}
-
-/* ─── AMBIENT PARTICLES ─── */
-var particles = []
-for(var pi=0;pi<30;pi++){
-  particles.push({x:Math.random(),y:0.6+Math.random()*0.35,vx:-0.001-Math.random()*0.001,vy:-0.0005,life:Math.random(),size:1+Math.random()*2})
-}
-function drawParticles(p) {
-  if(p > 0.85) return
-  ctx.save()
-  for(var ppi=0;ppi<particles.length;ppi++){
-    var par = particles[ppi]
-    par.x += par.vx; par.y += par.vy; par.life -= 0.005
-    if(par.life<=0||par.x<0){par.x=1;par.y=0.6+Math.random()*0.35;par.life=1;}
-    ctx.globalAlpha=par.life*0.5
-    ctx.fillStyle='rgba(255,255,255,0.8)'
-    ctx.beginPath(); ctx.arc(par.x*W,par.y*H,par.size,0,Math.PI*2); ctx.fill()
-  }
-  ctx.restore()
-}
-
-/* ─── UTILITY FUNCTIONS ─── */
-function lerpColor(a,b,t){
-  var ah=parseInt(a.replace('#',''),16), bh=parseInt(b.replace('#',''),16)
-  var ar=(ah>>16)&0xff, ag=(ah>>8)&0xff, ab2=ah&0xff
-  var br=(bh>>16)&0xff, bg=(bh>>8)&0xff, bb2=bh&0xff
-  var rr=Math.round(ar+(br-ar)*t)
-  var rg=Math.round(ag+(bg-ag)*t)
-  var rb=Math.round(ab2+(bb2-ab2)*t)
-  return '#'+[rr,rg,rb].map(function(v){return v.toString(16).padStart(2,'0')}).join('')
-}
-function darken(hex,amount){
-  var h=parseInt(hex.replace('#',''),16)
-  var r=Math.max(0,((h>>16)&0xff)-amount)
-  var g=Math.max(0,((h>>8)&0xff)-amount)
-  var b2=Math.max(0,(h&0xff)-amount)
-  return '#'+[r,g,b2].map(function(v){return v.toString(16).padStart(2,'0')}).join('')
-}
-
-/* ─── MAIN RENDER ─── */
-var lastP = 0
-var lastTime = 0
-function render(timestamp) {
-  requestAnimationFrame(render)
-
-  var sd = document.getElementById('scroll-driver')
-  var maxScroll = sd.offsetHeight - window.innerHeight
-  var sy = window.scrollY
-  var p = maxScroll > 0 ? Math.min(1, sy/maxScroll) : 0
-  scrollProgress = p
-
-  // Speed (difference in progress)
-  truck.speed = Math.abs(p - lastP) * 100
-  lastP = p
-
-  // Parallax offset driven by scroll
-  var offset = p * 8
-
-  // Clear
-  ctx.clearRect(0,0,W,H)
-
-  // Draw layers (back to front)
-  drawSky(p)
-  drawStars(p, offset)
-  drawSunMoon(p)
-  drawClouds(p, offset)
-  drawMountains(p, offset)
-  drawBuildings(p, offset)
-  drawWarehouses(p, offset)
-  drawTrees(p, offset)
-  drawGround(p)
-  drawRoad(p, offset)
-  drawDistanceMarkers(p, offset)
-  drawCollectibles(p, offset)
-  drawDestinationFlag(p, offset)
-  drawTruck(p)
-  drawParticles(p)
-
-  // Update UI
-  updateSections(p)
-  updateHUD(p)
-}
-requestAnimationFrame(render)
-
-/* ─── SECTION VISIBILITY ─── */
-function updateSections(p) {
-  // INTRO: 0-0.14
-  toggleSection('sec-intro', p < 0.14)
-
-  // ABOUT (city): 0.15-0.30
-  toggleSection('sec-about', p >= 0.15 && p < 0.30)
-
-  // PRODUCTS (warehouse): 0.30-0.52
-  toggleSection('sec-products', p >= 0.30 && p < 0.52)
-
-  // WHY US (highway): 0.52-0.72
-  toggleSection('sec-why', p >= 0.52 && p < 0.72)
-
-  // BRANDS (mountain): 0.72-0.87
-  toggleSection('sec-brands', p >= 0.72 && p < 0.87)
-
-  // REVIEWS + CONTACT: 0.87+
-  var finalActive = p >= 0.87
-  var rp = document.getElementById('reviews-section')
-  var co = document.getElementById('contact-overlay')
-  if(rp){
-    if(finalActive){ rp.style.opacity='1';rp.style.pointerEvents='auto'; }
-    else{ rp.style.opacity='0';rp.style.pointerEvents='none'; }
-  }
-  if(co){
-    if(finalActive){ co.classList.add('active'); }
-    else{ co.classList.remove('active'); }
-  }
-}
-
-function toggleSection(id, show) {
-  var el = document.getElementById(id)
-  if(!el) return
-  if(show){ el.classList.add('active'); }
-  else{ el.classList.remove('active'); }
-}
-
-/* ─── HUD UPDATE ─── */
-var zoneNames = [
-  {at:0.00, name:'🌅 Starting Santalpur...', color:'#fbbf24'},
-  {at:0.15, name:'🏙️ City Centre', color:'#60a5fa'},
-  {at:0.30, name:'🏭 Industrial Zone', color:'#94a3b8'},
-  {at:0.52, name:'🛣️ National Highway', color:'#34d399'},
-  {at:0.72, name:'🏔️ Himalaya Foothills', color:'#a78bfa'},
-  {at:0.87, name:'🏁 Destination Reached!', color:'#fbbf24'}
-]
-var lastZone = -1
-var milestoneShown = {}
-
-function updateHUD(p) {
   // Progress bar
-  document.getElementById('progress-fill').style.width = (p*100)+'%'
+  document.getElementById('pfill').style.width=(p*100)+'%'
 
-  // Zone badge
-  var zone = zoneNames[0]
-  for(var zi=0;zi<zoneNames.length;zi++){
-    if(p >= zoneNames[zi].at) zone = zoneNames[zi]
-  }
-  document.getElementById('zone-text').innerText = zone.name
-  document.getElementById('zone-dot').style.background = zone.color
-  document.getElementById('zone-dot').style.boxShadow = '0 0 10px '+zone.color
+  // Zone label
+  updateZone(p)
+
+  // Panels
+  updatePanels(p)
 
   // Scroll hint
-  if(p > 0.05) document.getElementById('scroll-hint').classList.add('hidden')
-  else document.getElementById('scroll-hint').classList.remove('hidden')
+  if(p>0.04) document.getElementById('scrollhint').classList.add('hidden')
+  else document.getElementById('scrollhint').classList.remove('hidden')
 
-  // Zone milestones
-  var milestoneAtZones = {
-    0.15: {text:'🏙️ Welcome to City Centre!', color:'#2563eb'},
-    0.30: {text:'🏭 Entering Industrial Zone!', color:'#64748b'},
-    0.52: {text:'🛣️ Hit the National Highway!', color:'#059669'},
-    0.72: {text:'🏔️ Himalaya Foothills!', color:'#7c3aed'},
-    0.87: {text:'🏁 Destination Reached!', color:'#d97706'}
+  prevScroll=vScroll
+  renderer.render(scene,camera)
+}
+
+/* ── SKY & LIGHTING ── */
+function updateSkyAndLighting(p,elapsed){
+  var skyColor,ambColor,sunColor,ambInt,sunInt
+
+  if(p<0.14){
+    // Dawn — warm orange
+    skyColor=new THREE.Color(0xe8905a)
+    ambColor=new THREE.Color(0xffd0a0); ambInt=0.7
+    sunColor=new THREE.Color(0xff9944); sunInt=2.0
+    sunLight.position.set(20+p*40,40-p*10,-30)
+  } else if(p<0.30){
+    // City morning
+    var t=(p-0.14)/0.16
+    skyColor=new THREE.Color().lerpColors(new THREE.Color(0xe8905a),new THREE.Color(0xd4a070),t)
+    ambColor=new THREE.Color(0xffe0c0); ambInt=0.8
+    sunColor=new THREE.Color(0xffcc88); sunInt=2.4
+    sunLight.position.set(40,50,-60)
+  } else if(p<0.52){
+    // Warehouse — dusty midday
+    var t=(p-0.30)/0.22
+    skyColor=new THREE.Color().lerpColors(new THREE.Color(0xd4a070),new THREE.Color(0xb89060),t)
+    ambColor=new THREE.Color(0xffd0a0); ambInt=0.75
+    sunColor=new THREE.Color(0xffcc88); sunInt=2.2
+    sunLight.position.set(30,70,-120)
+  } else if(p<0.72){
+    // Highway — open afternoon
+    var t=(p-0.52)/0.20
+    skyColor=new THREE.Color().lerpColors(new THREE.Color(0xb89060),new THREE.Color(0xa87850),t)
+    ambColor=new THREE.Color(0xffc898); ambInt=0.7
+    sunColor=new THREE.Color(0xff9955); sunInt=1.8
+    sunLight.position.set(10,40,-220)
+  } else if(p<0.87){
+    // Mountains — dusk
+    var t=(p-0.72)/0.15
+    skyColor=new THREE.Color().lerpColors(new THREE.Color(0xa87850),new THREE.Color(0x7850a0),t)
+    ambColor=new THREE.Color(0xffa070); ambInt=0.55
+    sunColor=new THREE.Color(0xff6633); sunInt=1.4
+    sunLight.position.set(-20,20,-400)
+    fillLight.intensity=0.6+t*0.4
+  } else {
+    // Destination — golden night
+    var t=(p-0.87)/0.13
+    skyColor=new THREE.Color().lerpColors(new THREE.Color(0x7850a0),new THREE.Color(0x2a1530),t)
+    ambColor=new THREE.Color(0xff9050); ambInt=0.5
+    sunColor=new THREE.Color(0xff5522); sunInt=1.0
+    fillLight.intensity=0.8
   }
-  for(var mz in milestoneAtZones){
-    if(p >= parseFloat(mz) && !milestoneShown[mz]){
-      milestoneShown[mz] = true
-      showMilestone(milestoneAtZones[mz].text, milestoneAtZones[mz].color)
+
+  skyMesh.material.color=skyColor
+  scene.fog.color=skyColor
+  ambientLight.color=ambColor; ambientLight.intensity=ambInt
+  sunLight.color=sunColor; sunLight.intensity=sunInt
+}
+
+/* ── ZONE TEXT ── */
+var zones=[
+  {at:0,   name:'🌅 Santalpur — Dawn'},
+  {at:0.14,name:'🏙️ City Centre'},
+  {at:0.30,name:'🏭 Industrial Zone'},
+  {at:0.52,name:'🛣️ National Highway'},
+  {at:0.72,name:'🏔️ Himalaya Foothills'},
+  {at:0.87,name:'🏁 Destination Reached!'}
+]
+var lastZoneIdx=-1
+var milestonesDone={}
+function updateZone(p){
+  var cur=zones[0]
+  var idx=0
+  for(var i=0;i<zones.length;i++){
+    if(p>=zones[i].at){cur=zones[i];idx=i}
+  }
+  document.getElementById('ztxt').innerText=cur.name
+  if(idx!==lastZoneIdx && idx>0){
+    lastZoneIdx=idx
+    if(!milestonesDone[idx]){
+      milestonesDone[idx]=true
+      showToast(cur.name)
     }
   }
 }
 
-/* ─── MILESTONE POPUP ─── */
-var milestoneTimer = null
-function showMilestone(text, color) {
-  var popup = document.getElementById('milestone-popup')
-  popup.style.background = 'linear-gradient(135deg, '+darken(color,20)+', '+color+')'
-  document.getElementById('milestone-text').innerText = text
-  popup.classList.add('show')
-  if(milestoneTimer) clearTimeout(milestoneTimer)
-  milestoneTimer = setTimeout(function(){ popup.classList.remove('show') }, 2800)
+/* ── PANEL VISIBILITY ── */
+function updatePanels(p){
+  toggleP('p0', p<0.13)
+  toggleP('p1', p>=0.14 && p<0.30)
+  toggleP('p2', p>=0.30 && p<0.52)
+  toggleP('p3', p>=0.52 && p<0.72)
+  toggleP('p4', p>=0.72 && p<0.87)
+  toggleP('p5', p>=0.87)
+}
+function toggleP(id,show){
+  var el=document.getElementById(id)
+  if(!el) return
+  if(show) el.classList.add('show')
+  else el.classList.remove('show')
 }
 
-/* ─── FEEDBACK MODAL ─── */
-var starVal = 0
-function openFB(){ document.getElementById('fb-modal').classList.add('open') }
-function closeFB(){ document.getElementById('fb-modal').classList.remove('open') }
+/* ════════════════════════════════════════
+   TOAST
+════════════════════════════════════════ */
+var toastTimer=null
+function showToast(msg){
+  var t=document.getElementById('toast')
+  t.innerText=msg; t.classList.add('show')
+  if(toastTimer) clearTimeout(toastTimer)
+  toastTimer=setTimeout(function(){t.classList.remove('show')},2800)
+}
+
+/* ════════════════════════════════════════
+   RESIZE
+════════════════════════════════════════ */
+function onResize(){
+  renderer.setSize(window.innerWidth,window.innerHeight)
+  camera.aspect=window.innerWidth/window.innerHeight
+  camera.updateProjectionMatrix()
+}
+
+/* ════════════════════════════════════════
+   FEEDBACK
+════════════════════════════════════════ */
+var starVal=0
+function openFB(){document.getElementById('fbModal').classList.add('open')}
+function closeFB(){document.getElementById('fbModal').classList.remove('open')}
 function setStar(n){
   starVal=n
-  var stars=document.getElementById('starRow').children
-  for(var i=0;i<5;i++) stars[i].className=i<n?'lit':''
+  var s=document.getElementById('srRow').children
+  for(var i=0;i<5;i++) s[i].className=i<n?'lit':''
 }
 async function submitFB(){
-  var name=document.getElementById('fbName').value.trim()
-  var phone=document.getElementById('fbPhone').value.trim()
-  var veh=document.getElementById('fbVehicle').value.trim()
-  var text=document.getElementById('fbText').value.trim()
+  var name=document.getElementById('fbN').value.trim()
+  var phone=document.getElementById('fbP').value.trim()
+  var veh=document.getElementById('fbV').value.trim()
+  var text=document.getElementById('fbT').value.trim()
   if(!name||!text||!starVal){alert('Please fill name, rating and review.');return}
   for(var i=0;i<30&&!window._sb;i++) await new Promise(function(r){setTimeout(r,100)})
-  if(window._sb){
-    window._sb.from('website_visitors').insert({name:name,phone:phone||'',review_text:text,rating:starVal,vehicle:veh||''}).then(function(){})
-  }
-  // Add review card
-  var card=document.createElement('div'); card.className='rev-card'
-  card.innerHTML='<div class="rev-stars">'+('★'.repeat(starVal)+'☆'.repeat(5-starVal))+'</div>'+
-    '<p class="rev-text">"'+text+'"</p>'+
-    '<div class="rev-author">'+name+'</div>'+
-    '<div class="rev-veh">'+(veh||'Customer')+'</div>'
+  if(window._sb) window._sb.from('website_visitors').insert({name:name,phone:phone||'',review_text:text,rating:starVal,vehicle:veh||''}).then(function(){})
+  var card=document.createElement('div'); card.className='rev-c'
+  card.innerHTML='<div class="rev-stars">'+('★'.repeat(starVal)+'☆'.repeat(5-starVal))+'</div><p class="rev-txt">"'+text+'"</p><div class="rev-au">'+name+'</div><div class="rev-veh">'+(veh||'Customer')+'</div>'
   document.getElementById('revGrid').appendChild(card)
   document.getElementById('fbOk').style.display='block'
-  document.getElementById('fbName').value=''
-  document.getElementById('fbPhone').value=''
-  document.getElementById('fbVehicle').value=''
-  document.getElementById('fbText').value=''
-  setStar(0)
-  setTimeout(closeFB,2500)
+  document.getElementById('fbN').value=''; document.getElementById('fbP').value=''
+  document.getElementById('fbV').value=''; document.getElementById('fbT').value=''
+  setStar(0); setTimeout(closeFB,2500)
 }
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeFB()})
 
-/* Keyboard shortcut: close modal */
-document.addEventListener('keydown',function(e){
-  if(e.key==='Escape') closeFB()
-})
-
-/* Canvas roundRect polyfill for older browsers */
-if(!CanvasRenderingContext2D.prototype.roundRect){
-  CanvasRenderingContext2D.prototype.roundRect=function(x,y,w,h,r){
-    if(typeof r==='number') r=[r,r,r,r]
-    if(!r) r=[0,0,0,0]
-    this.beginPath()
-    this.moveTo(x+r[0],y)
-    this.lineTo(x+w-r[1],y); this.arcTo(x+w,y,x+w,y+r[1],r[1])
-    this.lineTo(x+w,y+h-r[2]); this.arcTo(x+w,y+h,x+w-r[2],y+h,r[2])
-    this.lineTo(x+r[3],y+h); this.arcTo(x,y+h,x,y+h-r[3],r[3])
-    this.lineTo(x,y+r[0]); this.arcTo(x,y,x+r[0],y,r[0])
-    this.closePath()
-    return this
+/* ════════════════════════════════════════
+   BOOT
+════════════════════════════════════════ */
+window.addEventListener('load',function(){
+  if(typeof THREE==='undefined'){
+    document.getElementById('intro').innerHTML='<div style="color:#fff;padding:40px;text-align:center;"><h2>Loading world...</h2><p style="margin-top:10px;opacity:.5">Please wait</p></div>'
+    return
   }
-}
+  initThree()
+})
 </script>
 </body>
 </html>
