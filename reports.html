@@ -835,9 +835,10 @@ async function loadSales(range) {
   if (months.length) {
     const maxV = Math.max(...Object.values(mMap), 1)
     months.forEach(mo => {
-      const val = mMap[mo], pct = Math.max(Math.round((val/maxV)*100),3)
+      const val = mMap[mo]
+      const barH = Math.max(Math.round((val / maxV) * 90), val > 0 ? 5 : 0)
       const lbl = new Date(mo+'-15').toLocaleDateString('en-IN',{month:'short',year:'2-digit'})
-      chartEl.innerHTML += `<div class="bc-item"><div class="bc-val">${shortAmt(val)}</div><div class="bc-bar" style="height:${pct}%;background:linear-gradient(180deg,#2563eb,rgba(37,99,235,0.4));"></div><div class="bc-label">${lbl}</div></div>`
+      chartEl.innerHTML += `<div class="bc-item"><div class="bc-val">${shortAmt(val)}</div><div class="bc-bar" style="height:${barH}px;background:linear-gradient(180deg,#2563eb,rgba(37,99,235,0.4));"></div><div class="bc-label">${lbl}</div></div>`
     })
   } else { chartEl.innerHTML = '<div class="empty-state">No data for this period</div>' }
   const sp = tCash + tUpi + tCredit || 1
