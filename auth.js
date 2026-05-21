@@ -657,9 +657,10 @@
       if (newPw !== newPw2) return showMsg('err', 'Passwords do not match')
 
       withSB(function(sb) {
-        sb.from('users')
-          .update({ password: newPw })
-          .eq('id', staffId)
+        sb.rpc('reset_staff_password_by_id', {
+            p_staff_id: staffId,
+            p_new_password: newPw
+          })
           .then(function(res) {
             if (res.error) return showMsg('err', 'Error: ' + res.error.message)
             showMsg('ok', 'Password reset successfully!')
