@@ -322,14 +322,14 @@ html.light-theme .loading-row { color:#64748b; }
   <div class="card">
     <div class="ledger-toolbar">
       <input id="searchInput" placeholder="🔍  Search by name or phone..." oninput="debounceSearch()">
-      <select id="filterBalance" onchange="currentPage=1;loadMerchants()">
+      <select id="filterBalance" onchange="_mlReload()">
         <option value="all">All Merchants</option>
         <option value="payable">Payable Due</option>
         <option value="overdue">Overdue 30+ days</option>
         <option value="advance">Overpaid / Advance</option>
         <option value="clear">Clear Accounts</option>
       </select>
-      <select id="sortBy" onchange="currentPage=1;loadMerchants()">
+      <select id="sortBy" onchange="_mlReload()">
         <option value="payable_desc">Sort: Most Payable First</option>
         <option value="name">Sort: Name A-Z</option>
         <option value="bills_desc">Sort: Most Bills First</option>
@@ -1234,7 +1234,10 @@ if(pf){
   setTimeout(()=>openLedger(encodeURIComponent(pf)),600)
 }
 
+window._mlReload = function() { currentPage = 1; loadMerchants() }
+
 loadMerchants()
+
 </script>
 </body>
 </html>
