@@ -271,13 +271,13 @@ body { font-family: 'DM Sans', sans-serif; }
   <div class="card">
     <div class="ledger-toolbar">
       <input id="searchInput" placeholder="🔍  Search by name or phone..." oninput="debounceSearch()">
-      <select id="filterBalance" onchange="currentPage=1;loadCustomers()">
-        <option value="all">All Customers</option>
+<select id="filterBalance" onchange="_clReload()">
+  <option value="all">All Customers</option>
         <option value="due">Credit Due</option>
         <option value="advance">Advance / Overpaid</option>
         <option value="clear">Clear Accounts</option>
       </select>
-      <select id="sortBy" onchange="currentPage=1;loadCustomers()">
+      <select id="sortBy" onchange="_clReload()">
         <option value="name">Sort: Name</option>
         <option value="due_desc">Sort: Most Due First</option>
         <option value="bills_desc">Sort: Most Bills First</option>
@@ -535,6 +535,8 @@ body { font-family: 'DM Sans', sans-serif; }
 
 
 <script type="module">
+
+  
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
 const supabaseUrl = "https://mhhnmndnolhapaoqtbxo.supabase.co"
