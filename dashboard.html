@@ -177,6 +177,59 @@
   </div>
 </div>
 
+  <!-- BACKUP PANEL -->
+<div class="card" style="margin-bottom:24px;border-color:rgba(52,211,153,0.2);">
+  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:16px;">
+    <div>
+      <div style="font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:rgba(52,211,153,0.7);">
+        🛡️ Data Backup Center
+      </div>
+      <div style="font-size:12px;color:rgba(255,255,255,0.35);margin-top:4px;">
+        Last backup: <span id="lastBackupTime">Never — please backup now</span>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button onclick="backupAllData()" id="backupBtn"
+        style="background:linear-gradient(135deg,#059669,#34d399);border:none;color:white;
+               padding:10px 22px;border-radius:10px;font-size:13px;font-weight:700;
+               cursor:pointer;font-family:'DM Sans',sans-serif;
+               box-shadow:0 4px 14px rgba(5,150,105,0.35);">
+        ⬇️ Download Full Backup
+      </button>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;" id="backupStats">
+    <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);
+                border-radius:10px;padding:12px;text-align:center;">
+      <div style="font-size:20px;font-weight:700;color:#60a5fa;" id="bkProducts">—</div>
+      <div style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:3px;">Products</div>
+    </div>
+    <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);
+                border-radius:10px;padding:12px;text-align:center;">
+      <div style="font-size:20px;font-weight:700;color:#34d399;" id="bkCustomers">—</div>
+      <div style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:3px;">Customers</div>
+    </div>
+    <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);
+                border-radius:10px;padding:12px;text-align:center;">
+      <div style="font-size:20px;font-weight:700;color:#a78bfa;" id="bkMerchants">—</div>
+      <div style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:3px;">Merchants</div>
+    </div>
+    <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);
+                border-radius:10px;padding:12px;text-align:center;">
+      <div style="font-size:20px;font-weight:700;color:#fbbf24;" id="bkBills">—</div>
+      <div style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:3px;">Total Bills</div>
+    </div>
+  </div>
+
+  <div style="margin-top:12px;padding:10px 14px;background:rgba(251,191,36,0.07);
+              border:1px solid rgba(251,191,36,0.15);border-radius:8px;
+              font-size:12px;color:rgba(255,255,255,0.45);line-height:1.8;">
+    ⚠️ <strong style="color:rgba(251,191,36,0.8);">Important:</strong>
+    Download backup every Monday morning. Save it to Google Drive or a USB drive.
+    This protects all your bills, customer balances, and product data.
+  </div>
+</div>
   
 <!-- ── NOTIFICATIONS PANEL ── -->
   <div class="card" id="notificationsPanel" style="margin-bottom:24px;">
@@ -461,6 +514,179 @@ setInterval(loadAll, 60000)
 
 // ── Return prefill if coming from dashboard return button ──
 if(localStorage.getItem('billing_open_return')==='1'){localStorage.removeItem('billing_open_return')}
+
+// ── BACKUP SYSTEM ──
+async function loadBackupStats() {
+  try {
+    const [p, c, m, s, pur] = await Promise.all([
+      supabase.from('inventory').select('id', {count:'exact', head:true}),
+      supabase.from('customers').select('id', {count:'exact', head:true}),
+      supabase.from('merchants').select('id', {count:'exact', head:true}),
+      supabase.from('sales').select('id', {count:'exact', head:true}),
+      supabase.from('purchases').select('id', {count:'exact', head:true})
+    ])
+    document.getElementById('bkProducts').innerText  = (p.count||0).toLocaleString('en-IN')
+    document.getElementById('bkCustomers').innerText = (c.count||0).toLocaleString('en-IN')
+    document.getElementById('bkMerchants').innerText = (m.count||0).toLocaleString('en-IN')
+    document.getElementById('bkBills').innerText     = ((s.count||0)+(pur.count||0)).toLocaleString('en-IN')
+
+    // Show last backup time
+    const lastBackup = localStorage.getItem('aam_last_backup')
+    if (lastBackup) {
+      const d = new Date(lastBackup)
+      const days = Math.floor((Date.now() - d) / (1000*60*60*24))
+      const el = document.getElementById('lastBackupTime')
+      if (days === 0) {
+        el.innerText = 'Today ✅'
+        el.style.color = '#34d399'
+      } else if (days <= 7) {
+        el.innerText = days + ' days ago ✅'
+        el.style.color = '#fbbf24'
+      } else {
+        el.innerText = days + ' days ago ⚠️ — Please backup now!'
+        el.style.color = '#f87171'
+      }
+    }
+  } catch(e) {
+    console.error('Backup stats error:', e)
+  }
+}
+
+window.backupAllData = async function() {
+  const btn = document.getElementById('backupBtn')
+  btn.innerText = '⏳ Preparing backup...'
+  btn.disabled = true
+
+  try {
+    // Fetch ALL data from every important table
+    const [
+      products, customers, merchants,
+      sales, purchases,
+      billItems, purchaseItems,
+      payments, merchantPayments,
+      settings, bsEntries
+    ] = await Promise.all([
+      supabase.from('inventory').select('*').order('item_name'),
+      supabase.from('customers').select('*').order('name'),
+      supabase.from('merchants').select('*').order('name'),
+      supabase.from('sales').select('*').order('created_at'),
+      supabase.from('purchases').select('*').order('created_at'),
+      supabase.from('bill_items').select('*'),
+      supabase.from('purchase_items').select('*'),
+      supabase.from('payments').select('*').order('created_at'),
+      supabase.from('merchant_payments').select('*').order('created_at'),
+      supabase.from('settings').select('*'),
+      supabase.from('balance_sheet_entries').select('*')
+    ])
+
+    btn.innerText = '⏳ Creating backup file...'
+
+    // Build one big JSON backup
+    const backupData = {
+      backup_info: {
+        business:      'Abhinandan Auto Mobiles',
+        backup_date:   new Date().toISOString(),
+        backup_date_readable: new Date().toLocaleString('en-IN'),
+        total_products:  products.data?.length || 0,
+        total_customers: customers.data?.length || 0,
+        total_merchants: merchants.data?.length || 0,
+        total_sales:     sales.data?.length || 0,
+        total_purchases: purchases.data?.length || 0,
+        version: 'AAM-ERP-v1.0'
+      },
+      tables: {
+        inventory:           products.data        || [],
+        customers:           customers.data       || [],
+        merchants:           merchants.data       || [],
+        sales:               sales.data           || [],
+        purchases:           purchases.data       || [],
+        bill_items:          billItems.data       || [],
+        purchase_items:      purchaseItems.data   || [],
+        payments:            payments.data        || [],
+        merchant_payments:   merchantPayments.data|| [],
+        settings:            settings.data        || [],
+        balance_sheet_entries: bsEntries.data     || []
+      }
+    }
+
+    // Also create CSV files for important tables
+    const csvFiles = {
+      'Sales_Bills':    toCSV(sales.data        || []),
+      'Purchases':      toCSV(purchases.data     || []),
+      'Products':       toCSV(products.data      || []),
+      'Customers':      toCSV(customers.data     || []),
+      'Merchants':      toCSV(merchants.data     || []),
+      'Payments':       toCSV(payments.data      || []),
+    }
+
+    // Download the JSON backup (complete data)
+    const dateStr  = new Date().toISOString().slice(0,10)
+    const jsonBlob = new Blob(
+      [JSON.stringify(backupData, null, 2)],
+      { type: 'application/json' }
+    )
+    downloadFile(jsonBlob, `AAM-BACKUP-${dateStr}.json`)
+
+    // Wait a moment then download the sales CSV separately
+    await new Promise(r => setTimeout(r, 800))
+    const csvBlob = new Blob(
+      [csvFiles['Sales_Bills']],
+      { type: 'text/csv;charset=utf-8;' }
+    )
+    downloadFile(csvBlob, `AAM-Sales-${dateStr}.csv`)
+
+    // Save backup timestamp
+    localStorage.setItem('aam_last_backup', new Date().toISOString())
+
+    btn.innerText = '✅ Backup Downloaded!'
+    btn.style.background = 'linear-gradient(135deg,#1d4ed8,#2563eb)'
+
+    // Update last backup display
+    document.getElementById('lastBackupTime').innerText = 'Just now ✅'
+    document.getElementById('lastBackupTime').style.color = '#34d399'
+
+    setTimeout(() => {
+      btn.innerText = '⬇️ Download Full Backup'
+      btn.style.background = 'linear-gradient(135deg,#059669,#34d399)'
+      btn.disabled = false
+    }, 3000)
+
+  } catch(err) {
+    console.error('Backup error:', err)
+    btn.innerText = '❌ Backup Failed — Try Again'
+    btn.style.background = 'linear-gradient(135deg,#dc2626,#ef4444)'
+    btn.disabled = false
+    setTimeout(() => {
+      btn.innerText = '⬇️ Download Full Backup'
+      btn.style.background = 'linear-gradient(135deg,#059669,#34d399)'
+    }, 3000)
+  }
+}
+
+function toCSV(data) {
+  if (!data || !data.length) return 'No data'
+  const headers = Object.keys(data[0])
+  const esc = v => `"${String(v == null ? '' : v).replace(/"/g, '""')}"`
+  return [
+    headers.join(','),
+    ...data.map(row => headers.map(h => esc(row[h])).join(','))
+  ].join('\n')
+}
+
+function downloadFile(blob, filename) {
+  const url = URL.createObjectURL(blob)
+  const a   = document.createElement('a')
+  a.href     = url
+  a.download = filename
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
+  URL.revokeObjectURL(url)
+}
+
+// Load backup stats when page loads
+loadBackupStats()
+  
 </script>
 </body>
 </html>
