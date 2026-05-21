@@ -485,7 +485,10 @@
           .single()
           .then(function(check) {
             if (check.error || !check.data) return showMsg('err', 'Current password is incorrect')
-            return sb.from('users').update({ password: newPw }).eq('username', s.username)
+            return sb.rpc('update_user_password', {
+              p_username: s.username,
+              p_new_password: newPw
+            })
           })
           .then(function(upd) {
             if (!upd) return
