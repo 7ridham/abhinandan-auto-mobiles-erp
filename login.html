@@ -1200,10 +1200,34 @@ async function doLogin() {
   if (!window._sb) { showErr('Connection error. Please refresh.'); btn.disabled=false; btn.innerText='🔐 Login to ERP'; return }
 
   try {
-    var res = await window._sb.from('users').select('*')
-      .eq('username', u.toLowerCase()).eq('password', p).eq('is_active', true).single()
-    if (res.error || !res.data) { showErr('Invalid username or password.'); btn.disabled=false; btn.innerText='🔐 Login to ERP'; return }
-    var user = res.data
+    // Step 1: Find user by username only (no password check here)
+    var userRes = await window._sb.from('users')
+      .select('*')
+      .eq('username', u.toLowerCase())
+      .eq('is_active', true)
+      .single()
+
+    if (userRes.error || !userRes.data) { 
+      showErr('Invalid username or password.') 
+      btn.disabled=false
+      btn.innerText='🔐 Login to ERP'
+      return 
+    }
+
+    // Step 2: Verify password using secure database function
+    var verifyRes = await window._sb.rpc('verify_user_password', {
+      p_username: u.toLowerCase(),
+      p_password: p
+    })
+
+    if (!verifyRes.data) { 
+      showErr('Invalid username or password.') 
+      btn.disabled=false
+      btn.innerText='🔐 Login to ERP'
+      return 
+    }
+
+    var user = userRes.data
     var now = Date.now()
     localStorage.setItem('aam_erp_session', JSON.stringify({
       username: user.username, role: user.role,
