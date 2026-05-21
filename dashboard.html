@@ -170,7 +170,16 @@
       </div>
       <span id="visitorCountBadge" style="background:rgba(52,211,153,0.15);color:#34d399;font-size:11px;font-weight:700;padding:2px 10px;border-radius:10px;border:1px solid rgba(52,211,153,0.25);">0 visitors</span>
     </div>
-    <button onclick="loadVisitors()" style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.6);padding:6px 12px;border-radius:8px;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;">🔄 Refresh</button>
+    <div style="display:flex;gap:8px;">
+  <button onclick="deleteAllVisitors()" 
+    style="background:rgba(220,38,38,0.12);border:1px solid rgba(220,38,38,0.25);
+    color:#f87171;padding:6px 14px;border-radius:8px;font-size:12px;font-weight:600;
+    cursor:pointer;font-family:'DM Sans',sans-serif;">🗑️ Delete All</button>
+  <button onclick="loadVisitors()" 
+    style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);
+    color:rgba(255,255,255,0.6);padding:6px 12px;border-radius:8px;font-size:12px;
+    cursor:pointer;font-family:'DM Sans',sans-serif;">🔄 Refresh</button>
+</div>
   </div>
   <div id="visitorList" style="max-height:280px;overflow-y:auto;">
     <div style="text-align:center;padding:20px;color:rgba(255,255,255,0.3);font-size:13px;">Loading...</div>
@@ -222,12 +231,12 @@
     </div>
   </div>
 
-  <div style="margin-top:12px;padding:10px 14px;background:rgba(251,191,36,0.07);
+ <div style="margin-top:12px;padding:10px 14px;background:rgba(251,191,36,0.07);
               border:1px solid rgba(251,191,36,0.15);border-radius:8px;
-              font-size:12px;color:rgba(255,255,255,0.45);line-height:1.8;">
-    ⚠️ <strong style="color:rgba(251,191,36,0.8);">Important:</strong>
-    Download backup every Monday morning. Save it to Google Drive or a USB drive.
-    This protects all your bills, customer balances, and product data.
+              font-size:12px;color:var(--text-muted, rgba(255,255,255,0.45));line-height:1.8;">
+  ⚠️ <strong style="color:rgba(251,191,36,0.8);">Important:</strong>
+    <span style="color:inherit;">Download backup every Monday morning. Save it to Google Drive or a USB drive.
+    This protects all your bills, customer balances, and product data.</span>
   </div>
 </div>
   
@@ -474,6 +483,7 @@ async function loadVisitors() {
 
   if (error || !data || !data.length) {
     list.innerHTML = '<div style="text-align:center;padding:20px;color:rgba(255,255,255,0.3);font-size:13px;">No website visitors yet. Share your login page with customers!</div>'
+    document.getElementById('visitorCountBadge').innerText = '0 visitors'
     return
   }
 
@@ -485,25 +495,58 @@ async function loadVisitors() {
     '<th style="padding:8px 12px;font-size:10px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid rgba(255,255,255,0.07);text-align:left;">Phone</th>' +
     '<th style="padding:8px 12px;font-size:10px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid rgba(255,255,255,0.07);text-align:left;">Visited At</th>' +
     '<th style="padding:8px 12px;font-size:10px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid rgba(255,255,255,0.07);text-align:left;">Rating</th>' +
+    '<th style="padding:8px 12px;font-size:10px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid rgba(255,255,255,0.07);text-align:center;">Action</th>' +
     '</tr></thead><tbody>' +
     data.map(function(v) {
       var t = new Date(v.visited_at)
       var timeStr = t.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}) + ' ' +
                     t.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true})
-      var stars = v.rating > 0 ? '★'.repeat(v.rating) : '—'
-      return '<tr>' +
+      var stars = v.rating > 0 ? '<span style="color:#fbbf24;">' + '★'.repeat(v.rating) + '</span>' : '—'
+      var reviewTip = v.review_text ? ' <span title="' + v.review_text.replace(/"/g,"'") + '" style="cursor:help;font-size:11px;color:rgba(255,255,255,0.4);">💬</span>' : ''
+      return '<tr id="visitor-row-' + v.id + '">' +
         '<td style="padding:9px 12px;font-size:13px;color:white;border-bottom:1px solid rgba(255,255,255,0.04);">' +
           (v.name || '<span style="color:rgba(255,255,255,0.3);">Anonymous</span>') + '</td>' +
         '<td style="padding:9px 12px;font-size:13px;color:rgba(255,255,255,0.5);border-bottom:1px solid rgba(255,255,255,0.04);">' +
           (v.phone || '—') + '</td>' +
         '<td style="padding:9px 12px;font-size:12px;color:rgba(255,255,255,0.4);border-bottom:1px solid rgba(255,255,255,0.04);">' +
           timeStr + '</td>' +
-        '<td style="padding:9px 12px;font-size:14px;color:#fbbf24;border-bottom:1px solid rgba(255,255,255,0.04);">' +
-          stars + (v.review_text ? ' <span title="' + v.review_text.replace(/"/g,"'") + '" style="cursor:help;font-size:11px;color:rgba(255,255,255,0.4);">💬</span>' : '') + '</td>' +
+        '<td style="padding:9px 12px;font-size:14px;border-bottom:1px solid rgba(255,255,255,0.04);">' +
+          stars + reviewTip + '</td>' +
+        '<td style="padding:9px 12px;text-align:center;border-bottom:1px solid rgba(255,255,255,0.04);">' +
+          '<button onclick="deleteOneVisitor(' + v.id + ')" ' +
+          'style="background:rgba(220,38,38,0.15);border:1px solid rgba(220,38,38,0.25);' +
+          'color:#f87171;padding:3px 10px;font-size:11px;border-radius:6px;' +
+          'cursor:pointer;font-family:\'DM Sans\',sans-serif;box-shadow:none;">✕ Delete</button>' +
+        '</td>' +
       '</tr>'
     }).join('') +
     '</tbody></table>'
-} 
+}
+
+window.deleteOneVisitor = async function(id) {
+  if (!confirm('Delete this visitor record?')) return
+  var { error } = await supabase.from('website_visitors').delete().eq('id', id)
+  if (error) { alert('Error deleting: ' + error.message); return }
+  // Remove row instantly without full reload
+  var row = document.getElementById('visitor-row-' + id)
+  if (row) row.remove()
+  // Update count
+  var badge = document.getElementById('visitorCountBadge')
+  if (badge) {
+    var current = parseInt(badge.innerText) || 0
+    var newCount = Math.max(0, current - 1)
+    badge.innerText = newCount + ' visitor' + (newCount !== 1 ? 's' : '')
+  }
+}
+
+window.deleteAllVisitors = async function() {
+  if (!confirm('Delete ALL visitor records? This cannot be undone.')) return
+  var { error } = await supabase.from('website_visitors').delete().neq('id', 0)
+  if (error) { alert('Error: ' + error.message); return }
+  document.getElementById('visitorCountBadge').innerText = '0 visitors'
+  document.getElementById('visitorList').innerHTML =
+    '<div style="text-align:center;padding:20px;color:rgba(255,255,255,0.3);font-size:13px;">No website visitors yet.</div>'
+}
   
 // ── AUTO REFRESH every 60 seconds ──
 async function loadAll() {
