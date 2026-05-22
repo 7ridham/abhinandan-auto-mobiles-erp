@@ -1235,89 +1235,90 @@ function buildBSRows(liabRows, assetRows) {
 }
 
 window.loadBalanceSheet = async function() {
-  const asOnDate=document.getElementById('bsDateInput').value
-  const wrapper=document.getElementById('bsWrapper')
-  wrapper.innerHTML='<div style="color:var(--text-dim);font-family:\'DM Sans\',sans-serif;font-size:14px;padding:40px;text-align:center;">Calculating Balance Sheet…</div>'
-  const dt=asOnDate?new Date(asOnDate):new Date()
-  const m=dt.getMonth(),y=dt.getFullYear()
-  const fyYear=m>=3?y:y-1
-  const fyTo=asOnDate||new Date().toISOString().slice(0,10)
-  const[sRes,pRes,srRes,prRes,bsRes,custRes,purchCreditRes,manualPnlRes,invRes]=await Promise.all([
-    _supabase.from('sales').select('total_amount,credit,cash,upi').eq('bill_type','sale').lte('created_at',fyTo+'T23:59:59'),
-    _supabase.from('purchases').select('total_amount,credit').eq('bill_type','purchase').lte('created_at',fyTo+'T23:59:59'),
-    _supabase.from('sales').select('total_amount').eq('bill_type','return').lte('created_at',fyTo+'T23:59:59'),
-    _supabase.from('purchases').select('total_amount').eq('bill_type','return').lte('created_at',fyTo+'T23:59:59'),
-    _supabase.from('balance_sheet_entries').select('*').eq('is_active',true).order('entry_type').order('category'),
-    _supabase.from('payments').select('amount').lte('created_at',fyTo+'T23:59:59'),
-    _supabase.from('merchant_payments').select('amount').lte('created_at',fyTo+'T23:59:59'),
-    _supabase.from('pnl_entries').select('entry_type,amount').eq('financial_year',fyYear+'-'+(fyYear+1).toString().slice(-2)).eq('is_active',true),
-    _supabase.from('inventory').select('quantity,purchase_price')
-  ])
-  const salesRows=sRes.data||[],purchRows=pRes.data||[],salesRets=srRes.data||[],purchRets=prRes.data||[]
-  const bsEntries=bsRes.data||[],paymentsRec=custRes.data||[],merchantPaid=purchCreditRes.data||[]
-  const pnlItems=manualPnlRes.data||[],invRows=invRes.data||[]
-  const totalSales=salesRows.reduce((s,r)=>s+Number(r.total_amount),0)
-  const salesRetTot=salesRets.reduce((s,r)=>s+Number(r.total_amount),0)
-  const totalPurch=purchRows.reduce((s,r)=>s+Number(r.total_amount),0)
-  const purchRetTot=purchRets.reduce((s,r)=>s+Number(r.total_amount),0)
-  const netSales=totalSales-salesRetTot, netPurch=totalPurch-purchRetTot
-  const totalCreditGiven=salesRows.reduce((s,r)=>s+Number(r.credit||0),0)
-  const paymentsReceived=paymentsRec.reduce((s,r)=>s+Number(r.amount||0),0)
-  const debtors=Math.max(0,totalCreditGiven-paymentsReceived)
-  const totalCreditTaken=purchRows.reduce((s,r)=>s+Number(r.credit||0),0)
-  const merchantPayments=merchantPaid.reduce((s,r)=>s+Number(r.amount||0),0)
-  const creditors=Math.max(0,totalCreditTaken-merchantPayments)
-  const openingCash=bsEntries.filter(e=>e.account_type==='opening_cash').reduce((s,e)=>s+Number(e.amount||0),0)
-  const totalCashIn=salesRows.reduce((s,r)=>s+Number(r.cash||0),0)
-  const totalUpiIn=salesRows.reduce((s,r)=>s+Number(r.upi||0),0)
-  const cashInHand=Math.max(0,openingCash+totalCashIn+paymentsReceived-merchantPayments)
-  const openingBank=bsEntries.filter(e=>e.account_type==='opening_bank').reduce((s,e)=>s+Number(e.amount||0),0)
-  const bankBalance=Math.max(0,openingBank+totalUpiIn)
-  const closingStock=invRows.reduce((s,r)=>s+Number(r.quantity||0)*Number(r.purchase_price||0),0)
-  const grossProfit=netSales-netPurch
-  const totalExp=pnlItems.filter(e=>e.entry_type==='expense').reduce((s,e)=>s+Number(e.amount||0),0)
-  const totalOtherInc=pnlItems.filter(e=>e.entry_type==='income').reduce((s,e)=>s+Number(e.amount||0),0)
-  const netProfit=grossProfit-totalExp+totalOtherInc
-  const manualAssets=bsEntries.filter(e=>e.entry_type==='asset'&&e.account_type==='manual')
-  const manualLiabilities=bsEntries.filter(e=>e.entry_type==='liability'&&e.account_type!=='opening_capital')
-  const capitalEntries=bsEntries.filter(e=>e.entry_type==='capital'||e.account_type==='opening_capital')
-  const openingCapital=capitalEntries.reduce((s,e)=>s+Number(e.amount||0),0)
-  const closingCapital=openingCapital+netProfit
+  const asOnDate = document.getElementById('bsDateInput').value
+  const wrapper  = document.getElementById('bsWrapper')
+  wrapper.innerHTML = '<div style="color:var(--text-dim);font-family:\'DM Sans\',sans-serif;font-size:14px;padding:40px;text-align:center;">Calculating Balance Sheet…</div>'
+
+  // Use the shared computeBalances — SAME numbers as Accounts tab
+  const b = await computeBalances(asOnDate || null)
+
+  // Fetch P&L expense/income entries for net profit (FY-based)
+  const dt      = asOnDate ? new Date(asOnDate) : new Date()
+  const fyYear  = dt.getMonth() >= 3 ? dt.getFullYear() : dt.getFullYear() - 1
+  const fyKey   = fyYear + '-' + (fyYear + 1).toString().slice(-2)
+  const { data: pnlItems } = await _supabase.from('pnl_entries')
+    .select('entry_type,amount').eq('financial_year', fyKey).eq('is_active', true)
+
+  const totalExp      = (pnlItems||[]).filter(e => e.entry_type === 'expense').reduce((s,e) => s+Number(e.amount||0), 0)
+  const totalOtherInc = (pnlItems||[]).filter(e => e.entry_type === 'income').reduce((s,e)  => s+Number(e.amount||0), 0)
+  const netProfit     = b.grossProfit - totalExp + totalOtherInc
+
+  const openingCapital = b.capitalEntries.reduce((s, e) => s + Number(e.amount||0), 0)
+  const closingCapital = openingCapital + netProfit
 
   // ── LIABILITIES SIDE ──
-  const liabilitiesRows=[]
-  liabilitiesRows.push({section:'CAPITAL ACCOUNT',isSection:true})
-  liabilitiesRows.push({label:'Opening Capital',amount:openingCapital})
-  liabilitiesRows.push({label:netProfit>=0?'Add: Net Profit (from P&L)':'Less: Net Loss (from P&L)',amount:netProfit,color:netProfit>=0?'green':'red'})
-  liabilitiesRows.push({label:'Closing Capital',amount:closingCapital,isSubTotal:true})
-  if(manualLiabilities.length){
-    liabilitiesRows.push({section:'CURRENT LIABILITIES',isSection:true})
-    manualLiabilities.forEach(e=>liabilitiesRows.push({label:e.label,amount:Number(e.amount||0),note:e.notes||''}))
+  const liabilitiesRows = []
+  liabilitiesRows.push({ section: 'CAPITAL ACCOUNT', isSection: true })
+  liabilitiesRows.push({ label: 'Opening Capital', amount: openingCapital })
+  liabilitiesRows.push({
+    label:  netProfit >= 0 ? 'Add: Net Profit (from P&L)' : 'Less: Net Loss (from P&L)',
+    amount: netProfit,
+    color:  netProfit >= 0 ? 'green' : 'red'
+  })
+  liabilitiesRows.push({ label: 'Closing Capital', amount: closingCapital, isSubTotal: true })
+
+  if (b.manualLiabilities.length) {
+    liabilitiesRows.push({ section: 'CURRENT LIABILITIES', isSection: true })
+    b.manualLiabilities.forEach(e =>
+      liabilitiesRows.push({ label: e.label, amount: Number(e.amount||0), note: e.note || e.notes || '' })
+    )
   }
-  liabilitiesRows.push({section:'CREDITORS (AUTO)',isSection:true})
-  liabilitiesRows.push({label:'Sundry Creditors (to Merchants)',amount:creditors,note:'Auto from credit purchases'})
-  const totalLiabilities=closingCapital+manualLiabilities.reduce((s,e)=>s+Number(e.amount||0),0)+creditors
+
+  liabilitiesRows.push({ section: 'CREDITORS (AUTO)', isSection: true })
+  liabilitiesRows.push({
+    label: 'Sundry Creditors (to Merchants)',
+    amount: b.creditors,
+    note: 'Credit purchases − merchant payments made'
+  })
+
+  const totalLiabilities = closingCapital
+    + b.manualLiabilities.reduce((s, e) => s + Number(e.amount||0), 0)
+    + b.creditors
 
   // ── ASSETS SIDE ──
-  const assetsRows=[]
-  if(manualAssets.length){
-    assetsRows.push({section:'FIXED ASSETS',isSection:true})
-    manualAssets.forEach(e=>assetsRows.push({label:e.label,amount:Number(e.amount||0),note:e.notes||''}))
+  const assetsRows = []
+  if (b.manualAssets.length) {
+    assetsRows.push({ section: 'FIXED ASSETS', isSection: true })
+    b.manualAssets.forEach(e =>
+      assetsRows.push({ label: e.label, amount: Number(e.amount||0), note: e.note || e.notes || '' })
+    )
   }
-  assetsRows.push({section:'CURRENT ASSETS',isSection:true})
-  assetsRows.push({label:'Closing Stock (Inventory)',amount:closingStock,note:'Auto from inventory'})
-  assetsRows.push({label:'Sundry Debtors (Receivable)',amount:debtors,note:'Auto from credit sales'})
-  assetsRows.push({label:'Cash in Hand',amount:cashInHand,note:'Auto-calculated'})
-  assetsRows.push({label:'Bank Balance (UPI)',amount:bankBalance,note:'Opening bank + UPI inflows'})
-  const totalAssets=manualAssets.reduce((s,e)=>s+Number(e.amount||0),0)+closingStock+debtors+cashInHand+bankBalance
+
+  assetsRows.push({ section: 'CURRENT ASSETS', isSection: true })
+  assetsRows.push({ label: 'Closing Stock (Inventory)', amount: b.closingStock, note: 'Auto from inventory' })
+  assetsRows.push({ label: 'Sundry Debtors (Receivable)', amount: b.debtors, note: 'Credit sales − payments received' })
+  assetsRows.push({ label: 'Cash in Hand', amount: b.cashInHand, note: 'Opening + sales cash − purchase cash ± payments' })
+  assetsRows.push({ label: 'Bank Balance (UPI)', amount: b.bankBalance, note: 'Opening bank + UPI sales − UPI purchases' })
+
+  const totalAssets = b.manualAssets.reduce((s, e) => s + Number(e.amount||0), 0)
+    + b.closingStock + b.debtors + b.cashInHand + b.bankBalance
 
   // Store for CSV
-  _bsData={asOnDate,liabilitiesRows,assetsRows,totalLiabilities,totalAssets,closingCapital,netProfit,creditors,closingStock,debtors,cashInHand,bankBalance,manualAssets,manualLiabilities}
+  _bsData = {
+    asOnDate, liabilitiesRows, assetsRows, totalLiabilities, totalAssets,
+    closingCapital, netProfit, creditors: b.creditors,
+    closingStock: b.closingStock, debtors: b.debtors,
+    cashInHand: b.cashInHand, bankBalance: b.bankBalance,
+    manualAssets: b.manualAssets, manualLiabilities: b.manualLiabilities
+  }
 
-  const diff=Math.abs(totalAssets-totalLiabilities), balanced=diff<1
-  const dateLabel=asOnDate?new Date(asOnDate).toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'}):'Today'
+  const diff     = Math.abs(totalAssets - totalLiabilities)
+  const balanced = diff < 1
+  const dateLabel = asOnDate
+    ? new Date(asOnDate).toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'})
+    : 'Today'
 
-  wrapper.innerHTML=`
+  wrapper.innerHTML = `
     <div class="bs-heading"><h2>Balance Sheet</h2><p>As on ${dateLabel}</p></div>
     <div style="overflow-x:auto;">
     <table class="bs-table">
@@ -1335,14 +1336,24 @@ window.loadBalanceSheet = async function() {
           <td><strong>Total Assets</strong></td>
           <td class="bs-amount"><strong>${fmtAmt(totalAssets)}</strong></td>
         </tr>
-        ${!balanced?`<tr><td colspan="2" style="background:rgba(248,113,113,0.1);color:#f87171;padding:9px 14px;border:1px solid var(--pnl-border);font-style:italic;">⚠️ Difference: ${fmtAmt(diff)} — Add opening balance to fix</td><td colspan="2" style="background:rgba(248,113,113,0.1);color:#f87171;padding:9px 14px;border:1px solid var(--pnl-border);">Add ${fmtAmt(diff)} to ${totalAssets>totalLiabilities?'Liabilities/Capital':'Assets'}</td></tr>`:''}
+        ${!balanced ? `<tr>
+          <td colspan="2" style="background:rgba(248,113,113,0.1);color:#f87171;padding:9px 14px;border:1px solid var(--pnl-border);font-style:italic;">
+            ⚠️ Difference: ${fmtAmt(diff)} — Add opening balance to fix
+          </td>
+          <td colspan="2" style="background:rgba(248,113,113,0.1);color:#f87171;padding:9px 14px;border:1px solid var(--pnl-border);">
+            Add ${fmtAmt(diff)} to ${totalAssets > totalLiabilities ? 'Liabilities/Capital' : 'Assets'}
+          </td>
+        </tr>` : ''}
       </tbody>
     </table>
     </div>
-    <div class="${balanced?'bs-balanced':'bs-unbalanced'}" style="margin-top:12px;">
-      ${balanced?'✅ Balance Sheet is Balanced! Both sides equal '+fmtAmt(totalAssets):'⚠️ Not balanced. Difference: '+fmtAmt(diff)+'. Usually means opening capital/cash is missing.'}
+    <div class="${balanced ? 'bs-balanced' : 'bs-unbalanced'}" style="margin-top:12px;">
+      ${balanced
+        ? '✅ Balance Sheet is Balanced! Both sides equal ' + fmtAmt(totalAssets)
+        : '⚠️ Not balanced. Difference: ' + fmtAmt(diff) + '. Tip: Add opening capital in the entries panel below.'}
     </div>`
-  renderBsEntries(bsEntries)
+
+  renderBsEntries(b.bsEntries)
 }
 
 window.exportBSCSV = function() {
