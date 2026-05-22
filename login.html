@@ -3,1327 +3,356 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Abhinandan Auto Mobiles — Genuine Spare Parts</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;0,800;1,600&family=DM+Sans:wght@300;400;500;600;700&family=Bebas+Neue&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+<title>Abhinandan Auto Mobiles — Staff Login</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Barlow+Condensed:wght@300;400;500;600;700&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-*{box-sizing:border-box;margin:0;padding:0;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px}
 :root{
-  --navy:#04070f;
-  --dark:#080c18;
-  --card:rgba(255,255,255,0.04);
-  --border:rgba(255,255,255,0.08);
-  --gold:#f59e0b;
-  --gold2:#fbbf24;
-  --blue:#2563eb;
-  --cyan:#06b6d4;
-  --red:#dc2626;
-  --green:#059669;
-  --text:rgba(255,255,255,0.85);
-  --muted:rgba(255,255,255,0.38);
+  --bg:#dddbd7;--bg2:#e8e6e2;--text:#181816;--muted:#6e6e6a;
+  --gold:#b8840a;--gold2:#d4a030;--white:#f8f6f2;--line:rgba(24,24,22,.1);
 }
-html{scroll-behavior:smooth;}
 body{
-  font-family:'DM Sans',sans-serif;
-  background:var(--navy);
-  color:var(--text);
-  min-height:100vh;
-  overflow-x:hidden;
+  background:var(--bg);color:var(--text);
+  font-family:'Barlow',sans-serif;
+  min-height:100vh;overflow:hidden;
+  cursor:none;
 }
 
-/* ══════════════ SCREENS ══════════════ */
-#loginScreen{
-  position:fixed;inset:0;z-index:200;
+/* CURSOR */
+#cur,#cur2{position:fixed;border-radius:50%;pointer-events:none;z-index:9000;transform:translate(-50%,-50%)}
+#cur{width:7px;height:7px;background:var(--text)}
+#cur2{width:30px;height:30px;border:1px solid rgba(24,24,22,.25);transition:all .2s ease}
+@media(hover:none){#cur,#cur2{display:none}body{cursor:auto}}
+
+/* CANVAS */
+#c{position:fixed;inset:0;width:100%;height:100%;z-index:0;display:block}
+
+/* ATMOSPHERE */
+#grain{position:fixed;inset:0;z-index:2;pointer-events:none;opacity:.05;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 300'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3C/svg%3E");
+  animation:gn .1s steps(1) infinite}
+@keyframes gn{0%{background-position:0 0}25%{background-position:-80px -50px}50%{background-position:50px 30px}75%{background-position:-30px 70px}100%{background-position:20px -20px}}
+#vig{position:fixed;inset:0;z-index:3;pointer-events:none;
+  background:radial-gradient(ellipse 88% 88% at 50% 50%,transparent 42%,rgba(18,16,12,.55) 100%)}
+
+/* MAIN LAYOUT */
+#loginWrap{
+  position:fixed;inset:0;z-index:10;
   display:flex;align-items:center;justify-content:center;
-  background:var(--navy);
-  transition:opacity 0.6s ease, transform 0.6s ease;
-}
-#loginScreen.hide{opacity:0;transform:scale(1.04);pointer-events:none;}
-
-#portalScreen{
-  display:none;
-  min-height:100vh;
-}
-#portalScreen.show{display:block;}
-
-/* ══════════════ LOGIN BACKGROUND ══════════════ */
-.login-bg{
-  position:absolute;inset:0;overflow:hidden;
-}
-.login-bg-mesh{
-  position:absolute;inset:0;
-  background:
-    radial-gradient(ellipse 80% 60% at 15% 50%, rgba(37,99,235,0.18) 0%, transparent 65%),
-    radial-gradient(ellipse 60% 80% at 85% 20%, rgba(245,158,11,0.1) 0%, transparent 55%),
-    radial-gradient(ellipse 50% 50% at 70% 85%, rgba(6,182,212,0.09) 0%, transparent 50%);
-}
-/* Animated grid lines */
-.login-grid{
-  position:absolute;inset:0;
-  background-image:
-    linear-gradient(rgba(37,99,235,0.06) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(37,99,235,0.06) 1px, transparent 1px);
-  background-size:60px 60px;
-  animation:gridmove 20s linear infinite;
-}
-@keyframes gridmove{0%{background-position:0 0}100%{background-position:60px 60px}}
-
-/* Floating orbs */
-.orb{
-  position:absolute;border-radius:50%;
-  filter:blur(80px);pointer-events:none;animation:orbdrift ease-in-out infinite;
-}
-.orb1{width:500px;height:500px;background:rgba(37,99,235,0.12);top:-100px;left:-150px;animation-duration:18s;}
-.orb2{width:350px;height:350px;background:rgba(245,158,11,0.08);top:30%;right:-100px;animation-duration:14s;animation-delay:-6s;}
-.orb3{width:280px;height:280px;background:rgba(6,182,212,0.07);bottom:-80px;left:30%;animation-duration:22s;animation-delay:-10s;}
-@keyframes orbdrift{
-  0%,100%{transform:translate(0,0) scale(1)}
-  33%{transform:translate(30px,-30px) scale(1.05)}
-  66%{transform:translate(-20px,20px) scale(0.97)}
+  padding:20px;
 }
 
-/* ══════════════ LOGIN CARD ══════════════ */
-.login-wrap{
+.lbox{
   position:relative;z-index:2;
-  width:100%;max-width:460px;padding:24px;
+  width:100%;max-width:400px;
 }
 
-.login-brand{text-align:center;margin-bottom:28px;}
-.brand-logo-3d{
-  width:84px;height:84px;margin:0 auto 16px;
-  position:relative;
-}
-.brand-logo-3d .logo-face{
-  width:84px;height:84px;
-  background:linear-gradient(145deg,#1e40af,#2563eb,#1d4ed8);
-  border-radius:20px;
+/* BRAND */
+.lbrand{text-align:center;margin-bottom:40px;}
+.llogo{
+  width:62px;height:62px;margin:0 auto 18px;
+  background:var(--text);border-radius:10px;
   display:flex;align-items:center;justify-content:center;
-  font-family:'Playfair Display',serif;font-size:36px;font-weight:800;color:white;
-  box-shadow:
-    0 20px 60px rgba(37,99,235,0.5),
-    0 8px 20px rgba(0,0,0,0.4),
-    inset 0 1px 0 rgba(255,255,255,0.25),
-    inset 0 -2px 0 rgba(0,0,0,0.2);
-  transform:perspective(200px) rotateX(8deg);
-  transition:transform 0.3s;
+  font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:600;color:var(--white);
+  box-shadow:0 8px 32px rgba(24,24,22,.2);
 }
-.brand-logo-3d:hover .logo-face{transform:perspective(200px) rotateX(0deg) scale(1.05);}
-.brand-logo-3d::after{
-  content:'';position:absolute;bottom:-12px;left:10%;right:10%;height:20px;
-  background:rgba(37,99,235,0.25);border-radius:50%;filter:blur(12px);
+.lname{
+  font-family:'Cormorant Garamond',serif;
+  font-size:22px;font-weight:300;color:var(--text);
+  letter-spacing:.06em;margin-bottom:5px;
+}
+.lsub{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:9px;letter-spacing:.32em;text-transform:uppercase;color:var(--muted);
 }
 
-.login-brand h1{
-  font-family:'Playfair Display',serif;
-  font-size:22px;font-weight:700;color:white;margin-bottom:4px;
+/* ROLE TABS */
+.rtabs{display:grid;grid-template-columns:1fr 1fr;margin-bottom:24px;border:1px solid var(--line);}
+.rtab{
+  padding:13px 10px;text-align:center;cursor:pointer;
+  font-family:'Barlow Condensed',sans-serif;font-size:10px;
+  font-weight:500;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--muted);background:var(--bg2);border:none;
+  transition:all .22s;
 }
-.login-brand p{font-size:12px;color:var(--muted);letter-spacing:0.5px;}
+.rtab:first-child{border-right:1px solid var(--line);}
+.rtab.act{background:var(--text);color:var(--white);}
+.rtab:hover:not(.act){background:var(--white);color:var(--text);}
 
-/* Entry buttons */
-.entry-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:20px;}
-.entry-btn{
-  padding:16px 8px;border-radius:16px;border:1.5px solid var(--border);
-  background:rgba(255,255,255,0.04);
-  color:var(--muted);font-size:12px;font-weight:600;
-  cursor:pointer;font-family:'DM Sans',sans-serif;
-  transition:all 0.25s;text-align:center;
-  position:relative;overflow:hidden;
+/* PORTAL LINK */
+.portal-link{
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  padding:13px;margin-bottom:24px;
+  border:1px solid var(--line);background:rgba(184,132,10,.06);
+  cursor:pointer;font-family:'Barlow Condensed',sans-serif;
+  font-size:10px;font-weight:500;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--gold);text-decoration:none;
+  transition:all .22s;
 }
-.entry-btn::before{
-  content:'';position:absolute;top:0;left:0;right:0;height:1px;
-  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.12),transparent);
-}
-.entry-btn .eb-icon{font-size:24px;display:block;margin-bottom:6px;}
-.entry-btn.act-owner{
-  background:rgba(245,158,11,0.1);border-color:rgba(245,158,11,0.45);
-  color:var(--gold2);box-shadow:0 4px 20px rgba(245,158,11,0.15);
-}
-.entry-btn.act-staff{
-  background:rgba(37,99,235,0.1);border-color:rgba(37,99,235,0.45);
-  color:#60a5fa;box-shadow:0 4px 20px rgba(37,99,235,0.15);
-}
-.entry-btn.cust{
-  background:rgba(5,150,105,0.08);border-color:rgba(5,150,105,0.35);color:#34d399;
-}
-.entry-btn.cust:hover{
-  background:rgba(5,150,105,0.16);border-color:rgba(5,150,105,0.6);
-  transform:translateY(-3px);box-shadow:0 8px 24px rgba(5,150,105,0.2);
-}
+.portal-link:hover{background:rgba(184,132,10,.12);}
 
-/* Login card */
+/* CARD */
 .lcard{
-  background:linear-gradient(145deg,rgba(255,255,255,0.07),rgba(255,255,255,0.03));
-  border:1px solid rgba(255,255,255,0.1);border-radius:22px;
-  padding:28px;
-  box-shadow:0 32px 80px rgba(0,0,0,0.5),inset 0 1px 0 rgba(255,255,255,0.08);
+  background:var(--white);border:1px solid var(--line);
+  padding:32px;
+  box-shadow:0 20px 60px rgba(24,24,22,.08);
   position:relative;overflow:hidden;
 }
 .lcard::before{
-  content:'';position:absolute;top:0;left:15%;right:15%;height:1px;
-  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.2),transparent);
-}
-.lcard .field{margin-bottom:15px;}
-.lcard .field label{
-  display:block;font-size:10px;font-weight:700;letter-spacing:1.2px;
-  text-transform:uppercase;color:var(--muted);margin-bottom:7px;
-}
-.lcard .field input{
-  width:100%;padding:13px 16px;
-  background:rgba(255,255,255,0.07);border:1.5px solid rgba(255,255,255,0.1);
-  border-radius:11px;color:white;font-size:15px;
-  font-family:'DM Sans',sans-serif;outline:none;transition:all 0.2s;
-}
-.lcard .field input:focus{border-color:var(--blue);background:rgba(37,99,235,0.08);}
-.lcard .field input::placeholder{color:rgba(255,255,255,0.2);}
-.err{
-  display:none;background:rgba(220,38,38,0.1);border:1px solid rgba(220,38,38,0.3);
-  border-radius:10px;padding:11px 15px;color:#f87171;font-size:13px;
-  margin-bottom:14px;text-align:center;
-}
-.login-btn{
-  width:100%;padding:14px;border-radius:12px;border:none;
-  background:linear-gradient(135deg,#1e3a8a,#2563eb);color:white;
-  font-size:15px;font-weight:700;cursor:pointer;
-  font-family:'DM Sans',sans-serif;margin-top:4px;
-  box-shadow:0 6px 24px rgba(37,99,235,0.4),inset 0 1px 0 rgba(255,255,255,0.15);
-  transition:all 0.2s;letter-spacing:0.5px;
-}
-.login-btn:hover{transform:translateY(-2px);box-shadow:0 10px 32px rgba(37,99,235,0.5);}
-.login-btn:disabled{opacity:0.55;cursor:not-allowed;transform:none;}
-.login-foot{text-align:center;margin-top:16px;font-size:11px;color:rgba(255,255,255,0.18);line-height:1.8;}
-
-/* ══════════════ VISITOR MODAL ══════════════ */
-#visitorModal{
-  position:fixed;inset:0;z-index:500;
-  background:rgba(0,0,0,0.75);backdrop-filter:blur(12px);
-  display:none;align-items:center;justify-content:center;
-  padding:20px;
-}
-#visitorModal.show{display:flex;}
-.vcard{
-  background:linear-gradient(145deg,rgba(8,15,30,0.98),rgba(4,9,20,0.99));
-  border:1px solid rgba(5,150,105,0.3);border-radius:28px;
-  padding:40px 32px;max-width:400px;width:100%;
-  box-shadow:0 40px 100px rgba(0,0,0,0.8),0 0 80px rgba(5,150,105,0.08);
-  position:relative;text-align:center;
-  animation:vmodalin 0.4s cubic-bezier(0.34,1.56,0.64,1) forwards;
-}
-@keyframes vmodalin{from{opacity:0;transform:scale(0.85) translateY(20px)}to{opacity:1;transform:scale(1) translateY(0)}}
-.vcard::before{
-  content:'';position:absolute;top:0;left:20%;right:20%;height:1px;
-  background:linear-gradient(90deg,transparent,rgba(52,211,153,0.5),transparent);
-}
-.v-logo{
-  width:68px;height:68px;margin:0 auto 18px;
-  background:linear-gradient(145deg,#064e3b,#059669);
-  border-radius:18px;display:flex;align-items:center;justify-content:center;
-  font-family:'Playfair Display',serif;font-size:28px;font-weight:800;color:white;
-  box-shadow:0 12px 32px rgba(5,150,105,0.4),inset 0 1px 0 rgba(255,255,255,0.2);
-}
-.vcard h2{font-family:'Playfair Display',serif;font-size:22px;color:white;margin-bottom:6px;}
-.vcard p{font-size:13px;color:var(--muted);margin-bottom:24px;line-height:1.6;}
-.vf{margin-bottom:14px;text-align:left;}
-.vf label{display:block;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(52,211,153,0.65);margin-bottom:7px;}
-.vf input{
-  width:100%;padding:12px 15px;
-  background:rgba(255,255,255,0.06);border:1.5px solid rgba(52,211,153,0.2);
-  border-radius:11px;color:white;font-size:14px;
-  font-family:'DM Sans',sans-serif;outline:none;transition:border-color 0.2s;
-}
-.vf input:focus{border-color:rgba(52,211,153,0.6);background:rgba(5,150,105,0.07);}
-.vf input::placeholder{color:rgba(255,255,255,0.18);}
-.v-opt{font-size:10px;color:rgba(255,255,255,0.22);margin-left:6px;}
-.v-enter{
-  width:100%;padding:14px;border-radius:12px;border:none;
-  background:linear-gradient(135deg,#047857,#059669);color:white;
-  font-size:14px;font-weight:700;cursor:pointer;
-  font-family:'DM Sans',sans-serif;margin-top:6px;
-  box-shadow:0 6px 22px rgba(5,150,105,0.4),inset 0 1px 0 rgba(255,255,255,0.15);
-  transition:all 0.2s;
-}
-.v-enter:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(5,150,105,0.5);}
-.v-skip{
-  display:block;margin-top:13px;font-size:12px;
-  color:rgba(255,255,255,0.28);cursor:pointer;
-  background:none;border:none;width:100%;
-  font-family:'DM Sans',sans-serif;transition:color 0.2s;
-}
-.v-skip:hover{color:rgba(255,255,255,0.5);}
-
-/* ══════════════════════════════════════
-   PORTAL — HEADER
-══════════════════════════════════════ */
-.ph{
-  position:sticky;top:0;z-index:100;
-  background:rgba(4,7,15,0.88);backdrop-filter:blur(24px) saturate(180%);
-  border-bottom:1px solid rgba(255,255,255,0.07);
-}
-.ph-inner{
-  max-width:1280px;margin:0 auto;padding:0 28px;
-  display:flex;align-items:center;justify-content:space-between;
-  height:64px;gap:16px;
-}
-.ph-logo{display:flex;align-items:center;gap:12px;text-decoration:none;}
-.ph-logo-box{
-  width:40px;height:40px;
-  background:linear-gradient(145deg,#1e40af,#2563eb);
-  border-radius:10px;display:flex;align-items:center;justify-content:center;
-  font-family:'Playfair Display',serif;font-size:19px;font-weight:800;color:white;
-  box-shadow:0 4px 14px rgba(37,99,235,0.35);
-}
-.ph-name{font-family:'Playfair Display',serif;font-size:17px;color:white;font-weight:700;}
-.ph-sub{font-size:10px;color:var(--muted);font-family:'DM Sans',sans-serif;}
-.ph-nav{display:flex;gap:8px;align-items:center;}
-.ph-btn{
-  padding:9px 16px;border-radius:9px;font-size:12px;font-weight:600;
-  cursor:pointer;font-family:'DM Sans',sans-serif;
-  transition:all 0.2s;text-decoration:none;display:inline-flex;
-  align-items:center;gap:6px;border:none;
-}
-.ph-btn-ghost{background:rgba(255,255,255,0.06);color:var(--text);border:1px solid var(--border);}
-.ph-btn-ghost:hover{background:rgba(255,255,255,0.1);}
-.ph-btn-gold{
-  background:linear-gradient(135deg,#92400e,#d97706);color:white;
-  box-shadow:0 4px 14px rgba(217,119,6,0.3);
-}
-.ph-btn-gold:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(217,119,6,0.4);}
-.ph-btn-back{background:rgba(37,99,235,0.12);color:#60a5fa;border:1px solid rgba(37,99,235,0.25);}
-.ph-btn-back:hover{background:rgba(37,99,235,0.22);}
-
-/* ══════════════════════════════════════
-   PORTAL — HERO
-══════════════════════════════════════ */
-.hero{
-  min-height:100vh;
-  position:relative;overflow:hidden;
-  display:flex;align-items:center;justify-content:center;
-  background:
-    radial-gradient(ellipse 100% 80% at 50% 0%, rgba(37,99,235,0.14) 0%, transparent 60%),
-    radial-gradient(ellipse 70% 50% at 0% 100%, rgba(245,158,11,0.08) 0%, transparent 55%),
-    linear-gradient(180deg, #04070f 0%, #080c18 100%);
-}
-
-/* 3D truck scene */
-.hero-3d{
-  position:absolute;inset:0;pointer-events:none;overflow:hidden;
-}
-/* Large gear rings */
-.gear-ring{
-  position:absolute;border-radius:50%;border:2px solid;
-  animation:gearSpin linear infinite;
-}
-.gr1{
-  width:700px;height:700px;top:-200px;right:-200px;
-  border-color:rgba(37,99,235,0.07);
-  animation-duration:60s;
-}
-.gr1::after{
-  content:'';position:absolute;inset:30px;border-radius:50%;
-  border:1px dashed rgba(37,99,235,0.05);
-}
-.gr2{
-  width:400px;height:400px;bottom:-150px;left:-100px;
-  border-color:rgba(245,158,11,0.06);
-  animation-duration:40s;animation-direction:reverse;
-}
-.gr3{
-  width:200px;height:200px;top:20%;left:15%;
-  border-color:rgba(6,182,212,0.09);
-  animation-duration:28s;
-}
-@keyframes gearSpin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
-
-/* Hero particles */
-.hero-dots{
-  position:absolute;inset:0;
-  background-image:radial-gradient(circle, rgba(255,255,255,0.06) 1px, transparent 1px);
-  background-size:40px 40px;
-  animation:dotshift 30s linear infinite;
-}
-@keyframes dotshift{0%{transform:translate(0,0)}100%{transform:translate(40px,40px)}}
-
-/* Glowing lines */
-.hero-line{
-  position:absolute;height:1px;
-  background:linear-gradient(90deg,transparent,rgba(37,99,235,0.3),transparent);
-  animation:linescroll 8s ease-in-out infinite;
-}
-.hl1{width:60%;left:20%;top:25%;animation-delay:0s;}
-.hl2{width:40%;left:30%;top:75%;animation-delay:3s;}
-@keyframes linescroll{0%,100%{opacity:0;transform:scaleX(0)}50%{opacity:1;transform:scaleX(1)}}
-
-/* Big truck silhouette (CSS art) */
-.truck-wrap{
-  position:absolute;right:-40px;bottom:0;
-  width:min(700px, 60vw);height:auto;
-  opacity:0.07;
-  animation:truckfloat 8s ease-in-out infinite;
-}
-@keyframes truckfloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-18px)}}
-
-/* 3D Gear cogs */
-.cog{
-  position:absolute;
-  font-size:80px;color:rgba(37,99,235,0.1);
-  animation:cogspin linear infinite;
-  user-select:none;
-}
-.cog2{
-  position:absolute;
-  font-size:50px;color:rgba(245,158,11,0.08);
-  animation:cogspin linear infinite reverse;
-  user-select:none;
-}
-@keyframes cogspin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
-.c1{top:10%;right:10%;animation-duration:20s;}
-.c2{bottom:15%;right:25%;animation-duration:14s;}
-.c3{top:40%;right:5%;animation-duration:30s;}
-.c4{bottom:10%;left:5%;animation-duration:18s;color:rgba(6,182,212,0.07);}
-
-.hero-content{
-  position:relative;z-index:2;
-  max-width:760px;padding:120px 20px 80px;
-  text-align:center;
-}
-
-/* Badge */
-.h-badge{
-  display:inline-flex;align-items:center;gap:10px;
-  background:rgba(37,99,235,0.1);
-  border:1px solid rgba(37,99,235,0.35);
-  border-radius:40px;padding:8px 22px;
-  font-size:11px;font-weight:700;color:#93c5fd;
-  letter-spacing:1.5px;text-transform:uppercase;
-  margin-bottom:28px;
-  box-shadow:0 4px 20px rgba(37,99,235,0.15);
-  animation:badgein 0.8s ease forwards;
-}
-@keyframes badgein{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:translateY(0)}}
-.h-badge::before{
-  content:'';width:8px;height:8px;border-radius:50%;
-  background:#2563eb;box-shadow:0 0 12px #2563eb;
-  animation:blink 2s ease-in-out infinite;
-}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
-
-/* Main title */
-.h-title{
-  font-family:'Bebas Neue',sans-serif;
-  font-size:clamp(52px, 10vw, 110px);
-  line-height:0.9;letter-spacing:2px;
-  color:white;
-  margin-bottom:10px;
-  animation:titlein 0.9s ease 0.2s both;
-  text-shadow:0 4px 30px rgba(37,99,235,0.2);
-}
-.h-title .t-blue{
-  background:linear-gradient(135deg,#2563eb,#06b6d4);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-}
-.h-title .t-gold{
-  background:linear-gradient(135deg,#d97706,#fbbf24);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-}
-@keyframes titlein{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
-
-/* Sub title */
-.h-sub{
-  font-family:'Rajdhani',sans-serif;
-  font-size:clamp(16px, 3vw, 24px);
-  font-weight:500;color:rgba(255,255,255,0.45);
-  margin-bottom:36px;letter-spacing:0.5px;
-  animation:titlein 0.9s ease 0.35s both;
-}
-.h-sub strong{color:rgba(255,255,255,0.7);font-weight:700;}
-
-/* CTA row */
-.h-ctas{
-  display:flex;gap:14px;justify-content:center;flex-wrap:wrap;
-  margin-bottom:48px;
-  animation:titlein 0.9s ease 0.5s both;
-}
-.cta{
-  padding:15px 32px;border-radius:14px;font-size:14px;font-weight:700;
-  cursor:pointer;font-family:'DM Sans',sans-serif;text-decoration:none;
-  transition:all 0.25s;display:inline-flex;align-items:center;gap:9px;border:none;
-  letter-spacing:0.3px;
-}
-.cta-main{
-  background:linear-gradient(135deg,#1e40af,#2563eb,#0284c7);
-  color:white;box-shadow:0 8px 30px rgba(37,99,235,0.45),inset 0 1px 0 rgba(255,255,255,0.15);
-}
-.cta-main:hover{transform:translateY(-3px);box-shadow:0 14px 40px rgba(37,99,235,0.55);}
-.cta-gold{
-  background:linear-gradient(135deg,#92400e,#d97706);
-  color:white;box-shadow:0 8px 30px rgba(217,119,6,0.35),inset 0 1px 0 rgba(255,255,255,0.15);
-}
-.cta-gold:hover{transform:translateY(-3px);box-shadow:0 14px 40px rgba(217,119,6,0.45);}
-.cta-ghost{
-  background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.8);
-  border:1.5px solid rgba(255,255,255,0.14);
-}
-.cta-ghost:hover{background:rgba(255,255,255,0.12);transform:translateY(-2px);}
-
-/* Trust strip */
-.trust-strip{
-  display:flex;gap:10px;justify-content:center;flex-wrap:wrap;
-  animation:titlein 0.9s ease 0.65s both;
-}
-.t-pill{
-  display:flex;align-items:center;gap:8px;
-  background:rgba(255,255,255,0.04);
-  border:1px solid rgba(255,255,255,0.08);
-  border-radius:40px;padding:9px 18px;
-  font-size:12px;color:rgba(255,255,255,0.55);font-weight:500;
-}
-.t-pill .tp-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
-
-/* Scroll indicator */
-.scroll-ind{
-  position:absolute;bottom:30px;left:50%;transform:translateX(-50%);
-  display:flex;flex-direction:column;align-items:center;gap:8px;
-  color:rgba(255,255,255,0.25);font-size:11px;letter-spacing:1px;text-transform:uppercase;
-}
-.scroll-arrow{
-  width:24px;height:24px;border-right:2px solid rgba(255,255,255,0.2);
-  border-bottom:2px solid rgba(255,255,255,0.2);
-  transform:rotate(45deg);margin-top:-4px;
-  animation:scrollbounce 2s ease-in-out infinite;
-}
-@keyframes scrollbounce{0%,100%{transform:rotate(45deg) translate(0,0)}50%{transform:rotate(45deg) translate(4px,4px)}}
-
-/* ══════════════════════════════════════
-   PORTAL — BRANDS STRIP
-══════════════════════════════════════ */
-.brands-sec{
-  padding:50px 0;
-  border-top:1px solid rgba(255,255,255,0.05);
-  border-bottom:1px solid rgba(255,255,255,0.05);
-  background:rgba(255,255,255,0.015);
-  text-align:center;
-}
-.brands-label{
-  font-size:10px;letter-spacing:2.5px;text-transform:uppercase;
-  color:var(--muted);margin-bottom:24px;
-}
-.brands-track{
-  display:flex;gap:16px;justify-content:center;flex-wrap:wrap;
-}
-.b-chip{
-  background:rgba(255,255,255,0.04);
-  border:1px solid rgba(255,255,255,0.08);
-  border-radius:12px;padding:14px 24px;
-  display:flex;flex-direction:column;align-items:center;gap:4px;
-  transition:all 0.3s;cursor:default;
-  position:relative;overflow:hidden;
-}
-.b-chip::before{
   content:'';position:absolute;top:0;left:0;right:0;height:1px;
-  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.1),transparent);
+  background:linear-gradient(90deg,transparent,rgba(24,24,22,.15),transparent);
 }
-.b-chip:hover{
-  background:rgba(37,99,235,0.1);border-color:rgba(37,99,235,0.35);
-  transform:translateY(-3px);box-shadow:0 12px 30px rgba(0,0,0,0.3);
-}
-.b-name{font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;color:white;letter-spacing:1px;}
-.b-type{font-size:10px;color:var(--muted);}
 
-/* ══════════════════════════════════════
-   PORTAL — SECTIONS COMMON
-══════════════════════════════════════ */
-.sec{padding:90px 0;}
-.container{max-width:1200px;margin:0 auto;padding:0 28px;}
-.sec-label{
-  font-size:10px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;
-  color:var(--blue);margin-bottom:10px;
+/* FIELDS */
+.ff{margin-bottom:18px;}
+.ff label{
+  display:block;font-family:'Barlow Condensed',sans-serif;
+  font-size:9px;font-weight:500;letter-spacing:.28em;text-transform:uppercase;
+  color:var(--muted);margin-bottom:6px;
 }
-.sec-title{
-  font-family:'Playfair Display',serif;
-  font-size:clamp(28px,4.5vw,48px);font-weight:700;
-  color:white;margin-bottom:14px;line-height:1.15;
+.ff input{
+  width:100%;padding:11px 13px;
+  background:var(--bg);border:1px solid var(--line);
+  font-size:13px;color:var(--text);outline:none;
+  font-family:'Barlow',sans-serif;transition:border-color .2s;
+  border-radius:0;
 }
-.sec-sub{
-  font-size:15px;color:rgba(255,255,255,0.42);
-  line-height:1.8;max-width:580px;
-}
-.sec-head-c{text-align:center;margin-bottom:56px;}
-.sec-head-c .sec-sub{margin:0 auto;}
-.divider{height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.06),transparent);margin:0;}
+.ff input:focus{border-color:rgba(24,24,22,.4);background:var(--white);}
+.ff input::placeholder{color:rgba(24,24,22,.25);}
 
-/* ══════════════════════════════════════
-   PORTAL — PRODUCTS
-══════════════════════════════════════ */
-.prod-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(180px,1fr));
-  gap:16px;
+/* ERROR */
+.lerr{
+  display:none;padding:10px 13px;margin-bottom:14px;
+  background:rgba(180,40,40,.05);border:1px solid rgba(180,40,40,.2);
+  font-size:11px;color:#8b2020;
+  font-family:'Barlow Condensed',sans-serif;letter-spacing:.04em;
 }
-.prod-card{
-  background:linear-gradient(145deg,rgba(255,255,255,0.06),rgba(255,255,255,0.02));
-  border:1px solid rgba(255,255,255,0.08);border-radius:20px;
-  padding:30px 18px 22px;text-align:center;
-  transition:all 0.35s cubic-bezier(0.34,1.2,0.64,1);
-  position:relative;overflow:hidden;cursor:default;
-}
-.prod-card::before{
-  content:'';position:absolute;top:0;left:0;right:0;height:2px;
-  background:linear-gradient(90deg,transparent,rgba(37,99,235,0.0),transparent);
-  transition:background 0.3s;
-}
-.prod-card:hover::before{background:linear-gradient(90deg,transparent,rgba(37,99,235,0.6),transparent);}
-.prod-card:hover{
-  transform:translateY(-8px) scale(1.02);
-  border-color:rgba(37,99,235,0.35);
-  box-shadow:0 30px 60px rgba(0,0,0,0.5),0 0 40px rgba(37,99,235,0.08);
-  background:linear-gradient(145deg,rgba(37,99,235,0.08),rgba(255,255,255,0.03));
-}
-.pc-icon{font-size:40px;display:block;margin-bottom:14px;filter:drop-shadow(0 4px 8px rgba(0,0,0,0.5));}
-.pc-name{font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;color:white;margin-bottom:4px;letter-spacing:0.5px;}
-.pc-cat{font-size:11px;color:var(--muted);}
-/* Glow pulse on hover */
-.prod-card::after{
-  content:'';position:absolute;inset:0;border-radius:20px;
-  background:radial-gradient(circle at 50% 50%,rgba(37,99,235,0.08),transparent 70%);
-  opacity:0;transition:opacity 0.3s;
-}
-.prod-card:hover::after{opacity:1;}
 
-/* ══════════════════════════════════════
-   PORTAL — STATS ROW
-══════════════════════════════════════ */
-.stats-row{
-  display:grid;grid-template-columns:repeat(4,1fr);gap:20px;
-  margin-top:60px;
+/* LOGIN BUTTON */
+.lbtn{
+  width:100%;padding:13px;border:1px solid var(--text);
+  background:var(--text);color:var(--white);
+  font-family:'Barlow Condensed',sans-serif;font-size:11px;
+  font-weight:500;letter-spacing:.22em;text-transform:uppercase;
+  cursor:pointer;position:relative;overflow:hidden;transition:all .25s;
+  margin-top:4px;
 }
-@media(max-width:700px){.stats-row{grid-template-columns:repeat(2,1fr);}}
-.stat-box{
-  background:linear-gradient(145deg,rgba(255,255,255,0.05),rgba(255,255,255,0.02));
-  border:1px solid rgba(255,255,255,0.08);border-radius:18px;
-  padding:28px 20px;text-align:center;
-  position:relative;overflow:hidden;
-  transition:transform 0.3s;
+.lbtn::after{
+  content:'';position:absolute;inset:0;background:var(--white);
+  transform:translateX(-101%);transition:transform .32s cubic-bezier(.4,0,.2,1);
 }
-.stat-box:hover{transform:translateY(-4px);}
-.stat-box::before{
-  content:'';position:absolute;top:0;left:20%;right:20%;height:1px;
-  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent);
-}
-.sb-num{
-  font-family:'Bebas Neue',sans-serif;
-  font-size:52px;line-height:1;margin-bottom:6px;
-}
-.sb-label{font-size:12px;color:var(--muted);font-weight:500;}
+.lbtn:hover:not(:disabled)::after{transform:translateX(0);}
+.lbtn:hover:not(:disabled){color:var(--text);}
+.lbtn span{position:relative;z-index:1;}
+.lbtn:disabled{opacity:.5;cursor:not-allowed;}
 
-/* ══════════════════════════════════════
-   PORTAL — WHY US (3D cards)
-══════════════════════════════════════ */
-.why-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px;}
-.why-card{
-  background:rgba(255,255,255,0.03);
-  border:1px solid rgba(255,255,255,0.07);
-  border-radius:22px;padding:32px 26px;
-  transition:all 0.35s;position:relative;overflow:hidden;
-}
-.why-card:hover{
-  background:rgba(255,255,255,0.06);
-  border-color:rgba(37,99,235,0.25);
-  transform:translateY(-5px);
-  box-shadow:0 24px 60px rgba(0,0,0,0.4);
-}
-.wc-icon{
-  width:52px;height:52px;border-radius:14px;
-  display:flex;align-items:center;justify-content:center;
-  font-size:24px;margin-bottom:18px;
-  position:relative;
-}
-.wc-icon::after{
-  content:'';position:absolute;inset:-2px;border-radius:16px;
-  background:inherit;opacity:0.3;filter:blur(8px);z-index:-1;
-}
-.wc-title{font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;color:white;margin-bottom:10px;letter-spacing:0.3px;}
-.wc-text{font-size:13px;color:rgba(255,255,255,0.42);line-height:1.75;}
-
-/* ══════════════════════════════════════
-   PORTAL — REVIEWS
-══════════════════════════════════════ */
-.rev-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;}
-.rev-card{
-  background:rgba(255,255,255,0.04);
-  border:1px solid rgba(255,255,255,0.08);
-  border-radius:20px;padding:26px;
-  transition:all 0.3s;position:relative;
-}
-.rev-card:hover{border-color:rgba(245,158,11,0.25);transform:translateY(-3px);}
-.rev-card::before{
-  content:'"';position:absolute;top:16px;right:20px;
-  font-family:'Playfair Display',serif;font-size:60px;color:rgba(245,158,11,0.07);
-  line-height:1;
-}
-.rev-stars{font-size:18px;letter-spacing:3px;margin-bottom:14px;}
-.rev-text{font-size:14px;color:rgba(255,255,255,0.58);line-height:1.75;margin-bottom:18px;font-style:italic;}
-.rev-author{font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;color:white;letter-spacing:0.3px;}
-.rev-vehicle{font-size:11px;color:var(--muted);margin-top:3px;}
-
-/* ══════════════════════════════════════
-   PORTAL — FEEDBACK
-══════════════════════════════════════ */
-.fb-wrap{
-  max-width:620px;margin:0 auto;
-  background:rgba(255,255,255,0.03);
-  border:1px solid rgba(255,255,255,0.08);
-  border-radius:26px;padding:44px 40px;
-  position:relative;
-}
-@media(max-width:580px){.fb-wrap{padding:28px 20px;}}
-.fb-wrap::before{
-  content:'';position:absolute;top:0;left:20%;right:20%;height:1px;
-  background:linear-gradient(90deg,transparent,rgba(37,99,235,0.4),transparent);
-}
-.fb-row2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
-@media(max-width:480px){.fb-row2{grid-template-columns:1fr;}}
-.fb-f{margin-bottom:16px;}
-.fb-f label{display:block;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:7px;}
-.fb-f input,.fb-f textarea,.fb-f select{
-  width:100%;padding:12px 15px;
-  background:rgba(255,255,255,0.06);border:1.5px solid rgba(255,255,255,0.1);
-  border-radius:11px;color:white;font-size:14px;
-  font-family:'DM Sans',sans-serif;outline:none;transition:all 0.2s;
-}
-.fb-f input:focus,.fb-f textarea:focus,.fb-f select:focus{
-  border-color:rgba(37,99,235,0.6);background:rgba(37,99,235,0.06);
-}
-.fb-f input::placeholder,.fb-f textarea::placeholder{color:rgba(255,255,255,0.18);}
-.fb-f textarea{min-height:100px;resize:vertical;}
-.fb-f select option{background:#0f1829;}
-.star-row{display:flex;gap:8px;}
-.star-row span{font-size:32px;cursor:pointer;color:rgba(255,255,255,0.15);transition:all 0.15s;user-select:none;}
-.star-row span.lit,.star-row span:hover{color:var(--gold2);transform:scale(1.15);}
-.fb-btn{
-  width:100%;padding:14px;border-radius:12px;border:none;
-  background:linear-gradient(135deg,#1e3a8a,#2563eb);color:white;
-  font-size:15px;font-weight:700;cursor:pointer;
-  font-family:'DM Sans',sans-serif;
-  box-shadow:0 6px 24px rgba(37,99,235,0.4),inset 0 1px 0 rgba(255,255,255,0.15);
-  transition:all 0.2s;
-}
-.fb-btn:hover{transform:translateY(-2px);box-shadow:0 10px 32px rgba(37,99,235,0.5);}
-.fb-ok{display:none;text-align:center;padding:18px;color:#34d399;font-size:14px;font-weight:600;}
-
-/* ══════════════════════════════════════
-   PORTAL — LOCATION
-══════════════════════════════════════ */
-.loc-wrap{
-  background:rgba(255,255,255,0.03);
-  border:1px solid rgba(255,255,255,0.08);
-  border-radius:24px;overflow:hidden;
-}
-.loc-body{
-  display:grid;grid-template-columns:1fr 1fr;gap:0;
-}
-@media(max-width:700px){.loc-body{grid-template-columns:1fr;}}
-.loc-left{
-  padding:40px 36px;
-  border-right:1px solid rgba(255,255,255,0.06);
-}
-@media(max-width:700px){.loc-left{border-right:none;border-bottom:1px solid rgba(255,255,255,0.06);}}
-.loc-right{padding:40px 36px;}
-.loc-item{display:flex;gap:16px;align-items:flex-start;margin-bottom:28px;}
-.loc-item:last-child{margin-bottom:0;}
-.loc-ic{
-  width:44px;height:44px;border-radius:12px;flex-shrink:0;
-  display:flex;align-items:center;justify-content:center;font-size:20px;
-  background:rgba(37,99,235,0.12);border:1px solid rgba(37,99,235,0.2);
-}
-.loc-txt strong{display:block;font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;color:white;margin-bottom:5px;letter-spacing:0.3px;}
-.loc-txt span{font-size:13px;color:rgba(255,255,255,0.42);line-height:1.7;}
-.loc-map-btn{
-  display:inline-flex;align-items:center;gap:9px;margin-top:14px;
-  background:linear-gradient(135deg,#1e3a8a,#2563eb);color:white;
-  padding:13px 26px;border-radius:11px;
-  font-size:13px;font-weight:700;text-decoration:none;
-  box-shadow:0 6px 22px rgba(37,99,235,0.38);transition:all 0.2s;
-}
-.loc-map-btn:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(37,99,235,0.48);}
-.wa-btn{
-  display:inline-flex;align-items:center;gap:9px;margin-top:10px;
-  background:linear-gradient(135deg,#064e3b,#059669);color:white;
-  padding:13px 26px;border-radius:11px;
-  font-size:13px;font-weight:700;text-decoration:none;
-  box-shadow:0 6px 22px rgba(5,150,105,0.38);transition:all 0.2s;
-}
-.wa-btn:hover{transform:translateY(-2px);}
-
-/* ══════════════════════════════════════
-   PORTAL — FOOTER
-══════════════════════════════════════ */
-.pfooter{
-  background:rgba(255,255,255,0.015);
-  border-top:1px solid rgba(255,255,255,0.06);
-  padding:44px 28px;text-align:center;
-}
-.pf-name{font-family:'Playfair Display',serif;font-size:22px;color:white;margin-bottom:6px;}
-.pf-sub{font-size:12px;color:var(--muted);line-height:2;}
-.pf-links{display:flex;gap:20px;justify-content:center;margin-top:18px;flex-wrap:wrap;}
-.pf-link{font-size:12px;color:rgba(255,255,255,0.3);text-decoration:none;transition:color 0.2s;}
-.pf-link:hover{color:rgba(255,255,255,0.6);}
-
-/* ══════════════════════════════════════
-   REVEAL ANIMATION
-══════════════════════════════════════ */
-.reveal{opacity:0;transform:translateY(32px);transition:opacity 0.7s ease,transform 0.7s ease;}
-.reveal.up{opacity:1;transform:translateY(0);}
-.reveal-d1{transition-delay:0.1s;}
-.reveal-d2{transition-delay:0.2s;}
-.reveal-d3{transition-delay:0.3s;}
-
-/* ══════════════════════════════════════
-   RESPONSIVE
-══════════════════════════════════════ */
-@media(max-width:768px){
-  .ph-nav .ph-btn-gold{display:none;}
-  .h-title{font-size:52px;}
-  .stats-row{grid-template-columns:repeat(2,1fr);}
-  .prod-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));}
-}
-@media(max-width:500px){
-  .entry-btn .eb-label{display:none;}
-  .h-ctas{flex-direction:column;align-items:center;}
-  .cta{width:100%;justify-content:center;}
+/* FOOTER */
+.lfoot{
+  text-align:center;margin-top:18px;
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:9px;letter-spacing:.18em;text-transform:uppercase;
+  color:rgba(24,24,22,.28);
 }
 </style>
 </head>
 <body>
 
-<!-- ══════════════ VISITOR MODAL ══════════════ -->
-<div id="visitorModal">
-  <div class="vcard">
-    <div class="v-logo">A</div>
-    <h2>Welcome to Our Store</h2>
-    <p>Tell us your name for a personalized experience.<br>We're happy to help with any part inquiry.</p>
-    <div class="vf">
-      <label>Your Name <span style="color:#f87171;">*</span></label>
-      <input type="text" id="vName" placeholder="Enter your full name" autocomplete="name">
-    </div>
-    <div class="vf">
-      <label>Phone <span class="v-opt">(optional)</span></label>
-      <input type="tel" id="vPhone" placeholder="Your mobile number" autocomplete="tel">
-    </div>
-    <button class="v-enter" onclick="enterPortal()">✦ Explore Abhinandan Auto Mobiles</button>
-    <button class="v-skip" onclick="enterPortal(true)">Skip — browse without entering details</button>
-  </div>
-</div>
+<canvas id="c"></canvas>
+<div id="grain"></div>
+<div id="vig"></div>
+<div id="cur"></div>
+<div id="cur2"></div>
 
-<!-- ══════════════ LOGIN SCREEN ══════════════ -->
-<div id="loginScreen">
-  <div class="login-bg">
-    <div class="login-bg-mesh"></div>
-    <div class="login-grid"></div>
-    <div class="orb orb1"></div>
-    <div class="orb orb2"></div>
-    <div class="orb orb3"></div>
-  </div>
+<div id="loginWrap">
+  <div class="lbox">
 
-  <div class="login-wrap">
-    <div class="login-brand">
-      <div class="brand-logo-3d"><div class="logo-face">A</div></div>
-      <h1>Abhinandan Auto Mobiles</h1>
-      <p>Genuine Spare Parts · Santalpur, Patan</p>
+    <div class="lbrand">
+      <div class="llogo">A</div>
+      <div class="lname">Abhinandan Auto Mobiles</div>
+      <div class="lsub">Staff &amp; Owner Login</div>
     </div>
 
-    <div class="entry-row">
-      <button class="entry-btn act-owner" id="btnOwner" onclick="selRole('owner')">
-        <span class="eb-icon">👑</span>
-        <span class="eb-label">Owner</span>
+    <!-- Role selector -->
+    <div class="rtabs">
+      <button class="rtab act" id="btnOwner" onclick="selRole('owner')">
+        &#9670;&ensp;Owner
       </button>
-      <button class="entry-btn" id="btnStaff" onclick="selRole('staff')">
-        <span class="eb-icon">👤</span>
-        <span class="eb-label">Staff</span>
-      </button>
-      <button class="entry-btn cust"  onclick="window.location.href='portal.html'">
-        <span class="eb-icon">🛍️</span>
-        <span class="eb-label">Customers</span>
+      <button class="rtab" id="btnStaff" onclick="selRole('staff')">
+        &#9671;&ensp;Staff
       </button>
     </div>
+
+    <!-- Customer portal link -->
+    <a href="portal.html" class="portal-link">
+      &#9654;&ensp;Visit Customer Portal
+    </a>
 
     <div class="lcard">
-      <div class="err" id="errBox">❌ <span id="errMsg"></span></div>
-      <div class="field">
+      <div class="lerr" id="errBox" id="errMsg"></div>
+      <div class="ff">
         <label>Username</label>
-        <input type="text" id="uname" placeholder="Enter username" autocomplete="username" autofocus>
+        <input type="text" id="uname" placeholder="Enter your username" autocomplete="username" autofocus>
       </div>
-      <div class="field">
+      <div class="ff">
         <label>Password</label>
-        <input type="password" id="upass" placeholder="Enter password" autocomplete="current-password">
+        <input type="password" id="upass" placeholder="Enter your password" autocomplete="current-password">
       </div>
-      <button class="login-btn" id="lBtn" onclick="doLogin()">🔐 Login to ERP</button>
+      <button class="lbtn" id="lBtn" onclick="doLogin()">
+        <span>&#128274;&ensp;Login to ERP</span>
+      </button>
     </div>
-    <div class="login-foot">
-      Session stays active for 30 days · Auto ERP v1.0
-    </div>
+
+    <div class="lfoot">Session valid for 30 days &nbsp;&middot;&nbsp; Auto ERP v1.0</div>
   </div>
 </div>
 
-<!-- ══════════════ CUSTOMER PORTAL ══════════════ -->
-<div id="portalScreen">
-
-  <!-- Header -->
-  <div class="ph">
-    <div class="ph-inner">
-      <a class="ph-logo" href="#">
-        <div class="ph-logo-box">A</div>
-        <div>
-          <div class="ph-name">Abhinandan Auto Mobiles</div>
-          <div class="ph-sub">Genuine Spare Parts · Santalpur</div>
-        </div>
-      </a>
-      <div class="ph-nav">
-        <a href="https://maps.app.goo.gl/QBDi2SPd5LXC6mHb8" target="_blank" class="ph-btn ph-btn-ghost">📍 Location</a>
-        <a href="https://wa.me/919825259065" target="_blank" class="ph-btn ph-btn-gold">📞 Call Us</a>
-        <button class="ph-btn ph-btn-back" onclick="goBack()">← ERP Login</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- HERO -->
-  <div class="hero">
-    <div class="hero-3d">
-      <div class="gear-ring gr1"></div>
-      <div class="gear-ring gr2"></div>
-      <div class="gear-ring gr3"></div>
-      <div class="hero-dots"></div>
-      <div class="hero-line hl1"></div>
-      <div class="hero-line hl2"></div>
-      <div class="cog c1">⚙</div>
-      <div class="cog2 c2">⚙</div>
-      <div class="cog c3" style="font-size:40px;">⚙</div>
-      <div class="cog2 c4" style="font-size:60px;">⚙</div>
-    </div>
-    <div class="hero-content">
-      <div class="h-badge">✦ Trusted Since Years · Santalpur, Patan</div>
-      <div class="h-title">
-        <span class="t-blue">GENUINE</span><br>
-        <span class="t-gold">SPARE</span> PARTS
-      </div>
-      <div class="h-sub">
-        All types of genuine spareparts for<br>
-        <strong>Tata · Ashok Leyland · JCB · Tractors & More</strong>
-      </div>
-      <div class="h-ctas">
-        <a href="https://maps.app.goo.gl/QBDi2SPd5LXC6mHb8" target="_blank" class="cta cta-main">📍 Visit Our Store</a>
-        <a href="https://wa.me/919825259065" target="_blank" class="cta cta-gold">📞 9870037002</a>
-        <a href="#feedback" class="cta cta-ghost">⭐ Leave a Review</a>
-      </div>
-      <div class="trust-strip">
-        <div class="t-pill"><div class="tp-dot" style="background:#34d399;"></div>100% Genuine Parts</div>
-        <div class="t-pill"><div class="tp-dot" style="background:#60a5fa;"></div>Tata · Leyland · JCB</div>
-        <div class="t-pill"><div class="tp-dot" style="background:#fbbf24;"></div>Santalpur, Patan</div>
-        <div class="t-pill"><div class="tp-dot" style="background:#f87171;"></div>TVS · Gajra · Castrol</div>
-      </div>
-    </div>
-    <div class="scroll-ind">
-      <span>Scroll</span>
-      <div class="scroll-arrow"></div>
-    </div>
-  </div>
-
-  <!-- BRANDS -->
-  <div class="brands-sec reveal">
-    <div class="container">
-      <div class="brands-label">Brands & Partners We Stock</div>
-      <div class="brands-track">
-        <div class="b-chip"><div class="b-name">TATA</div><div class="b-type">Trucks · Buses</div></div>
-        <div class="b-chip"><div class="b-name">LEYLAND</div><div class="b-type">Ashok Leyland</div></div>
-        <div class="b-chip"><div class="b-name">TVS</div><div class="b-type">Genuine Parts</div></div>
-        <div class="b-chip"><div class="b-name">GAJRA</div><div class="b-type">Fan Clutch</div></div>
-        <div class="b-chip"><div class="b-name">TELCO</div><div class="b-type">Tata Parts</div></div>
-        <div class="b-chip"><div class="b-name">CASTROL</div><div class="b-type">Oils & Fluids</div></div>
-        <div class="b-chip"><div class="b-name">JCB</div><div class="b-type">Heavy Equipment</div></div>
-        <div class="b-chip"><div class="b-name">TRACTOR</div><div class="b-type">All Models</div></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- PRODUCTS -->
-  <div class="sec">
-    <div class="container">
-      <div class="sec-head-c reveal">
-        <div class="sec-label">What We Stock</div>
-        <div class="sec-title">Thousands of Genuine Parts<br>Ready for You</div>
-        <div class="sec-sub">From engine internals to exterior lights — if your vehicle needs it, we have it. Only original, genuine parts. No duplicates, no compromise.</div>
-      </div>
-      <div class="prod-grid">
-        <div class="prod-card reveal reveal-d1"><span class="pc-icon">⚙️</span><div class="pc-name">Bearings</div><div class="pc-cat">All sizes & types</div></div>
-        <div class="prod-card reveal reveal-d2"><span class="pc-icon">🌀</span><div class="pc-name">Clutch Plates</div><div class="pc-cat">Pressure plates incl.</div></div>
-        <div class="prod-card reveal reveal-d1"><span class="pc-icon">🔩</span><div class="pc-name">Hub Bolts</div><div class="pc-cat">All vehicle models</div></div>
-        <div class="prod-card reveal reveal-d2"><span class="pc-icon">⚡</span><div class="pc-name">Terminals & Motors</div><div class="pc-cat">Electrical parts</div></div>
-        <div class="prod-card reveal reveal-d1"><span class="pc-icon">🌿</span><div class="pc-name">Leaf Springs</div><div class="pc-cat">Suspension system</div></div>
-        <div class="prod-card reveal reveal-d2"><span class="pc-icon">💡</span><div class="pc-name">LED & Headlights</div><div class="pc-cat">All lighting needs</div></div>
-        <div class="prod-card reveal reveal-d1"><span class="pc-icon">🛢️</span><div class="pc-name">Oils & Fluids</div><div class="pc-cat">Engine · Gear · Hydraulic</div></div>
-        <div class="prod-card reveal reveal-d2"><span class="pc-icon">❄️</span><div class="pc-name">Fans (Gajra)</div><div class="pc-cat">Radiator · Cooling</div></div>
-        <div class="prod-card reveal reveal-d1"><span class="pc-icon">🔧</span><div class="pc-name">Engine Parts</div><div class="pc-cat">Pistons · Rings · Valves</div></div>
-        <div class="prod-card reveal reveal-d2"><span class="pc-icon">🏗️</span><div class="pc-name">JCB Parts</div><div class="pc-cat">Heavy machinery</div></div>
-        <div class="prod-card reveal reveal-d1"><span class="pc-icon">🚜</span><div class="pc-name">Tractor Parts</div><div class="pc-cat">All tractor models</div></div>
-        <div class="prod-card reveal reveal-d2"><span class="pc-icon">🛡️</span><div class="pc-name">Brake System</div><div class="pc-cat">Drums · Shoes · Pads</div></div>
-      </div>
-
-      <!-- Stats -->
-      <div class="stats-row reveal" style="margin-top:50px;">
-        <div class="stat-box"><div class="sb-num" style="color:#60a5fa;">10K+</div><div class="sb-label">Products in Stock</div></div>
-        <div class="stat-box"><div class="sb-num" style="color:#fbbf24;">15+</div><div class="sb-label">Years of Experience</div></div>
-        <div class="stat-box"><div class="sb-num" style="color:#34d399;">50+</div><div class="sb-label">Brands Available</div></div>
-        <div class="stat-box"><div class="sb-num" style="color:#f87171;">1000+</div><div class="sb-label">Happy Customers</div></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="divider"></div>
-
-  <!-- WHY US -->
-  <div class="sec">
-    <div class="container">
-      <div class="sec-head-c reveal">
-        <div class="sec-label">Why Choose Us</div>
-        <div class="sec-title">The Most Trusted Name<br>in Auto Parts — Patan Region</div>
-      </div>
-      <div class="why-grid">
-        <div class="why-card reveal reveal-d1">
-          <div class="wc-icon" style="background:rgba(37,99,235,0.15);">✅</div>
-          <div class="wc-title">100% Genuine Parts</div>
-          <div class="wc-text">We only stock original, manufacturer-certified parts. No duplicates, no cheap substitutes — your vehicle gets exactly what it deserves.</div>
-        </div>
-        <div class="why-card reveal reveal-d2">
-          <div class="wc-icon" style="background:rgba(245,158,11,0.12);">🚀</div>
-          <div class="wc-title">Massive Ready Stock</div>
-          <div class="wc-text">Over 10,000 parts always in stock. Most parts are available same day so your truck, bus or machinery gets back on road fast.</div>
-        </div>
-        <div class="why-card reveal reveal-d1">
-          <div class="wc-icon" style="background:rgba(5,150,105,0.12);">💬</div>
-          <div class="wc-title">Expert Guidance</div>
-          <div class="wc-text">Not sure which exact part fits? Our experienced team helps you identify and source the right component for your specific vehicle model.</div>
-        </div>
-        <div class="why-card reveal reveal-d2">
-          <div class="wc-icon" style="background:rgba(124,58,237,0.12);">🤝</div>
-          <div class="wc-title">Trusted by Mechanics</div>
-          <div class="wc-text">Workshops, fleet owners, and mechanics across Patan district trust us for consistent quality, honest pricing, and reliable supply.</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="divider"></div>
-
-  <!-- REVIEWS -->
-  <div class="sec">
-    <div class="container">
-      <div class="sec-head-c reveal">
-        <div class="sec-label">Customer Reviews</div>
-        <div class="sec-title">What Our Customers Say</div>
-      </div>
-      <div class="rev-grid" id="revGrid">
-        <div class="rev-card reveal reveal-d1">
-          <div class="rev-stars" style="color:#fbbf24;">★★★★★</div>
-          <div class="rev-text">"Best place for Tata truck parts in the Patan region. Got my bearings and hub bolts same day. Very helpful and knowledgeable staff."</div>
-          <div class="rev-author">Ramesh Patel</div>
-          <div class="rev-vehicle">Tata 1109 Owner · Patan</div>
-        </div>
-        <div class="rev-card reveal reveal-d2">
-          <div class="rev-stars" style="color:#fbbf24;">★★★★★</div>
-          <div class="rev-text">"Genuine parts at fair prices. Been buying clutch plates and pressure plates from here for over 2 years. Never had a single quality issue."</div>
-          <div class="rev-author">Suresh Motor Works</div>
-          <div class="rev-vehicle">Workshop Owner · Santalpur</div>
-        </div>
-        <div class="rev-card reveal reveal-d1">
-          <div class="rev-stars" style="color:#fbbf24;">★★★★☆</div>
-          <div class="rev-text">"Good stock for Leyland parts. They had the leaf spring I was looking for when no one else in the district did. Very reliable shop."</div>
-          <div class="rev-author">Mahesh Bhai</div>
-          <div class="rev-vehicle">Ashok Leyland Fleet Owner</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- FEEDBACK -->
-  <div class="sec" id="feedback">
-    <div class="container">
-      <div class="sec-head-c reveal">
-        <div class="sec-label">Share Your Experience</div>
-        <div class="sec-title">Leave Us a Review</div>
-        <div class="sec-sub">Your feedback helps us improve and helps other customers trust us. We read every review personally.</div>
-      </div>
-      <div class="fb-wrap reveal">
-        <div class="fb-row2">
-          <div class="fb-f">
-            <label>Your Name <span style="color:#f87171;">*</span></label>
-            <input type="text" id="fbName" placeholder="Full name">
-          </div>
-          <div class="fb-f">
-            <label>Phone <span style="color:var(--muted);font-weight:400;">(optional)</span></label>
-            <input type="tel" id="fbPhone" placeholder="Mobile number">
-          </div>
-        </div>
-        <div class="fb-f">
-          <label>Your Vehicle / Business</label>
-          <input type="text" id="fbVehicle" placeholder="e.g. Tata 407, Leyland Bus, JCB, Workshop...">
-        </div>
-        <div class="fb-f">
-          <label>Rating <span style="color:#f87171;">*</span></label>
-          <div class="star-row" id="starRow">
-            <span onclick="setStar(1)">★</span>
-            <span onclick="setStar(2)">★</span>
-            <span onclick="setStar(3)">★</span>
-            <span onclick="setStar(4)">★</span>
-            <span onclick="setStar(5)">★</span>
-          </div>
-        </div>
-        <div class="fb-f">
-          <label>Your Review <span style="color:#f87171;">*</span></label>
-          <textarea id="fbText" placeholder="Tell us about your experience — what parts did you buy? How was the service? Was the quality good?"></textarea>
-        </div>
-        <button class="fb-btn" onclick="submitFB()">⭐ Submit My Review</button>
-        <div class="fb-ok" id="fbOk">✅ Thank you! Your review has been submitted successfully. We really appreciate it.</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="divider"></div>
-
-  <!-- LOCATION -->
-  <div class="sec">
-    <div class="container">
-      <div class="sec-head-c reveal">
-        <div class="sec-label">Find Us</div>
-        <div class="sec-title">Visit Our Store in Santalpur</div>
-      </div>
-      <div class="loc-wrap reveal">
-        <div class="loc-body">
-          <div class="loc-left">
-            <div class="loc-item">
-              <div class="loc-ic">📍</div>
-              <div class="loc-txt">
-                <strong>Address</strong>
-                <span>Nr. Refaral Hospital,<br>Kandla National Highway Road,<br>Santalpur, Dist. Patan – 385350<br>Gujarat, India</span>
-              </div>
-            </div>
-            <div class="loc-item">
-              <div class="loc-ic">🕐</div>
-              <div class="loc-txt">
-                <strong>Business Hours</strong>
-                <span>Mon – Sat: 9:00 AM – 7:00 PM<br>Sunday: 10:00 AM – 2:00 PM</span>
-              </div>
-            </div>
-            <a href="https://maps.app.goo.gl/QBDi2SPd5LXC6mHb8" target="_blank" class="loc-map-btn">🗺️ Open in Google Maps</a>
-          </div>
-          <div class="loc-right">
-            <div class="loc-item">
-              <div class="loc-ic" style="background:rgba(5,150,105,0.12);border-color:rgba(5,150,105,0.25);">📞</div>
-              <div class="loc-txt">
-                <strong>Call Us</strong>
-                <span>9825259065<br>9870037002</span>
-              </div>
-            </div>
-            <div class="loc-item">
-              <div class="loc-ic" style="background:rgba(245,158,11,0.1);border-color:rgba(245,158,11,0.2);">✦</div>
-              <div class="loc-txt">
-                <strong>Specialization</strong>
-                <span>All types of genuine spareparts for Tata, Ashok Leyland, TVS, JCB, Tractors and all commercial vehicles</span>
-              </div>
-            </div>
-            <a href="https://wa.me/919870037002" target="_blank" class="wa-btn">💬 WhatsApp Us</a>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- FOOTER -->
-  <div class="pfooter">
-    <div class="pf-name">Abhinandan Auto Mobiles</div>
-    <div class="pf-sub">
-      All Type of Genuine Spare Parts · TATA · TVS · GAJRA · TELCO · CASTROL · Ashok Leyland<br>
-      Nr. Refaral Hospital, Kandla National Highway Road, Santalpur, Dist. Patan – 385350
-    </div>
-    <div class="pf-links">
-      <a href="https://maps.app.goo.gl/QBDi2SPd5LXC6mHb8" target="_blank" class="pf-link">📍 Get Directions</a>
-      <a href="https://wa.me/919870037002" target="_blank" class="pf-link">💬 WhatsApp</a>
-      <a href="#feedback" class="pf-link">⭐ Leave Review</a>
-      <a href="#" onclick="goBack();return false;" class="pf-link">🔐 Staff Login</a>
-    </div>
-  </div>
-
-</div><!-- end portalScreen -->
-
-
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 <script>
-// ── SUPABASE ──
-var _sbEl = document.createElement('script')
-_sbEl.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js'
-_sbEl.onload = function() {
-  window._sb = window.supabase.createClient(
+/* CURSOR */
+var cX=0,cY=0,rX=0,rY=0;
+var $c1=document.getElementById('cur'),$c2=document.getElementById('cur2');
+document.addEventListener('mousemove',function(e){
+  cX=e.clientX;cY=e.clientY;
+  $c1.style.left=cX+'px';$c1.style.top=cY+'px';
+});
+(function lp(){rX+=(cX-rX)*.11;rY+=(cY-rY)*.11;$c2.style.left=rX+'px';$c2.style.top=rY+'px';requestAnimationFrame(lp);})();
+
+/* SUPABASE */
+var _sbEl=document.createElement('script');
+_sbEl.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js';
+_sbEl.onload=function(){
+  window._sb=window.supabase.createClient(
     'https://mhhnmndnolhapaoqtbxo.supabase.co',
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1oaG5tbmRub2xoYXBhb3F0YnhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4Mzg4NTksImV4cCI6MjA4ODQxNDg1OX0.IMSp8vYiCln_iSuoT_H2qdeX_dP1WMhOOskDw20eJXw'
-  )
-}
-document.head.appendChild(_sbEl)
+  );
+};
+document.head.appendChild(_sbEl);
 
-// ── FIXED 30-DAY SESSION CHECK ──
-;(function(){
-  try {
-    var raw = localStorage.getItem('aam_erp_session')
-    if (!raw) return
-    var s = JSON.parse(raw)
-    if (s && s.role && s.username && s.expiry && Date.now() < s.expiry) {
-      // Valid session — redirect immediately
-      window.location.replace(s.role === 'staff' ? 'billing.html' : 'dashboard.html')
-    } else if (s && s.expiry && Date.now() >= s.expiry) {
-      localStorage.removeItem('aam_erp_session')
+/* SESSION CHECK */
+(function(){
+  try{
+    var raw=localStorage.getItem('aam_erp_session');
+    if(!raw)return;
+    var s=JSON.parse(raw);
+    if(s&&s.role&&s.expiry&&Date.now()<s.expiry){
+      window.location.replace(s.role==='staff'?'billing.html':'dashboard.html');
+    }else{localStorage.removeItem('aam_erp_session');}
+  }catch(e){localStorage.removeItem('aam_erp_session');}
+})();
+
+/* ROLE SELECT */
+var curRole='owner';
+function selRole(r){
+  curRole=r;
+  document.getElementById('btnOwner').className='rtab'+(r==='owner'?' act':'');
+  document.getElementById('btnStaff').className='rtab'+(r==='staff'?' act':'');
+}
+
+document.addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();});
+
+/* LOGIN */
+async function doLogin(){
+  var u=document.getElementById('uname').value.trim();
+  var p=document.getElementById('upass').value;
+  if(!u||!p){showErr('Please enter both username and password.');return;}
+  var btn=document.getElementById('lBtn');
+  btn.disabled=true;
+  btn.querySelector('span').textContent='Verifying...';
+  hideErr();
+  for(var i=0;i<60&&!window._sb;i++) await new Promise(r=>setTimeout(r,100));
+  if(!window._sb){showErr('Connection error. Please refresh.');btn.disabled=false;btn.querySelector('span').innerHTML='&#128274;&ensp;Login to ERP';return;}
+  try{
+    var userRes=await window._sb.from('users').select('*').eq('username',u.toLowerCase()).eq('is_active',true).single();
+    if(userRes.error||!userRes.data){showErr('Invalid username or password.');btn.disabled=false;btn.querySelector('span').innerHTML='&#128274;&ensp;Login to ERP';return;}
+    var verifyRes=await window._sb.rpc('verify_user_password',{p_username:u.toLowerCase(),p_password:p});
+    if(!verifyRes.data){showErr('Invalid username or password.');btn.disabled=false;btn.querySelector('span').innerHTML='&#128274;&ensp;Login to ERP';return;}
+    var user=userRes.data;
+    var now=Date.now();
+    localStorage.setItem('aam_erp_session',JSON.stringify({username:user.username,role:user.role,full_name:user.full_name||user.username,loginTime:now,expiry:now+30*24*60*60*1000}));
+    btn.querySelector('span').textContent='Welcome!';
+    setTimeout(function(){window.location.href=user.role==='owner'?'dashboard.html':'billing.html';},350);
+  }catch(e){showErr('Connection error. Please try again.');btn.disabled=false;btn.querySelector('span').innerHTML='&#128274;&ensp;Login to ERP';}
+}
+function showErr(m){
+  var b=document.getElementById('errBox');
+  b.textContent=m;b.style.display='block';
+}
+function hideErr(){document.getElementById('errBox').style.display='none';}
+
+/* THREE.JS AMBIENT BACKGROUND — same mountains as portal */
+window.addEventListener('load',function(){
+  if(typeof THREE==='undefined')return;
+  var cv=document.getElementById('c');
+  var W=window.innerWidth,H=window.innerHeight;
+  var renderer=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:false});
+  renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));
+  renderer.setSize(W,H);
+  renderer.toneMapping=THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure=1.05;
+  var scene=new THREE.Scene();
+  scene.background=new THREE.Color(0xd6d4d0);
+  scene.fog=new THREE.FogExp2(0xd6d4d0,.018);
+  var camera=new THREE.PerspectiveCamera(54,W/H,.1,800);
+  camera.position.set(0,80,40);
+  camera.lookAt(0,0,-40);
+  scene.add(new THREE.AmbientLight(0xdce0ec,.8));
+  var key=new THREE.DirectionalLight(0xfff8ec,2.5);
+  key.position.set(60,110,30);scene.add(key);
+  var fill=new THREE.DirectionalLight(0xbcd0f0,.5);
+  fill.position.set(-60,40,20);scene.add(fill);
+  /* Ground */
+  var g=new THREE.Mesh(new THREE.PlaneGeometry(4000,4000),new THREE.MeshLambertMaterial({color:0xc8c6c2}));
+  g.rotation.x=-Math.PI/2;g.position.y=-22;scene.add(g);
+  /* Mountains — same as portal */
+  var defs=[
+    {x:-115,z:-65,h:210,r:62,c:0xb4b0aa,s:9},{x:-58,z:-48,h:265,r:52,c:0xc0bcb6,s:8},
+    {x:2,z:-95,h:295,r:72,c:0xa8a6a2,s:10},{x:64,z:-58,h:248,r:56,c:0xb0aeaa,s:9},
+    {x:118,z:-72,h:215,r:64,c:0xb6b2ac,s:8},{x:-168,z:-115,h:175,r:82,c:0xc4c0bc,s:7},
+    {x:170,z:-105,h:185,r:78,c:0xbcb8b4,s:7}
+  ];
+  defs.forEach(function(d){
+    var geo=new THREE.ConeGeometry(d.r*.58,d.h,d.s);
+    var pos=geo.attributes.position;
+    for(var i=0;i<pos.count;i++){
+      var y=pos.getY(i),ratio=(y/d.h)+.5;
+      if(ratio>.04&&ratio<.9){var disp=(Math.random()-.5)*d.r*.13*(1-ratio*.75);pos.setX(i,pos.getX(i)+disp);pos.setZ(i,pos.getZ(i)+disp*.55);}
     }
-  } catch(e) { localStorage.removeItem('aam_erp_session') }
-})()
-
-// ── ROLE SELECT ──
-function selRole(r) {
-  document.getElementById('btnOwner').className = 'entry-btn' + (r==='owner'?' act-owner':'')
-  document.getElementById('btnStaff').className = 'entry-btn' + (r==='staff'?' act-staff':'')
-}
-document.addEventListener('keydown', function(e){ if(e.key==='Enter') doLogin() })
-
-// ── LOGIN ──
-async function doLogin() {
-  var u = document.getElementById('uname').value.trim()
-  var p = document.getElementById('upass').value
-  if (!u || !p) { showErr('Please enter both username and password'); return }
-  var btn = document.getElementById('lBtn')
-  btn.disabled = true; btn.innerText = '⏳ Verifying...'
-  hideErr()
-
-  // Wait for Supabase (max 6s)
-  for (var i=0; i<60 && !window._sb; i++) await new Promise(r=>setTimeout(r,100))
-  if (!window._sb) { showErr('Connection error. Please refresh.'); btn.disabled=false; btn.innerText='🔐 Login to ERP'; return }
-
-  try {
-    // Step 1: Find user by username only (no password check here)
-    var userRes = await window._sb.from('users')
-      .select('*')
-      .eq('username', u.toLowerCase())
-      .eq('is_active', true)
-      .single()
-
-    if (userRes.error || !userRes.data) { 
-      showErr('Invalid username or password.') 
-      btn.disabled=false
-      btn.innerText='🔐 Login to ERP'
-      return 
+    pos.needsUpdate=true;geo.computeVertexNormals();
+    var m=new THREE.Mesh(geo,new THREE.MeshLambertMaterial({color:d.c}));
+    m.position.set(d.x,d.h/2-22,d.z);scene.add(m);
+    var sc=new THREE.Mesh(new THREE.ConeGeometry(d.r*.17,d.h*.26,d.s),new THREE.MeshLambertMaterial({color:0xeeecea}));
+    sc.position.set(d.x,d.h-22-(d.h*.26)*.35,d.z);scene.add(sc);
+  });
+  /* Snow */
+  var cnt=800,pos2=new Float32Array(cnt*3);
+  for(var i=0;i<cnt;i++){pos2[i*3]=(Math.random()-.5)*400;pos2[i*3+1]=-20+Math.random()*200;pos2[i*3+2]=(Math.random()-.5)*400;}
+  var sgeo=new THREE.BufferGeometry();
+  sgeo.setAttribute('position',new THREE.Float32BufferAttribute(pos2,3));
+  var snow=new THREE.Points(sgeo,new THREE.PointsMaterial({color:0xfcfcfc,size:.5,transparent:true,opacity:.6}));
+  scene.add(snow);
+  /* Render */
+  var clock=new THREE.Clock();
+  (function loop(){
+    requestAnimationFrame(loop);
+    var t=clock.getElapsedTime();
+    camera.position.x=Math.sin(t*.06)*22;
+    camera.position.z=30+Math.cos(t*.05)*15;
+    camera.position.y=75+Math.sin(t*.09)*5;
+    camera.lookAt(0,0,-45);
+    var pa=snow.geometry.attributes.position;
+    for(var i=0;i<pa.count;i++){
+      pa.setY(i,pa.getY(i)-(.14+Math.sin(t+i)*.06));
+      if(pa.getY(i)<-22){pa.setY(i,180);pa.setX(i,(Math.random()-.5)*400);pa.setZ(i,(Math.random()-.5)*400);}
     }
-
-    // Step 2: Verify password using secure database function
-    var verifyRes = await window._sb.rpc('verify_user_password', {
-      p_username: u.toLowerCase(),
-      p_password: p
-    })
-
-    if (!verifyRes.data) { 
-      showErr('Invalid username or password.') 
-      btn.disabled=false
-      btn.innerText='🔐 Login to ERP'
-      return 
-    }
-
-    var user = userRes.data
-    var now = Date.now()
-    localStorage.setItem('aam_erp_session', JSON.stringify({
-      username: user.username, role: user.role,
-      full_name: user.full_name || user.username,
-      loginTime: now, expiry: now + 30*24*60*60*1000
-    }))
-    btn.innerText = '✅ Welcome!'
-    setTimeout(function(){ window.location.href = user.role==='owner' ? 'dashboard.html' : 'billing.html' }, 350)
-  } catch(e) { showErr('Connection error. Please try again.'); btn.disabled=false; btn.innerText='🔐 Login to ERP' }
-}
-function showErr(m){ document.getElementById('errMsg').innerText=m; document.getElementById('errBox').style.display='block' }
-function hideErr(){ document.getElementById('errBox').style.display='none' }
-
-// ── VISITOR MODAL ──
-function openVisitor() {
-  document.getElementById('visitorModal').classList.add('show')
-  setTimeout(function(){ document.getElementById('vName').focus() }, 150)
-}
-function closeVisitor() { document.getElementById('visitorModal').classList.remove('show') }
-
-async function enterPortal(skip) {
-  var name  = (document.getElementById('vName').value||'').trim()
-  var phone = (document.getElementById('vPhone').value||'').trim()
-  if (!skip && !name) {
-    var inp = document.getElementById('vName')
-    inp.style.borderColor='#f87171'; inp.focus()
-    setTimeout(function(){ inp.style.borderColor='' },2000); return
-  }
-  // Save visitor (non-blocking)
-  if (!skip && name) {
-    for(var i=0;i<30&&!window._sb;i++) await new Promise(r=>setTimeout(r,100))
-    if(window._sb) window._sb.from('website_visitors').insert({name:name,phone:phone||''}).then(function(){})
-  }
-  closeVisitor()
-  document.getElementById('loginScreen').classList.add('hide')
-  setTimeout(function(){
-    document.getElementById('portalScreen').classList.add('show')
-    document.getElementById('portalScreen').scrollTop = 0
-    window.scrollTo(0,0)
-    setTimeout(initReveal, 200)
-  }, 500)
-}
-function goBack() {
-  document.getElementById('portalScreen').classList.remove('show')
-  document.getElementById('loginScreen').classList.remove('hide')
-}
-
-// ── HERO TEXT CYCLE ──
-var heroWords = ['GENUINE\nSPARE PARTS', 'TATA\nSPARE PARTS', 'LEYLAND\nSPARE PARTS', 'JCB\nSPARE PARTS', 'TRACTOR\nSPARE PARTS']
-// (We keep it simple — hero is already beautiful)
-
-// ── STAR RATING ──
-var starVal = 0
-function setStar(n) {
-  starVal = n
-  var stars = document.getElementById('starRow').children
-  for (var i=0;i<5;i++) stars[i].className = i<n ? 'lit' : ''
-}
-
-// ── FEEDBACK SUBMIT ──
-async function submitFB() {
-  var name   = document.getElementById('fbName').value.trim()
-  var phone  = document.getElementById('fbPhone').value.trim()
-  var vehicle= document.getElementById('fbVehicle').value.trim()
-  var text   = document.getElementById('fbText').value.trim()
-  if (!name||!text||!starVal) { alert('Please fill in your name, rating and review.'); return }
-  for(var i=0;i<30&&!window._sb;i++) await new Promise(r=>setTimeout(r,100))
-  if (window._sb) {
-    window._sb.from('website_visitors').insert({
-      name:name, phone:phone||'', review_text:text, rating:starVal, vehicle:vehicle||''
-    }).then(function(){})
-  }
-  // Add card to page
-  var card = document.createElement('div'); card.className='rev-card'
-  var filledStars = '★'.repeat(starVal)+'☆'.repeat(5-starVal)
-  card.innerHTML='<div class="rev-stars" style="color:#fbbf24;">'+filledStars+'</div>'+
-    '<div class="rev-text">"'+text+'"</div>'+
-    '<div class="rev-author">'+name+'</div>'+
-    '<div class="rev-vehicle">'+(vehicle||'Customer')+'</div>'
-  document.getElementById('revGrid').insertBefore(card, document.getElementById('revGrid').firstChild)
-  document.getElementById('fbOk').style.display='block'
-  document.getElementById('fbName').value=''
-  document.getElementById('fbPhone').value=''
-  document.getElementById('fbVehicle').value=''
-  document.getElementById('fbText').value=''
-  setStar(0)
-}
-
-// ── SCROLL REVEAL ──
-function initReveal() {
-  var els = document.querySelectorAll('#portalScreen .reveal')
-  var obs = new IntersectionObserver(function(entries){
-    entries.forEach(function(e){ if(e.isIntersecting) e.target.classList.add('up') })
-  },{threshold:0.1})
-  els.forEach(function(el){ obs.observe(el) })
-}
+    pa.needsUpdate=true;
+    renderer.render(scene,camera);
+  })();
+  window.addEventListener('resize',function(){
+    W=window.innerWidth;H=window.innerHeight;
+    renderer.setSize(W,H);camera.aspect=W/H;camera.updateProjectionMatrix();
+  });
+});
 </script>
 </body>
 </html>
