@@ -721,49 +721,57 @@ function buildFYDropdown() {
 // The print CSS suppresses body::before and body::after completely.
 // ═══════════════════════════════════════
 function printSection(tab) {
-  // WHY: body[data-printing] attribute selectors are unreliable in print mode
-  // across browsers. Injecting a <style> with a specific #id selector
-  // (which has higher specificity than .class) is the only bulletproof way.
-  const existing = document.getElementById('_aam_print_style')
-  if (existing) existing.remove()
+  // WHY THIS APPROACH: CSS @media print rules and attribute selectors are
+  // unreliable across browsers. Using JS to directly apply inline styles
+  // (with 'important' priority) is the ONLY cross-browser reliable method.
+  // window.print() is synchronous — styles applied before it are guaranteed
+  // to be picked up in the print snapshot.
 
-  const styleEl = document.createElement('style')
-  styleEl.id = '_aam_print_style'
-  styleEl.textContent = `
-    @media print {
-      body::before, body::after { display:none!important; content:''!important; background:none!important; }
-      body { background:#fff!important; }
-      .sidebar { display:none!important; }
-      .main { margin-left:0!important; padding:20px!important; background:white!important; }
-      .period-bar, .report-tabs, .no-print, .fy-selector, .theme-toggle,
-      .add-entry-form, .entries-grid, .journal-section { display:none!important; }
-      .r-section { display:none!important; }
-      #tab-${tab} { display:block!important; }
-      .pnl-table, .bs-table { border:2px solid #000!important; background:white!important; }
-      .pnl-table th, .bs-table th { background:#dbeafe!important; color:#1e40af!important; border:1px solid #000!important; }
-      .pnl-table td, .bs-table td { border:1px solid #999!important; color:#000!important; background:white!important; }
-      .pnl-table .pnl-total-row td, .bs-table .bs-total-row td { background:#dcfce7!important; border-top:2px solid #000!important; }
-      .pnl-table .pnl-grand-total td { background:#e0e7ff!important; }
-      .pnl-heading h2, .bs-heading h2, .pnl-heading p, .bs-heading p { color:#000!important; }
-      .pnl-section-label { color:#1e40af!important; background:#eff6ff!important; }
-      .bs-section-label { color:#1e40af!important; background:#eff6ff!important; }
-      .pnl-table .pnl-amount, .bs-table .bs-amount { color:#000!important; }
-      .bs-balanced { background:#dcfce7!important; color:#166534!important; border:1px solid #86efac!important; }
-      .bs-unbalanced { background:#fee2e2!important; color:#991b1b!important; border:1px solid #fca5a5!important; }
-      .pnl-amount.red { color:#dc2626!important; }
-      .report-card.no-print { display:none!important; }
-      @page { margin:12mm 10mm; size:A4; }
-    }
-  `
-  document.head.appendChild(styleEl)
+  const sections = document.querySelectorAll('.r-section')
+  const sidebar  = document.querySelector('.sidebar')
+  const main     = document.querySelector('.main')
+  const target   = document.getElementById('tab-' + tab)
 
-  setTimeout(() => {
-    window.print()
-    setTimeout(() => {
-      const el = document.getElementById('_aam_print_style')
-      if (el) el.remove()
-    }, 2000)
-  }, 200)
+  // Step 1 — Hide ALL sections with !important inline (beats any CSS class)
+  sections.forEach(s => s.style.setProperty('display', 'none', 'important'))
+
+  // Step 2 — Show ONLY the target section
+  if (target) target.style.setProperty('display', 'block', 'important')
+
+  // Step 3 — Hide navigation & non-print elements
+  if (sidebar) sidebar.style.display = 'none'
+  document.querySelectorAll(
+    '#periodBar, .report-tabs, .no-print, .fy-selector, ' +
+    '.add-entry-form, .entries-grid, .journal-section, .theme-toggle'
+  ).forEach(el => el.style.setProperty('display', 'none', 'important'))
+
+  // Step 4 — Fix layout for print
+  if (main) {
+    main.style.marginLeft = '0'
+    main.style.padding    = '20px'
+    main.style.background = 'white'
+    main.style.color      = '#000'
+  }
+  document.body.style.background = 'white'
+
+  // Step 5 — Print (synchronous — all styles above are in effect)
+  window.print()
+
+  // Step 6 — Restore everything after print dialog closes
+  sections.forEach(s => s.style.removeProperty('display'))
+  if (target) target.style.removeProperty('display')
+  if (sidebar) sidebar.style.display = ''
+  document.querySelectorAll(
+    '#periodBar, .report-tabs, .no-print, .fy-selector, ' +
+    '.add-entry-form, .entries-grid, .journal-section, .theme-toggle'
+  ).forEach(el => el.style.removeProperty('display'))
+  if (main) {
+    main.style.marginLeft = ''
+    main.style.padding    = ''
+    main.style.background = ''
+    main.style.color      = ''
+  }
+  document.body.style.background = ''
 }
 
 // ═══════════════════════════════════════
