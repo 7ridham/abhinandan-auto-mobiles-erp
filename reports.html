@@ -1449,22 +1449,46 @@ window.addBsEntry = async function() {
 // Both loadAccounts() and loadBalanceSheet() call this.
 // They will ALWAYS show the same numbers.
 // ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════
+// SINGLE SOURCE OF TRUTH — shared by Accounts tab + Balance Sheet
+//
+// KEY FIXES vs previous version:
+// 1. NO date filter when asOnDate is null (for loadAccounts) — fixes Cash=₹0
+// 2. Per-customer debtors — fixes Debtors=₹0 when advance customers exist
+// 3. purchCash subtracted from cash — was missing before
+// ═══════════════════════════════════════════════════════════
 async function computeBalances(asOnDate) {
-  const dtFilter   = asOnDate ? asOnDate + 'T23:59:59' : new Date().toISOString()
-  const dtDateOnly = asOnDate || new Date().toISOString().slice(0, 10)
+  // Build queries dynamically — ONLY add date filter if asOnDate is provided
+  let salesQ = _supabase.from('sales')
+    .select('cash,upi,credit,total_amount,bill_type,discount,customer_id')
+  let purchQ = _supabase.from('purchases')
+    .select('cash,upi,credit,total_amount,bill_type,discount')
+  let payQ   = _supabase.from('payments').select('amount,mode,customer_id')
+  let mpQ    = _supabase.from('merchant_payments').select('amount,mode')
+  let jQ     = _supabase.from('journal_entries').select('*')
+    .order('entry_date', {ascending:false})
+
+  if (asOnDate) {
+    // Balance Sheet: filter everything up to the chosen date
+    const dtEnd = asOnDate + 'T23:59:59'
+    salesQ = salesQ.lte('created_at', dtEnd)
+    purchQ = purchQ.lte('created_at', dtEnd)
+    payQ   = payQ.lte('created_at', dtEnd)
+    mpQ    = mpQ.lte('created_at', dtEnd)
+    jQ     = jQ.lte('entry_date', asOnDate)
+  }
+  // When asOnDate is null (Accounts tab), NO date filter → all records
 
   const [sRes, pRes, bsRes, payRes, mpRes, invRes, jRes] = await Promise.all([
-    _supabase.from('sales').select('cash,upi,credit,total_amount,bill_type,discount').lte('created_at', dtFilter),
-    _supabase.from('purchases').select('cash,upi,credit,total_amount,bill_type,discount').lte('created_at', dtFilter),
+    salesQ, purchQ,
     _supabase.from('balance_sheet_entries').select('*').eq('is_active', true),
-    _supabase.from('payments').select('amount,mode').lte('created_at', dtFilter),
-    _supabase.from('merchant_payments').select('amount,mode').lte('created_at', dtFilter),
+    payQ, mpQ,
     _supabase.from('inventory').select('quantity,purchase_price'),
-    _supabase.from('journal_entries').select('*').lte('entry_date', dtDateOnly).order('entry_date', {ascending: false})
+    jQ
   ])
 
-  const allSales  = sRes.data  || []
-  const allPurch  = pRes.data  || []
+  const allSales   = sRes.data  || []
+  const allPurch   = pRes.data  || []
   const salesBills = allSales.filter(r => r.bill_type === 'sale')
   const salesRets  = allSales.filter(r => r.bill_type === 'return')
   const purchBills = allPurch.filter(r => r.bill_type === 'purchase')
@@ -1475,84 +1499,90 @@ async function computeBalances(asOnDate) {
   const invRows    = invRes.data || []
   const journals   = jRes.data   || []
 
-  // Opening balances from BS entries
-  const openingCash = bsEntries.filter(e => e.account_type === 'opening_cash').reduce((s, e) => s + Number(e.amount||0), 0)
-  const openingBank = bsEntries.filter(e => e.account_type === 'opening_bank').reduce((s, e) => s + Number(e.amount||0), 0)
+  // ── Opening balances from BS entries ──
+  const openingCash = bsEntries.filter(e => e.account_type === 'opening_cash')
+    .reduce((s,e) => s + Number(e.amount||0), 0)
+  const openingBank = bsEntries.filter(e => e.account_type === 'opening_bank')
+    .reduce((s,e) => s + Number(e.amount||0), 0)
 
-  // Cash/UPI flows at time of billing
-  const salesCash = salesBills.reduce((s, r) => s + Number(r.cash||0), 0)
-  const salesUPI  = salesBills.reduce((s, r) => s + Number(r.upi||0), 0)
-  const purchCash = purchBills.reduce((s, r) => s + Number(r.cash||0), 0)  // ← KEY FIX: was missing
-  const purchUPI  = purchBills.reduce((s, r) => s + Number(r.upi||0), 0)  // ← KEY FIX: was missing
+  // ── Cash/UPI at billing time ──
+  const salesCash = salesBills.reduce((s,r) => s + Number(r.cash||0), 0)
+  const salesUPI  = salesBills.reduce((s,r) => s + Number(r.upi||0), 0)
+  const purchCash = purchBills.reduce((s,r) => s + Number(r.cash||0), 0) // KEY: was missing
+  const purchUPI  = purchBills.reduce((s,r) => s + Number(r.upi||0), 0)  // KEY: was missing
 
-  // Credit payments
-  const custPaidTotal  = payments.reduce((s, r)  => s + Number(r.amount||0), 0)
-  const merchPaidTotal = mpayments.reduce((s, r) => s + Number(r.amount||0), 0)
+  // ── Customer & merchant payment totals ──
+  const custPaidTotal  = payments.reduce((s,r)  => s + Number(r.amount||0), 0)
+  const merchPaidTotal = mpayments.reduce((s,r) => s + Number(r.amount||0), 0)
 
-  // Journal effects on cash
-  const jCashIn  = journals.filter(j => j.debit_account  === 'Cash').reduce((s, j) => s + Number(j.amount||0), 0)
-  const jCashOut = journals.filter(j => j.credit_account === 'Cash').reduce((s, j) => s + Number(j.amount||0), 0)
+  // ── Journal effects on Cash account ──
+  const jCashIn  = journals.filter(j => j.debit_account  === 'Cash').reduce((s,j) => s + Number(j.amount||0), 0)
+  const jCashOut = journals.filter(j => j.credit_account === 'Cash').reduce((s,j) => s + Number(j.amount||0), 0)
 
   // ── CASH IN HAND (definitive formula) ──
+  // Opening + cash from sales − cash paid for purchases + credit payments received − merchant payments made
   const cashInHand = Math.max(0,
     openingCash
-    + salesCash          // cash from sales
-    - purchCash          // cash paid for purchases (THE FIX)
-    + custPaidTotal      // customer credit payments received
-    - merchPaidTotal     // merchant credit payments made
-    + jCashIn            // journal inflows
-    - jCashOut           // journal outflows
+    + salesCash
+    - purchCash
+    + custPaidTotal
+    - merchPaidTotal
+    + jCashIn
+    - jCashOut
   )
 
   // ── BANK / UPI ──
   const bankBalance = Math.max(0, openingBank + salesUPI - purchUPI)
 
-  // ── DEBTORS ──
-  // Credit given in sales − credit reduced by return bills − payments received
-  const totalCreditGiven  = salesBills.reduce((s, r) => s + Number(r.credit||0), 0)
-  const creditFromReturns = salesRets.reduce((s, r)  => s + Number(r.credit||0), 0)
-  const debtors = Math.max(0, totalCreditGiven - creditFromReturns - custPaidTotal)
+  // ── DEBTORS — Per customer (FIXES the ₹0 bug) ──
+  // WHY: If Amit owes ₹680 and Anjali pre-paid ₹5000, the aggregate is -4320
+  // which gives Math.max(0,...) = 0. Wrong! We must calculate per-customer,
+  // then only sum the POSITIVE (debtor) nets.
+  const custNetMap = {}
+  salesBills.forEach(r => {
+    const cid = r.customer_id || '_walkin_'
+    custNetMap[cid] = (custNetMap[cid] || 0) + Number(r.credit||0)
+  })
+  payments.forEach(r => {
+    const cid = r.customer_id || '_walkin_'
+    custNetMap[cid] = (custNetMap[cid] || 0) - Number(r.amount||0)
+  })
+  let debtors = 0
+  Object.values(custNetMap).forEach(net => { if (net > 0.01) debtors += net })
 
   // ── CREDITORS ──
-  // Credit taken in purchases − credit reduced by purchase returns − payments made
-  const totalCreditTaken   = purchBills.reduce((s, r) => s + Number(r.credit||0), 0)
-  const creditFromPurchRet = purchRets.reduce((s, r)  => s + Number(r.credit||0), 0)
+  const totalCreditTaken   = purchBills.reduce((s,r) => s + Number(r.credit||0), 0)
+  const creditFromPurchRet = purchRets.reduce((s,r)  => s + Number(r.credit||0), 0)
   const creditors = Math.max(0, totalCreditTaken - creditFromPurchRet - merchPaidTotal)
 
   // ── CLOSING STOCK ──
-  const closingStock = invRows.reduce((s, r) => s + Number(r.quantity||0) * Number(r.purchase_price||0), 0)
+  const closingStock = invRows.reduce((s,r) =>
+    s + Number(r.quantity||0) * Number(r.purchase_price||0), 0)
 
   // ── P&L FIGURES ──
-  const grossSales    = salesBills.reduce((s, r) => s + Number(r.total_amount||0), 0)
-  const salesDiscount = salesBills.reduce((s, r) => s + Number(r.discount||0), 0)
-  const salesRetTotal = salesRets.reduce((s, r)  => s + Number(r.total_amount||0), 0)
+  const grossSales    = salesBills.reduce((s,r) => s + Number(r.total_amount||0), 0)
+  const salesDiscount = salesBills.reduce((s,r) => s + Number(r.discount||0), 0)
+  const salesRetTotal = salesRets.reduce((s,r)  => s + Number(r.total_amount||0), 0)
   const netSales      = grossSales - salesDiscount - salesRetTotal
 
-  const grossPurchases = purchBills.reduce((s, r) => s + Number(r.total_amount||0), 0)
-  const purchDiscount  = purchBills.reduce((s, r) => s + Number(r.discount||0), 0)
-  const purchRetTotal  = purchRets.reduce((s, r)  => s + Number(r.total_amount||0), 0)
+  const grossPurchases = purchBills.reduce((s,r) => s + Number(r.total_amount||0), 0)
+  const purchDiscount  = purchBills.reduce((s,r) => s + Number(r.discount||0), 0)
+  const purchRetTotal  = purchRets.reduce((s,r)  => s + Number(r.total_amount||0), 0)
   const netPurchases   = grossPurchases - purchDiscount - purchRetTotal
   const grossProfit    = netSales - netPurchases
 
-  // Manual BS entries categorised
-  const manualAssets      = bsEntries.filter(e => e.entry_type === 'asset' && e.account_type === 'manual')
-  const manualLiabilities = bsEntries.filter(e => e.entry_type === 'liability' && e.account_type !== 'opening_capital')
-  const capitalEntries    = bsEntries.filter(e => e.entry_type === 'capital' || e.account_type === 'opening_capital')
+  // ── Manual BS entries ──
+  const manualAssets      = bsEntries.filter(e => e.entry_type==='asset' && e.account_type==='manual')
+  const manualLiabilities = bsEntries.filter(e => e.entry_type==='liability' && e.account_type!=='opening_capital')
+  const capitalEntries    = bsEntries.filter(e => e.entry_type==='capital' || e.account_type==='opening_capital')
 
   return {
-    // CASH / BANK — same in Accounts AND Balance Sheet
-    cashInHand, bankBalance,
-    // DEBTORS / CREDITORS — same everywhere
-    debtors, creditors, closingStock,
-    // P&L core
+    cashInHand, bankBalance, debtors, creditors, closingStock,
     grossSales, salesDiscount, salesRetTotal, netSales,
     grossPurchases, purchDiscount, purchRetTotal, netPurchases, grossProfit,
-    // Manual entries
     manualAssets, manualLiabilities, capitalEntries,
-    // Misc
     openingCash, openingBank, journals, bsEntries,
-    custPaidTotal, merchPaidTotal,
-    salesCash, purchCash, salesUPI, purchUPI
+    custPaidTotal, merchPaidTotal, salesCash, purchCash, salesUPI, purchUPI
   }
 }
   
@@ -1565,12 +1595,18 @@ async function loadAccounts() {
   // Always use computeBalances — ensures Accounts and Balance Sheet are identical
   const b = await computeBalances(null)   // null = up to right now
 
-  document.getElementById('accCash').textContent     = fmtAmt(b.cashInHand)
-  document.getElementById('accBank').textContent     = fmtAmt(b.bankBalance)
-  document.getElementById('accDebtors').textContent  = fmtAmt(b.debtors)
-  document.getElementById('accDebtorsNote').textContent  = `Credit sales − payments received`
-  document.getElementById('accCreditors').textContent = fmtAmt(b.creditors)
-  document.getElementById('accCreditorsNote').textContent = `Credit purchases − payments made`
+ document.getElementById('accCash').textContent     = fmtAmt(b.cashInHand)
+document.getElementById('accBank').textContent     = fmtAmt(b.bankBalance)
+document.getElementById('accDebtors').textContent  = fmtAmt(b.debtors)
+document.getElementById('accDebtorsNote').textContent  = `Net receivable per customer`
+document.getElementById('accCreditors').textContent = fmtAmt(b.creditors)
+document.getElementById('accCreditorsNote').textContent = `Net payable to merchants`
+
+// Update the subtitle text on the Cash card to reflect correct formula
+const cashNoteEl = document.querySelector('#accCards .acc-cash .acc-note')
+if (cashNoteEl) cashNoteEl.textContent = 'Opening + Sales cash − Purchase cash ± payments'
+const bankNoteEl = document.querySelector('#accCards .acc-bank .acc-note')
+if (bankNoteEl) bankNoteEl.textContent = 'Opening bank + Sales UPI − Purchase UPI'
 
   const totalFixedAssets = b.manualAssets.reduce((s, e) => s + Number(e.amount||0), 0)
     + b.journals.filter(j => j.transaction_type === 'buy_asset').reduce((s, j) => s + Number(j.amount||0), 0)
