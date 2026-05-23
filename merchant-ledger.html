@@ -720,7 +720,13 @@ function renderGrid(list){
 
     const dotCls=isZero||isAdv?'g':m.maxAge<=30?'g':m.maxAge<=60?'y':m.maxAge<=90?'o':'r'
     const ini=(m.name||'?')[0].toUpperCase()
-    const cardBorder=isOwed?'border-color:rgba(220,38,38,0.35);':isAdv?'border-color:rgba(52,211,153,0.35);':''
+    // WHY: rgba with 0.35 opacity is invisible in light theme.
+// Using a solid left border makes it visible in BOTH dark and light themes.
+const cardBorder = isOwed
+  ? 'border-left:4px solid #dc2626; border-color:rgba(220,38,38,0.55);'
+  : isAdv
+  ? 'border-left:4px solid #059669; border-color:rgba(5,150,105,0.55);'
+  : ''
 
     return `<div class="merchant-card" onclick="openLedger('${encodeURIComponent(m.name)}')" style="${cardBorder}">
       <div class="aging-dot ${dotCls}"></div>
