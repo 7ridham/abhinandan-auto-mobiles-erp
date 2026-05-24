@@ -606,6 +606,16 @@
       </div>
     </div>
 
+    <!-- Capital Account row -->
+    <div style="background:linear-gradient(135deg,rgba(37,99,235,0.08),rgba(124,58,237,0.05));border:1px solid rgba(37,99,235,0.2);border-radius:14px;padding:16px 20px;margin-bottom:20px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;">
+      <div style="font-size:20px;">🏦</div>
+      <div style="flex:1;">
+        <div style="font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--text-dim);margin-bottom:4px;">Capital Account (Owner's Equity)</div>
+        <div style="font-family:'Playfair Display',serif;font-size:24px;font-weight:700;color:#60a5fa;" id="accCapital">Loading…</div>
+        <div style="font-size:11px;color:var(--text-dim);margin-top:3px;" id="accCapitalNote">Opening capital from Balance Sheet entries</div>
+      </div>
+    </div>
+
     <!-- Closing Stock -->
     <div style="background:linear-gradient(135deg,rgba(167,139,250,0.1),rgba(139,92,246,0.05));border:1px solid rgba(167,139,250,0.2);border-radius:14px;padding:16px 20px;margin-bottom:20px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;">
       <div style="font-size:20px;">📦</div>
@@ -1598,9 +1608,18 @@ async function loadAccounts() {
  document.getElementById('accCash').textContent     = fmtAmt(b.cashInHand)
 document.getElementById('accBank').textContent     = fmtAmt(b.bankBalance)
 document.getElementById('accDebtors').textContent  = fmtAmt(b.debtors)
-document.getElementById('accDebtorsNote').textContent  = `Net receivable per customer`
+document.getElementById('accDebtorsNote').textContent  = `Total receivable from credit customers`
 document.getElementById('accCreditors').textContent = fmtAmt(b.creditors)
-document.getElementById('accCreditorsNote').textContent = `Net payable to merchants`
+document.getElementById('accCreditorsNote').textContent = `Total payable to credit merchants`
+
+// Capital Account
+const openingCapital = b.capitalEntries.reduce((s, e) => s + Number(e.amount||0), 0)
+const accCapEl = document.getElementById('accCapital')
+const accCapNoteEl = document.getElementById('accCapitalNote')
+if (accCapEl) {
+  accCapEl.textContent = fmtAmt(openingCapital)
+  if (accCapNoteEl) accCapNoteEl.textContent = `Opening capital · ${b.capitalEntries.length} entr${b.capitalEntries.length===1?'y':'ies'} in Balance Sheet`
+}
 
 // Update the subtitle text on the Cash card to reflect correct formula
 const cashNoteEl = document.querySelector('#accCards .acc-cash .acc-note')
