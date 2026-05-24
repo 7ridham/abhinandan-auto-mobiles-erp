@@ -1550,34 +1550,36 @@ async function computeBalances(asOnDate) {
   const purchUPI  = purchBills.reduce((s,r) => s + Number(r.upi||0), 0)  // KEY: was missing
 
   // ── Customer & merchant payment totals ──
+  // ── Split payments by MODE — cash vs bank/UPI ──
+  // WHY: Merchant UPI payments reduce BANK, not CASH. Customer UPI payments received → BANK.
+  const BANK_MODES = ['UPI','Bank Transfer','Bank','NEFT','RTGS','Cheque','Online']
+  const custPaidCash = payments.filter(r => !BANK_MODES.includes(r.mode)).reduce((s,r) => s + Number(r.amount||0), 0)
+  const custPaidBank = payments.filter(r =>  BANK_MODES.includes(r.mode)).reduce((s,r) => s + Number(r.amount||0), 0)
+  const merchPaidCash = mpayments.filter(r => !BANK_MODES.includes(r.mode)).reduce((s,r) => s + Number(r.amount||0), 0)
+  const merchPaidBank = mpayments.filter(r =>  BANK_MODES.includes(r.mode)).reduce((s,r) => s + Number(r.amount||0), 0)
+  // Keep totals for creditors/debtors formulas
   const custPaidTotal  = payments.reduce((s,r)  => s + Number(r.amount||0), 0)
   const merchPaidTotal = mpayments.reduce((s,r) => s + Number(r.amount||0), 0)
 
-  // ── Journal effects on Cash account ──
+  // ── Journal effects on Cash and Bank ──
   const jCashIn  = journals.filter(j => j.debit_account  === 'Cash').reduce((s,j) => s + Number(j.amount||0), 0)
   const jCashOut = journals.filter(j => j.credit_account === 'Cash').reduce((s,j) => s + Number(j.amount||0), 0)
+  const jBankIn  = journals.filter(j => j.debit_account  === 'Bank/UPI').reduce((s,j) => s + Number(j.amount||0), 0)
+  const jBankOut = journals.filter(j => j.credit_account === 'Bank/UPI').reduce((s,j) => s + Number(j.amount||0), 0)
 
-  // ── CASH IN HAND (definitive formula) ──
-  // Opening + cash from sales − cash paid for purchases + credit payments received − merchant payments made
+  // ── CASH IN HAND ──
   const cashInHand = Math.max(0,
-    openingCash
-    + salesCash
-    - purchCash
-    + custPaidTotal
-    - merchPaidTotal
-    + jCashIn
-    - jCashOut
+    openingCash + salesCash - purchCash
+    + custPaidCash - merchPaidCash
+    + jCashIn - jCashOut
   )
 
   // ── BANK / UPI ──
-  // Journal effects on Bank/UPI — same pattern as cash
-  const jBankIn  = journals.filter(j =>
-    j.debit_account === 'Bank' || j.debit_account === 'UPI' || j.debit_account === 'Bank/UPI'
-  ).reduce((s,j) => s + Number(j.amount||0), 0)
-  const jBankOut = journals.filter(j =>
-    j.credit_account === 'Bank' || j.credit_account === 'UPI' || j.credit_account === 'Bank/UPI'
-  ).reduce((s,j) => s + Number(j.amount||0), 0)
-  const bankBalance = Math.max(0, openingBank + salesUPI - purchUPI + jBankIn - jBankOut)
+  const bankBalance = Math.max(0,
+    openingBank + salesUPI - purchUPI
+    + custPaidBank - merchPaidBank
+    + jBankIn - jBankOut
+  )
 
   // ── DEBTORS — Per customer (FIXES the ₹0 bug) ──
   // WHY: If Amit owes ₹680 and Anjali pre-paid ₹5000, the aggregate is -4320
