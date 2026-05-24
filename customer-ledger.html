@@ -228,6 +228,39 @@ body { font-family: 'DM Sans', sans-serif; }
 
 .empty-state { text-align:center; padding:50px 20px; color:rgba(255,255,255,0.25); font-size:14px; }
 .loading-row { text-align:center; padding:30px; color:rgba(255,255,255,0.3); font-size:13px; }
+
+  /* ─── LIGHT THEME: Customer card text colors ─── */
+html.light-theme .ls-card { background:rgba(255,255,255,0.92); border:1px solid rgba(0,0,0,0.09); box-shadow:0 2px 12px rgba(0,0,0,0.08); }
+html.light-theme .ls-label { color:#475569 !important; }
+html.light-theme .ls-sub   { color:#64748b !important; }
+html.light-theme .customer-card { background:rgba(255,255,255,0.88); border-color:rgba(0,0,0,0.09); }
+html.light-theme .cc-name  { color:#0f172a !important; }
+html.light-theme .cc-phone { color:#64748b !important; }
+html.light-theme .cc-stat-label { color:#475569 !important; }
+/* WHY: No !important here — lets inline style="color:#dc2626" (red/green balance) override */
+html.light-theme .cc-stat-value { color:#1e293b; }
+
+/* ─── LIGHT THEME: Pagination button text ─── */
+html.light-theme .pg-info { color:#475569; }
+html.light-theme .pg-btn { background:rgba(0,0,0,0.06) !important; border-color:rgba(0,0,0,0.12) !important; color:#1e293b !important; }
+html.light-theme .pg-btn.active { background:rgba(37,99,235,0.18) !important; color:#1e3a5f !important; border-color:rgba(37,99,235,0.4) !important; }
+html.light-theme .pg-btn:disabled { color:#94a3b8 !important; opacity:0.5 !important; }
+
+/* ─── LIGHT THEME: Modal inner elements ─── */
+html.light-theme .modal-box { background:white; }
+html.light-theme .summary-card { background:white; }
+html.light-theme .summary-card .s-label { color:#475569; }
+html.light-theme .summary-card .s-value { color:#0f172a; }
+html.light-theme .summary-row { background:rgba(0,0,0,0.04); }
+html.light-theme .tx-table thead tr { background:rgba(0,0,0,0.04); }
+html.light-theme .tx-table thead th { color:#475569; border-bottom-color:rgba(0,0,0,0.08); }
+html.light-theme .tx-table tbody td { color:#1e293b; border-bottom-color:rgba(0,0,0,0.05); }
+html.light-theme .tx-table tbody tr:hover { background:rgba(37,99,235,0.04); }
+html.light-theme .section-title { color:#475569; }
+html.light-theme .modal-body { background:white; }
+html.light-theme .empty-state { color:#94a3b8; }
+html.light-theme .loading-row { color:#64748b; }
+
 </style>
 </head>
 <body>
@@ -1006,8 +1039,14 @@ function renderGrid(list) {
     if (isAdv)   { displayText = '+₹'+Math.abs(nc).toLocaleString('en-IN'); displayColor = '#059669'; subText = 'Advance' }
 
     const ini=(c.name||'?')[0].toUpperCase()
-    const cardBorder = isOwed ? 'border-color:rgba(220,38,38,0.35);' : isAdv ? 'border-color:rgba(52,211,153,0.35);' : ''
-
+    // WHY: rgba borders at 0.35 opacity disappear in light theme (white bg + light color = invisible).
+// A solid 4px left border is visible in BOTH dark and light themes.
+const cardBorder = isOwed
+  ? 'border-left:4px solid #dc2626; border-color:rgba(220,38,38,0.55);'
+  : isAdv
+  ? 'border-left:4px solid #059669; border-color:rgba(5,150,105,0.55);'
+  : ''
+    
     return `<div class="customer-card ${isOwed?'has-due':isAdv?'has-advance':''}" onclick="openLedger('${c.id}')" style="${cardBorder}">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
         <div class="cc-avatar">${ini}</div>
