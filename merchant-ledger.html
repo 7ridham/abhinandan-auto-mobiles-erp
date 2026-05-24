@@ -736,10 +736,12 @@ function renderGrid(list){
 // Using a solid left border makes it visible in BOTH dark and light themes.
 // WHY: border-color shorthand was overriding the left border color to semi-transparent.
 // Removing it lets the solid left border show at full opacity in both dark and light theme.
+// WHY: border-left gets overridden by light-theme border-color CSS.
+// box-shadow inset is immune to border cascade and works in both themes.
 const cardBorder = isOwed
-  ? 'border-left:4px solid #dc2626;'
+  ? 'box-shadow:inset 5px 0 0 #dc2626, 0 2px 12px rgba(220,38,38,0.18);'
   : isAdv
-  ? 'border-left:4px solid #059669;'
+  ? 'box-shadow:inset 5px 0 0 #059669, 0 2px 12px rgba(5,150,105,0.18);'
   : ''
 
     return `<div class="merchant-card" onclick="openLedger('${encodeURIComponent(m.name)}')" style="${cardBorder}">
