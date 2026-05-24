@@ -764,7 +764,11 @@ function printSection(tab) {
   }
   document.body.style.background = 'white'
 
-  // Step 5 — Print (synchronous — all styles above are in effect)
+  // Step 5 — Force .main visible: print CSS has body>*{display:none!important} which hides .main.
+  // An inline !important beats a stylesheet !important per CSS cascade spec.
+  if (main) main.style.setProperty('display', 'block', 'important')
+
+  // Step 6 — Print
   window.print()
 
   // Step 6 — Restore everything after print dialog closes
@@ -775,7 +779,8 @@ function printSection(tab) {
     '#periodBar, .report-tabs, .no-print, .fy-selector, ' +
     '.add-entry-form, .entries-grid, .journal-section, .theme-toggle'
   ).forEach(el => el.style.removeProperty('display'))
-  if (main) {
+ if (main) {
+    main.style.removeProperty('display')
     main.style.marginLeft = ''
     main.style.padding    = ''
     main.style.background = ''
@@ -1510,11 +1515,21 @@ async function computeBalances(asOnDate) {
   const journals   = jRes.data   || []
 
   // ── Opening balances from BS entries ──
-  const openingCash = bsEntries.filter(e => e.account_type === 'opening_cash')
-    .reduce((s,e) => s + Number(e.amount||0), 0)
-  const openingBank = bsEntries.filter(e => e.account_type === 'opening_bank')
-    .reduce((s,e) => s + Number(e.amount||0), 0)
-
+  // WHY: Capital entries labeled 'Cash' mean "owner brought cash into business".
+  // Double-entry: Dr Cash / Cr Capital — so cash must also increase.
+  const openingCash = bsEntries.filter(e =>
+    e.account_type === 'opening_cash' ||
+    (e.entry_type === 'capital' && e.label && e.label.trim().toLowerCase() === 'cash')
+  ).reduce((s,e) => s + Number(e.amount||0), 0)
+  const openingBank = bsEntries.filter(e =>
+    e.account_type === 'opening_bank' ||
+    (e.entry_type === 'capital' && e.label && (
+      e.label.trim().toLowerCase() === 'bank' ||
+      e.label.trim().toLowerCase() === 'upi' ||
+      e.label.trim().toLowerCase() === 'bank/upi'
+    ))
+  ).reduce((s,e) => s + Number(e.amount||0), 0)
+  
   // ── Cash/UPI at billing time ──
   const salesCash = salesBills.reduce((s,r) => s + Number(r.cash||0), 0)
   const salesUPI  = salesBills.reduce((s,r) => s + Number(r.upi||0), 0)
@@ -1542,7 +1557,14 @@ async function computeBalances(asOnDate) {
   )
 
   // ── BANK / UPI ──
-  const bankBalance = Math.max(0, openingBank + salesUPI - purchUPI)
+  // Journal effects on Bank/UPI — same pattern as cash
+  const jBankIn  = journals.filter(j =>
+    j.debit_account === 'Bank' || j.debit_account === 'UPI' || j.debit_account === 'Bank/UPI'
+  ).reduce((s,j) => s + Number(j.amount||0), 0)
+  const jBankOut = journals.filter(j =>
+    j.credit_account === 'Bank' || j.credit_account === 'UPI' || j.credit_account === 'Bank/UPI'
+  ).reduce((s,j) => s + Number(j.amount||0), 0)
+  const bankBalance = Math.max(0, openingBank + salesUPI - purchUPI + jBankIn - jBankOut)
 
   // ── DEBTORS — Per customer (FIXES the ₹0 bug) ──
   // WHY: If Amit owes ₹680 and Anjali pre-paid ₹5000, the aggregate is -4320
@@ -1582,12 +1604,15 @@ async function computeBalances(asOnDate) {
   const grossProfit    = netSales - netPurchases
 
   // ── Manual BS entries ──
-  const manualAssets      = bsEntries.filter(e => e.entry_type==='asset' && e.account_type==='manual')
+const manualAssets      = bsEntries.filter(e => e.entry_type==='asset' && e.account_type==='manual')
   const manualLiabilities = bsEntries.filter(e => e.entry_type==='liability' && e.account_type!=='opening_capital')
   const capitalEntries    = bsEntries.filter(e => e.entry_type==='capital' || e.account_type==='opening_capital')
-
-  return {
+  // Journal entries that credit Capital = owner bringing in more capital
+  const jCapitalIn = journals.filter(j => j.credit_account === 'Capital').reduce((s,j) => s + Number(j.amount||0), 0)
+  
+ return {
     cashInHand, bankBalance, debtors, creditors, closingStock,
+    jCapitalIn,
     grossSales, salesDiscount, salesRetTotal, netSales,
     grossPurchases, purchDiscount, purchRetTotal, netPurchases, grossProfit,
     manualAssets, manualLiabilities, capitalEntries,
