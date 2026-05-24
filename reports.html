@@ -634,14 +634,17 @@
       </div>
 
       <div style="font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--text-dim);margin-bottom:10px;">Choose Transaction Type:</div>
-      <div class="txn-type-grid">
-        <button class="txn-type-btn" onclick="selectTxnType('cash_out',this)">💸 Give Cash / Pay Someone</button>
-        <button class="txn-type-btn" onclick="selectTxnType('cash_in',this)">💰 Receive Cash from Someone</button>
+      <div class="txn-type-grid" style="grid-template-columns:repeat(5,1fr);">
+        <button class="txn-type-btn" onclick="selectTxnType('expense',this)" style="border-color:rgba(248,113,113,0.3);color:#f87171;">💸 Pay Expense</button>
+        <button class="txn-type-btn" onclick="selectTxnType('income',this)" style="border-color:rgba(52,211,153,0.3);color:#34d399;">💰 Receive Income</button>
+        <button class="txn-type-btn" onclick="selectTxnType('owner_investment',this)" style="border-color:rgba(96,165,250,0.3);color:#60a5fa;">🏦 Owner Brings Capital</button>
         <button class="txn-type-btn" onclick="selectTxnType('buy_asset',this)">🏗️ Buy Asset (Cash + Loan)</button>
-        <button class="txn-type-btn" onclick="selectTxnType('take_loan',this)">🏦 Take Loan from Bank/Person</button>
-        <button class="txn-type-btn" onclick="selectTxnType('pay_loan',this)">✅ Pay Loan Installment</button>
+        <button class="txn-type-btn" onclick="selectTxnType('take_loan',this)">📋 Take Loan</button>
+        <button class="txn-type-btn" onclick="selectTxnType('pay_loan',this)">✅ Pay Loan EMI</button>
+        <button class="txn-type-btn" onclick="selectTxnType('cash_out',this)">↗️ Give Cash to Someone</button>
+        <button class="txn-type-btn" onclick="selectTxnType('cash_in',this)">↙️ Receive Cash from Someone</button>
         <button class="txn-type-btn" onclick="selectTxnType('interest',this)">📈 Record Interest</button>
-        <button class="txn-type-btn" onclick="selectTxnType('other',this)">📋 Other / Manual Entry</button>
+        <button class="txn-type-btn" onclick="selectTxnType('other',this)">✏️ Manual Entry</button>
       </div>
 
       <div class="txn-fields" id="txnFields">
@@ -1075,12 +1078,16 @@ window.loadPnLAccount = async function() {
   const fyFrom = `${fyYear}-04-01`, fyTo = `${fyYear+1}-03-31`
   const wrapper = document.getElementById('pnlAccountWrapper')
   wrapper.innerHTML = '<div style="color:var(--text-dim);font-family:\'DM Sans\',sans-serif;font-size:14px;padding:40px;text-align:center;">Calculating P&L…</div>'
-  const[sRes,pRes,srRes,prRes,manualRes]=await Promise.all([
+  const[sRes,pRes,srRes,prRes,manualRes,jTxnRes]=await Promise.all([
     _supabase.from('sales').select('total_amount,discount').eq('bill_type','sale').gte('created_at',fyFrom+'T00:00:00').lte('created_at',fyTo+'T23:59:59'),
     _supabase.from('purchases').select('total_amount,discount').eq('bill_type','purchase').gte('created_at',fyFrom+'T00:00:00').lte('created_at',fyTo+'T23:59:59'),
     _supabase.from('sales').select('total_amount').eq('bill_type','return').gte('created_at',fyFrom+'T00:00:00').lte('created_at',fyTo+'T23:59:59'),
     _supabase.from('purchases').select('total_amount').eq('bill_type','return').gte('created_at',fyFrom+'T00:00:00').lte('created_at',fyTo+'T23:59:59'),
-    _supabase.from('pnl_entries').select('*').eq('financial_year',fy).eq('is_active',true).order('entry_type').order('category')
+  _supabase.from('pnl_entries').select('*').eq('financial_year',fy).eq('is_active',true).order('entry_type').order('category'),
+    _supabase.from('journal_entries').select('*')
+      .in('transaction_type',['expense','income'])
+      .gte('entry_date', fyFrom+'T00:00:00')
+      .lte('entry_date', fyTo+'T23:59:59')
   ])
   const salesRows=sRes.data||[], purchRows=pRes.data||[], salesRets=srRes.data||[], purchRets=prRes.data||[], manualItems=manualRes.data||[]
   const grossSales=salesRows.reduce((s,r)=>s+Number(r.total_amount),0)
@@ -1796,6 +1803,63 @@ const TXN_TYPES = {
     debit:d=>d.txn_debit_account||'Debit Account',
     credit:d=>d.txn_credit_account||'Credit Account',
     type:'other'
+  },
+
+  // ── NEW TYPES ──
+  owner_investment: {
+    title:'Owner Brings Capital (Cash/Bank)',
+    fields:[
+      {id:'txn_amount',label:'Amount (₹)',type:'number',placeholder:'75000'},
+      {id:'txn_mode',label:'Via',type:'select',options:['Cash','Bank/UPI','Both']},
+      {id:'txn_cash_portion',label:'Cash portion (₹, if Both)',type:'number',placeholder:'0'},
+      {id:'txn_narration',label:'Note',type:'text',placeholder:'e.g. Owner brings capital'},
+    ],
+    preview: d=>{
+      const mode=d.txn_mode||'Cash'
+      const drAccount=mode==='Bank/UPI'?'Bank/UPI':mode==='Both'?'Cash & Bank/UPI':'Cash'
+      return `Dr <strong>${drAccount}</strong> ₹${d.txn_amount||0} &nbsp; | &nbsp; Cr <strong>Capital</strong> ₹${d.txn_amount||0}<br><small style="color:var(--text-dim);">Owner's equity increases by this amount</small>`
+    },
+    debit: d=>(d.txn_mode==='Bank/UPI'?'Bank/UPI':'Cash'),
+    credit: ()=>'Capital',
+    type:'owner_investment'
+  },
+
+  expense: {
+    title:'Record Expense (Paid from Cash/Bank)',
+    fields:[
+      {id:'txn_expense_name',label:'Expense Name',type:'text',placeholder:'e.g. Electricity Bill, Rent, Transport'},
+      {id:'txn_amount',label:'Amount (₹)',type:'number',placeholder:'2000'},
+      {id:'txn_mode',label:'Paid Via',type:'select',options:['Cash','Bank/UPI','Cheque']},
+      {id:'txn_party',label:'Paid To (optional)',type:'text',placeholder:'e.g. DGVCL, Landlord'},
+      {id:'txn_narration',label:'Note / Reference',type:'text',placeholder:'e.g. May 2026 electricity bill'},
+    ],
+    preview: d=>{
+      const via=d.txn_mode||'Cash'
+      const crAcc=via==='Bank/UPI'?'Bank/UPI':via==='Cheque'?'Bank/UPI':'Cash'
+      return `Dr <strong>${d.txn_expense_name||'Expense'} A/c</strong> ₹${d.txn_amount||0} &nbsp; | &nbsp; Cr <strong>${crAcc} A/c</strong> ₹${d.txn_amount||0}<br><small style="color:#f87171;">⬇ Reduces P&amp;L Profit</small>`
+    },
+    debit: d=>'Expense: '+(d.txn_expense_name||'General'),
+    credit: d=>(d.txn_mode==='Bank/UPI'||d.txn_mode==='Cheque'?'Bank/UPI':'Cash'),
+    type:'expense'
+  },
+
+  income: {
+    title:'Record Non-Billing Income (Commission, Rent, etc.)',
+    fields:[
+      {id:'txn_income_name',label:'Income Source',type:'text',placeholder:'e.g. Commission, Rental Income, Interest'},
+      {id:'txn_amount',label:'Amount (₹)',type:'number',placeholder:'5000'},
+      {id:'txn_mode',label:'Received Via',type:'select',options:['Cash','Bank/UPI']},
+      {id:'txn_party',label:'Received From (optional)',type:'text',placeholder:'e.g. Vikram Traders'},
+      {id:'txn_narration',label:'Note',type:'text',placeholder:'e.g. Commission for May 2026'},
+    ],
+    preview: d=>{
+      const via=d.txn_mode||'Cash'
+      const drAcc=via==='Bank/UPI'?'Bank/UPI':'Cash'
+      return `Dr <strong>${drAcc} A/c</strong> ₹${d.txn_amount||0} &nbsp; | &nbsp; Cr <strong>${d.txn_income_name||'Income'} A/c</strong> ₹${d.txn_amount||0}<br><small style="color:#34d399;">⬆ Increases P&amp;L Profit</small>`
+    },
+    debit: d=>(d.txn_mode==='Bank/UPI'?'Bank/UPI':'Cash'),
+    credit: d=>'Income: '+(d.txn_income_name||'General'),
+    type:'income'
   }
 }
 
@@ -1844,9 +1908,22 @@ window.saveJournalEntry = async function() {
   const amount=parseFloat(d.txn_amount)||0
   if(!amount){alert('Please enter an amount');return}
   const narration=d.txn_narration||cfg.title
-  const debitAccount=cfg.debit(d)
-  const creditAccount=cfg.credit(d)
+  let debitAccount=cfg.debit(d)
+  let creditAccount=cfg.credit(d)
   const partyName=d.txn_party||''
+  
+  // For expense type, use expense name in debit account
+  if(_currentTxnType==='expense' && d.txn_expense_name) {
+    debitAccount = 'Expense: ' + d.txn_expense_name
+  }
+  // For income type, use income name in credit account
+  if(_currentTxnType==='income' && d.txn_income_name) {
+    creditAccount = 'Income: ' + d.txn_income_name
+  }
+  // For owner_investment with Bank mode, debit Bank/UPI
+  if(_currentTxnType==='owner_investment' && d.txn_mode==='Bank/UPI') {
+    debitAccount = 'Bank/UPI'
+  }
   const interestRate=parseFloat(d.txn_interest||d.txn_interest_rate||0)||0
   const notes=d.txn_narration||''
   // Validate buy_asset
