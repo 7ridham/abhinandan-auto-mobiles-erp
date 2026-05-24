@@ -260,7 +260,16 @@ html.light-theme .section-title { color:#475569; }
 html.light-theme .modal-body { background:white; }
 html.light-theme .empty-state { color:#94a3b8; }
 html.light-theme .loading-row { color:#64748b; }
-
+/* ─── Balance colors — class-based for light theme compatibility ─── */
+.bal-red   { color:#dc2626; font-weight:700; }
+.bal-green { color:#059669; font-weight:700; }
+html.light-theme .bal-red   { color:#dc2626 !important; }
+html.light-theme .bal-green { color:#059669 !important; }
+html.light-theme .cc-stat-label { color:#475569 !important; }
+html.light-theme .cc-stat-value { color:#374151; }
+html.light-theme .cc-name  { color:#0f172a !important; }
+html.light-theme .cc-phone { color:#64748b !important; }
+  
 </style>
 </head>
 <body>
@@ -1057,7 +1066,7 @@ const cardBorder = isOwed
         <div><div class="cc-stat-label">Total Bought</div><div class="cc-stat-value" style="font-size:12px;">₹${Math.round(c.totalAmount).toLocaleString('en-IN')}</div></div>
         <div>
           <div class="cc-stat-label">${subText}</div>
-          <div class="cc-stat-value" style="color:${displayColor};font-weight:700;">${displayText}</div>
+          <div class="cc-stat-value bal-${isOwed?'red':'green'}">${displayText}</div>
         </div>
       </div>
     </div>`
