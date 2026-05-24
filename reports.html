@@ -1183,10 +1183,16 @@ function renderPnLEntries(items,fy) {
         this.textContent='✓ Saved';setTimeout(()=>{this.textContent='Save'},1500);loadPnLAccount()
       })
     })
-    document.querySelectorAll('.pnl-del-btn').forEach(btn=>{
+document.querySelectorAll('.pnl-del-btn').forEach(btn=>{
       btn.addEventListener('click',async function(){
         if(!confirm('Delete this entry?'))return
-        await _supabase.from('pnl_entries').update({is_active:false}).eq('id',this.dataset.id)
+        const id=this.dataset.id
+        if(String(id).startsWith('j_')){
+          // Journal entry — delete from journal_entries
+          await _supabase.from('journal_entries').delete().eq('id',id.replace('j_',''))
+        } else {
+          await _supabase.from('pnl_entries').update({is_active:false}).eq('id',id)
+        }
         loadPnLAccount()
       })
     })
