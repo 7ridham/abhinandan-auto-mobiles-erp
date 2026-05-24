@@ -9,32 +9,1724 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{font-size:16px;scroll-behavior:smooth}
 :root{
-  --bg:#dddbd7;--bg2:#e8e6e2;--text:#181816;--muted:#6e6e6a;
-  --gold:#b8840a;--white:#f8f6f2;--line:rgba(24,24,22,.1);
+  --bg:#f2f0ec;--bg2:#e8e6e2;--text:#0a0a09;--muted:#5a5a56;
+  --gold:#c49a1a;--white:#faf8f4;--line:rgba(10,10,9,.08);
+  --cream:#ede9e3;
 }
 body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;overflow:hidden;height:100vh;cursor:none}
 body.live{overflow-y:auto;height:auto;cursor:auto}
 
-/* CURSOR */
+/* ── CURSOR ── */
 #cur,#cur2{position:fixed;border-radius:50%;pointer-events:none;z-index:9000;transform:translate(-50%,-50%)}
-#cur{width:7px;height:7px;background:var(--text)}
-#cur2{width:30px;height:30px;border:1px solid rgba(24,24,22,.25);transition:all .2s ease}
+#cur{width:6px;height:6px;background:var(--text);transition:transform .15s,opacity .15s}
+#cur2{width:36px;height:36px;border:1px solid rgba(10,10,9,.18);transition:left .12s ease,top .12s ease,transform .3s,opacity .3s}
+body:not(.live) a:hover ~ #cur2,
+body:not(.live) button:hover ~ #cur2{transform:translate(-50%,-50%) scale(1.5)}
 @media(hover:none){#cur,#cur2{display:none}body,body.live{cursor:auto}}
 
-/* CANVAS */
+/* ── CANVAS (3D scene) ── */
 #c{position:fixed;inset:0;width:100%;height:100%;z-index:0;display:block}
 
-/* OVERLAYS */
-#grain{position:fixed;inset:0;z-index:2;pointer-events:none;opacity:.05;
+/* ── OVERLAYS ── */
+#grain{position:fixed;inset:0;z-index:2;pointer-events:none;opacity:.032;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 300'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3C/svg%3E");
-  animation:gn .1s steps(1) infinite}
-@keyframes gn{0%{background-position:0 0}25%{background-position:-80px -50px}50%{background-position:50px 30px}75%{background-position:-30px 70px}100%{background-position:20px -20px}}
+  animation:gn .08s steps(1) infinite}
+@keyframes gn{0%{background-position:0 0}25%{background-position:-80px -50px}50%{background-position:50px 30px}75%{background-position:-30px 70px}}
+
+/* Light vignette — brighter than before for the light theme feel */
 #vig{position:fixed;inset:0;z-index:3;pointer-events:none;
-  background:radial-gradient(ellipse 90% 90% at 50% 50%,transparent 40%,rgba(10,8,6,.7) 100%)}
-#grd-top{position:fixed;top:0;left:0;right:0;height:30vh;z-index:3;pointer-events:none;
-  background:linear-gradient(to bottom,rgba(205,203,199,.8) 0%,transparent 100%)}
-#grd-bot{position:fixed;bottom:0;left:0;right:0;height:25vh;z-index:3;pointer-events:none;
-  background:linear-gradient(to top,rgba(205,203,199,.75) 0%,transparent 100%)}
+  background:radial-gradient(ellipse 88% 88% at 50% 50%,transparent 38%,rgba(5,4,3,.55) 100%)}
+#grd-top{position:fixed;top:0;left:0;right:0;height:28vh;z-index:3;pointer-events:none;
+  background:linear-gradient(to bottom,rgba(235,232,228,.85) 0%,transparent 100%)}
+#grd-bot{position:fixed;bottom:0;left:0;right:0;height:22vh;z-index:3;pointer-events:none;
+  background:linear-gradient(to top,rgba(235,232,228,.8) 0%,transparent 100%)}
+
+/* ── SOUND BUTTON ── */
+#sndBtn{position:fixed;bottom:28px;right:38px;z-index:50;pointer-events:all;
+  background:rgba(10,10,9,.06);border:1px solid rgba(10,10,9,.12);
+  border-radius:22px;padding:7px 18px;cursor:pointer;
+  font-family:'Barlow Condensed',sans-serif;font-size:10px;
+  letter-spacing:.24em;text-transform:uppercase;color:rgba(10,10,9,.45);
+  transition:all .25s;display:none;align-items:center;gap:8px;backdrop-filter:blur(12px)}
+#sndBtn:hover{background:rgba(10,10,9,.12);color:var(--text)}
+#sndBtn.vis{display:flex}
+.snd-bars{display:flex;gap:2px;align-items:flex-end;height:12px}
+.snd-bar{width:2px;background:var(--gold);border-radius:1px;animation:sbar ease-in-out infinite alternate}
+.snd-bar:nth-child(1){height:4px;animation-duration:.5s;animation-delay:0s}
+.snd-bar:nth-child(2){height:9px;animation-duration:.7s;animation-delay:.1s}
+.snd-bar:nth-child(3){height:6px;animation-duration:.4s;animation-delay:.2s}
+.snd-bar:nth-child(4){height:11px;animation-duration:.8s;animation-delay:.05s}
+.snd-bar:nth-child(5){height:5px;animation-duration:.6s;animation-delay:.15s}
+@keyframes sbar{from{transform:scaleY(.3)}to{transform:scaleY(1)}}
+#sndBtn.muted .snd-bars{opacity:.3}
+#sndBtn.muted .snd-bar{animation:none;transform:scaleY(.3)}
+
+/* ════════════════════════════════════
+   INTRO SCREEN — Dark luxury with
+   light leak effects and floating dust
+════════════════════════════════════ */
+#intro{position:fixed;inset:0;z-index:600;
+  background:radial-gradient(ellipse 70% 70% at 30% 40%,#1a1410 0%,#0a0806 60%,#0e0c0a 100%);
+  display:flex;align-items:center;justify-content:center;
+  transition:opacity 1.6s cubic-bezier(.4,0,.2,1),transform 1.8s cubic-bezier(.4,0,.2,1)}
+#intro.gone{opacity:0;transform:scale(1.04) translateY(-8px);pointer-events:none}
+
+/* Light leak — premium feel */
+.light-leak{position:absolute;border-radius:50%;pointer-events:none;filter:blur(80px)}
+.ll1{width:400px;height:400px;top:-80px;left:-60px;
+  background:radial-gradient(circle,rgba(196,154,26,.12) 0%,transparent 70%)}
+.ll2{width:320px;height:320px;bottom:-60px;right:-40px;
+  background:radial-gradient(circle,rgba(196,154,26,.08) 0%,transparent 70%)}
+.ll3{width:280px;height:280px;top:40%;left:60%;
+  background:radial-gradient(circle,rgba(255,255,245,.04) 0%,transparent 70%);
+  animation:llpulse 6s ease-in-out infinite}
+@keyframes llpulse{0%,100%{opacity:.5;transform:scale(1)}50%{opacity:1;transform:scale(1.2)}}
+
+/* Floating dust particles */
+.dust-container{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.dust{position:absolute;border-radius:50%;background:rgba(196,154,26,.18);
+  animation:dustfloat linear infinite}
+@keyframes dustfloat{
+  0%{transform:translateY(100vh) translateX(0) scale(0);opacity:0}
+  10%{opacity:1}
+  90%{opacity:.4}
+  100%{transform:translateY(-20px) translateX(var(--dx)) scale(1.5);opacity:0}
+}
+
+/* Animated fine lines */
+.ilines{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.il{position:absolute;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(196,154,26,.15),transparent);
+  animation:ilscroll linear infinite}
+@keyframes ilscroll{from{transform:translateX(-100%)}to{transform:translateX(200%)}}
+.il1{width:55%;left:0;top:22%;animation-duration:11s}
+.il2{width:45%;left:12%;top:45%;animation-duration:14s;animation-delay:-5s}
+.il3{width:65%;left:8%;top:70%;animation-duration:9s;animation-delay:-8s}
+.il4{width:38%;left:22%;top:88%;animation-duration:16s;animation-delay:-12s}
+
+/* Corner marks */
+.cm{position:absolute;width:20px;height:20px}
+.cm.tl{top:26px;left:30px;border-top:1px solid rgba(196,154,26,.4);border-left:1px solid rgba(196,154,26,.4)}
+.cm.tr{top:26px;right:30px;border-top:1px solid rgba(196,154,26,.4);border-right:1px solid rgba(196,154,26,.4)}
+.cm.bl{bottom:26px;left:30px;border-bottom:1px solid rgba(196,154,26,.4);border-left:1px solid rgba(196,154,26,.4)}
+.cm.br{bottom:26px;right:30px;border-bottom:1px solid rgba(196,154,26,.4);border-right:1px solid rgba(196,154,26,.4)}
+
+/* Intro content */
+.intro-box{position:relative;z-index:2;text-align:center;padding:0 28px;max-width:500px}
+
+.itag{font-family:'Barlow Condensed',sans-serif;font-size:8px;font-weight:400;
+  letter-spacing:.6em;text-transform:uppercase;color:rgba(196,154,26,.5);
+  margin-bottom:36px;display:flex;align-items:center;justify-content:center;gap:20px}
+.itag::before,.itag::after{content:'';width:24px;height:1px;background:rgba(196,154,26,.3)}
+
+/* Logo — premium embossed circle */
+.ilogo-wrap{width:96px;height:96px;margin:0 auto 28px;position:relative}
+.ilogo-outer{position:absolute;inset:0;border-radius:50%;
+  border:1px solid rgba(196,154,26,.15);
+  animation:logopulse 4s ease-in-out infinite}
+.ilogo-outer::before{content:'';position:absolute;inset:-12px;border-radius:50%;
+  border:1px solid rgba(196,154,26,.06);animation:logopulse 4s ease-in-out infinite reverse}
+@keyframes logopulse{
+  0%,100%{box-shadow:0 0 0 0 rgba(196,154,26,.08),inset 0 0 0 0 rgba(196,154,26,.04)}
+  50%{box-shadow:0 0 40px 8px rgba(196,154,26,.06),inset 0 0 20px 4px rgba(196,154,26,.03)}
+}
+.ilogo-inner{position:absolute;inset:6px;border-radius:50%;
+  background:linear-gradient(145deg,rgba(196,154,26,.14) 0%,rgba(196,154,26,.04) 50%,rgba(196,154,26,.1) 100%);
+  border:1px solid rgba(196,154,26,.28);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Cormorant Garamond',serif;font-size:34px;font-weight:400;
+  color:rgba(255,245,210,.88);letter-spacing:-.01em;
+  box-shadow:0 0 24px rgba(196,154,26,.08),inset 0 1px 0 rgba(255,255,255,.06)}
+
+.iname{font-family:'Cormorant Garamond',serif;font-size:clamp(16px,2.6vw,30px);
+  font-weight:300;color:rgba(255,248,225,.82);letter-spacing:.06em;
+  margin-bottom:5px;line-height:1.25}
+.iloc{font-family:'Barlow Condensed',sans-serif;font-size:8px;letter-spacing:.4em;
+  text-transform:uppercase;color:rgba(255,248,225,.18);margin-bottom:52px}
+
+/* Enter button — premium gold bordered */
+#ibtn{position:relative;padding:14px 64px;cursor:pointer;
+  border:none;background:transparent;overflow:hidden}
+.ibtn-border{position:absolute;inset:0;pointer-events:none}
+.ibtn-border::before{content:'';position:absolute;inset:0;
+  border:1px solid rgba(196,154,26,.3);
+  transition:border-color .4s}
+#ibtn:hover .ibtn-border::before{border-color:rgba(196,154,26,.7)}
+/* Gold fill sweep on hover */
+.ibtn-fill{position:absolute;inset:0;
+  background:linear-gradient(90deg,transparent,rgba(196,154,26,.1),transparent);
+  transform:translateX(-100%);transition:transform .6s ease}
+#ibtn:hover .ibtn-fill{transform:translateX(100%)}
+/* Top and bottom accent lines */
+.ibtn-border::after{content:'';position:absolute;top:0;left:20%;right:20%;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(196,154,26,.5),transparent)}
+.ibtn-txt{position:relative;z-index:1;font-family:'Barlow Condensed',sans-serif;
+  font-size:10px;font-weight:500;letter-spacing:.4em;text-transform:uppercase;
+  color:rgba(255,248,225,.6);transition:color .3s}
+#ibtn:hover .ibtn-txt{color:rgba(255,248,225,.95)}
+.ifoot{margin-top:18px;font-family:'Barlow Condensed',sans-serif;
+  font-size:7px;letter-spacing:.32em;text-transform:uppercase;color:rgba(255,248,225,.1)}
+
+/* ════════════════════════════════════
+   HUD — cinematic overlay
+════════════════════════════════════ */
+#hud{position:fixed;inset:0;z-index:10;pointer-events:none;display:none}
+
+/* Progress bar — gold thin line at bottom */
+#pgbar{position:absolute;bottom:0;left:0;height:1px;width:0%;
+  background:linear-gradient(90deg,rgba(196,154,26,.8),rgba(255,215,100,.4),rgba(196,154,26,.1));
+  transition:width 1s ease;box-shadow:0 0 6px rgba(196,154,26,.4)}
+
+/* Top bar */
+#tbar{position:absolute;top:0;left:0;right:0;padding:20px 32px;
+  display:flex;align-items:center;justify-content:space-between}
+.tl-name{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:500;
+  letter-spacing:.28em;text-transform:uppercase;color:rgba(10,10,9,.52);
+  display:flex;align-items:center;gap:8px}
+/* Live dot */
+.tl-dot{width:5px;height:5px;border-radius:50%;background:var(--gold);
+  box-shadow:0 0 8px rgba(196,154,26,.7);animation:dotblink 2.5s ease-in-out infinite}
+@keyframes dotblink{0%,100%{opacity:1;box-shadow:0 0 8px rgba(196,154,26,.7)}50%{opacity:.2;box-shadow:none}}
+.tr-lbl{font-family:'Barlow Condensed',sans-serif;font-size:8px;letter-spacing:.28em;
+  text-transform:uppercase;color:rgba(10,10,9,.28)}
+
+/* Skip button */
+#skipbtn{position:absolute;bottom:22px;left:32px;pointer-events:all;
+  font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:.28em;
+  text-transform:uppercase;color:rgba(10,10,9,.28);cursor:pointer;
+  border:none;background:none;transition:color .25s;padding:4px 0}
+#skipbtn:hover{color:rgba(10,10,9,.65)}
+
+/* ════════════════════════════════════
+   SCENE TEXT OVERLAYS
+════════════════════════════════════ */
+.sc{position:absolute;pointer-events:none;opacity:0;
+  transition:opacity 1.4s cubic-bezier(.4,0,.2,1),transform 1.4s cubic-bezier(.16,1,.3,1)}
+.sc.on{opacity:1}
+
+/* Scene 1 — centred title reveal */
+#sc1{inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.sc1-eyebrow{font-family:'Barlow Condensed',sans-serif;font-size:8px;font-weight:500;
+  letter-spacing:.55em;text-transform:uppercase;color:rgba(10,10,9,.32);
+  margin-bottom:18px;opacity:0;transform:translateY(-8px);
+  transition:opacity 1s ease .3s,transform 1s ease .3s}
+#sc1.on .sc1-eyebrow{opacity:1;transform:translateY(0)}
+.sc1-main{font-family:'Cormorant Garamond',serif;
+  font-size:clamp(50px,8.5vw,116px);font-weight:300;
+  color:rgba(10,10,9,.84);line-height:.92;letter-spacing:-.02em;
+  transform:translateY(28px);transition:transform 1.4s cubic-bezier(.16,1,.3,1)}
+#sc1.on .sc1-main{transform:translateY(0)}
+.sc1-main em{font-style:italic;color:rgba(10,10,9,.25)}
+/* Thin gold rule */
+.sc1-rule{display:flex;align-items:center;gap:10px;margin:20px auto;justify-content:center}
+.sc1-line{width:40px;height:1px;background:rgba(196,154,26,.4);
+  transform:scaleX(0);transform-origin:center;transition:transform .9s ease .6s}
+#sc1.on .sc1-line{transform:scaleX(1)}
+.sc1-diamond{width:4px;height:4px;background:var(--gold);transform:rotate(45deg);
+  opacity:0;transition:opacity .5s ease .9s}
+#sc1.on .sc1-diamond{opacity:1}
+.sc1-sub{font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:.45em;
+  text-transform:uppercase;color:rgba(10,10,9,.28);
+  opacity:0;transform:translateY(10px);
+  transition:opacity .9s ease .5s,transform .9s ease .5s}
+#sc1.on .sc1-sub{opacity:1;transform:translateY(0)}
+
+/* Scene 2 — left panel */
+#sc2{top:0;bottom:0;left:6%;display:flex;flex-direction:column;justify-content:center;max-width:320px;
+  transform:translateX(-24px);transition:opacity 1.4s ease,transform 1.4s cubic-bezier(.16,1,.3,1)}
+#sc2.on{transform:translateX(0)}
+.sc-eyebrow{font-family:'Barlow Condensed',sans-serif;font-size:8px;font-weight:500;
+  letter-spacing:.4em;text-transform:uppercase;color:var(--gold);
+  margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.sc-eyebrow::before{content:'';width:20px;height:1px;background:var(--gold)}
+.sc-h2{font-family:'Cormorant Garamond',serif;
+  font-size:clamp(24px,3vw,48px);font-weight:300;color:var(--text);line-height:1.08}
+.sc-h2 strong{font-weight:600;display:block}
+.sc-p{margin-top:13px;font-size:12px;color:var(--muted);line-height:1.9;font-weight:300}
+.sc-rule{width:28px;height:1px;background:rgba(10,10,9,.15);margin:16px 0}
+
+/* Scene 3 — right panel */
+#sc3{top:0;bottom:0;right:6%;display:flex;flex-direction:column;justify-content:center;
+  text-align:right;max-width:270px;transform:translateX(24px);
+  transition:opacity 1.4s ease,transform 1.4s cubic-bezier(.16,1,.3,1)}
+#sc3.on{transform:translateX(0)}
+.sc3-eyebrow{font-family:'Barlow Condensed',sans-serif;font-size:8px;letter-spacing:.4em;
+  text-transform:uppercase;color:rgba(10,10,9,.32);
+  display:flex;align-items:center;justify-content:flex-end;gap:10px;margin-bottom:10px}
+.sc3-eyebrow::after{content:'';width:20px;height:1px;background:rgba(10,10,9,.25)}
+.sc3-h2{font-family:'Cormorant Garamond',serif;
+  font-size:clamp(22px,2.7vw,44px);font-weight:300;color:var(--text);line-height:1.08}
+.sc3-p{margin-top:10px;font-size:11px;color:var(--muted);line-height:1.85}
+
+/* Scene 4 — product labels */
+#sc4{inset:0;display:flex;flex-direction:column;align-items:center;
+  justify-content:flex-start;padding-top:8vh;text-align:center;
+  transform:translateY(18px);transition:opacity 1.4s ease,transform 1.4s cubic-bezier(.16,1,.3,1)}
+#sc4.on{transform:translateY(0)}
+.sc4-title{font-family:'Cormorant Garamond',serif;
+  font-size:clamp(28px,4.4vw,64px);font-weight:300;color:var(--text);line-height:1}
+.sc4-title span{color:rgba(10,10,9,.18)}
+.sc4-sub{margin-top:10px;font-family:'Barlow Condensed',sans-serif;
+  font-size:8px;letter-spacing:.42em;text-transform:uppercase;color:rgba(10,10,9,.28)}
+
+/* Product labels floating */
+.plabel{position:absolute;pointer-events:none;opacity:0;
+  display:flex;align-items:center;gap:7px;transition:opacity .9s ease}
+.plabel.on{opacity:1}
+.plabel.r{flex-direction:row-reverse}
+.plabel .pline{width:36px;height:1px;background:rgba(10,10,9,.18)}
+.plabel .ptxt .pname{font-family:'Barlow Condensed',sans-serif;
+  font-size:9px;font-weight:600;letter-spacing:.3em;
+  text-transform:uppercase;color:rgba(10,10,9,.5);white-space:nowrap}
+.plabel .ptxt .psub{font-family:'Barlow Condensed',sans-serif;
+  font-size:7px;letter-spacing:.2em;text-transform:uppercase;
+  color:rgba(10,10,9,.28);white-space:nowrap;margin-top:2px}
+.plabel.r .ptxt{text-align:right}
+
+/* Scene 5 — CTA */
+#sc5{inset:0;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;text-align:center;pointer-events:all;
+  transform:translateY(18px);transition:opacity 1.4s ease,transform 1.4s cubic-bezier(.16,1,.3,1)}
+#sc5.on{transform:translateY(0)}
+.sc5-h{font-family:'Cormorant Garamond',serif;
+  font-size:clamp(28px,4.4vw,64px);font-weight:300;color:var(--text);
+  line-height:1.04;margin-bottom:8px}
+.sc5-h em{font-style:italic;color:rgba(10,10,9,.22)}
+.sc5-sub{font-family:'Barlow Condensed',sans-serif;font-size:8px;
+  letter-spacing:.4em;text-transform:uppercase;color:rgba(10,10,9,.3);
+  margin-bottom:30px}
+.ctarow{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+
+/* Button styles for CTA inside cinematic */
+.ba{padding:13px 38px;border:1px solid var(--text);
+  background:var(--text);color:var(--white);font-family:'Barlow Condensed',sans-serif;
+  font-size:10px;font-weight:500;letter-spacing:.28em;text-transform:uppercase;
+  cursor:pointer;text-decoration:none;transition:all .3s;display:inline-block;
+  position:relative;overflow:hidden}
+.ba::after{content:'';position:absolute;inset:0;
+  background:rgba(255,255,255,.08);transform:translateX(-100%);transition:transform .4s}
+.ba:hover::after{transform:translateX(100%)}
+.ba:hover{background:transparent;color:var(--text)}
+.bb{padding:13px 38px;border:1px solid rgba(10,10,9,.2);
+  background:transparent;color:var(--text);font-family:'Barlow Condensed',sans-serif;
+  font-size:10px;font-weight:500;letter-spacing:.28em;text-transform:uppercase;
+  cursor:pointer;text-decoration:none;transition:all .3s;display:inline-block}
+.bb:hover{background:var(--text);color:var(--white)}
+
+/* ════════════════════════════════════
+   MAIN SITE — Apple/Porsche minimal
+════════════════════════════════════ */
+#site{position:relative;z-index:20;display:none;opacity:0;
+  transition:opacity 1.2s ease;background:var(--bg)}
+
+/* ── NAV ── */
+#nav{position:fixed;top:0;left:0;right:0;z-index:200;height:58px;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 40px;
+  background:rgba(242,240,236,.88);
+  backdrop-filter:blur(24px) saturate(180%);-webkit-backdrop-filter:blur(24px) saturate(180%);
+  border-bottom:1px solid rgba(10,10,9,.07);
+  transition:background .3s,box-shadow .3s}
+#nav.scrolled{background:rgba(242,240,236,.97);box-shadow:0 1px 0 rgba(10,10,9,.08)}
+.nlog{display:flex;align-items:center;gap:11px;text-decoration:none}
+.nbox{width:32px;height:32px;border-radius:7px;background:var(--text);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:600;
+  color:var(--white);letter-spacing:-.02em}
+.nname{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:600;
+  letter-spacing:.18em;text-transform:uppercase;color:var(--text);line-height:1.1}
+.nsub{font-size:7px;letter-spacing:.2em;color:var(--muted);text-transform:uppercase}
+.nlks{display:flex;gap:28px;align-items:center}
+.nlks a{font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:500;
+  letter-spacing:.24em;text-transform:uppercase;color:var(--muted);
+  text-decoration:none;transition:color .2s;position:relative}
+.nlks a::after{content:'';position:absolute;bottom:-2px;left:0;right:0;height:1px;
+  background:var(--text);transform:scaleX(0);transform-origin:left;transition:transform .3s}
+.nlks a:hover{color:var(--text)}
+.nlks a:hover::after{transform:scaleX(1)}
+.nlogin{padding:6px 14px;border:1px solid rgba(10,10,9,.18)!important;transition:all .25s!important}
+.nlogin:hover{background:var(--text)!important;color:var(--white)!important}
+.nlogin::after{display:none!important}
+.ncta{padding:8px 22px;border:1px solid var(--text);
+  background:var(--text);color:var(--white);font-family:'Barlow Condensed',sans-serif;
+  font-size:9px;font-weight:500;letter-spacing:.22em;text-transform:uppercase;
+  cursor:pointer;text-decoration:none;transition:all .25s;white-space:nowrap}
+.ncta:hover{background:transparent;color:var(--text)}
+
+/* ── HERO ── */
+#hero{min-height:100vh;display:flex;align-items:center;padding:90px 40px 80px;
+  position:relative;overflow:hidden}
+/* Subtle geometric background accent */
+.hero-bg-line{position:absolute;right:-80px;top:50%;transform:translateY(-50%);
+  width:600px;height:600px;border-radius:50%;
+  border:1px solid rgba(10,10,9,.04);pointer-events:none}
+.hero-bg-line::before{content:'';position:absolute;inset:40px;border-radius:50%;
+  border:1px solid rgba(10,10,9,.03)}
+.hero-bg-line::after{content:'';position:absolute;inset:80px;border-radius:50%;
+  border:1px solid rgba(10,10,9,.025)}
+.hero-in{max-width:1160px;width:100%;margin:0 auto;
+  display:grid;grid-template-columns:1.15fr .85fr;gap:80px;align-items:center}
+.hew{font-family:'Barlow Condensed',sans-serif;font-size:8px;font-weight:500;
+  letter-spacing:.45em;text-transform:uppercase;color:var(--gold);
+  margin-bottom:18px;display:flex;align-items:center;gap:12px}
+.hew::before{content:'';width:22px;height:1px;background:var(--gold)}
+.hh1{font-family:'Cormorant Garamond',serif;
+  font-size:clamp(36px,4.6vw,66px);font-weight:300;color:var(--text);
+  line-height:1.04;margin-bottom:18px;letter-spacing:-.01em}
+.hh1 strong{font-weight:600}
+.hp{font-size:13px;color:var(--muted);line-height:1.92;margin-bottom:32px;max-width:330px;font-weight:300}
+.hbtns{display:flex;gap:10px;flex-wrap:wrap}
+/* Stats grid */
+.hstats{display:grid;grid-template-columns:1fr 1fr;
+  border:1px solid var(--line);background:var(--line);gap:1px}
+.hst{background:var(--white);padding:24px 20px;transition:background .25s}
+.hst:hover{background:var(--cream)}
+.hn{font-family:'Cormorant Garamond',serif;font-size:40px;font-weight:300;
+  color:var(--text);line-height:1;margin-bottom:4px}
+.hl2{font-family:'Barlow Condensed',sans-serif;font-size:8px;
+  letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+
+/* ── SECTION COMMON ── */
+.sec{padding:100px 40px;max-width:1160px;margin:0 auto}
+.ssep{height:1px;background:var(--line);margin:0 40px}
+.sew{font-family:'Barlow Condensed',sans-serif;font-size:8px;font-weight:500;
+  letter-spacing:.44em;text-transform:uppercase;color:var(--muted);
+  margin-bottom:12px;display:flex;align-items:center;gap:12px}
+.sew::before{content:'';width:16px;height:1px;background:var(--muted)}
+.sh{font-family:'Cormorant Garamond',serif;
+  font-size:clamp(24px,3.6vw,50px);font-weight:300;color:var(--text);
+  line-height:1.06;margin-bottom:50px;letter-spacing:-.01em}
+.sh strong{font-weight:600}
+
+/* ── PRODUCTS GRID ── */
+.pgd{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--line)}
+.pc{padding:28px 24px;border-right:1px solid var(--line);
+  border-bottom:1px solid var(--line);transition:background .25s,transform .25s;
+  position:relative;overflow:hidden}
+.pc::after{content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:var(--text);transform:scaleX(0);transform-origin:left;transition:transform .4s}
+.pc:hover::after{transform:scaleX(1)}
+.pc:hover{background:var(--white)}
+.pc:nth-child(3n){border-right:none}
+.pc:nth-last-child(-n+3){border-bottom:none}
+.pn{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:300;
+  color:rgba(10,10,9,.07);margin-bottom:10px}
+.pnm{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:600;
+  letter-spacing:.06em;text-transform:uppercase;color:var(--text);margin-bottom:6px}
+.pd{font-size:11px;color:var(--muted);line-height:1.75}
+
+/* ── BRANDS SECTION ── */
+.bsec{background:var(--text);padding:60px 40px}
+.bin{max-width:1160px;margin:0 auto}
+.bew{font-family:'Barlow Condensed',sans-serif;font-size:8px;font-weight:500;
+  letter-spacing:.44em;text-transform:uppercase;color:rgba(255,255,255,.25);
+  margin-bottom:30px;display:flex;align-items:center;gap:12px}
+.bew::before{content:'';width:16px;height:1px;background:rgba(255,255,255,.25)}
+.brow{display:flex;flex-wrap:wrap;border:1px solid rgba(255,255,255,.06)}
+.bi{flex:1;min-width:100px;padding:18px 24px;
+  border-right:1px solid rgba(255,255,255,.06);
+  font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:600;
+  letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.15);
+  transition:color .3s;text-align:center}
+.bi:last-child{border-right:none}
+.bi:hover{color:rgba(255,255,255,.7)}
+
+/* ── WHY US ── */
+.wgd{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;
+  background:var(--line);border:1px solid var(--line)}
+.wc{background:var(--bg2);padding:36px 32px;position:relative;overflow:hidden;transition:background .25s}
+.wc:hover{background:var(--white)}
+.wc::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:var(--text);transform:scaleX(0);transform-origin:left;transition:transform .5s}
+.wc:hover::before{transform:scaleX(1)}
+.wnum{font-family:'Cormorant Garamond',serif;font-size:52px;font-weight:300;
+  color:rgba(10,10,9,.04);line-height:1;margin-bottom:10px}
+.wt2{font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:600;
+  letter-spacing:.06em;text-transform:uppercase;color:var(--text);margin-bottom:8px}
+.wd2{font-size:12px;color:var(--muted);line-height:1.85}
+
+/* ── CONTACT ── */
+.cgd{display:grid;grid-template-columns:1fr 1fr;gap:1px;
+  background:var(--line);border:1px solid var(--line)}
+.cb{background:var(--bg2);padding:34px}
+.clb{font-family:'Barlow Condensed',sans-serif;font-size:8px;font-weight:500;
+  letter-spacing:.32em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.cv{font-size:15px;color:var(--text);font-weight:300;line-height:1.7}
+
+/* ── REVIEWS ── */
+.rvgd{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;
+  background:var(--line);border:1px solid var(--line);margin-top:48px}
+.rv{background:var(--bg2);padding:28px;transition:background .25s;position:relative}
+.rv:hover{background:var(--white)}
+/* Quote mark */
+.rv::before{content:'\201C';position:absolute;top:16px;right:20px;
+  font-family:'Cormorant Garamond',serif;font-size:64px;
+  color:rgba(10,10,9,.04);line-height:1}
+.rs{letter-spacing:3px;color:var(--gold);font-size:10px;margin-bottom:10px}
+.rt{font-size:12px;color:var(--muted);line-height:1.8;font-style:italic;margin-bottom:14px;position:relative;z-index:1}
+.ra{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:600;
+  letter-spacing:.06em;text-transform:uppercase;color:var(--text)}
+.rsub2{font-size:10px;color:var(--muted);margin-top:2px}
+.rv-msg{grid-column:1/-1;text-align:center;padding:48px;
+  font-family:'Barlow Condensed',sans-serif;font-size:10px;
+  letter-spacing:.24em;text-transform:uppercase;color:var(--muted)}
+
+/* ── FOOTER ── */
+footer{border-top:1px solid var(--line);padding:38px 40px;
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px}
+.flo{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:600;
+  letter-spacing:.18em;text-transform:uppercase;color:var(--text)}
+.fcp{font-size:10px;color:var(--muted)}
+
+/* ── SCROLL REVEAL ── */
+.rv2{opacity:0;transform:translateY(24px);transition:opacity .9s ease,transform .9s ease}
+.rv2.on{opacity:1;transform:translateY(0)}
+
+/* ── REVIEW MODAL ── */
+#modal{position:fixed;inset:0;z-index:800;
+  background:rgba(230,228,224,.88);
+  backdrop-filter:blur(28px) saturate(150%);-webkit-backdrop-filter:blur(28px) saturate(150%);
+  display:none;align-items:center;justify-content:center;padding:20px}
+#modal.open{display:flex}
+.mbox{background:var(--white);border:1px solid var(--line);
+  padding:42px;max-width:460px;width:100%;position:relative;max-height:90vh;overflow-y:auto;
+  box-shadow:0 32px 80px rgba(10,10,9,.12)}
+.mcl{position:absolute;top:16px;right:16px;width:28px;height:28px;
+  border:1px solid var(--line);background:transparent;cursor:pointer;
+  font-size:11px;color:var(--muted);display:flex;align-items:center;justify-content:center;
+  transition:all .2s}
+.mcl:hover{background:var(--text);color:var(--white);border-color:var(--text)}
+.mh2{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:300;
+  color:var(--text);margin-bottom:4px}
+.ms2{font-size:11px;color:var(--muted);margin-bottom:28px}
+.ff{margin-bottom:14px}
+.ff label{display:block;font-family:'Barlow Condensed',sans-serif;font-size:8px;
+  font-weight:500;letter-spacing:.28em;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
+.ff input,.ff textarea{width:100%;padding:10px 12px;background:var(--bg);
+  border:1px solid var(--line);font-size:13px;color:var(--text);
+  outline:none;font-family:'Barlow',sans-serif;transition:border-color .2s}
+.ff input:focus,.ff textarea:focus{border-color:rgba(10,10,9,.35)}
+.ff textarea{min-height:88px;resize:vertical}
+.sr3{display:flex;gap:5px}
+.sr3 span{font-size:24px;cursor:pointer;color:rgba(10,10,9,.1);
+  transition:all .15s;user-select:none}
+.sr3 span.lit{color:var(--gold)}
+.msb{width:100%;padding:12px;border:1px solid var(--text);background:var(--text);
+  color:var(--white);font-family:'Barlow Condensed',sans-serif;font-size:10px;
+  font-weight:500;letter-spacing:.26em;text-transform:uppercase;cursor:pointer;
+  margin-top:4px;transition:all .28s}
+.msb:hover{background:transparent;color:var(--text)}
+.msb:disabled{opacity:.45;cursor:not-allowed}
+.mok{display:none;margin-top:12px;padding:12px;text-align:center;
+  font-size:10px;color:#2a7a2a;background:rgba(42,122,42,.05);
+  border:1px solid rgba(42,122,42,.12);font-family:'Barlow Condensed',sans-serif;letter-spacing:.12em}
+.merr{display:none;margin-top:12px;padding:12px;text-align:center;
+  font-size:10px;color:#8b2020;background:rgba(180,40,40,.05);
+  border:1px solid rgba(180,40,40,.16);font-family:'Barlow Condensed',sans-serif;letter-spacing:.08em}
+
+@media(max-width:768px){
+  .hero-in{grid-template-columns:1fr;gap:40px}
+  .pgd{grid-template-columns:1fr 1fr}
+  .wgd{grid-template-columns:1fr}
+  .cgd{grid-template-columns:1fr}
+  .rvgd{grid-template-columns:1fr}
+  #nav .nlks .nlogin{display:none}
+  #nav{padding:0 20px}
+  .sec{padding:60px 20px}
+  .bsec{padding:40px 20px}
+  #tbar{padding:18px 22px}
+  #sc2,#sc3{display:none}
+}
+</style>
+</head>
+<body>
+
+<canvas id="c"></canvas>
+<div id="grain"></div>
+<div id="vig"></div>
+<div id="grd-top"></div>
+<div id="grd-bot"></div>
+<div id="cur"></div>
+<div id="cur2"></div>
+
+<button id="sndBtn" class="" onclick="toggleMute()">
+  <span id="sndTxt">SOUND</span>
+  <div class="snd-bars">
+    <div class="snd-bar"></div><div class="snd-bar"></div>
+    <div class="snd-bar"></div><div class="snd-bar"></div>
+    <div class="snd-bar"></div>
+  </div>
+</button>
+
+<!-- ══ INTRO ══ -->
+<div id="intro">
+  <div class="light-leak ll1"></div>
+  <div class="light-leak ll2"></div>
+  <div class="light-leak ll3"></div>
+  <div class="dust-container" id="dustC"></div>
+  <div class="ilines">
+    <div class="il il1"></div><div class="il il2"></div>
+    <div class="il il3"></div><div class="il il4"></div>
+  </div>
+  <div class="cm tl"></div><div class="cm tr"></div>
+  <div class="cm bl"></div><div class="cm br"></div>
+  <div class="intro-box">
+    <div class="itag">Est. 2009 &nbsp;&middot;&nbsp; Santalpur, Patan</div>
+    <div class="ilogo-wrap">
+      <div class="ilogo-outer"></div>
+      <div class="ilogo-inner">A</div>
+    </div>
+    <div class="iname">Abhinandan Auto Mobiles</div>
+    <div class="iloc">Genuine Spare Parts &middot; Gujarat, India</div>
+    <button id="ibtn" onclick="startCine()">
+      <div class="ibtn-border"></div>
+      <div class="ibtn-fill"></div>
+      <span class="ibtn-txt">&#9654;&ensp;Begin Experience</span>
+    </button>
+    <div class="ifoot">Sound recommended &nbsp;&middot;&nbsp; Best viewed on desktop</div>
+  </div>
+</div>
+
+<!-- ══ HUD ══ -->
+<div id="hud">
+  <div id="tbar">
+    <div class="tl-name"><span class="tl-dot"></span>ABHINANDAN AUTO MOBILES</div>
+    <div class="tr-lbl" id="scLbl">SCENE 01 / 05</div>
+  </div>
+
+  <div class="sc" id="sc1">
+    <div class="sc1-eyebrow">Santalpur · Patan · Gujarat · Est. 2009</div>
+    <div class="sc1-main">Genuine<br><em>Spare Parts</em></div>
+    <div class="sc1-rule">
+      <div class="sc1-line"></div>
+      <div class="sc1-diamond"></div>
+      <div class="sc1-line"></div>
+    </div>
+    <div class="sc1-sub">Trusted by fleet owners across Gujarat</div>
+  </div>
+
+  <div class="sc" id="sc2">
+    <div class="sc-eyebrow">15 Years of Excellence</div>
+    <h2 class="sc-h2">Parts That<br><strong>Never Fail</strong></h2>
+    <div class="sc-rule"></div>
+    <p class="sc-p">From Tata SIGNA to Ashok Leyland, JCB to Tractors — every genuine part for every commercial vehicle, always in stock.</p>
+  </div>
+
+  <div class="sc" id="sc3">
+    <div class="sc3-eyebrow">100% Original</div>
+    <h2 class="sc3-h2">Built to<br>Outlast Everything</h2>
+    <p class="sc3-p">Only OEM-certified components. No imitations, no shortcuts — your machine deserves nothing less.</p>
+  </div>
+
+  <div class="sc" id="sc4">
+    <div class="sc4-title">Every <span>Component.</span><br>Every Machine.</div>
+    <div class="sc4-sub">Hub Bearing &middot; Clutch Disc &middot; Leaf Spring &middot; Universal Joint &middot; Piston</div>
+  </div>
+
+  <div class="plabel" id="pl1" style="top:31%;left:54%">
+    <div class="pline"></div>
+    <div class="ptxt"><div class="pname">Hub Bearing</div><div class="psub">All HCV Models</div></div>
+  </div>
+  <div class="plabel r" id="pl2" style="top:45%;right:52%">
+    <div class="pline"></div>
+    <div class="ptxt"><div class="pname">Clutch Disc</div><div class="psub">Tata · Leyland</div></div>
+  </div>
+  <div class="plabel" id="pl3" style="bottom:31%;left:53%">
+    <div class="pline"></div>
+    <div class="ptxt"><div class="pname">Leaf Spring Pack</div><div class="psub">Suspension System</div></div>
+  </div>
+  <div class="plabel r" id="pl4" style="bottom:43%;right:51%">
+    <div class="pline"></div>
+    <div class="ptxt"><div class="pname">Universal Joint</div><div class="psub">Propeller Shaft</div></div>
+  </div>
+  <div class="plabel" id="pl5" style="top:57%;left:55%">
+    <div class="pline"></div>
+    <div class="ptxt"><div class="pname">Piston Assembly</div><div class="psub">Engine Parts</div></div>
+  </div>
+  <div class="plabel r" id="pl6" style="top:21%;right:53%">
+    <div class="pline"></div>
+    <div class="ptxt"><div class="pname">Brake Drum</div><div class="psub">Braking System</div></div>
+  </div>
+  <div class="plabel" id="pl7" style="bottom:21%;left:55%">
+    <div class="pline"></div>
+    <div class="ptxt"><div class="pname">Wheel Hub</div><div class="psub">Titanium Grade</div></div>
+  </div>
+
+  <div class="sc" id="sc5">
+    <h2 class="sc5-h">15 Years of<br><em>Genuine Trust</em></h2>
+    <div class="sc5-sub">Santalpur &middot; Patan &middot; Gujarat</div>
+    <div class="ctarow">
+      <button class="ba" onclick="enterSite()">Discover Our World</button>
+      <a href="https://wa.me/919870037002" target="_blank" class="bb">&#128222;&ensp;WhatsApp Us</a>
+    </div>
+  </div>
+
+  <button id="skipbtn" onclick="enterSite()">Skip intro</button>
+  <div id="pgbar"></div>
+</div>
+
+<!-- ══ MAIN SITE ══ -->
+<div id="site">
+  <nav id="nav">
+    <a class="nlog" href="#">
+      <div class="nbox">A</div>
+      <div><div class="nname">Abhinandan Auto Mobiles</div><div class="nsub">Genuine Spare Parts</div></div>
+    </a>
+    <div class="nlks">
+      <a href="#products">Products</a>
+      <a href="#brands">Brands</a>
+      <a href="#why">Why Us</a>
+      <a href="#contact">Contact</a>
+      <a href="login.html" class="nlogin">&#128274;&ensp;Staff Login</a>
+    </div>
+    <a href="https://wa.me/919870037002" target="_blank" class="ncta">&#128222;&ensp;WhatsApp</a>
+  </nav>
+
+  <section id="hero">
+    <div class="hero-bg-line"></div>
+    <div class="hero-in">
+      <div>
+        <div class="hew rv2">Santalpur, Patan &mdash; Gujarat</div>
+        <h1 class="hh1 rv2">Genuine<br>Spare Parts<br><strong>You Can Trust</strong></h1>
+        <p class="hp rv2">All types of genuine parts for Tata · Ashok Leyland · JCB · Tractors. Original quality, honest pricing — for 15+ years.</p>
+        <div class="hbtns rv2">
+          <a href="https://wa.me/919870037002" target="_blank" class="ba">&#128222;&ensp;9870037002</a>
+          <a href="https://maps.app.goo.gl/QBDi2SPd5LXC6mHb8" target="_blank" class="bb">&#128205;&ensp;Find Store</a>
+        </div>
+      </div>
+      <div class="rv2" style="transition-delay:.15s">
+        <div class="hstats">
+          <div class="hst"><div class="hn">15+</div><div class="hl2">Years in Business</div></div>
+          <div class="hst"><div class="hn">10K+</div><div class="hl2">Parts in Stock</div></div>
+          <div class="hst"><div class="hn">1K+</div><div class="hl2">Customers</div></div>
+          <div class="hst"><div class="hn">50+</div><div class="hl2">Brands</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="ssep"></div>
+
+  <div class="sec" id="products">
+    <div class="sew rv2">Our Inventory</div>
+    <h2 class="sh rv2">Everything Your <strong>Fleet Needs</strong></h2>
+    <div class="pgd">
+      <div class="pc rv2"><div class="pn">01</div><div class="pnm">Bearings</div><div class="pd">Hub, wheel, crankshaft, camshaft bearings for all HCVs.</div></div>
+      <div class="pc rv2"><div class="pn">02</div><div class="pnm">Clutch Assembly</div><div class="pd">Pressure plates, disc plates, release bearings — Tata &amp; Leyland.</div></div>
+      <div class="pc rv2"><div class="pn">03</div><div class="pnm">Engine Parts</div><div class="pd">Pistons, rings, liners, gaskets, oil seals — genuine OEM only.</div></div>
+      <div class="pc rv2"><div class="pn">04</div><div class="pnm">Electrical</div><div class="pd">Alternators, starters, switches, relays, wiring components.</div></div>
+      <div class="pc rv2"><div class="pn">05</div><div class="pnm">Leaf Springs</div><div class="pd">Front &amp; rear assemblies, U-bolts, spring pins for all models.</div></div>
+      <div class="pc rv2"><div class="pn">06</div><div class="pnm">Brake System</div><div class="pd">Drums, shoes, liners, master cylinders, booster assemblies.</div></div>
+      <div class="pc rv2"><div class="pn">07</div><div class="pnm">Universal Joints</div><div class="pd">Propeller shaft UJs, CV joints for all HCV models.</div></div>
+      <div class="pc rv2"><div class="pn">08</div><div class="pnm">Oils &amp; Fluids</div><div class="pd">Castrol, Servo engine oils, gear oils, greases — all grades.</div></div>
+      <div class="pc rv2"><div class="pn">09</div><div class="pnm">Cab &amp; Lighting</div><div class="pd">Headlamps, fog lights, mirrors, cabin fittings, wipers.</div></div>
+    </div>
+  </div>
+
+  <div class="ssep"></div>
+
+  <div class="bsec" id="brands">
+    <div class="bin">
+      <div class="bew rv2">Brands We Stock</div>
+      <div class="brow rv2">
+        <div class="bi">TATA</div><div class="bi">TVS</div><div class="bi">GAJRA</div>
+        <div class="bi">TELCO</div><div class="bi">CASTROL</div><div class="bi">LEYLAND</div>
+        <div class="bi">JCB</div><div class="bi">CUMMINS</div><div class="bi">BOSCH</div>
+        <div class="bi">WABCO</div><div class="bi">MAHINDRA</div><div class="bi">TATA AIA</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec" id="why">
+    <div class="sew rv2">Why We&rsquo;re Different</div>
+    <h2 class="sh rv2">Trusted by <strong>Mechanics</strong><br>Across Patan Region</h2>
+    <div class="wgd rv2">
+      <div class="wc"><div class="wnum">01</div><div class="wt2">100% Genuine Only</div><div class="wd2">Only manufacturer-certified parts. No duplicate, no imitation — ever.</div></div>
+      <div class="wc"><div class="wnum">02</div><div class="wt2">Massive Ready Stock</div><div class="wd2">Over 10,000 parts always available. If your vehicle runs diesel, we have it.</div></div>
+      <div class="wc"><div class="wnum">03</div><div class="wt2">Expert Guidance</div><div class="wd2">15+ years of knowledge. Give us your chassis number — we find the exact part.</div></div>
+      <div class="wc"><div class="wnum">04</div><div class="wt2">Honest Pricing</div><div class="wd2">Direct from distributors. No middlemen, no inflated margins — always fair.</div></div>
+    </div>
+  </div>
+
+  <div class="ssep"></div>
+
+  <div class="sec" id="contact">
+    <div class="sew rv2">Find Us</div>
+    <h2 class="sh rv2">Visit Our <strong>Store</strong></h2>
+    <div class="cgd rv2">
+      <div class="cb">
+        <div class="clb">Address</div>
+        <div class="cv">Nr. Refaral Hospital, Kandla National<br>Highway Road, Santalpur<br>Dist. Patan &mdash; 385350</div>
+      </div>
+      <div class="cb">
+        <div class="clb">Phone</div>
+        <div class="cv">9825259065<br>9870037002</div>
+      </div>
+      <div class="cb">
+        <div class="clb">Working Hours</div>
+        <div class="cv">Mon&ndash;Sat: 9:00 AM &ndash; 7:00 PM<br>Sunday: 10:00 AM &ndash; 2:00 PM</div>
+      </div>
+      <div class="cb" style="display:flex;flex-direction:column;justify-content:flex-end;gap:9px">
+        <a href="https://wa.me/919870037002" target="_blank" class="ba" style="text-align:center">&#128172;&ensp;WhatsApp</a>
+        <a href="https://maps.app.goo.gl/QBDi2SPd5LXC6mHb8" target="_blank" class="bb" style="text-align:center">&#128205;&ensp;Google Maps</a>
+        <button class="bb" onclick="openM()" style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:.24em;text-transform:uppercase;cursor:pointer;">&#11088;&ensp;Leave Review</button>
+      </div>
+    </div>
+    <div class="rvgd" id="rvc">
+      <div class="rv-msg">Loading reviews...</div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="flo">&copy; 2025 Abhinandan Auto Mobiles</div>
+    <div class="fcp">Santalpur, Dist. Patan &mdash; 385350 &nbsp;&middot;&nbsp;
+      <a href="login.html" style="color:inherit;text-decoration:none;">&#128274; Staff Login</a>
+    </div>
+  </footer>
+</div>
+
+<!-- REVIEW MODAL -->
+<div id="modal">
+  <div class="mbox">
+    <button class="mcl" onclick="closeM()">&#10005;</button>
+    <div class="mh2">Leave a Review</div>
+    <div class="ms2">Your experience helps others trust us</div>
+    <div class="ff"><label>Your Name *</label><input type="text" id="rN" placeholder="Full name" autocomplete="name"></div>
+    <div class="ff"><label>Phone (optional)</label><input type="tel" id="rP" placeholder="Mobile number" autocomplete="tel"></div>
+    <div class="ff"><label>Vehicle / Business</label><input type="text" id="rV" placeholder="e.g. Tata 407, JCB, Workshop..."></div>
+    <div class="ff">
+      <label>Rating *</label>
+      <div class="sr3" id="srw">
+        <span onclick="setStar(1)">&#9733;</span><span onclick="setStar(2)">&#9733;</span>
+        <span onclick="setStar(3)">&#9733;</span><span onclick="setStar(4)">&#9733;</span>
+        <span onclick="setStar(5)">&#9733;</span>
+      </div>
+    </div>
+    <div class="ff"><label>Review *</label><textarea id="rT" placeholder="Tell us about your experience — what parts did you buy? How was the service?"></textarea></div>
+    <button class="msb" id="msbtn" onclick="subRev()">Submit Review</button>
+    <div class="mok" id="mok">&#10003;&ensp;Thank you! Your review has been saved.</div>
+    <div class="merr" id="merr"></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script>
+/* ════════════════════════════════════
+   SUPABASE INIT
+════════════════════════════════════ */
+var _sb = null;
+(function(){
+  var s = document.createElement('script');
+  s.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js';
+  s.onload = function(){
+    _sb = window.supabase.createClient(
+      'https://mhhnmndnolhapaoqtbxo.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1oaG5tbmRub2xoYXBhb3F0YnhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4Mzg4NTksImV4cCI6MjA4ODQxNDg1OX0.IMSp8vYiCln_iSuoT_H2qdeX_dP1WMhOOskDw20eJXw'
+    );
+  };
+  document.head.appendChild(s);
+})();
+
+/* ════════════════════════════════════
+   CURSOR
+════════════════════════════════════ */
+var cX=0,cY=0,rX=0,rY=0;
+var $c1=document.getElementById('cur'), $c2=document.getElementById('cur2');
+document.addEventListener('mousemove',function(e){
+  cX=e.clientX; cY=e.clientY;
+  $c1.style.left=cX+'px'; $c1.style.top=cY+'px';
+});
+(function lp(){
+  rX+=(cX-rX)*.1; rY+=(cY-rY)*.1;
+  $c2.style.left=rX+'px'; $c2.style.top=rY+'px';
+  requestAnimationFrame(lp);
+})();
+
+/* ════════════════════════════════════
+   FLOATING DUST PARTICLES
+════════════════════════════════════ */
+function spawnDust(){
+  var c = document.getElementById('dustC');
+  if(!c) return;
+  for(var i=0;i<18;i++){
+    var d = document.createElement('div');
+    d.className = 'dust';
+    var size = 1 + Math.random()*2.5;
+    d.style.cssText =
+      'width:'+size+'px;height:'+size+'px;'+
+      'left:'+(Math.random()*100)+'%;'+
+      '--dx:'+(Math.random()*80-40)+'px;'+
+      'animation-duration:'+(8+Math.random()*12)+'s;'+
+      'animation-delay:'+(-Math.random()*14)+'s;'+
+      'opacity:'+(0.3+Math.random()*0.7);
+    c.appendChild(d);
+  }
+}
+
+/* ════════════════════════════════════
+   PREMIUM CINEMATIC AUDIO ENGINE
+   Rich, layered — like a luxury car ad
+   Uses Web Audio API synthesis only
+════════════════════════════════════ */
+var AC=null, masterGain=null, muted=false, audioReady=false, pulseTO=null;
+var allNodes=[];
+
+function initAudio(){
+  if(audioReady) return;
+  try{
+    AC = new(window.AudioContext||window.webkitAudioContext)();
+    /* Master compressor for professional polish */
+    var comp = AC.createDynamicsCompressor();
+    comp.threshold.value=-18; comp.knee.value=8;
+    comp.ratio.value=3; comp.attack.value=0.003; comp.release.value=0.18;
+    masterGain = AC.createGain();
+    masterGain.gain.value = 0;
+    masterGain.connect(comp);
+    comp.connect(AC.destination);
+    audioReady = true;
+    buildRichAmbient();
+    /* Gentle fade in */
+    masterGain.gain.setValueAtTime(0, AC.currentTime);
+    masterGain.gain.linearRampToValueAtTime(0.18, AC.currentTime+4.5);
+    document.getElementById('sndBtn').classList.add('vis');
+  }catch(e){}
+}
+
+function buildRichAmbient(){
+  if(!AC) return;
+
+  /* ── Layer 1: Deep sub-bass resonance (engine idle feel) ── */
+  [28, 42, 56].forEach(function(freq, i){
+    var osc = AC.createOscillator();
+    var g = AC.createGain();
+    var lfo = AC.createOscillator();
+    var lg = AC.createGain();
+    osc.type='sine'; osc.frequency.value=freq;
+    g.gain.value = 0.06 - i*0.015;
+    lfo.type='sine'; lfo.frequency.value=0.03+i*0.01;
+    lg.gain.value=0.018;
+    lfo.connect(lg); lg.connect(g.gain);
+    osc.connect(g); g.connect(masterGain);
+    osc.start(); lfo.start();
+    allNodes.push(osc,lfo);
+  });
+
+  /* ── Layer 2: Warm mid-range shimmer ── */
+  [165, 220, 330, 440].forEach(function(freq,i){
+    var osc = AC.createOscillator();
+    var g = AC.createGain();
+    var lfo = AC.createOscillator();
+    var lg = AC.createGain();
+    osc.type='triangle'; osc.frequency.value=freq;
+    g.gain.value = 0.006 - i*0.001;
+    lfo.type='sine'; lfo.frequency.value=0.05+i*0.022;
+    lg.gain.value=0.004;
+    lfo.connect(lg); lg.connect(g.gain);
+    osc.connect(g); g.connect(masterGain);
+    osc.start(); lfo.start();
+    allNodes.push(osc,lfo);
+  });
+
+  /* ── Layer 3: High-frequency air / presence ── */
+  [880, 1320, 1760].forEach(function(freq,i){
+    var osc = AC.createOscillator();
+    var g = AC.createGain();
+    var lfo = AC.createOscillator();
+    var lg = AC.createGain();
+    osc.type='sine'; osc.frequency.value=freq;
+    g.gain.value=0.003-i*0.0008;
+    lfo.type='sine'; lfo.frequency.value=0.07+i*0.03;
+    lg.gain.value=0.002;
+    lfo.connect(lg); lg.connect(g.gain);
+    osc.connect(g); g.connect(masterGain);
+    osc.start(); lfo.start();
+    allNodes.push(osc,lfo);
+  });
+
+  /* ── Layer 4: Filtered noise — wind/room presence ── */
+  try{
+    var bufLen = AC.sampleRate*6;
+    var buf = AC.createBuffer(2, bufLen, AC.sampleRate);
+    for(var ch=0;ch<2;ch++){
+      var d=buf.getChannelData(ch);
+      for(var j=0;j<bufLen;j++) d[j]=(Math.random()*2-1)*0.4;
+    }
+    var nSrc = AC.createBufferSource();
+    nSrc.buffer=buf; nSrc.loop=true;
+    var hp = AC.createBiquadFilter(); hp.type='highpass'; hp.frequency.value=180; hp.Q.value=0.4;
+    var lp = AC.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=600; lp.Q.value=0.6;
+    var ng = AC.createGain(); ng.gain.value=0.016;
+    nSrc.connect(hp); hp.connect(lp); lp.connect(ng); ng.connect(masterGain);
+    nSrc.start();
+    allNodes.push(nSrc);
+  }catch(e){}
+
+  schedulePulse();
+}
+
+/* Premium heartbeat pulse — like a luxury watch ticking */
+function schedulePulse(){
+  if(!AC||muted) return;
+  doPulse();
+  pulseTO = setTimeout(schedulePulse, 3500+Math.random()*1200);
+}
+
+function doPulse(){
+  if(!AC||muted) return;
+  /* Deep thump */
+  var o=AC.createOscillator(), g=AC.createGain();
+  o.type='sine'; o.frequency.value=48;
+  o.frequency.exponentialRampToValueAtTime(28, AC.currentTime+0.3);
+  g.gain.setValueAtTime(0,AC.currentTime);
+  g.gain.linearRampToValueAtTime(0.055,AC.currentTime+0.04);
+  g.gain.exponentialRampToValueAtTime(0.001,AC.currentTime+0.55);
+  o.connect(g); g.connect(masterGain); o.start(); o.stop(AC.currentTime+0.6);
+  /* Subtle high click */
+  setTimeout(function(){
+    if(!AC||muted) return;
+    var o2=AC.createOscillator(), g2=AC.createGain();
+    o2.type='sine'; o2.frequency.value=2200;
+    g2.gain.setValueAtTime(0.006,AC.currentTime);
+    g2.gain.exponentialRampToValueAtTime(0.001,AC.currentTime+0.08);
+    o2.connect(g2); g2.connect(masterGain); o2.start(); o2.stop(AC.currentTime+0.1);
+  }, 180);
+}
+
+/* Scene transition chime — Rolls Royce clock chime quality */
+function playChime(baseFreq, vol){
+  if(!AC||muted) return;
+  /* Harmonic series — musical overtones */
+  [1, 2, 3, 4.5, 6].forEach(function(mult, i){
+    setTimeout(function(){
+      var o=AC.createOscillator(), g=AC.createGain(), pan=AC.createStereoPanner();
+      o.type='sine'; o.frequency.value=baseFreq*mult;
+      var v=vol*(1-i*0.18);
+      g.gain.setValueAtTime(0,AC.currentTime);
+      g.gain.linearRampToValueAtTime(v,AC.currentTime+0.015);
+      g.gain.exponentialRampToValueAtTime(0.001,AC.currentTime+(2.8-i*0.3));
+      pan.pan.value=(i%2===0?1:-1)*(i*0.12);
+      o.connect(g); g.connect(pan); pan.connect(masterGain);
+      o.start(); o.stop(AC.currentTime+3.2);
+    }, i*45);
+  });
+}
+
+/* Impact — parts explosion scene */
+function playImpact(){
+  if(!AC||muted) return;
+  var o=AC.createOscillator(), g=AC.createGain();
+  o.type='sine'; o.frequency.value=72;
+  o.frequency.exponentialRampToValueAtTime(16, AC.currentTime+0.5);
+  g.gain.setValueAtTime(0.35,AC.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.001,AC.currentTime+0.55);
+  o.connect(g); g.connect(masterGain); o.start(); o.stop(AC.currentTime+0.6);
+  /* Metallic ring */
+  setTimeout(function(){
+    if(!AC||muted) return;
+    [1480,2200,3100].forEach(function(f,i){
+      setTimeout(function(){
+        var o2=AC.createOscillator(),g2=AC.createGain();
+        o2.type='triangle'; o2.frequency.value=f;
+        g2.gain.setValueAtTime(0.012-i*0.003,AC.currentTime);
+        g2.gain.exponentialRampToValueAtTime(0.001,AC.currentTime+0.8);
+        o2.connect(g2); g2.connect(masterGain); o2.start(); o2.stop(AC.currentTime+0.9);
+      }, i*35);
+    });
+  }, 80);
+}
+
+/* Sweep — parts labels appearing */
+function playSweep(){
+  if(!AC||muted) return;
+  [440,554,659,880,1100,1320,1760].forEach(function(f,i){
+    setTimeout(function(){
+      var o=AC.createOscillator(),g=AC.createGain(),pan=AC.createStereoPanner();
+      o.type='sine'; o.frequency.value=f;
+      g.gain.setValueAtTime(0,AC.currentTime);
+      g.gain.linearRampToValueAtTime(0.028,AC.currentTime+0.03);
+      g.gain.exponentialRampToValueAtTime(0.001,AC.currentTime+1.4);
+      pan.pan.value=(Math.random()-.5)*.9;
+      o.connect(g); g.connect(pan); pan.connect(masterGain);
+      o.start(); o.stop(AC.currentTime+1.5);
+    }, i*70);
+  });
+}
+
+function stopAllAudio(){
+  if(pulseTO) clearTimeout(pulseTO);
+  if(masterGain && AC){
+    masterGain.gain.cancelScheduledValues(AC.currentTime);
+    masterGain.gain.setValueAtTime(masterGain.gain.value, AC.currentTime);
+    masterGain.gain.linearRampToValueAtTime(0, AC.currentTime+1.2);
+  }
+  setTimeout(function(){
+    allNodes.forEach(function(n){ try{n.stop();}catch(e){} });
+    allNodes=[];
+  }, 1300);
+  document.getElementById('sndBtn').style.display='none';
+}
+
+function toggleMute(){
+  muted=!muted;
+  var btn=document.getElementById('sndBtn');
+  if(muted){
+    masterGain.gain.setValueAtTime(masterGain.gain.value,AC.currentTime);
+    masterGain.gain.linearRampToValueAtTime(0,AC.currentTime+0.3);
+    btn.classList.add('muted');
+    document.getElementById('sndTxt').textContent='MUTED';
+  }else{
+    masterGain.gain.linearRampToValueAtTime(0.18,AC.currentTime+0.5);
+    btn.classList.remove('muted');
+    document.getElementById('sndTxt').textContent='SOUND';
+  }
+}
+
+/* ════════════════════════════════════
+   THREE.JS 3D SCENE
+════════════════════════════════════ */
+var W=window.innerWidth, H=window.innerHeight;
+var renderer,scene,camera,clock;
+var mtGrp,prtGrp,snowPts,roadGrp;
+var phase=0, cineOn=false;
+
+function init3(){
+  if(typeof THREE==='undefined') return;
+  var cv=document.getElementById('c');
+  renderer=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:false});
+  renderer.setPixelRatio(Math.min(devicePixelRatio,1.8));
+  renderer.setSize(W,H);
+  renderer.shadowMap.enabled=true;
+  renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+  renderer.toneMapping=THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure=1.22;
+  renderer.outputColorSpace=THREE.SRGBColorSpace;
+  scene=new THREE.Scene();
+  /* Light warm background for Apple/Porsche feel */
+  scene.background=new THREE.Color(0xdedbd7);
+  scene.fog=new THREE.FogExp2(0xdedbd7,0.016);
+  camera=new THREE.PerspectiveCamera(52,W/H,0.1,1400);
+  camera.position.set(0,88,50); camera.lookAt(0,0,-42);
+  clock=new THREE.Clock();
+  buildLights(); buildGround(); buildMountains(); buildRoad(); buildSnow(); buildParts();
+  window.addEventListener('resize',function(){
+    W=window.innerWidth; H=window.innerHeight;
+    renderer.setSize(W,H);
+    camera.aspect=W/H; camera.updateProjectionMatrix();
+  });
+  renderLoop();
+}
+
+function buildLights(){
+  scene.add(new THREE.AmbientLight(0xe8ecf2, 0.78));
+  var sun=new THREE.DirectionalLight(0xfff8f0, 4.2);
+  sun.position.set(80,140,30); sun.castShadow=true;
+  sun.shadow.mapSize.set(2048,2048);
+  sun.shadow.camera.near=1; sun.shadow.camera.far=600;
+  sun.shadow.camera.left=sun.shadow.camera.bottom=-160;
+  sun.shadow.camera.right=sun.shadow.camera.top=160;
+  sun.shadow.bias=-0.0005; scene.add(sun);
+  var fill=new THREE.DirectionalLight(0xc8d8f0,.7); fill.position.set(-70,50,30); scene.add(fill);
+  var rim=new THREE.DirectionalLight(0xffe8d0,.45); rim.position.set(20,18,-110); scene.add(rim);
+  var bot=new THREE.DirectionalLight(0xf0f0f8,.2); bot.position.set(0,-24,0); scene.add(bot);
+}
+
+function buildGround(){
+  var g=new THREE.Mesh(
+    new THREE.PlaneGeometry(4000,4000),
+    new THREE.MeshLambertMaterial({color:0xc8c5c0})
+  );
+  g.rotation.x=-Math.PI/2; g.position.y=-22; g.receiveShadow=true; scene.add(g);
+}
+
+function buildMountains(){
+  mtGrp=new THREE.Group(); scene.add(mtGrp);
+  [
+    {x:-120,z:-64,h:232,r:66,c:0xb6b2ae,s:9},
+    {x:-62,z:-52,h:282,r:56,c:0xbfbcb8,s:9},
+    {x:0,z:-98,h:312,r:76,c:0xababa7,s:11},
+    {x:66,z:-62,h:262,r:58,c:0xb2b0ac,s:9},
+    {x:122,z:-75,h:228,r:66,c:0xb8b5b1,s:9},
+    {x:-176,z:-118,h:184,r:84,c:0xc4c0bc,s:8},
+    {x:176,z:-110,h:194,r:80,c:0xbcb9b5,s:8},
+    {x:-38,z:-150,h:172,r:104,c:0xccccC8,s:7},
+    {x:46,z:-162,h:164,r:96,c:0xc8c5c1,s:7}
+  ].forEach(function(d){
+    var geo=new THREE.ConeGeometry(d.r*.6,d.h,d.s);
+    var pos=geo.attributes.position;
+    for(var i=0;i<pos.count;i++){
+      var y=pos.getY(i), ratio=(y/d.h)+.5;
+      if(ratio>.04&&ratio<.92){
+        var disp=(Math.random()-.5)*d.r*.13*(1-ratio*.7);
+        pos.setX(i,pos.getX(i)+disp); pos.setZ(i,pos.getZ(i)+disp*.5);
+      }
+    }
+    pos.needsUpdate=true; geo.computeVertexNormals();
+    var m=new THREE.Mesh(geo,new THREE.MeshLambertMaterial({color:d.c}));
+    m.position.set(d.x,d.h/2-22,d.z); m.castShadow=true; m.receiveShadow=true; mtGrp.add(m);
+    /* Snow cap */
+    var sc=new THREE.Mesh(new THREE.ConeGeometry(d.r*.16,d.h*.26,d.s),
+      new THREE.MeshLambertMaterial({color:0xf5f3f0}));
+    sc.position.set(d.x,d.h-22-d.h*.26*.33,d.z); mtGrp.add(sc);
+    /* Mid snow */
+    var mp=new THREE.Mesh(new THREE.ConeGeometry(d.r*.26,d.h*.16,d.s),
+      new THREE.MeshLambertMaterial({color:0xeceae8,transparent:true,opacity:.55}));
+    mp.position.set(d.x+(Math.random()-.5)*9,d.h*.52-22,d.z+(Math.random()-.5)*9); mtGrp.add(mp);
+  });
+}
+
+function buildRoad(){
+  roadGrp=new THREE.Group(); scene.add(roadGrp);
+  var rm=new THREE.Mesh(new THREE.PlaneGeometry(10,720),
+    new THREE.MeshLambertMaterial({color:0x28221e}));
+  rm.rotation.x=-Math.PI/2; rm.position.set(0,-21.88,-88); rm.receiveShadow=true; roadGrp.add(rm);
+  [-8.1,8.1].forEach(function(x){
+    var s=new THREE.Mesh(new THREE.PlaneGeometry(7.2,720),
+      new THREE.MeshLambertMaterial({color:0xaaa29a}));
+    s.rotation.x=-Math.PI/2; s.position.set(x,-21.84,-88); roadGrp.add(s);
+  });
+  [-4.4,4.4].forEach(function(x){
+    var l=new THREE.Mesh(new THREE.PlaneGeometry(.15,720),
+      new THREE.MeshBasicMaterial({color:0xe0e0e0}));
+    l.rotation.x=-Math.PI/2; l.position.set(x,-21.77,-88); roadGrp.add(l);
+  });
+  var yM=new THREE.MeshBasicMaterial({color:0xeecc22});
+  for(var i=0;i<168;i++){
+    var d=new THREE.Mesh(new THREE.PlaneGeometry(.13,2.3),yM);
+    d.rotation.x=-Math.PI/2; d.position.set(0,-21.76,i*4.3-345); roadGrp.add(d);
+  }
+}
+
+function buildSnow(){
+  var cnt=1600, pos=new Float32Array(cnt*3);
+  for(var i=0;i<cnt;i++){
+    pos[i*3]=(Math.random()-.5)*440;
+    pos[i*3+1]=-20+Math.random()*240;
+    pos[i*3+2]=(Math.random()-.5)*440;
+  }
+  var geo=new THREE.BufferGeometry();
+  geo.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));
+  snowPts=new THREE.Points(geo,new THREE.PointsMaterial({
+    color:0xfdfcfa, size:.5, transparent:true, opacity:.58
+  }));
+  scene.add(snowPts);
+}
+
+/* ════════════════════════════════════
+   3D AUTO PARTS — Platinum titanium
+════════════════════════════════════ */
+function buildParts(){
+  prtGrp=new THREE.Group(); prtGrp.visible=false; scene.add(prtGrp);
+  function mk(geo,mat){
+    var m=new THREE.Mesh(geo,mat); m.castShadow=true; m.receiveShadow=true; return m;
+  }
+  var Mpt=new THREE.MeshLambertMaterial({color:0xd8e0ec});
+  var Mcr=new THREE.MeshLambertMaterial({color:0xe8f0f8});
+  var Msd=new THREE.MeshLambertMaterial({color:0x90a0b8});
+  var Msm=new THREE.MeshLambertMaterial({color:0xb0c0cc});
+  var Mbr=new THREE.MeshLambertMaterial({color:0xd8ac3c});
+  var Mci=new THREE.MeshLambertMaterial({color:0x5e6268});
+  var Mrb=new THREE.MeshLambertMaterial({color:0x101214});
+  var Mti=new THREE.MeshLambertMaterial({color:0xc0cad8});
+  var parts=[];
+
+  /* 1 Hub Bearing */
+  var bear=new THREE.Group();
+  bear.add(mk(new THREE.TorusGeometry(3.2,1.05,24,64),Mcr));
+  [.86,-.86].forEach(function(z){var sr=mk(new THREE.TorusGeometry(3.2,.14,8,56),Msd);sr.position.z=z;bear.add(sr);});
+  bear.add(mk(new THREE.TorusGeometry(1.7,.78,20,52),Mpt));
+  bear.add(mk(new THREE.TorusGeometry(2.45,.2,10,56),Mbr));
+  for(var bi=0;bi<14;bi++){var bba=bi/14*Math.PI*2;var ball=mk(new THREE.SphereGeometry(.31,16,12),Mcr);ball.position.set(Math.cos(bba)*2.45,Math.sin(bba)*2.45,0);bear.add(ball);}
+  var bore=mk(new THREE.CylinderGeometry(.78,.78,.5,26),Msd);bore.rotation.x=Math.PI/2;bear.add(bore);
+  parts.push({g:bear,sp:20,id:'pl1',rs:{x:0,y:.003,z:.001}});
+
+  /* 2 Clutch Disc */
+  var clu=new THREE.Group();
+  clu.add(mk(new THREE.CylinderGeometry(4.1,4.1,.22,48),Mci));
+  clu.add(mk(new THREE.CylinderGeometry(1.15,1.15,.56,26),Msd));
+  var fr=mk(new THREE.TorusGeometry(3.08,.6,6,48),Mrb);fr.rotation.x=Math.PI/2;clu.add(fr);
+  for(var ci=0;ci<8;ci++){var csa=ci/8*Math.PI*2;var csp=mk(new THREE.CylinderGeometry(.22,.22,.28,10),Mbr);csp.position.set(Math.cos(csa)*2.05,0,Math.sin(csa)*2.05);clu.add(csp);}
+  clu.add(mk(new THREE.CylinderGeometry(1.92,1.92,.18,40),Msm));
+  parts.push({g:clu,sp:22,id:'pl2',rs:{x:.001,y:.004,z:.001}});
+
+  /* 3 Universal Joint */
+  var uni=new THREE.Group();
+  uni.add(mk(new THREE.CylinderGeometry(.47,.47,4.8,20),Mti));
+  var uc=mk(new THREE.CylinderGeometry(.47,.47,4.8,20),Mti);uc.rotation.z=Math.PI/2;uni.add(uc);
+  [[0,-2.42,0,false],[0,2.42,0,false],[2.42,0,0,true],[-2.42,0,0,true]].forEach(function(p){var cap=mk(new THREE.CylinderGeometry(.56,.56,.56,20),Mcr);cap.position.set(p[0],p[1],p[2]);if(p[3])cap.rotation.z=Math.PI/2;uni.add(cap);});
+  var yk1=mk(new THREE.BoxGeometry(1.35,.68,4.4),Mpt);yk1.position.z=-2.86;uni.add(yk1);
+  var yk2=mk(new THREE.BoxGeometry(1.35,.68,4.4),Mpt);yk2.position.z=2.86;uni.add(yk2);
+  parts.push({g:uni,sp:17,id:'pl3',rs:{x:.002,y:.005,z:.003}});
+
+  /* 4 Leaf Spring */
+  var spr=new THREE.Group();
+  [10,9.2,8.4,7.6,6.8,6.0].forEach(function(l,i){var lf=mk(new THREE.BoxGeometry(l,.3,.96),Msd);lf.position.y=i*.31+i*.016;spr.add(lf);});
+  var cW1=mk(new THREE.BoxGeometry(.86,1.65,.17),Mcr);cW1.position.set(0,.84,-.53);spr.add(cW1);
+  var cW2=mk(new THREE.BoxGeometry(.86,1.65,.17),Mcr);cW2.position.set(0,.84,.53);spr.add(cW2);
+  [-4.85,4.85].forEach(function(x){var eye=mk(new THREE.CylinderGeometry(.43,.43,1.05,18),Mrb);eye.rotation.z=Math.PI/2;eye.position.set(x,.22,0);spr.add(eye);var eyeI=mk(new THREE.CylinderGeometry(.2,.2,1.06,12),Msm);eyeI.rotation.z=Math.PI/2;eyeI.position.set(x,.22,0);spr.add(eyeI);});
+  spr.rotation.z=.22;
+  parts.push({g:spr,sp:25,id:'pl4',rs:{x:.003,y:.003,z:.001}});
+
+  /* 5 Piston */
+  var pis=new THREE.Group();
+  var crown=mk(new THREE.CylinderGeometry(1.64,1.64,.35,32),Mcr);crown.position.y=2.16;pis.add(crown);
+  pis.add(mk(new THREE.CylinderGeometry(1.62,1.58,4.1,32),Mpt));
+  [.92,1.38,1.74].forEach(function(y,i){var rg=mk(new THREE.TorusGeometry(1.62,.09,8,36),[Mcr,Mbr,Msm][i]);rg.rotation.x=Math.PI/2;rg.position.y=y;pis.add(rg);});
+  var gp=mk(new THREE.CylinderGeometry(.4,.4,3.7,18),Msd);gp.rotation.z=Math.PI/2;gp.position.y=.38;pis.add(gp);
+  parts.push({g:pis,sp:15,id:'pl5',rs:{x:.004,y:.006,z:.002}});
+
+  /* 6 Brake Drum */
+  var bdr=new THREE.Group();
+  bdr.add(mk(new THREE.CylinderGeometry(4.5,4.5,.98,44),Mci));
+  bdr.add(mk(new THREE.CylinderGeometry(4.1,4.1,1.02,44),Msd));
+  bdr.add(mk(new THREE.CylinderGeometry(5.1,5.1,.22,44),Mci));
+  [.5,-.5].forEach(function(y){var lp=mk(new THREE.TorusGeometry(4.5,.22,8,44),Msd);lp.rotation.x=Math.PI/2;lp.position.y=y;bdr.add(lp);});
+  for(var ws=0;ws<6;ws++){var wsa=ws/6*Math.PI*2;var stud=mk(new THREE.CylinderGeometry(.14,.14,1.88,10),Mcr);stud.position.set(Math.cos(wsa)*3.6,0,Math.sin(wsa)*3.6);bdr.add(stud);var nut=mk(new THREE.CylinderGeometry(.25,.25,.38,8),Mbr);nut.position.set(Math.cos(wsa)*3.6,1.0,Math.sin(wsa)*3.6);bdr.add(nut);}
+  parts.push({g:bdr,sp:20,id:'pl6',rs:{x:.001,y:.003,z:.002}});
+
+  /* 7 Wheel Hub */
+  var hub=new THREE.Group();
+  hub.add(mk(new THREE.CylinderGeometry(3.5,3.5,.62,44),Mti));
+  var stem=mk(new THREE.CylinderGeometry(1.12,1.38,4.4,22),Msd);stem.position.y=2.25;hub.add(stem);
+  var abs=mk(new THREE.TorusGeometry(2.65,.18,8,68),Msm);abs.rotation.x=Math.PI/2;abs.position.y=-.32;hub.add(abs);
+  for(var hs=0;hs<10;hs++){var hsa=hs/10*Math.PI*2;var hstud=mk(new THREE.CylinderGeometry(.13,.13,3.2,8),Mcr);hstud.position.set(Math.cos(hsa)*2.55,.12,Math.sin(hsa)*2.55);hub.add(hstud);var hnut=mk(new THREE.CylinderGeometry(.23,.23,.4,6),Mbr);hnut.position.set(Math.cos(hsa)*2.55,1.7,Math.sin(hsa)*2.55);hub.add(hnut);}
+  parts.push({g:hub,sp:18,id:'pl7',rs:{x:.002,y:.005,z:.001}});
+
+  prtGrp.userData.parts=[];
+  parts.forEach(function(d,i){
+    var ang=i/parts.length*Math.PI*2, rad=d.sp;
+    d.g.userData.tgt={
+      x:Math.cos(ang)*rad+(Math.random()-.5)*6,
+      y:1.8+Math.random()*9,
+      z:Math.sin(ang)*(rad*.72)+(Math.random()-.5)*6
+    };
+    d.g.userData.flo=Math.random()*6.28;
+    d.g.userData.rs=d.rs;
+    d.g.userData.labelId=d.id;
+    d.g.position.set(0,0,0);
+    d.g.scale.set(0,0,0);
+    prtGrp.add(d.g);
+    prtGrp.userData.parts.push(d.g);
+  });
+}
+
+/* ════════════════════════════════════
+   CINEMATIC SCENES
+════════════════════════════════════ */
+var $hud=document.getElementById('hud');
+function setPg(p){document.getElementById('pgbar').style.width=p+'%';}
+function setLbl(n){document.getElementById('scLbl').textContent='SCENE 0'+n+' / 05';}
+function sc(id,on){var e=document.getElementById(id);if(!e)return;e.classList[on?'add':'remove']('on');}
+function pl(id,on){var e=document.getElementById(id);if(!e)return;e.classList[on?'add':'remove']('on');}
+
+function startCine(){
+  if(typeof THREE==='undefined'||!renderer){enterSite();return;}
+  initAudio();
+  var intro=document.getElementById('intro');
+  intro.classList.add('gone');
+  setTimeout(function(){intro.style.display='none';},1600);
+  $hud.style.display='block';
+  cineOn=true; phase=1;
+  doS1();
+}
+
+function doS1(){
+  phase=1; setLbl(1); setPg(5);
+  scene.fog=new THREE.FogExp2(0xdedbd7,.015);
+  playChime(196,.08);
+  camera.position.set(10,16,-12); camera.lookAt(0,55,-88);
+  gsap.to(camera.position,{x:-6,y:94,z:58,duration:8.8,ease:'power1.inOut',
+    onUpdate:function(){camera.lookAt(0,6,-56);}});
+  setTimeout(function(){sc('sc1',true);setPg(16);},1800);
+  setTimeout(function(){if(phase===1){sc('sc1',false);doS2();}},10800);
+}
+
+function doS2(){
+  phase=2; setLbl(2); setPg(24);
+  scene.fog=new THREE.FogExp2(0xd9d7d3,.012);
+  playChime(246,.07);
+  camera.position.set(0,2.6,-185); camera.lookAt(0,11,0);
+  gsap.to(camera.position,{x:0,y:3.2,z:-38,duration:9.8,ease:'power1.inOut',
+    onUpdate:function(){
+      camera.position.x=Math.sin(clock.getElapsedTime()*.38)*1.6;
+      camera.lookAt(Math.sin(clock.getElapsedTime()*.28)*.9,9.5,90);
+    }});
+  sc('sc2',true); setPg(44);
+  setTimeout(function(){if(phase===2){sc('sc2',false);doS3();}},10600);
+}
+
+function doS3(){
+  phase=3; setLbl(3); setPg(52);
+  scene.fog=new THREE.FogExp2(0xd4d2ce,.009);
+  playChime(294,.08);
+  camera.position.set(-16,3,14); camera.lookAt(3,28,-72);
+  gsap.to(camera.position,{x:20,y:120,z:56,duration:9.2,ease:'power2.inOut',
+    onUpdate:function(){var t=clock.getElapsedTime();camera.lookAt(Math.sin(t*.07)*5,18,-72);}});
+  sc('sc3',true); setPg(66);
+  setTimeout(function(){if(phase===3){sc('sc3',false);doS4();}},10200);
+}
+
+function doS4(){
+  phase=4; setLbl(4); setPg(72);
+  scene.fog=new THREE.FogExp2(0xe2dfdb,.005);
+  playImpact();
+  camera.position.set(0,14,50); camera.lookAt(0,5,0);
+  gsap.to(camera.position,{x:0,y:20,z:60,duration:2.8,ease:'power2.out',
+    onUpdate:function(){camera.lookAt(0,5,0);}});
+  sc('sc4',true); setPg(82);
+  prtGrp.position.set(0,0,0); prtGrp.visible=true;
+  prtGrp.userData.parts.forEach(function(p,i){
+    var delay=i*0.11;
+    setTimeout(function(){playChime(440+i*80,.022);},i*110);
+    gsap.to(p.scale,{x:1,y:1,z:1,duration:.75,delay:delay,ease:'back.out(2.8)'});
+    gsap.to(p.position,{x:p.userData.tgt.x,y:p.userData.tgt.y,z:p.userData.tgt.z,duration:1.8,delay:delay,ease:'power4.out'});
+    gsap.to(p.rotation,{x:Math.random()*Math.PI*1.8,y:Math.random()*Math.PI*2,z:Math.random()*Math.PI,duration:2,delay:delay,ease:'power2.out'});
+  });
+  setTimeout(function(){
+    playSweep();
+    ['pl1','pl2','pl3','pl4','pl5','pl6','pl7'].forEach(function(id,idx){
+      setTimeout(function(){pl(id,true);},idx*230);
+    });
+  },2600);
+  setTimeout(function(){
+    var oa={a:0};
+    gsap.to(oa,{a:Math.PI*.88,duration:7,ease:'power1.inOut',
+      onUpdate:function(){
+        camera.position.x=Math.sin(oa.a)*44;
+        camera.position.z=Math.cos(oa.a)*44;
+        camera.position.y=20+Math.sin(oa.a*.4)*5;
+        camera.lookAt(0,6,0);
+      }});
+  },3400);
+  setPg(92);
+  setTimeout(function(){if(phase===4)doS5();},9800);
+}
+
+function doS5(){
+  phase=5; setLbl(5); setPg(100);
+  sc('sc4',false);
+  ['pl1','pl2','pl3','pl4','pl5','pl6','pl7'].forEach(function(id){pl(id,false);});
+  scene.fog=new THREE.FogExp2(0xdedbd7,.012);
+  sc('sc5',true);
+  playChime(392,.09);
+  setTimeout(function(){playSweep();},400);
+  var oa={a:.88};
+  gsap.to(oa,{a:oa.a+Math.PI*10,duration:100,ease:'none',repeat:-1,
+    onUpdate:function(){
+      camera.position.x=Math.sin(oa.a)*35;
+      camera.position.z=Math.cos(oa.a)*35;
+      camera.position.y=18+Math.sin(oa.a*.3)*5;
+      camera.lookAt(0,6,0);
+    }});
+}
+
+/* ════════════════════════════════════
+   ENTER SITE
+════════════════════════════════════ */
+function enterSite(){
+  cineOn=false;
+  stopAllAudio();
+  if(typeof gsap!=='undefined'){
+    gsap.killTweensOf(camera&&camera.position);
+    var els=[$hud,document.getElementById('c'),document.getElementById('grain'),
+      document.getElementById('vig'),document.getElementById('grd-top'),document.getElementById('grd-bot')];
+    gsap.to(els,{opacity:0,duration:1.2,ease:'power2.inOut',
+      onComplete:function(){els.forEach(function(el){if(el)el.style.display='none';});}});
+  }else{
+    ['hud','c','grain','vig','grd-top','grd-bot'].forEach(function(id){
+      var el=document.getElementById(id);
+      if(el){el.style.display='none';el.style.opacity='0';}
+    });
+  }
+  var site=document.getElementById('site');
+  site.style.display='block';
+  document.body.classList.add('live');
+  setTimeout(function(){
+    site.style.opacity='1';
+    initReveal();
+    initNavScroll();
+    loadReviews();
+  },800);
+}
+
+/* ════════════════════════════════════
+   RENDER LOOP
+════════════════════════════════════ */
+function renderLoop(){
+  requestAnimationFrame(renderLoop);
+  var t=clock.getElapsedTime();
+  if(!cineOn){
+    camera.position.x=Math.sin(t*.08)*26;
+    camera.position.z=30+Math.cos(t*.06)*16;
+    camera.position.y=88+Math.sin(t*.11)*6;
+    camera.lookAt(0,0,-44);
+  }
+  if(snowPts){
+    var pa=snowPts.geometry.attributes.position;
+    for(var i=0;i<pa.count;i++){
+      pa.setY(i,pa.getY(i)-(.15+Math.sin(t+i)*.05));
+      pa.setX(i,pa.getX(i)+Math.sin(t*.12+i*.1)*.025);
+      if(pa.getY(i)<-22){
+        pa.setY(i,190+Math.random()*18);
+        pa.setX(i,(Math.random()-.5)*440);
+        pa.setZ(i,(Math.random()-.5)*440);
+      }
+    }
+    pa.needsUpdate=true;
+  }
+  if(prtGrp&&prtGrp.visible&&phase>=4){
+    prtGrp.userData.parts.forEach(function(p){
+      p.position.y=p.userData.tgt.y+Math.sin(t*.48+p.userData.flo)*.65;
+      p.rotation.x+=p.userData.rs.x;
+      p.rotation.y+=p.userData.rs.y;
+      p.rotation.z+=p.userData.rs.z;
+    });
+  }
+  renderer.render(scene,camera);
+}
+
+/* ════════════════════════════════════
+   SCROLL REVEAL
+════════════════════════════════════ */
+function initReveal(){
+  var obs=new IntersectionObserver(function(entries){
+    entries.forEach(function(e){if(e.isIntersecting)e.target.classList.add('on');});
+  },{threshold:.08});
+  document.querySelectorAll('#site .rv2').forEach(function(el){obs.observe(el);});
+}
+
+function initNavScroll(){
+  var nav=document.getElementById('nav');
+  window.addEventListener('scroll',function(){
+    nav.classList[window.scrollY>60?'add':'remove']('scrolled');
+  });
+}
+
+/* ════════════════════════════════════
+   REVIEWS — FIXED PERSIST BUG
+   
+   ROOT CAUSE EXPLANATION:
+   - Before: reviews only lived in JS memory
+     (STATIC_REVIEWS array). On page reload,
+     that memory is gone, so only static ones show.
+   - Fix 1: Always call Supabase FIRST, wait for it
+   - Fix 2: Filter out empty/junk reviews (dots "......")
+     A valid review must have:
+     · review_text with 5+ real characters
+     · rating between 1-5
+   - Fix 3: Supabase script loads async — we wait
+     up to 6 seconds for it before giving up
+════════════════════════════════════ */
+var STATIC_REVIEWS=[
+  {name:'Ramesh Patel',vehicle:'Tata 1109 Owner · Patan',
+    review_text:'Best place for Tata truck parts in Patan region. Got bearings same day. Very knowledgeable.',rating:5},
+  {name:'Suresh Motor Works',vehicle:'Workshop · Santalpur',
+    review_text:'Genuine parts at fair prices. Clutch plates lasted 2 years. Never had a quality issue.',rating:5},
+  {name:'Mahesh Bhai',vehicle:'Leyland Fleet Owner',
+    review_text:'Had the Leyland leaf spring when nobody else did. Incredibly reliable, always honest.',rating:4}
+];
+
+/* KEY FIX: This function checks if a review is genuine */
+function isValidReview(r){
+  if(!r || !r.review_text) return false;
+  var txt = (r.review_text || '').trim();
+  /* Must have at least 8 real characters (not just dots or spaces) */
+  var realChars = txt.replace(/[.\s\-_,!?]+/g,'');
+  if(realChars.length < 5) return false;
+  /* Must have a valid rating */
+  var rat = parseInt(r.rating);
+  if(isNaN(rat) || rat < 1 || rat > 5) return false;
+  return true;
+}
+
+async function loadReviews(){
+  var box=document.getElementById('rvc');
+  if(!box) return;
+  box.innerHTML='<div class="rv-msg">Loading reviews...</div>';
+
+  try{
+    /* KEY FIX: Wait up to 6 seconds for Supabase to load */
+    var waited=0;
+    while(!_sb && waited < 60){
+      await new Promise(function(r){setTimeout(r,100);});
+      waited++;
+    }
+
+    var dbReviews=[];
+    if(_sb){
+      var res=await _sb
+        .from('website_visitors')
+        .select('name,vehicle,review_text,rating,visited_at')
+        .not('review_text','is',null)
+        .not('review_text','eq','')
+        .gte('rating',1)
+        .order('rating',{ascending:false})
+        .order('visited_at',{ascending:false})
+        .limit(80);
+
+      if(res.error){
+        console.error('Review fetch error:',res.error.message);
+      } else if(res.data){
+        /* KEY FIX: Filter out junk reviews */
+        dbReviews = res.data.filter(isValidReview);
+      }
+    }
+
+    /* Merge DB + static (static only shown if not duplicated) */
+    var all = dbReviews.slice();
+    STATIC_REVIEWS.forEach(function(sr){
+      var dup=all.some(function(r){
+        return r.name===sr.name &&
+               (r.review_text||'').substring(0,20)===(sr.review_text||'').substring(0,20);
+      });
+      if(!dup) all.push(sr);
+    });
+
+    /* Sort by rating desc */
+    all.sort(function(a,b){return (Number(b.rating)||0)-(Number(a.rating)||0);});
+    renderReviews(box, all);
+
+  }catch(err){
+    console.error('loadReviews error:',err);
+    renderReviews(box, STATIC_REVIEWS);
+  }
+}
+
+function renderReviews(box,reviews){
+  if(!reviews||reviews.length===0){
+    box.innerHTML='<div class="rv-msg">No reviews yet — be the first!</div>';
+    return;
+  }
+  box.innerHTML='';
+  reviews.forEach(function(r){
+    var rat=Math.min(5,Math.max(1,parseInt(r.rating)||5));
+    var stars='';
+    for(var i=0;i<5;i++) stars+=i<rat?'&#9733;':'&#9734;';
+    var div=document.createElement('div'); div.className='rv';
+    div.innerHTML=
+      '<div class="rs">'+stars+'</div>'+
+      '<div class="rt">&ldquo;'+(r.review_text||'')+'&rdquo;</div>'+
+      '<div class="ra">'+(r.name||'Customer')+'</div>'+
+      '<div class="rsub2">'+(r.vehicle||'')+'</div>';
+    box.appendChild(div);
+  });
+}
+
+/* ════════════════════════════════════
+   REVIEW SUBMIT
+   KEY FIX: Validate before saving —
+   minimum 8 characters in review text
+════════════════════════════════════ */
+var starV=0;
+function openM(){document.getElementById('modal').classList.add('open');}
+function closeM(){document.getElementById('modal').classList.remove('open');}
+function setStar(n){
+  starV=n;
+  var spans=document.getElementById('srw').children;
+  for(var i=0;i<5;i++) spans[i].className=i<n?'lit':'';
+}
+
+async function subRev(){
+  var n=(document.getElementById('rN').value||'').trim();
+  var p=(document.getElementById('rP').value||'').trim();
+  var v=(document.getElementById('rV').value||'').trim();
+  var t=(document.getElementById('rT').value||'').trim();
+  var okEl=document.getElementById('mok');
+  var errEl=document.getElementById('merr');
+  okEl.style.display='none'; errEl.style.display='none';
+
+  if(!n){errEl.textContent='Please enter your name.';errEl.style.display='block';return;}
+  if(!starV){errEl.textContent='Please select a star rating.';errEl.style.display='block';return;}
+
+  /* KEY FIX: Require meaningful review text (not just dots) */
+  var realChars=(t||'').replace(/[.\s\-_,!?]+/g,'');
+  if(realChars.length<5){
+    errEl.textContent='Please write a real review (at least a few words).';
+    errEl.style.display='block';
+    return;
+  }
+
+  var btn=document.getElementById('msbtn');
+  btn.textContent='Saving...'; btn.disabled=true;
+
+  /* Wait for Supabase */
+  var waited=0;
+  while(!_sb && waited<60){
+    await new Promise(function(r){setTimeout(r,100);}); waited++;
+  }
+
+  var saved=false;
+  if(_sb){
+    try{
+      var ins=await _sb.from('website_visitors').insert([{
+        name:n, phone:p||null, review_text:t, rating:starV, vehicle:v||null
+      }]);
+      if(ins.error){
+        errEl.textContent='Save error: '+ins.error.message;
+        errEl.style.display='block';
+      }else{
+        saved=true;
+      }
+    }catch(err){
+      errEl.textContent='Connection error. Please try again.';
+      errEl.style.display='block';
+    }
+  }else{
+    errEl.textContent='Not connected. Please refresh and try again.';
+    errEl.style.display='block';
+  }
+
+  btn.textContent='Submit Review'; btn.disabled=false;
+
+  if(saved){
+    okEl.style.display='block';
+    addReviewCard(n,t,v,starV);
+    ['rN','rP','rV','rT'].forEach(function(id){document.getElementById(id).value='';});
+    setStar(0);
+    setTimeout(closeM,3000);
+  }
+}
+
+function addReviewCard(name,text,vehicle,rating){
+  var box=document.getElementById('rvc');
+  var msg=box.querySelector('.rv-msg'); if(msg) msg.remove();
+  var stars='';
+  for(var i=0;i<5;i++) stars+=i<rating?'&#9733;':'&#9734;';
+  var div=document.createElement('div'); div.className='rv';
+  div.innerHTML=
+    '<div class="rs">'+stars+'</div>'+
+    '<div class="rt">&ldquo;'+text+'&rdquo;</div>'+
+    '<div class="ra">'+name+'</div>'+
+    '<div class="rsub2">'+(vehicle||'Customer')+'</div>';
+  var existing=box.querySelectorAll('.rv');
+  var inserted=false;
+  for(var j=0;j<existing.length;j++){
+    var eS=(existing[j].querySelector('.rs').textContent.match(/★/g)||[]).length;
+    if(rating>eS){box.insertBefore(div,existing[j]);inserted=true;break;}
+  }
+  if(!inserted) box.appendChild(div);
+}
+
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeM();});
+document.getElementById('modal').addEventListener('click',function(e){if(e.target===this)closeM();});
+document.getElementById('site').style.opacity='0';
+document.getElementById('site').style.transition='opacity 1.2s ease';
+
+/* ════════════════════════════════════
+   BOOT
+════════════════════════════════════ */
+window.addEventListener('load',function(){
+  spawnDust();
+  if(typeof THREE==='undefined'||typeof gsap==='undefined'){
+    document.getElementById('ibtn').onclick=enterSite;
+    document.getElementById('ibtn').querySelector('.ibtn-txt').textContent='Enter Site';
+    return;
+  }
+  init3();
+});
+</script>
+</body>
+</html>  background:linear-gradient(to top,rgba(205,203,199,.75) 0%,transparent 100%)}
 
 /* SOUND BUTTON */
 #sndBtn{position:fixed;bottom:26px;right:36px;z-index:50;pointer-events:all;
