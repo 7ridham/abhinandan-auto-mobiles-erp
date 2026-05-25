@@ -1770,6 +1770,34 @@ const TXN_TYPES = {
     debit:d=>d.txn_debit_account||'Debit Account',
     credit:d=>d.txn_credit_account||'Credit Account',
     type:'other'
+    ,opening_balance: {
+    title: 'Set Opening / Starting Balance',
+    fields: [
+      {id:'txn_cash_opening', label:'Opening Cash in Hand (₹)', type:'number', placeholder:'e.g. 50000'},
+      {id:'txn_bank_opening', label:'Opening Bank / UPI Balance (₹)', type:'number', placeholder:'e.g. 100000'},
+      {id:'txn_narration', label:'Note', type:'text', placeholder:'e.g. Opening balance as on 1 Apr 2025'},
+    ],
+    preview: d => `Dr <strong>Cash</strong> ₹${d.txn_cash_opening||0} + Dr <strong>Bank/UPI</strong> ₹${d.txn_bank_opening||0}<br>Cr <strong>Capital</strong> ₹${(Number(d.txn_cash_opening||0)+Number(d.txn_bank_opening||0)).toLocaleString('en-IN')}<br><small style="color:var(--text-dim);">Sets your starting balances</small>`,
+    debit: ()=>'Cash',
+    credit: ()=>'Capital',
+    type:'opening_balance'
+  },
+  sell_asset: {
+    title: 'Sell / Dispose Asset',
+    fields: [
+      {id:'txn_asset_name', label:'Asset Name', type:'text', placeholder:'e.g. Old Vehicle'},
+      {id:'txn_amount', label:'Sale Price Received (₹)', type:'number', placeholder:'50000'},
+      {id:'txn_mode', label:'Received Via', type:'select', options:['Cash','Bank/UPI']},
+      {id:'txn_narration', label:'Note', type:'text', placeholder:'e.g. Sold old vehicle'},
+    ],
+    preview: d=>{
+      const drAcc = d.txn_mode==='Bank/UPI' ? 'Bank/UPI' : 'Cash'
+      return `Dr <strong>${drAcc}</strong> ₹${d.txn_amount||0} &nbsp; | &nbsp; Cr <strong>${d.txn_asset_name||'Asset'} A/c</strong> ₹${d.txn_amount||0}`
+    },
+    debit: d=>(d.txn_mode==='Bank/UPI'?'Bank/UPI':'Cash'),
+    credit: d=>d.txn_asset_name||'Asset Account',
+    type:'sell_asset'
+  }
   },
 
   // ── NEW TYPES ──
