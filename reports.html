@@ -1489,18 +1489,14 @@ async function computeBalances(asOnDate) {
   // ── Opening balances from BS entries ──
   // WHY: Capital entries labeled 'Cash' mean "owner brought cash into business".
   // Double-entry: Dr Cash / Cr Capital — so cash must also increase.
-  const openingCash = bsEntries.filter(e =>
-    e.account_type === 'opening_cash' ||
-    (e.entry_type === 'capital' && e.label && e.label.trim().toLowerCase() === 'cash')
-  ).reduce((s,e) => s + Number(e.amount||0), 0)
-  const openingBank = bsEntries.filter(e =>
-    e.account_type === 'opening_bank' ||
-    (e.entry_type === 'capital' && e.label && (
-      e.label.trim().toLowerCase() === 'bank' ||
-      e.label.trim().toLowerCase() === 'upi' ||
-      e.label.trim().toLowerCase() === 'bank/upi'
-    ))
-  ).reduce((s,e) => s + Number(e.amount||0), 0)
+// Opening balances from BS entries (legacy)
+  const openingCashBS = bsEntries.filter(e => e.account_type === 'opening_cash').reduce((s,e) => s + Number(e.amount||0), 0)
+  const openingBankBS = bsEntries.filter(e => e.account_type === 'opening_bank').reduce((s,e) => s + Number(e.amount||0), 0)
+  // Opening balances from journal entries (new approach)
+  const openingCashJ = journals.filter(j => j.transaction_type === 'opening_balance' && j.debit_account === 'Cash').reduce((s,j) => s + Number(j.amount||0), 0)
+  const openingBankJ = journals.filter(j => j.transaction_type === 'opening_balance' && j.debit_account === 'Bank/UPI').reduce((s,j) => s + Number(j.amount||0), 0)
+  const openingCash = openingCashBS + openingCashJ
+  const openingBank = openingBankBS + openingBankJ
   
   // ── Cash/UPI at billing time ──
   const salesCash = salesBills.reduce((s,r) => s + Number(r.cash||0), 0)
@@ -1936,6 +1932,25 @@ window.saveJournalEntry = async function() {
       await _supabase.from('balance_sheet_entries').insert({entry_type:'liability',category:'loan',label:loanName,amount:loanAmount,note:interestRate>0?interestRate+'% p.a.':'',account_type:'manual',is_active:true,effective_date:new Date().toISOString().slice(0,10)})
     }
   }
+
+// Opening balance — creates two separate journal entries
+  if(_currentTxnType==='opening_balance') {
+    const cashAmt = parseFloat(d.txn_cash_opening)||0
+    const bankAmt = parseFloat(d.txn_bank_opening)||0
+    if(!cashAmt && !bankAmt){alert('Enter at least one opening balance');return}
+    const note = d.txn_narration || 'Opening balance'
+    if(cashAmt>0){
+      await _supabase.from('journal_entries').insert({narration:'Opening Cash: '+note,debit_account:'Cash',credit_account:'Capital',amount:cashAmt,party_name:null,interest_rate:0,notes:note,transaction_type:'opening_balance',entry_date:new Date().toISOString().slice(0,10)})
+    }
+    if(bankAmt>0){
+      await _supabase.from('journal_entries').insert({narration:'Opening Bank: '+note,debit_account:'Bank/UPI',credit_account:'Capital',amount:bankAmt,party_name:null,interest_rate:0,notes:note,transaction_type:'opening_balance',entry_date:new Date().toISOString().slice(0,10)})
+    }
+    alert('✅ Opening balances saved!')
+    clearTxnForm()
+    loadAccounts()
+    return
+  }
+  
   const{error}=await _supabase.from('journal_entries').insert({narration,debit_account:debitAccount,credit_account:creditAccount,amount,party_name:partyName||null,interest_rate:interestRate||0,notes:notes||null,transaction_type:_currentTxnType,entry_date:new Date().toISOString().slice(0,10)})
   if(error){alert('Save failed: '+error.message+'\n\nNote: If you haven\'t created the journal_entries table yet, please run the SQL from the instructions.');return}
   alert('✅ Journal entry saved!')
