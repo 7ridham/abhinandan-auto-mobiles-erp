@@ -4,987 +4,1753 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Abhinandan Auto Mobiles — Genuine Spare Parts</title>
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300;400;500;600;700&family=Barlow:wght@300;400;500;600&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Barlow:wght@200;300;400;500;600;700&family=Barlow+Condensed:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-*, *::before, *::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#e8e8e6;
+  --bg2:#f0efed;
+  --text:#1a1a18;
+  --muted:#6a6a68;
+  --gold:#c8920a;
+  --gold2:#e8b040;
+  --white:#ffffff;
+  --line:rgba(26,26,24,0.12);
 }
-html {
-  font-size: 16px;
-  scroll-behavior: smooth;
-  background-color: #fbfbfa;
+html{font-size:16px}
+body{
+  background:var(--bg);color:var(--text);
+  font-family:'Barlow',sans-serif;
+  overflow:hidden;height:100vh;cursor:none;
 }
-:root {
-  --bg: #fbfbfa;
-  --bg-sub: #f3f3f1;
-  --bg-blur: rgba(251, 251, 250, 0.75);
-  --text: #111111;
-  --muted: #6a6a66;
-  --gold: #b2800d;
-  --white: #ffffff;
-  --line: rgba(17, 17, 17, 0.07);
-  --ad-glow: rgba(178, 128, 13, 0.04);
+body.site-active{overflow:auto;height:auto;cursor:auto}
+
+/* CUSTOM CURSOR */
+#cur{position:fixed;width:8px;height:8px;background:var(--text);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:transform .1s}
+#cur2{position:fixed;width:32px;height:32px;border:1px solid rgba(26,26,24,.3);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:all .18s ease}
+#cur.big{transform:translate(-50%,-50%) scale(2.5);background:rgba(26,26,24,.15)}
+@media(hover:none){#cur,#cur2{display:none}body{cursor:auto}}
+
+/* CANVAS */
+#c{position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:0}
+
+/* GRAIN — very subtle on light bg */
+#grain{
+  position:fixed;inset:0;z-index:2;pointer-events:none;opacity:.06;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  animation:gr .12s steps(1) infinite
+}
+@keyframes gr{0%{background-position:0 0}25%{background-position:-70px -40px}50%{background-position:40px 25px}75%{background-position:-25px 55px}100%{background-position:15px -15px}}
+
+/* VIGNETTE — light version, just darkens edges slightly */
+#vig{
+  position:fixed;inset:0;z-index:3;pointer-events:none;
+  background:radial-gradient(ellipse at center,transparent 50%,rgba(160,155,140,.35) 100%)
 }
 
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: 'Barlow', sans-serif;
-  overflow-x: hidden;
-  line-height: 1.6;
+/* ─── INTRO SCREEN ─── */
+#intro{
+  position:fixed;inset:0;z-index:200;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:var(--bg);
+  transition:opacity 1s ease,transform 1.2s ease
+}
+#intro.gone{opacity:0;transform:scale(1.04);pointer-events:none}
+.i-logo{
+  width:72px;height:72px;border-radius:14px;
+  border:1.5px solid rgba(26,26,24,.15);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:600;color:var(--text);
+  margin-bottom:28px;background:var(--white);
+  box-shadow:0 2px 20px rgba(0,0,0,.08)
+}
+.i-name{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(20px,3vw,36px);font-weight:300;
+  color:var(--text);letter-spacing:.06em;margin-bottom:6px;text-align:center
+}
+.i-sub{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:11px;letter-spacing:.3em;text-transform:uppercase;
+  color:var(--muted);margin-bottom:52px
+}
+#startBtn{
+  padding:13px 42px;border-radius:2px;cursor:pointer;
+  border:1px solid rgba(26,26,24,.2);background:transparent;
+  font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:500;
+  letter-spacing:.25em;text-transform:uppercase;color:var(--text);
+  transition:all .25s;position:relative;overflow:hidden
+}
+#startBtn::after{content:'';position:absolute;inset:0;background:var(--text);transform:translateX(-101%);transition:transform .3s cubic-bezier(.4,0,.2,1)}
+#startBtn:hover::after{transform:translateX(0)}
+#startBtn:hover{color:var(--white);border-color:var(--text)}
+#startBtn span{position:relative;z-index:1}
+
+/* ─── CINEMATIC HUD ─── */
+#hud{
+  position:fixed;inset:0;z-index:10;pointer-events:none;
+  display:none;opacity:1
 }
 
-/* CUSTOM ACCENT GRAIN OVERLAY */
-#grain {
-  position: fixed;
-  inset: 0;
-  z-index: 999;
-  pointer-events: none;
-  opacity: 0.035;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 300'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3C/svg%3E");
+/* Progress */
+#prog{
+  position:absolute;bottom:0;left:0;height:1.5px;width:0%;
+  background:var(--text);transition:width .4s ease
 }
 
-/* PREMIUM NAV BAR WITH BACKDROP BLUR */
-#nav {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 200;
-  height: 70px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 4%;
-  background: var(--bg-blur);
-  backdrop-filter: blur(20px) saturate(140%);
-  -webkit-backdrop-filter: blur(20px) saturate(140%);
-  border-bottom: 1px solid var(--line);
+/* Top bar */
+#topbar{
+  position:absolute;top:0;left:0;right:0;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:28px 40px;
 }
-.nlog {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  text-decoration: none;
+.tb-logo{
+  display:flex;align-items:center;gap:10px;
+  font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:600;
+  letter-spacing:.2em;text-transform:uppercase;color:var(--text)
 }
-.nbox {
-  width: 36px;
-  height: 36px;
-  border-radius: 2px;
-  background: var(--text);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--white);
-}
-.nname {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--text);
-}
-.nsub {
-  font-size: 9px;
-  letter-spacing: 0.18em;
-  color: var(--muted);
-  text-transform: uppercase;
-}
-.nlks {
-  display: flex;
-  gap: 32px;
-  align-items: center;
-}
-.nlks a {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--muted);
-  text-decoration: none;
-  transition: color 0.25s ease;
-}
-.nlks a:hover {
-  color: var(--text);
-}
-.ncta {
-  padding: 10px 24px;
-  border: 1px solid var(--text);
-  background: var(--text);
-  color: var(--white);
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  cursor: pointer;
-  text-decoration: none;
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.ncta:hover {
-  background: transparent;
-  color: var(--text);
+.tb-dot{width:6px;height:6px;border-radius:50%;background:var(--gold)}
+.tb-right{
+  font-family:'Barlow Condensed',sans-serif;font-size:10px;
+  letter-spacing:.2em;text-transform:uppercase;color:var(--muted)
 }
 
-/* PREMIUM SCROLL REVEAL STYLES */
-.reveal-el {
-  opacity: 0;
-  transform: translateY(40px);
-  transition: opacity 1.2s cubic-bezier(0.16, 1, 0.3, 1), transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.reveal-el.active {
-  opacity: 1;
-  transform: translateY(0);
+/* Scene counter */
+#scene-num{
+  position:absolute;right:40px;bottom:40px;
+  font-family:'Cormorant Garamond',serif;font-size:11px;
+  color:var(--muted);letter-spacing:.1em
 }
 
-/* HERO SECTION */
-#hero {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  padding: 120px 4% 80px;
-  background: radial-gradient(circle at 80% 20%, rgba(178,128,13,0.03) 0%, transparent 50%);
+/* Skip */
+#skip{
+  position:absolute;bottom:32px;left:40px;pointer-events:all;
+  font-family:'Barlow Condensed',sans-serif;font-size:11px;
+  letter-spacing:.2em;text-transform:uppercase;color:var(--muted);
+  cursor:pointer;border:none;background:transparent;transition:color .2s
 }
-.hero-in {
-  max-width: 1200px;
-  width: 100%;
-  margin: 0 auto;
-  display: grid;
-  grid-template-columns: 1.2fr 0.8fr;
-  gap: 64px;
-  align-items: center;
+#skip:hover{color:var(--text)}
+
+/* Scroll hint */
+#scrollhint{
+  position:absolute;bottom:32px;left:50%;transform:translateX(-50%);
+  display:flex;flex-direction:column;align-items:center;gap:6px;
+  font-family:'Barlow Condensed',sans-serif;font-size:10px;
+  letter-spacing:.25em;text-transform:uppercase;color:var(--muted);
+  animation:bob 2s ease-in-out infinite;transition:opacity .5s
 }
-.hew {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.4em;
-  text-transform: uppercase;
-  color: var(--gold);
-  margin-bottom: 20px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
+#scrollhint.hide{opacity:0}
+.arr{width:1px;height:28px;background:var(--muted);position:relative}
+.arr::after{content:'';position:absolute;bottom:0;left:-3px;width:7px;height:7px;border-right:1px solid var(--muted);border-bottom:1px solid var(--muted);transform:rotate(45deg)}
+@keyframes bob{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(5px)}}
+
+/* ─── CINEMATIC TEXT ELEMENTS ─── */
+.ct{
+  position:absolute;opacity:0;
+  transition:opacity .9s ease,transform .9s cubic-bezier(.16,1,.3,1)
 }
-.hew::before {
-  content: '';
-  width: 30px;
-  height: 1px;
-  background: var(--gold);
+.ct.in{opacity:1;transform:none !important}
+
+/* Scene 1 — big hero text, centered */
+#t1{top:50%;left:50%;transform:translate(-50%,-44%);text-align:center;width:90vw}
+#t1 .big{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(40px,7vw,100px);font-weight:300;
+  color:var(--text);line-height:1.0;letter-spacing:-.01em
 }
-.hh1 {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: clamp(42px, 5.5vw, 76px);
-  font-weight: 300;
-  color: var(--text);
-  line-height: 1.05;
-  margin-bottom: 24px;
+#t1 .big em{font-style:italic;color:rgba(26,26,24,.45)}
+#t1 .sub-line{
+  margin-top:18px;
+  font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:400;
+  letter-spacing:.35em;text-transform:uppercase;color:var(--muted)
 }
-.hh1 em {
-  font-style: italic;
-  font-weight: 300;
-  color: var(--muted);
-}
-.hp {
-  font-size: 14px;
-  color: var(--muted);
-  line-height: 1.8;
-  margin-bottom: 36px;
-  max-width: 440px;
-}
-.hbtns {
-  display: flex;
-  gap: 16px;
-  flex-wrap: wrap;
+/* divider line */
+#t1 .divline{
+  width:1px;height:40px;background:var(--muted);
+  margin:16px auto;opacity:.4
 }
 
-/* HERO STATS PANEL */
-.hstats {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 16px;
+/* Scene 2 — side text truck */
+#t2{top:50%;left:7%;transform:translateY(-44%);max-width:320px}
+#t2.in{transform:translateY(-50%)}
+.eyebrow-sm{
+  font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:500;
+  letter-spacing:.3em;text-transform:uppercase;color:var(--gold);
+  margin-bottom:12px;display:flex;align-items:center;gap:10px
 }
-.hst {
-  background: var(--white);
-  padding: 32px;
-  border: 1px solid var(--line);
-  box-shadow: 0 4px 24px rgba(0,0,0,0.01);
-  transition: all 0.4s ease;
+.eyebrow-sm::before{content:'';width:24px;height:1px;background:var(--gold)}
+#t2 h2{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(26px,3.5vw,52px);font-weight:300;
+  color:var(--text);line-height:1.1
 }
-.hst:hover {
-  border-color: rgba(178,128,13,0.2);
-  transform: translateY(-2px);
-}
-.hn {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 44px;
-  font-weight: 300;
-  color: var(--text);
-  line-height: 1;
-  margin-bottom: 6px;
-}
-.hl2 {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 10px;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: var(--muted);
+#t2 h2 strong{display:block;font-weight:600}
+#t2 p{
+  margin-top:12px;font-size:13px;color:var(--muted);
+  line-height:1.75;font-weight:300;max-width:260px
 }
 
-/* PRODUCT SHOWCASE RUNNING ADVERTS SLOTS */
-.promo-ad-container {
-  max-width: 1200px;
-  margin: 40px auto;
-  padding: 0 4%;
+/* Scene 3 — 360 orbit label */
+#t3{top:50%;right:8%;transform:translateY(-44%);text-align:right}
+#t3.in{transform:translateY(-50%)}
+#t3 .orbit-label{
+  font-family:'Barlow Condensed',sans-serif;font-size:10px;
+  letter-spacing:.3em;text-transform:uppercase;color:var(--muted);
+  display:flex;align-items:center;justify-content:flex-end;gap:10px;margin-bottom:10px
 }
-.premium-ad-card {
-  background: linear-gradient(135deg, var(--bg-sub) 0%, var(--white) 100%);
-  border: 1px dashed var(--gold);
-  padding: 40px;
-  position: relative;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 32px;
-}
-.premium-ad-card::before {
-  content: 'SPONSORED PRODUCT AD';
-  position: absolute;
-  top: 12px;
-  right: 16px;
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 8px;
-  letter-spacing: 0.2em;
-  color: var(--gold);
-  opacity: 0.7;
-}
-.ad-content h4 {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 28px;
-  font-weight: 400;
-  margin-bottom: 8px;
-}
-.ad-content p {
-  font-size: 12px;
-  color: var(--muted);
-  max-width: 500px;
+#t3 .orbit-label::after{content:'';width:24px;height:1px;background:var(--muted)}
+#t3 h2{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(24px,3vw,48px);font-weight:300;color:var(--text);line-height:1.1
 }
 
-/* REUSABLE SECTIONS SECTION */
-.sec {
-  padding: 100px 4%;
-  max-width: 1200px;
-  margin: 0 auto;
+/* Scene 4 — parts floating with annotation style */
+#t4{top:50%;left:50%;transform:translate(-50%,-44%);text-align:center}
+#t4.in{transform:translate(-50%,-50%)}
+#t4 .parts-title{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(32px,5vw,72px);font-weight:300;color:var(--text);
+  line-height:1.05
 }
-.ssep {
-  height: 1px;
-  background: var(--line);
-  max-width: 1200px;
-  margin: 0 auto;
+#t4 .parts-title span{color:rgba(26,26,24,.3)}
+
+/* Part annotation labels that float */
+.ann{
+  position:absolute;pointer-events:none;opacity:0;
+  transition:opacity .6s ease;
+  display:flex;align-items:center;gap:8px;
 }
-.sew {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.35em;
-  text-transform: uppercase;
-  color: var(--muted);
-  margin-bottom: 16px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
+.ann.show{opacity:1}
+.ann-line{flex-shrink:0;height:1px;width:40px;background:rgba(26,26,24,.3)}
+.ann-text{
+  font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:500;
+  letter-spacing:.25em;text-transform:uppercase;color:var(--muted);white-space:nowrap
 }
-.sew::before {
-  content: '';
-  width: 20px;
-  height: 1px;
-  background: var(--muted);
+.ann.right{flex-direction:row-reverse}
+.ann.right .ann-text{text-align:right}
+
+/* Scene 5 — final CTA */
+#t5{
+  top:50%;left:50%;transform:translate(-50%,-44%);text-align:center;width:90vw;
+  pointer-events:all
 }
-.sh {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: clamp(32px, 4vw, 54px);
-  font-weight: 300;
-  color: var(--text);
-  line-height: 1.1;
-  margin-bottom: 48px;
+#t5.in{transform:translate(-50%,-50%)}
+#t5 h2{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(32px,5vw,72px);font-weight:300;color:var(--text);
+  margin-bottom:24px;line-height:1.05
 }
-.sh strong {
-  font-weight: 600;
+#t5 h2 em{font-style:italic;color:rgba(26,26,24,.4)}
+.cta-wrap{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:12px}
+.btn-a{
+  padding:13px 36px;border-radius:2px;
+  border:1px solid var(--text);background:var(--text);
+  color:var(--white);font-family:'Barlow Condensed',sans-serif;
+  font-size:12px;font-weight:500;letter-spacing:.2em;text-transform:uppercase;
+  cursor:pointer;text-decoration:none;transition:all .25s
+}
+.btn-a:hover{background:transparent;color:var(--text)}
+.btn-b{
+  padding:13px 36px;border-radius:2px;
+  border:1px solid rgba(26,26,24,.2);background:transparent;
+  color:var(--text);font-family:'Barlow Condensed',sans-serif;
+  font-size:12px;font-weight:500;letter-spacing:.2em;text-transform:uppercase;
+  cursor:pointer;text-decoration:none;transition:all .25s
+}
+.btn-b:hover{background:var(--text);color:var(--white)}
+
+/* ─── MAIN WEBSITE ─── */
+#site{
+  position:relative;z-index:20;display:none;
+  background:var(--bg)
+}
+/* NAV */
+#nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 40px;height:64px;
+  background:rgba(232,232,230,.92);backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--line)
+}
+.nlogo{display:flex;align-items:center;gap:10px;text-decoration:none}
+.nbox{
+  width:36px;height:36px;border-radius:8px;background:var(--text);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--white)
+}
+.nname{
+  font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:600;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--text)
+}
+.nsub{font-size:9px;letter-spacing:.15em;color:var(--muted);text-transform:uppercase}
+.nlinks{display:flex;gap:32px}
+.nlinks a{
+  font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:500;
+  letter-spacing:.2em;text-transform:uppercase;color:var(--muted);
+  text-decoration:none;transition:color .2s
+}
+.nlinks a:hover{color:var(--text)}
+.ncta{
+  padding:9px 22px;border-radius:2px;
+  border:1px solid var(--text);background:var(--text);color:var(--white);
+  font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:500;
+  letter-spacing:.18em;text-transform:uppercase;
+  cursor:pointer;text-decoration:none;transition:all .2s
+}
+.ncta:hover{background:transparent;color:var(--text)}
+
+/* HERO */
+#hero{
+  min-height:100vh;display:flex;align-items:center;
+  position:relative;overflow:hidden;
+  padding:100px 40px 80px
+}
+.hero-inner{
+  max-width:1200px;width:100%;margin:0 auto;
+  display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center
+}
+.hero-eyebrow{
+  font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:500;
+  letter-spacing:.35em;text-transform:uppercase;color:var(--gold);
+  margin-bottom:18px;display:flex;align-items:center;gap:12px
+}
+.hero-eyebrow::before{content:'';width:28px;height:1px;background:var(--gold)}
+.hero-h1{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(40px,5vw,72px);font-weight:300;color:var(--text);
+  line-height:1.04;margin-bottom:20px
+}
+.hero-h1 strong{font-weight:600}
+.hero-p{font-size:14px;color:var(--muted);line-height:1.85;margin-bottom:32px;max-width:360px}
+.hero-btns{display:flex;gap:10px;flex-wrap:wrap}
+.hero-right{}
+.hero-stats{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line)}
+.hstat{
+  background:var(--bg2);padding:24px 20px;
+  transition:background .2s
+}
+.hstat:hover{background:var(--white)}
+.hn{
+  font-family:'Cormorant Garamond',serif;font-size:40px;font-weight:300;
+  color:var(--text);line-height:1;margin-bottom:4px
+}
+.hl{
+  font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:400;
+  letter-spacing:.18em;text-transform:uppercase;color:var(--muted)
 }
 
-/* PREMIUM GRID OF CATALOG ITEMS */
-.pgd {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
+/* Sections */
+.sec{padding:100px 40px;max-width:1200px;margin:0 auto}
+.sec-sep{height:1px;background:var(--line);margin:0 40px}
+.sec-eyebrow{
+  font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:500;
+  letter-spacing:.35em;text-transform:uppercase;color:var(--muted);
+  margin-bottom:14px;display:flex;align-items:center;gap:12px
 }
-.pc {
-  background: var(--white);
-  padding: 36px 30px;
-  border: 1px solid var(--line);
-  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+.sec-eyebrow::before{content:'';width:20px;height:1px;background:var(--muted)}
+.sec-h{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(28px,4vw,56px);font-weight:300;color:var(--text);
+  line-height:1.07;margin-bottom:52px
 }
-.pc:hover {
-  transform: translateY(-5px);
-  border-color: var(--text);
-  box-shadow: 0 12px 30px rgba(0,0,0,0.02);
+.sec-h strong{font-weight:600}
+
+/* Parts grid */
+.pgrid{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  border:1px solid var(--line);
 }
-.pn {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 28px;
-  font-weight: 300;
-  color: rgba(17, 17, 17, 0.15);
-  margin-bottom: 12px;
+.pcard{
+  padding:28px 24px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);
+  transition:background .2s;cursor:default
 }
-.pnm {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 14px;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--text);
-  margin-bottom: 8px;
+.pcard:hover{background:var(--white)}
+.pcard:nth-child(3n){border-right:none}
+.pcard:nth-last-child(-n+3){border-bottom:none}
+.pnum{
+  font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:300;
+  color:rgba(26,26,24,.15);margin-bottom:10px
 }
-.pd {
-  font-size: 12px;
-  color: var(--muted);
-  line-height: 1.75;
+.pname{
+  font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:600;
+  letter-spacing:.08em;text-transform:uppercase;color:var(--text);margin-bottom:6px
+}
+.pdesc{font-size:12px;color:var(--muted);line-height:1.7}
+
+/* Brands */
+.bsec{background:var(--text);padding:60px 40px}
+.binner{max-width:1200px;margin:0 auto}
+.be{
+  font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:500;
+  letter-spacing:.35em;text-transform:uppercase;color:rgba(255,255,255,.3);
+  margin-bottom:32px;display:flex;align-items:center;gap:12px
+}
+.be::before{content:'';width:20px;height:1px;background:rgba(255,255,255,.3)}
+.brand-row{
+  display:flex;flex-wrap:wrap;gap:0;
+  border:1px solid rgba(255,255,255,.08)
+}
+.bitem{
+  flex:1;min-width:120px;padding:20px 24px;
+  border-right:1px solid rgba(255,255,255,.08);
+  font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:600;
+  letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.2);
+  transition:color .25s;text-align:center
+}
+.bitem:last-child{border-right:none}
+.bitem:hover{color:rgba(255,255,255,.8)}
+
+/* Why us */
+.wgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--line);border:1px solid var(--line)}
+.wcard{
+  background:var(--bg2);padding:36px 32px;
+  position:relative;overflow:hidden;transition:background .2s
+}
+.wcard:hover{background:var(--white)}
+.wcard::after{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:var(--text);transform:scaleX(0);transform-origin:left;
+  transition:transform .4s ease
+}
+.wcard:hover::after{transform:scaleX(1)}
+.wn{
+  font-family:'Cormorant Garamond',serif;font-size:52px;font-weight:300;
+  color:rgba(26,26,24,.06);line-height:1;margin-bottom:10px
+}
+.wt{
+  font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:600;
+  letter-spacing:.08em;text-transform:uppercase;color:var(--text);margin-bottom:8px
+}
+.wd{font-size:13px;color:var(--muted);line-height:1.8}
+
+/* Contact */
+.cgrid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line)}
+.cblock{background:var(--bg2);padding:36px}
+.clbl{
+  font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:500;
+  letter-spacing:.28em;text-transform:uppercase;color:var(--muted);margin-bottom:8px
+}
+.cval{font-size:16px;color:var(--text);font-weight:300;line-height:1.6}
+
+/* Reviews */
+.rvgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);margin-top:48px}
+.rv{background:var(--bg2);padding:28px;transition:background .2s}
+.rv:hover{background:var(--white)}
+.rstars{letter-spacing:2px;color:var(--gold);font-size:12px;margin-bottom:10px}
+.rtxt{font-size:13px;color:var(--muted);line-height:1.75;font-style:italic;margin-bottom:14px}
+.rau{
+  font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:600;
+  letter-spacing:.08em;text-transform:uppercase;color:var(--text)
+}
+.rsub{font-size:11px;color:var(--muted)}
+
+/* Footer */
+footer{
+  border-top:1px solid var(--line);padding:40px;
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px
+}
+.flogo{
+  font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:600;
+  letter-spacing:.15em;text-transform:uppercase;color:var(--text)
+}
+.fcopy{font-size:11px;color:var(--muted)}
+
+/* Reveal */
+.rev{opacity:0;transform:translateY(24px);transition:opacity .8s ease,transform .8s ease}
+.rev.vis{opacity:1;transform:translateY(0)}
+
+/* Modal */
+#modal{
+  position:fixed;inset:0;z-index:300;background:rgba(232,232,230,.85);
+  backdrop-filter:blur(20px);display:none;align-items:center;justify-content:center;padding:20px
+}
+#modal.open{display:flex}
+.mbox{
+  background:var(--white);border:1px solid var(--line);
+  padding:40px;max-width:480px;width:100%;position:relative;
+  max-height:90vh;overflow-y:auto
+}
+.mclose{
+  position:absolute;top:16px;right:16px;width:28px;height:28px;
+  border:1px solid var(--line);background:transparent;cursor:pointer;
+  font-size:13px;color:var(--muted);display:flex;align-items:center;justify-content:center;
+  transition:all .2s
+}
+.mclose:hover{background:var(--text);color:var(--white);border-color:var(--text)}
+.mh{
+  font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:300;
+  color:var(--text);margin-bottom:4px
+}
+.ms{font-size:12px;color:var(--muted);margin-bottom:28px;letter-spacing:.02em}
+.ff{margin-bottom:14px}
+.ff label{
+  display:block;font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:500;
+  letter-spacing:.22em;text-transform:uppercase;color:var(--muted);margin-bottom:5px
+}
+.ff input,.ff textarea{
+  width:100%;padding:10px 12px;
+  background:var(--bg2);border:1px solid var(--line);
+  font-size:13px;color:var(--text);outline:none;
+  font-family:'Barlow',sans-serif;transition:border-color .2s;border-radius:0
+}
+.ff input:focus,.ff textarea:focus{border-color:rgba(26,26,24,.4)}
+.ff textarea{min-height:80px;resize:vertical}
+.star-row{display:flex;gap:5px}
+.star-row span{font-size:22px;cursor:pointer;color:rgba(26,26,24,.15);transition:all .15s;user-select:none}
+.star-row span.lit,.star-row span:hover{color:var(--gold)}
+.msub{
+  width:100%;padding:12px;border:1px solid var(--text);background:var(--text);color:var(--white);
+  font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:500;
+  letter-spacing:.2em;text-transform:uppercase;cursor:pointer;margin-top:4px;
+  transition:all .25s
+}
+.msub:hover{background:transparent;color:var(--text)}
+.mok{
+  display:none;margin-top:12px;padding:12px;text-align:center;
+  font-size:12px;color:#2a7a2a;background:rgba(42,122,42,.06);
+  border:1px solid rgba(42,122,42,.15);
+  font-family:'Barlow Condensed',sans-serif;letter-spacing:.1em
 }
 
-/* CORE VALUE CONTAINER */
-.wgd {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 24px;
-}
-.wc {
-  background: var(--white);
-  padding: 40px 36px;
-  border: 1px solid var(--line);
-  position: relative;
-  transition: border-color 0.3s ease;
-}
-.wc:hover {
-  border-color: var(--gold);
-}
-.wnum {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 40px;
-  font-weight: 300;
-  color: rgba(178, 128, 13, 0.15);
-  line-height: 1;
-  margin-bottom: 12px;
-}
-.wt2 {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 15px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--text);
-  margin-bottom: 10px;
-}
-.wd2 {
-  font-size: 13px;
-  color: var(--muted);
-  line-height: 1.8;
-}
-
-/* CONTACT ROW GRID */
-.cgd {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 24px;
-}
-.cb {
-  background: var(--bg-sub);
-  padding: 36px;
-  border: 1px solid var(--line);
-}
-.clb {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.25em;
-  text-transform: uppercase;
-  color: var(--muted);
-  margin-bottom: 8px;
-}
-.cv {
-  font-size: 16px;
-  color: var(--text);
-  font-weight: 300;
-}
-
-/* REVIEWS ARCHITECTURE */
-.rvgd {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
-  margin-top: 40px;
-}
-.rv {
-  background: var(--white);
-  padding: 32px;
-  border: 1px solid var(--line);
-}
-.rs {
-  letter-spacing: 2px;
-  color: var(--gold);
-  font-size: 12px;
-  margin-bottom: 12px;
-}
-.rt {
-  font-size: 13px;
-  color: var(--muted);
-  line-height: 1.75;
-  font-style: italic;
-  margin-bottom: 16px;
-}
-.ra {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--text);
-}
-.rsub2 {
-  font-size: 11px;
-  color: var(--muted);
-}
-.rv-msg {
-  grid-column: 1/-1;
-  text-align: center;
-  padding: 40px;
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 12px;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-
-/* PREMIUM FOOTER ARCHITECTURE */
-footer {
-  border-top: 1px solid var(--line);
-  padding: 40px 4%;
-  max-width: 1200px;
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 16px;
-}
-.flo {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: var(--text);
-}
-.fcp {
-  font-size: 11px;
-  color: var(--muted);
-}
-
-/* REVIEW SUBMISSION FORM MODAL SYSTEM */
-#modal {
-  position: fixed;
-  inset: 0;
-  z-index: 800;
-  background: rgba(251, 251, 250, 0.8);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  display: none;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-}
-#modal.open {
-  display: flex;
-}
-.mbox {
-  background: var(--white);
-  border: 1px solid var(--text);
-  padding: 40px;
-  max-width: 480px;
-  width: 100%;
-  position: relative;
-  max-height: 90vh;
-  overflow-y: auto;
-}
-.mcl {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  width: 30px;
-  height: 30px;
-  border: 1px solid var(--line);
-  background: transparent;
-  cursor: pointer;
-  font-size: 14px;
-  color: var(--text);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-}
-.mcl:hover {
-  background: var(--text);
-  color: var(--white);
-}
-.mh2 {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 26px;
-  font-weight: 400;
-  color: var(--text);
-  margin-bottom: 6px;
-}
-.ms2 {
-  font-size: 12px;
-  color: var(--muted);
-  margin-bottom: 24px;
-}
-.ff {
-  margin-bottom: 16px;
-}
-.ff label {
-  display: block;
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--muted);
-  margin-bottom: 6px;
-}
-.ff input, .ff textarea {
-  width: 100%;
-  padding: 12px;
-  background: var(--bg-sub);
-  border: 1px solid transparent;
-  border-radius: 0;
-  font-size: 13px;
-  color: var(--text);
-  outline: none;
-  font-family: 'Barlow', sans-serif;
-  transition: all 0.2s ease;
-}
-.ff input:focus, .ff textarea:focus {
-  background: var(--white);
-  border-color: var(--text);
-}
-.ff textarea {
-  min-height: 90px;
-  resize: vertical;
-}
-.sr3 {
-  display: flex;
-  gap: 6px;
-}
-.sr3 span {
-  font-size: 24px;
-  cursor: pointer;
-  color: rgba(17, 17, 17, 0.15);
-  transition: color 0.15s ease;
-  user-select: none;
-}
-.sr3 span.lit {
-  color: var(--gold);
-}
-.msb {
-  width: 100%;
-  padding: 14px;
-  border: 1px solid var(--text);
-  background: var(--text);
-  color: var(--white);
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-.msb:hover {
-  background: transparent;
-  color: var(--text);
-}
-.msb:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-.mok {
-  display: none;
-  margin-top: 12px;
-  padding: 12px;
-  text-align: center;
-  font-size: 12px;
-  color: #1e5a1e;
-  background: rgba(42,122,42,0.05);
-  border: 1px solid rgba(42,122,42,0.15);
-}
-.merr {
-  display: none;
-  margin-top: 12px;
-  padding: 12px;
-  text-align: center;
-  font-size: 12px;
-  color: #721c24;
-  background: rgba(180,40,40,0.05);
-  border: 1px solid rgba(180,40,40,0.15);
-}
-
-/* RESPONSIVE LAYOUT RESPONSIVENESS */
-@media(max-width: 992px) {
-  .pgd { grid-template-columns: repeat(2, 1fr); }
-  .rvgd { grid-template-columns: repeat(2, 1fr); }
-}
-@media(max-width: 768px) {
-  .hero-in { grid-template-columns: 1fr; gap: 40px; }
-  .pgd { grid-template-columns: 1fr; }
-  .wgd { grid-template-columns: 1fr; }
-  .cgd { grid-template-columns: 1fr; }
-  .rvgd { grid-template-columns: 1fr; }
-  .nlks { display: none; }
-  #nav { padding: 0 20px; }
-  .premium-ad-card { flex-direction: column; text-align: center; align-items: center; }
+@media(max-width:768px){
+  .hero-inner{grid-template-columns:1fr;gap:40px}
+  .pgrid{grid-template-columns:1fr 1fr}
+  .wgrid{grid-template-columns:1fr}
+  .cgrid{grid-template-columns:1fr}
+  .rvgrid{grid-template-columns:1fr}
+  #nav .nlinks{display:none}
+  #nav{padding:0 20px}
+  .sec{padding:60px 20px}
+  .bsec{padding:40px 20px}
+  #topbar{padding:20px}
+  #t2,#t3{display:none}
 }
 </style>
 </head>
 <body>
 
+<canvas id="c"></canvas>
 <div id="grain"></div>
+<div id="vig"></div>
 
-<nav id="nav">
-  <a href="#" class="nlog">
-    <div class="nbox">A</div>
-    <div>
-      <div class="nname">Abhinandan</div>
-      <div class="nsub">Auto Mobiles</div>
-    </div>
-  </a>
-  <div class="nlks">
-    <a href="#parts">Spare Parts</a>
-    <a href="#why-us">Why Us</a>
-    <a href="#reviews">Reviews</a>
-    <a href="#contact">Contact</a>
-  </div>
-  <button class="ncta" onclick="openM()">Write Review</button>
-</nav>
+<!-- CURSOR -->
+<div id="cur"></div>
+<div id="cur2"></div>
 
-<section id="hero">
-  <div class="hero-in">
-    <div class="reveal-el">
-      <div class="hew">Est. 2009 &nbsp;·&nbsp; Santalpur, Patan</div>
-      <h1 class="hh1">Genuine <em>Spare Parts</em><br>That Keep You Moving</h1>
-      <p class="hp">From Tata SIGNA to Ashok Leyland, JCB to Tractors — every genuine component for every commercial vehicle type is structured right here for immediate performance deployment.</p>
-      <div class="hbtns">
-        <a href="#parts" class="ncta">Explore Catalog</a>
-      </div>
-    </div>
-    <div class="hstats reveal-el">
-      <div class="hst">
-        <div class="hn">15+</div>
-        <div class="hl2">Years of Proven Trust</div>
-      </div>
-      <div class="hst">
-        <div class="hn">100%</div>
-        <div class="hl2">Certified Original Parts</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<div class="promo-ad-container reveal-el">
-  <div class="premium-ad-card">
-    <div class="ad-content">
-      <h4>Tata & Ashok Leyland Heavy Hub Bearings</h4>
-      <p>Premium grade friction-resistant multi-axle bearings are live in stock this week. Enhanced road durability under high heavy commercial weights.</p>
-    </div>
-    <div>
-      <a href="#contact" class="ncta" style="white-space: nowrap;">Order Now</a>
-    </div>
-  </div>
+<!-- ─── INTRO SPLASH ─── -->
+<div id="intro">
+  <div class="i-logo">A</div>
+  <div class="i-name">Abhinandan Auto Mobiles</div>
+  <div class="i-sub">Genuine Spare Parts · Santalpur, Patan</div>
+  <button id="startBtn" onclick="startCine()"><span>&#9654; Begin Experience</span></button>
 </div>
 
-<div class="ssep"></div>
+<!-- ─── CINEMATIC HUD ─── -->
+<div id="hud">
 
-<section class="sec" id="parts">
-  <div class="sew reveal-el">Component Inventory</div>
-  <h2 class="sh reveal-el">Every Component. <br><strong>Every Commercial Machine.</strong></h2>
-  
-  <div class="pgd reveal-el">
-    <div class="pc">
-      <div class="pn">01</div>
-      <div class="pnm">Hub Bearing</div>
-      <div class="pd">Engineered to accommodate extreme performance loads for all heavy multi-axle commercial models.</div>
-    </div>
-    <div class="pc">
-      <div class="pn">02</div>
-      <div class="pnm">Clutch Disc Pack</div>
-      <div class="pd">High-friction materials ensuring perfectly smooth shifting deployment under heavy Tata & Leyland builds.</div>
-    </div>
-    <div class="pc">
-      <div class="pn">03</div>
-      <div class="pnm">Leaf Spring Assembly</div>
-      <div class="pd">Heavy-duty suspension systems optimized to ensure steady axle resilience across multi-terrain structures.</div>
-    </div>
-    <div class="pc">
-      <div class="pn">04</div>
-      <div class="pnm">Universal Joint</div>
-      <div class="pd">Precision forged coupling links configured for steady commercial propeller shaft drive outputs.</div>
-    </div>
-    <div class="pc">
-      <div class="pn">05</div>
-      <div class="pnm">Piston Assembly</div>
-      <div class="pd">Manufacturer-certified internal engine parameters designed for absolute longevity and fuel conversion optimization.</div>
-    </div>
-    <div class="pc">
-      <div class="pn">06</div>
-      <div class="pnm">Brake Drum</div>
-      <div class="pd">Advanced high-grade thermal dissipative alloy structures designed for secure commercial deceleration.</div>
+  <div id="topbar">
+    <div class="tb-logo"><span class="tb-dot"></span>ABHINANDAN AUTO MOBILES</div>
+    <div class="tb-right" id="scene-label">SCENE 01 / 05</div>
+  </div>
+
+  <!-- Scroll hint -->
+  <div id="scrollhint"><span>SCROLL</span><div class="arr"></div></div>
+
+  <!-- SCENE TEXT 1: mountains -->
+  <div class="ct" id="t1" style="transform:translate(-50%,-44%)">
+    <div class="big">Genuine<br><em>Spare Parts</em></div>
+    <div class="divline"></div>
+    <div class="sub-line">Santalpur · Patan · Gujarat · Since 2009</div>
+  </div>
+
+  <!-- SCENE TEXT 2: truck drives -->
+  <div class="ct" id="t2" style="transform:translateY(-44%)">
+    <div class="eyebrow-sm">Running Gear</div>
+    <h2>Built for<br><strong>Every Road</strong></h2>
+    <p>Tata SIGNA · Ashok Leyland<br>JCB · Tractors · All HCVs</p>
+  </div>
+
+  <!-- SCENE TEXT 3: orbit -->
+  <div class="ct" id="t3" style="transform:translateY(-44%)">
+    <div class="orbit-label">360° View</div>
+    <h2>The Machine<br>in Detail</h2>
+  </div>
+
+  <!-- SCENE TEXT 4: parts explosion -->
+  <div class="ct" id="t4" style="transform:translate(-50%,-44%)">
+    <div class="parts-title">Every <span>Component.</span><br>Every Machine.</div>
+  </div>
+
+  <!-- Part annotations (positioned absolutely) -->
+  <div class="ann" id="an-bearing" style="top:30%;left:52%"><div class="ann-line"></div><div class="ann-text">Hub Bearing Assembly</div></div>
+  <div class="ann right" id="an-spring" style="top:55%;right:52%"><div class="ann-line"></div><div class="ann-text">Leaf Spring</div></div>
+  <div class="ann" id="an-uni" style="bottom:28%;left:54%"><div class="ann-line"></div><div class="ann-text">Universal Joint</div></div>
+  <div class="ann right" id="an-clutch" style="bottom:35%;right:56%"><div class="ann-line"></div><div class="ann-text">Clutch Assembly</div></div>
+
+  <!-- SCENE TEXT 5: enter -->
+  <div class="ct" id="t5" style="transform:translate(-50%,-44%)">
+    <h2>15 Years of<br><em>Genuine Trust</em></h2>
+    <div class="cta-wrap">
+      <button class="btn-a" onclick="enterSite()">Enter Our World</button>
+      <a href="https://wa.me/919870037002" target="_blank" class="btn-b">&#128222; WhatsApp</a>
     </div>
   </div>
-</section>
 
-<div class="ssep"></div>
+  <div id="skip" onclick="enterSite()">Skip Intro</div>
+  <div id="scene-num">01</div>
+  <div id="prog"></div>
 
-<div class="promo-ad-container reveal-el">
-  <div class="premium-ad-card" style="border-color: var(--text);">
-    <div class="ad-content">
-      <h4>JCB & Tractor Hydraulic Upgrades Available</h4>
-      <p>Upgrade to heavy-duty fluid piston seals optimized for extreme farm operation and deep mining extraction layouts.</p>
-    </div>
-    <div>
-      <a href="#contact" class="ncta" style="background: transparent; color: var(--text); white-space: nowrap;">Get Estimate</a>
-    </div>
-  </div>
 </div>
 
-<div class="ssep"></div>
+<!-- ─── MAIN SITE ─── -->
+<div id="site">
 
-<section class="sec" id="why-us">
-  <div class="sew reveal-el">Operational Principles</div>
-  <h2 class="sh reveal-el">Built for Zero Breakdown <br><strong>And Reliable Lifecycle Outputs.</strong></h2>
-  
-  <div class="wgd reveal-el">
-    <div class="wc">
-      <div class="wnum">I</div>
-      <div class="wt2">No Duplicates Policy</div>
-      <div class="wd2">We deal exclusively in verified manufacturer-certified parts. No duplicates, shortcuts, or alternative generic builds.</div>
-    </div>
-    <div class="wc">
-      <div class="wnum">II</div>
-      <div class="wt2">Massive On-Site Stock</div>
-      <div class="wd2">Minimizing logistics delays by stocking complex machinery components directly at our flagship Santalpur hub.</div>
-    </div>
-  </div>
-</section>
-
-<div class="ssep"></div>
-
-<section class="sec" id="reviews">
-  <div class="sew reveal-el">Verified Experience</div>
-  <h2 class="sh reveal-el">What Fleet Operators <br><strong>Say About Abhinandan.</strong></h2>
-  
-  <div class="rvgd reveal-el" id="rvc">
-    <div class="rv-msg">No customer reviews submitted yet. Be the first to append your input.</div>
-  </div>
-</section>
-
-<div class="ssep"></div>
-
-<section class="sec" id="contact">
-  <div class="sew reveal-el">Corporate Desk</div>
-  <h2 class="sh reveal-el">Connect Instantly For <br><strong>Bulk Orders & Freight Sourcing.</strong></h2>
-  
-  <div class="cgd reveal-el">
-    <div class="cb">
-      <div class="clb">Primary Hotline</div>
-      <div class="cv"> +91 94269 64234</div>
-    </div>
-    <div class="cb">
-      <div class="clb">Flagship Station Address</div>
-      <div class="cv">Santalpur, Patan Highway, Gujarat, 385350</div>
-    </div>
-  </div>
-</section>
-
-<footer>
-  <div class="flo">Abhinandan Auto Mobiles</div>
-  <div class="fcp">&copy; 2026 Abhinandan Auto Mobiles. All Rights Reserved.</div>
-</footer>
-
-<div id="modal">
-  <div class="mbox">
-    <button class="mcl" onclick="closeM()">&times;</button>
-    <h2 class="mh2">Submit Commercial Review</h2>
-    <p class="ms2">Your metrics help streamline local fleet maintenance strategies.</p>
-    
-    <form id="rvFrm" onsubmit="submitReview(event)">
-      <div class="ff">
-        <label>Operator / Representative Name</label>
-        <input type="text" id="rName" required placeholder="e.g., Rajesh Patel">
+  <nav id="nav">
+    <a class="nlogo" href="#">
+      <div class="nbox">A</div>
+      <div>
+        <div class="nname">Abhinandan Auto Mobiles</div>
+        <div class="nsub">Genuine Spare Parts</div>
       </div>
-      <div class="ff">
-        <label>Primary Vehicle Type</label>
-        <input type="text" id="rVehicle" placeholder="e.g., Tata SIGNA / JCB / Tractor">
-      </div>
-      <div class="ff">
-        <label>Quality Assessment Rating</label>
-        <div class="sr3" id="sRow">
-          <span onclick="setStar(1)">&#9734;</span>
-          <span onclick="setStar(2)">&#9734;</span>
-          <span onclick="setStar(3)">&#9734;</span>
-          <span onclick="setStar(4)">&#9734;</span>
-          <span onclick="setStar(5)">&#9734;</span>
+    </a>
+    <div class="nlinks">
+      <a href="#products">Products</a>
+      <a href="#brands">Brands</a>
+      <a href="#why">Why Us</a>
+      <a href="#contact">Contact</a>
+    </div>
+    <a href="https://wa.me/919870037002" target="_blank" class="ncta">&#128222; WhatsApp</a>
+  </nav>
+
+  <!-- HERO -->
+  <section id="hero">
+    <div class="hero-inner">
+      <div>
+        <div class="hero-eyebrow">Santalpur, Patan — Gujarat</div>
+        <h1 class="hero-h1">Genuine<br>Spare Parts<br><strong>You Can Trust</strong></h1>
+        <p class="hero-p">All types of genuine parts for Tata · Ashok Leyland · JCB · Tractors and every commercial vehicle. Original quality, honest pricing — for over 15 years.</p>
+        <div class="hero-btns">
+          <a href="https://wa.me/919870037002" target="_blank" class="btn-a">&#128222; 9870037002</a>
+          <a href="https://maps.app.goo.gl/QBDi2SPd5LXC6mHb8" target="_blank" class="btn-b">&#128205; Find Store</a>
         </div>
       </div>
-      <div class="ff">
-        <label>Operational Feedback</label>
-        <textarea id="rText" required placeholder="Share your experience regarding part durability, lifespan or order speed..."></textarea>
+      <div class="hero-right">
+        <div class="hero-stats">
+          <div class="hstat rev"><div class="hn">15+</div><div class="hl">Years in Business</div></div>
+          <div class="hstat rev" style="transition-delay:.1s"><div class="hn">10K+</div><div class="hl">Parts in Stock</div></div>
+          <div class="hstat rev" style="transition-delay:.2s"><div class="hn">1000+</div><div class="hl">Happy Customers</div></div>
+          <div class="hstat rev" style="transition-delay:.3s"><div class="hn">50+</div><div class="hl">Brands Available</div></div>
+        </div>
       </div>
-      
-      <button type="submit" class="msb" id="sBtn">Publish To Live Feed</button>
-      <div class="mok" id="mOk">Review submitted to interface pipeline successfully.</div>
-      <div class="merr" id="mErr">Error encountered while processing form arrays.</div>
-    </form>
+    </div>
+  </section>
+
+  <div class="sec-sep"></div>
+
+  <!-- PRODUCTS -->
+  <div class="sec rev" id="products">
+    <div class="sec-eyebrow">Our Inventory</div>
+    <h2 class="sec-h">Everything Your <strong>Fleet Needs</strong></h2>
+    <div class="pgrid">
+      <div class="pcard rev"><div class="pnum">01</div><div class="pname">Bearings</div><div class="pdesc">Hub, wheel, crankshaft, camshaft bearings for all commercial vehicles.</div></div>
+      <div class="pcard rev"><div class="pnum">02</div><div class="pname">Clutch Assembly</div><div class="pdesc">Pressure plates, disc plates, release bearings — Tata and Leyland.</div></div>
+      <div class="pcard rev"><div class="pnum">03</div><div class="pname">Engine Parts</div><div class="pdesc">Pistons, rings, liners, gaskets, oil seals — genuine OEM quality only.</div></div>
+      <div class="pcard rev"><div class="pnum">04</div><div class="pname">Electrical</div><div class="pdesc">Alternators, starters, switches, relays, wiring harness components.</div></div>
+      <div class="pcard rev"><div class="pnum">05</div><div class="pname">Leaf Springs</div><div class="pdesc">Front and rear assemblies, U-bolts, spring pins for all HCV models.</div></div>
+      <div class="pcard rev"><div class="pnum">06</div><div class="pname">Brake System</div><div class="pdesc">Drums, shoes, liners, master cylinders, booster assemblies.</div></div>
+      <div class="pcard rev"><div class="pnum">07</div><div class="pname">Universal Joints</div><div class="pdesc">Propeller shaft UJs, CV joints for all heavy commercial vehicle models.</div></div>
+      <div class="pcard rev"><div class="pnum">08</div><div class="pname">Oils & Fluids</div><div class="pdesc">Castrol, Servo engine oils, gear oils, greases in all grades.</div></div>
+      <div class="pcard rev"><div class="pnum">09</div><div class="pname">Cab & Lighting</div><div class="pdesc">Headlamps, fog lights, mirrors, cabin fittings, wipers.</div></div>
+    </div>
+  </div>
+
+  <div class="sec-sep"></div>
+
+  <!-- BRANDS -->
+  <div class="bsec" id="brands">
+    <div class="binner">
+      <div class="be rev">Brands We Stock</div>
+      <div class="brand-row rev">
+        <div class="bitem">TATA</div><div class="bitem">TVS</div>
+        <div class="bitem">GAJRA</div><div class="bitem">TELCO</div>
+        <div class="bitem">CASTROL</div><div class="bitem">LEYLAND</div>
+        <div class="bitem">JCB</div><div class="bitem">CUMMINS</div>
+        <div class="bitem">BOSCH</div><div class="bitem">WABCO</div>
+        <div class="bitem">MAHINDRA</div><div class="bitem">TATA AIA</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WHY US -->
+  <div class="sec" id="why">
+    <div class="sec-eyebrow rev">Why We're Different</div>
+    <h2 class="sec-h rev">Trusted by <strong>Mechanics</strong><br>Across Patan Region</h2>
+    <div class="wgrid rev">
+      <div class="wcard"><div class="wn">01</div><div class="wt">100% Genuine Only</div><div class="wd">We stock only manufacturer-certified parts. No duplicate, no imitation — every part carries original warranty and certification.</div></div>
+      <div class="wcard"><div class="wn">02</div><div class="wt">Massive Ready Stock</div><div class="wd">Over 10,000 line items ready same day. No waiting — if it runs on a diesel engine, we likely have it.</div></div>
+      <div class="wcard"><div class="wn">03</div><div class="wt">Expert Guidance</div><div class="wd">15+ years of hands-on knowledge. Tell us your vehicle and chassis number — we'll find the exact right part.</div></div>
+      <div class="wcard"><div class="wn">04</div><div class="wt">Honest Fair Pricing</div><div class="wd">Direct from authorized distributors. No middlemen, no inflated margins — the price you see is the fair market price.</div></div>
+    </div>
+  </div>
+
+  <div class="sec-sep"></div>
+
+  <!-- CONTACT + REVIEWS -->
+  <div class="sec" id="contact">
+    <div class="sec-eyebrow rev">Find Us</div>
+    <h2 class="sec-h rev">Visit Our <strong>Store</strong></h2>
+    <div class="cgrid rev">
+      <div class="cblock">
+        <div class="clbl">Address</div>
+        <div class="cval">Nr. Refaral Hospital, Kandla National<br>Highway Road, Santalpur<br>Dist. Patan — 385350</div>
+      </div>
+      <div class="cblock">
+        <div class="clbl">Phone</div>
+        <div class="cval">9825259065<br>9870037002</div>
+      </div>
+      <div class="cblock">
+        <div class="clbl">Working Hours</div>
+        <div class="cval">Mon–Sat: 9:00 AM – 7:00 PM<br>Sunday: 10:00 AM – 2:00 PM</div>
+      </div>
+      <div class="cblock" style="display:flex;flex-direction:column;justify-content:flex-end;gap:10px">
+        <a href="https://wa.me/919870037002" target="_blank" class="btn-a" style="text-align:center">&#128172; WhatsApp</a>
+        <a href="https://maps.app.goo.gl/QBDi2SPd5LXC6mHb8" target="_blank" class="btn-b" style="text-align:center">&#128205; Google Maps</a>
+        <button class="btn-b" onclick="openM()">&#11088; Leave Review</button>
+      </div>
+    </div>
+    <div class="rvgrid" id="rvcont">
+      <div class="rv">
+        <div class="rstars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        <div class="rtxt">"Best place for Tata truck parts in Patan region. Got bearings same day. Very knowledgeable."</div>
+        <div class="rau">Ramesh Patel</div><div class="rsub">Tata 1109 Owner · Patan</div>
+      </div>
+      <div class="rv">
+        <div class="rstars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        <div class="rtxt">"Genuine parts at fair prices. Clutch plates lasted 2 years. Never had a quality issue from here."</div>
+        <div class="rau">Suresh Motor Works</div><div class="rsub">Workshop · Santalpur</div>
+      </div>
+      <div class="rv">
+        <div class="rstars">&#9733;&#9733;&#9733;&#9733;&#9734;</div>
+        <div class="rtxt">"Had the Leyland leaf spring when nobody else did. Incredibly reliable shop, always honest."</div>
+        <div class="rau">Mahesh Bhai</div><div class="rsub">Leyland Fleet Owner</div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="flogo">&#169; 2025 Abhinandan Auto Mobiles</div>
+    <div class="fcopy">Santalpur, Dist. Patan — 385350 · Quality Parts · Trusted Service</div>
+  </footer>
+
+</div><!-- /site -->
+
+<!-- REVIEW MODAL -->
+<div id="modal">
+  <div class="mbox">
+    <button class="mclose" onclick="closeM()">&#10005;</button>
+    <div class="mh">Leave a Review</div>
+    <div class="ms">Your experience helps others trust us</div>
+    <div class="ff"><label>Your Name *</label><input type="text" id="rN" placeholder="Full name"></div>
+    <div class="ff"><label>Phone (optional)</label><input type="tel" id="rP" placeholder="Mobile number"></div>
+    <div class="ff"><label>Vehicle / Business</label><input type="text" id="rV" placeholder="e.g. Tata 407, JCB, Workshop..."></div>
+    <div class="ff"><label>Rating *</label><div class="star-row" id="srw"><span onclick="setStar(1)">&#9733;</span><span onclick="setStar(2)">&#9733;</span><span onclick="setStar(3)">&#9733;</span><span onclick="setStar(4)">&#9733;</span><span onclick="setStar(5)">&#9733;</span></div></div>
+    <div class="ff"><label>Review *</label><textarea id="rT" placeholder="Tell us about your experience..."></textarea></div>
+    <button class="msub" onclick="subReview()">Submit Review</button>
+    <div class="mok" id="mok">&#10003; Thank you — your review has been added.</div>
   </div>
 </div>
 
+<!-- THREE.JS -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+
 <script>
-/* INTERSECTION OBSERVER SCROLL ANIMATION REGISTRATION */
-document.addEventListener("DOMContentLoaded", () => {
-  const revealElements = document.querySelectorAll(".reveal-el");
-  
-  const scrollObserver = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add("active");
+/* ═══════════════════════════════════════════
+   SUPABASE
+═══════════════════════════════════════════ */
+var _sb=null;
+(function(){
+  var s=document.createElement('script');
+  s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js';
+  s.onload=function(){
+    _sb=window.supabase.createClient(
+      'https://mhhnmndnolhapaoqtbxo.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1oaG5tbmRub2xoYXBhb3F0YnhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4Mzg4NTksImV4cCI6MjA4ODQxNDg1OX0.IMSp8vYiCln_iSuoT_H2qdeX_dP1WMhOOskDw20eJXw'
+    );
+  };
+  document.head.appendChild(s);
+})();
+
+/* ═══════════════════════════════════════════
+   CURSOR
+═══════════════════════════════════════════ */
+var cx=0,cy=0,rx=0,ry=0;
+var cur=document.getElementById('cur');
+var cur2=document.getElementById('cur2');
+document.addEventListener('mousemove',function(e){
+  cx=e.clientX; cy=e.clientY;
+  cur.style.left=cx+'px'; cur.style.top=cy+'px';
+});
+(function loop(){
+  rx+=(cx-rx)*.12; ry+=(cy-ry)*.12;
+  cur2.style.left=rx+'px'; cur2.style.top=ry+'px';
+  requestAnimationFrame(loop);
+})();
+document.addEventListener('mouseenter',function(){cur.classList.add('big')},true);
+document.addEventListener('mouseleave',function(){cur.classList.remove('big')},true);
+
+/* ═══════════════════════════════════════════
+   THREE.JS SETUP — IGLOO STYLE
+   Light grey bg, chrome/metallic objects,
+   warm single key light + cool fill
+═══════════════════════════════════════════ */
+var W=window.innerWidth, H=window.innerHeight;
+var renderer,scene,camera,clock;
+var mountainGrp,truckGrp,partsGrp,snowGrp,roadGrp;
+var cineActive=false;
+var phase=0; // 0=intro-idle, 1=mtn, 2=truck-drive, 3=orbit, 4=parts, 5=end
+var orbitA=0, orbitActive=false;
+var truckZ=-180;
+var phaseDone=false;
+var gsapTl=null;
+
+function init3(){
+  var canvas=document.getElementById('c');
+  renderer=new THREE.WebGLRenderer({canvas:canvas,antialias:true,alpha:false});
+  renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+  renderer.setSize(W,H);
+  renderer.shadowMap.enabled=true;
+  renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+  renderer.toneMapping=THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure=1.05;
+  renderer.outputColorSpace=THREE.SRGBColorSpace;
+
+  scene=new THREE.Scene();
+  /* KEY: Light grey background like the IGLOO screenshots */
+  scene.background=new THREE.Color(0xe6e4e0);
+  scene.fog=new THREE.Fog(0xe6e4e0,80,280);
+
+  camera=new THREE.PerspectiveCamera(55,W/H,0.1,1000);
+  camera.position.set(0,80,40);
+  camera.lookAt(0,0,-30);
+
+  clock=new THREE.Clock();
+
+  makeLights();
+  makeSky();
+  makeMountains();
+  makeRoad();
+  makeTruck();
+  makeSnow();
+  makeParts();
+
+  window.addEventListener('resize',function(){
+    W=window.innerWidth; H=window.innerHeight;
+    renderer.setSize(W,H);
+    camera.aspect=W/H;
+    camera.updateProjectionMatrix();
+  });
+
+  renderLoop();
+}
+
+/* ── LIGHTS: match IGLOO — warm key light, cool fill, dark shadows ── */
+function makeLights(){
+  // Ambient — cool grey
+  var amb=new THREE.AmbientLight(0xd8dce8,0.5);
+  scene.add(amb);
+
+  // KEY LIGHT — warm, upper-right, casting strong shadows
+  var key=new THREE.DirectionalLight(0xfff0d8,2.8);
+  key.position.set(60,100,20);
+  key.castShadow=true;
+  key.shadow.mapSize.width=2048;
+  key.shadow.mapSize.height=2048;
+  key.shadow.camera.near=1;
+  key.shadow.camera.far=400;
+  key.shadow.camera.left=-100;
+  key.shadow.camera.right=100;
+  key.shadow.camera.top=100;
+  key.shadow.camera.bottom=-100;
+  key.shadow.bias=-0.001;
+  scene.add(key);
+
+  // FILL — cool blue-grey from opposite side (like the IGLOO screenshots)
+  var fill=new THREE.DirectionalLight(0xc8d8f0,0.6);
+  fill.position.set(-60,40,30);
+  scene.add(fill);
+
+  // RIM — backlight to separate objects from bg
+  var rim=new THREE.DirectionalLight(0xffeedd,0.4);
+  rim.position.set(0,20,-80);
+  scene.add(rim);
+
+  // Subtle bottom bounce (reflect off snowy ground)
+  var bounce=new THREE.DirectionalLight(0xeeeeff,0.2);
+  bounce.position.set(0,-30,0);
+  scene.add(bounce);
+}
+
+/* ── SKY: just the fog does it; we add a ground plane ── */
+function makeSky(){
+  // Ground — snowy/misty
+  var gGeo=new THREE.PlaneGeometry(2000,2000);
+  var gMat=new THREE.MeshLambertMaterial({color:0xdcdad6});
+  var ground=new THREE.Mesh(gGeo,gMat);
+  ground.rotation.x=-Math.PI/2;
+  ground.position.y=-22;
+  ground.receiveShadow=true;
+  scene.add(ground);
+}
+
+/* ── MOUNTAINS: realistic rocky shapes, pale grey, misty ── */
+function makeMountains(){
+  mountainGrp=new THREE.Group();
+  scene.add(mountainGrp);
+
+  var mDefs=[
+    {x:-110,z:-60,h:200,r:60,col:0xb8b4ae,segs:9},
+    {x:-55,z:-45,h:260,r:50,col:0xc4c0ba,segs:8},
+    {x:0,z:-90,h:290,r:70,col:0xaaaaa8,segs:10},
+    {x:60,z:-55,h:240,r:55,col:0xb2aead,segs:9},
+    {x:115,z:-70,h:210,r:62,col:0xb8b4ae,segs:8},
+    {x:-160,z:-110,h:170,r:80,col:0xc8c4c0,segs:7},
+    {x:165,z:-100,h:180,r:75,col:0xc0bcb8,segs:7},
+    {x:-30,z:-140,h:160,r:100,col:0xd0ccc8,segs:6},
+    {x:40,z:-150,h:150,r:90,col:0xccc8c4,segs:6},
+  ];
+
+  mDefs.forEach(function(d){
+    // Main mountain body — ConeGeometry with vertex displacement for rocky look
+    var geo=new THREE.ConeGeometry(d.r*.6,d.h,d.segs);
+    // Displace vertices for rocky texture
+    var pos=geo.attributes.position;
+    for(var i=0;i<pos.count;i++){
+      var y=pos.getY(i);
+      var yRatio=(y/d.h)+.5;
+      if(yRatio>.05&&yRatio<.92){
+        var disp=(Math.random()-.5)*d.r*.14*(1-yRatio*.8);
+        pos.setX(i,pos.getX(i)+disp);
+        pos.setZ(i,pos.getZ(i)+disp*.6);
+      }
+    }
+    pos.needsUpdate=true;
+    geo.computeVertexNormals();
+
+    var mat=new THREE.MeshLambertMaterial({color:d.col});
+    var m=new THREE.Mesh(geo,mat);
+    m.position.set(d.x,d.h/2-22,d.z);
+    m.castShadow=true;
+    m.receiveShadow=true;
+    mountainGrp.add(m);
+
+    // Snow cap — brighter, smaller cone on top
+    var scH=d.h*.28;
+    var scGeo=new THREE.ConeGeometry(d.r*.18,scH,d.segs);
+    var scMat=new THREE.MeshLambertMaterial({color:0xf0eeec});
+    var sc=new THREE.Mesh(scGeo,scMat);
+    sc.position.set(d.x,d.h-22-scH/2+scH*.15,d.z);
+    mountainGrp.add(sc);
+
+    // Mid snow patch
+    var mpGeo=new THREE.ConeGeometry(d.r*.28,d.h*.18,d.segs);
+    var mpMat=new THREE.MeshLambertMaterial({color:0xe8e6e2,transparent:true,opacity:.7});
+    var mp=new THREE.Mesh(mpGeo,mpMat);
+    mp.position.set(d.x+(Math.random()-.5)*10,d.h*.55-22,d.z+(Math.random()-.5)*10);
+    mountainGrp.add(mp);
+  });
+}
+
+/* ── ROAD: empty mountain highway ── */
+function makeRoad(){
+  roadGrp=new THREE.Group();
+  scene.add(roadGrp);
+
+  // Asphalt
+  var rGeo=new THREE.PlaneGeometry(10,500);
+  var rMat=new THREE.MeshLambertMaterial({color:0x2c2c2c});
+  var r=new THREE.Mesh(rGeo,rMat);
+  r.rotation.x=-Math.PI/2;
+  r.position.set(0,-21.9,-80);
+  r.receiveShadow=true;
+  roadGrp.add(r);
+
+  // Shoulder — pale gravel
+  var shMat=new THREE.MeshLambertMaterial({color:0xb8b0a4});
+  [-7,7].forEach(function(x){
+    var sg=new THREE.PlaneGeometry(6,500);
+    var sh=new THREE.Mesh(sg,shMat);
+    sh.rotation.x=-Math.PI/2;
+    sh.position.set(x,-21.85,-80);
+    roadGrp.add(sh);
+  });
+
+  // Edge white lines
+  var wlMat=new THREE.MeshBasicMaterial({color:0xe8e8e8});
+  [-4.2,4.2].forEach(function(x){
+    var wg=new THREE.PlaneGeometry(.18,500);
+    var wl=new THREE.Mesh(wg,wlMat);
+    wl.rotation.x=-Math.PI/2;
+    wl.position.set(x,-21.8,-80);
+    roadGrp.add(wl);
+  });
+
+  // Yellow centre dashes
+  var yMat=new THREE.MeshBasicMaterial({color:0xf0d840});
+  for(var i=0;i<120;i++){
+    var dg=new THREE.PlaneGeometry(.14,2.4);
+    var d=new THREE.Mesh(dg,yMat);
+    d.rotation.x=-Math.PI/2;
+    d.position.set(0,-21.78,i*4.2-280);
+    roadGrp.add(d);
+  }
+}
+
+/* ── TRUCK: Tata SIGNA / Ashok Leyland style, metallic/chrome ── */
+function makeTruck(){
+  truckGrp=new THREE.Group();
+  truckGrp.visible=false;
+  scene.add(truckGrp);
+
+  // Materials — MeshLambertMaterial for performance, realistic colors
+  var cabRed=new THREE.MeshLambertMaterial({color:0xcc3300});      // Classic Tata red
+  var cabShade=new THREE.MeshLambertMaterial({color:0xa82800});
+  var chrome=new THREE.MeshLambertMaterial({color:0xc8d0dc});
+  var chromeDark=new THREE.MeshLambertMaterial({color:0x909aaa});
+  var glassM=new THREE.MeshLambertMaterial({color:0x7ab0c0,transparent:true,opacity:.55});
+  var trailerBlue=new THREE.MeshLambertMaterial({color:0x1a2a5a});
+  var trailerShade=new THREE.MeshLambertMaterial({color:0x122040});
+  var black=new THREE.MeshLambertMaterial({color:0x141414});
+  var darkGray=new THREE.MeshLambertMaterial({color:0x282828});
+  var orange=new THREE.MeshLambertMaterial({color:0xff5500});
+  var white=new THREE.MeshLambertMaterial({color:0xf4f4f0});
+  var rubber=new THREE.MeshLambertMaterial({color:0x141414});
+  var rimMat=new THREE.MeshLambertMaterial({color:0xb0bcc8});
+  var yellow=new THREE.MeshLambertMaterial({color:0xf0c020});
+
+  function box(w,h,d,mat,px,py,pz){
+    var m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat);
+    m.position.set(px,py,pz);
+    m.castShadow=true; m.receiveShadow=true;
+    return m;
+  }
+  function cyl(rt,rb,h,seg,mat,px,py,pz,rx,rz){
+    var m=new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,h,seg),mat);
+    m.position.set(px,py,pz);
+    if(rx) m.rotation.x=rx;
+    if(rz) m.rotation.z=rz;
+    m.castShadow=true;
+    return m;
+  }
+  function add(m){truckGrp.add(m)}
+
+  // ─ CHASSIS FRAME ─
+  add(box(3.2,.28,18,darkGray,0,.1,-4.5));
+
+  // ─ TRAILER ─
+  // Main body
+  add(box(3.65,2.7,11,trailerBlue,0,2.85,-6));
+  // Shade strip top edge
+  add(box(3.7,.15,11.1,trailerShade,0,4.22,-6));
+  // Orange stripe
+  add(box(3.67,.45,11.02,orange,0,1.8,-6));
+  // White reflective band
+  add(box(3.67,.12,11.02,white,0,1.52,-6));
+  // Rear face
+  add(box(3.6,2.7,.1,trailerShade,0,2.85,-11.56));
+  // Rear door line
+  add(box(.06,2.7,.12,chrome,0,2.85,-11.6));
+  // Rear lights
+  add(box(1.2,.26,.1,new THREE.MeshLambertMaterial({color:0xff1100}),1.4,1.3,-11.58));
+  add(box(1.2,.26,.1,new THREE.MeshLambertMaterial({color:0xff1100}),-1.4,1.3,-11.58));
+  // Rear amber lights
+  add(box(.5,.22,.1,yellow,0,1.3,-11.58));
+  // Rear bumper
+  add(box(3.7,.5,.55,darkGray,0,.5,-11.5));
+  // Trailer underbody frame
+  add(box(3.5,.35,11,black,0,-.08,-6));
+
+  // ─ CAB ─
+  // Main cab box
+  add(box(3.45,3.3,4.0,cabRed,0,2.3,1.2));
+  // Cab top (sleeper pod)
+  add(box(3.25,1.15,2.5,cabShade,0,4.05,.35));
+  // Aero deflector on roof
+  add(box(3.3,.75,.9,cabShade,0,5.15,1.8));
+  // Cab front face — slight setback for realism
+  // Windshield
+  add(box(2.75,1.55,.07,glassM,0,2.72,3.22));
+  // WS frame top
+  add(box(3.0,.14,.09,cabShade,0,3.54,3.21));
+  // Grille area
+  add(box(2.4,1.15,.12,black,0,1.55,3.22));
+  // Grille chrome frame
+  add(box(2.5,1.25,.1,chrome,0,1.55,3.24));
+  // Grille horizontal bars
+  for(var gi=0;gi<4;gi++){
+    add(box(2.38,.07,.14,chromeDark,0,1.15+gi*.28,3.23));
+  }
+  // Tata badge area
+  add(box(1.1,.42,.1,chrome,0,2.28,3.24));
+  // Headlights (rectangular units) — KEY detail
+  add(box(.78,.42,.1,new THREE.MeshLambertMaterial({color:0xfff8e0}),1.15,1.28,3.24));
+  add(box(.78,.42,.1,new THREE.MeshLambertMaterial({color:0xfff8e0}),-1.15,1.28,3.24));
+  // Headlight chrome bezel
+  add(box(.84,.48,.08,chrome,1.15,1.28,3.22));
+  add(box(.84,.48,.08,chrome,-1.15,1.28,3.22));
+  // DRL strip
+  add(box(2.3,.1,.1,new THREE.MeshLambertMaterial({color:0xfffcf0}),0,1.72,3.23));
+  // Turn signals (amber)
+  add(box(.42,.28,.08,yellow,1.36,.96,3.23));
+  add(box(.42,.28,.08,yellow,-1.36,.96,3.23));
+  // Fog lights
+  add(box(.38,.22,.08,white,1.0,.7,3.23));
+  add(box(.38,.22,.08,white,-1.0,.7,3.23));
+  // Bumper (2-piece)
+  add(box(3.5,.62,.65,chrome,0,.78,3.15));
+  add(box(3.5,.18,.5,darkGray,0,.46,3.1));
+  // Air intake boxes
+  add(box(.48,.55,.36,black,-1.32,2.65,3.12));
+  add(box(.48,.55,.36,black,1.32,2.65,3.12));
+  // Mirror arms
+  add(box(.12,.1,1.2,darkGray,-1.95,3.0,2.6));
+  add(box(.12,.1,1.2,darkGray,1.95,3.0,2.6));
+  // Mirror heads
+  add(box(.7,.5,.2,cabShade,-2.5,3.0,2.1));
+  add(box(.7,.5,.2,cabShade,2.5,3.0,2.1));
+  // Exhaust stack
+  add(cyl(.1,.12,3.2,10,chrome,1.55,3.85,.2));
+  // Exhaust rain cap
+  add(cyl(.18,0,.28,10,chrome,1.55,5.5,.2));
+  // Fuel tank
+  add(cyl(.52,.52,1.5,14,darkGray,1.95,.72,-1.5,0,Math.PI/2));
+  // Fuel cap
+  add(cyl(.1,.1,.1,8,chrome,1.95,1.48,-1.5));
+  // Step/running board
+  add(box(.55,.15,1.9,black,1.92,.28,1.1));
+  add(box(.55,.15,1.9,black,-1.92,.28,1.1));
+  // Cab-trailer coupler
+  add(box(1.2,.35,.8,darkGray,0,.3,-1.4));
+  // 5th wheel plate
+  add(box(1.6,.15,1.2,chromeDark,0,.46,-1.6));
+
+  // ─ WHEELS ─ (8 wheels total — front 2, rear 2 axles × 2)
+  var wDefs=[
+    {x:-1.98,y:.74,z:2.45,big:false},
+    {x:1.98,y:.74,z:2.45,big:false},
+    {x:-2.12,y:.88,z:-2.6,big:true},
+    {x:2.12,y:.88,z:-2.6,big:true},
+    {x:-2.22,y:.88,z:-2.6,big:true,inner:true},
+    {x:2.22,y:.88,z:-2.6,big:true,inner:true},
+    {x:-2.12,y:.88,z:-5.0,big:true},
+    {x:2.12,y:.88,z:-5.0,big:true},
+    {x:-2.22,y:.88,z:-5.0,big:true,inner:true},
+    {x:2.22,y:.88,z:-5.0,big:true,inner:true},
+  ];
+  truckGrp.userData.tires=[];
+  wDefs.forEach(function(wp){
+    var wr=wp.big?.88:.72;
+    var wt=wp.big?.52:.42;
+    // Tyre (torus — looks like a real tyre)
+    var tGeo=new THREE.TorusGeometry(wr*.62,wr*.36,12,28);
+    var tyre=new THREE.Mesh(tGeo,rubber);
+    tyre.rotation.y=Math.PI/2;
+    tyre.position.set(wp.x,wp.y,wp.z);
+    tyre.castShadow=true;
+    truckGrp.add(tyre);
+    // Rim
+    var rGeo=new THREE.CylinderGeometry(wr*.56,wr*.56,wt,16);
+    var rim=new THREE.Mesh(rGeo,rimMat);
+    rim.rotation.z=Math.PI/2;
+    rim.position.set(wp.x,wp.y,wp.z);
+    rim.castShadow=true;
+    truckGrp.add(rim);
+    // Hub cap
+    var hGeo=new THREE.CircleGeometry(wr*.32,12);
+    var hub=new THREE.Mesh(hGeo,chrome);
+    hub.rotation.y=Math.PI/2;
+    var hOff=wp.x<0?-.27:.27;
+    hub.position.set(wp.x+hOff,wp.y,wp.z);
+    truckGrp.add(hub);
+    // Hub bolts (6 bolts per wheel)
+    for(var b=0;b<6;b++){
+      var ba=b/6*Math.PI*2;
+      var br=wr*.22;
+      var bGeo=new THREE.CylinderGeometry(.04,.04,.22,6);
+      var bolt=new THREE.Mesh(bGeo,chromeDark);
+      bolt.rotation.z=Math.PI/2;
+      bolt.position.set(wp.x+hOff,wp.y+Math.sin(ba)*br,wp.z+Math.cos(ba)*br);
+      truckGrp.add(bolt);
+    }
+    truckGrp.userData.tires.push(tyre);
+  });
+
+  // Axle bars
+  [-2.6,-5.0].forEach(function(z){
+    add(box(5,.18,.18,darkGray,0,.88,z));
+  });
+  // Brake drums on rear axles
+  [-2.6,-5.0].forEach(function(z){
+    [-2.1,2.1].forEach(function(x){
+      add(cyl(.7,.7,.5,16,chromeDark,x,.88,z,0,Math.PI/2));
+    });
+  });
+
+  // Position truck far down road
+  truckGrp.position.set(0,-21.8,-200);
+  truckGrp.userData.speed=0;
+}
+
+/* ── SNOW PARTICLES: fine white dots drifting down ── */
+function makeSnow(){
+  snowGrp=new THREE.Group();
+  scene.add(snowGrp);
+  var cnt=1200;
+  var positions=new Float32Array(cnt*3);
+  for(var i=0;i<cnt;i++){
+    positions[i*3]=(Math.random()-.5)*350;
+    positions[i*3+1]=-30+Math.random()*230;
+    positions[i*3+2]=(Math.random()-.5)*350;
+  }
+  var geo=new THREE.BufferGeometry();
+  geo.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));
+  var mat=new THREE.PointsMaterial({color:0xffffff,size:.5,transparent:true,opacity:.75});
+  var pts=new THREE.Points(geo,mat);
+  snowGrp.add(pts);
+  scene.userData.snowPts=pts;
+}
+
+/* ── PARTS: photorealistic metallic parts floating in white void ── */
+function makeParts(){
+  partsGrp=new THREE.Group();
+  partsGrp.visible=false;
+  scene.add(partsGrp);
+
+  // Materials
+  var steel=new THREE.MeshLambertMaterial({color:0xb0bcc8});
+  var steelDark=new THREE.MeshLambertMaterial({color:0x7888a0});
+  var chrome2=new THREE.MeshLambertMaterial({color:0xccd4dc});
+  var brass=new THREE.MeshLambertMaterial({color:0xc8a030});
+  var rubber2=new THREE.MeshLambertMaterial({color:0x1c1c1c});
+  var cast=new THREE.MeshLambertMaterial({color:0x484840});
+  var paintRed=new THREE.MeshLambertMaterial({color:0xaa2800});
+
+  var parts=[];
+
+  // 1. HUB BEARING — signature part (like IGLOO ring screenshot)
+  // Outer race
+  var bear=new THREE.Group();
+  var outerGeo=new THREE.TorusGeometry(3,.9,16,48);
+  var outer=new THREE.Mesh(outerGeo,steel); bear.add(outer);
+  // Inner race
+  var innerGeo=new THREE.TorusGeometry(1.6,.7,16,40);
+  var inner=new THREE.Mesh(innerGeo,chrome2); bear.add(inner);
+  // Cage ring
+  var cageGeo=new THREE.TorusGeometry(2.2,.22,8,40);
+  var cage=new THREE.Mesh(cageGeo,brass); bear.add(cage);
+  // Balls (8 rolling elements)
+  for(var b=0;b<8;b++){
+    var ba2=b/8*Math.PI*2;
+    var ballGeo=new THREE.SphereGeometry(.28,10,8);
+    var ball=new THREE.Mesh(ballGeo,chrome2);
+    ball.position.set(Math.cos(ba2)*2.2,Math.sin(ba2)*2.2,0);
+    bear.add(ball);
+  }
+  // Center bore detail
+  var boreGeo=new THREE.CylinderGeometry(.7,.7,.4,20);
+  var bore=new THREE.Mesh(boreGeo,steelDark);
+  bore.rotation.x=Math.PI/2; bear.add(bore);
+  parts.push({g:bear,name:'Hub Bearing Assembly',spread:18});
+
+  // 2. CLUTCH DISC — large flat disc with friction material
+  var clu=new THREE.Group();
+  var cDisc=new THREE.Mesh(new THREE.CylinderGeometry(3.8,3.8,.28,36),cast);
+  clu.add(cDisc);
+  var cHub=new THREE.Mesh(new THREE.CylinderGeometry(1.1,1.1,.56,20),steelDark);
+  clu.add(cHub);
+  // Torsion springs (6 around hub)
+  for(var cs=0;cs<6;cs++){
+    var csa=cs/6*Math.PI*2;
+    var csg=new THREE.CylinderGeometry(.18,.18,.3,8);
+    var csm=new THREE.Mesh(csg,brass);
+    csm.position.set(Math.cos(csa)*1.9,0,Math.sin(csa)*1.9);
+    clu.add(csm);
+  }
+  // Friction ring texture (flat torus)
+  var frg=new THREE.TorusGeometry(2.9,.55,4,36);
+  var fr=new THREE.Mesh(frg,rubber2);
+  fr.rotation.x=Math.PI/2; clu.add(fr);
+  parts.push({g:clu,name:'Clutch Disc',spread:20});
+
+  // 3. UNIVERSAL JOINT — cross-shaped
+  var uni=new THREE.Group();
+  var ujMat=steelDark;
+  // Cross body
+  var crossGeo=new THREE.CylinderGeometry(.45,.45,4.2,12);
+  var c1=new THREE.Mesh(crossGeo,ujMat); uni.add(c1);
+  var c2=new THREE.Mesh(crossGeo,ujMat); c2.rotation.z=Math.PI/2; uni.add(c2);
+  // Journal caps
+  [0,1].forEach(function(axis){
+    [-2.2,2.2].forEach(function(pos){
+      var capGeo=new THREE.CylinderGeometry(.52,.52,.55,14);
+      var cap=new THREE.Mesh(capGeo,chrome2);
+      if(axis===0) cap.position.y=pos;
+      else{cap.position.x=pos; cap.rotation.z=Math.PI/2;}
+      uni.add(cap);
+    });
+  });
+  // Yoke arms
+  var yokeGeo=new THREE.BoxGeometry(1.2,.6,3.5);
+  var yoke1=new THREE.Mesh(yokeGeo,steel);
+  yoke1.position.set(0,0,-2.5); uni.add(yoke1);
+  var yoke2=new THREE.Mesh(yokeGeo,steel);
+  yoke2.rotation.y=Math.PI; yoke2.position.set(0,0,2.5); uni.add(yoke2);
+  parts.push({g:uni,name:'Universal Joint',spread:16});
+
+  // 4. LEAF SPRING — laminated flat spring pack
+  var spr=new THREE.Group();
+  var leafLengths=[9,8.2,7.4,6.6,5.8];
+  leafLengths.forEach(function(l,i){
+    var lGeo=new THREE.BoxGeometry(l,.28,.9);
+    var leaf=new THREE.Mesh(lGeo,cast);
+    leaf.position.y=i*.28;
+    leaf.castShadow=true;
+    spr.add(leaf);
+  });
+  // Center clamp U-bolt
+  var clampGeo=new THREE.BoxGeometry(.8,1.5,.15);
+  var clamp=new THREE.Mesh(clampGeo,steel);
+  clamp.position.set(0,.7,-.52); spr.add(clamp);
+  var clamp2=new THREE.Mesh(clampGeo,steel);
+  clamp2.position.set(0,.7,.52); spr.add(clamp2);
+  // End bushings
+  [-4,.4].forEach(function(x){
+    var bGeo=new THREE.CylinderGeometry(.35,.35,.9,12);
+    var bush=new THREE.Mesh(bGeo,rubber2);
+    bush.rotation.z=Math.PI/2; bush.position.set(x,.4,0); spr.add(bush);
+  });
+  spr.rotation.z=.3;
+  parts.push({g:spr,name:'Leaf Spring',spread:22});
+
+  // 5. PISTON — flat-top, skirted
+  var pis=new THREE.Group();
+  // Main body
+  var pisBody=new THREE.Mesh(new THREE.CylinderGeometry(1.6,1.55,3.8,24),steel);
+  pis.add(pisBody);
+  // Crown face
+  var crownGeo=new THREE.CylinderGeometry(1.6,1.6,.22,24);
+  var crown=new THREE.Mesh(crownGeo,chrome2);
+  crown.position.y=2.0; pis.add(crown);
+  // Ring grooves (3 rings)
+  [.8,1.25,1.6].forEach(function(y){
+    var rg=new THREE.TorusGeometry(1.6,.08,6,28);
+    var ring=new THREE.Mesh(rg,brass);
+    ring.rotation.x=Math.PI/2; ring.position.y=y; pis.add(ring);
+  });
+  // Gudgeon pin boss
+  var pinGeo=new THREE.CylinderGeometry(.38,.38,3.4,12);
+  var pin=new THREE.Mesh(pinGeo,chromeDark||steelDark);
+  pin.rotation.z=Math.PI/2; pin.position.y=.3; pis.add(pin);
+  parts.push({g:pis,name:'Piston',spread:14});
+
+  // 6. BRAKE DRUM — large cast iron drum
+  var bdrum=new THREE.Group();
+  var drumGeo=new THREE.CylinderGeometry(4.2,4.2,.9,32);
+  var drum=new THREE.Mesh(drumGeo,cast);
+  bdrum.add(drum);
+  // Inner lip
+  var lipGeo=new THREE.TorusGeometry(4.2,.2,6,32);
+  var lipL=new THREE.Mesh(lipGeo,steelDark);
+  lipL.rotation.x=Math.PI/2; lipL.position.y=.45; bdrum.add(lipL);
+  var lipR=new THREE.Mesh(lipGeo,steelDark);
+  lipR.rotation.x=Math.PI/2; lipR.position.y=-.45; bdrum.add(lipR);
+  // Mounting holes (5)
+  for(var bh=0;bh<5;bh++){
+    var bha=bh/5*Math.PI*2;
+    var bhGeo=new THREE.CylinderGeometry(.18,.18,1,8);
+    var bhole=new THREE.Mesh(bhGeo,steelDark);
+    bhole.position.set(Math.cos(bha)*3.2,0,Math.sin(bha)*3.2);
+    bdrum.add(bhole);
+  }
+  parts.push({g:bdrum,name:'Brake Drum',spread:18});
+
+  // 7. WHEEL HUB — multi-spoke hub
+  var hub2=new THREE.Group();
+  var hubFlange=new THREE.Mesh(new THREE.CylinderGeometry(3.2,3.2,.55,32),steel);
+  hub2.add(hubFlange);
+  var hubStem=new THREE.Mesh(new THREE.CylinderGeometry(1.1,1.3,4,16),steelDark);
+  hubStem.position.y=2.0; hub2.add(hubStem);
+  // Wheel studs (8)
+  for(var ws2=0;ws2<8;ws2++){
+    var wsa=ws2/8*Math.PI*2;
+    var studGeo=new THREE.CylinderGeometry(.12,.12,2.8,6);
+    var stud=new THREE.Mesh(studGeo,chrome2);
+    stud.position.set(Math.cos(wsa)*2.4,.1,Math.sin(wsa)*2.4);
+    hub2.add(stud);
+    var nutGeo=new THREE.CylinderGeometry(.22,.22,.35,6);
+    var nut=new THREE.Mesh(nutGeo,brass);
+    nut.position.set(Math.cos(wsa)*2.4,1.55,Math.sin(wsa)*2.4);
+    hub2.add(nut);
+  }
+  parts.push({g:hub2,name:'Wheel Hub',spread:16});
+
+  // Store parts with random positions
+  partsGrp.userData.parts=[];
+  parts.forEach(function(p,i){
+    p.g.castShadow=true;
+    // Random spread position
+    var angle=i/parts.length*Math.PI*2;
+    var radius=p.spread||16;
+    var spread={
+      x:Math.cos(angle)*(radius+Math.random()*4)+(Math.random()-.5)*6,
+      y:1+Math.random()*8,
+      z:Math.sin(angle)*(radius*.7)+(Math.random()-.5)*6
+    };
+    p.g.position.set(0,0,0); // start at center
+    p.g.scale.set(0,0,0);
+    p.g.userData.target=spread;
+    p.g.userData.name=p.name;
+    p.g.userData.floatOffset=Math.random()*Math.PI*2;
+    partsGrp.add(p.g);
+    partsGrp.userData.parts.push(p.g);
+  });
+}
+
+/* ═══════════════════════════════════════════
+   CINEMATIC SEQUENCE CONTROLLER
+═══════════════════════════════════════════ */
+var hud=document.getElementById('hud');
+var progEl=document.getElementById('prog');
+var slEl=document.getElementById('scene-label');
+var snEl=document.getElementById('scene-num');
+var shEl=document.getElementById('scrollhint');
+
+function setProgress(p){progEl.style.width=p+'%';}
+function setSceneLabel(n,total){
+  var ns=n<10?'0'+n:n;
+  var ts=total<10?'0'+total:total;
+  slEl.textContent='SCENE '+ns+' / '+ts;
+  snEl.textContent=ns;
+}
+function showT(id){var e=document.getElementById(id);if(e)e.classList.add('in');}
+function hideT(id){var e=document.getElementById(id);if(e)e.classList.remove('in');}
+
+function startCine(){
+  document.getElementById('intro').classList.add('gone');
+  setTimeout(function(){document.getElementById('intro').style.display='none';},1100);
+  hud.style.display='block';
+  cineActive=true;
+  phase=1;
+  runPhase1();
+}
+
+/* ─── PHASE 1: Mountain panorama, snowfall, hero text ─── */
+function runPhase1(){
+  setSceneLabel(1,5);
+  setProgress(5);
+  shEl.classList.remove('hide');
+
+  // Camera: high drone, slowly panning
+  gsap.to(camera.position,{
+    x:20,y:100,z:50,duration:5,ease:'power2.inOut',
+    onUpdate:function(){camera.lookAt(0,0,-50);}
+  });
+
+  // Show hero text after 1.5s
+  setTimeout(function(){showT('t1'); setProgress(15);}, 1500);
+
+  // Auto-advance after 9s
+  setTimeout(function(){
+    if(phase===1){hideT('t1'); runPhase2();}
+  }, 9000);
+}
+
+/* ─── PHASE 2: Truck appears, drives toward camera ─── */
+function runPhase2(){
+  phase=2;
+  setSceneLabel(2,5);
+  setProgress(22);
+  shEl.classList.add('hide');
+  scene.fog=new THREE.Fog(0xe6e4e0,100,320);
+
+  // Camera descends to road level, ahead of truck
+  gsap.to(camera.position,{
+    x:-6,y:10,z:50,duration:4,ease:'power2.inOut',
+    onUpdate:function(){
+      camera.lookAt(truckGrp.position.x,truckGrp.position.y+4,truckGrp.position.z);
+    }
+  });
+
+  // Show truck
+  setTimeout(function(){
+    truckGrp.visible=true;
+    truckGrp.position.set(0,-21.8,-220);
+
+    // Drive truck toward camera (toward z=0)
+    gsap.to(truckGrp.position,{
+      z:8,duration:8,ease:'power1.inOut',
+      onUpdate:function(){
+        camera.lookAt(truckGrp.position.x,truckGrp.position.y+4,truckGrp.position.z);
+        // Spin wheels
+        truckGrp.userData.tires.forEach(function(t){t.rotation.y-=.14;});
+        // Subtle truck sway
+        truckGrp.rotation.z=Math.sin(clock.getElapsedTime()*3)*.005;
       }
     });
-  }, {
-    threshold: 0.05,
-    rootMargin: "0px 0px -40px 0px"
-  });
 
-  revealElements.forEach(el => {
-    scrollObserver.observe(el);
-  });
-  
-  // Auto-activate elements visible directly on primary frame load
-  setTimeout(() => {
-    const heroElements = document.querySelectorAll("#hero .reveal-el");
-    heroElements.forEach(el => el.classList.add("active"));
-  }, 150);
-});
-
-/* MODAL CONTROL TOGGLES */
-function openM() {
-  document.getElementById('modal').classList.add('open');
-  document.body.style.overflow = 'hidden';
-}
-function closeM() {
-  document.getElementById('modal').classList.remove('open');
-  document.body.style.overflow = 'auto';
-  resetForm();
+    showT('t2');
+    setProgress(40);
+    setTimeout(function(){if(phase===2){hideT('t2');runPhase3();}}, 9500);
+  }, 2500);
 }
 
-/* INTERACTIVE STAR OVERLAY LOGIC */
-let activeRating = 0;
-function setStar(rating) {
-  activeRating = rating;
-  const stars = document.querySelectorAll('#sRow span');
-  stars.forEach((star, index) => {
-    if (index < rating) {
-      star.innerHTML = '&#9733;';
-      star.classList.add('lit');
-    } else {
-      star.innerHTML = '&#9734;';
-      star.classList.remove('lit');
+/* ─── PHASE 3: 360° orbit around truck ─── */
+function runPhase3(){
+  phase=3;
+  setSceneLabel(3,5);
+  setProgress(50);
+  showT('t3');
+  scene.fog=new THREE.Fog(0xe6e4e0,40,160);
+
+  // Bring camera to truck level
+  var tz=truckGrp.position.z;
+  gsap.to(camera.position,{
+    x:22,y:8,z:tz,duration:2.5,ease:'power2.out'
+  });
+
+  // Start orbit
+  setTimeout(function(){
+    orbitActive=true;
+    var orbitObj={a:0};
+    gsap.to(orbitObj,{
+      a:Math.PI*2,
+      duration:9,ease:'none',
+      onUpdate:function(){
+        var a=orbitObj.a;
+        camera.position.x=Math.sin(a)*24;
+        camera.position.z=tz+Math.cos(a)*24;
+        // Dip low for underbody shot halfway through
+        camera.position.y=a>Math.PI*.4&&a<Math.PI*.8 ? 1.5+Math.sin((a-Math.PI*.4)/(Math.PI*.4))*6 : 7+Math.abs(Math.sin(a))*3;
+        camera.lookAt(truckGrp.position.x,truckGrp.position.y+2.5,tz);
+      },
+      onComplete:function(){
+        orbitActive=false;
+        hideT('t3');
+        runPhase4();
+      }
+    });
+  },3000);
+}
+
+/* ─── PHASE 4: Truck disassembles into floating parts ─── */
+function runPhase4(){
+  phase=4;
+  setSceneLabel(4,5);
+  setProgress(68);
+  scene.fog=new THREE.Fog(0xeceae6,5,60);
+
+  // Camera pulls back to neutral
+  var tz=truckGrp.position.z;
+  gsap.to(camera.position,{
+    x:0,y:15,z:tz+38,duration:2.5,ease:'power2.out',
+    onUpdate:function(){camera.lookAt(0,4,tz);}
+  });
+
+  setTimeout(function(){
+    showT('t4');
+    setProgress(75);
+
+    // Scale down truck
+    gsap.to(truckGrp.scale,{x:0,y:0,z:0,duration:.9,ease:'back.in(1.8)',
+      onComplete:function(){truckGrp.visible=false;}
+    });
+
+    // Position partsGroup at truck location
+    partsGrp.position.copy(truckGrp.position);
+    partsGrp.visible=true;
+
+    // Explode parts outward
+    partsGrp.userData.parts.forEach(function(p,i){
+      var delay=i*.1;
+      gsap.to(p.scale,{x:1,y:1,z:1,duration:.7,delay:delay,ease:'back.out(2)'});
+      gsap.to(p.position,{
+        x:p.userData.target.x,y:p.userData.target.y,z:p.userData.target.z,
+        duration:1.4,delay:delay,ease:'power3.out'
+      });
+      gsap.to(p.rotation,{
+        x:Math.random()*Math.PI*2,y:Math.random()*Math.PI*2,z:Math.random()*Math.PI*2,
+        duration:1.6,delay:delay,ease:'power2.out'
+      });
+    });
+
+    // Show annotation labels
+    setTimeout(function(){
+      ['an-bearing','an-spring','an-uni','an-clutch'].forEach(function(id,i){
+        setTimeout(function(){document.getElementById(id).classList.add('show');},i*200);
+      });
+    }, 1800);
+
+    setProgress(88);
+    setTimeout(function(){if(phase===4)runPhase5();},7000);
+  },3000);
+}
+
+/* ─── PHASE 5: CTA ─── */
+function runPhase5(){
+  phase=5;
+  setSceneLabel(5,5);
+  setProgress(100);
+
+  hideT('t4');
+  ['an-bearing','an-spring','an-uni','an-clutch'].forEach(function(id){
+    document.getElementById(id).classList.remove('show');
+  });
+  scene.fog=new THREE.Fog(0xe6e4e0,30,140);
+
+  // Camera slow orbit of parts field
+  var tz=partsGrp.position.z;
+  showT('t5');
+
+  var pOrbit={a:0};
+  gsap.to(pOrbit,{a:Math.PI*4,duration:30,ease:'none',repeat:-1,
+    onUpdate:function(){
+      camera.position.x=Math.sin(pOrbit.a)*28;
+      camera.position.z=tz+Math.cos(pOrbit.a)*28;
+      camera.position.y=16+Math.sin(pOrbit.a*.5)*4;
+      camera.lookAt(partsGrp.position.x,4,tz);
     }
   });
 }
 
-function resetForm() {
-  document.getElementById('rvFrm').reset();
-  setStar(0);
-  document.getElementById('mOk').style.display = 'none';
-  document.getElementById('mErr').style.display = 'none';
-  document.getElementById('sBtn').disabled = false;
+function enterSite(){
+  gsap.killTweensOf(camera.position);
+  gsap.killTweensOf(camera.rotation);
+
+  // Fade out canvas and HUD
+  gsap.to([document.getElementById('c'),
+           document.getElementById('grain'),
+           document.getElementById('vig'),
+           document.getElementById('hud')],
+    {opacity:0,duration:1.2,ease:'power2.inOut',
+     onComplete:function(){
+       document.getElementById('hud').style.display='none';
+       document.getElementById('c').style.display='none';
+       document.getElementById('grain').style.display='none';
+       document.getElementById('vig').style.display='none';
+     }
+  });
+
+  var s=document.getElementById('site');
+  s.style.display='block';
+  setTimeout(function(){
+    s.style.opacity='1';
+    document.body.classList.add('site-active');
+    initReveal();
+  },800);
 }
 
-/* DYNAMIC CONTENT PROCESSING PIPELINE */
-function submitReview(e) {
-  e.preventDefault();
-  const name = document.getElementById('rName').value.trim();
-  const vehicle = document.getElementById('rVehicle').value.trim();
-  const text = document.getElementById('rText').value.trim();
-  
-  if (!name || !text || activeRating === 0) {
-    document.getElementById('mErr').textContent = 'Please fill out all fields and apply a star quality rating.';
-    document.getElementById('mErr').style.display = 'block';
+/* ═══════════════════════════════════════════
+   RENDER LOOP
+═══════════════════════════════════════════ */
+function renderLoop(){
+  requestAnimationFrame(renderLoop);
+  var t=clock.getElapsedTime();
+
+  // Idle camera sway when not in cine
+  if(!cineActive){
+    camera.position.x=Math.sin(t*.08)*25;
+    camera.position.z=30+Math.cos(t*.06)*20;
+    camera.position.y=80+Math.sin(t*.12)*8;
+    camera.lookAt(0,0,-40);
+  }
+
+  // Snow drift
+  var sp=scene.userData.snowPts;
+  if(sp){
+    var pos=sp.geometry.attributes.position;
+    for(var i=0;i<pos.count;i++){
+      pos.setY(i,pos.getY(i)-(.2+Math.sin(t+i)*.08));
+      pos.setX(i,pos.getX(i)+Math.sin(t*.15+i*.1)*.04);
+      if(pos.getY(i)<-22){
+        pos.setY(i,190+Math.random()*20);
+        pos.setX(i,(Math.random()-.5)*350);
+        pos.setZ(i,(Math.random()-.5)*350);
+      }
+    }
+    pos.needsUpdate=true;
+  }
+
+  // Parts float gently
+  if(partsGrp&&partsGrp.visible&&phase>=4){
+    partsGrp.userData.parts.forEach(function(p){
+      p.position.y=p.userData.target.y+Math.sin(t*.5+p.userData.floatOffset)*.6;
+      p.rotation.y+=.004;
+    });
+  }
+
+  renderer.render(scene,camera);
+}
+
+/* ═══════════════════════════════════════════
+   SCROLL REVEAL for site section
+═══════════════════════════════════════════ */
+function initReveal(){
+  var obs=new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting)e.target.classList.add('vis');
+    });
+  },{threshold:.1});
+  document.querySelectorAll('.rev').forEach(function(el){obs.observe(el);});
+}
+
+/* ═══════════════════════════════════════════
+   MODAL
+═══════════════════════════════════════════ */
+var starVal=0;
+function openM(){document.getElementById('modal').classList.add('open');}
+function closeM(){document.getElementById('modal').classList.remove('open');}
+function setStar(n){
+  starVal=n;
+  var s=document.getElementById('srw').children;
+  for(var i=0;i<5;i++)s[i].className=i<n?'lit':'';
+}
+async function subReview(){
+  var name=document.getElementById('rN').value.trim();
+  var phone=document.getElementById('rP').value.trim();
+  var veh=document.getElementById('rV').value.trim();
+  var text=document.getElementById('rT').value.trim();
+  if(!name||!text||!starVal){alert('Please fill name, rating and review.');return;}
+  // Wait for supabase
+  for(var i=0;i<30&&!_sb;i++) await new Promise(r=>setTimeout(r,200));
+  if(_sb)_sb.from('website_visitors').insert({name,phone:phone||'',review_text:text,rating:starVal,vehicle:veh||''}).then(()=>{});
+  // Add card
+  var c=document.createElement('div');c.className='rv';
+  c.innerHTML='<div class="rstars">'+('&#9733;'.repeat(starVal)+'&#9734;'.repeat(5-starVal))+'</div><div class="rtxt">"'+text+'"</div><div class="rau">'+name+'</div><div class="rsub">'+(veh||'Customer')+'</div>';
+  document.getElementById('rvcont').appendChild(c);
+  document.getElementById('mok').style.display='block';
+  ['rN','rP','rV','rT'].forEach(function(id){document.getElementById(id).value='';});
+  setStar(0);
+  setTimeout(closeM,2500);
+}
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeM();});
+document.getElementById('modal').addEventListener('click',function(e){if(e.target===this)closeM();});
+
+/* ═══════════════════════════════════════════
+   SITE DISPLAY DEFAULT OPACITY
+═══════════════════════════════════════════ */
+document.getElementById('site').style.opacity='0';
+document.getElementById('site').style.transition='opacity 1s ease';
+
+/* ═══════════════════════════════════════════
+   BOOT
+═══════════════════════════════════════════ */
+window.addEventListener('load',function(){
+  if(typeof THREE==='undefined'){
+    document.getElementById('intro').querySelector('.i-sub').textContent='Loading...';
     return;
   }
-  
-  document.getElementById('sBtn').disabled = true;
-  
-  // Inject direct into document DOM arrays natively
-  addReviewCard(name, text, vehicle, activeRating);
-  
-  document.getElementById('mOk').style.display = 'block';
-  setTimeout(() => {
-    closeM();
-  }, 1500);
-}
-
-function addReviewCard(name, text, vehicle, rating) {
-  const box = document.getElementById('rvc');
-  const msg = box.querySelector('.rv-msg');
-  if (msg) msg.remove();
-  
-  let stars = '';
-  for (let i = 0; i < 5; i++) {
-    stars += i < rating ? '&#9733;' : '&#9734;';
-  }
-  
-  const card = document.createElement('div');
-  card.className = 'rv';
-  card.innerHTML = `
-    <div class="rs">${stars}</div>
-    <div class="rt">&ldquo;${text}&rdquo;</div>
-    <div class="ra">${name}</div>
-    <div class="rsub2">${vehicle || 'Verified Fleet Operator'}</div>
-  `;
-  
-  // Premium sorting rule: Insert highest star ratings at top priority positions
-  const existing = box.querySelectorAll('.rv');
-  let inserted = false;
-  for (let j = 0; j < existing.length; j++) {
-    const currentStars = (existing[j].querySelector('.rs').textContent.match(/★/g) || []).length;
-    if (rating > currentStars) {
-      box.insertBefore(card, existing[j]);
-      inserted = true;
-      break;
-    }
-  }
-  if (!inserted) box.appendChild(card);
-}
-
-/* CONTEXT CONTROLS ESCAPE HOOKS */
-document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeM(); });
-document.getElementById('modal').addEventListener('click', (e) => { if (e.target.id === 'modal') closeM(); });
+  init3();
+});
 </script>
 </body>
 </html>
