@@ -3,444 +3,714 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Abhinandan Auto Mobiles — Genuine Spare Parts</title>
+<title>Abhinandan Auto Mobiles — Genuine Spare Parts, Santalpur</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&family=Bebas+Neue&display=swap" rel="stylesheet">
+
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --or:#D4521A;--or2:#F07030;--gold:#C88A2A;
-  --cream:#F5EDD8;--dark:#0A0302;--maroon:#1a0404;
+/* ═══════════════════════════════════════
+   ROOT & RESET
+═══════════════════════════════════════ */
+:root {
+  --white:    #FAFAF8;
+  --off:      #F4F2ED;
+  --soft:     #EAE6DE;
+  --border:   rgba(0,0,0,0.07);
+  --ink:      #1A1410;
+  --ink2:     #3D3530;
+  --muted:    #8C8480;
+  --orange:   #C94B1A;
+  --orange2:  #E8622A;
+  --gold:     #B07D2A;
+  --gold2:    #D4A048;
+  --fog:      rgba(250,250,248,0.0);
 }
-html{scroll-behavior:auto}
-body{
-  font-family:'Rajdhani',sans-serif;
-  background:var(--dark);color:var(--cream);
-  overflow-x:hidden;cursor:none;
-}
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@300;400;600;700&display=swap');
-
-/* ── CURSOR ── */
-#cur{position:fixed;width:10px;height:10px;background:var(--or);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:transform .08s}
-#cur2{position:fixed;width:40px;height:40px;border:1px solid var(--or);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);opacity:.4;transition:transform .18s ease,width .2s,height .2s}
-body:hover #cur2{opacity:.4}
-
-/* ── PRELOADER ── */
-#preloader{
-  position:fixed;inset:0;z-index:9000;background:var(--dark);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.5rem;
-  transition:opacity .8s ease,visibility .8s;
-}
-#preloader.hide{opacity:0;visibility:hidden}
-.pre-logo{font-family:'Bebas Neue',sans-serif;font-size:3.5rem;letter-spacing:6px;color:var(--or);opacity:0;animation:preIn 1s .2s forwards}
-.pre-bar-wrap{width:260px;height:2px;background:rgba(245,237,216,0.1);overflow:hidden;border-radius:2px}
-.pre-bar{height:100%;width:0%;background:linear-gradient(90deg,var(--or),var(--gold));transition:width .05s linear}
-.pre-txt{font-size:.75rem;letter-spacing:3px;text-transform:uppercase;color:rgba(245,237,216,0.4);opacity:0;animation:preIn .8s .5s forwards}
-@keyframes preIn{to{opacity:1}}
-
-/* ── CANVAS ── */
-#threeCanvas{
-  position:fixed;inset:0;z-index:0;
-  pointer-events:none;
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--white);
+  color: var(--ink);
+  overflow-x: hidden;
+  cursor: none;
 }
 
-/* ── SECTIONS WRAPPER ── */
-#scroller{position:relative;z-index:10}
+/* ═══════════════════════════════════════
+   CUSTOM CURSOR
+═══════════════════════════════════════ */
+#cur {
+  position: fixed; width: 8px; height: 8px;
+  background: var(--orange); border-radius: 50%;
+  pointer-events: none; z-index: 9000;
+  transform: translate(-50%,-50%);
+  transition: background .2s, transform .1s;
+}
+#cur2 {
+  position: fixed; width: 36px; height: 36px;
+  border: 1px solid rgba(201,75,26,.4); border-radius: 50%;
+  pointer-events: none; z-index: 8999;
+  transform: translate(-50%,-50%);
+  transition: width .2s, height .2s, opacity .2s;
+  opacity: .5;
+}
+body.hovering #cur { transform: translate(-50%,-50%) scale(2.5); background: var(--gold); }
+body.hovering #cur2 { width: 56px; height: 56px; opacity: .2; }
 
-/* ── NAV ── */
-nav{
-  position:fixed;top:0;left:0;right:0;z-index:500;
-  display:flex;align-items:center;justify-content:space-between;
-  padding:1.4rem 4rem;
-  transition:background .4s,padding .4s,border-color .4s;
-  border-bottom:1px solid transparent;
+/* ═══════════════════════════════════════
+   PRELOADER
+═══════════════════════════════════════ */
+#pre {
+  position: fixed; inset: 0; z-index: 9999;
+  background: var(--ink);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 2rem;
+  transition: opacity 1s ease, visibility 1s;
 }
-nav.solid{background:rgba(10,3,2,0.92);backdrop-filter:blur(14px);border-color:rgba(212,82,26,.15);padding:0.8rem 4rem}
-.nav-logo{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:3px;color:var(--or2);text-decoration:none}
-.nav-logo span{color:var(--gold)}
-.nav-links{display:flex;gap:2rem;list-style:none}
-.nav-links a{color:rgba(245,237,216,.7);text-decoration:none;font-size:.82rem;font-weight:600;letter-spacing:2px;text-transform:uppercase;transition:color .2s;cursor:none}
-.nav-links a:hover{color:var(--or2)}
-.nav-wa{
-  background:rgba(37,211,102,.15);border:1px solid rgba(37,211,102,.4);
-  color:#5dca8a!important;padding:.5rem 1.2rem;border-radius:2px;
-  transition:background .2s!important;
+#pre.out { opacity: 0; visibility: hidden; }
+.pre-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(2rem, 6vw, 4rem);
+  font-weight: 300; letter-spacing: 8px;
+  color: var(--off); opacity: 0;
+  animation: fadeUp .8s .2s forwards;
 }
-.nav-wa:hover{background:rgba(37,211,102,.25)!important}
+.pre-title em { font-style: italic; color: var(--gold2); }
+.pre-sub {
+  font-size: .65rem; letter-spacing: 5px; text-transform: uppercase;
+  color: rgba(250,250,248,.25); opacity: 0;
+  animation: fadeUp .6s .6s forwards;
+}
+.pre-line-wrap {
+  width: 200px; height: 1px;
+  background: rgba(250,250,248,.08); overflow: hidden;
+}
+.pre-line {
+  height: 100%; width: 0%;
+  background: linear-gradient(90deg, var(--orange), var(--gold2));
+  transition: width .05s linear;
+}
+@keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
 
-/* ── HERO ── */
-#hero{
-  position:relative;height:100vh;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  text-align:center;overflow:hidden;
+/* ═══════════════════════════════════════
+   GRAIN OVERLAY — cinematic texture
+═══════════════════════════════════════ */
+#grain {
+  position: fixed; inset: 0; z-index: 8000;
+  pointer-events: none; opacity: .025;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+  animation: grainAnim 1s steps(2) infinite;
 }
-.hero-eyebrow{
-  font-size:.7rem;font-weight:700;letter-spacing:5px;text-transform:uppercase;
-  color:var(--or);opacity:0;transform:translateY(20px);
-  border:1px solid rgba(212,82,26,.3);padding:.35rem 1.2rem;
-  margin-bottom:2rem;display:inline-block;
-}
-.hero-h1{
-  font-family:'Bebas Neue',sans-serif;
-  font-size:clamp(4rem,11vw,9.5rem);
-  line-height:.9;letter-spacing:2px;
-  color:var(--cream);
-  opacity:0;transform:translateY(50px);
-}
-.hero-h1 .stroke{
-  -webkit-text-stroke:1px var(--or);color:transparent;
-}
-.hero-h1 .fill{color:var(--or2)}
-.hero-sub{
-  font-size:1.05rem;color:rgba(245,237,216,.55);font-weight:400;
-  letter-spacing:1px;margin:1.5rem 0 2.5rem;
-  max-width:480px;line-height:1.8;
-  opacity:0;transform:translateY(20px);
-}
-.hero-ctas{display:flex;gap:1rem;opacity:0;transform:translateY(20px)}
-.btn-gl{
-  background:var(--or);color:#fff;border:none;
-  padding:.9rem 2.4rem;font-family:'Rajdhani',sans-serif;
-  font-size:.92rem;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;
-  text-decoration:none;cursor:none;display:inline-block;
-  clip-path:polygon(0 0,calc(100% - 14px) 0,100% 14px,100% 100%,14px 100%,0 calc(100% - 14px));
-  transition:background .25s,transform .2s;
-}
-.btn-gl:hover{background:var(--or2);transform:translateY(-3px)}
-.btn-out{
-  background:transparent;color:var(--cream);
-  border:1px solid rgba(245,237,216,.3);
-  padding:.9rem 2.4rem;font-family:'Rajdhani',sans-serif;
-  font-size:.92rem;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;
-  text-decoration:none;cursor:none;display:inline-block;
-  clip-path:polygon(0 0,calc(100% - 14px) 0,100% 14px,100% 100%,14px 100%,0 calc(100% - 14px));
-  transition:border-color .25s,color .25s,transform .2s;
-}
-.btn-out:hover{border-color:var(--or);color:var(--or2);transform:translateY(-3px)}
+@keyframes grainAnim { 0%,100%{background-position:0 0} 25%{background-position:30% 60%} 50%{background-position:70% 20%} 75%{background-position:40% 80%} }
 
-.scroll-hint{
-  position:absolute;bottom:2.5rem;left:50%;transform:translateX(-50%);
-  display:flex;flex-direction:column;align-items:center;gap:.5rem;
-  color:rgba(245,237,216,.35);font-size:.68rem;letter-spacing:3px;text-transform:uppercase;
-  opacity:0;animation:fadeIn 1s 3s forwards;
+/* ═══════════════════════════════════════
+   NAV
+═══════════════════════════════════════ */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 500;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 2rem 5vw;
+  transition: all .5s ease;
 }
-.scroll-line{width:1px;height:40px;background:linear-gradient(to bottom,transparent,var(--or));animation:lineAnim 1.8s 3s infinite}
-@keyframes lineAnim{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}51%{transform:scaleY(1);transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
-@keyframes fadeIn{to{opacity:1}}
+nav.glassy {
+  background: rgba(250,250,248,.88);
+  backdrop-filter: blur(20px) saturate(1.5);
+  -webkit-backdrop-filter: blur(20px) saturate(1.5);
+  border-bottom: 1px solid var(--border);
+  padding: 1rem 5vw;
+}
+.nav-logo {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.35rem; font-weight: 600; letter-spacing: 1px;
+  color: var(--ink); text-decoration: none;
+}
+.nav-logo em { font-style: italic; color: var(--orange); }
+.nav-links { display: flex; gap: 2.5rem; list-style: none; }
+.nav-links a {
+  font-size: .72rem; font-weight: 500; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--muted);
+  text-decoration: none; transition: color .2s; cursor: none;
+}
+.nav-links a:hover { color: var(--orange); }
+.nav-wa {
+  background: #25D366; color: #fff !important;
+  padding: .42rem 1.1rem; border-radius: 100px;
+  font-weight: 500 !important;
+}
+/* hamburger hidden by default */
+.hamburger { display: none; flex-direction: column; gap: 5px; cursor: none; padding: 4px; }
+.hamburger span { display: block; width: 22px; height: 1.5px; background: var(--ink); transition: .3s; }
 
-/* ── TICKER ── */
-.ticker{
-  position:relative;z-index:20;
-  background:var(--or);padding:.75rem 0;overflow:hidden;
-}
-.ticker-track{
-  display:flex;gap:3.5rem;animation:tick 22s linear infinite;
-  white-space:nowrap;
-}
-@keyframes tick{from{transform:translateX(0)}to{transform:translateX(-50%)}}
-.ticker-item{
-  font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:3px;color:#fff;
-  display:inline-flex;align-items:center;gap:1rem;flex-shrink:0;
-}
-.ticker-dot{width:4px;height:4px;background:rgba(255,255,255,.5);border-radius:50%}
-
-/* ── SECTION BASE ── */
-.sec{padding:9rem 5rem;position:relative;z-index:20}
-.sec-inner{max-width:1200px;margin:0 auto}
-.sec-tag{font-size:.68rem;font-weight:700;letter-spacing:5px;text-transform:uppercase;color:var(--or);margin-bottom:.6rem}
-.sec-title{
-  font-family:'Bebas Neue',sans-serif;
-  font-size:clamp(3rem,6vw,5.5rem);line-height:.95;
-  color:var(--cream);margin-bottom:1.2rem;
-}
-.sec-desc{color:rgba(245,237,216,.5);font-size:1rem;line-height:1.9;max-width:520px}
-
-/* ── BRANDS — horizontal 3D cards ── */
-#brands{background:linear-gradient(180deg,var(--dark) 0%,#140404 100%)}
-.brands-scroll-wrap{overflow-x:auto;padding:3rem 0;scrollbar-width:none}
-.brands-scroll-wrap::-webkit-scrollbar{display:none}
-.brands-row{display:flex;gap:1.5rem;width:max-content}
-.brand-card-3d{
-  width:220px;flex-shrink:0;
-  background:rgba(59,10,10,.35);
-  border:1px solid rgba(212,82,26,.15);
-  padding:2.5rem 2rem;text-align:center;
-  transition:transform .4s ease,border-color .4s,box-shadow .4s;
-  transform-style:preserve-3d;perspective:600px;
-  cursor:none;position:relative;overflow:hidden;
-}
-.brand-card-3d::before{
-  content:'';position:absolute;inset:0;
-  background:radial-gradient(circle at 50% 0%,rgba(212,82,26,.2),transparent 70%);
-  opacity:0;transition:opacity .4s;
-}
-.brand-card-3d:hover{
-  border-color:var(--or);transform:translateY(-12px) rotateX(6deg);
-  box-shadow:0 30px 60px rgba(212,82,26,.2);
-}
-.brand-card-3d:hover::before{opacity:1}
-.brand-icon-3d{font-size:3rem;margin-bottom:1rem;display:block}
-.brand-name-3d{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:2px;color:var(--cream)}
-.brand-sub{font-size:.78rem;color:rgba(245,237,216,.4);margin-top:.4rem;letter-spacing:.5px}
-
-/* ── PARTS — big split layout ── */
-#parts{background:#0d0303}
-.parts-grid{
-  display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-top:4rem;
-}
-.part-tile{
-  background:rgba(26,4,4,.6);border:1px solid rgba(212,82,26,.12);
-  padding:2.8rem 2.5rem;position:relative;overflow:hidden;
-  transition:border-color .3s,transform .4s;cursor:none;
-}
-.part-tile:first-child{grid-column:1/-1}
-.part-tile:hover{border-color:rgba(212,82,26,.5);transform:translateY(-6px)}
-.part-tile::after{
-  content:'';position:absolute;bottom:0;left:0;right:0;height:2px;
-  background:linear-gradient(90deg,var(--or),var(--gold));
-  transform:scaleX(0);transform-origin:left;transition:transform .5s ease;
-}
-.part-tile:hover::after{transform:scaleX(1)}
-.part-num{
-  position:absolute;top:1.5rem;right:2rem;
-  font-family:'Bebas Neue',sans-serif;font-size:5rem;
-  color:rgba(212,82,26,.07);line-height:1;
-}
-.part-ico{font-size:2.5rem;margin-bottom:1.2rem}
-.part-title{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:1px;color:var(--cream);margin-bottom:.6rem}
-.part-desc{font-size:.9rem;color:rgba(245,237,216,.45);line-height:1.85;max-width:420px}
-
-/* ── STATS ── */
-#stats{
-  background:var(--dark);
-  display:flex;align-items:center;justify-content:center;
-  min-height:60vh;
-}
-.stats-row{
-  display:grid;grid-template-columns:repeat(4,1fr);gap:0;
-  border:1px solid rgba(212,82,26,.15);max-width:1000px;width:100%;
-}
-.stat-cell{
-  padding:4rem 2.5rem;text-align:center;border-right:1px solid rgba(212,82,26,.1);
-  position:relative;
-}
-.stat-cell:last-child{border-right:none}
-.stat-cell::before{
-  content:'';position:absolute;top:0;left:0;right:0;height:2px;
-  background:linear-gradient(90deg,transparent,var(--or),transparent);
-  opacity:0;transition:opacity .4s;
-}
-.stat-cell:hover::before{opacity:1}
-.stat-num{
-  font-family:'Bebas Neue',sans-serif;font-size:clamp(3rem,5vw,4.5rem);
-  color:var(--or2);line-height:1;
-}
-.stat-unit{font-family:'Bebas Neue',sans-serif;font-size:2rem;color:var(--gold)}
-.stat-lbl{font-size:.72rem;letter-spacing:3px;text-transform:uppercase;color:rgba(245,237,216,.4);margin-top:.6rem}
-
-/* ── WHY US ── */
-#whyus{background:#0d0303}
-.whyus-grid{display:grid;grid-template-columns:1fr 1fr;gap:6rem;align-items:center;margin-top:4rem}
-.feature-rows{display:flex;flex-direction:column;gap:1.5rem}
-.feat-row{
-  display:flex;gap:1.5rem;align-items:flex-start;padding:2rem;
-  background:rgba(26,4,4,.5);border:1px solid rgba(212,82,26,.1);
-  transition:border-color .3s,transform .3s;cursor:none;
-}
-.feat-row:hover{border-color:rgba(212,82,26,.4);transform:translateX(8px)}
-.feat-ico{
-  width:44px;height:44px;min-width:44px;
-  background:rgba(212,82,26,.12);border:1px solid rgba(212,82,26,.25);
-  display:flex;align-items:center;justify-content:center;font-size:1.3rem;
-}
-.feat-title{font-weight:700;font-size:1rem;letter-spacing:.5px;color:var(--cream);margin-bottom:.3rem}
-.feat-desc{font-size:.85rem;color:rgba(245,237,216,.45);line-height:1.75}
-.whyus-visual{position:relative;height:420px}
-.ring-wrap{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
-.ring{
-  position:absolute;border-radius:50%;border:1px solid rgba(212,82,26,.15);
-  animation:pulse 3s ease-in-out infinite;
-}
-.ring:nth-child(1){width:80px;height:80px;animation-delay:0s;border-color:rgba(212,82,26,.5)}
-.ring:nth-child(2){width:160px;height:160px;animation-delay:.5s}
-.ring:nth-child(3){width:240px;height:240px;animation-delay:1s}
-.ring:nth-child(4){width:320px;height:320px;animation-delay:1.5s}
-.ring:nth-child(5){width:400px;height:400px;animation-delay:2s}
-@keyframes pulse{0%,100%{opacity:.3;transform:scale(1)}50%{opacity:.7;transform:scale(1.03)}}
-.ring-center{
-  position:absolute;width:70px;height:70px;background:var(--or);
-  display:flex;align-items:center;justify-content:center;font-size:2rem;
-  clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);
-  animation:spin 8s linear infinite;
-}
-@keyframes spin{to{transform:rotate(360deg)}}
-
-/* ── REVIEWS ── */
-#reviews{background:var(--dark)}
-.reviews-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-top:3.5rem}
-.rev-card{
-  background:rgba(26,4,4,.55);border:1px solid rgba(212,82,26,.12);
-  padding:2.2rem;position:relative;overflow:hidden;
-  transition:transform .3s,border-color .3s;
-}
-.rev-card:hover{transform:translateY(-8px);border-color:rgba(212,82,26,.4)}
-.rev-card::before{
-  content:'"';position:absolute;top:.8rem;right:1.5rem;
-  font-size:5rem;color:rgba(212,82,26,.08);font-family:Georgia,serif;line-height:1;
-}
-.rev-stars{color:var(--gold);font-size:.85rem;letter-spacing:3px;margin-bottom:.9rem}
-.rev-txt{font-size:.92rem;color:rgba(245,237,216,.55);line-height:1.85;font-style:italic}
-.rev-who{margin-top:1.4rem;font-weight:700;font-size:.9rem;color:var(--cream);letter-spacing:.5px}
-.rev-role{font-size:.73rem;color:var(--or);margin-top:.2rem;letter-spacing:1px;text-transform:uppercase}
-
-/* ── FEEDBACK ── */
-#feedback{background:#0d0303}
-.fb-grid{display:grid;grid-template-columns:1fr 1.1fr;gap:5rem;margin-top:3.5rem;align-items:start}
-.fb-aside p{font-size:.92rem;color:rgba(245,237,216,.45);line-height:1.9;margin-bottom:2rem}
-.google-cta{
-  display:flex;align-items:center;gap:.8rem;
-  border:1px solid rgba(212,82,26,.25);padding:1rem 1.5rem;
-  color:var(--cream);text-decoration:none;font-weight:700;font-size:.85rem;letter-spacing:1.5px;
-  text-transform:uppercase;transition:border-color .25s,background .25s;cursor:none;
-}
-.google-cta:hover{border-color:var(--or);background:rgba(212,82,26,.08)}
-label.fl{display:block;font-size:.68rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(245,237,216,.4);margin-bottom:.5rem}
-.fi{
-  width:100%;background:rgba(245,237,216,.04);border:1px solid rgba(212,82,26,.18);
-  color:var(--cream);padding:.85rem 1rem;font-family:'Rajdhani',sans-serif;font-size:1rem;
-  outline:none;margin-bottom:1.2rem;transition:border-color .2s;border-radius:0;
-}
-.fi:focus{border-color:var(--or)}
-.fi::placeholder{color:rgba(245,237,216,.2)}
-select.fi option{background:#1a0404}
-textarea.fi{resize:vertical;min-height:100px}
-.star-r{display:flex;flex-direction:row-reverse;gap:.3rem;margin-bottom:1.2rem}
-.star-r input{display:none}
-.star-r label{font-size:1.6rem;color:rgba(212,82,26,.2);cursor:none;transition:color .15s}
-.star-r input:checked~label,.star-r label:hover,.star-r label:hover~label{color:var(--gold)}
-.ok-msg{
-  display:none;border:1px solid rgba(93,202,138,.3);background:rgba(93,202,138,.07);
-  color:#5dca8a;padding:1rem;font-weight:700;font-size:.9rem;margin-top:1rem;letter-spacing:.5px;
+/* ═══════════════════════════════════════
+   HERO  — cinematic video + fog
+═══════════════════════════════════════ */
+#hero {
+  position: relative; height: 100vh; min-height: 600px;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  overflow: hidden; background: var(--ink);
 }
 
-/* ── CONTACT ── */
-#contact{background:var(--dark)}
-.contact-grid{display:grid;grid-template-columns:1fr 1.4fr;gap:3.5rem;margin-top:3.5rem;align-items:start}
-.c-info{display:flex;flex-direction:column;gap:2rem}
-.c-row{display:flex;gap:1.2rem;align-items:flex-start}
-.c-ico{
-  width:48px;height:48px;min-width:48px;
-  background:rgba(212,82,26,.1);border:1px solid rgba(212,82,26,.25);
-  display:flex;align-items:center;justify-content:center;font-size:1.3rem;
-}
-.c-label{font-size:.68rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--or);margin-bottom:.4rem}
-.c-val{font-size:1rem;color:var(--cream);line-height:1.7}
-.c-val a{color:var(--cream);text-decoration:none;transition:color .2s}
-.c-val a:hover{color:var(--or2)}
-.wa-big{
-  display:flex;align-items:center;gap:.9rem;
-  background:#25D366;color:#fff;padding:1.1rem 2rem;
-  font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:700;
-  letter-spacing:2px;text-transform:uppercase;text-decoration:none;cursor:none;
-  transition:opacity .2s,transform .2s;
-  clip-path:polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,12px 100%,0 calc(100% - 12px));
-}
-.wa-big:hover{opacity:.88;transform:translateY(-3px)}
-.dir-btn{
-  display:inline-flex;align-items:center;gap:.8rem;margin-top:.5rem;
-  border:1px solid rgba(245,237,216,.2);padding:1rem 2rem;
-  color:var(--cream);text-decoration:none;font-weight:700;font-size:.85rem;
-  letter-spacing:2px;text-transform:uppercase;cursor:none;
-  transition:border-color .25s,color .25s;
-}
-.dir-btn:hover{border-color:var(--or);color:var(--or2)}
-.map-wrap iframe{
-  width:100%;height:420px;border:1px solid rgba(212,82,26,.2);
-  filter:sepia(.6) hue-rotate(300deg) saturate(.5) brightness(.65);
-  display:block;
+/* Video background */
+#heroBg {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover; opacity: .35;
+  filter: saturate(.6) brightness(.8);
 }
 
-/* ── FOOTER ── */
-footer{
-  background:#080101;border-top:1px solid rgba(212,82,26,.12);
-  padding:3.5rem 5rem 2rem;
-}
-.ft{display:flex;justify-content:space-between;gap:2rem;flex-wrap:wrap;padding-bottom:2.5rem;border-bottom:1px solid rgba(245,237,216,.05)}
-.ft-brand{font-family:'Bebas Neue',sans-serif;font-size:2.2rem;letter-spacing:3px;color:var(--or2)}
-.ft-brand span{color:var(--gold)}
-.ft-tag{color:rgba(245,237,216,.35);font-size:.88rem;max-width:270px;line-height:1.75;margin-top:.4rem}
-.ft-col h4{font-size:.68rem;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:var(--or);margin-bottom:1.1rem}
-.ft-col ul{list-style:none;display:flex;flex-direction:column;gap:.6rem}
-.ft-col ul a{color:rgba(245,237,216,.4);text-decoration:none;font-size:.9rem;transition:color .2s}
-.ft-col ul a:hover{color:var(--cream)}
-.ft-bot{display:flex;justify-content:space-between;padding-top:1.5rem;font-size:.73rem;color:rgba(245,237,216,.25);flex-wrap:wrap;gap:.5rem}
-
-/* ── FLOATING WA ── */
-.fwa{
-  position:fixed;bottom:2rem;right:2rem;z-index:400;
-  width:60px;height:60px;background:#25D366;border-radius:50%;
-  display:flex;align-items:center;justify-content:center;font-size:1.7rem;
-  text-decoration:none;cursor:none;
-  box-shadow:0 0 0 0 rgba(37,211,102,.5);
-  animation:wap 2.5s infinite;
-}
-@keyframes wap{0%,100%{box-shadow:0 0 0 0 rgba(37,211,102,.5)}70%{box-shadow:0 0 0 18px rgba(37,211,102,0)}}
-
-/* ── BIG BG TEXT ── */
-.bg-word{
-  position:absolute;pointer-events:none;
-  font-family:'Bebas Neue',sans-serif;letter-spacing:10px;
-  color:rgba(212,82,26,.04);line-height:1;user-select:none;
+/* Canvas for fog particles */
+#fogCanvas {
+  position: absolute; inset: 0; z-index: 2;
+  pointer-events: none;
 }
 
-/* ── SCROLL ANIMATIONS ── */
-.gsap-reveal{opacity:0;transform:translateY(60px)}
-.gsap-reveal-l{opacity:0;transform:translateX(-60px)}
-.gsap-reveal-r{opacity:0;transform:translateX(60px)}
-.gsap-reveal-s{opacity:0;transform:scale(.9)}
-.char{display:inline-block;overflow:hidden}
-.char-inner{display:inline-block}
+/* Bottom fog gradient that transitions to white */
+.hero-ground-fog {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  height: 45%; z-index: 3;
+  background: linear-gradient(to top,
+    rgba(250,250,248,1) 0%,
+    rgba(250,250,248,.85) 20%,
+    rgba(250,250,248,.5) 40%,
+    rgba(250,250,248,.15) 65%,
+    transparent 100%);
+}
+/* Side vignettes */
+.hero-vignette {
+  position: absolute; inset: 0; z-index: 2;
+  background: radial-gradient(ellipse at center, transparent 40%, rgba(15,8,5,.6) 100%);
+}
 
-/* ── MOBILE ── */
-@media(max-width:860px){
-  nav{padding:1rem 1.5rem}
-  nav.solid{padding:.7rem 1.5rem}
-  .nav-links{display:none}
-  .sec{padding:5rem 1.5rem}
-  .parts-grid,.whyus-grid,.reviews-cards,.fb-grid,.contact-grid{grid-template-columns:1fr}
-  .stats-row{grid-template-columns:1fr 1fr}
-  .stat-cell{border-right:none;border-bottom:1px solid rgba(212,82,26,.1)}
-  footer{padding:3rem 1.5rem 1.5rem}
-  .ft{flex-direction:column;gap:2rem}
-  .hero-h1{font-size:clamp(3.2rem,12vw,5rem)}
-  #threeCanvas{display:none}
-  body{cursor:auto}
-  #cur,#cur2{display:none}
-  .part-tile:first-child{grid-column:auto}
+/* Text content */
+.hero-content {
+  position: relative; z-index: 10;
+  text-align: center;
+  padding: 0 2rem;
+}
+.hero-eyebrow {
+  display: inline-block;
+  font-size: .62rem; font-weight: 500; letter-spacing: 5px;
+  text-transform: uppercase; color: var(--gold2);
+  background: rgba(250,250,248,.08);
+  border: 1px solid rgba(212,160,72,.3);
+  padding: .35rem 1.2rem; border-radius: 100px;
+  margin-bottom: 1.8rem;
+  opacity: 0; transform: translateY(16px);
+}
+.hero-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(3.5rem, 9vw, 8rem);
+  font-weight: 300; line-height: .92; letter-spacing: -1px;
+  color: var(--off);
+  opacity: 0; transform: translateY(40px);
+}
+.hero-title em { font-style: italic; color: var(--gold2); }
+.hero-title strong { font-weight: 600; display: block; font-style: normal; color: #fff; }
+.hero-rule {
+  width: 40px; height: 1px; background: var(--orange);
+  margin: 1.8rem auto; opacity: 0; transform: scaleX(0);
+}
+.hero-sub {
+  font-size: .9rem; font-weight: 300; letter-spacing: 1px;
+  color: rgba(250,250,248,.55); line-height: 2;
+  opacity: 0; transform: translateY(16px);
+}
+.hero-ctas {
+  display: flex; gap: 1rem; justify-content: center;
+  flex-wrap: wrap; margin-top: 2.5rem;
+  opacity: 0; transform: translateY(16px);
+}
+.btn-prim {
+  background: var(--orange); color: #fff;
+  padding: .85rem 2.2rem;
+  font-family: 'DM Sans', sans-serif; font-size: .78rem;
+  font-weight: 500; letter-spacing: 2px; text-transform: uppercase;
+  text-decoration: none; cursor: none; border: none;
+  border-radius: 2px;
+  transition: background .25s, transform .2s, box-shadow .3s;
+  box-shadow: 0 4px 24px rgba(201,75,26,.3);
+}
+.btn-prim:hover { background: var(--orange2); transform: translateY(-2px); box-shadow: 0 8px 32px rgba(201,75,26,.4); }
+.btn-ghost {
+  background: transparent; color: rgba(250,250,248,.8);
+  padding: .85rem 2.2rem;
+  font-family: 'DM Sans', sans-serif; font-size: .78rem;
+  font-weight: 500; letter-spacing: 2px; text-transform: uppercase;
+  text-decoration: none; cursor: none;
+  border: 1px solid rgba(250,250,248,.2); border-radius: 2px;
+  transition: border-color .25s, color .25s, transform .2s;
+}
+.btn-ghost:hover { border-color: rgba(250,250,248,.6); color: #fff; transform: translateY(-2px); }
+
+/* Scroll indicator */
+.scroll-ind {
+  position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%);
+  z-index: 10; display: flex; flex-direction: column; align-items: center; gap: .6rem;
+  color: rgba(250,250,248,.3); font-size: .6rem; letter-spacing: 3px; text-transform: uppercase;
+  opacity: 0; animation: fadeIn 1s 4s forwards;
+}
+.scroll-mouse {
+  width: 20px; height: 32px;
+  border: 1px solid rgba(250,250,248,.2); border-radius: 12px;
+  display: flex; justify-content: center; padding-top: 6px;
+}
+.scroll-wheel {
+  width: 2px; height: 6px; background: rgba(250,250,248,.4); border-radius: 2px;
+  animation: scrollWheel 2s ease-in-out infinite;
+}
+@keyframes scrollWheel { 0%,100%{opacity:1;transform:translateY(0)} 50%{opacity:0;transform:translateY(8px)} }
+@keyframes fadeIn { to { opacity: 1; } }
+
+/* VIDEO PLACEHOLDER — shown when no video file */
+.hero-placeholder {
+  position: absolute; inset: 0; z-index: 1;
+  background: radial-gradient(ellipse at 30% 60%, #2A1505 0%, #0F0804 50%, #080503 100%);
+}
+/* Animated mountain silhouette via SVG inline */
+.mountain-svg {
+  position: absolute; bottom: 0; left: 0; right: 0; z-index: 2;
+  height: 55%; opacity: .25;
+}
+
+/* ═══════════════════════════════════════
+   VIDEO-READY NOTE (shown in source only)
+   To swap in your video: replace the
+   <source src="YOUR_VIDEO.mp4"> tag in
+   #heroBg element below.
+═══════════════════════════════════════ */
+
+/* ═══════════════════════════════════════
+   CONTENT SECTIONS — light premium
+═══════════════════════════════════════ */
+.sec {
+  position: relative; padding: 9rem 5vw;
+  background: var(--white);
+}
+.sec-inner { max-width: 1160px; margin: 0 auto; }
+
+.sec-tag {
+  font-size: .62rem; font-weight: 500; letter-spacing: 5px;
+  text-transform: uppercase; color: var(--orange);
+  margin-bottom: .8rem; display: block;
+}
+.sec-h {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(2.5rem, 5vw, 4.5rem);
+  font-weight: 300; line-height: 1;
+  color: var(--ink); letter-spacing: -.5px;
+}
+.sec-h em { font-style: italic; color: var(--orange); }
+.sec-p {
+  font-size: .9rem; font-weight: 300; color: var(--muted);
+  line-height: 1.95; max-width: 480px;
+}
+
+/* Divider */
+.rule { width: 32px; height: 1px; background: var(--orange); margin: 1.5rem 0; }
+
+/* ═══════════════════════════════════════
+   MARQUEE STRIP
+═══════════════════════════════════════ */
+.strip {
+  background: var(--ink); overflow: hidden; padding: .9rem 0;
+}
+.strip-track {
+  display: flex; gap: 4rem;
+  animation: tickMove 22s linear infinite; white-space: nowrap;
+}
+@keyframes tickMove { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+.strip-item {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: .95rem; letter-spacing: 4px; color: rgba(250,250,248,.45);
+  display: inline-flex; align-items: center; gap: 1.2rem; flex-shrink: 0;
+  font-style: italic;
+}
+.strip-dot { width: 3px; height: 3px; background: var(--orange); border-radius: 50%; }
+
+/* ═══════════════════════════════════════
+   BRANDS — elegant grid
+═══════════════════════════════════════ */
+#brands { background: var(--off); }
+.brands-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0;
+  border: 1px solid var(--border);
+  margin-top: 3.5rem;
+}
+.brand-cell {
+  padding: 3rem 2rem; text-align: center;
+  border-right: 1px solid var(--border);
+  position: relative; overflow: hidden;
+  transition: background .3s;
+  cursor: none;
+}
+.brand-cell:last-child { border-right: none; }
+.brand-cell::after {
+  content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, var(--orange), var(--gold2));
+  transform: scaleX(0); transform-origin: left; transition: transform .4s ease;
+}
+.brand-cell:hover { background: var(--white); }
+.brand-cell:hover::after { transform: scaleX(1); }
+.brand-icon { font-size: 2.2rem; margin-bottom: 1rem; display: block; }
+.brand-nm {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.5rem; font-weight: 600; letter-spacing: 1px; color: var(--ink);
+}
+.brand-sm { font-size: .7rem; color: var(--muted); margin-top: .3rem; letter-spacing: 1px; }
+
+/* ═══════════════════════════════════════
+   PARTS — editorial layout
+═══════════════════════════════════════ */
+#parts { background: var(--white); }
+.parts-header {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 4rem; align-items: end; margin-bottom: 4rem;
+}
+.parts-list {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 1px; background: var(--border);
+  border: 1px solid var(--border);
+}
+.part-item {
+  background: var(--white);
+  padding: 2.8rem 2.5rem;
+  position: relative; overflow: hidden;
+  transition: background .3s;
+  cursor: none;
+}
+.part-item:hover { background: var(--off); }
+.part-item::before {
+  content: attr(data-num);
+  position: absolute; top: 1.5rem; right: 2rem;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 4rem; font-weight: 300;
+  color: rgba(201,75,26,.07); line-height: 1;
+}
+.part-ico { font-size: 1.8rem; margin-bottom: 1.2rem; display: block; }
+.part-nm {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.5rem; font-weight: 600; color: var(--ink);
+  margin-bottom: .5rem;
+}
+.part-desc { font-size: .82rem; color: var(--muted); line-height: 1.85; }
+.part-arrow {
+  position: absolute; bottom: 1.8rem; right: 2rem;
+  font-size: .8rem; color: var(--orange);
+  opacity: 0; transform: translateX(-6px);
+  transition: opacity .3s, transform .3s;
+}
+.part-item:hover .part-arrow { opacity: 1; transform: translateX(0); }
+
+/* ═══════════════════════════════════════
+   STATS — full-bleed cinematic
+═══════════════════════════════════════ */
+#stats {
+  background: var(--ink);
+  padding: 7rem 5vw;
+  position: relative; overflow: hidden;
+}
+#stats::before {
+  content: 'AAM';
+  position: absolute; left: -2rem; top: 50%; transform: translateY(-50%);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22vw; font-weight: 300; color: rgba(250,250,248,.03);
+  line-height: 1; pointer-events: none; letter-spacing: -4px;
+}
+.stats-row {
+  display: grid; grid-template-columns: repeat(4,1fr);
+  gap: 0; border: 1px solid rgba(250,250,248,.07);
+  max-width: 1000px; margin: 0 auto;
+}
+.stat-c {
+  padding: 4rem 2.5rem; text-align: center;
+  border-right: 1px solid rgba(250,250,248,.07);
+  position: relative;
+}
+.stat-c:last-child { border-right: none; }
+.stat-n {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(3rem,5vw,4.5rem); font-weight: 300;
+  color: var(--off); line-height: 1;
+}
+.stat-n span { font-style: italic; color: var(--gold2); }
+.stat-l {
+  font-size: .65rem; letter-spacing: 3px; text-transform: uppercase;
+  color: rgba(250,250,248,.3); margin-top: .8rem;
+}
+
+/* ═══════════════════════════════════════
+   WHY US — two col
+═══════════════════════════════════════ */
+#whyus { background: var(--off); }
+.whyus-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 6rem; align-items: start; margin-top: 4rem;
+}
+.feature-list { display: flex; flex-direction: column; gap: 0; }
+.feat {
+  display: flex; gap: 1.5rem; align-items: flex-start;
+  padding: 1.8rem 0; border-bottom: 1px solid var(--border);
+  transition: padding-left .3s;
+  cursor: none;
+}
+.feat:first-child { padding-top: 0; }
+.feat:last-child { border-bottom: none; }
+.feat:hover { padding-left: .5rem; }
+.feat-n {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1rem; font-weight: 600; color: var(--orange);
+  min-width: 24px; padding-top: 2px;
+}
+.feat-title { font-size: .9rem; font-weight: 500; color: var(--ink); margin-bottom: .3rem; }
+.feat-desc { font-size: .82rem; color: var(--muted); line-height: 1.85; }
+/* Right col: stacked mini cards */
+.whyus-cards { display: flex; flex-direction: column; gap: 1px; }
+.wcard {
+  background: var(--white);
+  padding: 2.2rem 2rem;
+  position: relative; overflow: hidden;
+  transition: transform .3s;
+  cursor: none;
+}
+.wcard:hover { transform: translateX(6px); }
+.wcard::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 2px;
+  background: linear-gradient(to bottom, var(--orange), var(--gold2));
+  transform: scaleY(0); transform-origin: top; transition: transform .4s ease;
+}
+.wcard:hover::before { transform: scaleY(1); }
+.wcard-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.3rem; font-weight: 600; color: var(--ink); margin-bottom: .4rem;
+}
+.wcard-desc { font-size: .82rem; color: var(--muted); line-height: 1.85; }
+
+/* ═══════════════════════════════════════
+   REVIEWS
+═══════════════════════════════════════ */
+#reviews { background: var(--white); }
+.reviews-grid {
+  display: grid; grid-template-columns: repeat(3,1fr);
+  gap: 1px; background: var(--border);
+  border: 1px solid var(--border);
+  margin-top: 3.5rem;
+}
+.rev {
+  background: var(--white); padding: 2.8rem 2.2rem;
+  position: relative; transition: background .3s; cursor: none;
+}
+.rev:hover { background: var(--off); }
+.rev-q {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 4rem; color: rgba(201,75,26,.12);
+  line-height: .8; margin-bottom: .8rem;
+}
+.rev-stars { color: var(--gold); font-size: .75rem; letter-spacing: 2px; margin-bottom: 1rem; }
+.rev-txt {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.1rem; font-weight: 300; font-style: italic;
+  color: var(--ink2); line-height: 1.85;
+}
+.rev-who { font-size: .75rem; font-weight: 500; color: var(--ink); margin-top: 1.5rem; letter-spacing: .5px; }
+.rev-role { font-size: .7rem; color: var(--muted); margin-top: .2rem; letter-spacing: .5px; }
+/* dynamic reviews appended here */
+
+/* ═══════════════════════════════════════
+   FEEDBACK
+═══════════════════════════════════════ */
+#feedback { background: var(--off); }
+.fb-grid {
+  display: grid; grid-template-columns: 1fr 1.2fr;
+  gap: 6rem; margin-top: 3.5rem; align-items: start;
+}
+.fb-side p { font-size: .88rem; color: var(--muted); line-height: 1.9; margin-bottom: 2rem; }
+.g-btn {
+  display: inline-flex; align-items: center; gap: .7rem;
+  border: 1px solid var(--border); padding: .9rem 1.6rem;
+  font-size: .72rem; font-weight: 500; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--ink); text-decoration: none;
+  transition: border-color .25s, background .25s; cursor: none;
+  background: var(--white);
+}
+.g-btn:hover { border-color: var(--orange); background: var(--off); }
+.fl { display: block; font-size: .62rem; font-weight: 500; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); margin-bottom: .5rem; }
+.fi {
+  width: 100%; background: var(--white);
+  border: 1px solid var(--border); border-bottom: 1px solid rgba(0,0,0,.15);
+  color: var(--ink); padding: .85rem 1rem;
+  font-family: 'DM Sans', sans-serif; font-size: .9rem;
+  outline: none; margin-bottom: 1.3rem;
+  transition: border-color .2s; border-radius: 0;
+  -webkit-appearance: none;
+}
+.fi:focus { border-color: var(--orange); border-bottom-color: var(--orange); }
+.fi::placeholder { color: var(--muted); opacity: .5; }
+select.fi option { background: var(--white); }
+textarea.fi { resize: vertical; min-height: 100px; }
+.star-wrap { display: flex; flex-direction: row-reverse; gap: .2rem; margin-bottom: 1.3rem; }
+.star-wrap input { display: none; }
+.star-wrap label { font-size: 1.5rem; color: rgba(0,0,0,.12); cursor: none; transition: color .15s; }
+.star-wrap input:checked ~ label,
+.star-wrap label:hover,
+.star-wrap label:hover ~ label { color: var(--gold); }
+.ok-note {
+  display: none; background: rgba(37,211,102,.07);
+  border: 1px solid rgba(37,211,102,.2); color: #1a7a44;
+  padding: .9rem 1rem; font-size: .82rem; font-weight: 500;
+  margin-top: 1rem; letter-spacing: .3px;
+}
+
+/* ═══════════════════════════════════════
+   CONTACT
+═══════════════════════════════════════ */
+#contact { background: var(--white); }
+.contact-grid {
+  display: grid; grid-template-columns: 1fr 1.5fr;
+  gap: 4rem; margin-top: 3.5rem; align-items: start;
+}
+.c-block { display: flex; flex-direction: column; gap: 2.5rem; }
+.c-item { display: flex; gap: 1.2rem; align-items: flex-start; }
+.c-ico {
+  width: 40px; height: 40px; min-width: 40px;
+  background: var(--off); border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center; font-size: 1rem;
+}
+.c-lbl { font-size: .62rem; font-weight: 500; letter-spacing: 3px; text-transform: uppercase; color: var(--orange); margin-bottom: .35rem; }
+.c-val { font-size: .9rem; color: var(--ink2); line-height: 1.75; }
+.c-val a { color: var(--ink2); text-decoration: none; transition: color .2s; }
+.c-val a:hover { color: var(--orange); }
+.wa-cta {
+  display: inline-flex; align-items: center; gap: .8rem;
+  background: #25D366; color: #fff;
+  padding: 1rem 2rem; font-size: .78rem; font-weight: 500;
+  letter-spacing: 2px; text-transform: uppercase;
+  text-decoration: none; cursor: none;
+  transition: opacity .2s, transform .2s; border-radius: 2px;
+  box-shadow: 0 4px 20px rgba(37,211,102,.25);
+}
+.wa-cta:hover { opacity: .9; transform: translateY(-2px); }
+.dir-cta {
+  display: inline-flex; align-items: center; gap: .8rem;
+  border: 1px solid var(--border); padding: .85rem 1.8rem;
+  font-size: .72rem; font-weight: 500; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--ink); text-decoration: none;
+  cursor: none; transition: border-color .25s, color .25s; margin-top: .5rem;
+}
+.dir-cta:hover { border-color: var(--orange); color: var(--orange); }
+.map-box {
+  border: 1px solid var(--border); overflow: hidden;
+}
+.map-box iframe {
+  display: block; width: 100%; height: 440px; border: 0;
+  filter: grayscale(.3) contrast(1.05);
+}
+
+/* ═══════════════════════════════════════
+   FOOTER
+═══════════════════════════════════════ */
+footer {
+  background: var(--ink); padding: 4rem 5vw 2rem;
+}
+.ft-top {
+  display: grid; grid-template-columns: 1.5fr 1fr 1fr;
+  gap: 4rem; padding-bottom: 3rem;
+  border-bottom: 1px solid rgba(250,250,248,.06);
+}
+.ft-brand {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.8rem; font-weight: 300; letter-spacing: 1px; color: var(--off);
+}
+.ft-brand em { font-style: italic; color: var(--gold2); }
+.ft-desc { font-size: .8rem; color: rgba(250,250,248,.3); line-height: 1.9; margin-top: .5rem; max-width: 280px; }
+.ft-col h4 { font-size: .6rem; letter-spacing: 4px; text-transform: uppercase; color: var(--orange); margin-bottom: 1.2rem; }
+.ft-col ul { list-style: none; display: flex; flex-direction: column; gap: .65rem; }
+.ft-col ul a { font-size: .82rem; color: rgba(250,250,248,.35); text-decoration: none; transition: color .2s; }
+.ft-col ul a:hover { color: var(--off); }
+.ft-bot {
+  display: flex; justify-content: space-between; padding-top: 1.5rem;
+  font-size: .65rem; letter-spacing: 1.5px; color: rgba(250,250,248,.2);
+  flex-wrap: wrap; gap: .5rem;
+}
+
+/* ═══════════════════════════════════════
+   FLOATING WA
+═══════════════════════════════════════ */
+.fwa {
+  position: fixed; bottom: 2rem; right: 2rem; z-index: 400;
+  width: 56px; height: 56px; background: #25D366; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.5rem; text-decoration: none; cursor: none;
+  box-shadow: 0 4px 20px rgba(37,211,102,.35);
+  animation: waPulse 2.5s infinite;
+}
+@keyframes waPulse {
+  0%,100%{box-shadow:0 4px 20px rgba(37,211,102,.35)}
+  50%{box-shadow:0 4px 30px rgba(37,211,102,.6)}
+}
+
+/* ═══════════════════════════════════════
+   SCROLL REVEAL
+═══════════════════════════════════════ */
+.r { opacity: 0; transform: translateY(50px); transition: opacity .9s ease, transform .9s ease; }
+.r.on { opacity: 1; transform: translateY(0); }
+.rl { opacity: 0; transform: translateX(-50px); transition: opacity .9s ease, transform .9s ease; }
+.rl.on { opacity: 1; transform: translateX(0); }
+.rr { opacity: 0; transform: translateX(50px); transition: opacity .9s ease, transform .9s ease; }
+.rr.on { opacity: 1; transform: translateX(0); }
+.rs { opacity: 0; transform: scale(.95); transition: opacity .8s ease, transform .8s ease; }
+.rs.on { opacity: 1; transform: scale(1); }
+
+/* ═══════════════════════════════════════
+   MOBILE
+═══════════════════════════════════════ */
+@media(max-width:900px){
+  nav { padding: 1rem 5vw; }
+  nav.glassy { padding: .8rem 5vw; }
+  .nav-links { display: none; position: absolute; top: 100%; left: 0; right: 0; flex-direction: column; gap: 0; background: rgba(250,250,248,.97); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); }
+  .nav-links.open { display: flex; }
+  .nav-links li a { display: block; padding: 1rem 5vw; border-bottom: 1px solid var(--border); font-size: .78rem; }
+  .hamburger { display: flex; }
+  .sec { padding: 5rem 5vw; }
+  .brands-grid { grid-template-columns: repeat(3,1fr); }
+  .brand-cell:nth-child(3) { border-right: none; }
+  .parts-header { grid-template-columns: 1fr; gap: 1.5rem; margin-bottom: 2.5rem; }
+  .parts-list { grid-template-columns: 1fr; }
+  .stats-row { grid-template-columns: 1fr 1fr; }
+  .stat-c { border-right: none; border-bottom: 1px solid rgba(250,250,248,.07); }
+  .whyus-grid, .fb-grid, .contact-grid { grid-template-columns: 1fr; gap: 3rem; }
+  .reviews-grid { grid-template-columns: 1fr; }
+  .ft-top { grid-template-columns: 1fr; gap: 2rem; }
+  .hero-title { font-size: clamp(2.8rem, 10vw, 4.5rem); }
+  body { cursor: auto; }
+  #cur, #cur2 { display: none; }
 }
 </style>
 </head>
 <body>
 
-<!-- PRELOADER -->
-<div id="preloader">
-  <div class="pre-logo">Abhinandan</div>
-  <div class="pre-bar-wrap"><div class="pre-bar" id="preBar"></div></div>
-  <div class="pre-txt">Loading Experience</div>
-</div>
-
 <!-- CURSOR -->
 <div id="cur"></div>
 <div id="cur2"></div>
 
-<!-- THREE.JS CANVAS -->
-<canvas id="threeCanvas"></canvas>
+<!-- GRAIN -->
+<div id="grain"></div>
+
+<!-- PRELOADER -->
+<div id="pre">
+  <div class="pre-title">Abhinandan <em>Auto</em> Mobiles</div>
+  <div class="pre-line-wrap"><div class="pre-line" id="preLine"></div></div>
+  <div class="pre-sub">Loading · Genuine Spare Parts · Santalpur</div>
+</div>
 
 <!-- FLOATING WA -->
-<a class="fwa" href="https://wa.me/919870037002?text=Hello%20Abhinandan%20Auto%20Mobiles%2C%20I%20need%20spare%20parts." target="_blank" title="WhatsApp">📱</a>
+<a class="fwa" href="https://wa.me/919870037002?text=Hello%20Abhinandan%20Auto%20Mobiles%2C%20I%20need%20genuine%20spare%20parts." target="_blank" title="WhatsApp Us">💬</a>
 
-<!-- NAV -->
+<!-- ═══ NAV ═══ -->
 <nav id="nav">
-  <a href="#hero" class="nav-logo" style="cursor:none">Abhinandan <span>Auto</span></a>
-  <ul class="nav-links">
+  <a href="#hero" class="nav-logo" style="cursor:none">Abhinandan <em>Auto</em> Mobiles</a>
+  <ul class="nav-links" id="navLinks">
     <li><a href="#brands">Brands</a></li>
     <li><a href="#parts">Parts</a></li>
     <li><a href="#whyus">Why Us</a></li>
@@ -449,223 +719,296 @@ footer{
     <li><a href="#contact">Contact</a></li>
     <li><a href="https://wa.me/919870037002" class="nav-wa" target="_blank">WhatsApp</a></li>
   </ul>
+  <div class="hamburger" id="ham" onclick="document.getElementById('navLinks').classList.toggle('open')">
+    <span></span><span></span><span></span>
+  </div>
 </nav>
 
-<!-- SCROLLER -->
-<div id="scroller">
-
-<!-- ── HERO ── -->
+<!-- ═══ HERO — CINEMATIC ═══ -->
 <section id="hero">
-  <div class="bg-word" style="font-size:22vw;bottom:-2rem;left:50%;transform:translateX(-50%)">AUTO</div>
-  <div class="hero-eyebrow" id="h-eye">✦ Genuine Spare Parts · Santalpur · Gujarat</div>
-  <h1 class="hero-h1" id="h-title">
-    <span class="stroke">Abhinandan</span><br>
-    <span class="fill">Auto Mobiles</span>
-  </h1>
-  <p class="hero-sub" id="h-sub">Your trusted source for all types of certified spare parts.<br>TATA · TVS · GAJRA · TELCO · CASTROL</p>
-  <div class="hero-ctas" id="h-ctas">
-    <a href="#parts" class="btn-gl">Explore Parts</a>
-    <a href="#contact" class="btn-out">Visit Us</a>
+
+  <!-- Mountain silhouette placeholder (replaced by video) -->
+  <div class="hero-placeholder">
+    <svg class="mountain-svg" viewBox="0 0 1440 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- back range -->
+      <path d="M0,300 L80,180 L200,260 L320,120 L440,200 L560,80 L680,160 L800,40 L920,130 L1040,60 L1160,140 L1280,90 L1360,160 L1440,120 L1440,400 L0,400 Z"
+        fill="rgba(180,120,60,0.18)"/>
+      <!-- snow caps back -->
+      <path d="M320,120 L360,155 L280,155 Z M560,80 L590,110 L530,110 Z M800,40 L835,78 L765,78 Z M1040,60 L1075,95 L1005,95 Z"
+        fill="rgba(250,250,248,0.15)"/>
+      <!-- front range -->
+      <path d="M0,340 L120,220 L240,300 L400,160 L520,240 L640,100 L760,190 L880,120 L1000,200 L1120,130 L1240,210 L1380,150 L1440,180 L1440,400 L0,400 Z"
+        fill="rgba(80,40,15,0.45)"/>
+      <!-- snow caps front -->
+      <path d="M400,160 L445,205 L355,205 Z M640,100 L678,138 L602,138 Z M880,120 L915,158 L845,158 Z M1120,130 L1155,168 L1085,168 Z"
+        fill="rgba(250,250,248,0.25)"/>
+    </svg>
   </div>
-  <div class="scroll-hint">
-    <div class="scroll-line"></div>
+
+  <!-- VIDEO — swap YOUR video file path below -->
+  <video id="heroBg" autoplay muted loop playsinline>
+    <source src="" type="video/mp4">
+    <!-- When you have your cinematic truck video:
+         1. Upload the .mp4 file to your project folder
+         2. Change the src="" above to src="your-video.mp4"
+         That's it — the entire hero will play your video -->
+  </video>
+
+  <!-- Fog canvas -->
+  <canvas id="fogCanvas"></canvas>
+
+  <!-- Vignette -->
+  <div class="hero-vignette"></div>
+
+  <!-- Bottom transition fog -->
+  <div class="hero-ground-fog"></div>
+
+  <!-- Text -->
+  <div class="hero-content">
+    <div class="hero-eyebrow" id="hEye">Genuine Spare Parts · Santalpur, Gujarat</div>
+    <h1 class="hero-title" id="hTitle">
+      <em>Abhinandan</em><br>
+      <strong>Auto Mobiles</strong>
+    </h1>
+    <div class="hero-rule" id="hRule"></div>
+    <p class="hero-sub" id="hSub">
+      TATA &nbsp;·&nbsp; TVS &nbsp;·&nbsp; GAJRA &nbsp;·&nbsp; TELCO &nbsp;·&nbsp; CASTROL<br>
+      All genuine parts. All under one roof.
+    </p>
+    <div class="hero-ctas" id="hCtas">
+      <a href="#parts" class="btn-prim">Explore Parts</a>
+      <a href="#contact" class="btn-ghost">Find Us</a>
+    </div>
+  </div>
+
+  <!-- Scroll indicator -->
+  <div class="scroll-ind">
+    <div class="scroll-mouse"><div class="scroll-wheel"></div></div>
     <span>Scroll</span>
   </div>
+
 </section>
 
-<!-- TICKER -->
-<div class="ticker">
-  <div class="ticker-track">
-    <span class="ticker-item">Quality Parts<span class="ticker-dot"></span></span>
-    <span class="ticker-item">Trusted Service<span class="ticker-dot"></span></span>
-    <span class="ticker-item">TATA · TVS · GAJRA<span class="ticker-dot"></span></span>
-    <span class="ticker-item">TELCO · CASTROL<span class="ticker-dot"></span></span>
-    <span class="ticker-item">Santalpur · Dist. Patan<span class="ticker-dot"></span></span>
-    <span class="ticker-item">Stronger Together<span class="ticker-dot"></span></span>
-    <span class="ticker-item">Quality Parts<span class="ticker-dot"></span></span>
-    <span class="ticker-item">Trusted Service<span class="ticker-dot"></span></span>
-    <span class="ticker-item">TATA · TVS · GAJRA<span class="ticker-dot"></span></span>
-    <span class="ticker-item">TELCO · CASTROL<span class="ticker-dot"></span></span>
-    <span class="ticker-item">Santalpur · Dist. Patan<span class="ticker-dot"></span></span>
-    <span class="ticker-item">Stronger Together<span class="ticker-dot"></span></span>
+<!-- STRIP TICKER -->
+<div class="strip">
+  <div class="strip-track">
+    <span class="strip-item">Quality Parts<span class="strip-dot"></span></span>
+    <span class="strip-item">Trusted Service<span class="strip-dot"></span></span>
+    <span class="strip-item">TATA · TVS · GAJRA<span class="strip-dot"></span></span>
+    <span class="strip-item">TELCO · CASTROL<span class="strip-dot"></span></span>
+    <span class="strip-item">Santalpur · Dist. Patan<span class="strip-dot"></span></span>
+    <span class="strip-item">Stronger Together<span class="strip-dot"></span></span>
+    <span class="strip-item">Quality Parts<span class="strip-dot"></span></span>
+    <span class="strip-item">Trusted Service<span class="strip-dot"></span></span>
+    <span class="strip-item">TATA · TVS · GAJRA<span class="strip-dot"></span></span>
+    <span class="strip-item">TELCO · CASTROL<span class="strip-dot"></span></span>
+    <span class="strip-item">Santalpur · Dist. Patan<span class="strip-dot"></span></span>
+    <span class="strip-item">Stronger Together<span class="strip-dot"></span></span>
   </div>
 </div>
 
-<!-- ── BRANDS ── -->
-<section class="sec" id="brands">
+<!-- ═══ BRANDS ═══ -->
+<section class="sec" id="brands" style="background:var(--off)">
   <div class="sec-inner">
-    <div class="bg-word" style="font-size:14vw;top:-1rem;right:-2rem">BRANDS</div>
-    <div class="sec-tag gsap-reveal">Authorized Partners</div>
-    <h2 class="sec-title gsap-reveal">We Deal In</h2>
-    <p class="sec-desc gsap-reveal">Certified, genuine parts from India's most trusted automotive brands — all under one roof.</p>
-    <div class="brands-scroll-wrap" style="margin-top:3.5rem">
-      <div class="brands-row">
-        <div class="brand-card-3d gsap-reveal-s" style="transition-delay:.05s">
-          <span class="brand-icon-3d">🔵</span>
-          <div class="brand-name-3d">TATA</div>
-          <div class="brand-sub">Trucks & LCV Parts</div>
-        </div>
-        <div class="brand-card-3d gsap-reveal-s" style="transition-delay:.12s">
-          <span class="brand-icon-3d">🟠</span>
-          <div class="brand-name-3d">TVS</div>
-          <div class="brand-sub">Two-Wheeler Parts</div>
-        </div>
-        <div class="brand-card-3d gsap-reveal-s" style="transition-delay:.19s">
-          <span class="brand-icon-3d">⚙️</span>
-          <div class="brand-name-3d">GAJRA</div>
-          <div class="brand-sub">Clutch & Bearings</div>
-        </div>
-        <div class="brand-card-3d gsap-reveal-s" style="transition-delay:.26s">
-          <span class="brand-icon-3d">🔧</span>
-          <div class="brand-name-3d">TELCO</div>
-          <div class="brand-sub">Tata Engineering</div>
-        </div>
-        <div class="brand-card-3d gsap-reveal-s" style="transition-delay:.33s">
-          <span class="brand-icon-3d">🟡</span>
-          <div class="brand-name-3d">CASTROL</div>
-          <div class="brand-sub">Oils & Lubricants</div>
-        </div>
+    <span class="sec-tag r">Authorized Partners</span>
+    <h2 class="sec-h r">We Deal In</h2>
+    <div class="rule r"></div>
+    <p class="sec-p r">Certified, genuine parts from India's most trusted automotive brands — all under one roof in Santalpur.</p>
+    <div class="brands-grid" style="margin-top:3.5rem">
+      <div class="brand-cell rs" style="transition-delay:.05s">
+        <span class="brand-icon">🔵</span>
+        <div class="brand-nm">TATA</div>
+        <div class="brand-sm">Trucks & LCV Parts</div>
+      </div>
+      <div class="brand-cell rs" style="transition-delay:.12s">
+        <span class="brand-icon">🟠</span>
+        <div class="brand-nm">TVS</div>
+        <div class="brand-sm">Two-Wheeler Parts</div>
+      </div>
+      <div class="brand-cell rs" style="transition-delay:.19s">
+        <span class="brand-icon">⚙️</span>
+        <div class="brand-nm">GAJRA</div>
+        <div class="brand-sm">Clutch & Bearings</div>
+      </div>
+      <div class="brand-cell rs" style="transition-delay:.26s">
+        <span class="brand-icon">🔧</span>
+        <div class="brand-nm">TELCO</div>
+        <div class="brand-sm">Tata Engineering</div>
+      </div>
+      <div class="brand-cell rs" style="transition-delay:.33s">
+        <span class="brand-icon">🟡</span>
+        <div class="brand-nm">CASTROL</div>
+        <div class="brand-sm">Oils & Lubricants</div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ── PARTS ── -->
-<section class="sec" id="parts" style="background:#0d0303">
+<!-- ═══ PARTS ═══ -->
+<section class="sec" id="parts">
   <div class="sec-inner">
-    <div class="bg-word" style="font-size:14vw;bottom:-1rem;left:-2rem">PARTS</div>
-    <div class="sec-tag gsap-reveal">What We Stock</div>
-    <h2 class="sec-title gsap-reveal">Genuine Spare Parts</h2>
-    <p class="sec-desc gsap-reveal">Every component is sourced directly from certified manufacturers — zero duplicates, total trust.</p>
-    <div class="parts-grid">
-      <div class="part-tile gsap-reveal" style="transition-delay:.05s">
-        <div class="part-num">01</div>
-        <div class="part-ico">🔩</div>
-        <div class="part-title">Engine Components</div>
-        <div class="part-desc">Pistons, rings, gaskets, cylinder heads and all internal engine parts for heavy trucks and commercial vehicles. Genuine TATA & TELCO components.</div>
+    <div class="parts-header">
+      <div>
+        <span class="sec-tag rl">What We Stock</span>
+        <h2 class="sec-h rl">Genuine<br><em>Spare Parts</em></h2>
+        <div class="rule rl"></div>
       </div>
-      <div class="part-tile gsap-reveal" style="transition-delay:.12s">
-        <div class="part-num">02</div>
-        <div class="part-ico">🛞</div>
-        <div class="part-title">Clutch & Brakes</div>
-        <div class="part-desc">GAJRA clutch plates, pressure plates, brake pads and full braking system components. Precision fit for all TATA models.</div>
+      <p class="sec-p rr" style="align-self:end">Every component is sourced directly from certified manufacturers. Zero duplicates, total trust. Walk in and walk out with the right part — every time.</p>
+    </div>
+    <div class="parts-list">
+      <div class="part-item r" data-num="01" style="transition-delay:.05s">
+        <span class="part-ico">🔩</span>
+        <div class="part-nm">Engine Components</div>
+        <div class="part-desc">Pistons, rings, gaskets, cylinder heads and all internal engine parts for heavy trucks and commercial vehicles.</div>
+        <span class="part-arrow">→</span>
       </div>
-      <div class="part-tile gsap-reveal" style="transition-delay:.19s">
-        <div class="part-num">03</div>
-        <div class="part-ico">⚡</div>
-        <div class="part-title">Electrical Parts</div>
-        <div class="part-desc">Alternators, starters, switches, relays and wiring harnesses for heavy-duty vehicles. TVS & TATA certified components.</div>
+      <div class="part-item r" data-num="02" style="transition-delay:.1s">
+        <span class="part-ico">🛞</span>
+        <div class="part-nm">Clutch & Brakes</div>
+        <div class="part-desc">GAJRA clutch plates, pressure plates, brake pads and full braking system components for all TATA models.</div>
+        <span class="part-arrow">→</span>
       </div>
-      <div class="part-tile gsap-reveal" style="transition-delay:.26s">
-        <div class="part-num">04</div>
-        <div class="part-ico">🛢️</div>
-        <div class="part-title">Lubricants & Oils</div>
-        <div class="part-desc">Full Castrol range — engine oils, gear oils, brake fluids and industrial lubricants. Always in stock for all vehicle types.</div>
+      <div class="part-item r" data-num="03" style="transition-delay:.15s">
+        <span class="part-ico">⚡</span>
+        <div class="part-nm">Electrical Parts</div>
+        <div class="part-desc">Alternators, starters, switches, relays and wiring harnesses for heavy-duty vehicles. TVS & TATA certified.</div>
+        <span class="part-arrow">→</span>
       </div>
-      <div class="part-tile gsap-reveal" style="transition-delay:.33s">
-        <div class="part-num">05</div>
-        <div class="part-ico">🔧</div>
-        <div class="part-title">Suspension & Axles</div>
-        <div class="part-desc">Leaf springs, shock absorbers, U-bolts and complete front axle assemblies for commercial trucks.</div>
+      <div class="part-item r" data-num="04" style="transition-delay:.2s">
+        <span class="part-ico">🛢️</span>
+        <div class="part-nm">Lubricants & Oils</div>
+        <div class="part-desc">Full Castrol range — engine oils, gear oils, brake fluids and industrial lubricants. Always in stock.</div>
+        <span class="part-arrow">→</span>
       </div>
-      <div class="part-tile gsap-reveal" style="transition-delay:.4s">
-        <div class="part-num">06</div>
-        <div class="part-ico">📦</div>
-        <div class="part-title">Body & Accessories</div>
+      <div class="part-item r" data-num="05" style="transition-delay:.25s">
+        <span class="part-ico">🔧</span>
+        <div class="part-nm">Suspension & Axles</div>
+        <div class="part-desc">Leaf springs, shock absorbers, universal cross joints, U-bolts and complete front axle assemblies.</div>
+        <span class="part-arrow">→</span>
+      </div>
+      <div class="part-item r" data-num="06" style="transition-delay:.3s">
+        <span class="part-ico">📦</span>
+        <div class="part-nm">Body & Accessories</div>
         <div class="part-desc">Mirrors, headlights, body panels, door locks and accessories for TATA commercial vehicle models.</div>
+        <span class="part-arrow">→</span>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ── STATS ── -->
-<section class="sec" id="stats" style="padding:0">
-  <div style="width:100%;padding:6rem 5rem">
-    <div class="stats-row">
-      <div class="stat-cell">
-        <div class="stat-num" data-target="500">0</div><span class="stat-unit">+</span>
-        <div class="stat-lbl">Happy Customers</div>
-      </div>
-      <div class="stat-cell">
-        <div class="stat-num" data-target="5">0</div><span class="stat-unit">+</span>
-        <div class="stat-lbl">Trusted Brands</div>
-      </div>
-      <div class="stat-cell">
-        <div class="stat-num" data-target="1000">0</div><span class="stat-unit">+</span>
-        <div class="stat-lbl">Parts in Stock</div>
-      </div>
-      <div class="stat-cell">
-        <div class="stat-num">24/7</div>
-        <div class="stat-lbl">WhatsApp Support</div>
-      </div>
+<!-- ═══ STATS ═══ -->
+<section id="stats">
+  <div class="stats-row">
+    <div class="stat-c r">
+      <div class="stat-n"><span id="s1">0</span>+</div>
+      <div class="stat-l">Happy Customers</div>
+    </div>
+    <div class="stat-c r" style="transition-delay:.1s">
+      <div class="stat-n"><span id="s2">0</span>+</div>
+      <div class="stat-l">Trusted Brands</div>
+    </div>
+    <div class="stat-c r" style="transition-delay:.2s">
+      <div class="stat-n"><span id="s3">0</span>+</div>
+      <div class="stat-l">Parts in Stock</div>
+    </div>
+    <div class="stat-c r" style="transition-delay:.3s">
+      <div class="stat-n">24<span style="font-style:italic;color:var(--gold2)">/7</span></div>
+      <div class="stat-l">WhatsApp Support</div>
     </div>
   </div>
 </section>
 
-<!-- ── WHY US ── -->
-<section class="sec" id="whyus" style="background:#0d0303">
+<!-- ═══ WHY US ═══ -->
+<section class="sec" id="whyus" style="background:var(--off)">
   <div class="sec-inner">
-    <div class="sec-tag gsap-reveal">Why Choose Us</div>
-    <h2 class="sec-title gsap-reveal">Trusted For Years</h2>
+    <span class="sec-tag r">Why Choose Us</span>
+    <h2 class="sec-h r">Trusted For <em>Years</em></h2>
+    <div class="rule r"></div>
     <div class="whyus-grid">
-      <div class="feature-rows">
-        <div class="feat-row gsap-reveal-l" style="transition-delay:.05s">
-          <div class="feat-ico">✓</div>
-          <div><div class="feat-title">100% Genuine Parts</div><div class="feat-desc">We stock only certified, manufacturer-verified parts. Zero duplicates, zero compromise on quality.</div></div>
+      <div class="feature-list rl">
+        <div class="feat">
+          <div class="feat-n">01</div>
+          <div>
+            <div class="feat-title">100% Genuine Parts</div>
+            <div class="feat-desc">Only certified, manufacturer-verified components. Zero duplicates, zero compromise on quality.</div>
+          </div>
         </div>
-        <div class="feat-row gsap-reveal-l" style="transition-delay:.15s">
-          <div class="feat-ico">🏆</div>
-          <div><div class="feat-title">Authorized Dealer</div><div class="feat-desc">Official dealer for TATA, TVS, GAJRA, TELCO and CASTROL — your warranty stays intact.</div></div>
+        <div class="feat">
+          <div class="feat-n">02</div>
+          <div>
+            <div class="feat-title">Authorized Dealer</div>
+            <div class="feat-desc">Official dealer for TATA, TVS, GAJRA, TELCO and CASTROL — your warranty stays fully intact.</div>
+          </div>
         </div>
-        <div class="feat-row gsap-reveal-l" style="transition-delay:.25s">
-          <div class="feat-ico">📦</div>
-          <div><div class="feat-title">Huge Stock Available</div><div class="feat-desc">Walk in and walk out. We maintain large in-store inventory so you never wait for critical parts.</div></div>
+        <div class="feat">
+          <div class="feat-n">03</div>
+          <div>
+            <div class="feat-title">Huge Stock Available</div>
+            <div class="feat-desc">Walk in and walk out. We maintain large in-store inventory so you never wait for critical parts.</div>
+          </div>
         </div>
-        <div class="feat-row gsap-reveal-l" style="transition-delay:.35s">
-          <div class="feat-ico">🛣️</div>
-          <div><div class="feat-title">Highway Location</div><div class="feat-desc">Located on Kandla National Highway — easily accessible for truck drivers and fleet owners any time.</div></div>
+        <div class="feat">
+          <div class="feat-n">04</div>
+          <div>
+            <div class="feat-title">Highway Location</div>
+            <div class="feat-desc">Located right on Kandla National Highway — accessible for truck drivers any time of day.</div>
+          </div>
         </div>
-        <div class="feat-row gsap-reveal-l" style="transition-delay:.45s">
-          <div class="feat-ico">💬</div>
-          <div><div class="feat-title">Expert Advice</div><div class="feat-desc">Our team knows vehicles inside out. Get the right part the first time, every time.</div></div>
+        <div class="feat">
+          <div class="feat-n">05</div>
+          <div>
+            <div class="feat-title">Expert Guidance</div>
+            <div class="feat-desc">Our team knows vehicles inside out. Get the right part the first time, every time.</div>
+          </div>
         </div>
       </div>
-      <div class="whyus-visual gsap-reveal-r">
-        <div class="ring-wrap">
-          <div class="ring"></div>
-          <div class="ring"></div>
-          <div class="ring"></div>
-          <div class="ring"></div>
-          <div class="ring"></div>
-          <div class="ring-center">⚙️</div>
+      <div class="whyus-cards rr">
+        <div class="wcard">
+          <div class="wcard-title">Quality You Can Trust</div>
+          <div class="wcard-desc">Every part carries its original manufacturer stamp and packaging. We never stock seconds or copies.</div>
+        </div>
+        <div class="wcard">
+          <div class="wcard-title">Serving Santalpur & Beyond</div>
+          <div class="wcard-desc">Customers come from Patan, Radhanpur, Harij and across the Kandla Highway corridor for our stock.</div>
+        </div>
+        <div class="wcard">
+          <div class="wcard-title">WhatsApp Before You Drive</div>
+          <div class="wcard-desc">Message us your part number and we confirm availability instantly — saving you the trip if we need to order.</div>
+        </div>
+        <div class="wcard">
+          <div class="wcard-title">Castrol Authorized Stockist</div>
+          <div class="wcard-desc">Full range of Castrol engine oils, gear oils, and industrial lubricants at genuine prices, always in stock.</div>
         </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ── REVIEWS ── -->
-<section class="sec" id="reviews" style="background:var(--dark)">
+<!-- ═══ REVIEWS ═══ -->
+<section class="sec" id="reviews">
   <div class="sec-inner">
-    <div class="bg-word" style="font-size:12vw;top:-1rem;right:-1rem">TRUST</div>
-    <div class="sec-tag gsap-reveal">Customer Reviews</div>
-    <h2 class="sec-title gsap-reveal">What They Say</h2>
-    <div class="reviews-cards" id="revGrid">
-      <div class="rev-card gsap-reveal-s" style="transition-delay:.05s">
+    <span class="sec-tag r">Customer Reviews</span>
+    <h2 class="sec-h r">What They <em>Say</em></h2>
+    <div class="rule r"></div>
+    <div class="reviews-grid" id="revGrid">
+      <div class="rev rs" style="transition-delay:.05s">
+        <div class="rev-q">"</div>
         <div class="rev-stars">★★★★★</div>
-        <div class="rev-txt">"Genuine parts, great pricing, and the owner is very knowledgeable. I always come here for my TATA truck spare parts. Never been disappointed."</div>
+        <div class="rev-txt">Genuine parts, great pricing, and the owner is very knowledgeable. I always come here for my TATA truck spare parts. Never been disappointed.</div>
         <div class="rev-who">Ramesh Patel</div>
         <div class="rev-role">Transport Owner, Patan</div>
       </div>
-      <div class="rev-card gsap-reveal-s" style="transition-delay:.12s">
+      <div class="rev rs" style="transition-delay:.12s">
+        <div class="rev-q">"</div>
         <div class="rev-stars">★★★★★</div>
-        <div class="rev-txt">"Best spare parts shop on the Kandla highway. Got my TELCO parts within minutes. Very fast service and they always have stock ready."</div>
+        <div class="rev-txt">Best spare parts shop on the Kandla highway. Got my TELCO parts within minutes. Very fast service and they always have stock ready.</div>
         <div class="rev-who">Suresh Bhai</div>
         <div class="rev-role">Fleet Operator, Santalpur</div>
       </div>
-      <div class="rev-card gsap-reveal-s" style="transition-delay:.19s">
+      <div class="rev rs" style="transition-delay:.19s">
+        <div class="rev-q">"</div>
         <div class="rev-stars">★★★★★</div>
-        <div class="rev-txt">"Castrol oil always available here at the right price. Abhinandan Auto Mobiles is my go-to shop. Highly recommend to all truck drivers on this route."</div>
+        <div class="rev-txt">Castrol oil always available here at the right price. Abhinandan Auto Mobiles is my go-to shop. Highly recommend to all truck drivers on this route.</div>
         <div class="rev-who">Dinesh Khant</div>
         <div class="rev-role">Truck Driver, Radhanpur</div>
       </div>
@@ -673,100 +1016,113 @@ footer{
   </div>
 </section>
 
-<!-- ── FEEDBACK ── -->
-<section class="sec" id="feedback" style="background:#0d0303">
+<!-- ═══ FEEDBACK ═══ -->
+<section class="sec" id="feedback" style="background:var(--off)">
   <div class="sec-inner">
-    <div class="sec-tag gsap-reveal">Share Your Experience</div>
-    <h2 class="sec-title gsap-reveal">Leave Feedback</h2>
+    <span class="sec-tag r">Share Your Experience</span>
+    <h2 class="sec-h r">Leave <em>Feedback</em></h2>
+    <div class="rule r"></div>
     <div class="fb-grid">
-      <div class="fb-aside gsap-reveal-l">
-        <p>Your review helps us improve and helps others on the highway find reliable genuine parts. After submitting here, we'd love it if you could also drop a Google review — it makes a huge difference!</p>
-        <a href="https://www.google.com/maps/place/Abhinandan/@23.7611009,71.1681038,17z/data=!4m6!3m5!1s0x395aff1180c18727:0x56780fce31c3f335!8m2!3d23.7609057!4d71.1679892!16s%2Fg%2F11kbth78_j" target="_blank" class="google-cta">
+      <div class="fb-side rl">
+        <p>Your review helps us improve and helps other customers on the highway find reliable genuine parts. After submitting here, please also leave a Google review — it helps us a great deal.</p>
+        <a href="https://www.google.com/maps/place/Abhinandan/@23.7611009,71.1681038,17z/data=!4m6!3m5!1s0x395aff1180c18727:0x56780fce31c3f335!8m2!3d23.7609057!4d71.1679892!16s%2Fg%2F11kbth78_j" target="_blank" class="g-btn">
           ⭐ Write a Google Review
         </a>
       </div>
-      <form id="fbForm" onsubmit="handleFb(event)" class="gsap-reveal-r">
+      <form id="fbForm" onsubmit="handleFeedback(event)" class="rr">
         <label class="fl">Your Name *</label>
         <input class="fi" id="fn" type="text" placeholder="Ramesh Patel" required>
+
         <label class="fl">Mobile Number</label>
         <input class="fi" id="fp" type="tel" placeholder="98XXXXXXXX">
+
         <label class="fl">Type of Service</label>
         <select class="fi" id="fs">
-          <option value="">Select a service</option>
-          <option>Engine Parts</option><option>Clutch &amp; Brake Parts</option>
-          <option>Electrical Parts</option><option>Lubricants &amp; Oils</option>
-          <option>Suspension Parts</option><option>Body &amp; Accessories</option><option>Other</option>
+          <option value="">Select type</option>
+          <option>Engine Parts</option>
+          <option>Clutch & Brake Parts</option>
+          <option>Electrical Parts</option>
+          <option>Lubricants & Oils</option>
+          <option>Suspension Parts</option>
+          <option>Body & Accessories</option>
+          <option>Other</option>
         </select>
+
         <label class="fl">Your Rating *</label>
-        <div class="star-r">
+        <div class="star-wrap">
           <input type="radio" name="rt" id="r5" value="5"><label for="r5">★</label>
           <input type="radio" name="rt" id="r4" value="4"><label for="r4">★</label>
           <input type="radio" name="rt" id="r3" value="3"><label for="r3">★</label>
           <input type="radio" name="rt" id="r2" value="2"><label for="r2">★</label>
           <input type="radio" name="rt" id="r1" value="1"><label for="r1">★</label>
         </div>
+
         <label class="fl">Your Review *</label>
-        <textarea class="fi" id="frev" placeholder="Tell us about your experience..." required></textarea>
-        <button type="submit" class="btn-gl" style="border:none;width:100%;text-align:center">Submit Feedback</button>
-        <div class="ok-msg" id="okMsg">✅ Thank you! Please also leave a Google review using the link on the left.</div>
+        <textarea class="fi" id="frev" placeholder="Tell us about your experience…" required></textarea>
+
+        <button type="submit" class="btn-prim" style="border:none;width:100%;text-align:center;font-family:'DM Sans',sans-serif">Submit Feedback</button>
+        <div class="ok-note" id="okNote">✅ Thank you! Please also leave a Google review using the link on the left — it helps others find us.</div>
       </form>
     </div>
   </div>
 </section>
 
-<!-- ── CONTACT ── -->
-<section class="sec" id="contact" style="background:var(--dark)">
+<!-- ═══ CONTACT ═══ -->
+<section class="sec" id="contact">
   <div class="sec-inner">
-    <div class="sec-tag gsap-reveal">Get In Touch</div>
-    <h2 class="sec-title gsap-reveal">Find &amp; Contact Us</h2>
-    <p class="sec-desc gsap-reveal">Conveniently located on the Kandla National Highway. Walk in or reach out instantly on WhatsApp.</p>
+    <span class="sec-tag r">Get In Touch</span>
+    <h2 class="sec-h r">Find &amp; <em>Contact Us</em></h2>
+    <div class="rule r"></div>
     <div class="contact-grid">
-      <div class="c-info gsap-reveal-l">
-        <div class="c-row">
+      <div class="c-block rl">
+        <div class="c-item">
           <div class="c-ico">📍</div>
           <div>
-            <div class="c-label">Address</div>
+            <div class="c-lbl">Address</div>
             <div class="c-val">Nr. Referral Hospital,<br>Kandla National Highway Road,<br>Santalpur, Dist. Patan – 385350, Gujarat</div>
           </div>
         </div>
-        <div class="c-row">
+        <div class="c-item">
           <div class="c-ico">📞</div>
           <div>
-            <div class="c-label">Phone</div>
+            <div class="c-lbl">Phone</div>
             <div class="c-val">
               <a href="tel:+919825259065">9825259065</a><br>
               <a href="tel:+919870037002">9870037002</a>
             </div>
           </div>
         </div>
-        <div class="c-row">
+        <div class="c-item">
           <div class="c-ico">🕒</div>
           <div>
-            <div class="c-label">Working Hours</div>
+            <div class="c-lbl">Working Hours</div>
             <div class="c-val">Mon – Sat: 8:00 AM – 8:00 PM<br>Sunday: 9:00 AM – 2:00 PM</div>
           </div>
         </div>
-        <a href="https://wa.me/919870037002?text=Hello%20Abhinandan%20Auto%20Mobiles%2C%20I%20need%20spare%20parts." target="_blank" class="wa-big">📱 Chat on WhatsApp</a>
-        <a href="https://www.google.com/maps/place/Abhinandan/@23.7611009,71.1681038,17z" target="_blank" class="dir-btn">🗺️ Get Directions on Google Maps</a>
+        <a class="wa-cta" href="https://wa.me/919870037002?text=Hello%20Abhinandan%20Auto%20Mobiles%2C%20I%20need%20genuine%20spare%20parts." target="_blank">
+          💬 Chat on WhatsApp
+        </a>
+        <a class="dir-cta" href="https://www.google.com/maps/place/Abhinandan/@23.7611009,71.1681038,17z/data=!4m6!3m5!1s0x395aff1180c18727:0x56780fce31c3f335!8m2!3d23.7609057!4d71.1679892!16s%2Fg%2F11kbth78_j" target="_blank">
+          🗺️ Get Directions on Google Maps
+        </a>
       </div>
-      <div class="map-wrap gsap-reveal-r">
+      <div class="map-box rr">
         <iframe
           src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3645.0!2d71.1681038!3d23.7611009!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x395aff1180c18727%3A0x56780fce31c3f335!2sAbhinandan!5e0!3m2!1sen!2sin!4v1"
-          style="border:0" allowfullscreen loading="lazy"
-          referrerpolicy="no-referrer-when-downgrade"
-          title="Abhinandan Auto Mobiles Map">
+          allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"
+          title="Abhinandan Auto Mobiles Location">
         </iframe>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ── FOOTER ── -->
+<!-- ═══ FOOTER ═══ -->
 <footer>
-  <div class="ft">
+  <div class="ft-top">
     <div>
-      <div class="ft-brand">Abhinandan <span>Auto</span> Mobiles</div>
-      <div class="ft-tag">Your trusted destination for all genuine spare parts on the Kandla National Highway, Santalpur.</div>
+      <div class="ft-brand">Abhinandan <em>Auto</em> Mobiles</div>
+      <div class="ft-desc">Your trusted destination for all genuine spare parts on the Kandla National Highway, Santalpur, Dist. Patan – 385350, Gujarat.</div>
     </div>
     <div class="ft-col">
       <h4>Quick Links</h4>
@@ -783,7 +1139,7 @@ footer{
       <ul>
         <li><a href="tel:+919825259065">📞 9825259065</a></li>
         <li><a href="tel:+919870037002">📞 9870037002</a></li>
-        <li><a href="https://wa.me/919870037002" target="_blank">📱 WhatsApp</a></li>
+        <li><a href="https://wa.me/919870037002" target="_blank">💬 WhatsApp</a></li>
         <li><a href="https://www.google.com/maps/place/Abhinandan/@23.7611009,71.1681038,17z" target="_blank">🗺️ Google Maps</a></li>
       </ul>
     </div>
@@ -794,246 +1150,200 @@ footer{
   </div>
 </footer>
 
-</div><!-- /scroller -->
-
-<!-- THREE.JS -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<!-- GSAP -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollToPlugin.min.js"></script>
-
+<!-- ═══════════════ SCRIPTS ═══════════════ -->
 <script>
-// ── PRELOADER ──
-const bar = document.getElementById('preBar');
-const pre = document.getElementById('preloader');
-let p = 0;
-const interval = setInterval(() => {
-  p += Math.random() * 12;
-  if(p >= 100){ p = 100; clearInterval(interval);
-    setTimeout(() => { pre.classList.add('hide'); initAll(); }, 400);
+/* ── PRELOADER ── */
+const preLine = document.getElementById('preLine');
+const preEl   = document.getElementById('pre');
+let pct = 0;
+const preTimer = setInterval(() => {
+  pct += Math.random() * 14;
+  if (pct >= 100) {
+    pct = 100;
+    clearInterval(preTimer);
+    setTimeout(() => { preEl.classList.add('out'); initSite(); }, 500);
   }
-  bar.style.width = p + '%';
-}, 80);
+  preLine.style.width = pct + '%';
+}, 70);
 
-// ── CURSOR ──
-const cur = document.getElementById('cur');
-const cur2 = document.getElementById('cur2');
-let mx=0,my=0,rx=0,ry=0;
+/* ── CURSOR ── */
+const curA = document.getElementById('cur');
+const curB = document.getElementById('cur2');
+let mx = 0, my = 0, bx = 0, by = 0;
 document.addEventListener('mousemove', e => {
-  mx=e.clientX; my=e.clientY;
-  cur.style.left=mx+'px'; cur.style.top=my+'px';
+  mx = e.clientX; my = e.clientY;
+  curA.style.left = mx + 'px'; curA.style.top = my + 'px';
 });
-(function animC(){
-  rx += (mx-rx)*.1; ry += (my-ry)*.1;
-  cur2.style.left=rx+'px'; cur2.style.top=ry+'px';
-  requestAnimationFrame(animC);
+(function animCur() {
+  bx += (mx - bx) * .1; by += (my - by) * .1;
+  curB.style.left = bx + 'px'; curB.style.top = by + 'px';
+  requestAnimationFrame(animCur);
 })();
-document.querySelectorAll('a,button,[class*="card"]').forEach(el => {
-  el.addEventListener('mouseenter', () => { cur2.style.width='60px'; cur2.style.height='60px'; });
-  el.addEventListener('mouseleave', () => { cur2.style.width='40px'; cur2.style.height='40px'; });
+document.querySelectorAll('a,button,input,textarea,select,[class*="card"],[class*="cell"],[class*="tile"],[class*="feat"],[class*="wcard"],[class*="rev"],[class*="part-item"]').forEach(el => {
+  el.addEventListener('mouseenter', () => document.body.classList.add('hovering'));
+  el.addEventListener('mouseleave', () => document.body.classList.remove('hovering'));
 });
 
-// ── NAV ──
-const nav = document.getElementById('nav');
-window.addEventListener('scroll', () => nav.classList.toggle('solid', scrollY > 80));
+/* ── NAV ── */
+window.addEventListener('scroll', () => {
+  document.getElementById('nav').classList.toggle('glassy', scrollY > 60);
+});
 
-// ── GSAP SETUP ──
-function initAll(){
-  gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
+/* ── FOG CANVAS ── */
+function initFog() {
+  const canvas = document.getElementById('fogCanvas');
+  const ctx = canvas.getContext('2d');
+  let W, H, particles = [];
 
-  // HERO animate in
-  const tl = gsap.timeline({delay:.1});
-  tl.to('#h-eye', {opacity:1, y:0, duration:.8, ease:'power3.out'})
-    .to('#h-title', {opacity:1, y:0, duration:1, ease:'power4.out'}, '-=.5')
-    .to('#h-sub',   {opacity:1, y:0, duration:.8, ease:'power3.out'}, '-=.6')
-    .to('#h-ctas',  {opacity:1, y:0, duration:.7, ease:'power3.out'}, '-=.5');
+  function resize() {
+    W = canvas.width  = canvas.offsetWidth;
+    H = canvas.height = canvas.offsetHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
 
-  // SCROLL REVEALS
-  gsap.utils.toArray('.gsap-reveal').forEach((el,i) => {
-    gsap.to(el, {
-      opacity:1, y:0, duration:.9, ease:'power3.out',
-      scrollTrigger:{ trigger:el, start:'top 88%', toggleActions:'play none none none' },
-      delay: parseFloat(el.style.transitionDelay) || 0
+  // Create fog particles
+  for (let i = 0; i < 120; i++) {
+    particles.push({
+      x: Math.random() * 2000,
+      y: H * (.3 + Math.random() * .7),
+      r: 80 + Math.random() * 260,
+      alpha: .02 + Math.random() * .06,
+      speed: .08 + Math.random() * .18,
+      drift: (Math.random() - .5) * .04
     });
-  });
-  gsap.utils.toArray('.gsap-reveal-l').forEach(el => {
-    gsap.to(el, {
-      opacity:1, x:0, duration:.9, ease:'power3.out',
-      scrollTrigger:{ trigger:el, start:'top 88%', toggleActions:'play none none none' },
-      delay: parseFloat(el.style.transitionDelay) || 0
-    });
-  });
-  gsap.utils.toArray('.gsap-reveal-r').forEach(el => {
-    gsap.to(el, {
-      opacity:1, x:0, duration:.9, ease:'power3.out',
-      scrollTrigger:{ trigger:el, start:'top 88%', toggleActions:'play none none none' },
-      delay: parseFloat(el.style.transitionDelay) || 0
-    });
-  });
-  gsap.utils.toArray('.gsap-reveal-s').forEach((el,i) => {
-    gsap.to(el, {
-      opacity:1, scale:1, duration:.8, ease:'back.out(1.5)',
-      scrollTrigger:{ trigger:el, start:'top 90%', toggleActions:'play none none none' },
-      delay: parseFloat(el.style.transitionDelay) || 0
-    });
-  });
+  }
 
-  // BIG TITLE LETTER SPLIT on hero
-  const heroTitle = document.getElementById('h-title');
-  const words = heroTitle.querySelectorAll('span');
-  words.forEach(span => {
-    const text = span.textContent;
-    span.innerHTML = text.split('').map(c =>
-      c === ' ' ? ' ' : `<span class="char"><span class="char-inner">${c}</span></span>`
-    ).join('');
-  });
+  let frame = 0;
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    frame++;
+    particles.forEach(p => {
+      p.x += p.speed;
+      p.y += p.drift;
+      if (p.x - p.r > W) p.x = -p.r;
+      if (p.y > H + p.r) p.y = H * .3;
+      if (p.y < H * .2) p.y = H;
 
-  // COUNTER ANIMATION
-  document.querySelectorAll('[data-target]').forEach(el => {
-    ScrollTrigger.create({
-      trigger: el,
-      start: 'top 80%',
-      once: true,
-      onEnter() {
-        const target = +el.dataset.target;
-        gsap.to({val:0}, {
-          val: target, duration:2, ease:'power2.out',
-          onUpdate() { el.textContent = Math.round(this.targets()[0].val).toLocaleString(); }
-        });
+      const grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r);
+      grad.addColorStop(0, `rgba(250,245,235,${p.alpha})`);
+      grad.addColorStop(.5, `rgba(240,235,220,${p.alpha * .4})`);
+      grad.addColorStop(1, 'rgba(250,245,235,0)');
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = grad;
+      ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+/* ── SCROLL REVEAL (IntersectionObserver) ── */
+function initReveal() {
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        setTimeout(() => e.target.classList.add('on'),
+          (parseFloat(e.target.style.transitionDelay) || 0) * 1000);
+        io.unobserve(e.target);
       }
     });
-  });
+  }, { threshold: .12 });
+  document.querySelectorAll('.r,.rl,.rr,.rs').forEach(el => io.observe(el));
+}
 
-  // PARALLAX HERO BG WORD
-  gsap.to('.bg-word', {
-    y: -80,
-    ease: 'none',
-    scrollTrigger: {
-      trigger: '#hero',
-      start: 'top top',
-      end: 'bottom top',
-      scrub: true
-    }
-  });
-
-  // HORIZONTAL SECTION FADE AS YOU SCROLL
-  gsap.utils.toArray('.sec').forEach(sec => {
-    gsap.fromTo(sec, {opacity:.5}, {
-      opacity:1, duration:.5,
-      scrollTrigger:{ trigger:sec, start:'top 80%', end:'top 30%', scrub:true }
+/* ── COUNTER ANIMATION ── */
+function animCount(el, target, duration = 1800) {
+  const start = performance.now();
+  function step(now) {
+    const prog = Math.min((now - start) / duration, 1);
+    const ease = 1 - Math.pow(1 - prog, 3);
+    el.textContent = Math.round(ease * target).toLocaleString();
+    if (prog < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+function initCounters() {
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const id = e.target.id;
+        if (id === 's1') animCount(e.target, 500);
+        if (id === 's2') animCount(e.target, 5);
+        if (id === 's3') animCount(e.target, 1000);
+        io.unobserve(e.target);
+      }
     });
+  }, { threshold: .5 });
+  ['s1','s2','s3'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) io.observe(el);
   });
 }
 
-// ── THREE.JS BACKGROUND ──
-(function initThree(){
-  const canvas = document.getElementById('threeCanvas');
-  if(!canvas) return;
-  const renderer = new THREE.WebGLRenderer({canvas, alpha:true, antialias:true});
-  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-  renderer.setSize(innerWidth, innerHeight);
-
-  const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(70, innerWidth/innerHeight, .1, 1000);
-  camera.position.z = 5;
-
-  // Particle field
-  const count = 1800;
-  const geo = new THREE.BufferGeometry();
-  const pos = new Float32Array(count*3);
-  const col = new Float32Array(count*3);
-  for(let i=0;i<count;i++){
-    pos[i*3]   = (Math.random()-.5)*20;
-    pos[i*3+1] = (Math.random()-.5)*20;
-    pos[i*3+2] = (Math.random()-.5)*12;
-    // orange/gold/cream spectrum
-    const r = Math.random();
-    if(r < .45){col[i*3]=.83;col[i*3+1]=.32;col[i*3+2]=.1}
-    else if(r < .7){col[i*3]=.78;col[i*3+1]=.54;col[i*3+2]=.17}
-    else{col[i*3]=.96;col[i*3+1]=.93;col[i*3+2]=.85}
-  }
-  geo.setAttribute('position', new THREE.BufferAttribute(pos,3));
-  geo.setAttribute('color', new THREE.BufferAttribute(col,3));
-  const mat = new THREE.PointsMaterial({size:.04, vertexColors:true, transparent:true, opacity:.7});
-  const pts = new THREE.Points(geo, mat);
-  scene.add(pts);
-
-  // Rotating wireframe gears (torus)
-  const gearGeo = new THREE.TorusGeometry(2, .015, 8, 60);
-  const gearMat = new THREE.MeshBasicMaterial({color:0xD4521A, wireframe:false, transparent:true, opacity:.12});
-  const gear1 = new THREE.Mesh(gearGeo, gearMat);
-  gear1.position.set(3.5, 1.5, -2);
-  scene.add(gear1);
-
-  const gear2 = new THREE.Mesh(new THREE.TorusGeometry(1.2,.012,8,40), new THREE.MeshBasicMaterial({color:0xC88A2A,transparent:true,opacity:.1}));
-  gear2.position.set(-3.8, -1.5, -3);
-  scene.add(gear2);
-
-  const gear3 = new THREE.Mesh(new THREE.TorusGeometry(.7,.01,6,30), new THREE.MeshBasicMaterial({color:0xD4521A,transparent:true,opacity:.08}));
-  gear3.position.set(0, -3, -1.5);
-  scene.add(gear3);
-
-  // Floating icosahedron (decorative 3D shape)
-  const icoGeo = new THREE.IcosahedronGeometry(1.1, 1);
-  const icoMat = new THREE.MeshBasicMaterial({color:0xD4521A, wireframe:true, transparent:true, opacity:.06});
-  const ico = new THREE.Mesh(icoGeo, icoMat);
-  ico.position.set(-3, 2, -4);
-  scene.add(ico);
-
-  let scrollY2 = 0;
-  window.addEventListener('scroll', () => { scrollY2 = window.scrollY; });
-
-  let t = 0;
-  (function render(){
-    requestAnimationFrame(render);
-    t += .005;
-    pts.rotation.y = t * .08;
-    pts.rotation.x = t * .03;
-    gear1.rotation.z += .004;
-    gear2.rotation.z -= .006;
-    gear3.rotation.z += .01;
-    ico.rotation.x += .003;
-    ico.rotation.y += .005;
-
-    // scroll-based camera drift
-    const scrollProgress = scrollY2 / (document.body.scrollHeight - innerHeight);
-    camera.position.x = Math.sin(t*.3) * .3;
-    camera.position.y = -scrollProgress * 3 + Math.sin(t*.2) * .2;
-    camera.position.z = 5 - scrollProgress * 1.5;
-    camera.lookAt(0, camera.position.y, 0);
-
-    renderer.render(scene, camera);
-  })();
-
-  window.addEventListener('resize', () => {
-    camera.aspect = innerWidth/innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(innerWidth, innerHeight);
+/* ── HERO ANIMATE IN ── */
+function heroIn() {
+  const items = [
+    { el: document.getElementById('hEye'),   delay: 100, prop: 'opacity:1;transform:translateY(0)' },
+    { el: document.getElementById('hTitle'), delay: 400, prop: 'opacity:1;transform:translateY(0)' },
+    { el: document.getElementById('hRule'),  delay: 800, prop: 'opacity:1;transform:scaleX(1)' },
+    { el: document.getElementById('hSub'),   delay: 900, prop: 'opacity:1;transform:translateY(0)' },
+    { el: document.getElementById('hCtas'),  delay:1100, prop: 'opacity:1;transform:translateY(0)' },
+  ];
+  items.forEach(({ el, delay, prop }) => {
+    if (!el) return;
+    el.style.transition = 'all .9s cubic-bezier(0.22,1,0.36,1)';
+    setTimeout(() => {
+      prop.split(';').forEach(p => {
+        if (!p.trim()) return;
+        const [k, v] = p.split(':');
+        el.style[k.trim().replace(/-([a-z])/g, g => g[1].toUpperCase())] = v.trim();
+      });
+    }, delay);
   });
-})();
+}
 
-// ── FEEDBACK FORM ──
-function handleFb(e){
+/* ── FEEDBACK FORM ── */
+function handleFeedback(e) {
   e.preventDefault();
-  const name   = document.getElementById('fn').value;
+  const name   = document.getElementById('fn').value.trim();
   const svc    = document.getElementById('fs').value;
   const rEl    = document.querySelector('input[name="rt"]:checked');
   const rating = rEl ? parseInt(rEl.value) : 5;
-  const review = document.getElementById('frev').value;
-  const stars  = '★'.repeat(rating) + '☆'.repeat(5-rating);
+  const review = document.getElementById('frev').value.trim();
+  const stars  = '★'.repeat(rating) + '☆'.repeat(5 - rating);
 
   const card = document.createElement('div');
-  card.className = 'rev-card';
-  card.style.cssText = 'opacity:0;transform:translateY(30px);transition:all .6s ease';
-  card.innerHTML = `<div class="rev-stars">${stars}</div><div class="rev-txt">"${review}"</div><div class="rev-who">${name}</div><div class="rev-role">${svc || 'Customer'}</div>`;
+  card.className = 'rev';
+  card.style.cssText = 'opacity:0;transform:translateY(24px);transition:all .7s ease;background:var(--off)';
+  card.innerHTML = `
+    <div class="rev-q">"</div>
+    <div class="rev-stars">${stars}</div>
+    <div class="rev-txt">${review}</div>
+    <div class="rev-who">${name}</div>
+    <div class="rev-role">${svc || 'Customer'}</div>`;
   document.getElementById('revGrid').appendChild(card);
-  setTimeout(() => { card.style.opacity='1'; card.style.transform='translateY(0)'; }, 50);
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      card.style.opacity = '1';
+      card.style.transform = 'translateY(0)';
+    });
+  });
 
-  document.getElementById('okMsg').style.display = 'block';
+  document.getElementById('okNote').style.display = 'block';
   document.getElementById('fbForm').reset();
-  setTimeout(() => { document.getElementById('okMsg').style.display='none'; }, 8000);
+  setTimeout(() => { document.getElementById('okNote').style.display = 'none'; }, 9000);
+}
+
+/* ── INIT ── */
+function initSite() {
+  heroIn();
+  initFog();
+  initReveal();
+  initCounters();
 }
 </script>
+
 </body>
 </html>
