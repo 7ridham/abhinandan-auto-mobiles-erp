@@ -1,75 +1,1039 @@
 <!DOCTYPE html>
-<a href="https://wa.me/919870037002" class="btn btn-secondary">
-Contact Support
-</a>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Abhinandan Auto Mobiles — Genuine Spare Parts</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --or:#D4521A;--or2:#F07030;--gold:#C88A2A;
+  --cream:#F5EDD8;--dark:#0A0302;--maroon:#1a0404;
+}
+html{scroll-behavior:auto}
+body{
+  font-family:'Rajdhani',sans-serif;
+  background:var(--dark);color:var(--cream);
+  overflow-x:hidden;cursor:none;
+}
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@300;400;600;700&display=swap');
+
+/* ── CURSOR ── */
+#cur{position:fixed;width:10px;height:10px;background:var(--or);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:transform .08s}
+#cur2{position:fixed;width:40px;height:40px;border:1px solid var(--or);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);opacity:.4;transition:transform .18s ease,width .2s,height .2s}
+body:hover #cur2{opacity:.4}
+
+/* ── PRELOADER ── */
+#preloader{
+  position:fixed;inset:0;z-index:9000;background:var(--dark);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.5rem;
+  transition:opacity .8s ease,visibility .8s;
+}
+#preloader.hide{opacity:0;visibility:hidden}
+.pre-logo{font-family:'Bebas Neue',sans-serif;font-size:3.5rem;letter-spacing:6px;color:var(--or);opacity:0;animation:preIn 1s .2s forwards}
+.pre-bar-wrap{width:260px;height:2px;background:rgba(245,237,216,0.1);overflow:hidden;border-radius:2px}
+.pre-bar{height:100%;width:0%;background:linear-gradient(90deg,var(--or),var(--gold));transition:width .05s linear}
+.pre-txt{font-size:.75rem;letter-spacing:3px;text-transform:uppercase;color:rgba(245,237,216,0.4);opacity:0;animation:preIn .8s .5s forwards}
+@keyframes preIn{to{opacity:1}}
+
+/* ── CANVAS ── */
+#threeCanvas{
+  position:fixed;inset:0;z-index:0;
+  pointer-events:none;
+}
+
+/* ── SECTIONS WRAPPER ── */
+#scroller{position:relative;z-index:10}
+
+/* ── NAV ── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:500;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:1.4rem 4rem;
+  transition:background .4s,padding .4s,border-color .4s;
+  border-bottom:1px solid transparent;
+}
+nav.solid{background:rgba(10,3,2,0.92);backdrop-filter:blur(14px);border-color:rgba(212,82,26,.15);padding:0.8rem 4rem}
+.nav-logo{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:3px;color:var(--or2);text-decoration:none}
+.nav-logo span{color:var(--gold)}
+.nav-links{display:flex;gap:2rem;list-style:none}
+.nav-links a{color:rgba(245,237,216,.7);text-decoration:none;font-size:.82rem;font-weight:600;letter-spacing:2px;text-transform:uppercase;transition:color .2s;cursor:none}
+.nav-links a:hover{color:var(--or2)}
+.nav-wa{
+  background:rgba(37,211,102,.15);border:1px solid rgba(37,211,102,.4);
+  color:#5dca8a!important;padding:.5rem 1.2rem;border-radius:2px;
+  transition:background .2s!important;
+}
+.nav-wa:hover{background:rgba(37,211,102,.25)!important}
+
+/* ── HERO ── */
+#hero{
+  position:relative;height:100vh;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;overflow:hidden;
+}
+.hero-eyebrow{
+  font-size:.7rem;font-weight:700;letter-spacing:5px;text-transform:uppercase;
+  color:var(--or);opacity:0;transform:translateY(20px);
+  border:1px solid rgba(212,82,26,.3);padding:.35rem 1.2rem;
+  margin-bottom:2rem;display:inline-block;
+}
+.hero-h1{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(4rem,11vw,9.5rem);
+  line-height:.9;letter-spacing:2px;
+  color:var(--cream);
+  opacity:0;transform:translateY(50px);
+}
+.hero-h1 .stroke{
+  -webkit-text-stroke:1px var(--or);color:transparent;
+}
+.hero-h1 .fill{color:var(--or2)}
+.hero-sub{
+  font-size:1.05rem;color:rgba(245,237,216,.55);font-weight:400;
+  letter-spacing:1px;margin:1.5rem 0 2.5rem;
+  max-width:480px;line-height:1.8;
+  opacity:0;transform:translateY(20px);
+}
+.hero-ctas{display:flex;gap:1rem;opacity:0;transform:translateY(20px)}
+.btn-gl{
+  background:var(--or);color:#fff;border:none;
+  padding:.9rem 2.4rem;font-family:'Rajdhani',sans-serif;
+  font-size:.92rem;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;
+  text-decoration:none;cursor:none;display:inline-block;
+  clip-path:polygon(0 0,calc(100% - 14px) 0,100% 14px,100% 100%,14px 100%,0 calc(100% - 14px));
+  transition:background .25s,transform .2s;
+}
+.btn-gl:hover{background:var(--or2);transform:translateY(-3px)}
+.btn-out{
+  background:transparent;color:var(--cream);
+  border:1px solid rgba(245,237,216,.3);
+  padding:.9rem 2.4rem;font-family:'Rajdhani',sans-serif;
+  font-size:.92rem;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;
+  text-decoration:none;cursor:none;display:inline-block;
+  clip-path:polygon(0 0,calc(100% - 14px) 0,100% 14px,100% 100%,14px 100%,0 calc(100% - 14px));
+  transition:border-color .25s,color .25s,transform .2s;
+}
+.btn-out:hover{border-color:var(--or);color:var(--or2);transform:translateY(-3px)}
+
+.scroll-hint{
+  position:absolute;bottom:2.5rem;left:50%;transform:translateX(-50%);
+  display:flex;flex-direction:column;align-items:center;gap:.5rem;
+  color:rgba(245,237,216,.35);font-size:.68rem;letter-spacing:3px;text-transform:uppercase;
+  opacity:0;animation:fadeIn 1s 3s forwards;
+}
+.scroll-line{width:1px;height:40px;background:linear-gradient(to bottom,transparent,var(--or));animation:lineAnim 1.8s 3s infinite}
+@keyframes lineAnim{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}51%{transform:scaleY(1);transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+@keyframes fadeIn{to{opacity:1}}
+
+/* ── TICKER ── */
+.ticker{
+  position:relative;z-index:20;
+  background:var(--or);padding:.75rem 0;overflow:hidden;
+}
+.ticker-track{
+  display:flex;gap:3.5rem;animation:tick 22s linear infinite;
+  white-space:nowrap;
+}
+@keyframes tick{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.ticker-item{
+  font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:3px;color:#fff;
+  display:inline-flex;align-items:center;gap:1rem;flex-shrink:0;
+}
+.ticker-dot{width:4px;height:4px;background:rgba(255,255,255,.5);border-radius:50%}
+
+/* ── SECTION BASE ── */
+.sec{padding:9rem 5rem;position:relative;z-index:20}
+.sec-inner{max-width:1200px;margin:0 auto}
+.sec-tag{font-size:.68rem;font-weight:700;letter-spacing:5px;text-transform:uppercase;color:var(--or);margin-bottom:.6rem}
+.sec-title{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(3rem,6vw,5.5rem);line-height:.95;
+  color:var(--cream);margin-bottom:1.2rem;
+}
+.sec-desc{color:rgba(245,237,216,.5);font-size:1rem;line-height:1.9;max-width:520px}
+
+/* ── BRANDS — horizontal 3D cards ── */
+#brands{background:linear-gradient(180deg,var(--dark) 0%,#140404 100%)}
+.brands-scroll-wrap{overflow-x:auto;padding:3rem 0;scrollbar-width:none}
+.brands-scroll-wrap::-webkit-scrollbar{display:none}
+.brands-row{display:flex;gap:1.5rem;width:max-content}
+.brand-card-3d{
+  width:220px;flex-shrink:0;
+  background:rgba(59,10,10,.35);
+  border:1px solid rgba(212,82,26,.15);
+  padding:2.5rem 2rem;text-align:center;
+  transition:transform .4s ease,border-color .4s,box-shadow .4s;
+  transform-style:preserve-3d;perspective:600px;
+  cursor:none;position:relative;overflow:hidden;
+}
+.brand-card-3d::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(circle at 50% 0%,rgba(212,82,26,.2),transparent 70%);
+  opacity:0;transition:opacity .4s;
+}
+.brand-card-3d:hover{
+  border-color:var(--or);transform:translateY(-12px) rotateX(6deg);
+  box-shadow:0 30px 60px rgba(212,82,26,.2);
+}
+.brand-card-3d:hover::before{opacity:1}
+.brand-icon-3d{font-size:3rem;margin-bottom:1rem;display:block}
+.brand-name-3d{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:2px;color:var(--cream)}
+.brand-sub{font-size:.78rem;color:rgba(245,237,216,.4);margin-top:.4rem;letter-spacing:.5px}
+
+/* ── PARTS — big split layout ── */
+#parts{background:#0d0303}
+.parts-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-top:4rem;
+}
+.part-tile{
+  background:rgba(26,4,4,.6);border:1px solid rgba(212,82,26,.12);
+  padding:2.8rem 2.5rem;position:relative;overflow:hidden;
+  transition:border-color .3s,transform .4s;cursor:none;
+}
+.part-tile:first-child{grid-column:1/-1}
+.part-tile:hover{border-color:rgba(212,82,26,.5);transform:translateY(-6px)}
+.part-tile::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--or),var(--gold));
+  transform:scaleX(0);transform-origin:left;transition:transform .5s ease;
+}
+.part-tile:hover::after{transform:scaleX(1)}
+.part-num{
+  position:absolute;top:1.5rem;right:2rem;
+  font-family:'Bebas Neue',sans-serif;font-size:5rem;
+  color:rgba(212,82,26,.07);line-height:1;
+}
+.part-ico{font-size:2.5rem;margin-bottom:1.2rem}
+.part-title{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:1px;color:var(--cream);margin-bottom:.6rem}
+.part-desc{font-size:.9rem;color:rgba(245,237,216,.45);line-height:1.85;max-width:420px}
+
+/* ── STATS ── */
+#stats{
+  background:var(--dark);
+  display:flex;align-items:center;justify-content:center;
+  min-height:60vh;
+}
+.stats-row{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:0;
+  border:1px solid rgba(212,82,26,.15);max-width:1000px;width:100%;
+}
+.stat-cell{
+  padding:4rem 2.5rem;text-align:center;border-right:1px solid rgba(212,82,26,.1);
+  position:relative;
+}
+.stat-cell:last-child{border-right:none}
+.stat-cell::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--or),transparent);
+  opacity:0;transition:opacity .4s;
+}
+.stat-cell:hover::before{opacity:1}
+.stat-num{
+  font-family:'Bebas Neue',sans-serif;font-size:clamp(3rem,5vw,4.5rem);
+  color:var(--or2);line-height:1;
+}
+.stat-unit{font-family:'Bebas Neue',sans-serif;font-size:2rem;color:var(--gold)}
+.stat-lbl{font-size:.72rem;letter-spacing:3px;text-transform:uppercase;color:rgba(245,237,216,.4);margin-top:.6rem}
+
+/* ── WHY US ── */
+#whyus{background:#0d0303}
+.whyus-grid{display:grid;grid-template-columns:1fr 1fr;gap:6rem;align-items:center;margin-top:4rem}
+.feature-rows{display:flex;flex-direction:column;gap:1.5rem}
+.feat-row{
+  display:flex;gap:1.5rem;align-items:flex-start;padding:2rem;
+  background:rgba(26,4,4,.5);border:1px solid rgba(212,82,26,.1);
+  transition:border-color .3s,transform .3s;cursor:none;
+}
+.feat-row:hover{border-color:rgba(212,82,26,.4);transform:translateX(8px)}
+.feat-ico{
+  width:44px;height:44px;min-width:44px;
+  background:rgba(212,82,26,.12);border:1px solid rgba(212,82,26,.25);
+  display:flex;align-items:center;justify-content:center;font-size:1.3rem;
+}
+.feat-title{font-weight:700;font-size:1rem;letter-spacing:.5px;color:var(--cream);margin-bottom:.3rem}
+.feat-desc{font-size:.85rem;color:rgba(245,237,216,.45);line-height:1.75}
+.whyus-visual{position:relative;height:420px}
+.ring-wrap{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+.ring{
+  position:absolute;border-radius:50%;border:1px solid rgba(212,82,26,.15);
+  animation:pulse 3s ease-in-out infinite;
+}
+.ring:nth-child(1){width:80px;height:80px;animation-delay:0s;border-color:rgba(212,82,26,.5)}
+.ring:nth-child(2){width:160px;height:160px;animation-delay:.5s}
+.ring:nth-child(3){width:240px;height:240px;animation-delay:1s}
+.ring:nth-child(4){width:320px;height:320px;animation-delay:1.5s}
+.ring:nth-child(5){width:400px;height:400px;animation-delay:2s}
+@keyframes pulse{0%,100%{opacity:.3;transform:scale(1)}50%{opacity:.7;transform:scale(1.03)}}
+.ring-center{
+  position:absolute;width:70px;height:70px;background:var(--or);
+  display:flex;align-items:center;justify-content:center;font-size:2rem;
+  clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);
+  animation:spin 8s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── REVIEWS ── */
+#reviews{background:var(--dark)}
+.reviews-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-top:3.5rem}
+.rev-card{
+  background:rgba(26,4,4,.55);border:1px solid rgba(212,82,26,.12);
+  padding:2.2rem;position:relative;overflow:hidden;
+  transition:transform .3s,border-color .3s;
+}
+.rev-card:hover{transform:translateY(-8px);border-color:rgba(212,82,26,.4)}
+.rev-card::before{
+  content:'"';position:absolute;top:.8rem;right:1.5rem;
+  font-size:5rem;color:rgba(212,82,26,.08);font-family:Georgia,serif;line-height:1;
+}
+.rev-stars{color:var(--gold);font-size:.85rem;letter-spacing:3px;margin-bottom:.9rem}
+.rev-txt{font-size:.92rem;color:rgba(245,237,216,.55);line-height:1.85;font-style:italic}
+.rev-who{margin-top:1.4rem;font-weight:700;font-size:.9rem;color:var(--cream);letter-spacing:.5px}
+.rev-role{font-size:.73rem;color:var(--or);margin-top:.2rem;letter-spacing:1px;text-transform:uppercase}
+
+/* ── FEEDBACK ── */
+#feedback{background:#0d0303}
+.fb-grid{display:grid;grid-template-columns:1fr 1.1fr;gap:5rem;margin-top:3.5rem;align-items:start}
+.fb-aside p{font-size:.92rem;color:rgba(245,237,216,.45);line-height:1.9;margin-bottom:2rem}
+.google-cta{
+  display:flex;align-items:center;gap:.8rem;
+  border:1px solid rgba(212,82,26,.25);padding:1rem 1.5rem;
+  color:var(--cream);text-decoration:none;font-weight:700;font-size:.85rem;letter-spacing:1.5px;
+  text-transform:uppercase;transition:border-color .25s,background .25s;cursor:none;
+}
+.google-cta:hover{border-color:var(--or);background:rgba(212,82,26,.08)}
+label.fl{display:block;font-size:.68rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(245,237,216,.4);margin-bottom:.5rem}
+.fi{
+  width:100%;background:rgba(245,237,216,.04);border:1px solid rgba(212,82,26,.18);
+  color:var(--cream);padding:.85rem 1rem;font-family:'Rajdhani',sans-serif;font-size:1rem;
+  outline:none;margin-bottom:1.2rem;transition:border-color .2s;border-radius:0;
+}
+.fi:focus{border-color:var(--or)}
+.fi::placeholder{color:rgba(245,237,216,.2)}
+select.fi option{background:#1a0404}
+textarea.fi{resize:vertical;min-height:100px}
+.star-r{display:flex;flex-direction:row-reverse;gap:.3rem;margin-bottom:1.2rem}
+.star-r input{display:none}
+.star-r label{font-size:1.6rem;color:rgba(212,82,26,.2);cursor:none;transition:color .15s}
+.star-r input:checked~label,.star-r label:hover,.star-r label:hover~label{color:var(--gold)}
+.ok-msg{
+  display:none;border:1px solid rgba(93,202,138,.3);background:rgba(93,202,138,.07);
+  color:#5dca8a;padding:1rem;font-weight:700;font-size:.9rem;margin-top:1rem;letter-spacing:.5px;
+}
+
+/* ── CONTACT ── */
+#contact{background:var(--dark)}
+.contact-grid{display:grid;grid-template-columns:1fr 1.4fr;gap:3.5rem;margin-top:3.5rem;align-items:start}
+.c-info{display:flex;flex-direction:column;gap:2rem}
+.c-row{display:flex;gap:1.2rem;align-items:flex-start}
+.c-ico{
+  width:48px;height:48px;min-width:48px;
+  background:rgba(212,82,26,.1);border:1px solid rgba(212,82,26,.25);
+  display:flex;align-items:center;justify-content:center;font-size:1.3rem;
+}
+.c-label{font-size:.68rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--or);margin-bottom:.4rem}
+.c-val{font-size:1rem;color:var(--cream);line-height:1.7}
+.c-val a{color:var(--cream);text-decoration:none;transition:color .2s}
+.c-val a:hover{color:var(--or2)}
+.wa-big{
+  display:flex;align-items:center;gap:.9rem;
+  background:#25D366;color:#fff;padding:1.1rem 2rem;
+  font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:700;
+  letter-spacing:2px;text-transform:uppercase;text-decoration:none;cursor:none;
+  transition:opacity .2s,transform .2s;
+  clip-path:polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,12px 100%,0 calc(100% - 12px));
+}
+.wa-big:hover{opacity:.88;transform:translateY(-3px)}
+.dir-btn{
+  display:inline-flex;align-items:center;gap:.8rem;margin-top:.5rem;
+  border:1px solid rgba(245,237,216,.2);padding:1rem 2rem;
+  color:var(--cream);text-decoration:none;font-weight:700;font-size:.85rem;
+  letter-spacing:2px;text-transform:uppercase;cursor:none;
+  transition:border-color .25s,color .25s;
+}
+.dir-btn:hover{border-color:var(--or);color:var(--or2)}
+.map-wrap iframe{
+  width:100%;height:420px;border:1px solid rgba(212,82,26,.2);
+  filter:sepia(.6) hue-rotate(300deg) saturate(.5) brightness(.65);
+  display:block;
+}
+
+/* ── FOOTER ── */
+footer{
+  background:#080101;border-top:1px solid rgba(212,82,26,.12);
+  padding:3.5rem 5rem 2rem;
+}
+.ft{display:flex;justify-content:space-between;gap:2rem;flex-wrap:wrap;padding-bottom:2.5rem;border-bottom:1px solid rgba(245,237,216,.05)}
+.ft-brand{font-family:'Bebas Neue',sans-serif;font-size:2.2rem;letter-spacing:3px;color:var(--or2)}
+.ft-brand span{color:var(--gold)}
+.ft-tag{color:rgba(245,237,216,.35);font-size:.88rem;max-width:270px;line-height:1.75;margin-top:.4rem}
+.ft-col h4{font-size:.68rem;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:var(--or);margin-bottom:1.1rem}
+.ft-col ul{list-style:none;display:flex;flex-direction:column;gap:.6rem}
+.ft-col ul a{color:rgba(245,237,216,.4);text-decoration:none;font-size:.9rem;transition:color .2s}
+.ft-col ul a:hover{color:var(--cream)}
+.ft-bot{display:flex;justify-content:space-between;padding-top:1.5rem;font-size:.73rem;color:rgba(245,237,216,.25);flex-wrap:wrap;gap:.5rem}
+
+/* ── FLOATING WA ── */
+.fwa{
+  position:fixed;bottom:2rem;right:2rem;z-index:400;
+  width:60px;height:60px;background:#25D366;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;font-size:1.7rem;
+  text-decoration:none;cursor:none;
+  box-shadow:0 0 0 0 rgba(37,211,102,.5);
+  animation:wap 2.5s infinite;
+}
+@keyframes wap{0%,100%{box-shadow:0 0 0 0 rgba(37,211,102,.5)}70%{box-shadow:0 0 0 18px rgba(37,211,102,0)}}
+
+/* ── BIG BG TEXT ── */
+.bg-word{
+  position:absolute;pointer-events:none;
+  font-family:'Bebas Neue',sans-serif;letter-spacing:10px;
+  color:rgba(212,82,26,.04);line-height:1;user-select:none;
+}
+
+/* ── SCROLL ANIMATIONS ── */
+.gsap-reveal{opacity:0;transform:translateY(60px)}
+.gsap-reveal-l{opacity:0;transform:translateX(-60px)}
+.gsap-reveal-r{opacity:0;transform:translateX(60px)}
+.gsap-reveal-s{opacity:0;transform:scale(.9)}
+.char{display:inline-block;overflow:hidden}
+.char-inner{display:inline-block}
+
+/* ── MOBILE ── */
+@media(max-width:860px){
+  nav{padding:1rem 1.5rem}
+  nav.solid{padding:.7rem 1.5rem}
+  .nav-links{display:none}
+  .sec{padding:5rem 1.5rem}
+  .parts-grid,.whyus-grid,.reviews-cards,.fb-grid,.contact-grid{grid-template-columns:1fr}
+  .stats-row{grid-template-columns:1fr 1fr}
+  .stat-cell{border-right:none;border-bottom:1px solid rgba(212,82,26,.1)}
+  footer{padding:3rem 1.5rem 1.5rem}
+  .ft{flex-direction:column;gap:2rem}
+  .hero-h1{font-size:clamp(3.2rem,12vw,5rem)}
+  #threeCanvas{display:none}
+  body{cursor:auto}
+  #cur,#cur2{display:none}
+  .part-tile:first-child{grid-column:auto}
+}
+</style>
+</head>
+<body>
+
+<!-- PRELOADER -->
+<div id="preloader">
+  <div class="pre-logo">Abhinandan</div>
+  <div class="pre-bar-wrap"><div class="pre-bar" id="preBar"></div></div>
+  <div class="pre-txt">Loading Experience</div>
 </div>
-</div>
+
+<!-- CURSOR -->
+<div id="cur"></div>
+<div id="cur2"></div>
+
+<!-- THREE.JS CANVAS -->
+<canvas id="threeCanvas"></canvas>
+
+<!-- FLOATING WA -->
+<a class="fwa" href="https://wa.me/919870037002?text=Hello%20Abhinandan%20Auto%20Mobiles%2C%20I%20need%20spare%20parts." target="_blank" title="WhatsApp">📱</a>
+
+<!-- NAV -->
+<nav id="nav">
+  <a href="#hero" class="nav-logo" style="cursor:none">Abhinandan <span>Auto</span></a>
+  <ul class="nav-links">
+    <li><a href="#brands">Brands</a></li>
+    <li><a href="#parts">Parts</a></li>
+    <li><a href="#whyus">Why Us</a></li>
+    <li><a href="#reviews">Reviews</a></li>
+    <li><a href="#feedback">Feedback</a></li>
+    <li><a href="#contact">Contact</a></li>
+    <li><a href="https://wa.me/919870037002" class="nav-wa" target="_blank">WhatsApp</a></li>
+  </ul>
+</nav>
+
+<!-- SCROLLER -->
+<div id="scroller">
+
+<!-- ── HERO ── -->
+<section id="hero">
+  <div class="bg-word" style="font-size:22vw;bottom:-2rem;left:50%;transform:translateX(-50%)">AUTO</div>
+  <div class="hero-eyebrow" id="h-eye">✦ Genuine Spare Parts · Santalpur · Gujarat</div>
+  <h1 class="hero-h1" id="h-title">
+    <span class="stroke">Abhinandan</span><br>
+    <span class="fill">Auto Mobiles</span>
+  </h1>
+  <p class="hero-sub" id="h-sub">Your trusted source for all types of certified spare parts.<br>TATA · TVS · GAJRA · TELCO · CASTROL</p>
+  <div class="hero-ctas" id="h-ctas">
+    <a href="#parts" class="btn-gl">Explore Parts</a>
+    <a href="#contact" class="btn-out">Visit Us</a>
+  </div>
+  <div class="scroll-hint">
+    <div class="scroll-line"></div>
+    <span>Scroll</span>
+  </div>
 </section>
 
+<!-- TICKER -->
+<div class="ticker">
+  <div class="ticker-track">
+    <span class="ticker-item">Quality Parts<span class="ticker-dot"></span></span>
+    <span class="ticker-item">Trusted Service<span class="ticker-dot"></span></span>
+    <span class="ticker-item">TATA · TVS · GAJRA<span class="ticker-dot"></span></span>
+    <span class="ticker-item">TELCO · CASTROL<span class="ticker-dot"></span></span>
+    <span class="ticker-item">Santalpur · Dist. Patan<span class="ticker-dot"></span></span>
+    <span class="ticker-item">Stronger Together<span class="ticker-dot"></span></span>
+    <span class="ticker-item">Quality Parts<span class="ticker-dot"></span></span>
+    <span class="ticker-item">Trusted Service<span class="ticker-dot"></span></span>
+    <span class="ticker-item">TATA · TVS · GAJRA<span class="ticker-dot"></span></span>
+    <span class="ticker-item">TELCO · CASTROL<span class="ticker-dot"></span></span>
+    <span class="ticker-item">Santalpur · Dist. Patan<span class="ticker-dot"></span></span>
+    <span class="ticker-item">Stronger Together<span class="ticker-dot"></span></span>
+  </div>
+</div>
+
+<!-- ── BRANDS ── -->
+<section class="sec" id="brands">
+  <div class="sec-inner">
+    <div class="bg-word" style="font-size:14vw;top:-1rem;right:-2rem">BRANDS</div>
+    <div class="sec-tag gsap-reveal">Authorized Partners</div>
+    <h2 class="sec-title gsap-reveal">We Deal In</h2>
+    <p class="sec-desc gsap-reveal">Certified, genuine parts from India's most trusted automotive brands — all under one roof.</p>
+    <div class="brands-scroll-wrap" style="margin-top:3.5rem">
+      <div class="brands-row">
+        <div class="brand-card-3d gsap-reveal-s" style="transition-delay:.05s">
+          <span class="brand-icon-3d">🔵</span>
+          <div class="brand-name-3d">TATA</div>
+          <div class="brand-sub">Trucks & LCV Parts</div>
+        </div>
+        <div class="brand-card-3d gsap-reveal-s" style="transition-delay:.12s">
+          <span class="brand-icon-3d">🟠</span>
+          <div class="brand-name-3d">TVS</div>
+          <div class="brand-sub">Two-Wheeler Parts</div>
+        </div>
+        <div class="brand-card-3d gsap-reveal-s" style="transition-delay:.19s">
+          <span class="brand-icon-3d">⚙️</span>
+          <div class="brand-name-3d">GAJRA</div>
+          <div class="brand-sub">Clutch & Bearings</div>
+        </div>
+        <div class="brand-card-3d gsap-reveal-s" style="transition-delay:.26s">
+          <span class="brand-icon-3d">🔧</span>
+          <div class="brand-name-3d">TELCO</div>
+          <div class="brand-sub">Tata Engineering</div>
+        </div>
+        <div class="brand-card-3d gsap-reveal-s" style="transition-delay:.33s">
+          <span class="brand-icon-3d">🟡</span>
+          <div class="brand-name-3d">CASTROL</div>
+          <div class="brand-sub">Oils & Lubricants</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── PARTS ── -->
+<section class="sec" id="parts" style="background:#0d0303">
+  <div class="sec-inner">
+    <div class="bg-word" style="font-size:14vw;bottom:-1rem;left:-2rem">PARTS</div>
+    <div class="sec-tag gsap-reveal">What We Stock</div>
+    <h2 class="sec-title gsap-reveal">Genuine Spare Parts</h2>
+    <p class="sec-desc gsap-reveal">Every component is sourced directly from certified manufacturers — zero duplicates, total trust.</p>
+    <div class="parts-grid">
+      <div class="part-tile gsap-reveal" style="transition-delay:.05s">
+        <div class="part-num">01</div>
+        <div class="part-ico">🔩</div>
+        <div class="part-title">Engine Components</div>
+        <div class="part-desc">Pistons, rings, gaskets, cylinder heads and all internal engine parts for heavy trucks and commercial vehicles. Genuine TATA & TELCO components.</div>
+      </div>
+      <div class="part-tile gsap-reveal" style="transition-delay:.12s">
+        <div class="part-num">02</div>
+        <div class="part-ico">🛞</div>
+        <div class="part-title">Clutch & Brakes</div>
+        <div class="part-desc">GAJRA clutch plates, pressure plates, brake pads and full braking system components. Precision fit for all TATA models.</div>
+      </div>
+      <div class="part-tile gsap-reveal" style="transition-delay:.19s">
+        <div class="part-num">03</div>
+        <div class="part-ico">⚡</div>
+        <div class="part-title">Electrical Parts</div>
+        <div class="part-desc">Alternators, starters, switches, relays and wiring harnesses for heavy-duty vehicles. TVS & TATA certified components.</div>
+      </div>
+      <div class="part-tile gsap-reveal" style="transition-delay:.26s">
+        <div class="part-num">04</div>
+        <div class="part-ico">🛢️</div>
+        <div class="part-title">Lubricants & Oils</div>
+        <div class="part-desc">Full Castrol range — engine oils, gear oils, brake fluids and industrial lubricants. Always in stock for all vehicle types.</div>
+      </div>
+      <div class="part-tile gsap-reveal" style="transition-delay:.33s">
+        <div class="part-num">05</div>
+        <div class="part-ico">🔧</div>
+        <div class="part-title">Suspension & Axles</div>
+        <div class="part-desc">Leaf springs, shock absorbers, U-bolts and complete front axle assemblies for commercial trucks.</div>
+      </div>
+      <div class="part-tile gsap-reveal" style="transition-delay:.4s">
+        <div class="part-num">06</div>
+        <div class="part-ico">📦</div>
+        <div class="part-title">Body & Accessories</div>
+        <div class="part-desc">Mirrors, headlights, body panels, door locks and accessories for TATA commercial vehicle models.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── STATS ── -->
+<section class="sec" id="stats" style="padding:0">
+  <div style="width:100%;padding:6rem 5rem">
+    <div class="stats-row">
+      <div class="stat-cell">
+        <div class="stat-num" data-target="500">0</div><span class="stat-unit">+</span>
+        <div class="stat-lbl">Happy Customers</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-num" data-target="5">0</div><span class="stat-unit">+</span>
+        <div class="stat-lbl">Trusted Brands</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-num" data-target="1000">0</div><span class="stat-unit">+</span>
+        <div class="stat-lbl">Parts in Stock</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-num">24/7</div>
+        <div class="stat-lbl">WhatsApp Support</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── WHY US ── -->
+<section class="sec" id="whyus" style="background:#0d0303">
+  <div class="sec-inner">
+    <div class="sec-tag gsap-reveal">Why Choose Us</div>
+    <h2 class="sec-title gsap-reveal">Trusted For Years</h2>
+    <div class="whyus-grid">
+      <div class="feature-rows">
+        <div class="feat-row gsap-reveal-l" style="transition-delay:.05s">
+          <div class="feat-ico">✓</div>
+          <div><div class="feat-title">100% Genuine Parts</div><div class="feat-desc">We stock only certified, manufacturer-verified parts. Zero duplicates, zero compromise on quality.</div></div>
+        </div>
+        <div class="feat-row gsap-reveal-l" style="transition-delay:.15s">
+          <div class="feat-ico">🏆</div>
+          <div><div class="feat-title">Authorized Dealer</div><div class="feat-desc">Official dealer for TATA, TVS, GAJRA, TELCO and CASTROL — your warranty stays intact.</div></div>
+        </div>
+        <div class="feat-row gsap-reveal-l" style="transition-delay:.25s">
+          <div class="feat-ico">📦</div>
+          <div><div class="feat-title">Huge Stock Available</div><div class="feat-desc">Walk in and walk out. We maintain large in-store inventory so you never wait for critical parts.</div></div>
+        </div>
+        <div class="feat-row gsap-reveal-l" style="transition-delay:.35s">
+          <div class="feat-ico">🛣️</div>
+          <div><div class="feat-title">Highway Location</div><div class="feat-desc">Located on Kandla National Highway — easily accessible for truck drivers and fleet owners any time.</div></div>
+        </div>
+        <div class="feat-row gsap-reveal-l" style="transition-delay:.45s">
+          <div class="feat-ico">💬</div>
+          <div><div class="feat-title">Expert Advice</div><div class="feat-desc">Our team knows vehicles inside out. Get the right part the first time, every time.</div></div>
+        </div>
+      </div>
+      <div class="whyus-visual gsap-reveal-r">
+        <div class="ring-wrap">
+          <div class="ring"></div>
+          <div class="ring"></div>
+          <div class="ring"></div>
+          <div class="ring"></div>
+          <div class="ring"></div>
+          <div class="ring-center">⚙️</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── REVIEWS ── -->
+<section class="sec" id="reviews" style="background:var(--dark)">
+  <div class="sec-inner">
+    <div class="bg-word" style="font-size:12vw;top:-1rem;right:-1rem">TRUST</div>
+    <div class="sec-tag gsap-reveal">Customer Reviews</div>
+    <h2 class="sec-title gsap-reveal">What They Say</h2>
+    <div class="reviews-cards" id="revGrid">
+      <div class="rev-card gsap-reveal-s" style="transition-delay:.05s">
+        <div class="rev-stars">★★★★★</div>
+        <div class="rev-txt">"Genuine parts, great pricing, and the owner is very knowledgeable. I always come here for my TATA truck spare parts. Never been disappointed."</div>
+        <div class="rev-who">Ramesh Patel</div>
+        <div class="rev-role">Transport Owner, Patan</div>
+      </div>
+      <div class="rev-card gsap-reveal-s" style="transition-delay:.12s">
+        <div class="rev-stars">★★★★★</div>
+        <div class="rev-txt">"Best spare parts shop on the Kandla highway. Got my TELCO parts within minutes. Very fast service and they always have stock ready."</div>
+        <div class="rev-who">Suresh Bhai</div>
+        <div class="rev-role">Fleet Operator, Santalpur</div>
+      </div>
+      <div class="rev-card gsap-reveal-s" style="transition-delay:.19s">
+        <div class="rev-stars">★★★★★</div>
+        <div class="rev-txt">"Castrol oil always available here at the right price. Abhinandan Auto Mobiles is my go-to shop. Highly recommend to all truck drivers on this route."</div>
+        <div class="rev-who">Dinesh Khant</div>
+        <div class="rev-role">Truck Driver, Radhanpur</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FEEDBACK ── -->
+<section class="sec" id="feedback" style="background:#0d0303">
+  <div class="sec-inner">
+    <div class="sec-tag gsap-reveal">Share Your Experience</div>
+    <h2 class="sec-title gsap-reveal">Leave Feedback</h2>
+    <div class="fb-grid">
+      <div class="fb-aside gsap-reveal-l">
+        <p>Your review helps us improve and helps others on the highway find reliable genuine parts. After submitting here, we'd love it if you could also drop a Google review — it makes a huge difference!</p>
+        <a href="https://www.google.com/maps/place/Abhinandan/@23.7611009,71.1681038,17z/data=!4m6!3m5!1s0x395aff1180c18727:0x56780fce31c3f335!8m2!3d23.7609057!4d71.1679892!16s%2Fg%2F11kbth78_j" target="_blank" class="google-cta">
+          ⭐ Write a Google Review
+        </a>
+      </div>
+      <form id="fbForm" onsubmit="handleFb(event)" class="gsap-reveal-r">
+        <label class="fl">Your Name *</label>
+        <input class="fi" id="fn" type="text" placeholder="Ramesh Patel" required>
+        <label class="fl">Mobile Number</label>
+        <input class="fi" id="fp" type="tel" placeholder="98XXXXXXXX">
+        <label class="fl">Type of Service</label>
+        <select class="fi" id="fs">
+          <option value="">Select a service</option>
+          <option>Engine Parts</option><option>Clutch &amp; Brake Parts</option>
+          <option>Electrical Parts</option><option>Lubricants &amp; Oils</option>
+          <option>Suspension Parts</option><option>Body &amp; Accessories</option><option>Other</option>
+        </select>
+        <label class="fl">Your Rating *</label>
+        <div class="star-r">
+          <input type="radio" name="rt" id="r5" value="5"><label for="r5">★</label>
+          <input type="radio" name="rt" id="r4" value="4"><label for="r4">★</label>
+          <input type="radio" name="rt" id="r3" value="3"><label for="r3">★</label>
+          <input type="radio" name="rt" id="r2" value="2"><label for="r2">★</label>
+          <input type="radio" name="rt" id="r1" value="1"><label for="r1">★</label>
+        </div>
+        <label class="fl">Your Review *</label>
+        <textarea class="fi" id="frev" placeholder="Tell us about your experience..." required></textarea>
+        <button type="submit" class="btn-gl" style="border:none;width:100%;text-align:center">Submit Feedback</button>
+        <div class="ok-msg" id="okMsg">✅ Thank you! Please also leave a Google review using the link on the left.</div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- ── CONTACT ── -->
+<section class="sec" id="contact" style="background:var(--dark)">
+  <div class="sec-inner">
+    <div class="sec-tag gsap-reveal">Get In Touch</div>
+    <h2 class="sec-title gsap-reveal">Find &amp; Contact Us</h2>
+    <p class="sec-desc gsap-reveal">Conveniently located on the Kandla National Highway. Walk in or reach out instantly on WhatsApp.</p>
+    <div class="contact-grid">
+      <div class="c-info gsap-reveal-l">
+        <div class="c-row">
+          <div class="c-ico">📍</div>
+          <div>
+            <div class="c-label">Address</div>
+            <div class="c-val">Nr. Referral Hospital,<br>Kandla National Highway Road,<br>Santalpur, Dist. Patan – 385350, Gujarat</div>
+          </div>
+        </div>
+        <div class="c-row">
+          <div class="c-ico">📞</div>
+          <div>
+            <div class="c-label">Phone</div>
+            <div class="c-val">
+              <a href="tel:+919825259065">9825259065</a><br>
+              <a href="tel:+919870037002">9870037002</a>
+            </div>
+          </div>
+        </div>
+        <div class="c-row">
+          <div class="c-ico">🕒</div>
+          <div>
+            <div class="c-label">Working Hours</div>
+            <div class="c-val">Mon – Sat: 8:00 AM – 8:00 PM<br>Sunday: 9:00 AM – 2:00 PM</div>
+          </div>
+        </div>
+        <a href="https://wa.me/919870037002?text=Hello%20Abhinandan%20Auto%20Mobiles%2C%20I%20need%20spare%20parts." target="_blank" class="wa-big">📱 Chat on WhatsApp</a>
+        <a href="https://www.google.com/maps/place/Abhinandan/@23.7611009,71.1681038,17z" target="_blank" class="dir-btn">🗺️ Get Directions on Google Maps</a>
+      </div>
+      <div class="map-wrap gsap-reveal-r">
+        <iframe
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3645.0!2d71.1681038!3d23.7611009!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x395aff1180c18727%3A0x56780fce31c3f335!2sAbhinandan!5e0!3m2!1sen!2sin!4v1"
+          style="border:0" allowfullscreen loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+          title="Abhinandan Auto Mobiles Map">
+        </iframe>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
 <footer>
-<h2 class="gradient">Abhinandan Auto Mobiles</h2>
-<p>All Types Of Genuine Spare Parts</p>
-<p>Kandla National Highway Road, Santalpur, Dist. Patan</p>
-<p>Phone: 9870037002</p>
-
-<br><br>
-
-<a href="https://wa.me/919870037002" class="btn btn-primary">
-Contact On WhatsApp
-</a>
+  <div class="ft">
+    <div>
+      <div class="ft-brand">Abhinandan <span>Auto</span> Mobiles</div>
+      <div class="ft-tag">Your trusted destination for all genuine spare parts on the Kandla National Highway, Santalpur.</div>
+    </div>
+    <div class="ft-col">
+      <h4>Quick Links</h4>
+      <ul>
+        <li><a href="#brands">Our Brands</a></li>
+        <li><a href="#parts">Spare Parts</a></li>
+        <li><a href="#whyus">Why Us</a></li>
+        <li><a href="#reviews">Reviews</a></li>
+        <li><a href="#feedback">Leave Feedback</a></li>
+      </ul>
+    </div>
+    <div class="ft-col">
+      <h4>Contact</h4>
+      <ul>
+        <li><a href="tel:+919825259065">📞 9825259065</a></li>
+        <li><a href="tel:+919870037002">📞 9870037002</a></li>
+        <li><a href="https://wa.me/919870037002" target="_blank">📱 WhatsApp</a></li>
+        <li><a href="https://www.google.com/maps/place/Abhinandan/@23.7611009,71.1681038,17z" target="_blank">🗺️ Google Maps</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="ft-bot">
+    <span>© 2025 Abhinandan Auto Mobiles. All rights reserved.</span>
+    <span>Quality Parts · Trusted Service · Stronger Together</span>
+  </div>
 </footer>
 
-<a href="https://wa.me/919870037002" class="whatsapp">✆</a>
+</div><!-- /scroller -->
+
+<!-- THREE.JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<!-- GSAP -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollToPlugin.min.js"></script>
 
 <script>
-gsap.registerPlugin(ScrollTrigger);
+// ── PRELOADER ──
+const bar = document.getElementById('preBar');
+const pre = document.getElementById('preloader');
+let p = 0;
+const interval = setInterval(() => {
+  p += Math.random() * 12;
+  if(p >= 100){ p = 100; clearInterval(interval);
+    setTimeout(() => { pre.classList.add('hide'); initAll(); }, 400);
+  }
+  bar.style.width = p + '%';
+}, 80);
 
-const revealElements = document.querySelectorAll('.reveal');
+// ── CURSOR ──
+const cur = document.getElementById('cur');
+const cur2 = document.getElementById('cur2');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove', e => {
+  mx=e.clientX; my=e.clientY;
+  cur.style.left=mx+'px'; cur.style.top=my+'px';
+});
+(function animC(){
+  rx += (mx-rx)*.1; ry += (my-ry)*.1;
+  cur2.style.left=rx+'px'; cur2.style.top=ry+'px';
+  requestAnimationFrame(animC);
+})();
+document.querySelectorAll('a,button,[class*="card"]').forEach(el => {
+  el.addEventListener('mouseenter', () => { cur2.style.width='60px'; cur2.style.height='60px'; });
+  el.addEventListener('mouseleave', () => { cur2.style.width='40px'; cur2.style.height='40px'; });
+});
 
-revealElements.forEach((el)=>{
-gsap.to(el,{
-scrollTrigger:{
-trigger:el,
-start:'top 85%'
-},
-y:0,
-opacity:1,
-duration:1.4,
-ease:'power4.out'
-})
-})
+// ── NAV ──
+const nav = document.getElementById('nav');
+window.addEventListener('scroll', () => nav.classList.toggle('solid', scrollY > 80));
 
-gsap.from('.hero-content h1',{
-y:120,
-opacity:0,
-duration:1.5,
-ease:'power4.out'
-})
+// ── GSAP SETUP ──
+function initAll(){
+  gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
 
-gsap.from('.hero-content p',{
-y:80,
-opacity:0,
-delay:0.3,
-duration:1.5,
-ease:'power4.out'
-})
+  // HERO animate in
+  const tl = gsap.timeline({delay:.1});
+  tl.to('#h-eye', {opacity:1, y:0, duration:.8, ease:'power3.out'})
+    .to('#h-title', {opacity:1, y:0, duration:1, ease:'power4.out'}, '-=.5')
+    .to('#h-sub',   {opacity:1, y:0, duration:.8, ease:'power3.out'}, '-=.6')
+    .to('#h-ctas',  {opacity:1, y:0, duration:.7, ease:'power3.out'}, '-=.5');
 
-gsap.from('.hero-buttons',{
-y:60,
-opacity:0,
-delay:0.6,
-duration:1.5,
-ease:'power4.out'
-})
+  // SCROLL REVEALS
+  gsap.utils.toArray('.gsap-reveal').forEach((el,i) => {
+    gsap.to(el, {
+      opacity:1, y:0, duration:.9, ease:'power3.out',
+      scrollTrigger:{ trigger:el, start:'top 88%', toggleActions:'play none none none' },
+      delay: parseFloat(el.style.transitionDelay) || 0
+    });
+  });
+  gsap.utils.toArray('.gsap-reveal-l').forEach(el => {
+    gsap.to(el, {
+      opacity:1, x:0, duration:.9, ease:'power3.out',
+      scrollTrigger:{ trigger:el, start:'top 88%', toggleActions:'play none none none' },
+      delay: parseFloat(el.style.transitionDelay) || 0
+    });
+  });
+  gsap.utils.toArray('.gsap-reveal-r').forEach(el => {
+    gsap.to(el, {
+      opacity:1, x:0, duration:.9, ease:'power3.out',
+      scrollTrigger:{ trigger:el, start:'top 88%', toggleActions:'play none none none' },
+      delay: parseFloat(el.style.transitionDelay) || 0
+    });
+  });
+  gsap.utils.toArray('.gsap-reveal-s').forEach((el,i) => {
+    gsap.to(el, {
+      opacity:1, scale:1, duration:.8, ease:'back.out(1.5)',
+      scrollTrigger:{ trigger:el, start:'top 90%', toggleActions:'play none none none' },
+      delay: parseFloat(el.style.transitionDelay) || 0
+    });
+  });
 
-gsap.from('.floating-card',{
-x:100,
-opacity:0,
-delay:1,
-duration:1.5,
-ease:'power4.out'
-})
+  // BIG TITLE LETTER SPLIT on hero
+  const heroTitle = document.getElementById('h-title');
+  const words = heroTitle.querySelectorAll('span');
+  words.forEach(span => {
+    const text = span.textContent;
+    span.innerHTML = text.split('').map(c =>
+      c === ' ' ? ' ' : `<span class="char"><span class="char-inner">${c}</span></span>`
+    ).join('');
+  });
+
+  // COUNTER ANIMATION
+  document.querySelectorAll('[data-target]').forEach(el => {
+    ScrollTrigger.create({
+      trigger: el,
+      start: 'top 80%',
+      once: true,
+      onEnter() {
+        const target = +el.dataset.target;
+        gsap.to({val:0}, {
+          val: target, duration:2, ease:'power2.out',
+          onUpdate() { el.textContent = Math.round(this.targets()[0].val).toLocaleString(); }
+        });
+      }
+    });
+  });
+
+  // PARALLAX HERO BG WORD
+  gsap.to('.bg-word', {
+    y: -80,
+    ease: 'none',
+    scrollTrigger: {
+      trigger: '#hero',
+      start: 'top top',
+      end: 'bottom top',
+      scrub: true
+    }
+  });
+
+  // HORIZONTAL SECTION FADE AS YOU SCROLL
+  gsap.utils.toArray('.sec').forEach(sec => {
+    gsap.fromTo(sec, {opacity:.5}, {
+      opacity:1, duration:.5,
+      scrollTrigger:{ trigger:sec, start:'top 80%', end:'top 30%', scrub:true }
+    });
+  });
+}
+
+// ── THREE.JS BACKGROUND ──
+(function initThree(){
+  const canvas = document.getElementById('threeCanvas');
+  if(!canvas) return;
+  const renderer = new THREE.WebGLRenderer({canvas, alpha:true, antialias:true});
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+  renderer.setSize(innerWidth, innerHeight);
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(70, innerWidth/innerHeight, .1, 1000);
+  camera.position.z = 5;
+
+  // Particle field
+  const count = 1800;
+  const geo = new THREE.BufferGeometry();
+  const pos = new Float32Array(count*3);
+  const col = new Float32Array(count*3);
+  for(let i=0;i<count;i++){
+    pos[i*3]   = (Math.random()-.5)*20;
+    pos[i*3+1] = (Math.random()-.5)*20;
+    pos[i*3+2] = (Math.random()-.5)*12;
+    // orange/gold/cream spectrum
+    const r = Math.random();
+    if(r < .45){col[i*3]=.83;col[i*3+1]=.32;col[i*3+2]=.1}
+    else if(r < .7){col[i*3]=.78;col[i*3+1]=.54;col[i*3+2]=.17}
+    else{col[i*3]=.96;col[i*3+1]=.93;col[i*3+2]=.85}
+  }
+  geo.setAttribute('position', new THREE.BufferAttribute(pos,3));
+  geo.setAttribute('color', new THREE.BufferAttribute(col,3));
+  const mat = new THREE.PointsMaterial({size:.04, vertexColors:true, transparent:true, opacity:.7});
+  const pts = new THREE.Points(geo, mat);
+  scene.add(pts);
+
+  // Rotating wireframe gears (torus)
+  const gearGeo = new THREE.TorusGeometry(2, .015, 8, 60);
+  const gearMat = new THREE.MeshBasicMaterial({color:0xD4521A, wireframe:false, transparent:true, opacity:.12});
+  const gear1 = new THREE.Mesh(gearGeo, gearMat);
+  gear1.position.set(3.5, 1.5, -2);
+  scene.add(gear1);
+
+  const gear2 = new THREE.Mesh(new THREE.TorusGeometry(1.2,.012,8,40), new THREE.MeshBasicMaterial({color:0xC88A2A,transparent:true,opacity:.1}));
+  gear2.position.set(-3.8, -1.5, -3);
+  scene.add(gear2);
+
+  const gear3 = new THREE.Mesh(new THREE.TorusGeometry(.7,.01,6,30), new THREE.MeshBasicMaterial({color:0xD4521A,transparent:true,opacity:.08}));
+  gear3.position.set(0, -3, -1.5);
+  scene.add(gear3);
+
+  // Floating icosahedron (decorative 3D shape)
+  const icoGeo = new THREE.IcosahedronGeometry(1.1, 1);
+  const icoMat = new THREE.MeshBasicMaterial({color:0xD4521A, wireframe:true, transparent:true, opacity:.06});
+  const ico = new THREE.Mesh(icoGeo, icoMat);
+  ico.position.set(-3, 2, -4);
+  scene.add(ico);
+
+  let scrollY2 = 0;
+  window.addEventListener('scroll', () => { scrollY2 = window.scrollY; });
+
+  let t = 0;
+  (function render(){
+    requestAnimationFrame(render);
+    t += .005;
+    pts.rotation.y = t * .08;
+    pts.rotation.x = t * .03;
+    gear1.rotation.z += .004;
+    gear2.rotation.z -= .006;
+    gear3.rotation.z += .01;
+    ico.rotation.x += .003;
+    ico.rotation.y += .005;
+
+    // scroll-based camera drift
+    const scrollProgress = scrollY2 / (document.body.scrollHeight - innerHeight);
+    camera.position.x = Math.sin(t*.3) * .3;
+    camera.position.y = -scrollProgress * 3 + Math.sin(t*.2) * .2;
+    camera.position.z = 5 - scrollProgress * 1.5;
+    camera.lookAt(0, camera.position.y, 0);
+
+    renderer.render(scene, camera);
+  })();
+
+  window.addEventListener('resize', () => {
+    camera.aspect = innerWidth/innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(innerWidth, innerHeight);
+  });
+})();
+
+// ── FEEDBACK FORM ──
+function handleFb(e){
+  e.preventDefault();
+  const name   = document.getElementById('fn').value;
+  const svc    = document.getElementById('fs').value;
+  const rEl    = document.querySelector('input[name="rt"]:checked');
+  const rating = rEl ? parseInt(rEl.value) : 5;
+  const review = document.getElementById('frev').value;
+  const stars  = '★'.repeat(rating) + '☆'.repeat(5-rating);
+
+  const card = document.createElement('div');
+  card.className = 'rev-card';
+  card.style.cssText = 'opacity:0;transform:translateY(30px);transition:all .6s ease';
+  card.innerHTML = `<div class="rev-stars">${stars}</div><div class="rev-txt">"${review}"</div><div class="rev-who">${name}</div><div class="rev-role">${svc || 'Customer'}</div>`;
+  document.getElementById('revGrid').appendChild(card);
+  setTimeout(() => { card.style.opacity='1'; card.style.transform='translateY(0)'; }, 50);
+
+  document.getElementById('okMsg').style.display = 'block';
+  document.getElementById('fbForm').reset();
+  setTimeout(() => { document.getElementById('okMsg').style.display='none'; }, 8000);
+}
 </script>
-
 </body>
 </html>
