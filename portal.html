@@ -571,7 +571,8 @@ var _sb=null;
       'https://mhhnmndnolhapaoqtbxo.supabase.co',
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1oaG5tbmRub2xoYXBhb3F0YnhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4Mzg4NTksImV4cCI6MjA4ODQxNDg1OX0.IMSp8vYiCln_iSuoT_H2qdeX_dP1WMhOOskDw20eJXw'
     );
-    loadReviews();
+    /* Don't call loadReviews here — #rvc may not be in DOM yet.
+       It is called inside enterSite() after the site becomes visible. */
   };
   document.head.appendChild(s);
 })();
@@ -1065,45 +1066,44 @@ function p1(){
 function p2(){
   phase=2; setLbl(2); setPg(23);
   $srhint.classList.add('gone');
-  scene.fog=new THREE.FogExp2(0xd8d6d2,.013);
+  /* Lighter fog so truck is visible from a distance */
+  scene.fog=new THREE.FogExp2(0xd8d6d2,.006);
   truckDriving=true;
   setEngineRPM(.6);
 
-  /* Camera glides down to road level in one move */
-  var camObj={px:0,py:90,pz:50};
-  gsap.to(camObj,{px:-5,py:9,pz:52,duration:4,ease:'power2.inOut',
+  /* Spawn truck CLOSE so it's immediately visible — drives from -60 to +12 */
+  trkGrp.visible=true;
+  trkGrp.position.set(0,-21.8,-60);
+
+  /* Camera starts behind & above, looking at truck spawn point */
+  camera.position.set(-5, 9, 52);
+  camera.lookAt(0, 4.5, -60);
+
+  show('s2'); setPg(42);
+
+  /* ONE continuous truck drive toward camera */
+  var truckPos={z:-60};
+  gsap.to(truckPos,{
+    z:12, duration:9, ease:'power1.inOut',
     onUpdate:function(){
-      camera.position.set(camObj.px,camObj.py,camObj.pz);
-      camera.lookAt(0,4.5,-220);
+      trkGrp.position.z=truckPos.z;
+      /* Camera follows truck smoothly */
+      camera.lookAt(trkGrp.position.x, trkGrp.position.y+4.5, trkGrp.position.z);
+      /* Correct wheel roll: X-axis rotation = forward roll */
+      trkGrp.userData.wheelGroups.forEach(function(wg){
+        wg.rotation.x -= 0.12;
+      });
+      /* Subtle chassis bounce */
+      trkGrp.rotation.z = Math.sin(clock.getElapsedTime()*2.8)*0.004;
+    },
+    onComplete:function(){
+      truckDriving=false;
+      hide('s2');
+      p3();
     }
   });
-
-  setTimeout(function(){
-    trkGrp.visible=true;
-    trkGrp.position.set(0,-21.8,-230);
-    show('s2'); setPg(42);
-
-    /* ONE continuous truck drive — no step cuts */
-    var truckPos={z:-230};
-    gsap.to(truckPos,{
-      z:10, duration:9, ease:'power1.inOut',
-      onUpdate:function(){
-        trkGrp.position.z=truckPos.z;
-        camera.lookAt(trkGrp.position.x,trkGrp.position.y+4.5,trkGrp.position.z);
-        /* Correct wheel roll: rotate each wheelGroup on X axis (forward roll) */
-        var wheelSpin=0.15;
-        trkGrp.userData.wheelGroups.forEach(function(wg){
-          wg.rotation.x-=wheelSpin;
-        });
-        /* Subtle chassis bounce */
-        trkGrp.rotation.z=Math.sin(clock.getElapsedTime()*2.8)*.004;
-      }
-    });
-
-    setTimeout(function(){if(phase===2){truckDriving=false;hide('s2');p3();}},10500);
-  },2200);
 }
-
+  
 /* Phase 3 — full 360 orbit as one smooth loop */
 function p3(){
   phase=3; setLbl(3); setPg(52);
@@ -1211,7 +1211,12 @@ function enterSite(){
   var site=document.getElementById('site');
   site.style.display='block';
   document.body.classList.add('live');
-  setTimeout(function(){site.style.opacity='1';initReveal();},700);
+setTimeout(function(){
+  site.style.opacity='1';
+  initReveal();
+  /* Load reviews AFTER site is visible in DOM */
+  loadReviews();
+},700);
 }
 
 /* ══ RENDER LOOP ══ */
@@ -1276,19 +1281,27 @@ function renderReview(rv,prepend){
 }
 
 async function loadReviews(){
-  /* always show seeds first */
   var grid=document.getElementById('rvc');
+  if(!grid) return; /* safety: don't run if site not visible yet */
   grid.innerHTML='';
-  seedReviews.forEach(function(r){renderReview(r,false);});
 
-  /* then load from Supabase */
-  if(!_sb)return;
+  /* Always show seed reviews first as fallback */
+  seedReviews.forEach(function(r){ renderReview(r,false); });
+
+  /* Wait for Supabase to load (max 6 seconds) */
+  for(var i=0;i<30&&!_sb;i++) await new Promise(function(r){setTimeout(r,200);});
+  if(!_sb){ console.warn('Supabase not ready'); return; }
+
   try{
-    var res=await _sb.from('website_visitors').select('*').order('created_at',{ascending:false}).limit(50);
-    if(res.data&&res.data.length){
-      res.data.forEach(function(r){renderReview(r,false);});
+    var res=await _sb.from('website_visitors').select('name,phone,vehicle,rating,review_text,created_at').order('created_at',{ascending:false}).limit(60);
+    if(res.error){ console.warn('Load error:',res.error.message); return; }
+    if(res.data && res.data.length > 0){
+      /* Clear seeds, show only real DB reviews */
+      grid.innerHTML='';
+      res.data.forEach(function(r){ renderReview(r,false); });
     }
-  }catch(e){}
+    /* else keep seed reviews showing */
+  }catch(err){ console.warn('Review load failed:',err); }
 }
 
 /* ══ FEEDBACK FORM ══ */
@@ -1315,9 +1328,14 @@ async function submitFeedback(e){
 
   if(_sb){
     try{
-      var res=await _sb.from('website_visitors').insert(payload);
-      if(res.error) console.warn('Supabase insert error:',res.error.message);
-    }catch(err){console.warn('Supabase error:',err);}
+      var res=await _sb.from('website_visitors').insert([payload]);
+      if(res.error){
+        console.warn('Supabase insert error:',res.error.message);
+        /* Still show the review on screen even if DB save failed */
+      } else {
+        console.log('Review saved to database successfully.');
+      }
+    }catch(err){ console.warn('Supabase error:',err); }
   }
 
   /* Show in reviews grid immediately */
