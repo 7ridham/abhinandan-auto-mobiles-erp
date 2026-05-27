@@ -5,718 +5,577 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Abhinandan Auto Mobiles — Genuine Spare Parts, Santalpur</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&family=Bebas+Neue&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&family=Bebas+Neue&display=swap" rel="stylesheet">
 
 <style>
-/* ═══════════════════════════════════════
+/* ═══════════════════════════════════════════
    ROOT & RESET
-═══════════════════════════════════════ */
+═══════════════════════════════════════════ */
 :root {
-  --white:    #FAFAF8;
-  --off:      #F4F2ED;
-  --soft:     #EAE6DE;
-  --border:   rgba(0,0,0,0.07);
-  --ink:      #1A1410;
-  --ink2:     #3D3530;
-  --muted:    #8C8480;
-  --orange:   #C94B1A;
-  --orange2:  #E8622A;
-  --gold:     #B07D2A;
-  --gold2:    #D4A048;
-  --fog:      rgba(250,250,248,0.0);
+  --orange: #D4521A;
+  --orange2: #F06A28;
+  --gold: #C8900A;
+  --gold2: #E8B230;
+  --ink: #1A1208;
+  --ink2: #3D2E18;
+  --white: #FAFAF8;
+  --off: #F5F0E8;
+  --muted: #8C7A60;
+  --border: rgba(0,0,0,0.08);
+  --sky1: #FF8C42; /* dawn */
+  --sky2: #87CEEB; /* day */
+  --sky3: #F4A460; /* afternoon */
+  --sky4: #4A3728; /* dusk */
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; }
+html { scroll-behavior: auto; }
 body {
   font-family: 'DM Sans', sans-serif;
-  background: var(--white);
+  background: var(--ink);
   color: var(--ink);
   overflow-x: hidden;
-  cursor: none;
 }
 
-/* ═══════════════════════════════════════
-   CUSTOM CURSOR
-═══════════════════════════════════════ */
-#cur {
-  position: fixed; width: 8px; height: 8px;
-  background: var(--orange); border-radius: 50%;
-  pointer-events: none; z-index: 9000;
-  transform: translate(-50%,-50%);
-  transition: background .2s, transform .1s;
-}
-#cur2 {
-  position: fixed; width: 36px; height: 36px;
-  border: 1px solid rgba(201,75,26,.4); border-radius: 50%;
-  pointer-events: none; z-index: 8999;
-  transform: translate(-50%,-50%);
-  transition: width .2s, height .2s, opacity .2s;
-  opacity: .5;
-}
-body.hovering #cur { transform: translate(-50%,-50%) scale(2.5); background: var(--gold); }
-body.hovering #cur2 { width: 56px; height: 56px; opacity: .2; }
-
-/* ═══════════════════════════════════════
+/* ═══════════════════════════════════════════
    PRELOADER
-═══════════════════════════════════════ */
-#pre {
+═══════════════════════════════════════════ */
+#preloader {
   position: fixed; inset: 0; z-index: 9999;
   background: var(--ink);
   display: flex; flex-direction: column;
   align-items: center; justify-content: center; gap: 2rem;
-  transition: opacity 1s ease, visibility 1s;
+  transition: opacity 1.2s ease, visibility 1.2s;
 }
-#pre.out { opacity: 0; visibility: hidden; }
-.pre-title {
+#preloader.gone { opacity: 0; visibility: hidden; }
+.pre-logo {
   font-family: 'Cormorant Garamond', serif;
-  font-size: clamp(2rem, 6vw, 4rem);
-  font-weight: 300; letter-spacing: 8px;
-  color: var(--off); opacity: 0;
-  animation: fadeUp .8s .2s forwards;
+  font-size: clamp(2rem, 6vw, 3.5rem);
+  font-weight: 300; letter-spacing: 6px; color: var(--white);
+  opacity: 0; animation: fadeSlideUp .8s .3s forwards;
 }
-.pre-title em { font-style: italic; color: var(--gold2); }
-.pre-sub {
-  font-size: .65rem; letter-spacing: 5px; text-transform: uppercase;
-  color: rgba(250,250,248,.25); opacity: 0;
-  animation: fadeUp .6s .6s forwards;
+.pre-logo em { font-style: italic; color: var(--gold2); }
+.pre-tagline {
+  font-size: .62rem; letter-spacing: 5px; text-transform: uppercase;
+  color: rgba(255,255,255,.25);
+  opacity: 0; animation: fadeSlideUp .6s .7s forwards;
 }
-.pre-line-wrap {
-  width: 200px; height: 1px;
-  background: rgba(250,250,248,.08); overflow: hidden;
+.pre-truck-anim {
+  font-size: 3rem;
+  opacity: 0; animation: fadeSlideUp .6s .5s forwards;
 }
-.pre-line {
-  height: 100%; width: 0%;
+.pre-bar-wrap { width: 220px; height: 1px; background: rgba(255,255,255,.08); overflow: hidden; }
+.pre-bar { height: 100%; width: 0; background: linear-gradient(90deg, var(--orange), var(--gold2)); }
+@keyframes fadeSlideUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+
+/* ═══════════════════════════════════════════
+   SCROLL SPACER — gives scroll length
+═══════════════════════════════════════════ */
+#scroll-spacer {
+  height: 600vh; /* 6 screens of scroll for the animation */
+  position: relative;
+}
+
+/* ═══════════════════════════════════════════
+   FIXED GAME STAGE
+═══════════════════════════════════════════ */
+#stage {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 100vh;
+  z-index: 1;
+  overflow: hidden;
+}
+
+/* Sky — changes color via JS */
+#sky {
+  position: absolute; inset: 0;
+  transition: background .8s ease;
+  background: linear-gradient(180deg, #FF8C42 0%, #FFBA6B 50%, #FFD9A0 100%);
+}
+
+/* Sun / Moon */
+#celestial {
+  position: absolute;
+  width: 80px; height: 80px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #FFE566, #FFB020);
+  box-shadow: 0 0 60px rgba(255,200,50,.7), 0 0 120px rgba(255,160,0,.3);
+  transition: all .8s ease;
+}
+
+/* Cloud layer */
+#clouds {
+  position: absolute; top: 0; left: 0; width: 200%; height: 100%;
+  pointer-events: none;
+}
+.cloud {
+  position: absolute;
+  background: white; border-radius: 50px;
+  opacity: .75;
+  animation: cloudFloat linear infinite;
+}
+.cloud::before, .cloud::after {
+  content: ''; position: absolute; background: white; border-radius: 50%;
+}
+
+/* ── BACKGROUND PARALLAX LAYERS ── */
+#bg-far { position: absolute; bottom: 40%; left: 0; width: 200%; height: 60%; pointer-events: none; }
+#bg-mid { position: absolute; bottom: 35%; left: 0; width: 200%; height: 50%; pointer-events: none; }
+#bg-near { position: absolute; bottom: 28%; left: 0; width: 200%; height: 40%; pointer-events: none; }
+
+/* ── ROAD ── */
+#road-section {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 32%;
+}
+#road-canvas {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+}
+
+/* ── TRUCK ── */
+#truck-wrap {
+  position: absolute;
+  bottom: 26%;
+  left: 15%;
+  transition: bottom .3s ease;
+  z-index: 10;
+  filter: drop-shadow(0 8px 20px rgba(0,0,0,.4));
+}
+
+/* ── ZONE LABEL ── */
+#zone-label {
+  position: absolute; top: 1.5rem; left: 50%; transform: translateX(-50%);
+  font-size: .62rem; font-weight: 500; letter-spacing: 4px;
+  text-transform: uppercase; color: rgba(255,255,255,.6);
+  background: rgba(0,0,0,.18); padding: .4rem 1.2rem; border-radius: 100px;
+  backdrop-filter: blur(10px); z-index: 20;
+  transition: opacity .5s;
+}
+
+/* ── SCROLL PROGRESS BAR ── */
+#scroll-prog {
+  position: fixed; top: 0; left: 0; height: 3px; z-index: 500;
   background: linear-gradient(90deg, var(--orange), var(--gold2));
-  transition: width .05s linear;
+  width: 0%; transition: width .1s;
 }
-@keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
 
-/* ═══════════════════════════════════════
-   GRAIN OVERLAY — cinematic texture
-═══════════════════════════════════════ */
-#grain {
-  position: fixed; inset: 0; z-index: 8000;
-  pointer-events: none; opacity: .025;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  background-size: 200px 200px;
-  animation: grainAnim 1s steps(2) infinite;
+/* ── MILESTONE MARKERS ── */
+.milestone {
+  position: absolute; bottom: 34%;
+  width: 2px; height: 20px;
+  background: rgba(255,255,255,.3);
+  z-index: 12;
+  transition: background .3s;
 }
-@keyframes grainAnim { 0%,100%{background-position:0 0} 25%{background-position:30% 60%} 50%{background-position:70% 20%} 75%{background-position:40% 80%} }
+.milestone.passed { background: var(--gold2); }
+.milestone-label {
+  position: absolute; bottom: 100%; left: 50%;
+  transform: translateX(-50%);
+  font-size: .55rem; letter-spacing: 2px; text-transform: uppercase;
+  color: rgba(255,255,255,.4); white-space: nowrap;
+  margin-bottom: .3rem;
+}
 
-/* ═══════════════════════════════════════
+/* ═══════════════════════════════════════════
+   CONTENT CARDS — float up at scroll zones
+═══════════════════════════════════════════ */
+#content-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: 50;
+  pointer-events: none;
+}
+.content-panel {
+  position: absolute;
+  top: 50%; transform: translateY(-50%);
+  pointer-events: all;
+  opacity: 0;
+  transition: opacity .7s ease, transform .7s cubic-bezier(0.22,1,0.36,1);
+  max-width: 520px;
+}
+.content-panel.left  { left: 4vw; transform: translateY(-50%) translateX(-60px); }
+.content-panel.right { right: 4vw; transform: translateY(-50%) translateX(60px); }
+.content-panel.center{ left: 50%; transform: translateX(-50%) translateY(-40px); max-width: 700px; text-align: center; }
+
+.content-panel.visible.left  { opacity: 1; transform: translateY(-50%) translateX(0); }
+.content-panel.visible.right { opacity: 1; transform: translateY(-50%) translateX(0); }
+.content-panel.visible.center{ opacity: 1; transform: translateX(-50%) translateY(0); }
+
+.panel-card {
+  background: rgba(250,248,242,.93);
+  backdrop-filter: blur(24px) saturate(1.6);
+  -webkit-backdrop-filter: blur(24px) saturate(1.6);
+  border: 1px solid rgba(255,255,255,.5);
+  border-radius: 4px;
+  padding: 2.5rem 2.8rem;
+  box-shadow: 0 20px 60px rgba(0,0,0,.25), 0 4px 12px rgba(0,0,0,.12);
+}
+.panel-tag {
+  font-size: .6rem; font-weight: 600; letter-spacing: 4px;
+  text-transform: uppercase; color: var(--orange);
+  margin-bottom: .7rem; display: block;
+}
+.panel-h {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(1.9rem, 3vw, 2.8rem);
+  font-weight: 300; line-height: 1; color: var(--ink);
+  letter-spacing: -.3px; margin-bottom: .8rem;
+}
+.panel-h em { font-style: italic; color: var(--orange); }
+.panel-rule { width: 24px; height: 1px; background: var(--orange); margin-bottom: 1rem; }
+.panel-rule.center { margin: .8rem auto 1rem; }
+.panel-p { font-size: .85rem; color: var(--muted); line-height: 1.9; }
+
+/* Brand chips */
+.brand-chips { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1.2rem; }
+.chip {
+  background: var(--ink); color: var(--white);
+  font-size: .65rem; font-weight: 600; letter-spacing: 2px;
+  text-transform: uppercase; padding: .4rem .9rem; border-radius: 2px;
+}
+
+/* Parts mini grid */
+.mini-parts { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; margin-top: 1.2rem; }
+.mini-part {
+  background: var(--off); border: 1px solid var(--border);
+  padding: .7rem .9rem; border-radius: 2px;
+  font-size: .75rem; color: var(--ink2); font-weight: 500;
+  display: flex; align-items: center; gap: .5rem;
+}
+
+/* Stats row in card */
+.mini-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); margin-top: 1.5rem; }
+.mini-stat { background: var(--white); padding: 1.2rem .8rem; text-align: center; }
+.mini-stat-n {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2rem; font-weight: 300; color: var(--ink); line-height: 1;
+}
+.mini-stat-n em { font-style: italic; color: var(--orange); }
+.mini-stat-l { font-size: .6rem; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-top: .3rem; }
+
+/* Review mini */
+.mini-revs { display: flex; flex-direction: column; gap: .5rem; margin-top: 1rem; }
+.mini-rev {
+  background: var(--off); border: 1px solid var(--border);
+  padding: 1rem 1.1rem; border-radius: 2px;
+}
+.mini-rev-stars { color: var(--gold); font-size: .7rem; margin-bottom: .3rem; }
+.mini-rev-txt { font-family:'Cormorant Garamond',serif; font-size:.95rem; font-style:italic; color:var(--ink2); line-height:1.7; }
+.mini-rev-who { font-size:.65rem; font-weight:600; letter-spacing:1px; color:var(--muted); margin-top:.4rem; }
+
+/* Contact panel */
+.c-items { display: flex; flex-direction: column; gap: .9rem; margin-top: 1rem; }
+.c-item { display: flex; gap: .8rem; align-items: flex-start; }
+.c-ico { font-size: 1.1rem; min-width: 24px; }
+.c-inf { font-size: .82rem; color: var(--ink2); line-height: 1.7; }
+.c-inf a { color: var(--ink2); text-decoration: none; }
+.cta-row { display: flex; flex-direction: column; gap: .6rem; margin-top: 1.2rem; }
+.wa-btn {
+  display: flex; align-items: center; justify-content: center; gap: .6rem;
+  background: #25D366; color: white;
+  padding: .8rem; border-radius: 3px;
+  font-size: .72rem; font-weight: 600; letter-spacing: 2px;
+  text-transform: uppercase; text-decoration: none;
+  box-shadow: 0 4px 16px rgba(37,211,102,.3);
+  transition: opacity .2s, transform .2s;
+}
+.wa-btn:hover { opacity: .9; transform: translateY(-2px); }
+.map-btn {
+  display: flex; align-items: center; justify-content: center; gap: .6rem;
+  border: 1px solid var(--border); background: var(--white);
+  color: var(--ink); padding: .75rem;
+  font-size: .72rem; font-weight: 500; letter-spacing: 2px;
+  text-transform: uppercase; text-decoration: none;
+  transition: border-color .2s, color .2s;
+}
+.map-btn:hover { border-color: var(--orange); color: var(--orange); }
+
+/* Feedback mini */
+.fb-form { display: flex; flex-direction: column; gap: .6rem; margin-top: 1rem; }
+.fi {
+  width: 100%; background: var(--white);
+  border: 1px solid var(--border);
+  border-bottom: 2px solid rgba(0,0,0,.1);
+  color: var(--ink); padding: .7rem .9rem;
+  font-family: 'DM Sans', sans-serif; font-size: .82rem;
+  outline: none; border-radius: 0; transition: border-color .2s;
+}
+.fi:focus { border-bottom-color: var(--orange); }
+.fi::placeholder { color: var(--muted); opacity: .5; }
+textarea.fi { resize: vertical; min-height: 70px; }
+.star-pick { display: flex; flex-direction: row-reverse; gap: .15rem; }
+.star-pick input { display: none; }
+.star-pick label { font-size: 1.3rem; color: rgba(0,0,0,.12); cursor: pointer; transition: color .15s; }
+.star-pick input:checked ~ label,
+.star-pick label:hover,
+.star-pick label:hover ~ label { color: var(--gold); }
+.submit-btn {
+  width: 100%; border: none; background: var(--orange); color: white;
+  padding: .8rem; font-family: 'DM Sans', sans-serif;
+  font-size: .72rem; font-weight: 600; letter-spacing: 2px;
+  text-transform: uppercase; cursor: pointer; border-radius: 2px;
+  transition: background .2s, transform .15s;
+  box-shadow: 0 4px 16px rgba(212,82,26,.25);
+}
+.submit-btn:hover { background: var(--orange2); transform: translateY(-1px); }
+.ok-msg {
+  display: none; background: rgba(37,211,102,.08);
+  border: 1px solid rgba(37,211,102,.25); color: #1a7a44;
+  padding: .7rem .9rem; font-size: .78rem; font-weight: 500; border-radius: 2px;
+}
+.g-review-link {
+  font-size: .72rem; text-align: center; color: var(--muted);
+  text-decoration: none; display: block; margin-top: .3rem;
+  transition: color .2s;
+}
+.g-review-link:hover { color: var(--orange); }
+
+/* ═══════════════════════════════════════════
+   HERO INTRO OVERLAY (before scrolling)
+═══════════════════════════════════════════ */
+#hero-overlay {
+  position: fixed; inset: 0; z-index: 45;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  pointer-events: none;
+  transition: opacity .6s ease;
+}
+.hero-title-main {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(3rem, 8vw, 7rem);
+  font-weight: 300; color: white; text-align: center;
+  line-height: .9; letter-spacing: -1px;
+  text-shadow: 0 4px 30px rgba(0,0,0,.4);
+  opacity: 0; transform: translateY(30px);
+  transition: all .9s cubic-bezier(0.22,1,0.36,1);
+}
+.hero-title-main em { font-style: italic; color: var(--gold2); }
+.hero-title-main strong { display: block; font-weight: 600; font-style: normal; color: white; font-size: .7em; }
+.hero-sub-main {
+  font-size: .78rem; letter-spacing: 3px; text-transform: uppercase;
+  color: rgba(255,255,255,.5); margin-top: 1.5rem;
+  opacity: 0; transform: translateY(16px);
+  transition: all .8s .3s cubic-bezier(0.22,1,0.36,1);
+  text-shadow: 0 2px 10px rgba(0,0,0,.3);
+}
+.hero-scroll-hint {
+  position: absolute; bottom: 2.5rem;
+  display: flex; flex-direction: column; align-items: center; gap: .5rem;
+  color: rgba(255,255,255,.35); font-size: .6rem; letter-spacing: 3px;
+  text-transform: uppercase;
+  opacity: 0; animation: fadeIn 1s 4.5s forwards;
+}
+.scroll-wheel-wrap {
+  width: 20px; height: 32px; border: 1px solid rgba(255,255,255,.25);
+  border-radius: 12px; display: flex; justify-content: center; padding-top: 6px;
+}
+.scroll-wheel-dot {
+  width: 2px; height: 6px; background: rgba(255,255,255,.4); border-radius: 2px;
+  animation: wheelBounce 1.8s ease-in-out infinite;
+}
+@keyframes wheelBounce { 0%,100%{opacity:1;transform:translateY(0)} 50%{opacity:0;transform:translateY(8px)} }
+@keyframes fadeIn { to { opacity: 1; } }
+
+/* ═══════════════════════════════════════════
    NAV
-═══════════════════════════════════════ */
-nav {
-  position: fixed; top: 0; left: 0; right: 0; z-index: 500;
+═══════════════════════════════════════════ */
+#nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 200;
   display: flex; align-items: center; justify-content: space-between;
-  padding: 2rem 5vw;
-  transition: all .5s ease;
+  padding: 1.3rem 4vw;
+  transition: all .4s ease;
 }
-nav.glassy {
-  background: rgba(250,250,248,.88);
-  backdrop-filter: blur(20px) saturate(1.5);
-  -webkit-backdrop-filter: blur(20px) saturate(1.5);
+#nav.solid {
+  background: rgba(250,248,242,.92); backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--border);
-  padding: 1rem 5vw;
+  padding: .8rem 4vw;
 }
 .nav-logo {
   font-family: 'Cormorant Garamond', serif;
-  font-size: 1.35rem; font-weight: 600; letter-spacing: 1px;
-  color: var(--ink); text-decoration: none;
+  font-size: 1.2rem; font-weight: 600; letter-spacing: 1px;
+  color: white; text-decoration: none; transition: color .3s;
 }
-.nav-logo em { font-style: italic; color: var(--orange); }
-.nav-links { display: flex; gap: 2.5rem; list-style: none; }
+#nav.solid .nav-logo { color: var(--ink); }
+.nav-logo em { font-style: italic; color: var(--gold2); }
+#nav.solid .nav-logo em { color: var(--orange); }
+.nav-links { display: flex; gap: 2rem; list-style: none; }
 .nav-links a {
-  font-size: .72rem; font-weight: 500; letter-spacing: 2px;
-  text-transform: uppercase; color: var(--muted);
-  text-decoration: none; transition: color .2s; cursor: none;
+  font-size: .65rem; font-weight: 500; letter-spacing: 2px; text-transform: uppercase;
+  color: rgba(255,255,255,.65); text-decoration: none; transition: color .2s; cursor: pointer;
 }
-.nav-links a:hover { color: var(--orange); }
+#nav.solid .nav-links a { color: var(--muted); }
+.nav-links a:hover, #nav.solid .nav-links a:hover { color: var(--orange); }
 .nav-wa {
-  background: #25D366; color: #fff !important;
-  padding: .42rem 1.1rem; border-radius: 100px;
-  font-weight: 500 !important;
+  background: #25D366 !important; color: white !important;
+  padding: .38rem 1rem !important; border-radius: 100px;
 }
-/* hamburger hidden by default */
-.hamburger { display: none; flex-direction: column; gap: 5px; cursor: none; padding: 4px; }
-.hamburger span { display: block; width: 22px; height: 1.5px; background: var(--ink); transition: .3s; }
+.hamburger { display: none; flex-direction: column; gap: 4px; cursor: pointer; padding: 4px; }
+.hamburger span { display: block; width: 20px; height: 1.5px; background: white; transition: .3s; }
+#nav.solid .hamburger span { background: var(--ink); }
 
-/* ═══════════════════════════════════════
-   HERO  — cinematic video + fog
-═══════════════════════════════════════ */
-#hero {
-  position: relative; height: 100vh; min-height: 600px;
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  overflow: hidden; background: var(--ink);
+/* ═══════════════════════════════════════════
+   AFTER GAME — full site sections
+   (appear after scroll spacer ends)
+═══════════════════════════════════════════ */
+#full-site {
+  position: relative; z-index: 100;
+  background: var(--white);
 }
-
-/* Video background */
-#heroBg {
-  position: absolute; inset: 0; width: 100%; height: 100%;
-  object-fit: cover; opacity: .35;
-  filter: saturate(.6) brightness(.8);
-}
-
-/* Canvas for fog particles */
-#fogCanvas {
-  position: absolute; inset: 0; z-index: 2;
-  pointer-events: none;
-}
-
-/* Bottom fog gradient that transitions to white */
-.hero-ground-fog {
-  position: absolute; bottom: 0; left: 0; right: 0;
-  height: 45%; z-index: 3;
-  background: linear-gradient(to top,
-    rgba(250,250,248,1) 0%,
-    rgba(250,250,248,.85) 20%,
-    rgba(250,250,248,.5) 40%,
-    rgba(250,250,248,.15) 65%,
-    transparent 100%);
-}
-/* Side vignettes */
-.hero-vignette {
-  position: absolute; inset: 0; z-index: 2;
-  background: radial-gradient(ellipse at center, transparent 40%, rgba(15,8,5,.6) 100%);
-}
-
-/* Text content */
-.hero-content {
-  position: relative; z-index: 10;
-  text-align: center;
-  padding: 0 2rem;
-}
-.hero-eyebrow {
-  display: inline-block;
-  font-size: .62rem; font-weight: 500; letter-spacing: 5px;
-  text-transform: uppercase; color: var(--gold2);
-  background: rgba(250,250,248,.08);
-  border: 1px solid rgba(212,160,72,.3);
-  padding: .35rem 1.2rem; border-radius: 100px;
-  margin-bottom: 1.8rem;
-  opacity: 0; transform: translateY(16px);
-}
-.hero-title {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: clamp(3.5rem, 9vw, 8rem);
-  font-weight: 300; line-height: .92; letter-spacing: -1px;
-  color: var(--off);
-  opacity: 0; transform: translateY(40px);
-}
-.hero-title em { font-style: italic; color: var(--gold2); }
-.hero-title strong { font-weight: 600; display: block; font-style: normal; color: #fff; }
-.hero-rule {
-  width: 40px; height: 1px; background: var(--orange);
-  margin: 1.8rem auto; opacity: 0; transform: scaleX(0);
-}
-.hero-sub {
-  font-size: .9rem; font-weight: 300; letter-spacing: 1px;
-  color: rgba(250,250,248,.55); line-height: 2;
-  opacity: 0; transform: translateY(16px);
-}
-.hero-ctas {
-  display: flex; gap: 1rem; justify-content: center;
-  flex-wrap: wrap; margin-top: 2.5rem;
-  opacity: 0; transform: translateY(16px);
-}
-.btn-prim {
-  background: var(--orange); color: #fff;
-  padding: .85rem 2.2rem;
-  font-family: 'DM Sans', sans-serif; font-size: .78rem;
-  font-weight: 500; letter-spacing: 2px; text-transform: uppercase;
-  text-decoration: none; cursor: none; border: none;
-  border-radius: 2px;
-  transition: background .25s, transform .2s, box-shadow .3s;
-  box-shadow: 0 4px 24px rgba(201,75,26,.3);
-}
-.btn-prim:hover { background: var(--orange2); transform: translateY(-2px); box-shadow: 0 8px 32px rgba(201,75,26,.4); }
-.btn-ghost {
-  background: transparent; color: rgba(250,250,248,.8);
-  padding: .85rem 2.2rem;
-  font-family: 'DM Sans', sans-serif; font-size: .78rem;
-  font-weight: 500; letter-spacing: 2px; text-transform: uppercase;
-  text-decoration: none; cursor: none;
-  border: 1px solid rgba(250,250,248,.2); border-radius: 2px;
-  transition: border-color .25s, color .25s, transform .2s;
-}
-.btn-ghost:hover { border-color: rgba(250,250,248,.6); color: #fff; transform: translateY(-2px); }
-
-/* Scroll indicator */
-.scroll-ind {
-  position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%);
-  z-index: 10; display: flex; flex-direction: column; align-items: center; gap: .6rem;
-  color: rgba(250,250,248,.3); font-size: .6rem; letter-spacing: 3px; text-transform: uppercase;
-  opacity: 0; animation: fadeIn 1s 4s forwards;
-}
-.scroll-mouse {
-  width: 20px; height: 32px;
-  border: 1px solid rgba(250,250,248,.2); border-radius: 12px;
-  display: flex; justify-content: center; padding-top: 6px;
-}
-.scroll-wheel {
-  width: 2px; height: 6px; background: rgba(250,250,248,.4); border-radius: 2px;
-  animation: scrollWheel 2s ease-in-out infinite;
-}
-@keyframes scrollWheel { 0%,100%{opacity:1;transform:translateY(0)} 50%{opacity:0;transform:translateY(8px)} }
-@keyframes fadeIn { to { opacity: 1; } }
-
-/* VIDEO PLACEHOLDER — shown when no video file */
-.hero-placeholder {
-  position: absolute; inset: 0; z-index: 1;
-  background: radial-gradient(ellipse at 30% 60%, #2A1505 0%, #0F0804 50%, #080503 100%);
-}
-/* Animated mountain silhouette via SVG inline */
-.mountain-svg {
-  position: absolute; bottom: 0; left: 0; right: 0; z-index: 2;
-  height: 55%; opacity: .25;
-}
-
-/* ═══════════════════════════════════════
-   VIDEO-READY NOTE (shown in source only)
-   To swap in your video: replace the
-   <source src="YOUR_VIDEO.mp4"> tag in
-   #heroBg element below.
-═══════════════════════════════════════ */
-
-/* ═══════════════════════════════════════
-   CONTENT SECTIONS — light premium
-═══════════════════════════════════════ */
 .sec {
-  position: relative; padding: 9rem 5vw;
-  background: var(--white);
-}
-.sec-inner { max-width: 1160px; margin: 0 auto; }
-
-.sec-tag {
-  font-size: .62rem; font-weight: 500; letter-spacing: 5px;
-  text-transform: uppercase; color: var(--orange);
-  margin-bottom: .8rem; display: block;
-}
-.sec-h {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: clamp(2.5rem, 5vw, 4.5rem);
-  font-weight: 300; line-height: 1;
-  color: var(--ink); letter-spacing: -.5px;
-}
-.sec-h em { font-style: italic; color: var(--orange); }
-.sec-p {
-  font-size: .9rem; font-weight: 300; color: var(--muted);
-  line-height: 1.95; max-width: 480px;
-}
-
-/* Divider */
-.rule { width: 32px; height: 1px; background: var(--orange); margin: 1.5rem 0; }
-
-/* ═══════════════════════════════════════
-   MARQUEE STRIP
-═══════════════════════════════════════ */
-.strip {
-  background: var(--ink); overflow: hidden; padding: .9rem 0;
-}
-.strip-track {
-  display: flex; gap: 4rem;
-  animation: tickMove 22s linear infinite; white-space: nowrap;
-}
-@keyframes tickMove { from{transform:translateX(0)} to{transform:translateX(-50%)} }
-.strip-item {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: .95rem; letter-spacing: 4px; color: rgba(250,250,248,.45);
-  display: inline-flex; align-items: center; gap: 1.2rem; flex-shrink: 0;
-  font-style: italic;
-}
-.strip-dot { width: 3px; height: 3px; background: var(--orange); border-radius: 50%; }
-
-/* ═══════════════════════════════════════
-   BRANDS — elegant grid
-═══════════════════════════════════════ */
-#brands { background: var(--off); }
-.brands-grid {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 0;
-  border: 1px solid var(--border);
-  margin-top: 3.5rem;
-}
-.brand-cell {
-  padding: 3rem 2rem; text-align: center;
-  border-right: 1px solid var(--border);
-  position: relative; overflow: hidden;
-  transition: background .3s;
-  cursor: none;
-}
-.brand-cell:last-child { border-right: none; }
-.brand-cell::after {
-  content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
-  background: linear-gradient(90deg, var(--orange), var(--gold2));
-  transform: scaleX(0); transform-origin: left; transition: transform .4s ease;
-}
-.brand-cell:hover { background: var(--white); }
-.brand-cell:hover::after { transform: scaleX(1); }
-.brand-icon { font-size: 2.2rem; margin-bottom: 1rem; display: block; }
-.brand-nm {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 1.5rem; font-weight: 600; letter-spacing: 1px; color: var(--ink);
-}
-.brand-sm { font-size: .7rem; color: var(--muted); margin-top: .3rem; letter-spacing: 1px; }
-
-/* ═══════════════════════════════════════
-   PARTS — editorial layout
-═══════════════════════════════════════ */
-#parts { background: var(--white); }
-.parts-header {
-  display: grid; grid-template-columns: 1fr 1fr;
-  gap: 4rem; align-items: end; margin-bottom: 4rem;
-}
-.parts-list {
-  display: grid; grid-template-columns: 1fr 1fr;
-  gap: 1px; background: var(--border);
-  border: 1px solid var(--border);
-}
-.part-item {
-  background: var(--white);
-  padding: 2.8rem 2.5rem;
-  position: relative; overflow: hidden;
-  transition: background .3s;
-  cursor: none;
-}
-.part-item:hover { background: var(--off); }
-.part-item::before {
-  content: attr(data-num);
-  position: absolute; top: 1.5rem; right: 2rem;
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 4rem; font-weight: 300;
-  color: rgba(201,75,26,.07); line-height: 1;
-}
-.part-ico { font-size: 1.8rem; margin-bottom: 1.2rem; display: block; }
-.part-nm {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 1.5rem; font-weight: 600; color: var(--ink);
-  margin-bottom: .5rem;
-}
-.part-desc { font-size: .82rem; color: var(--muted); line-height: 1.85; }
-.part-arrow {
-  position: absolute; bottom: 1.8rem; right: 2rem;
-  font-size: .8rem; color: var(--orange);
-  opacity: 0; transform: translateX(-6px);
-  transition: opacity .3s, transform .3s;
-}
-.part-item:hover .part-arrow { opacity: 1; transform: translateX(0); }
-
-/* ═══════════════════════════════════════
-   STATS — full-bleed cinematic
-═══════════════════════════════════════ */
-#stats {
-  background: var(--ink);
-  padding: 7rem 5vw;
-  position: relative; overflow: hidden;
-}
-#stats::before {
-  content: 'AAM';
-  position: absolute; left: -2rem; top: 50%; transform: translateY(-50%);
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 22vw; font-weight: 300; color: rgba(250,250,248,.03);
-  line-height: 1; pointer-events: none; letter-spacing: -4px;
-}
-.stats-row {
-  display: grid; grid-template-columns: repeat(4,1fr);
-  gap: 0; border: 1px solid rgba(250,250,248,.07);
-  max-width: 1000px; margin: 0 auto;
-}
-.stat-c {
-  padding: 4rem 2.5rem; text-align: center;
-  border-right: 1px solid rgba(250,250,248,.07);
+  padding: 8rem 5vw;
   position: relative;
 }
-.stat-c:last-child { border-right: none; }
-.stat-n {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: clamp(3rem,5vw,4.5rem); font-weight: 300;
-  color: var(--off); line-height: 1;
-}
-.stat-n span { font-style: italic; color: var(--gold2); }
-.stat-l {
-  font-size: .65rem; letter-spacing: 3px; text-transform: uppercase;
-  color: rgba(250,250,248,.3); margin-top: .8rem;
-}
+.sec-inner { max-width: 1140px; margin: 0 auto; }
+.sec-tag { font-size:.6rem; font-weight:600; letter-spacing:4px; text-transform:uppercase; color:var(--orange); margin-bottom:.6rem; display:block; }
+.sec-h { font-family:'Cormorant Garamond',serif; font-size:clamp(2.4rem,4.5vw,4rem); font-weight:300; color:var(--ink); line-height:1; letter-spacing:-.3px; }
+.sec-h em { font-style:italic; color:var(--orange); }
+.rule { width:28px; height:1px; background:var(--orange); margin:1.2rem 0; }
+.sec-p { font-size:.88rem; color:var(--muted); line-height:1.95; max-width:480px; }
 
-/* ═══════════════════════════════════════
-   WHY US — two col
-═══════════════════════════════════════ */
-#whyus { background: var(--off); }
-.whyus-grid {
-  display: grid; grid-template-columns: 1fr 1fr;
-  gap: 6rem; align-items: start; margin-top: 4rem;
-}
-.feature-list { display: flex; flex-direction: column; gap: 0; }
-.feat {
-  display: flex; gap: 1.5rem; align-items: flex-start;
-  padding: 1.8rem 0; border-bottom: 1px solid var(--border);
-  transition: padding-left .3s;
-  cursor: none;
-}
-.feat:first-child { padding-top: 0; }
-.feat:last-child { border-bottom: none; }
-.feat:hover { padding-left: .5rem; }
-.feat-n {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 1rem; font-weight: 600; color: var(--orange);
-  min-width: 24px; padding-top: 2px;
-}
-.feat-title { font-size: .9rem; font-weight: 500; color: var(--ink); margin-bottom: .3rem; }
-.feat-desc { font-size: .82rem; color: var(--muted); line-height: 1.85; }
-/* Right col: stacked mini cards */
-.whyus-cards { display: flex; flex-direction: column; gap: 1px; }
-.wcard {
-  background: var(--white);
-  padding: 2.2rem 2rem;
-  position: relative; overflow: hidden;
-  transition: transform .3s;
-  cursor: none;
-}
-.wcard:hover { transform: translateX(6px); }
-.wcard::before {
-  content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 2px;
-  background: linear-gradient(to bottom, var(--orange), var(--gold2));
-  transform: scaleY(0); transform-origin: top; transition: transform .4s ease;
-}
-.wcard:hover::before { transform: scaleY(1); }
-.wcard-title {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 1.3rem; font-weight: 600; color: var(--ink); margin-bottom: .4rem;
-}
-.wcard-desc { font-size: .82rem; color: var(--muted); line-height: 1.85; }
+/* Marquee strip */
+.strip { background:var(--ink); overflow:hidden; padding:.85rem 0; }
+.strip-track { display:flex; gap:3.5rem; animation:stripMove 20s linear infinite; white-space:nowrap; }
+@keyframes stripMove { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+.strip-item { font-family:'Cormorant Garamond',serif; font-size:.88rem; letter-spacing:3px; color:rgba(250,250,248,.4); display:inline-flex; align-items:center; gap:1rem; flex-shrink:0; font-style:italic; }
+.strip-dot { width:3px;height:3px;background:var(--orange);border-radius:50%; }
 
-/* ═══════════════════════════════════════
-   REVIEWS
-═══════════════════════════════════════ */
-#reviews { background: var(--white); }
-.reviews-grid {
-  display: grid; grid-template-columns: repeat(3,1fr);
-  gap: 1px; background: var(--border);
-  border: 1px solid var(--border);
-  margin-top: 3.5rem;
-}
-.rev {
-  background: var(--white); padding: 2.8rem 2.2rem;
-  position: relative; transition: background .3s; cursor: none;
-}
-.rev:hover { background: var(--off); }
-.rev-q {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 4rem; color: rgba(201,75,26,.12);
-  line-height: .8; margin-bottom: .8rem;
-}
-.rev-stars { color: var(--gold); font-size: .75rem; letter-spacing: 2px; margin-bottom: 1rem; }
-.rev-txt {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 1.1rem; font-weight: 300; font-style: italic;
-  color: var(--ink2); line-height: 1.85;
-}
-.rev-who { font-size: .75rem; font-weight: 500; color: var(--ink); margin-top: 1.5rem; letter-spacing: .5px; }
-.rev-role { font-size: .7rem; color: var(--muted); margin-top: .2rem; letter-spacing: .5px; }
-/* dynamic reviews appended here */
+/* Full map section */
+.map-embed { border:1px solid var(--border); overflow:hidden; margin-top:2.5rem; }
+.map-embed iframe { display:block; width:100%; height:420px; border:0; filter:grayscale(.2) contrast(1.05); }
 
-/* ═══════════════════════════════════════
-   FEEDBACK
-═══════════════════════════════════════ */
-#feedback { background: var(--off); }
-.fb-grid {
-  display: grid; grid-template-columns: 1fr 1.2fr;
-  gap: 6rem; margin-top: 3.5rem; align-items: start;
-}
-.fb-side p { font-size: .88rem; color: var(--muted); line-height: 1.9; margin-bottom: 2rem; }
-.g-btn {
-  display: inline-flex; align-items: center; gap: .7rem;
-  border: 1px solid var(--border); padding: .9rem 1.6rem;
-  font-size: .72rem; font-weight: 500; letter-spacing: 2px;
-  text-transform: uppercase; color: var(--ink); text-decoration: none;
-  transition: border-color .25s, background .25s; cursor: none;
-  background: var(--white);
-}
-.g-btn:hover { border-color: var(--orange); background: var(--off); }
-.fl { display: block; font-size: .62rem; font-weight: 500; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); margin-bottom: .5rem; }
-.fi {
-  width: 100%; background: var(--white);
-  border: 1px solid var(--border); border-bottom: 1px solid rgba(0,0,0,.15);
-  color: var(--ink); padding: .85rem 1rem;
-  font-family: 'DM Sans', sans-serif; font-size: .9rem;
-  outline: none; margin-bottom: 1.3rem;
-  transition: border-color .2s; border-radius: 0;
-  -webkit-appearance: none;
-}
-.fi:focus { border-color: var(--orange); border-bottom-color: var(--orange); }
-.fi::placeholder { color: var(--muted); opacity: .5; }
-select.fi option { background: var(--white); }
-textarea.fi { resize: vertical; min-height: 100px; }
-.star-wrap { display: flex; flex-direction: row-reverse; gap: .2rem; margin-bottom: 1.3rem; }
-.star-wrap input { display: none; }
-.star-wrap label { font-size: 1.5rem; color: rgba(0,0,0,.12); cursor: none; transition: color .15s; }
-.star-wrap input:checked ~ label,
-.star-wrap label:hover,
-.star-wrap label:hover ~ label { color: var(--gold); }
-.ok-note {
-  display: none; background: rgba(37,211,102,.07);
-  border: 1px solid rgba(37,211,102,.2); color: #1a7a44;
-  padding: .9rem 1rem; font-size: .82rem; font-weight: 500;
-  margin-top: 1rem; letter-spacing: .3px;
-}
+/* Brands full grid */
+.brands-full { display:grid; grid-template-columns:repeat(5,1fr); gap:0; border:1px solid var(--border); margin-top:2.5rem; }
+.bf-cell { padding:2.5rem 1.5rem; text-align:center; border-right:1px solid var(--border); transition:background .3s; position:relative; overflow:hidden; }
+.bf-cell:last-child { border-right:none; }
+.bf-cell::after { content:''; position:absolute; bottom:0; left:0; right:0; height:2px; background:linear-gradient(90deg,var(--orange),var(--gold2)); transform:scaleX(0); transform-origin:left; transition:transform .4s; }
+.bf-cell:hover { background:var(--off); }
+.bf-cell:hover::after { transform:scaleX(1); }
+.bf-ico { font-size:2rem; margin-bottom:.8rem; display:block; }
+.bf-nm { font-family:'Cormorant Garamond',serif; font-size:1.4rem; font-weight:600; color:var(--ink); }
+.bf-sm { font-size:.65rem; color:var(--muted); margin-top:.25rem; letter-spacing:1px; }
 
-/* ═══════════════════════════════════════
-   CONTACT
-═══════════════════════════════════════ */
-#contact { background: var(--white); }
-.contact-grid {
-  display: grid; grid-template-columns: 1fr 1.5fr;
-  gap: 4rem; margin-top: 3.5rem; align-items: start;
-}
-.c-block { display: flex; flex-direction: column; gap: 2.5rem; }
-.c-item { display: flex; gap: 1.2rem; align-items: flex-start; }
-.c-ico {
-  width: 40px; height: 40px; min-width: 40px;
-  background: var(--off); border: 1px solid var(--border);
-  display: flex; align-items: center; justify-content: center; font-size: 1rem;
-}
-.c-lbl { font-size: .62rem; font-weight: 500; letter-spacing: 3px; text-transform: uppercase; color: var(--orange); margin-bottom: .35rem; }
-.c-val { font-size: .9rem; color: var(--ink2); line-height: 1.75; }
-.c-val a { color: var(--ink2); text-decoration: none; transition: color .2s; }
-.c-val a:hover { color: var(--orange); }
-.wa-cta {
-  display: inline-flex; align-items: center; gap: .8rem;
-  background: #25D366; color: #fff;
-  padding: 1rem 2rem; font-size: .78rem; font-weight: 500;
-  letter-spacing: 2px; text-transform: uppercase;
-  text-decoration: none; cursor: none;
-  transition: opacity .2s, transform .2s; border-radius: 2px;
-  box-shadow: 0 4px 20px rgba(37,211,102,.25);
-}
-.wa-cta:hover { opacity: .9; transform: translateY(-2px); }
-.dir-cta {
-  display: inline-flex; align-items: center; gap: .8rem;
-  border: 1px solid var(--border); padding: .85rem 1.8rem;
-  font-size: .72rem; font-weight: 500; letter-spacing: 2px;
-  text-transform: uppercase; color: var(--ink); text-decoration: none;
-  cursor: none; transition: border-color .25s, color .25s; margin-top: .5rem;
-}
-.dir-cta:hover { border-color: var(--orange); color: var(--orange); }
-.map-box {
-  border: 1px solid var(--border); overflow: hidden;
-}
-.map-box iframe {
-  display: block; width: 100%; height: 440px; border: 0;
-  filter: grayscale(.3) contrast(1.05);
-}
+/* Parts grid */
+.parts-grid { display:grid; grid-template-columns:1fr 1fr; gap:1px; background:var(--border); border:1px solid var(--border); margin-top:2.5rem; }
+.pt { background:var(--white); padding:2.5rem 2.2rem; position:relative; overflow:hidden; transition:background .3s; }
+.pt:hover { background:var(--off); }
+.pt::before { content:attr(data-n); position:absolute; top:1rem; right:1.5rem; font-family:'Cormorant Garamond',serif; font-size:3.5rem; font-weight:300; color:rgba(212,82,26,.06); line-height:1; }
+.pt-ico { font-size:1.6rem; margin-bottom:1rem; display:block; }
+.pt-nm { font-family:'Cormorant Garamond',serif; font-size:1.4rem; font-weight:600; color:var(--ink); margin-bottom:.4rem; }
+.pt-desc { font-size:.8rem; color:var(--muted); line-height:1.85; }
 
-/* ═══════════════════════════════════════
-   FOOTER
-═══════════════════════════════════════ */
-footer {
-  background: var(--ink); padding: 4rem 5vw 2rem;
-}
-.ft-top {
-  display: grid; grid-template-columns: 1.5fr 1fr 1fr;
-  gap: 4rem; padding-bottom: 3rem;
-  border-bottom: 1px solid rgba(250,250,248,.06);
-}
-.ft-brand {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 1.8rem; font-weight: 300; letter-spacing: 1px; color: var(--off);
-}
-.ft-brand em { font-style: italic; color: var(--gold2); }
-.ft-desc { font-size: .8rem; color: rgba(250,250,248,.3); line-height: 1.9; margin-top: .5rem; max-width: 280px; }
-.ft-col h4 { font-size: .6rem; letter-spacing: 4px; text-transform: uppercase; color: var(--orange); margin-bottom: 1.2rem; }
-.ft-col ul { list-style: none; display: flex; flex-direction: column; gap: .65rem; }
-.ft-col ul a { font-size: .82rem; color: rgba(250,250,248,.35); text-decoration: none; transition: color .2s; }
-.ft-col ul a:hover { color: var(--off); }
-.ft-bot {
-  display: flex; justify-content: space-between; padding-top: 1.5rem;
-  font-size: .65rem; letter-spacing: 1.5px; color: rgba(250,250,248,.2);
-  flex-wrap: wrap; gap: .5rem;
-}
+/* Stats dark band */
+.stats-band { background:var(--ink); padding:6rem 5vw; position:relative; overflow:hidden; }
+.stats-band::before { content:'AAM'; position:absolute; left:-2rem; top:50%; transform:translateY(-50%); font-family:'Cormorant Garamond',serif; font-size:22vw; font-weight:300; color:rgba(255,255,255,.025); pointer-events:none; }
+.stats-row { display:grid; grid-template-columns:repeat(4,1fr); gap:0; border:1px solid rgba(255,255,255,.07); max-width:900px; margin:0 auto; }
+.st { padding:3.5rem 2rem; text-align:center; border-right:1px solid rgba(255,255,255,.07); }
+.st:last-child { border-right:none; }
+.st-n { font-family:'Cormorant Garamond',serif; font-size:clamp(2.5rem,4vw,4rem); font-weight:300; color:var(--white); line-height:1; }
+.st-n em { font-style:italic; color:var(--gold2); }
+.st-l { font-size:.6rem; letter-spacing:3px; text-transform:uppercase; color:rgba(255,255,255,.28); margin-top:.6rem; }
 
-/* ═══════════════════════════════════════
-   FLOATING WA
-═══════════════════════════════════════ */
-.fwa {
-  position: fixed; bottom: 2rem; right: 2rem; z-index: 400;
-  width: 56px; height: 56px; background: #25D366; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 1.5rem; text-decoration: none; cursor: none;
-  box-shadow: 0 4px 20px rgba(37,211,102,.35);
-  animation: waPulse 2.5s infinite;
-}
-@keyframes waPulse {
-  0%,100%{box-shadow:0 4px 20px rgba(37,211,102,.35)}
-  50%{box-shadow:0 4px 30px rgba(37,211,102,.6)}
-}
+/* Reviews grid */
+.rev-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--border); border:1px solid var(--border); margin-top:2.5rem; }
+.rv { background:var(--white); padding:2.5rem 2rem; transition:background .3s; }
+.rv:hover { background:var(--off); }
+.rv-q { font-family:'Cormorant Garamond',serif; font-size:3.5rem; color:rgba(212,82,26,.1); line-height:.7; margin-bottom:.8rem; }
+.rv-stars { color:var(--gold); font-size:.7rem; letter-spacing:2px; margin-bottom:.8rem; }
+.rv-txt { font-family:'Cormorant Garamond',serif; font-size:1.05rem; font-weight:300; font-style:italic; color:var(--ink2); line-height:1.85; }
+.rv-who { font-size:.72rem; font-weight:600; color:var(--ink); margin-top:1.2rem; letter-spacing:.5px; }
+.rv-role { font-size:.65rem; color:var(--muted); margin-top:.15rem; letter-spacing:.5px; }
 
-/* ═══════════════════════════════════════
-   SCROLL REVEAL
-═══════════════════════════════════════ */
-.r { opacity: 0; transform: translateY(50px); transition: opacity .9s ease, transform .9s ease; }
-.r.on { opacity: 1; transform: translateY(0); }
-.rl { opacity: 0; transform: translateX(-50px); transition: opacity .9s ease, transform .9s ease; }
-.rl.on { opacity: 1; transform: translateX(0); }
-.rr { opacity: 0; transform: translateX(50px); transition: opacity .9s ease, transform .9s ease; }
-.rr.on { opacity: 1; transform: translateX(0); }
-.rs { opacity: 0; transform: scale(.95); transition: opacity .8s ease, transform .8s ease; }
-.rs.on { opacity: 1; transform: scale(1); }
+/* Feedback full */
+.fb-grid { display:grid; grid-template-columns:1fr 1.3fr; gap:5rem; margin-top:2.5rem; }
+.fb-side p { font-size:.85rem; color:var(--muted); line-height:1.9; margin-bottom:1.5rem; }
+.g-link { display:inline-flex; align-items:center; gap:.6rem; border:1px solid var(--border); background:var(--white); padding:.8rem 1.4rem; font-size:.7rem; font-weight:500; letter-spacing:2px; text-transform:uppercase; color:var(--ink); text-decoration:none; transition:border-color .2s,color .2s; }
+.g-link:hover { border-color:var(--orange); color:var(--orange); }
+.fb-form-full { display:flex; flex-direction:column; gap:.8rem; }
+.fb-fl { font-size:.6rem; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:var(--muted); margin-bottom:.2rem; display:block; }
 
-/* ═══════════════════════════════════════
-   MOBILE
-═══════════════════════════════════════ */
+/* Contact grid */
+.ct-grid { display:grid; grid-template-columns:1fr 1.6fr; gap:4rem; margin-top:2.5rem; align-items:start; }
+.ct-block { display:flex; flex-direction:column; gap:2rem; }
+.ct-item { display:flex; gap:1rem; align-items:flex-start; }
+.ct-ico { width:38px;height:38px;min-width:38px; background:var(--off); border:1px solid var(--border); display:flex;align-items:center;justify-content:center; font-size:.95rem; }
+.ct-lbl { font-size:.58rem; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:var(--orange); margin-bottom:.3rem; }
+.ct-val { font-size:.85rem; color:var(--ink2); line-height:1.75; }
+.ct-val a { color:var(--ink2); text-decoration:none; }
+.ct-val a:hover { color:var(--orange); }
+
+/* Footer */
+footer { background:var(--ink); padding:4rem 5vw 2rem; }
+.ft-row { display:grid; grid-template-columns:1.4fr 1fr 1fr; gap:4rem; padding-bottom:3rem; border-bottom:1px solid rgba(255,255,255,.06); }
+.ft-brand { font-family:'Cormorant Garamond',serif; font-size:1.7rem; font-weight:300; color:var(--white); }
+.ft-brand em { font-style:italic; color:var(--gold2); }
+.ft-desc { font-size:.78rem; color:rgba(255,255,255,.28); line-height:1.9; margin-top:.4rem; max-width:260px; }
+.ft-col h4 { font-size:.58rem; letter-spacing:4px; text-transform:uppercase; color:var(--orange); margin-bottom:1rem; }
+.ft-col ul { list-style:none; display:flex; flex-direction:column; gap:.6rem; }
+.ft-col ul a { font-size:.78rem; color:rgba(255,255,255,.3); text-decoration:none; transition:color .2s; }
+.ft-col ul a:hover { color:var(--white); }
+.ft-bot { display:flex; justify-content:space-between; padding-top:1.5rem; font-size:.62rem; letter-spacing:1.5px; color:rgba(255,255,255,.18); flex-wrap:wrap; gap:.5rem; }
+
+/* Floating WA */
+.fwa { position:fixed; bottom:2rem; right:2rem; z-index:300; width:54px; height:54px; background:#25D366; border-radius:50%; display:flex;align-items:center;justify-content:center; font-size:1.5rem; text-decoration:none; box-shadow:0 4px 20px rgba(37,211,102,.35); animation:waPulse 2.5s infinite; }
+@keyframes waPulse { 0%,100%{box-shadow:0 4px 20px rgba(37,211,102,.35)} 50%{box-shadow:0 4px 30px rgba(37,211,102,.6)} }
+
+/* Scroll reveal */
+.r { opacity:0; transform:translateY(40px); transition:opacity .9s ease,transform .9s ease; }
+.r.on { opacity:1; transform:translateY(0); }
+.rl { opacity:0; transform:translateX(-40px); transition:opacity .9s ease,transform .9s ease; }
+.rl.on { opacity:1; transform:translateX(0); }
+.rr { opacity:0; transform:translateX(40px); transition:opacity .9s ease,transform .9s ease; }
+.rr.on { opacity:1; transform:translateX(0); }
+
+/* ═══ MOBILE ═══ */
 @media(max-width:900px){
-  nav { padding: 1rem 5vw; }
-  nav.glassy { padding: .8rem 5vw; }
-  .nav-links { display: none; position: absolute; top: 100%; left: 0; right: 0; flex-direction: column; gap: 0; background: rgba(250,250,248,.97); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); }
-  .nav-links.open { display: flex; }
-  .nav-links li a { display: block; padding: 1rem 5vw; border-bottom: 1px solid var(--border); font-size: .78rem; }
-  .hamburger { display: flex; }
-  .sec { padding: 5rem 5vw; }
-  .brands-grid { grid-template-columns: repeat(3,1fr); }
-  .brand-cell:nth-child(3) { border-right: none; }
-  .parts-header { grid-template-columns: 1fr; gap: 1.5rem; margin-bottom: 2.5rem; }
-  .parts-list { grid-template-columns: 1fr; }
-  .stats-row { grid-template-columns: 1fr 1fr; }
-  .stat-c { border-right: none; border-bottom: 1px solid rgba(250,250,248,.07); }
-  .whyus-grid, .fb-grid, .contact-grid { grid-template-columns: 1fr; gap: 3rem; }
-  .reviews-grid { grid-template-columns: 1fr; }
-  .ft-top { grid-template-columns: 1fr; gap: 2rem; }
-  .hero-title { font-size: clamp(2.8rem, 10vw, 4.5rem); }
-  body { cursor: auto; }
-  #cur, #cur2 { display: none; }
+  .nav-links { display:none; position:absolute; top:100%; left:0; right:0; flex-direction:column; gap:0; background:rgba(250,248,242,.97); backdrop-filter:blur(20px); border-bottom:1px solid var(--border); }
+  .nav-links.open { display:flex; }
+  .nav-links li a { display:block; padding:.9rem 5vw; border-bottom:1px solid var(--border); font-size:.75rem; color:var(--muted) !important; }
+  .hamburger { display:flex; }
+  .brands-full { grid-template-columns:repeat(3,1fr); }
+  .bf-cell:nth-child(3) { border-right:none; }
+  .parts-grid, .stats-row, .rev-grid { grid-template-columns:1fr; }
+  .st { border-right:none; border-bottom:1px solid rgba(255,255,255,.07); }
+  .fb-grid, .ct-grid, .ft-row { grid-template-columns:1fr; gap:2.5rem; }
+  .sec { padding:5rem 5vw; }
+  #scroll-spacer { height: 500vh; }
+  .content-panel.left { left: 3vw; max-width: 88vw; }
+  .content-panel.right { right: 3vw; max-width: 88vw; }
+  .content-panel.center { max-width: 92vw; }
+  .panel-card { padding: 1.8rem 1.6rem; }
+  #truck-wrap { left: 10%; }
+  .mini-parts { grid-template-columns: 1fr; }
+  .mini-stats { grid-template-columns: repeat(3,1fr); }
 }
 </style>
 </head>
 <body>
 
-<!-- CURSOR -->
-<div id="cur"></div>
-<div id="cur2"></div>
-
-<!-- GRAIN -->
-<div id="grain"></div>
-
 <!-- PRELOADER -->
-<div id="pre">
-  <div class="pre-title">Abhinandan <em>Auto</em> Mobiles</div>
-  <div class="pre-line-wrap"><div class="pre-line" id="preLine"></div></div>
-  <div class="pre-sub">Loading · Genuine Spare Parts · Santalpur</div>
+<div id="preloader">
+  <div class="pre-truck-anim">🚛</div>
+  <div class="pre-logo">Abhinandan <em>Auto</em> Mobiles</div>
+  <div class="pre-bar-wrap"><div class="pre-bar" id="preBar"></div></div>
+  <div class="pre-tagline">Genuine Spare Parts · Santalpur, Gujarat</div>
 </div>
 
-<!-- FLOATING WA -->
-<a class="fwa" href="https://wa.me/919870037002?text=Hello%20Abhinandan%20Auto%20Mobiles%2C%20I%20need%20genuine%20spare%20parts." target="_blank" title="WhatsApp Us">💬</a>
+<!-- SCROLL PROGRESS -->
+<div id="scroll-prog"></div>
+
+<!-- FLOATING WHATSAPP -->
+<a class="fwa" href="https://wa.me/919870037002?text=Hello%20Abhinandan%20Auto%20Mobiles%2C%20I%20need%20genuine%20spare%20parts." target="_blank" title="WhatsApp">💬</a>
 
 <!-- ═══ NAV ═══ -->
 <nav id="nav">
-  <a href="#hero" class="nav-logo" style="cursor:none">Abhinandan <em>Auto</em> Mobiles</a>
+  <a href="#" class="nav-logo" onclick="scrollToTop()">Abhinandan <em>Auto</em> Mobiles</a>
   <ul class="nav-links" id="navLinks">
-    <li><a href="#brands">Brands</a></li>
-    <li><a href="#parts">Parts</a></li>
-    <li><a href="#whyus">Why Us</a></li>
-    <li><a href="#reviews">Reviews</a></li>
-    <li><a href="#feedback">Feedback</a></li>
-    <li><a href="#contact">Contact</a></li>
+    <li><a onclick="scrollToSection('brands-sec')">Brands</a></li>
+    <li><a onclick="scrollToSection('parts-sec')">Parts</a></li>
+    <li><a onclick="scrollToSection('stats-sec')">About</a></li>
+    <li><a onclick="scrollToSection('rev-sec')">Reviews</a></li>
+    <li><a onclick="scrollToSection('fb-sec')">Feedback</a></li>
+    <li><a onclick="scrollToSection('ct-sec')">Contact</a></li>
     <li><a href="https://wa.me/919870037002" class="nav-wa" target="_blank">WhatsApp</a></li>
   </ul>
   <div class="hamburger" id="ham" onclick="document.getElementById('navLinks').classList.toggle('open')">
@@ -724,626 +583,1202 @@ footer {
   </div>
 </nav>
 
-<!-- ═══ HERO — CINEMATIC ═══ -->
-<section id="hero">
+<!-- ═══ FIXED GAME STAGE ═══ -->
+<div id="stage">
+  <!-- Sky gradient -->
+  <div id="sky"></div>
 
-  <!-- Mountain silhouette placeholder (replaced by video) -->
-  <div class="hero-placeholder">
-    <svg class="mountain-svg" viewBox="0 0 1440 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-      <!-- back range -->
-      <path d="M0,300 L80,180 L200,260 L320,120 L440,200 L560,80 L680,160 L800,40 L920,130 L1040,60 L1160,140 L1280,90 L1360,160 L1440,120 L1440,400 L0,400 Z"
-        fill="rgba(180,120,60,0.18)"/>
-      <!-- snow caps back -->
-      <path d="M320,120 L360,155 L280,155 Z M560,80 L590,110 L530,110 Z M800,40 L835,78 L765,78 Z M1040,60 L1075,95 L1005,95 Z"
-        fill="rgba(250,250,248,0.15)"/>
-      <!-- front range -->
-      <path d="M0,340 L120,220 L240,300 L400,160 L520,240 L640,100 L760,190 L880,120 L1000,200 L1120,130 L1240,210 L1380,150 L1440,180 L1440,400 L0,400 Z"
-        fill="rgba(80,40,15,0.45)"/>
-      <!-- snow caps front -->
-      <path d="M400,160 L445,205 L355,205 Z M640,100 L678,138 L602,138 Z M880,120 L915,158 L845,158 Z M1120,130 L1155,168 L1085,168 Z"
-        fill="rgba(250,250,248,0.25)"/>
+  <!-- Celestial body (sun/moon) -->
+  <div id="celestial"></div>
+
+  <!-- Clouds canvas -->
+  <canvas id="cloudCanvas" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2"></canvas>
+
+  <!-- Parallax BG layers (drawn on canvases) -->
+  <canvas id="bgFarCanvas" style="position:absolute;bottom:28%;left:0;width:100%;height:45%;pointer-events:none;z-index:3"></canvas>
+  <canvas id="bgMidCanvas" style="position:absolute;bottom:26%;left:0;width:100%;height:38%;pointer-events:none;z-index:4"></canvas>
+  <canvas id="bgNearCanvas" style="position:absolute;bottom:24%;left:0;width:100%;height:30%;pointer-events:none;z-index:5"></canvas>
+
+  <!-- Road canvas -->
+  <canvas id="roadCanvas" style="position:absolute;bottom:0;left:0;width:100%;height:32%;pointer-events:none;z-index:6"></canvas>
+
+  <!-- Zone label -->
+  <div id="zone-label">Zone 1 — City · Santalpur</div>
+
+  <!-- Milestone markers -->
+  <div class="milestone" id="m1" style="left:25%"><span class="milestone-label">Products</span></div>
+  <div class="milestone" id="m2" style="left:50%"><span class="milestone-label">Highway</span></div>
+  <div class="milestone" id="m3" style="left:75%"><span class="milestone-label">Mountains</span></div>
+
+  <!-- TRUCK -->
+  <div id="truck-wrap">
+    <svg id="truck-svg" width="220" height="90" viewBox="0 0 220 90" xmlns="http://www.w3.org/2000/svg">
+      <!-- Trailer body -->
+      <rect x="2" y="22" width="140" height="52" rx="3" fill="#D4521A"/>
+      <rect x="2" y="22" width="140" height="8" rx="2" fill="#B83E0E"/>
+      <!-- Trailer detail lines -->
+      <line x1="40" y1="22" x2="40" y2="74" stroke="rgba(0,0,0,.15)" stroke-width="1"/>
+      <line x1="80" y1="22" x2="80" y2="74" stroke="rgba(0,0,0,.15)" stroke-width="1"/>
+      <line x1="120" y1="22" x2="120" y2="74" stroke="rgba(0,0,0,.15)" stroke-width="1"/>
+      <!-- Trailer text -->
+      <text x="71" y="53" font-family="Arial" font-size="8" font-weight="bold" fill="rgba(255,255,255,.5)" text-anchor="middle" letter-spacing="2">ABHINANDAN</text>
+      <!-- Cab body -->
+      <rect x="142" y="30" width="70" height="44" rx="4" fill="#E8622A"/>
+      <!-- Cab roof/windshield slope -->
+      <path d="M142,30 L165,14 L208,14 L212,30 Z" fill="#C94B1A"/>
+      <!-- Windshield -->
+      <path d="M148,29 L167,16 L204,16 L207,29 Z" fill="#B8D9F0" opacity=".85"/>
+      <!-- Windshield glare -->
+      <path d="M154,20 L162,17 L165,27 L157,28 Z" fill="white" opacity=".25"/>
+      <!-- Cab door line -->
+      <line x1="173" y1="30" x2="173" y2="74" stroke="rgba(0,0,0,.1)" stroke-width="1.5"/>
+      <!-- Side mirror -->
+      <rect x="208" y="22" width="8" height="6" rx="1" fill="#C94B1A"/>
+      <!-- Headlight -->
+      <rect x="210" y="38" width="8" height="10" rx="2" fill="#FFEE88"/>
+      <rect x="210" y="38" width="8" height="10" rx="2" fill="url(#hlight)" opacity=".7"/>
+      <!-- Front bumper -->
+      <rect x="209" y="56" width="10" height="8" rx="2" fill="#B83E0E"/>
+      <!-- Exhaust stack -->
+      <rect x="198" y="4" width="5" height="16" rx="2" fill="#8B4513"/>
+      <!-- Exhaust smoke dots -->
+      <circle id="smoke1" cx="200" cy="2" r="3" fill="rgba(200,200,200,.4)"/>
+      <circle id="smoke2" cx="203" cy="-2" r="2" fill="rgba(200,200,200,.25)"/>
+      <!-- Chassis/underbody -->
+      <rect x="10" y="74" width="200" height="6" rx="1" fill="#8B4513"/>
+      <!-- Wheels -->
+      <circle cx="38" cy="80" r="12" fill="#2A2A2A"/>
+      <circle cx="38" cy="80" r="8" fill="#444"/>
+      <circle cx="38" cy="80" r="4" fill="#888"/>
+      <circle cx="38" cy="80" r="1.5" fill="#CCC"/>
+      <circle cx="80" cy="80" r="12" fill="#2A2A2A"/>
+      <circle cx="80" cy="80" r="8" fill="#444"/>
+      <circle cx="80" cy="80" r="4" fill="#888"/>
+      <circle cx="80" cy="80" r="1.5" fill="#CCC"/>
+      <circle cx="175" cy="80" r="12" fill="#2A2A2A"/>
+      <circle cx="175" cy="80" r="8" fill="#444"/>
+      <circle cx="175" cy="80" r="4" fill="#888"/>
+      <circle cx="175" cy="80" r="1.5" fill="#CCC"/>
+      <!-- Wheel shine arcs -->
+      <path d="M30,73 A8,8 0 0,1 43,76" stroke="rgba(255,255,255,.2)" stroke-width="1.5" fill="none"/>
+      <path d="M72,73 A8,8 0 0,1 85,76" stroke="rgba(255,255,255,.2)" stroke-width="1.5" fill="none"/>
+      <path d="M167,73 A8,8 0 0,1 180,76" stroke="rgba(255,255,255,.2)" stroke-width="1.5" fill="none"/>
+      <!-- TATA Logo area on cab door -->
+      <rect x="145" y="45" width="22" height="10" rx="1" fill="rgba(0,0,0,.1)"/>
+      <text x="156" y="53" font-family="Arial" font-size="6" font-weight="bold" fill="white" text-anchor="middle" letter-spacing="1">TATA</text>
+      <defs>
+        <radialGradient id="hlight" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#FFFF99"/>
+          <stop offset="100%" stop-color="transparent"/>
+        </radialGradient>
+      </defs>
     </svg>
   </div>
 
-  <!-- VIDEO — swap YOUR video file path below -->
-  <video id="heroBg" autoplay muted loop playsinline>
-    <source src="" type="video/mp4">
-    <!-- When you have your cinematic truck video:
-         1. Upload the .mp4 file to your project folder
-         2. Change the src="" above to src="your-video.mp4"
-         That's it — the entire hero will play your video -->
-  </video>
+</div><!-- end #stage -->
 
-  <!-- Fog canvas -->
-  <canvas id="fogCanvas"></canvas>
+<!-- ═══ SCROLL SPACER (drives the animation) ═══ -->
+<div id="scroll-spacer"></div>
 
-  <!-- Vignette -->
-  <div class="hero-vignette"></div>
-
-  <!-- Bottom transition fog -->
-  <div class="hero-ground-fog"></div>
-
-  <!-- Text -->
-  <div class="hero-content">
-    <div class="hero-eyebrow" id="hEye">Genuine Spare Parts · Santalpur, Gujarat</div>
-    <h1 class="hero-title" id="hTitle">
-      <em>Abhinandan</em><br>
-      <strong>Auto Mobiles</strong>
-    </h1>
-    <div class="hero-rule" id="hRule"></div>
-    <p class="hero-sub" id="hSub">
-      TATA &nbsp;·&nbsp; TVS &nbsp;·&nbsp; GAJRA &nbsp;·&nbsp; TELCO &nbsp;·&nbsp; CASTROL<br>
-      All genuine parts. All under one roof.
-    </p>
-    <div class="hero-ctas" id="hCtas">
-      <a href="#parts" class="btn-prim">Explore Parts</a>
-      <a href="#contact" class="btn-ghost">Find Us</a>
-    </div>
+<!-- ═══ HERO TITLE OVERLAY ═══ -->
+<div id="hero-overlay">
+  <div class="hero-title-main" id="heroTitle">
+    <em>Abhinandan</em><br>
+    <strong>Auto Mobiles</strong>
   </div>
-
-  <!-- Scroll indicator -->
-  <div class="scroll-ind">
-    <div class="scroll-mouse"><div class="scroll-wheel"></div></div>
-    <span>Scroll</span>
-  </div>
-
-</section>
-
-<!-- STRIP TICKER -->
-<div class="strip">
-  <div class="strip-track">
-    <span class="strip-item">Quality Parts<span class="strip-dot"></span></span>
-    <span class="strip-item">Trusted Service<span class="strip-dot"></span></span>
-    <span class="strip-item">TATA · TVS · GAJRA<span class="strip-dot"></span></span>
-    <span class="strip-item">TELCO · CASTROL<span class="strip-dot"></span></span>
-    <span class="strip-item">Santalpur · Dist. Patan<span class="strip-dot"></span></span>
-    <span class="strip-item">Stronger Together<span class="strip-dot"></span></span>
-    <span class="strip-item">Quality Parts<span class="strip-dot"></span></span>
-    <span class="strip-item">Trusted Service<span class="strip-dot"></span></span>
-    <span class="strip-item">TATA · TVS · GAJRA<span class="strip-dot"></span></span>
-    <span class="strip-item">TELCO · CASTROL<span class="strip-dot"></span></span>
-    <span class="strip-item">Santalpur · Dist. Patan<span class="strip-dot"></span></span>
-    <span class="strip-item">Stronger Together<span class="strip-dot"></span></span>
+  <div class="hero-sub-main" id="heroSub">TATA · TVS · GAJRA · TELCO · CASTROL · Genuine Spare Parts · Santalpur</div>
+  <div class="hero-scroll-hint">
+    <div class="scroll-wheel-wrap"><div class="scroll-wheel-dot"></div></div>
+    <span>Scroll to Drive</span>
   </div>
 </div>
 
-<!-- ═══ BRANDS ═══ -->
-<section class="sec" id="brands" style="background:var(--off)">
-  <div class="sec-inner">
-    <span class="sec-tag r">Authorized Partners</span>
-    <h2 class="sec-h r">We Deal In</h2>
-    <div class="rule r"></div>
-    <p class="sec-p r">Certified, genuine parts from India's most trusted automotive brands — all under one roof in Santalpur.</p>
-    <div class="brands-grid" style="margin-top:3.5rem">
-      <div class="brand-cell rs" style="transition-delay:.05s">
-        <span class="brand-icon">🔵</span>
-        <div class="brand-nm">TATA</div>
-        <div class="brand-sm">Trucks & LCV Parts</div>
-      </div>
-      <div class="brand-cell rs" style="transition-delay:.12s">
-        <span class="brand-icon">🟠</span>
-        <div class="brand-nm">TVS</div>
-        <div class="brand-sm">Two-Wheeler Parts</div>
-      </div>
-      <div class="brand-cell rs" style="transition-delay:.19s">
-        <span class="brand-icon">⚙️</span>
-        <div class="brand-nm">GAJRA</div>
-        <div class="brand-sm">Clutch & Bearings</div>
-      </div>
-      <div class="brand-cell rs" style="transition-delay:.26s">
-        <span class="brand-icon">🔧</span>
-        <div class="brand-nm">TELCO</div>
-        <div class="brand-sm">Tata Engineering</div>
-      </div>
-      <div class="brand-cell rs" style="transition-delay:.33s">
-        <span class="brand-icon">🟡</span>
-        <div class="brand-nm">CASTROL</div>
-        <div class="brand-sm">Oils & Lubricants</div>
+<!-- ═══ CONTENT OVERLAY (game panels) ═══ -->
+<div id="content-overlay">
+
+  <!-- ZONE 1: City — Who We Are (left panel) -->
+  <div class="content-panel left" id="panel-intro">
+    <div class="panel-card">
+      <span class="panel-tag">📍 Santalpur, Gujarat · Zone 1</span>
+      <h2 class="panel-h">Abhinandan<br><em>Auto Mobiles</em></h2>
+      <div class="panel-rule"></div>
+      <p class="panel-p">Your trusted destination for all genuine spare parts on the Kandla National Highway. We serve truck operators, fleet owners and vehicle mechanics across Patan district and beyond.</p>
+      <div class="brand-chips" style="margin-top:1rem">
+        <span class="chip">TATA</span>
+        <span class="chip">TVS</span>
+        <span class="chip">GAJRA</span>
+        <span class="chip">TELCO</span>
+        <span class="chip">CASTROL</span>
       </div>
     </div>
   </div>
-</section>
 
-<!-- ═══ PARTS ═══ -->
-<section class="sec" id="parts">
-  <div class="sec-inner">
-    <div class="parts-header">
-      <div>
-        <span class="sec-tag rl">What We Stock</span>
-        <h2 class="sec-h rl">Genuine<br><em>Spare Parts</em></h2>
-        <div class="rule rl"></div>
-      </div>
-      <p class="sec-p rr" style="align-self:end">Every component is sourced directly from certified manufacturers. Zero duplicates, total trust. Walk in and walk out with the right part — every time.</p>
-    </div>
-    <div class="parts-list">
-      <div class="part-item r" data-num="01" style="transition-delay:.05s">
-        <span class="part-ico">🔩</span>
-        <div class="part-nm">Engine Components</div>
-        <div class="part-desc">Pistons, rings, gaskets, cylinder heads and all internal engine parts for heavy trucks and commercial vehicles.</div>
-        <span class="part-arrow">→</span>
-      </div>
-      <div class="part-item r" data-num="02" style="transition-delay:.1s">
-        <span class="part-ico">🛞</span>
-        <div class="part-nm">Clutch & Brakes</div>
-        <div class="part-desc">GAJRA clutch plates, pressure plates, brake pads and full braking system components for all TATA models.</div>
-        <span class="part-arrow">→</span>
-      </div>
-      <div class="part-item r" data-num="03" style="transition-delay:.15s">
-        <span class="part-ico">⚡</span>
-        <div class="part-nm">Electrical Parts</div>
-        <div class="part-desc">Alternators, starters, switches, relays and wiring harnesses for heavy-duty vehicles. TVS & TATA certified.</div>
-        <span class="part-arrow">→</span>
-      </div>
-      <div class="part-item r" data-num="04" style="transition-delay:.2s">
-        <span class="part-ico">🛢️</span>
-        <div class="part-nm">Lubricants & Oils</div>
-        <div class="part-desc">Full Castrol range — engine oils, gear oils, brake fluids and industrial lubricants. Always in stock.</div>
-        <span class="part-arrow">→</span>
-      </div>
-      <div class="part-item r" data-num="05" style="transition-delay:.25s">
-        <span class="part-ico">🔧</span>
-        <div class="part-nm">Suspension & Axles</div>
-        <div class="part-desc">Leaf springs, shock absorbers, universal cross joints, U-bolts and complete front axle assemblies.</div>
-        <span class="part-arrow">→</span>
-      </div>
-      <div class="part-item r" data-num="06" style="transition-delay:.3s">
-        <span class="part-ico">📦</span>
-        <div class="part-nm">Body & Accessories</div>
-        <div class="part-desc">Mirrors, headlights, body panels, door locks and accessories for TATA commercial vehicle models.</div>
-        <span class="part-arrow">→</span>
+  <!-- ZONE 2: Industrial — What We Stock (right panel) -->
+  <div class="content-panel right" id="panel-parts">
+    <div class="panel-card">
+      <span class="panel-tag">🏭 Industrial Zone · Zone 2</span>
+      <h2 class="panel-h">What We <em>Stock</em></h2>
+      <div class="panel-rule"></div>
+      <div class="mini-parts">
+        <div class="mini-part">🔩 Engine Components</div>
+        <div class="mini-part">🛞 Clutch & Brakes</div>
+        <div class="mini-part">⚡ Electrical Parts</div>
+        <div class="mini-part">🛢️ Oils & Lubricants</div>
+        <div class="mini-part">🔧 Suspension & Axles</div>
+        <div class="mini-part">📦 Body & Accessories</div>
       </div>
     </div>
   </div>
-</section>
 
-<!-- ═══ STATS ═══ -->
-<section id="stats">
-  <div class="stats-row">
-    <div class="stat-c r">
-      <div class="stat-n"><span id="s1">0</span>+</div>
-      <div class="stat-l">Happy Customers</div>
-    </div>
-    <div class="stat-c r" style="transition-delay:.1s">
-      <div class="stat-n"><span id="s2">0</span>+</div>
-      <div class="stat-l">Trusted Brands</div>
-    </div>
-    <div class="stat-c r" style="transition-delay:.2s">
-      <div class="stat-n"><span id="s3">0</span>+</div>
-      <div class="stat-l">Parts in Stock</div>
-    </div>
-    <div class="stat-c r" style="transition-delay:.3s">
-      <div class="stat-n">24<span style="font-style:italic;color:var(--gold2)">/7</span></div>
-      <div class="stat-l">WhatsApp Support</div>
+  <!-- ZONE 3: Highway — Stats & Why Us (left panel) -->
+  <div class="content-panel left" id="panel-stats">
+    <div class="panel-card">
+      <span class="panel-tag">🛣️ Open Highway · Zone 3</span>
+      <h2 class="panel-h">Trusted For <em>Years</em></h2>
+      <div class="panel-rule"></div>
+      <div class="mini-stats">
+        <div class="mini-stat">
+          <div class="mini-stat-n"><em id="cnt1">0</em>+</div>
+          <div class="mini-stat-l">Customers</div>
+        </div>
+        <div class="mini-stat">
+          <div class="mini-stat-n"><em id="cnt2">0</em>+</div>
+          <div class="mini-stat-l">Brands</div>
+        </div>
+        <div class="mini-stat">
+          <div class="mini-stat-n"><em id="cnt3">0</em>+</div>
+          <div class="mini-stat-l">Parts</div>
+        </div>
+      </div>
+      <p class="panel-p" style="margin-top:1rem;font-size:.78rem">100% genuine parts · Authorized dealer · Highway location — right on NH-947</p>
     </div>
   </div>
-</section>
 
-<!-- ═══ WHY US ═══ -->
-<section class="sec" id="whyus" style="background:var(--off)">
-  <div class="sec-inner">
-    <span class="sec-tag r">Why Choose Us</span>
-    <h2 class="sec-h r">Trusted For <em>Years</em></h2>
-    <div class="rule r"></div>
-    <div class="whyus-grid">
-      <div class="feature-list rl">
-        <div class="feat">
-          <div class="feat-n">01</div>
-          <div>
-            <div class="feat-title">100% Genuine Parts</div>
-            <div class="feat-desc">Only certified, manufacturer-verified components. Zero duplicates, zero compromise on quality.</div>
-          </div>
-        </div>
-        <div class="feat">
-          <div class="feat-n">02</div>
-          <div>
-            <div class="feat-title">Authorized Dealer</div>
-            <div class="feat-desc">Official dealer for TATA, TVS, GAJRA, TELCO and CASTROL — your warranty stays fully intact.</div>
-          </div>
-        </div>
-        <div class="feat">
-          <div class="feat-n">03</div>
-          <div>
-            <div class="feat-title">Huge Stock Available</div>
-            <div class="feat-desc">Walk in and walk out. We maintain large in-store inventory so you never wait for critical parts.</div>
-          </div>
-        </div>
-        <div class="feat">
-          <div class="feat-n">04</div>
-          <div>
-            <div class="feat-title">Highway Location</div>
-            <div class="feat-desc">Located right on Kandla National Highway — accessible for truck drivers any time of day.</div>
-          </div>
-        </div>
-        <div class="feat">
-          <div class="feat-n">05</div>
-          <div>
-            <div class="feat-title">Expert Guidance</div>
-            <div class="feat-desc">Our team knows vehicles inside out. Get the right part the first time, every time.</div>
-          </div>
-        </div>
-      </div>
-      <div class="whyus-cards rr">
-        <div class="wcard">
-          <div class="wcard-title">Quality You Can Trust</div>
-          <div class="wcard-desc">Every part carries its original manufacturer stamp and packaging. We never stock seconds or copies.</div>
-        </div>
-        <div class="wcard">
-          <div class="wcard-title">Serving Santalpur & Beyond</div>
-          <div class="wcard-desc">Customers come from Patan, Radhanpur, Harij and across the Kandla Highway corridor for our stock.</div>
-        </div>
-        <div class="wcard">
-          <div class="wcard-title">WhatsApp Before You Drive</div>
-          <div class="wcard-desc">Message us your part number and we confirm availability instantly — saving you the trip if we need to order.</div>
-        </div>
-        <div class="wcard">
-          <div class="wcard-title">Castrol Authorized Stockist</div>
-          <div class="wcard-desc">Full range of Castrol engine oils, gear oils, and industrial lubricants at genuine prices, always in stock.</div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ═══ REVIEWS ═══ -->
-<section class="sec" id="reviews">
-  <div class="sec-inner">
-    <span class="sec-tag r">Customer Reviews</span>
-    <h2 class="sec-h r">What They <em>Say</em></h2>
-    <div class="rule r"></div>
-    <div class="reviews-grid" id="revGrid">
-      <div class="rev rs" style="transition-delay:.05s">
-        <div class="rev-q">"</div>
-        <div class="rev-stars">★★★★★</div>
-        <div class="rev-txt">Genuine parts, great pricing, and the owner is very knowledgeable. I always come here for my TATA truck spare parts. Never been disappointed.</div>
-        <div class="rev-who">Ramesh Patel</div>
-        <div class="rev-role">Transport Owner, Patan</div>
-      </div>
-      <div class="rev rs" style="transition-delay:.12s">
-        <div class="rev-q">"</div>
-        <div class="rev-stars">★★★★★</div>
-        <div class="rev-txt">Best spare parts shop on the Kandla highway. Got my TELCO parts within minutes. Very fast service and they always have stock ready.</div>
-        <div class="rev-who">Suresh Bhai</div>
-        <div class="rev-role">Fleet Operator, Santalpur</div>
-      </div>
-      <div class="rev rs" style="transition-delay:.19s">
-        <div class="rev-q">"</div>
-        <div class="rev-stars">★★★★★</div>
-        <div class="rev-txt">Castrol oil always available here at the right price. Abhinandan Auto Mobiles is my go-to shop. Highly recommend to all truck drivers on this route.</div>
-        <div class="rev-who">Dinesh Khant</div>
-        <div class="rev-role">Truck Driver, Radhanpur</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ═══ FEEDBACK ═══ -->
-<section class="sec" id="feedback" style="background:var(--off)">
-  <div class="sec-inner">
-    <span class="sec-tag r">Share Your Experience</span>
-    <h2 class="sec-h r">Leave <em>Feedback</em></h2>
-    <div class="rule r"></div>
-    <div class="fb-grid">
-      <div class="fb-side rl">
-        <p>Your review helps us improve and helps other customers on the highway find reliable genuine parts. After submitting here, please also leave a Google review — it helps us a great deal.</p>
-        <a href="https://www.google.com/maps/place/Abhinandan/@23.7611009,71.1681038,17z/data=!4m6!3m5!1s0x395aff1180c18727:0x56780fce31c3f335!8m2!3d23.7609057!4d71.1679892!16s%2Fg%2F11kbth78_j" target="_blank" class="g-btn">
-          ⭐ Write a Google Review
-        </a>
-      </div>
-      <form id="fbForm" onsubmit="handleFeedback(event)" class="rr">
-        <label class="fl">Your Name *</label>
-        <input class="fi" id="fn" type="text" placeholder="Ramesh Patel" required>
-
-        <label class="fl">Mobile Number</label>
-        <input class="fi" id="fp" type="tel" placeholder="98XXXXXXXX">
-
-        <label class="fl">Type of Service</label>
-        <select class="fi" id="fs">
-          <option value="">Select type</option>
-          <option>Engine Parts</option>
-          <option>Clutch & Brake Parts</option>
-          <option>Electrical Parts</option>
-          <option>Lubricants & Oils</option>
-          <option>Suspension Parts</option>
-          <option>Body & Accessories</option>
-          <option>Other</option>
-        </select>
-
-        <label class="fl">Your Rating *</label>
-        <div class="star-wrap">
-          <input type="radio" name="rt" id="r5" value="5"><label for="r5">★</label>
-          <input type="radio" name="rt" id="r4" value="4"><label for="r4">★</label>
-          <input type="radio" name="rt" id="r3" value="3"><label for="r3">★</label>
-          <input type="radio" name="rt" id="r2" value="2"><label for="r2">★</label>
-          <input type="radio" name="rt" id="r1" value="1"><label for="r1">★</label>
-        </div>
-
-        <label class="fl">Your Review *</label>
-        <textarea class="fi" id="frev" placeholder="Tell us about your experience…" required></textarea>
-
-        <button type="submit" class="btn-prim" style="border:none;width:100%;text-align:center;font-family:'DM Sans',sans-serif">Submit Feedback</button>
-        <div class="ok-note" id="okNote">✅ Thank you! Please also leave a Google review using the link on the left — it helps others find us.</div>
-      </form>
-    </div>
-  </div>
-</section>
-
-<!-- ═══ CONTACT ═══ -->
-<section class="sec" id="contact">
-  <div class="sec-inner">
-    <span class="sec-tag r">Get In Touch</span>
-    <h2 class="sec-h r">Find &amp; <em>Contact Us</em></h2>
-    <div class="rule r"></div>
-    <div class="contact-grid">
-      <div class="c-block rl">
+  <!-- ZONE 4: Mountains — Brands & Contact (right panel) -->
+  <div class="content-panel right" id="panel-contact">
+    <div class="panel-card">
+      <span class="panel-tag">⛰️ Mountain Pass · Zone 4</span>
+      <h2 class="panel-h">Find <em>&amp; Contact</em></h2>
+      <div class="panel-rule"></div>
+      <div class="c-items">
         <div class="c-item">
-          <div class="c-ico">📍</div>
-          <div>
-            <div class="c-lbl">Address</div>
-            <div class="c-val">Nr. Referral Hospital,<br>Kandla National Highway Road,<br>Santalpur, Dist. Patan – 385350, Gujarat</div>
-          </div>
+          <span class="c-ico">📍</span>
+          <div class="c-inf">Nr. Referral Hospital, Kandla National Highway Road,<br>Santalpur, Dist. Patan – 385350</div>
         </div>
         <div class="c-item">
-          <div class="c-ico">📞</div>
+          <span class="c-ico">📞</span>
+          <div class="c-inf"><a href="tel:+919825259065">9825259065</a> &nbsp;|&nbsp; <a href="tel:+919870037002">9870037002</a></div>
+        </div>
+      </div>
+      <div class="cta-row">
+        <a class="wa-btn" href="https://wa.me/919870037002?text=Hello%20Abhinandan%20Auto%20Mobiles%2C%20I%20need%20genuine%20spare%20parts." target="_blank">💬 Chat on WhatsApp</a>
+        <a class="map-btn" href="https://www.google.com/maps/place/Abhinandan/@23.7611009,71.1681038,17z" target="_blank">🗺️ Get Directions</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ZONE 4b: Reviews (left panel, slightly delayed) -->
+  <div class="content-panel left" id="panel-reviews" style="top:55%">
+    <div class="panel-card">
+      <span class="panel-tag">⭐ Customer Reviews</span>
+      <div class="mini-revs">
+        <div class="mini-rev">
+          <div class="mini-rev-stars">★★★★★</div>
+          <div class="mini-rev-txt">"Best spare parts shop on the Kandla highway. Always genuine stock."</div>
+          <div class="mini-rev-who">Ramesh Patel · Transport Owner, Patan</div>
+        </div>
+        <div class="mini-rev">
+          <div class="mini-rev-stars">★★★★★</div>
+          <div class="mini-rev-txt">"Got my TELCO parts in minutes. Very fast service."</div>
+          <div class="mini-rev-who">Suresh Bhai · Fleet Operator, Santalpur</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end #content-overlay -->
+
+<!-- ═══════════════════════════════════════════
+     FULL SITE BELOW SCROLL SPACER
+═══════════════════════════════════════════ -->
+<div id="full-site">
+
+  <!-- STRIP -->
+  <div class="strip">
+    <div class="strip-track">
+      <span class="strip-item">Quality Parts<span class="strip-dot"></span></span>
+      <span class="strip-item">Trusted Service<span class="strip-dot"></span></span>
+      <span class="strip-item">TATA · TVS · GAJRA<span class="strip-dot"></span></span>
+      <span class="strip-item">TELCO · CASTROL<span class="strip-dot"></span></span>
+      <span class="strip-item">Santalpur · NH-947<span class="strip-dot"></span></span>
+      <span class="strip-item">Stronger Together<span class="strip-dot"></span></span>
+      <span class="strip-item">Quality Parts<span class="strip-dot"></span></span>
+      <span class="strip-item">Trusted Service<span class="strip-dot"></span></span>
+      <span class="strip-item">TATA · TVS · GAJRA<span class="strip-dot"></span></span>
+      <span class="strip-item">TELCO · CASTROL<span class="strip-dot"></span></span>
+      <span class="strip-item">Santalpur · NH-947<span class="strip-dot"></span></span>
+      <span class="strip-item">Stronger Together<span class="strip-dot"></span></span>
+    </div>
+  </div>
+
+  <!-- BRANDS SECTION -->
+  <section class="sec" id="brands-sec" style="background:var(--off)">
+    <div class="sec-inner">
+      <span class="sec-tag r">Authorized Partners</span>
+      <h2 class="sec-h r">Brands We <em>Deal In</em></h2>
+      <div class="rule r"></div>
+      <p class="sec-p r">Certified, genuine parts from India's most trusted automotive brands — all under one roof.</p>
+      <div class="brands-full r" style="transition-delay:.1s">
+        <div class="bf-cell"><span class="bf-ico">🔵</span><div class="bf-nm">TATA</div><div class="bf-sm">Trucks & LCV Parts</div></div>
+        <div class="bf-cell"><span class="bf-ico">🟠</span><div class="bf-nm">TVS</div><div class="bf-sm">Two-Wheeler Parts</div></div>
+        <div class="bf-cell"><span class="bf-ico">⚙️</span><div class="bf-nm">GAJRA</div><div class="bf-sm">Clutch & Bearings</div></div>
+        <div class="bf-cell"><span class="bf-ico">🔧</span><div class="bf-nm">TELCO</div><div class="bf-sm">Tata Engineering</div></div>
+        <div class="bf-cell"><span class="bf-ico">🟡</span><div class="bf-nm">CASTROL</div><div class="bf-sm">Oils & Lubricants</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PARTS SECTION -->
+  <section class="sec" id="parts-sec">
+    <div class="sec-inner">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:end;margin-bottom:2.5rem">
+        <div>
+          <span class="sec-tag rl">What We Stock</span>
+          <h2 class="sec-h rl">Genuine<br><em>Spare Parts</em></h2>
+          <div class="rule rl"></div>
+        </div>
+        <p class="sec-p rr" style="align-self:end">Every component sourced directly from certified manufacturers. Walk in and walk out with the right part — every time.</p>
+      </div>
+      <div class="parts-grid">
+        <div class="pt r" data-n="01" style="transition-delay:.05s"><span class="pt-ico">🔩</span><div class="pt-nm">Engine Components</div><div class="pt-desc">Pistons, rings, gaskets, cylinder heads and all internal engine parts for heavy trucks.</div></div>
+        <div class="pt r" data-n="02" style="transition-delay:.1s"><span class="pt-ico">🛞</span><div class="pt-nm">Clutch & Brakes</div><div class="pt-desc">GAJRA clutch plates, pressure plates, brake pads and full braking systems for all TATA models.</div></div>
+        <div class="pt r" data-n="03" style="transition-delay:.15s"><span class="pt-ico">⚡</span><div class="pt-nm">Electrical Parts</div><div class="pt-desc">Alternators, starters, switches, relays and wiring harnesses. TVS & TATA certified.</div></div>
+        <div class="pt r" data-n="04" style="transition-delay:.2s"><span class="pt-ico">🛢️</span><div class="pt-nm">Lubricants & Oils</div><div class="pt-desc">Full Castrol range — engine oils, gear oils, brake fluids and industrial lubricants.</div></div>
+        <div class="pt r" data-n="05" style="transition-delay:.25s"><span class="pt-ico">🔧</span><div class="pt-nm">Suspension & Axles</div><div class="pt-desc">Leaf springs, shock absorbers, universal cross joints, U-bolts and axle assemblies.</div></div>
+        <div class="pt r" data-n="06" style="transition-delay:.3s"><span class="pt-ico">📦</span><div class="pt-nm">Body & Accessories</div><div class="pt-desc">Mirrors, headlights, body panels, door locks and accessories for TATA commercial vehicles.</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <div class="stats-band" id="stats-sec">
+    <div class="stats-row">
+      <div class="st r"><div class="st-n"><em id="s1">0</em>+</div><div class="st-l">Happy Customers</div></div>
+      <div class="st r" style="transition-delay:.08s"><div class="st-n"><em id="s2">0</em>+</div><div class="st-l">Trusted Brands</div></div>
+      <div class="st r" style="transition-delay:.16s"><div class="st-n"><em id="s3">0</em>+</div><div class="st-l">Parts in Stock</div></div>
+      <div class="st r" style="transition-delay:.24s"><div class="st-n">24<em>/7</em></div><div class="st-l">WhatsApp Support</div></div>
+    </div>
+  </div>
+
+  <!-- REVIEWS -->
+  <section class="sec" id="rev-sec">
+    <div class="sec-inner">
+      <span class="sec-tag r">Customer Reviews</span>
+      <h2 class="sec-h r">What They <em>Say</em></h2>
+      <div class="rule r"></div>
+      <div class="rev-grid" id="revGrid">
+        <div class="rv r" style="transition-delay:.05s">
+          <div class="rv-q">"</div>
+          <div class="rv-stars">★★★★★</div>
+          <div class="rv-txt">Genuine parts, great pricing, and the owner is very knowledgeable. I always come here for my TATA truck spare parts.</div>
+          <div class="rv-who">Ramesh Patel</div><div class="rv-role">Transport Owner, Patan</div>
+        </div>
+        <div class="rv r" style="transition-delay:.12s">
+          <div class="rv-q">"</div>
+          <div class="rv-stars">★★★★★</div>
+          <div class="rv-txt">Best spare parts shop on the Kandla highway. Got my TELCO parts within minutes. Very fast service.</div>
+          <div class="rv-who">Suresh Bhai</div><div class="rv-role">Fleet Operator, Santalpur</div>
+        </div>
+        <div class="rv r" style="transition-delay:.19s">
+          <div class="rv-q">"</div>
+          <div class="rv-stars">★★★★★</div>
+          <div class="rv-txt">Castrol oil always available here at the right price. My go-to shop. Highly recommend to all truck drivers.</div>
+          <div class="rv-who">Dinesh Khant</div><div class="rv-role">Truck Driver, Radhanpur</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEEDBACK -->
+  <section class="sec" id="fb-sec" style="background:var(--off)">
+    <div class="sec-inner">
+      <span class="sec-tag r">Share Your Experience</span>
+      <h2 class="sec-h r">Leave <em>Feedback</em></h2>
+      <div class="rule r"></div>
+      <div class="fb-grid">
+        <div class="rl">
+          <p>Your review helps other customers on the highway find reliable genuine parts. After submitting here, please also leave a Google review — it truly helps us grow.</p>
+          <a href="https://www.google.com/maps/place/Abhinandan/@23.7611009,71.1681038,17z" target="_blank" class="g-link">⭐ Write a Google Review</a>
+        </div>
+        <form id="fullFbForm" onsubmit="handleFullFeedback(event)" class="fb-form-full rr">
           <div>
-            <div class="c-lbl">Phone</div>
-            <div class="c-val">
-              <a href="tel:+919825259065">9825259065</a><br>
-              <a href="tel:+919870037002">9870037002</a>
+            <label class="fb-fl">Your Name *</label>
+            <input class="fi" id="ffn" type="text" placeholder="Ramesh Patel" required>
+          </div>
+          <div>
+            <label class="fb-fl">Mobile Number</label>
+            <input class="fi" id="ffp" type="tel" placeholder="98XXXXXXXX">
+          </div>
+          <div>
+            <label class="fb-fl">Service Type</label>
+            <select class="fi" id="ffs">
+              <option value="">Select type</option>
+              <option>Engine Parts</option>
+              <option>Clutch & Brake Parts</option>
+              <option>Electrical Parts</option>
+              <option>Lubricants & Oils</option>
+              <option>Suspension Parts</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div>
+            <label class="fb-fl">Rating *</label>
+            <div class="star-pick">
+              <input type="radio" name="ffrt" id="fr5" value="5"><label for="fr5">★</label>
+              <input type="radio" name="ffrt" id="fr4" value="4"><label for="fr4">★</label>
+              <input type="radio" name="ffrt" id="fr3" value="3"><label for="fr3">★</label>
+              <input type="radio" name="ffrt" id="fr2" value="2"><label for="fr2">★</label>
+              <input type="radio" name="ffrt" id="fr1" value="1"><label for="fr1">★</label>
             </div>
           </div>
-        </div>
-        <div class="c-item">
-          <div class="c-ico">🕒</div>
           <div>
-            <div class="c-lbl">Working Hours</div>
-            <div class="c-val">Mon – Sat: 8:00 AM – 8:00 PM<br>Sunday: 9:00 AM – 2:00 PM</div>
+            <label class="fb-fl">Your Review *</label>
+            <textarea class="fi" id="ffrev" placeholder="Tell us about your experience…" required></textarea>
+          </div>
+          <button type="submit" class="submit-btn">Submit Feedback</button>
+          <div class="ok-msg" id="fullOkMsg">✅ Thank you! Please also leave a Google review using the link on the left.</div>
+          <a class="g-review-link" href="https://www.google.com/maps/place/Abhinandan/@23.7611009,71.1681038,17z" target="_blank">⭐ Also Leave a Google Review →</a>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section class="sec" id="ct-sec">
+    <div class="sec-inner">
+      <span class="sec-tag r">Get In Touch</span>
+      <h2 class="sec-h r">Find &amp; <em>Contact Us</em></h2>
+      <div class="rule r"></div>
+      <div class="ct-grid">
+        <div class="ct-block rl">
+          <div class="ct-item">
+            <div class="ct-ico">📍</div>
+            <div><div class="ct-lbl">Address</div>
+            <div class="ct-val">Nr. Referral Hospital,<br>Kandla National Highway Road,<br>Santalpur, Dist. Patan – 385350, Gujarat</div></div>
+          </div>
+          <div class="ct-item">
+            <div class="ct-ico">📞</div>
+            <div><div class="ct-lbl">Phone</div>
+            <div class="ct-val"><a href="tel:+919825259065">9825259065</a><br><a href="tel:+919870037002">9870037002</a></div></div>
+          </div>
+          <div class="ct-item">
+            <div class="ct-ico">🕒</div>
+            <div><div class="ct-lbl">Hours</div>
+            <div class="ct-val">Mon–Sat: 8:00 AM – 8:00 PM<br>Sunday: 9:00 AM – 2:00 PM</div></div>
+          </div>
+          <a class="wa-btn" href="https://wa.me/919870037002?text=Hello%20Abhinandan%20Auto%20Mobiles%2C%20I%20need%20genuine%20spare%20parts." target="_blank" style="text-decoration:none">💬 Chat on WhatsApp</a>
+          <a class="map-btn" href="https://www.google.com/maps/place/Abhinandan/@23.7611009,71.1681038,17z" target="_blank" style="text-decoration:none">🗺️ Get Directions on Google Maps</a>
+        </div>
+        <div class="rr">
+          <div style="border:1px solid var(--border);overflow:hidden">
+            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3645.0!2d71.1681038!3d23.7611009!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x395aff1180c18727%3A0x56780fce31c3f335!2sAbhinandan!5e0!3m2!1sen!2sin!4v1" style="display:block;width:100%;height:440px;border:0;filter:grayscale(.2)" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="Location"></iframe>
           </div>
         </div>
-        <a class="wa-cta" href="https://wa.me/919870037002?text=Hello%20Abhinandan%20Auto%20Mobiles%2C%20I%20need%20genuine%20spare%20parts." target="_blank">
-          💬 Chat on WhatsApp
-        </a>
-        <a class="dir-cta" href="https://www.google.com/maps/place/Abhinandan/@23.7611009,71.1681038,17z/data=!4m6!3m5!1s0x395aff1180c18727:0x56780fce31c3f335!8m2!3d23.7609057!4d71.1679892!16s%2Fg%2F11kbth78_j" target="_blank">
-          🗺️ Get Directions on Google Maps
-        </a>
-      </div>
-      <div class="map-box rr">
-        <iframe
-          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3645.0!2d71.1681038!3d23.7611009!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x395aff1180c18727%3A0x56780fce31c3f335!2sAbhinandan!5e0!3m2!1sen!2sin!4v1"
-          allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"
-          title="Abhinandan Auto Mobiles Location">
-        </iframe>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<!-- ═══ FOOTER ═══ -->
-<footer>
-  <div class="ft-top">
-    <div>
-      <div class="ft-brand">Abhinandan <em>Auto</em> Mobiles</div>
-      <div class="ft-desc">Your trusted destination for all genuine spare parts on the Kandla National Highway, Santalpur, Dist. Patan – 385350, Gujarat.</div>
+  <!-- FOOTER -->
+  <footer>
+    <div class="ft-row">
+      <div>
+        <div class="ft-brand">Abhinandan <em>Auto</em> Mobiles</div>
+        <div class="ft-desc">Your trusted destination for genuine spare parts on Kandla National Highway, Santalpur, Dist. Patan – 385350, Gujarat.</div>
+      </div>
+      <div class="ft-col">
+        <h4>Quick Links</h4>
+        <ul>
+          <li><a onclick="scrollToSection('brands-sec')">Our Brands</a></li>
+          <li><a onclick="scrollToSection('parts-sec')">Spare Parts</a></li>
+          <li><a onclick="scrollToSection('rev-sec')">Reviews</a></li>
+          <li><a onclick="scrollToSection('fb-sec')">Leave Feedback</a></li>
+          <li><a onclick="scrollToSection('ct-sec')">Contact</a></li>
+        </ul>
+      </div>
+      <div class="ft-col">
+        <h4>Contact</h4>
+        <ul>
+          <li><a href="tel:+919825259065">📞 9825259065</a></li>
+          <li><a href="tel:+919870037002">📞 9870037002</a></li>
+          <li><a href="https://wa.me/919870037002" target="_blank">💬 WhatsApp</a></li>
+          <li><a href="https://www.google.com/maps/place/Abhinandan/@23.7611009,71.1681038,17z" target="_blank">🗺️ Google Maps</a></li>
+        </ul>
+      </div>
     </div>
-    <div class="ft-col">
-      <h4>Quick Links</h4>
-      <ul>
-        <li><a href="#brands">Our Brands</a></li>
-        <li><a href="#parts">Spare Parts</a></li>
-        <li><a href="#whyus">Why Us</a></li>
-        <li><a href="#reviews">Reviews</a></li>
-        <li><a href="#feedback">Leave Feedback</a></li>
-      </ul>
+    <div class="ft-bot">
+      <span>© 2025 Abhinandan Auto Mobiles. All rights reserved.</span>
+      <span>Quality Parts · Trusted Service · Stronger Together</span>
     </div>
-    <div class="ft-col">
-      <h4>Contact</h4>
-      <ul>
-        <li><a href="tel:+919825259065">📞 9825259065</a></li>
-        <li><a href="tel:+919870037002">📞 9870037002</a></li>
-        <li><a href="https://wa.me/919870037002" target="_blank">💬 WhatsApp</a></li>
-        <li><a href="https://www.google.com/maps/place/Abhinandan/@23.7611009,71.1681038,17z" target="_blank">🗺️ Google Maps</a></li>
-      </ul>
-    </div>
-  </div>
-  <div class="ft-bot">
-    <span>© 2025 Abhinandan Auto Mobiles. All rights reserved.</span>
-    <span>Quality Parts · Trusted Service · Stronger Together</span>
-  </div>
-</footer>
+  </footer>
 
-<!-- ═══════════════ SCRIPTS ═══════════════ -->
+</div><!-- end #full-site -->
+
+
+<!-- ═══════════════════════════════════════════
+     JAVASCRIPT — All animation logic
+═══════════════════════════════════════════ -->
 <script>
-/* ── PRELOADER ── */
-const preLine = document.getElementById('preLine');
-const preEl   = document.getElementById('pre');
+/* ═══ PRELOADER ═══ */
+const preBar = document.getElementById('preBar');
+const preEl  = document.getElementById('preloader');
 let pct = 0;
-const preTimer = setInterval(() => {
-  pct += Math.random() * 14;
+const preT = setInterval(() => {
+  pct += Math.random() * 18 + 3;
   if (pct >= 100) {
     pct = 100;
-    clearInterval(preTimer);
-    setTimeout(() => { preEl.classList.add('out'); initSite(); }, 500);
+    clearInterval(preT);
+    setTimeout(() => {
+      preEl.classList.add('gone');
+      startHero();
+    }, 400);
   }
-  preLine.style.width = pct + '%';
-}, 70);
+  preBar.style.width = pct + '%';
+}, 60);
 
-/* ── CURSOR ── */
-const curA = document.getElementById('cur');
-const curB = document.getElementById('cur2');
-let mx = 0, my = 0, bx = 0, by = 0;
-document.addEventListener('mousemove', e => {
-  mx = e.clientX; my = e.clientY;
-  curA.style.left = mx + 'px'; curA.style.top = my + 'px';
-});
-(function animCur() {
-  bx += (mx - bx) * .1; by += (my - by) * .1;
-  curB.style.left = bx + 'px'; curB.style.top = by + 'px';
-  requestAnimationFrame(animCur);
-})();
-document.querySelectorAll('a,button,input,textarea,select,[class*="card"],[class*="cell"],[class*="tile"],[class*="feat"],[class*="wcard"],[class*="rev"],[class*="part-item"]').forEach(el => {
-  el.addEventListener('mouseenter', () => document.body.classList.add('hovering'));
-  el.addEventListener('mouseleave', () => document.body.classList.remove('hovering'));
-});
-
-/* ── NAV ── */
-window.addEventListener('scroll', () => {
-  document.getElementById('nav').classList.toggle('glassy', scrollY > 60);
-});
-
-/* ── FOG CANVAS ── */
-function initFog() {
-  const canvas = document.getElementById('fogCanvas');
-  const ctx = canvas.getContext('2d');
-  let W, H, particles = [];
-
-  function resize() {
-    W = canvas.width  = canvas.offsetWidth;
-    H = canvas.height = canvas.offsetHeight;
-  }
-  resize();
-  window.addEventListener('resize', resize);
-
-  // Create fog particles
-  for (let i = 0; i < 120; i++) {
-    particles.push({
-      x: Math.random() * 2000,
-      y: H * (.3 + Math.random() * .7),
-      r: 80 + Math.random() * 260,
-      alpha: .02 + Math.random() * .06,
-      speed: .08 + Math.random() * .18,
-      drift: (Math.random() - .5) * .04
-    });
-  }
-
-  let frame = 0;
-  function draw() {
-    ctx.clearRect(0, 0, W, H);
-    frame++;
-    particles.forEach(p => {
-      p.x += p.speed;
-      p.y += p.drift;
-      if (p.x - p.r > W) p.x = -p.r;
-      if (p.y > H + p.r) p.y = H * .3;
-      if (p.y < H * .2) p.y = H;
-
-      const grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r);
-      grad.addColorStop(0, `rgba(250,245,235,${p.alpha})`);
-      grad.addColorStop(.5, `rgba(240,235,220,${p.alpha * .4})`);
-      grad.addColorStop(1, 'rgba(250,245,235,0)');
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-      ctx.fillStyle = grad;
-      ctx.fill();
-    });
-    requestAnimationFrame(draw);
-  }
-  draw();
+/* ═══ HERO ANIMATE IN ═══ */
+function startHero() {
+  const ht = document.getElementById('heroTitle');
+  const hs = document.getElementById('heroSub');
+  setTimeout(() => {
+    ht.style.opacity = '1';
+    ht.style.transform = 'translateY(0)';
+  }, 100);
+  setTimeout(() => {
+    hs.style.opacity = '1';
+    hs.style.transform = 'translateY(0)';
+  }, 500);
+  initGame();
 }
 
-/* ── SCROLL REVEAL (IntersectionObserver) ── */
-function initReveal() {
-  const io = new IntersectionObserver((entries) => {
+/* ═══ NAV SCROLL SOLID ═══ */
+const nav = document.getElementById('nav');
+const scrollSpacer = document.getElementById('scroll-spacer');
+const fullSite = document.getElementById('full-site');
+
+function scrollToTop() {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+function scrollToSection(id) {
+  document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+  document.getElementById('navLinks').classList.remove('open');
+}
+
+/* ═══ GAME ENGINE ═══ */
+function initGame() {
+  const stage         = document.getElementById('stage');
+  const sky           = document.getElementById('sky');
+  const celestial     = document.getElementById('celestial');
+  const truckWrap     = document.getElementById('truck-wrap');
+  const zoneLabel     = document.getElementById('zone-label');
+  const heroOverlay   = document.getElementById('hero-overlay');
+  const scrollProg    = document.getElementById('scroll-prog');
+  const cloudCanvas   = document.getElementById('cloudCanvas');
+  const bgFar         = document.getElementById('bgFarCanvas');
+  const bgMid         = document.getElementById('bgMidCanvas');
+  const bgNear        = document.getElementById('bgNearCanvas');
+  const roadCanvas    = document.getElementById('roadCanvas');
+  let W, H;
+
+  /* ── Canvases resize ── */
+  function resizeAll() {
+    W = window.innerWidth;
+    H = window.innerHeight;
+    [cloudCanvas, bgFar, bgMid, bgNear, roadCanvas].forEach(c => {
+      c.width  = W;
+      c.height = parseInt(c.style.height) || 300;
+    });
+    cloudCanvas.height = H;
+    bgFar.height   = Math.round(H * .45);
+    bgMid.height   = Math.round(H * .38);
+    bgNear.height  = Math.round(H * .30);
+    roadCanvas.height = Math.round(H * .32);
+  }
+  resizeAll();
+  window.addEventListener('resize', () => { resizeAll(); });
+
+  /* ── CLOUD SYSTEM ── */
+  const cCtx = cloudCanvas.getContext('2d');
+  const clouds = [];
+  for (let i = 0; i < 8; i++) {
+    clouds.push({
+      x: Math.random() * W,
+      y: 40 + Math.random() * H * .25,
+      w: 120 + Math.random() * 200,
+      h: 40 + Math.random() * 40,
+      speed: .2 + Math.random() * .4,
+      alpha: .4 + Math.random() * .4
+    });
+  }
+  function drawCloud(ctx, x, y, w, h, alpha, tint='255,255,255') {
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = `rgba(${tint},1)`;
+    ctx.beginPath();
+    ctx.ellipse(x, y, w*.5, h*.4, 0, 0, Math.PI*2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.ellipse(x-w*.2, y+h*.15, w*.3, h*.3, 0, 0, Math.PI*2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.ellipse(x+w*.22, y+h*.1, w*.28, h*.28, 0, 0, Math.PI*2);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  /* ── ZONE CONFIG ── */
+  const zones = [
+    {
+      name: 'Zone 1 — City · Santalpur',
+      skyTop: '#FF8C42', skyBot: '#FFD9A0',
+      sunColor: 'radial-gradient(circle, #FFE566, #FFB020)',
+      sunX: 75, sunY: 18,
+      cloudTint: '255,220,180',
+      roadColor: '#5A5A5A', lineColor: '#FFE000'
+    },
+    {
+      name: 'Zone 2 — Industrial · Warehouse District',
+      skyTop: '#5BA3D4', skyBot: '#B8DFF0',
+      sunColor: 'radial-gradient(circle, #FFF5AA, #FFD050)',
+      sunX: 55, sunY: 12,
+      cloudTint: '255,255,255',
+      roadColor: '#4A4A4A', lineColor: '#FFFFFF'
+    },
+    {
+      name: 'Zone 3 — Open Highway · NH-947',
+      skyTop: '#3B8BC4', skyBot: '#A8D8EA',
+      sunColor: 'radial-gradient(circle, #FFF0A0, #FFC840)',
+      sunX: 50, sunY: 15,
+      cloudTint: '255,255,255',
+      roadColor: '#606060', lineColor: '#FFFF00'
+    },
+    {
+      name: 'Zone 4 — Mountain Pass · Himalayas',
+      skyTop: '#1A2A4A', skyBot: '#6A4A30',
+      sunColor: 'radial-gradient(circle, #FFB870, #FF7030)',
+      sunX: 15, sunY: 20,
+      cloudTint: '200,180,160',
+      roadColor: '#3A3A3A', lineColor: '#FFD080'
+    }
+  ];
+
+  /* ── PARALLAX BUILDING/SCENE DRAWING ── */
+  function drawFarBg(ctx, w, h, offsetX, zoneIdx, blend) {
+    ctx.clearRect(0, 0, w, h);
+    const z0 = zones[Math.floor(zoneIdx)];
+    const z1 = zones[Math.min(Math.ceil(zoneIdx), zones.length-1)];
+    const t = zoneIdx % 1;
+
+    if (zoneIdx < 1) {
+      // City buildings — back row
+      drawCityFar(ctx, w, h, offsetX, 0.35);
+    } else if (zoneIdx < 2) {
+      // Industrial — warehouses far
+      drawIndustrialFar(ctx, w, h, offsetX, t);
+    } else if (zoneIdx < 3) {
+      // Open plains — distant treeline
+      drawPlainsHorizon(ctx, w, h, offsetX, t);
+    } else {
+      // Mountains
+      drawMountainsFar(ctx, w, h, offsetX, t);
+    }
+  }
+
+  function drawMidBg(ctx, w, h, offsetX, zoneIdx) {
+    ctx.clearRect(0, 0, w, h);
+    if (zoneIdx < 1) {
+      drawCityMid(ctx, w, h, offsetX);
+    } else if (zoneIdx < 2) {
+      drawIndustrialMid(ctx, w, h, offsetX);
+    } else if (zoneIdx < 3) {
+      drawPlainsTreeline(ctx, w, h, offsetX);
+    } else {
+      drawMountainsMid(ctx, w, h, offsetX);
+    }
+  }
+
+  function drawNearBg(ctx, w, h, offsetX, zoneIdx) {
+    ctx.clearRect(0, 0, w, h);
+    if (zoneIdx < 1) {
+      drawCityNear(ctx, w, h, offsetX);
+    } else if (zoneIdx < 2) {
+      drawIndustrialNear(ctx, w, h, offsetX);
+    } else if (zoneIdx < 3) {
+      drawPlainsNear(ctx, w, h, offsetX);
+    } else {
+      drawMountainsNear(ctx, w, h, offsetX);
+    }
+  }
+
+  /* CITY FAR — tall skyline silhouette */
+  function drawCityFar(ctx, w, h, ox, alpha) {
+    const bldgs = [
+      {x:.05,w:.04,h:.7}, {x:.1,w:.05,h:.55}, {x:.16,w:.04,h:.8}, {x:.22,w:.06,h:.5},
+      {x:.29,w:.04,h:.9}, {x:.35,w:.05,h:.65}, {x:.41,w:.04,h:.75}, {x:.48,w:.06,h:.55},
+      {x:.55,w:.04,h:.7}, {x:.62,w:.05,h:.85}, {x:.68,w:.04,h:.6}, {x:.75,w:.06,h:.78},
+      {x:.82,w:.04,h:.55}, {x:.88,w:.05,h:.8}, {x:.95,w:.04,h:.65}
+    ];
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    bldgs.forEach(b => {
+      const bx = ((b.x * w * 2 - ox * .3) % (w * 1.5)) - w * .25;
+      const bw = b.w * w; const bh = b.h * h;
+      ctx.fillStyle = 'rgba(60,35,15,0.6)';
+      ctx.fillRect(bx, h - bh, bw, bh);
+      // Windows
+      ctx.fillStyle = 'rgba(255,220,100,0.4)';
+      for (let wy = h - bh + 8; wy < h - 10; wy += 10) {
+        for (let wx = bx + 4; wx < bx + bw - 4; wx += 8) {
+          if (Math.random() > .4) ctx.fillRect(wx, wy, 3, 4);
+        }
+      }
+    });
+    ctx.restore();
+  }
+
+  /* CITY MID — medium buildings */
+  function drawCityMid(ctx, w, h, ox) {
+    const bldgs = [
+      {x:.02,w:.06,h:.65,c:'rgba(80,45,15,0.75)'},{x:.1,w:.07,h:.5,c:'rgba(100,55,20,0.8)'},
+      {x:.19,w:.05,h:.75,c:'rgba(70,35,12,0.8)'},{x:.26,w:.08,h:.55,c:'rgba(90,50,18,0.75)'},
+      {x:.37,w:.06,h:.7,c:'rgba(85,45,16,0.8)'},{x:.46,w:.05,h:.45,c:'rgba(75,40,14,0.75)'},
+      {x:.54,w:.07,h:.68,c:'rgba(95,52,20,0.8)'},{x:.64,w:.06,h:.55,c:'rgba(80,43,15,0.75)'},
+      {x:.73,w:.05,h:.72,c:'rgba(70,38,13,0.8)'},{x:.81,w:.07,h:.48,c:'rgba(88,48,17,0.75)'},
+      {x:.9,w:.06,h:.65,c:'rgba(82,44,16,0.8)'},{x:.98,w:.05,h:.56,c:'rgba(78,42,14,0.75)'}
+    ];
+    bldgs.forEach(b => {
+      const bx = ((b.x * w * 2 - ox * .55) % (w * 1.5)) - w * .25;
+      const bw = b.w * w; const bh = b.h * h;
+      ctx.fillStyle = b.c;
+      ctx.fillRect(bx, h - bh, bw, bh);
+      // Rooftop details
+      ctx.fillStyle = 'rgba(50,25,8,.5)';
+      ctx.fillRect(bx + bw*.3, h - bh - 8, bw*.15, 8);
+      // Lit windows
+      ctx.fillStyle = 'rgba(255,240,150,.55)';
+      for (let wy = h - bh + 6; wy < h - 8; wy += 9) {
+        for (let wx = bx + 5; wx < bx + bw - 5; wx += 7) {
+          if (Math.random() > .35) ctx.fillRect(wx, wy, 3, 4);
+        }
+      }
+    });
+  }
+
+  /* CITY NEAR — close storefronts */
+  function drawCityNear(ctx, w, h, ox) {
+    const shops = [
+      {x:.0,w:.12,h:.55},{x:.13,w:.1,h:.5},{x:.25,w:.12,h:.55},{x:.38,w:.1,h:.48},
+      {x:.5,w:.12,h:.52},{x:.63,w:.1,h:.55},{x:.75,w:.12,h:.5},{x:.88,w:.1,h:.52}
+    ];
+    shops.forEach((s,i) => {
+      const bx = ((s.x * w * 2 - ox * .8) % (w * 1.5)) - w * .25;
+      const bw = s.w * w; const bh = s.h * h;
+      ctx.fillStyle = i%2===0 ? 'rgba(100,60,20,.9)' : 'rgba(120,70,25,.88)';
+      ctx.fillRect(bx, h - bh, bw, bh);
+      // Signboard
+      ctx.fillStyle = 'rgba(212,82,26,.7)';
+      ctx.fillRect(bx + 4, h - bh + 4, bw - 8, bh * .2);
+      // Door
+      ctx.fillStyle = 'rgba(40,20,5,.6)';
+      ctx.fillRect(bx + bw*.35, h - bh*.3, bw*.3, bh*.3);
+    });
+  }
+
+  /* INDUSTRIAL FAR */
+  function drawIndustrialFar(ctx, w, h, ox, t) {
+    const units = [{x:.05,w:.15,h:.55},{x:.22,w:.18,h:.45},{x:.42,w:.15,h:.6},{x:.6,w:.17,h:.5},{x:.8,w:.15,h:.55}];
+    units.forEach(u => {
+      const bx = ((u.x * w * 2 - ox * .28) % (w * 1.5)) - w * .25;
+      const bw = u.w * w; const bh = u.h * h;
+      ctx.fillStyle = 'rgba(70,50,30,.55)';
+      ctx.fillRect(bx, h - bh, bw, bh);
+      // Roof slant
+      ctx.beginPath();
+      ctx.moveTo(bx, h - bh);
+      ctx.lineTo(bx + bw*.5, h - bh - bh*.2);
+      ctx.lineTo(bx + bw, h - bh);
+      ctx.fillStyle = 'rgba(50,35,15,.5)';
+      ctx.fill();
+      // Chimney
+      ctx.fillStyle = 'rgba(60,40,20,.7)';
+      ctx.fillRect(bx + bw*.7, h - bh - bh*.35, bw*.05, bh*.35);
+    });
+  }
+
+  /* INDUSTRIAL MID */
+  function drawIndustrialMid(ctx, w, h, ox) {
+    const warehouses = [{x:.0,w:.2,h:.65},{x:.22,w:.18,h:.55},{x:.42,w:.2,h:.7},{x:.64,w:.18,h:.6},{x:.84,w:.2,h:.65}];
+    warehouses.forEach((u,i) => {
+      const bx = ((u.x * w * 2 - ox * .5) % (w * 1.5)) - w * .25;
+      const bw = u.w * w; const bh = u.h * h;
+      ctx.fillStyle = i%2===0 ? 'rgba(90,65,35,.85)' : 'rgba(80,55,28,.82)';
+      ctx.fillRect(bx, h - bh, bw, bh);
+      // Metal roof ridge
+      ctx.beginPath();
+      ctx.moveTo(bx, h - bh);
+      ctx.lineTo(bx + bw*.5, h - bh - 18);
+      ctx.lineTo(bx + bw, h - bh);
+      ctx.fillStyle = 'rgba(130,90,40,.7)';
+      ctx.fill();
+      // Large door
+      ctx.fillStyle = 'rgba(40,25,10,.6)';
+      ctx.fillRect(bx + bw*.2, h - bh*.4, bw*.6, bh*.4);
+      // Chimney smoke
+      ctx.fillStyle = 'rgba(160,140,120,.2)';
+      ctx.beginPath();
+      ctx.arc(bx + bw*.75, h - bh - 5, 10 + Math.sin(Date.now()*.001) * 5, 0, Math.PI*2);
+      ctx.fill();
+    });
+  }
+
+  /* INDUSTRIAL NEAR */
+  function drawIndustrialNear(ctx, w, h, ox) {
+    // Oil drums, crates etc.
+    for (let i = 0; i < 10; i++) {
+      const bx = ((i * w * .12 - ox * .9) % (w * 1.2)) - w * .1;
+      ctx.fillStyle = 'rgba(80,40,15,.85)';
+      ctx.fillRect(bx, h - h*.28, h*.06, h*.28);
+      ctx.fillStyle = 'rgba(212,82,26,.6)';
+      ctx.fillRect(bx + 2, h - h*.28 + 2, h*.06 - 4, h*.04);
+    }
+  }
+
+  /* PLAINS HORIZON */
+  function drawPlainsHorizon(ctx, w, h, ox, t) {
+    // Rolling hills + trees
+    ctx.save();
+    ctx.fillStyle = 'rgba(80,120,50,.4)';
+    ctx.beginPath();
+    ctx.moveTo(0, h);
+    for (let x = 0; x <= w; x += 20) {
+      const hv = h * .55 + Math.sin((x + ox * .15) * .008) * h * .25;
+      ctx.lineTo(x, hv);
+    }
+    ctx.lineTo(w, h); ctx.closePath(); ctx.fill();
+    // trees
+    for (let i = 0; i < 15; i++) {
+      const tx = ((i * w * .08 - ox * .2) % (w * 1.2)) - w * .1;
+      const ty = h * .4 + Math.sin(i * 1.3) * h * .12;
+      ctx.fillStyle = 'rgba(50,90,35,.55)';
+      ctx.beginPath();
+      ctx.moveTo(tx, ty + h*.12);
+      ctx.lineTo(tx - h*.04, ty + h*.12);
+      ctx.lineTo(tx, ty);
+      ctx.closePath(); ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  function drawPlainsTreeline(ctx, w, h, ox) {
+    for (let i = 0; i < 20; i++) {
+      const tx = ((i * w * .06 - ox * .45) % (w * 1.2)) - w * .1;
+      const th = h * (.35 + Math.sin(i * 2.1) * .1);
+      ctx.fillStyle = i%3===0 ? 'rgba(60,100,45,.8)' : 'rgba(40,75,30,.75)';
+      ctx.beginPath();
+      ctx.moveTo(tx, th);
+      ctx.lineTo(tx - h*.05, h);
+      ctx.lineTo(tx + h*.05, h);
+      ctx.closePath(); ctx.fill();
+    }
+  }
+
+  function drawPlainsNear(ctx, w, h, ox) {
+    // Grass tufts + fence posts
+    for (let i = 0; i < 25; i++) {
+      const tx = ((i * w * .045 - ox * .85) % (w * 1.1)) - w * .05;
+      ctx.fillStyle = 'rgba(70,110,40,.7)';
+      ctx.fillRect(tx, h - h*.15, 3, h*.15);
+      ctx.fillRect(tx + 5, h - h*.1, 2, h*.1);
+      ctx.fillRect(tx + 9, h - h*.12, 2.5, h*.12);
+    }
+  }
+
+  /* MOUNTAINS FAR */
+  function drawMountainsFar(ctx, w, h, ox, t) {
+    // Back mountain range
+    ctx.save();
+    const peaks = [.05,.18,.28,.38,.5,.62,.72,.82,.92];
+    ctx.fillStyle = 'rgba(40,55,80,.5)';
+    ctx.beginPath();
+    ctx.moveTo(0, h);
+    peaks.forEach((px,i) => {
+      const mx = ((px * w * 2 - ox * .18) % (w * 1.8)) - w * .4;
+      const my = h * (.05 + (i%3)*.08);
+      ctx.lineTo(mx - w*.06, h * .65);
+      ctx.lineTo(mx, my);
+      ctx.lineTo(mx + w*.06, h * .65);
+    });
+    ctx.lineTo(w, h); ctx.closePath(); ctx.fill();
+    // Snow caps
+    ctx.fillStyle = 'rgba(240,240,255,.6)';
+    peaks.forEach((px,i) => {
+      const mx = ((px * w * 2 - ox * .18) % (w * 1.8)) - w * .4;
+      const my = h * (.05 + (i%3)*.08);
+      ctx.beginPath();
+      ctx.moveTo(mx, my);
+      ctx.lineTo(mx - w*.018, my + h*.06);
+      ctx.lineTo(mx + w*.018, my + h*.06);
+      ctx.closePath(); ctx.fill();
+    });
+    ctx.restore();
+  }
+
+  function drawMountainsMid(ctx, w, h, ox) {
+    ctx.save();
+    const peaks = [.1,.25,.4,.55,.7,.85];
+    ctx.fillStyle = 'rgba(60,40,30,.7)';
+    ctx.beginPath();
+    ctx.moveTo(0, h);
+    peaks.forEach((px,i) => {
+      const mx = ((px * w * 2 - ox * .38) % (w * 1.6)) - w * .3;
+      const my = h * (.12 + (i%2)*.15);
+      ctx.lineTo(mx - w*.08, h * .75);
+      ctx.lineTo(mx, my);
+      ctx.lineTo(mx + w*.08, h * .75);
+    });
+    ctx.lineTo(w, h); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = 'rgba(220,220,240,.55)';
+    peaks.forEach((px,i) => {
+      const mx = ((px * w * 2 - ox * .38) % (w * 1.6)) - w * .3;
+      const my = h * (.12 + (i%2)*.15);
+      ctx.beginPath();
+      ctx.moveTo(mx, my);
+      ctx.lineTo(mx - w*.022, my + h*.07);
+      ctx.lineTo(mx + w*.022, my + h*.07);
+      ctx.closePath(); ctx.fill();
+    });
+    ctx.restore();
+  }
+
+  function drawMountainsNear(ctx, w, h, ox) {
+    ctx.fillStyle = 'rgba(35,25,15,.85)';
+    const pts = [.05,.15,.28,.4,.52,.65,.78,.9];
+    ctx.beginPath();
+    ctx.moveTo(0, h);
+    pts.forEach((px,i) => {
+      const mx = ((px * w * 2 - ox * .7) % (w * 1.5)) - w * .25;
+      const my = h * (.3 + (i%2) * .2);
+      ctx.lineTo(mx - w*.05, h * .85);
+      ctx.lineTo(mx, my);
+      ctx.lineTo(mx + w*.05, h * .85);
+    });
+    ctx.lineTo(w, h); ctx.closePath(); ctx.fill();
+  }
+
+  /* ── ROAD DRAWING ── */
+  function drawRoad(ctx, w, h, offsetX) {
+    ctx.clearRect(0, 0, w, h);
+    // Ground
+    const groundGrad = ctx.createLinearGradient(0, 0, 0, h);
+    groundGrad.addColorStop(0, '#8B7355');
+    groundGrad.addColorStop(1, '#A08060');
+    ctx.fillStyle = groundGrad;
+    ctx.fillRect(0, 0, w, h);
+
+    // Road surface
+    const roadGrad = ctx.createLinearGradient(0, 0, 0, h);
+    roadGrad.addColorStop(0, '#5A5A5A');
+    roadGrad.addColorStop(1, '#4A4A4A');
+    const roadTop = h * .1;
+    const roadBot = h;
+    const roadMidX = w * .5;
+    ctx.beginPath();
+    ctx.moveTo(roadMidX - w*.15, roadTop);
+    ctx.lineTo(roadMidX + w*.15, roadTop);
+    ctx.lineTo(w, roadBot);
+    ctx.lineTo(0, roadBot);
+    ctx.closePath();
+    ctx.fillStyle = roadGrad;
+    ctx.fill();
+
+    // Road border lines
+    ctx.strokeStyle = 'rgba(255,255,255,.2)';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([]);
+    // Left edge
+    ctx.beginPath();
+    ctx.moveTo(roadMidX - w*.15, roadTop);
+    ctx.lineTo(0, roadBot);
+    ctx.stroke();
+    // Right edge
+    ctx.beginPath();
+    ctx.moveTo(roadMidX + w*.15, roadTop);
+    ctx.lineTo(w, roadBot);
+    ctx.stroke();
+
+    // Center dashes
+    ctx.strokeStyle = '#FFE000';
+    ctx.lineWidth = 3;
+    const dashLen = 40, gapLen = 30, totalLen = dashLen + gapLen;
+    const numDashes = 12;
+    ctx.setLineDash([]);
+    for (let i = 0; i < numDashes; i++) {
+      const t1 = (i / numDashes + offsetX * .0003) % 1;
+      const t2 = ((i + .5) / numDashes + offsetX * .0003) % 1;
+      const x1 = roadMidX - w*.15 + (roadMidX - (roadMidX - w*.15)) * t1;
+      const y1 = roadTop + (roadBot - roadTop) * t1;
+      const x2 = roadMidX - w*.15 + (roadMidX - (roadMidX - w*.15)) * t2;
+      const y2 = roadTop + (roadBot - roadTop) * t2;
+      ctx.strokeStyle = 'rgba(255,224,0,' + (.3 + t1 * .5) + ')';
+      ctx.lineWidth = 2 + t1 * 4;
+      ctx.beginPath();
+      ctx.moveTo(x1, y1);
+      ctx.lineTo(x2, y2);
+      ctx.stroke();
+    }
+
+    // Road shoulder markings
+    ctx.setLineDash([20, 15]);
+    ctx.strokeStyle = 'rgba(255,255,255,.15)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(w*.05, roadBot); ctx.lineTo(roadMidX - w*.12, roadTop + 5); ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(w*.95, roadBot); ctx.lineTo(roadMidX + w*.12, roadTop + 5); ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  /* ── TRUCK WHEEL ANIMATION ── */
+  let wheelAngle = 0;
+  function animateTruckWheels(speed) {
+    wheelAngle += speed * .015;
+    const svg = document.getElementById('truck-svg');
+    if (!svg) return;
+    const wheels = svg.querySelectorAll('circle[cy="80"]');
+    wheels.forEach(w => {
+      // Animate the tiny shine arc using transform on the parent
+    });
+    // Smoke animation
+    const s1 = document.getElementById('smoke1');
+    const s2 = document.getElementById('smoke2');
+    if (s1 && speed > 0.5) {
+      s1.setAttribute('cy', 2 - (wheelAngle % 6));
+      s1.setAttribute('r', 3 + (wheelAngle % 2));
+    }
+  }
+
+  /* ── PANELS CONFIG ── */
+  const panels = [
+    { el: document.getElementById('panel-intro'),    start: .0,  end: .22, pos: 'left' },
+    { el: document.getElementById('panel-parts'),    start: .24, end: .48, pos: 'right' },
+    { el: document.getElementById('panel-stats'),    start: .5,  end: .73, pos: 'left' },
+    { el: document.getElementById('panel-contact'),  start: .75, end: .98, pos: 'right' },
+    { el: document.getElementById('panel-reviews'),  start: .77, end: .98, pos: 'left' },
+  ];
+
+  /* ── MAIN SCROLL LOOP ── */
+  let rafId;
+  let lastProgress = 0;
+  const countDone = {cnt1: false, cnt2: false, cnt3: false};
+
+  function animCount(elId, target, duration) {
+    const el = document.getElementById(elId);
+    if (!el) return;
+    const start = performance.now();
+    function step(now) {
+      const p = Math.min((now - start) / duration, 1);
+      const ease = 1 - Math.pow(1 - p, 3);
+      el.textContent = Math.round(ease * target);
+      if (p < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+
+  function onScroll() {
+    const spacerTop    = scrollSpacer.offsetTop;
+    const spacerHeight = scrollSpacer.offsetHeight;
+    const scrollY      = window.scrollY;
+    const winH         = window.innerHeight;
+
+    // Progress 0..1 through the scroll spacer
+    let progress = (scrollY - spacerTop) / (spacerHeight - winH);
+    progress = Math.max(0, Math.min(1, progress));
+
+    const speed = Math.abs(progress - lastProgress) * 1000;
+    lastProgress = progress;
+
+    // Scroll progress bar (in the full site)
+    const totalScroll = document.body.scrollHeight - winH;
+    scrollProg.style.width = (scrollY / totalScroll * 100) + '%';
+
+    // Nav
+    if (scrollY > spacerTop + spacerHeight - winH * 1.5) {
+      nav.classList.add('solid');
+    } else {
+      nav.classList.remove('solid');
+    }
+
+    // Only run game animation while in scroll spacer
+    if (scrollY < spacerTop || scrollY > spacerTop + spacerHeight - winH + winH * .2) {
+      if (scrollY > spacerTop + spacerHeight - winH * .5) nav.classList.add('solid');
+      return;
+    }
+
+    // Hero overlay fade
+    heroOverlay.style.opacity = Math.max(0, 1 - progress * 5).toString();
+    heroOverlay.style.pointerEvents = progress > .08 ? 'none' : 'all';
+
+    // Zone index 0..3.999 based on progress
+    const zoneIdx = progress * 4;
+    const zoneInt = Math.floor(Math.min(zoneIdx, 3));
+    const zoneBlend = zoneIdx % 1;
+
+    // Zone label
+    zoneLabel.textContent = zones[Math.min(zoneInt, 3)].name;
+    zoneLabel.style.opacity = progress > .02 && progress < .97 ? '1' : '0';
+
+    // Sky
+    const z = zones[zoneInt];
+    const zn = zones[Math.min(zoneInt + 1, 3)];
+    sky.style.background = `linear-gradient(180deg, ${lerpColor(z.skyTop, zn.skyTop, zoneBlend)} 0%, ${lerpColor(z.skyBot, zn.skyBot, zoneBlend)} 100%)`;
+
+    // Celestial body
+    const cx = lerp(z.sunX, zn.sunX, zoneBlend);
+    const cy = lerp(z.sunY, zn.sunY, zoneBlend);
+    celestial.style.left = cx + 'vw';
+    celestial.style.top  = cy + 'vh';
+    celestial.style.background = zoneInt >= 3 ? 'radial-gradient(circle, #FFE0B0, #FF7030)' : z.sunColor;
+    celestial.style.boxShadow = zoneInt >= 3
+      ? '0 0 40px rgba(255,120,50,.5), 0 0 80px rgba(255,80,30,.2)'
+      : '0 0 60px rgba(255,200,50,.7), 0 0 120px rgba(255,160,0,.3)';
+
+    // Parallax offset driven by scroll
+    const parallaxX = progress * W * 3;
+
+    // Draw canvases
+    const fCtx  = bgFar.getContext('2d');
+    const mCtx  = bgMid.getContext('2d');
+    const nCtx  = bgNear.getContext('2d');
+    const rCtx  = roadCanvas.getContext('2d');
+
+    drawFarBg(fCtx,  bgFar.width,  bgFar.height,  parallaxX, zoneIdx, zoneBlend);
+    drawMidBg(mCtx,  bgMid.width,  bgMid.height,  parallaxX, zoneIdx);
+    drawNearBg(nCtx, bgNear.width, bgNear.height, parallaxX, zoneIdx);
+    drawRoad(rCtx, roadCanvas.width, roadCanvas.height, parallaxX);
+
+    // Clouds
+    cCtx.clearRect(0, 0, cloudCanvas.width, cloudCanvas.height);
+    const cloudTint = zoneInt >= 3 ? '200,180,160' : (zoneInt >= 1 ? '255,255,255' : '255,220,180');
+    clouds.forEach(c => {
+      c.x -= c.speed * (1 + speed * 2);
+      if (c.x + c.w < 0) c.x = cloudCanvas.width + c.w;
+      drawCloud(cCtx, c.x, c.y, c.w, c.h, c.alpha * (zoneInt >= 3 ? .5 : 1), cloudTint);
+    });
+
+    // Truck position — moves from ~15% to ~75% of screen width
+    const truckX = 15 + progress * 55;
+    truckWrap.style.left = truckX + '%';
+    // Slight bobbing
+    const bob = Math.sin(progress * 80) * 1.5;
+    truckWrap.style.bottom = (24 + bob * .1) + '%';
+
+    // Wheel animation
+    animateTruckWheels(speed);
+
+    // Milestone markers
+    ['m1','m2','m3'].forEach((id,i) => {
+      const m = document.getElementById(id);
+      if (m) m.classList.toggle('passed', progress > (i+1) * .25);
+    });
+
+    // Panels
+    panels.forEach(p => {
+      const active = progress >= p.start && progress <= p.end;
+      if (active && !p.el.classList.contains('visible')) {
+        p.el.classList.add('visible');
+      } else if (!active && p.el.classList.contains('visible')) {
+        p.el.classList.remove('visible');
+      }
+    });
+
+    // Counters in panel-stats
+    if (progress >= .5 && !countDone.cnt1) {
+      countDone.cnt1 = true;
+      animCount('cnt1', 500, 1500);
+      animCount('cnt2', 5, 1000);
+      animCount('cnt3', 1000, 1800);
+    }
+  }
+
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll(); // init
+
+  /* ── FULL SITE REVEAL ── */
+  const io = new IntersectionObserver(entries => {
     entries.forEach(e => {
       if (e.isIntersecting) {
-        setTimeout(() => e.target.classList.add('on'),
-          (parseFloat(e.target.style.transitionDelay) || 0) * 1000);
+        e.target.classList.add('on');
         io.unobserve(e.target);
       }
     });
-  }, { threshold: .12 });
-  document.querySelectorAll('.r,.rl,.rr,.rs').forEach(el => io.observe(el));
-}
+  }, { threshold: .1 });
+  document.querySelectorAll('.r,.rl,.rr').forEach(el => io.observe(el));
 
-/* ── COUNTER ANIMATION ── */
-function animCount(el, target, duration = 1800) {
-  const start = performance.now();
-  function step(now) {
-    const prog = Math.min((now - start) / duration, 1);
-    const ease = 1 - Math.pow(1 - prog, 3);
-    el.textContent = Math.round(ease * target).toLocaleString();
-    if (prog < 1) requestAnimationFrame(step);
-  }
-  requestAnimationFrame(step);
-}
-function initCounters() {
-  const io = new IntersectionObserver((entries) => {
+  /* Full site counters */
+  const cio = new IntersectionObserver(entries => {
     entries.forEach(e => {
       if (e.isIntersecting) {
         const id = e.target.id;
-        if (id === 's1') animCount(e.target, 500);
-        if (id === 's2') animCount(e.target, 5);
-        if (id === 's3') animCount(e.target, 1000);
-        io.unobserve(e.target);
+        if (id === 's1') animCount('s1', 500, 1800);
+        if (id === 's2') animCount('s2', 5, 900);
+        if (id === 's3') animCount('s3', 1000, 2000);
+        cio.unobserve(e.target);
       }
     });
   }, { threshold: .5 });
   ['s1','s2','s3'].forEach(id => {
     const el = document.getElementById(id);
-    if (el) io.observe(el);
+    if (el) cio.observe(el);
   });
 }
 
-/* ── HERO ANIMATE IN ── */
-function heroIn() {
-  const items = [
-    { el: document.getElementById('hEye'),   delay: 100, prop: 'opacity:1;transform:translateY(0)' },
-    { el: document.getElementById('hTitle'), delay: 400, prop: 'opacity:1;transform:translateY(0)' },
-    { el: document.getElementById('hRule'),  delay: 800, prop: 'opacity:1;transform:scaleX(1)' },
-    { el: document.getElementById('hSub'),   delay: 900, prop: 'opacity:1;transform:translateY(0)' },
-    { el: document.getElementById('hCtas'),  delay:1100, prop: 'opacity:1;transform:translateY(0)' },
-  ];
-  items.forEach(({ el, delay, prop }) => {
-    if (!el) return;
-    el.style.transition = 'all .9s cubic-bezier(0.22,1,0.36,1)';
-    setTimeout(() => {
-      prop.split(';').forEach(p => {
-        if (!p.trim()) return;
-        const [k, v] = p.split(':');
-        el.style[k.trim().replace(/-([a-z])/g, g => g[1].toUpperCase())] = v.trim();
-      });
-    }, delay);
-  });
-}
-
-/* ── FEEDBACK FORM ── */
-function handleFeedback(e) {
+/* ═══ FEEDBACK FORM ═══ */
+function handleFullFeedback(e) {
   e.preventDefault();
-  const name   = document.getElementById('fn').value.trim();
-  const svc    = document.getElementById('fs').value;
-  const rEl    = document.querySelector('input[name="rt"]:checked');
+  const name   = document.getElementById('ffn').value.trim();
+  const svc    = document.getElementById('ffs').value;
+  const rEl    = document.querySelector('input[name="ffrt"]:checked');
   const rating = rEl ? parseInt(rEl.value) : 5;
-  const review = document.getElementById('frev').value.trim();
-  const stars  = '★'.repeat(rating) + '☆'.repeat(5 - rating);
-
-  const card = document.createElement('div');
-  card.className = 'rev';
-  card.style.cssText = 'opacity:0;transform:translateY(24px);transition:all .7s ease;background:var(--off)';
-  card.innerHTML = `
-    <div class="rev-q">"</div>
-    <div class="rev-stars">${stars}</div>
-    <div class="rev-txt">${review}</div>
-    <div class="rev-who">${name}</div>
-    <div class="rev-role">${svc || 'Customer'}</div>`;
+  const review = document.getElementById('ffrev').value.trim();
+  const stars  = '★'.repeat(rating) + '☆'.repeat(5-rating);
+  const card   = document.createElement('div');
+  card.className = 'rv';
+  card.style.cssText = 'opacity:0;transform:translateY(20px);transition:all .7s ease;background:var(--off)';
+  card.innerHTML = `<div class="rv-q">"</div><div class="rv-stars">${stars}</div><div class="rv-txt">${review}</div><div class="rv-who">${name}</div><div class="rv-role">${svc||'Customer'}</div>`;
   document.getElementById('revGrid').appendChild(card);
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      card.style.opacity = '1';
-      card.style.transform = 'translateY(0)';
-    });
-  });
-
-  document.getElementById('okNote').style.display = 'block';
-  document.getElementById('fbForm').reset();
-  setTimeout(() => { document.getElementById('okNote').style.display = 'none'; }, 9000);
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    card.style.opacity = '1';
+    card.style.transform = 'translateY(0)';
+  }));
+  document.getElementById('fullOkMsg').style.display = 'block';
+  document.getElementById('fullFbForm').reset();
+  setTimeout(() => { document.getElementById('fullOkMsg').style.display = 'none'; }, 8000);
 }
 
-/* ── INIT ── */
-function initSite() {
-  heroIn();
-  initFog();
-  initReveal();
-  initCounters();
+/* ═══ COLOR LERP UTILS ═══ */
+function hexToRgb(hex) {
+  const r = parseInt(hex.slice(1,3),16);
+  const g = parseInt(hex.slice(3,5),16);
+  const b = parseInt(hex.slice(5,7),16);
+  return [r,g,b];
 }
+function lerpColor(c1, c2, t) {
+  const r1 = hexToRgb(c1), r2 = hexToRgb(c2);
+  const r = Math.round(lerp(r1[0],r2[0],t));
+  const g = Math.round(lerp(r1[1],r2[1],t));
+  const b = Math.round(lerp(r1[2],r2[2],t));
+  return `#${r.toString(16).padStart(2,'0')}${g.toString(16).padStart(2,'0')}${b.toString(16).padStart(2,'0')}`;
+}
+function lerp(a, b, t) { return a + (b-a) * t; }
 </script>
-
 </body>
 </html>
