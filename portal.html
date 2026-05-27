@@ -3,1782 +3,1547 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Abhinandan Auto Mobiles — Genuine Spare Parts, Santalpur</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&family=Bebas+Neue&display=swap" rel="stylesheet">
-
+<title>Abhinandan Auto Mobiles — Genuine Spare Parts</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Barlow+Condensed:wght@300;400;500;600;700&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-/* ═══════════════════════════════════════════
-   ROOT & RESET
-═══════════════════════════════════════════ */
-:root {
-  --orange: #D4521A;
-  --orange2: #F06A28;
-  --gold: #C8900A;
-  --gold2: #E8B230;
-  --ink: #1A1208;
-  --ink2: #3D2E18;
-  --white: #FAFAF8;
-  --off: #F5F0E8;
-  --muted: #8C7A60;
-  --border: rgba(0,0,0,0.08);
-  --sky1: #FF8C42; /* dawn */
-  --sky2: #87CEEB; /* day */
-  --sky3: #F4A460; /* afternoon */
-  --sky4: #4A3728; /* dusk */
+/* ══════ RESET ══════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px;scroll-behavior:smooth}
+:root{
+  --bg:#dddbd7;
+  --bg-light:#e8e6e2;
+  --text:#181816;
+  --muted:#6e6e6a;
+  --gold:#b8840a;
+  --gold2:#d4a030;
+  --white:#f8f6f2;
+  --line:rgba(24,24,22,0.1);
 }
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: auto; }
-body {
-  font-family: 'DM Sans', sans-serif;
-  background: var(--ink);
-  color: var(--ink);
-  overflow-x: hidden;
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Barlow',sans-serif;
+  overflow:hidden;
+  height:100vh;
+  cursor:none;
+}
+body.live{overflow-y:auto;height:auto;cursor:auto}
+
+/* ══════ CURSOR ══════ */
+#cur,#cur2{position:fixed;border-radius:50%;pointer-events:none;z-index:9000;transform:translate(-50%,-50%)}
+#cur{width:7px;height:7px;background:var(--text)}
+#cur2{width:30px;height:30px;border:1px solid rgba(24,24,22,.25);transition:all .2s ease}
+@media(hover:none){#cur,#cur2{display:none}body,body.live{cursor:auto}}
+
+/* ══════ CANVAS ══════ */
+#c{position:fixed;inset:0;width:100%;height:100%;z-index:0;display:block}
+
+/* ══════ ATMOSPHERE LAYERS ══════ */
+/* Film grain */
+#grain{
+  position:fixed;inset:0;z-index:2;pointer-events:none;
+  opacity:.055;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 300'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3C/svg%3E");
+  animation:gn .1s steps(1) infinite
+}
+@keyframes gn{0%{background-position:0 0}25%{background-position:-80px -50px}50%{background-position:50px 30px}75%{background-position:-30px 70px}100%{background-position:20px -20px}}
+
+/* Radial vignette — pure CSS, no lines */
+#vig{
+  position:fixed;inset:0;z-index:3;pointer-events:none;
+  background:radial-gradient(ellipse 85% 85% at 50% 50%, transparent 45%, rgba(20,18,14,.55) 100%);
 }
 
-/* ═══════════════════════════════════════════
-   PRELOADER
-═══════════════════════════════════════════ */
-#preloader {
-  position: fixed; inset: 0; z-index: 9999;
-  background: var(--ink);
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center; gap: 2rem;
-  transition: opacity 1.2s ease, visibility 1.2s;
+/* Top & bottom mist gradient */
+#mist-top{
+  position:fixed;top:0;left:0;right:0;height:30vh;z-index:3;pointer-events:none;
+  background:linear-gradient(to bottom, rgba(210,208,204,.7) 0%, transparent 100%);
 }
-#preloader.gone { opacity: 0; visibility: hidden; }
-.pre-logo {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: clamp(2rem, 6vw, 3.5rem);
-  font-weight: 300; letter-spacing: 6px; color: var(--white);
-  opacity: 0; animation: fadeSlideUp .8s .3s forwards;
-}
-.pre-logo em { font-style: italic; color: var(--gold2); }
-.pre-tagline {
-  font-size: .62rem; letter-spacing: 5px; text-transform: uppercase;
-  color: rgba(255,255,255,.25);
-  opacity: 0; animation: fadeSlideUp .6s .7s forwards;
-}
-.pre-truck-anim {
-  font-size: 3rem;
-  opacity: 0; animation: fadeSlideUp .6s .5s forwards;
-}
-.pre-bar-wrap { width: 220px; height: 1px; background: rgba(255,255,255,.08); overflow: hidden; }
-.pre-bar { height: 100%; width: 0; background: linear-gradient(90deg, var(--orange), var(--gold2)); }
-@keyframes fadeSlideUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
-
-/* ═══════════════════════════════════════════
-   SCROLL SPACER — gives scroll length
-═══════════════════════════════════════════ */
-#scroll-spacer {
-  height: 600vh; /* 6 screens of scroll for the animation */
-  position: relative;
+#mist-bot{
+  position:fixed;bottom:0;left:0;right:0;height:25vh;z-index:3;pointer-events:none;
+  background:linear-gradient(to top, rgba(210,208,204,.65) 0%, transparent 100%);
 }
 
-/* ═══════════════════════════════════════════
-   FIXED GAME STAGE
-═══════════════════════════════════════════ */
-#stage {
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  height: 100vh;
-  z-index: 1;
-  overflow: hidden;
+/* Glassy blur panel — shown during parts scene */
+#glassblur{
+  position:fixed;inset:0;z-index:4;pointer-events:none;
+  backdrop-filter:blur(0px) saturate(100%);
+  -webkit-backdrop-filter:blur(0px) saturate(100%);
+  opacity:0;
+  transition:backdrop-filter 1.5s ease, opacity 1.5s ease;
+}
+#glassblur.active{
+  backdrop-filter:blur(3px) saturate(130%);
+  -webkit-backdrop-filter:blur(3px) saturate(130%);
+  opacity:1;
 }
 
-/* Sky — changes color via JS */
-#sky {
-  position: absolute; inset: 0;
-  transition: background .8s ease;
-  background: linear-gradient(180deg, #FF8C42 0%, #FFBA6B 50%, #FFD9A0 100%);
+/* ══════ INTRO SCREEN ══════ */
+#intro{
+  position:fixed;inset:0;z-index:500;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:var(--bg);
+  transition:opacity .9s ease, transform 1.1s ease;
+}
+#intro.gone{opacity:0;transform:scale(1.035);pointer-events:none}
+.il{
+  width:68px;height:68px;border-radius:12px;
+  border:1px solid rgba(24,24,22,.14);background:var(--white);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:600;
+  color:var(--text);margin-bottom:24px;
+  box-shadow:0 2px 18px rgba(0,0,0,.07)
+}
+.iname{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(18px,2.8vw,34px);font-weight:300;
+  color:var(--text);letter-spacing:.07em;margin-bottom:5px;text-align:center
+}
+.isub{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:10px;letter-spacing:.32em;text-transform:uppercase;
+  color:var(--muted);margin-bottom:48px
+}
+#ibtn{
+  padding:12px 44px;border-radius:1px;cursor:pointer;
+  border:1px solid rgba(24,24,22,.18);background:transparent;
+  font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:500;
+  letter-spacing:.28em;text-transform:uppercase;color:var(--text);
+  position:relative;overflow:hidden;transition:color .28s
+}
+#ibtn::after{
+  content:'';position:absolute;inset:0;
+  background:var(--text);
+  transform:translateX(-101%);
+  transition:transform .32s cubic-bezier(.4,0,.2,1)
+}
+#ibtn:hover::after{transform:translateX(0)}
+#ibtn:hover{color:var(--white)}
+#ibtn span{position:relative;z-index:1}
+
+/* ══════ CINEMATIC HUD ══════ */
+#hud{
+  position:fixed;inset:0;z-index:10;pointer-events:none;
+  display:none;
 }
 
-/* Sun / Moon */
-#celestial {
-  position: absolute;
-  width: 80px; height: 80px;
-  border-radius: 50%;
-  background: radial-gradient(circle, #FFE566, #FFB020);
-  box-shadow: 0 0 60px rgba(255,200,50,.7), 0 0 120px rgba(255,160,0,.3);
-  transition: all .8s ease;
+/* thin progress line at very bottom */
+#pg{
+  position:absolute;bottom:0;left:0;height:1px;width:0%;
+  background:rgba(24,24,22,.45);
+  transition:width .5s ease;
 }
 
-/* Cloud layer */
-#clouds {
-  position: absolute; top: 0; left: 0; width: 200%; height: 100%;
-  pointer-events: none;
+/* top bar */
+#tbar{
+  position:absolute;top:0;left:0;right:0;
+  padding:26px 38px;
+  display:flex;align-items:center;justify-content:space-between;
 }
-.cloud {
-  position: absolute;
-  background: white; border-radius: 50px;
-  opacity: .75;
-  animation: cloudFloat linear infinite;
+.tbl{
+  font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:600;
+  letter-spacing:.22em;text-transform:uppercase;color:rgba(24,24,22,.7);
+  display:flex;align-items:center;gap:9px
 }
-.cloud::before, .cloud::after {
-  content: ''; position: absolute; background: white; border-radius: 50%;
-}
-
-/* ── BACKGROUND PARALLAX LAYERS ── */
-#bg-far { position: absolute; bottom: 40%; left: 0; width: 200%; height: 60%; pointer-events: none; }
-#bg-mid { position: absolute; bottom: 35%; left: 0; width: 200%; height: 50%; pointer-events: none; }
-#bg-near { position: absolute; bottom: 28%; left: 0; width: 200%; height: 40%; pointer-events: none; }
-
-/* ── ROAD ── */
-#road-section {
-  position: absolute;
-  bottom: 0; left: 0; right: 0;
-  height: 32%;
-}
-#road-canvas {
-  position: absolute; inset: 0; width: 100%; height: 100%;
+.tdot{width:5px;height:5px;border-radius:50%;background:var(--gold);flex-shrink:0}
+.tbr{
+  font-family:'Barlow Condensed',sans-serif;font-size:9px;
+  letter-spacing:.22em;text-transform:uppercase;color:rgba(24,24,22,.4)
 }
 
-/* ── TRUCK ── */
-#truck-wrap {
-  position: absolute;
-  bottom: 26%;
-  left: 15%;
-  transition: bottom .3s ease;
-  z-index: 10;
-  filter: drop-shadow(0 8px 20px rgba(0,0,0,.4));
+/* skip btn */
+#skip{
+  position:absolute;bottom:28px;left:38px;pointer-events:all;
+  font-family:'Barlow Condensed',sans-serif;font-size:10px;
+  letter-spacing:.22em;text-transform:uppercase;color:rgba(24,24,22,.4);
+  cursor:pointer;border:none;background:none;transition:color .2s
+}
+#skip:hover{color:var(--text)}
+
+/* scroll hint */
+#srhint{
+  position:absolute;bottom:26px;left:50%;transform:translateX(-50%);
+  display:flex;flex-direction:column;align-items:center;gap:5px;
+  font-family:'Barlow Condensed',sans-serif;font-size:9px;
+  letter-spacing:.28em;text-transform:uppercase;color:rgba(24,24,22,.4);
+  animation:bbc 2.2s ease-in-out infinite;
+  transition:opacity .5s
+}
+#srhint.gone{opacity:0;pointer-events:none}
+.sra{width:1px;height:26px;background:rgba(24,24,22,.3);position:relative}
+.sra::after{
+  content:'';position:absolute;bottom:-1px;left:-3px;
+  width:7px;height:7px;
+  border-right:1px solid rgba(24,24,22,.35);
+  border-bottom:1px solid rgba(24,24,22,.35);
+  transform:rotate(45deg)
+}
+@keyframes bbc{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(4px)}}
+
+/* ══════ CINEMATIC TEXT SYSTEM ══════ */
+/* ALL scene texts hidden by default */
+.ct{
+  position:absolute;pointer-events:none;
+  opacity:0;
+  transition:opacity 1s ease, transform 1s cubic-bezier(.16,1,.3,1);
+}
+.ct.show{opacity:1}
+
+/* Scene 1 — centered big text */
+#s1{
+  /* Perfectly centered with flexbox — no % hacks */
+  inset:0;display:flex;
+  flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;padding:0 5vw
+}
+#s1 .bigword{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(44px,8vw,110px);
+  font-weight:300;color:var(--text);
+  line-height:.98;letter-spacing:-.015em;
+  transform:translateY(16px);
+  transition:transform 1s cubic-bezier(.16,1,.3,1)
+}
+#s1.show .bigword{transform:translateY(0)}
+#s1 .bigword em{font-style:italic;color:rgba(24,24,22,.38)}
+#s1 .sep{
+  width:1px;height:36px;background:rgba(24,24,22,.2);
+  margin:18px auto;
+  transform:scaleY(0);transform-origin:top;
+  transition:transform .8s ease .4s
+}
+#s1.show .sep{transform:scaleY(1)}
+#s1 .tagline{
+  font-family:'Barlow Condensed',sans-serif;font-size:10px;
+  letter-spacing:.35em;text-transform:uppercase;color:rgba(24,24,22,.38);
+  transform:translateY(8px);
+  transition:transform .9s ease .3s, opacity .9s ease .3s;
+  opacity:0
+}
+#s1.show .tagline{transform:translateY(0);opacity:1}
+
+/* Scene 2 — left side, truck text */
+#s2{
+  top:0;bottom:0;left:7%;
+  display:flex;flex-direction:column;justify-content:center;
+  max-width:280px;
+  transform:translateX(-14px);
+  transition:opacity 1s ease, transform 1s cubic-bezier(.16,1,.3,1)
+}
+#s2.show{transform:translateX(0)}
+.seb{
+  font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:500;
+  letter-spacing:.32em;text-transform:uppercase;color:var(--gold);
+  margin-bottom:12px;display:flex;align-items:center;gap:9px
+}
+.seb::before{content:'';width:22px;height:1px;background:var(--gold);flex-shrink:0}
+#s2 h2{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(26px,3.2vw,50px);font-weight:300;
+  color:var(--text);line-height:1.1
+}
+#s2 h2 strong{display:block;font-weight:600}
+#s2 p{
+  margin-top:11px;font-size:12px;color:var(--muted);
+  line-height:1.8;font-weight:300
 }
 
-/* ── ZONE LABEL ── */
-#zone-label {
-  position: absolute; top: 1.5rem; left: 50%; transform: translateX(-50%);
-  font-size: .62rem; font-weight: 500; letter-spacing: 4px;
-  text-transform: uppercase; color: rgba(255,255,255,.6);
-  background: rgba(0,0,0,.18); padding: .4rem 1.2rem; border-radius: 100px;
-  backdrop-filter: blur(10px); z-index: 20;
-  transition: opacity .5s;
+/* Scene 3 — right side, orbit */
+#s3{
+  top:0;bottom:0;right:7%;
+  display:flex;flex-direction:column;justify-content:center;
+  text-align:right;max-width:240px;
+  transform:translateX(14px);
+  transition:opacity 1s ease, transform 1s cubic-bezier(.16,1,.3,1)
+}
+#s3.show{transform:translateX(0)}
+.orbl{
+  font-family:'Barlow Condensed',sans-serif;font-size:9px;
+  letter-spacing:.32em;text-transform:uppercase;color:rgba(24,24,22,.4);
+  display:flex;align-items:center;justify-content:flex-end;gap:9px;margin-bottom:10px
+}
+.orbl::after{content:'';width:22px;height:1px;background:rgba(24,24,22,.3);flex-shrink:0}
+#s3 h2{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(24px,2.8vw,46px);font-weight:300;color:var(--text);line-height:1.1
 }
 
-/* ── SCROLL PROGRESS BAR ── */
-#scroll-prog {
-  position: fixed; top: 0; left: 0; height: 3px; z-index: 500;
-  background: linear-gradient(90deg, var(--orange), var(--gold2));
-  width: 0%; transition: width .1s;
+/* Scene 4 — parts, centered top-third */
+#s4{
+  inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:flex-start;
+  padding-top:14vh;text-align:center;
+  transform:translateY(12px);
+  transition:opacity 1s ease, transform 1s cubic-bezier(.16,1,.3,1)
+}
+#s4.show{transform:translateY(0)}
+#s4 .pt{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(30px,4.5vw,66px);font-weight:300;
+  color:var(--text);line-height:1.04
+}
+#s4 .pt span{color:rgba(24,24,22,.28)}
+#s4 .ptsub{
+  margin-top:10px;
+  font-family:'Barlow Condensed',sans-serif;font-size:9px;
+  letter-spacing:.32em;text-transform:uppercase;color:rgba(24,24,22,.38)
 }
 
-/* ── MILESTONE MARKERS ── */
-.milestone {
-  position: absolute; bottom: 34%;
-  width: 2px; height: 20px;
-  background: rgba(255,255,255,.3);
-  z-index: 12;
-  transition: background .3s;
+/* Engineering annotation labels */
+.ann{
+  position:absolute;pointer-events:none;
+  opacity:0;display:flex;align-items:center;gap:7px;
+  transition:opacity .7s ease
 }
-.milestone.passed { background: var(--gold2); }
-.milestone-label {
-  position: absolute; bottom: 100%; left: 50%;
-  transform: translateX(-50%);
-  font-size: .55rem; letter-spacing: 2px; text-transform: uppercase;
-  color: rgba(255,255,255,.4); white-space: nowrap;
-  margin-bottom: .3rem;
+.ann.vis{opacity:1}
+.ann.r{flex-direction:row-reverse}
+.ann .aln{width:36px;height:1px;background:rgba(24,24,22,.25);flex-shrink:0}
+.ann .atx{
+  font-family:'Barlow Condensed',sans-serif;font-size:8px;font-weight:500;
+  letter-spacing:.26em;text-transform:uppercase;color:rgba(24,24,22,.5);white-space:nowrap
+}
+.ann.r .atx{text-align:right}
+
+/* Scene 5 — final CTA */
+#s5{
+  inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  text-align:center;
+  pointer-events:all;
+  transform:translateY(12px);
+  transition:opacity 1s ease, transform 1s cubic-bezier(.16,1,.3,1)
+}
+#s5.show{transform:translateY(0)}
+#s5 h2{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(30px,4.5vw,66px);font-weight:300;
+  color:var(--text);line-height:1.05;margin-bottom:28px
+}
+#s5 h2 em{font-style:italic;color:rgba(24,24,22,.35)}
+.ctaw{display:flex;gap:11px;justify-content:center;flex-wrap:wrap}
+.ba{
+  padding:12px 34px;border-radius:1px;
+  border:1px solid var(--text);background:var(--text);
+  color:var(--white);font-family:'Barlow Condensed',sans-serif;
+  font-size:11px;font-weight:500;letter-spacing:.22em;text-transform:uppercase;
+  cursor:pointer;text-decoration:none;transition:all .25s;display:inline-block
+}
+.ba:hover{background:transparent;color:var(--text)}
+.bb{
+  padding:12px 34px;border-radius:1px;
+  border:1px solid rgba(24,24,22,.2);background:transparent;
+  color:var(--text);font-family:'Barlow Condensed',sans-serif;
+  font-size:11px;font-weight:500;letter-spacing:.22em;text-transform:uppercase;
+  cursor:pointer;text-decoration:none;transition:all .25s;display:inline-block
+}
+.bb:hover{background:var(--text);color:var(--white)}
+
+/* ══════ MAIN SITE ══════ */
+#site{
+  position:relative;z-index:20;
+  display:none;opacity:0;
+  transition:opacity 1.1s ease;
+  background:var(--bg)
 }
 
-/* ═══════════════════════════════════════════
-   CONTENT CARDS — float up at scroll zones
-═══════════════════════════════════════════ */
-#content-overlay {
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  z-index: 50;
-  pointer-events: none;
+/* NAV */
+#nav{
+  position:fixed;top:0;left:0;right:0;z-index:200;height:62px;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 38px;
+  background:rgba(220,218,214,.88);
+  backdrop-filter:blur(18px) saturate(140%);
+  -webkit-backdrop-filter:blur(18px) saturate(140%);
+  border-bottom:1px solid rgba(24,24,22,.08)
 }
-.content-panel {
-  position: absolute;
-  top: 50%; transform: translateY(-50%);
-  pointer-events: all;
-  opacity: 0;
-  transition: opacity .7s ease, transform .7s cubic-bezier(0.22,1,0.36,1);
-  max-width: 520px;
+.nlog{display:flex;align-items:center;gap:10px;text-decoration:none}
+.nbox{
+  width:34px;height:34px;border-radius:7px;background:var(--text);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Cormorant Garamond',serif;font-size:17px;color:var(--white)
 }
-.content-panel.left  { left: 4vw; transform: translateY(-50%) translateX(-60px); }
-.content-panel.right { right: 4vw; transform: translateY(-50%) translateX(60px); }
-.content-panel.center{ left: 50%; transform: translateX(-50%) translateY(-40px); max-width: 700px; text-align: center; }
+.nname{
+  font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:600;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--text)
+}
+.nsub{font-size:8px;letter-spacing:.16em;color:var(--muted);text-transform:uppercase}
+.nlks{display:flex;gap:28px}
+.nlks a{
+  font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:500;
+  letter-spacing:.22em;text-transform:uppercase;color:var(--muted);
+  text-decoration:none;transition:color .2s
+}
+.nlks a:hover{color:var(--text)}
+.ncta{
+  padding:8px 20px;border-radius:1px;
+  border:1px solid var(--text);background:var(--text);color:var(--white);
+  font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:500;
+  letter-spacing:.2em;text-transform:uppercase;cursor:pointer;text-decoration:none;
+  transition:all .22s
+}
+.ncta:hover{background:transparent;color:var(--text)}
 
-.content-panel.visible.left  { opacity: 1; transform: translateY(-50%) translateX(0); }
-.content-panel.visible.right { opacity: 1; transform: translateY(-50%) translateX(0); }
-.content-panel.visible.center{ opacity: 1; transform: translateX(-50%) translateY(0); }
-
-.panel-card {
-  background: rgba(250,248,242,.93);
-  backdrop-filter: blur(24px) saturate(1.6);
-  -webkit-backdrop-filter: blur(24px) saturate(1.6);
-  border: 1px solid rgba(255,255,255,.5);
-  border-radius: 4px;
-  padding: 2.5rem 2.8rem;
-  box-shadow: 0 20px 60px rgba(0,0,0,.25), 0 4px 12px rgba(0,0,0,.12);
+/* HERO */
+#hero{
+  min-height:100vh;display:flex;align-items:center;
+  padding:90px 38px 80px;position:relative;overflow:hidden
 }
-.panel-tag {
-  font-size: .6rem; font-weight: 600; letter-spacing: 4px;
-  text-transform: uppercase; color: var(--orange);
-  margin-bottom: .7rem; display: block;
+.hero-in{
+  max-width:1160px;width:100%;margin:0 auto;
+  display:grid;grid-template-columns:1.1fr .9fr;gap:72px;align-items:center
 }
-.panel-h {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: clamp(1.9rem, 3vw, 2.8rem);
-  font-weight: 300; line-height: 1; color: var(--ink);
-  letter-spacing: -.3px; margin-bottom: .8rem;
+.hew{
+  font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:500;
+  letter-spacing:.34em;text-transform:uppercase;color:var(--gold);
+  margin-bottom:16px;display:flex;align-items:center;gap:11px
 }
-.panel-h em { font-style: italic; color: var(--orange); }
-.panel-rule { width: 24px; height: 1px; background: var(--orange); margin-bottom: 1rem; }
-.panel-rule.center { margin: .8rem auto 1rem; }
-.panel-p { font-size: .85rem; color: var(--muted); line-height: 1.9; }
-
-/* Brand chips */
-.brand-chips { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1.2rem; }
-.chip {
-  background: var(--ink); color: var(--white);
-  font-size: .65rem; font-weight: 600; letter-spacing: 2px;
-  text-transform: uppercase; padding: .4rem .9rem; border-radius: 2px;
+.hew::before{content:'';width:26px;height:1px;background:var(--gold);flex-shrink:0}
+.hh1{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(38px,4.8vw,68px);font-weight:300;
+  color:var(--text);line-height:1.04;margin-bottom:18px
 }
-
-/* Parts mini grid */
-.mini-parts { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; margin-top: 1.2rem; }
-.mini-part {
-  background: var(--off); border: 1px solid var(--border);
-  padding: .7rem .9rem; border-radius: 2px;
-  font-size: .75rem; color: var(--ink2); font-weight: 500;
-  display: flex; align-items: center; gap: .5rem;
+.hh1 strong{font-weight:600}
+.hp{font-size:13px;color:var(--muted);line-height:1.88;margin-bottom:30px;max-width:340px}
+.hbtns{display:flex;gap:10px;flex-wrap:wrap}
+.hstats{
+  display:grid;grid-template-columns:1fr 1fr;
+  border:1px solid var(--line);background:var(--line);gap:1px
+}
+.hst{background:var(--bg-light);padding:22px 18px;transition:background .2s}
+.hst:hover{background:var(--white)}
+.hn{
+  font-family:'Cormorant Garamond',serif;font-size:38px;font-weight:300;
+  color:var(--text);line-height:1;margin-bottom:3px
+}
+.hl2{
+  font-family:'Barlow Condensed',sans-serif;font-size:9px;
+  letter-spacing:.18em;text-transform:uppercase;color:var(--muted)
 }
 
-/* Stats row in card */
-.mini-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); margin-top: 1.5rem; }
-.mini-stat { background: var(--white); padding: 1.2rem .8rem; text-align: center; }
-.mini-stat-n {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 2rem; font-weight: 300; color: var(--ink); line-height: 1;
+/* Sections */
+.sec{padding:96px 38px;max-width:1160px;margin:0 auto}
+.ssep{height:1px;background:var(--line);margin:0 38px}
+.sew{
+  font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:500;
+  letter-spacing:.34em;text-transform:uppercase;color:var(--muted);
+  margin-bottom:13px;display:flex;align-items:center;gap:11px
 }
-.mini-stat-n em { font-style: italic; color: var(--orange); }
-.mini-stat-l { font-size: .6rem; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-top: .3rem; }
-
-/* Review mini */
-.mini-revs { display: flex; flex-direction: column; gap: .5rem; margin-top: 1rem; }
-.mini-rev {
-  background: var(--off); border: 1px solid var(--border);
-  padding: 1rem 1.1rem; border-radius: 2px;
+.sew::before{content:'';width:18px;height:1px;background:var(--muted);flex-shrink:0}
+.sh{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(26px,3.8vw,52px);font-weight:300;
+  color:var(--text);line-height:1.07;margin-bottom:48px
 }
-.mini-rev-stars { color: var(--gold); font-size: .7rem; margin-bottom: .3rem; }
-.mini-rev-txt { font-family:'Cormorant Garamond',serif; font-size:.95rem; font-style:italic; color:var(--ink2); line-height:1.7; }
-.mini-rev-who { font-size:.65rem; font-weight:600; letter-spacing:1px; color:var(--muted); margin-top:.4rem; }
-
-/* Contact panel */
-.c-items { display: flex; flex-direction: column; gap: .9rem; margin-top: 1rem; }
-.c-item { display: flex; gap: .8rem; align-items: flex-start; }
-.c-ico { font-size: 1.1rem; min-width: 24px; }
-.c-inf { font-size: .82rem; color: var(--ink2); line-height: 1.7; }
-.c-inf a { color: var(--ink2); text-decoration: none; }
-.cta-row { display: flex; flex-direction: column; gap: .6rem; margin-top: 1.2rem; }
-.wa-btn {
-  display: flex; align-items: center; justify-content: center; gap: .6rem;
-  background: #25D366; color: white;
-  padding: .8rem; border-radius: 3px;
-  font-size: .72rem; font-weight: 600; letter-spacing: 2px;
-  text-transform: uppercase; text-decoration: none;
-  box-shadow: 0 4px 16px rgba(37,211,102,.3);
-  transition: opacity .2s, transform .2s;
-}
-.wa-btn:hover { opacity: .9; transform: translateY(-2px); }
-.map-btn {
-  display: flex; align-items: center; justify-content: center; gap: .6rem;
-  border: 1px solid var(--border); background: var(--white);
-  color: var(--ink); padding: .75rem;
-  font-size: .72rem; font-weight: 500; letter-spacing: 2px;
-  text-transform: uppercase; text-decoration: none;
-  transition: border-color .2s, color .2s;
-}
-.map-btn:hover { border-color: var(--orange); color: var(--orange); }
-
-/* Feedback mini */
-.fb-form { display: flex; flex-direction: column; gap: .6rem; margin-top: 1rem; }
-.fi {
-  width: 100%; background: var(--white);
-  border: 1px solid var(--border);
-  border-bottom: 2px solid rgba(0,0,0,.1);
-  color: var(--ink); padding: .7rem .9rem;
-  font-family: 'DM Sans', sans-serif; font-size: .82rem;
-  outline: none; border-radius: 0; transition: border-color .2s;
-}
-.fi:focus { border-bottom-color: var(--orange); }
-.fi::placeholder { color: var(--muted); opacity: .5; }
-textarea.fi { resize: vertical; min-height: 70px; }
-.star-pick { display: flex; flex-direction: row-reverse; gap: .15rem; }
-.star-pick input { display: none; }
-.star-pick label { font-size: 1.3rem; color: rgba(0,0,0,.12); cursor: pointer; transition: color .15s; }
-.star-pick input:checked ~ label,
-.star-pick label:hover,
-.star-pick label:hover ~ label { color: var(--gold); }
-.submit-btn {
-  width: 100%; border: none; background: var(--orange); color: white;
-  padding: .8rem; font-family: 'DM Sans', sans-serif;
-  font-size: .72rem; font-weight: 600; letter-spacing: 2px;
-  text-transform: uppercase; cursor: pointer; border-radius: 2px;
-  transition: background .2s, transform .15s;
-  box-shadow: 0 4px 16px rgba(212,82,26,.25);
-}
-.submit-btn:hover { background: var(--orange2); transform: translateY(-1px); }
-.ok-msg {
-  display: none; background: rgba(37,211,102,.08);
-  border: 1px solid rgba(37,211,102,.25); color: #1a7a44;
-  padding: .7rem .9rem; font-size: .78rem; font-weight: 500; border-radius: 2px;
-}
-.g-review-link {
-  font-size: .72rem; text-align: center; color: var(--muted);
-  text-decoration: none; display: block; margin-top: .3rem;
-  transition: color .2s;
-}
-.g-review-link:hover { color: var(--orange); }
-
-/* ═══════════════════════════════════════════
-   HERO INTRO OVERLAY (before scrolling)
-═══════════════════════════════════════════ */
-#hero-overlay {
-  position: fixed; inset: 0; z-index: 45;
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  pointer-events: none;
-  transition: opacity .6s ease;
-}
-.hero-title-main {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: clamp(3rem, 8vw, 7rem);
-  font-weight: 300; color: white; text-align: center;
-  line-height: .9; letter-spacing: -1px;
-  text-shadow: 0 4px 30px rgba(0,0,0,.4);
-  opacity: 0; transform: translateY(30px);
-  transition: all .9s cubic-bezier(0.22,1,0.36,1);
-}
-.hero-title-main em { font-style: italic; color: var(--gold2); }
-.hero-title-main strong { display: block; font-weight: 600; font-style: normal; color: white; font-size: .7em; }
-.hero-sub-main {
-  font-size: .78rem; letter-spacing: 3px; text-transform: uppercase;
-  color: rgba(255,255,255,.5); margin-top: 1.5rem;
-  opacity: 0; transform: translateY(16px);
-  transition: all .8s .3s cubic-bezier(0.22,1,0.36,1);
-  text-shadow: 0 2px 10px rgba(0,0,0,.3);
-}
-.hero-scroll-hint {
-  position: absolute; bottom: 2.5rem;
-  display: flex; flex-direction: column; align-items: center; gap: .5rem;
-  color: rgba(255,255,255,.35); font-size: .6rem; letter-spacing: 3px;
-  text-transform: uppercase;
-  opacity: 0; animation: fadeIn 1s 4.5s forwards;
-}
-.scroll-wheel-wrap {
-  width: 20px; height: 32px; border: 1px solid rgba(255,255,255,.25);
-  border-radius: 12px; display: flex; justify-content: center; padding-top: 6px;
-}
-.scroll-wheel-dot {
-  width: 2px; height: 6px; background: rgba(255,255,255,.4); border-radius: 2px;
-  animation: wheelBounce 1.8s ease-in-out infinite;
-}
-@keyframes wheelBounce { 0%,100%{opacity:1;transform:translateY(0)} 50%{opacity:0;transform:translateY(8px)} }
-@keyframes fadeIn { to { opacity: 1; } }
-
-/* ═══════════════════════════════════════════
-   NAV
-═══════════════════════════════════════════ */
-#nav {
-  position: fixed; top: 0; left: 0; right: 0; z-index: 200;
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 1.3rem 4vw;
-  transition: all .4s ease;
-}
-#nav.solid {
-  background: rgba(250,248,242,.92); backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-bottom: 1px solid var(--border);
-  padding: .8rem 4vw;
-}
-.nav-logo {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 1.2rem; font-weight: 600; letter-spacing: 1px;
-  color: white; text-decoration: none; transition: color .3s;
-}
-#nav.solid .nav-logo { color: var(--ink); }
-.nav-logo em { font-style: italic; color: var(--gold2); }
-#nav.solid .nav-logo em { color: var(--orange); }
-.nav-links { display: flex; gap: 2rem; list-style: none; }
-.nav-links a {
-  font-size: .65rem; font-weight: 500; letter-spacing: 2px; text-transform: uppercase;
-  color: rgba(255,255,255,.65); text-decoration: none; transition: color .2s; cursor: pointer;
-}
-#nav.solid .nav-links a { color: var(--muted); }
-.nav-links a:hover, #nav.solid .nav-links a:hover { color: var(--orange); }
-.nav-wa {
-  background: #25D366 !important; color: white !important;
-  padding: .38rem 1rem !important; border-radius: 100px;
-}
-.hamburger { display: none; flex-direction: column; gap: 4px; cursor: pointer; padding: 4px; }
-.hamburger span { display: block; width: 20px; height: 1.5px; background: white; transition: .3s; }
-#nav.solid .hamburger span { background: var(--ink); }
-
-/* ═══════════════════════════════════════════
-   AFTER GAME — full site sections
-   (appear after scroll spacer ends)
-═══════════════════════════════════════════ */
-#full-site {
-  position: relative; z-index: 100;
-  background: var(--white);
-}
-.sec {
-  padding: 8rem 5vw;
-  position: relative;
-}
-.sec-inner { max-width: 1140px; margin: 0 auto; }
-.sec-tag { font-size:.6rem; font-weight:600; letter-spacing:4px; text-transform:uppercase; color:var(--orange); margin-bottom:.6rem; display:block; }
-.sec-h { font-family:'Cormorant Garamond',serif; font-size:clamp(2.4rem,4.5vw,4rem); font-weight:300; color:var(--ink); line-height:1; letter-spacing:-.3px; }
-.sec-h em { font-style:italic; color:var(--orange); }
-.rule { width:28px; height:1px; background:var(--orange); margin:1.2rem 0; }
-.sec-p { font-size:.88rem; color:var(--muted); line-height:1.95; max-width:480px; }
-
-/* Marquee strip */
-.strip { background:var(--ink); overflow:hidden; padding:.85rem 0; }
-.strip-track { display:flex; gap:3.5rem; animation:stripMove 20s linear infinite; white-space:nowrap; }
-@keyframes stripMove { from{transform:translateX(0)} to{transform:translateX(-50%)} }
-.strip-item { font-family:'Cormorant Garamond',serif; font-size:.88rem; letter-spacing:3px; color:rgba(250,250,248,.4); display:inline-flex; align-items:center; gap:1rem; flex-shrink:0; font-style:italic; }
-.strip-dot { width:3px;height:3px;background:var(--orange);border-radius:50%; }
-
-/* Full map section */
-.map-embed { border:1px solid var(--border); overflow:hidden; margin-top:2.5rem; }
-.map-embed iframe { display:block; width:100%; height:420px; border:0; filter:grayscale(.2) contrast(1.05); }
-
-/* Brands full grid */
-.brands-full { display:grid; grid-template-columns:repeat(5,1fr); gap:0; border:1px solid var(--border); margin-top:2.5rem; }
-.bf-cell { padding:2.5rem 1.5rem; text-align:center; border-right:1px solid var(--border); transition:background .3s; position:relative; overflow:hidden; }
-.bf-cell:last-child { border-right:none; }
-.bf-cell::after { content:''; position:absolute; bottom:0; left:0; right:0; height:2px; background:linear-gradient(90deg,var(--orange),var(--gold2)); transform:scaleX(0); transform-origin:left; transition:transform .4s; }
-.bf-cell:hover { background:var(--off); }
-.bf-cell:hover::after { transform:scaleX(1); }
-.bf-ico { font-size:2rem; margin-bottom:.8rem; display:block; }
-.bf-nm { font-family:'Cormorant Garamond',serif; font-size:1.4rem; font-weight:600; color:var(--ink); }
-.bf-sm { font-size:.65rem; color:var(--muted); margin-top:.25rem; letter-spacing:1px; }
+.sh strong{font-weight:600}
 
 /* Parts grid */
-.parts-grid { display:grid; grid-template-columns:1fr 1fr; gap:1px; background:var(--border); border:1px solid var(--border); margin-top:2.5rem; }
-.pt { background:var(--white); padding:2.5rem 2.2rem; position:relative; overflow:hidden; transition:background .3s; }
-.pt:hover { background:var(--off); }
-.pt::before { content:attr(data-n); position:absolute; top:1rem; right:1.5rem; font-family:'Cormorant Garamond',serif; font-size:3.5rem; font-weight:300; color:rgba(212,82,26,.06); line-height:1; }
-.pt-ico { font-size:1.6rem; margin-bottom:1rem; display:block; }
-.pt-nm { font-family:'Cormorant Garamond',serif; font-size:1.4rem; font-weight:600; color:var(--ink); margin-bottom:.4rem; }
-.pt-desc { font-size:.8rem; color:var(--muted); line-height:1.85; }
+.pgd{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  border:1px solid var(--line)
+}
+.pc{
+  padding:26px 22px;
+  border-right:1px solid var(--line);border-bottom:1px solid var(--line);
+  transition:background .2s
+}
+.pc:hover{background:var(--white)}
+.pc:nth-child(3n){border-right:none}
+.pc:nth-last-child(-n+3){border-bottom:none}
+.pn{
+  font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:300;
+  color:rgba(24,24,22,.1);margin-bottom:9px
+}
+.pnm{
+  font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:600;
+  letter-spacing:.07em;text-transform:uppercase;color:var(--text);margin-bottom:5px
+}
+.pd{font-size:11px;color:var(--muted);line-height:1.72}
 
-/* Stats dark band */
-.stats-band { background:var(--ink); padding:6rem 5vw; position:relative; overflow:hidden; }
-.stats-band::before { content:'AAM'; position:absolute; left:-2rem; top:50%; transform:translateY(-50%); font-family:'Cormorant Garamond',serif; font-size:22vw; font-weight:300; color:rgba(255,255,255,.025); pointer-events:none; }
-.stats-row { display:grid; grid-template-columns:repeat(4,1fr); gap:0; border:1px solid rgba(255,255,255,.07); max-width:900px; margin:0 auto; }
-.st { padding:3.5rem 2rem; text-align:center; border-right:1px solid rgba(255,255,255,.07); }
-.st:last-child { border-right:none; }
-.st-n { font-family:'Cormorant Garamond',serif; font-size:clamp(2.5rem,4vw,4rem); font-weight:300; color:var(--white); line-height:1; }
-.st-n em { font-style:italic; color:var(--gold2); }
-.st-l { font-size:.6rem; letter-spacing:3px; text-transform:uppercase; color:rgba(255,255,255,.28); margin-top:.6rem; }
+/* Brands */
+.bsec{background:var(--text);padding:56px 38px}
+.bin{max-width:1160px;margin:0 auto}
+.bew{
+  font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:500;
+  letter-spacing:.34em;text-transform:uppercase;color:rgba(255,255,255,.28);
+  margin-bottom:28px;display:flex;align-items:center;gap:11px
+}
+.bew::before{content:'';width:18px;height:1px;background:rgba(255,255,255,.28);flex-shrink:0}
+.brow{
+  display:flex;flex-wrap:wrap;
+  border:1px solid rgba(255,255,255,.07)
+}
+.bi{
+  flex:1;min-width:100px;padding:18px 22px;
+  border-right:1px solid rgba(255,255,255,.07);
+  font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:600;
+  letter-spacing:.12em;text-transform:uppercase;
+  color:rgba(255,255,255,.18);transition:color .25s;text-align:center
+}
+.bi:last-child{border-right:none}
+.bi:hover{color:rgba(255,255,255,.75)}
 
-/* Reviews grid */
-.rev-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--border); border:1px solid var(--border); margin-top:2.5rem; }
-.rv { background:var(--white); padding:2.5rem 2rem; transition:background .3s; }
-.rv:hover { background:var(--off); }
-.rv-q { font-family:'Cormorant Garamond',serif; font-size:3.5rem; color:rgba(212,82,26,.1); line-height:.7; margin-bottom:.8rem; }
-.rv-stars { color:var(--gold); font-size:.7rem; letter-spacing:2px; margin-bottom:.8rem; }
-.rv-txt { font-family:'Cormorant Garamond',serif; font-size:1.05rem; font-weight:300; font-style:italic; color:var(--ink2); line-height:1.85; }
-.rv-who { font-size:.72rem; font-weight:600; color:var(--ink); margin-top:1.2rem; letter-spacing:.5px; }
-.rv-role { font-size:.65rem; color:var(--muted); margin-top:.15rem; letter-spacing:.5px; }
+/* Why */
+.wgd{
+  display:grid;grid-template-columns:repeat(2,1fr);gap:1px;
+  background:var(--line);border:1px solid var(--line)
+}
+.wc{
+  background:var(--bg-light);padding:32px 28px;
+  position:relative;overflow:hidden;transition:background .2s
+}
+.wc:hover{background:var(--white)}
+.wc::after{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:var(--text);transform:scaleX(0);transform-origin:left;
+  transition:transform .4s ease
+}
+.wc:hover::after{transform:scaleX(1)}
+.wnum{
+  font-family:'Cormorant Garamond',serif;font-size:48px;font-weight:300;
+  color:rgba(24,24,22,.05);line-height:1;margin-bottom:9px
+}
+.wt2{
+  font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:600;
+  letter-spacing:.07em;text-transform:uppercase;color:var(--text);margin-bottom:7px
+}
+.wd2{font-size:12px;color:var(--muted);line-height:1.82}
 
-/* Feedback full */
-.fb-grid { display:grid; grid-template-columns:1fr 1.3fr; gap:5rem; margin-top:2.5rem; }
-.fb-side p { font-size:.85rem; color:var(--muted); line-height:1.9; margin-bottom:1.5rem; }
-.g-link { display:inline-flex; align-items:center; gap:.6rem; border:1px solid var(--border); background:var(--white); padding:.8rem 1.4rem; font-size:.7rem; font-weight:500; letter-spacing:2px; text-transform:uppercase; color:var(--ink); text-decoration:none; transition:border-color .2s,color .2s; }
-.g-link:hover { border-color:var(--orange); color:var(--orange); }
-.fb-form-full { display:flex; flex-direction:column; gap:.8rem; }
-.fb-fl { font-size:.6rem; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:var(--muted); margin-bottom:.2rem; display:block; }
+/* Contact */
+.cgd{
+  display:grid;grid-template-columns:1fr 1fr;gap:1px;
+  background:var(--line);border:1px solid var(--line)
+}
+.cb{background:var(--bg-light);padding:32px}
+.clb{
+  font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:500;
+  letter-spacing:.28em;text-transform:uppercase;color:var(--muted);margin-bottom:7px
+}
+.cv{font-size:15px;color:var(--text);font-weight:300;line-height:1.65}
 
-/* Contact grid */
-.ct-grid { display:grid; grid-template-columns:1fr 1.6fr; gap:4rem; margin-top:2.5rem; align-items:start; }
-.ct-block { display:flex; flex-direction:column; gap:2rem; }
-.ct-item { display:flex; gap:1rem; align-items:flex-start; }
-.ct-ico { width:38px;height:38px;min-width:38px; background:var(--off); border:1px solid var(--border); display:flex;align-items:center;justify-content:center; font-size:.95rem; }
-.ct-lbl { font-size:.58rem; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:var(--orange); margin-bottom:.3rem; }
-.ct-val { font-size:.85rem; color:var(--ink2); line-height:1.75; }
-.ct-val a { color:var(--ink2); text-decoration:none; }
-.ct-val a:hover { color:var(--orange); }
+/* Reviews */
+.rvgd{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:1px;
+  background:var(--line);border:1px solid var(--line);margin-top:44px
+}
+.rv{background:var(--bg-light);padding:26px;transition:background .2s}
+.rv:hover{background:var(--white)}
+.rs{letter-spacing:2px;color:var(--gold);font-size:11px;margin-bottom:9px}
+.rt{font-size:12px;color:var(--muted);line-height:1.78;font-style:italic;margin-bottom:13px}
+.ra{
+  font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:600;
+  letter-spacing:.07em;text-transform:uppercase;color:var(--text)
+}
+.rsub2{font-size:10px;color:var(--muted)}
 
 /* Footer */
-footer { background:var(--ink); padding:4rem 5vw 2rem; }
-.ft-row { display:grid; grid-template-columns:1.4fr 1fr 1fr; gap:4rem; padding-bottom:3rem; border-bottom:1px solid rgba(255,255,255,.06); }
-.ft-brand { font-family:'Cormorant Garamond',serif; font-size:1.7rem; font-weight:300; color:var(--white); }
-.ft-brand em { font-style:italic; color:var(--gold2); }
-.ft-desc { font-size:.78rem; color:rgba(255,255,255,.28); line-height:1.9; margin-top:.4rem; max-width:260px; }
-.ft-col h4 { font-size:.58rem; letter-spacing:4px; text-transform:uppercase; color:var(--orange); margin-bottom:1rem; }
-.ft-col ul { list-style:none; display:flex; flex-direction:column; gap:.6rem; }
-.ft-col ul a { font-size:.78rem; color:rgba(255,255,255,.3); text-decoration:none; transition:color .2s; }
-.ft-col ul a:hover { color:var(--white); }
-.ft-bot { display:flex; justify-content:space-between; padding-top:1.5rem; font-size:.62rem; letter-spacing:1.5px; color:rgba(255,255,255,.18); flex-wrap:wrap; gap:.5rem; }
+footer{
+  border-top:1px solid var(--line);padding:36px 38px;
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px
+}
+.flo{
+  font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:600;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--text)
+}
+.fcp{font-size:10px;color:var(--muted)}
 
-/* Floating WA */
-.fwa { position:fixed; bottom:2rem; right:2rem; z-index:300; width:54px; height:54px; background:#25D366; border-radius:50%; display:flex;align-items:center;justify-content:center; font-size:1.5rem; text-decoration:none; box-shadow:0 4px 20px rgba(37,211,102,.35); animation:waPulse 2.5s infinite; }
-@keyframes waPulse { 0%,100%{box-shadow:0 4px 20px rgba(37,211,102,.35)} 50%{box-shadow:0 4px 30px rgba(37,211,102,.6)} }
+/* Reveal animation */
+.rv2{opacity:0;transform:translateY(22px);transition:opacity .8s ease,transform .8s ease}
+.rv2.on{opacity:1;transform:translateY(0)}
 
-/* Scroll reveal */
-.r { opacity:0; transform:translateY(40px); transition:opacity .9s ease,transform .9s ease; }
-.r.on { opacity:1; transform:translateY(0); }
-.rl { opacity:0; transform:translateX(-40px); transition:opacity .9s ease,transform .9s ease; }
-.rl.on { opacity:1; transform:translateX(0); }
-.rr { opacity:0; transform:translateX(40px); transition:opacity .9s ease,transform .9s ease; }
-.rr.on { opacity:1; transform:translateX(0); }
+/* Modal */
+#modal{
+  position:fixed;inset:0;z-index:800;
+  background:rgba(210,208,204,.8);
+  backdrop-filter:blur(22px) saturate(140%);
+  -webkit-backdrop-filter:blur(22px) saturate(140%);
+  display:none;align-items:center;justify-content:center;padding:20px
+}
+#modal.open{display:flex}
+.mbox{
+  background:var(--white);border:1px solid var(--line);
+  padding:38px;max-width:460px;width:100%;position:relative;
+  max-height:90vh;overflow-y:auto
+}
+.mcl{
+  position:absolute;top:14px;right:14px;width:27px;height:27px;
+  border:1px solid var(--line);background:transparent;cursor:pointer;
+  font-size:12px;color:var(--muted);
+  display:flex;align-items:center;justify-content:center;transition:all .2s
+}
+.mcl:hover{background:var(--text);color:var(--white);border-color:var(--text)}
+.mh2{
+  font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:300;
+  color:var(--text);margin-bottom:4px
+}
+.ms2{font-size:11px;color:var(--muted);margin-bottom:26px}
+.ff{margin-bottom:13px}
+.ff label{
+  display:block;font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:500;
+  letter-spacing:.24em;text-transform:uppercase;color:var(--muted);margin-bottom:4px
+}
+.ff input,.ff textarea{
+  width:100%;padding:9px 11px;
+  background:var(--bg);border:1px solid var(--line);border-radius:0;
+  font-size:12px;color:var(--text);outline:none;
+  font-family:'Barlow',sans-serif;transition:border-color .2s
+}
+.ff input:focus,.ff textarea:focus{border-color:rgba(24,24,22,.35)}
+.ff textarea{min-height:78px;resize:vertical}
+.sr3{display:flex;gap:4px}
+.sr3 span{font-size:21px;cursor:pointer;color:rgba(24,24,22,.12);transition:all .15s;user-select:none}
+.sr3 span.lit,.sr3 span:hover{color:var(--gold)}
+.msb{
+  width:100%;padding:11px;border:1px solid var(--text);background:var(--text);color:var(--white);
+  font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:500;
+  letter-spacing:.22em;text-transform:uppercase;cursor:pointer;margin-top:3px;transition:all .25s
+}
+.msb:hover{background:transparent;color:var(--text)}
+.mok2{
+  display:none;margin-top:11px;padding:11px;text-align:center;
+  font-size:11px;color:#2a7a2a;background:rgba(42,122,42,.05);
+  border:1px solid rgba(42,122,42,.12);
+  font-family:'Barlow Condensed',sans-serif;letter-spacing:.1em
+}
 
-/* ═══ MOBILE ═══ */
-@media(max-width:900px){
-  .nav-links { display:none; position:absolute; top:100%; left:0; right:0; flex-direction:column; gap:0; background:rgba(250,248,242,.97); backdrop-filter:blur(20px); border-bottom:1px solid var(--border); }
-  .nav-links.open { display:flex; }
-  .nav-links li a { display:block; padding:.9rem 5vw; border-bottom:1px solid var(--border); font-size:.75rem; color:var(--muted) !important; }
-  .hamburger { display:flex; }
-  .brands-full { grid-template-columns:repeat(3,1fr); }
-  .bf-cell:nth-child(3) { border-right:none; }
-  .parts-grid, .stats-row, .rev-grid { grid-template-columns:1fr; }
-  .st { border-right:none; border-bottom:1px solid rgba(255,255,255,.07); }
-  .fb-grid, .ct-grid, .ft-row { grid-template-columns:1fr; gap:2.5rem; }
-  .sec { padding:5rem 5vw; }
-  #scroll-spacer { height: 500vh; }
-  .content-panel.left { left: 3vw; max-width: 88vw; }
-  .content-panel.right { right: 3vw; max-width: 88vw; }
-  .content-panel.center { max-width: 92vw; }
-  .panel-card { padding: 1.8rem 1.6rem; }
-  #truck-wrap { left: 10%; }
-  .mini-parts { grid-template-columns: 1fr; }
-  .mini-stats { grid-template-columns: repeat(3,1fr); }
+@media(max-width:768px){
+  .hero-in{grid-template-columns:1fr;gap:36px}
+  .pgd{grid-template-columns:1fr 1fr}
+  .wgd{grid-template-columns:1fr}
+  .cgd{grid-template-columns:1fr}
+  .rvgd{grid-template-columns:1fr}
+  #nav .nlks{display:none}
+  #nav{padding:0 18px}
+  .sec{padding:56px 18px}
+  .bsec{padding:36px 18px}
+  #tbar{padding:18px 20px}
+  #s2,#s3{display:none}
 }
 </style>
 </head>
 <body>
 
-<!-- PRELOADER -->
-<div id="preloader">
-  <div class="pre-truck-anim">🚛</div>
-  <div class="pre-logo">Abhinandan <em>Auto</em> Mobiles</div>
-  <div class="pre-bar-wrap"><div class="pre-bar" id="preBar"></div></div>
-  <div class="pre-tagline">Genuine Spare Parts · Santalpur, Gujarat</div>
+<!-- CANVAS -->
+<canvas id="c"></canvas>
+
+<!-- ATMOSPHERE -->
+<div id="grain"></div>
+<div id="vig"></div>
+<div id="mist-top"></div>
+<div id="mist-bot"></div>
+<div id="glassblur"></div>
+
+<!-- CURSOR -->
+<div id="cur"></div>
+<div id="cur2"></div>
+
+<!-- ═══ INTRO ═══ -->
+<div id="intro">
+  <div class="il">A</div>
+  <div class="iname">Abhinandan Auto Mobiles</div>
+  <div class="isub">Genuine Spare Parts &middot; Santalpur, Patan</div>
+  <button id="ibtn" onclick="startCine()"><span>&#9654;&ensp;Begin Experience</span></button>
 </div>
 
-<!-- SCROLL PROGRESS -->
-<div id="scroll-prog"></div>
+<!-- ═══ CINEMATIC HUD ═══ -->
+<div id="hud">
 
-<!-- FLOATING WHATSAPP -->
-<a class="fwa" href="https://wa.me/919870037002?text=Hello%20Abhinandan%20Auto%20Mobiles%2C%20I%20need%20genuine%20spare%20parts." target="_blank" title="WhatsApp">💬</a>
-
-<!-- ═══ NAV ═══ -->
-<nav id="nav">
-  <a href="#" class="nav-logo" onclick="scrollToTop()">Abhinandan <em>Auto</em> Mobiles</a>
-  <ul class="nav-links" id="navLinks">
-    <li><a onclick="scrollToSection('brands-sec')">Brands</a></li>
-    <li><a onclick="scrollToSection('parts-sec')">Parts</a></li>
-    <li><a onclick="scrollToSection('stats-sec')">About</a></li>
-    <li><a onclick="scrollToSection('rev-sec')">Reviews</a></li>
-    <li><a onclick="scrollToSection('fb-sec')">Feedback</a></li>
-    <li><a onclick="scrollToSection('ct-sec')">Contact</a></li>
-    <li><a href="https://wa.me/919870037002" class="nav-wa" target="_blank">WhatsApp</a></li>
-  </ul>
-  <div class="hamburger" id="ham" onclick="document.getElementById('navLinks').classList.toggle('open')">
-    <span></span><span></span><span></span>
-  </div>
-</nav>
-
-<!-- ═══ FIXED GAME STAGE ═══ -->
-<div id="stage">
-  <!-- Sky gradient -->
-  <div id="sky"></div>
-
-  <!-- Celestial body (sun/moon) -->
-  <div id="celestial"></div>
-
-  <!-- Clouds canvas -->
-  <canvas id="cloudCanvas" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2"></canvas>
-
-  <!-- Parallax BG layers (drawn on canvases) -->
-  <canvas id="bgFarCanvas" style="position:absolute;bottom:28%;left:0;width:100%;height:45%;pointer-events:none;z-index:3"></canvas>
-  <canvas id="bgMidCanvas" style="position:absolute;bottom:26%;left:0;width:100%;height:38%;pointer-events:none;z-index:4"></canvas>
-  <canvas id="bgNearCanvas" style="position:absolute;bottom:24%;left:0;width:100%;height:30%;pointer-events:none;z-index:5"></canvas>
-
-  <!-- Road canvas -->
-  <canvas id="roadCanvas" style="position:absolute;bottom:0;left:0;width:100%;height:32%;pointer-events:none;z-index:6"></canvas>
-
-  <!-- Zone label -->
-  <div id="zone-label">Zone 1 — City · Santalpur</div>
-
-  <!-- Milestone markers -->
-  <div class="milestone" id="m1" style="left:25%"><span class="milestone-label">Products</span></div>
-  <div class="milestone" id="m2" style="left:50%"><span class="milestone-label">Highway</span></div>
-  <div class="milestone" id="m3" style="left:75%"><span class="milestone-label">Mountains</span></div>
-
-  <!-- TRUCK -->
-  <div id="truck-wrap">
-    <svg id="truck-svg" width="220" height="90" viewBox="0 0 220 90" xmlns="http://www.w3.org/2000/svg">
-      <!-- Trailer body -->
-      <rect x="2" y="22" width="140" height="52" rx="3" fill="#D4521A"/>
-      <rect x="2" y="22" width="140" height="8" rx="2" fill="#B83E0E"/>
-      <!-- Trailer detail lines -->
-      <line x1="40" y1="22" x2="40" y2="74" stroke="rgba(0,0,0,.15)" stroke-width="1"/>
-      <line x1="80" y1="22" x2="80" y2="74" stroke="rgba(0,0,0,.15)" stroke-width="1"/>
-      <line x1="120" y1="22" x2="120" y2="74" stroke="rgba(0,0,0,.15)" stroke-width="1"/>
-      <!-- Trailer text -->
-      <text x="71" y="53" font-family="Arial" font-size="8" font-weight="bold" fill="rgba(255,255,255,.5)" text-anchor="middle" letter-spacing="2">ABHINANDAN</text>
-      <!-- Cab body -->
-      <rect x="142" y="30" width="70" height="44" rx="4" fill="#E8622A"/>
-      <!-- Cab roof/windshield slope -->
-      <path d="M142,30 L165,14 L208,14 L212,30 Z" fill="#C94B1A"/>
-      <!-- Windshield -->
-      <path d="M148,29 L167,16 L204,16 L207,29 Z" fill="#B8D9F0" opacity=".85"/>
-      <!-- Windshield glare -->
-      <path d="M154,20 L162,17 L165,27 L157,28 Z" fill="white" opacity=".25"/>
-      <!-- Cab door line -->
-      <line x1="173" y1="30" x2="173" y2="74" stroke="rgba(0,0,0,.1)" stroke-width="1.5"/>
-      <!-- Side mirror -->
-      <rect x="208" y="22" width="8" height="6" rx="1" fill="#C94B1A"/>
-      <!-- Headlight -->
-      <rect x="210" y="38" width="8" height="10" rx="2" fill="#FFEE88"/>
-      <rect x="210" y="38" width="8" height="10" rx="2" fill="url(#hlight)" opacity=".7"/>
-      <!-- Front bumper -->
-      <rect x="209" y="56" width="10" height="8" rx="2" fill="#B83E0E"/>
-      <!-- Exhaust stack -->
-      <rect x="198" y="4" width="5" height="16" rx="2" fill="#8B4513"/>
-      <!-- Exhaust smoke dots -->
-      <circle id="smoke1" cx="200" cy="2" r="3" fill="rgba(200,200,200,.4)"/>
-      <circle id="smoke2" cx="203" cy="-2" r="2" fill="rgba(200,200,200,.25)"/>
-      <!-- Chassis/underbody -->
-      <rect x="10" y="74" width="200" height="6" rx="1" fill="#8B4513"/>
-      <!-- Wheels -->
-      <circle cx="38" cy="80" r="12" fill="#2A2A2A"/>
-      <circle cx="38" cy="80" r="8" fill="#444"/>
-      <circle cx="38" cy="80" r="4" fill="#888"/>
-      <circle cx="38" cy="80" r="1.5" fill="#CCC"/>
-      <circle cx="80" cy="80" r="12" fill="#2A2A2A"/>
-      <circle cx="80" cy="80" r="8" fill="#444"/>
-      <circle cx="80" cy="80" r="4" fill="#888"/>
-      <circle cx="80" cy="80" r="1.5" fill="#CCC"/>
-      <circle cx="175" cy="80" r="12" fill="#2A2A2A"/>
-      <circle cx="175" cy="80" r="8" fill="#444"/>
-      <circle cx="175" cy="80" r="4" fill="#888"/>
-      <circle cx="175" cy="80" r="1.5" fill="#CCC"/>
-      <!-- Wheel shine arcs -->
-      <path d="M30,73 A8,8 0 0,1 43,76" stroke="rgba(255,255,255,.2)" stroke-width="1.5" fill="none"/>
-      <path d="M72,73 A8,8 0 0,1 85,76" stroke="rgba(255,255,255,.2)" stroke-width="1.5" fill="none"/>
-      <path d="M167,73 A8,8 0 0,1 180,76" stroke="rgba(255,255,255,.2)" stroke-width="1.5" fill="none"/>
-      <!-- TATA Logo area on cab door -->
-      <rect x="145" y="45" width="22" height="10" rx="1" fill="rgba(0,0,0,.1)"/>
-      <text x="156" y="53" font-family="Arial" font-size="6" font-weight="bold" fill="white" text-anchor="middle" letter-spacing="1">TATA</text>
-      <defs>
-        <radialGradient id="hlight" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stop-color="#FFFF99"/>
-          <stop offset="100%" stop-color="transparent"/>
-        </radialGradient>
-      </defs>
-    </svg>
+  <div id="tbar">
+    <div class="tbl"><span class="tdot"></span>ABHINANDAN AUTO MOBILES</div>
+    <div class="tbr" id="slbl">SCENE 01 / 05</div>
   </div>
 
-</div><!-- end #stage -->
+  <div id="srhint"><span>SCROLL</span><div class="sra"></div></div>
 
-<!-- ═══ SCROLL SPACER (drives the animation) ═══ -->
-<div id="scroll-spacer"></div>
-
-<!-- ═══ HERO TITLE OVERLAY ═══ -->
-<div id="hero-overlay">
-  <div class="hero-title-main" id="heroTitle">
-    <em>Abhinandan</em><br>
-    <strong>Auto Mobiles</strong>
+  <!-- S1: Mountain hero — full flex center -->
+  <div class="ct" id="s1">
+    <div class="bigword">Genuine<br><em>Spare Parts</em></div>
+    <div class="sep"></div>
+    <div class="tagline">Santalpur &nbsp;&middot;&nbsp; Patan &nbsp;&middot;&nbsp; Gujarat &nbsp;&middot;&nbsp; Est. 2009</div>
   </div>
-  <div class="hero-sub-main" id="heroSub">TATA · TVS · GAJRA · TELCO · CASTROL · Genuine Spare Parts · Santalpur</div>
-  <div class="hero-scroll-hint">
-    <div class="scroll-wheel-wrap"><div class="scroll-wheel-dot"></div></div>
-    <span>Scroll to Drive</span>
+
+  <!-- S2: Truck driving -->
+  <div class="ct" id="s2">
+    <div class="seb">Running Gear</div>
+    <h2>Built for<br><strong>Every Road</strong></h2>
+    <p>Tata SIGNA &nbsp;&middot;&nbsp; Ashok Leyland<br>JCB &nbsp;&middot;&nbsp; Tractors &nbsp;&middot;&nbsp; All HCVs</p>
   </div>
-</div>
 
-<!-- ═══ CONTENT OVERLAY (game panels) ═══ -->
-<div id="content-overlay">
+  <!-- S3: 360 orbit -->
+  <div class="ct" id="s3">
+    <div class="orbl">360&deg; View</div>
+    <h2>The Machine<br>in Detail</h2>
+  </div>
 
-  <!-- ZONE 1: City — Who We Are (left panel) -->
-  <div class="content-panel left" id="panel-intro">
-    <div class="panel-card">
-      <span class="panel-tag">📍 Santalpur, Gujarat · Zone 1</span>
-      <h2 class="panel-h">Abhinandan<br><em>Auto Mobiles</em></h2>
-      <div class="panel-rule"></div>
-      <p class="panel-p">Your trusted destination for all genuine spare parts on the Kandla National Highway. We serve truck operators, fleet owners and vehicle mechanics across Patan district and beyond.</p>
-      <div class="brand-chips" style="margin-top:1rem">
-        <span class="chip">TATA</span>
-        <span class="chip">TVS</span>
-        <span class="chip">GAJRA</span>
-        <span class="chip">TELCO</span>
-        <span class="chip">CASTROL</span>
-      </div>
+  <!-- S4: Parts explosion -->
+  <div class="ct" id="s4">
+    <div class="pt">Every <span>Component.</span><br>Every Machine.</div>
+    <div class="ptsub">Bearings &nbsp;&middot;&nbsp; Springs &nbsp;&middot;&nbsp; Universals &nbsp;&middot;&nbsp; Clutch &nbsp;&middot;&nbsp; Hubs</div>
+  </div>
+
+  <!-- Annotation lines (only show in s4) -->
+  <div class="ann" id="a1" style="top:38%;left:54%"><div class="aln"></div><div class="atx">Hub Bearing</div></div>
+  <div class="ann r" id="a2" style="top:52%;right:55%"><div class="aln"></div><div class="atx">Leaf Spring</div></div>
+  <div class="ann" id="a3" style="bottom:30%;left:56%"><div class="aln"></div><div class="atx">Universal Joint</div></div>
+  <div class="ann r" id="a4" style="bottom:38%;right:57%"><div class="aln"></div><div class="atx">Clutch Disc</div></div>
+
+  <!-- S5: Enter CTA -->
+  <div class="ct" id="s5">
+    <h2>15 Years of<br><em>Genuine Trust</em></h2>
+    <div class="ctaw">
+      <button class="ba" onclick="enterSite()">Enter Our World</button>
+      <a href="https://wa.me/919870037002" target="_blank" class="bb">&#128222;&ensp;WhatsApp</a>
     </div>
   </div>
 
-  <!-- ZONE 2: Industrial — What We Stock (right panel) -->
-  <div class="content-panel right" id="panel-parts">
-    <div class="panel-card">
-      <span class="panel-tag">🏭 Industrial Zone · Zone 2</span>
-      <h2 class="panel-h">What We <em>Stock</em></h2>
-      <div class="panel-rule"></div>
-      <div class="mini-parts">
-        <div class="mini-part">🔩 Engine Components</div>
-        <div class="mini-part">🛞 Clutch & Brakes</div>
-        <div class="mini-part">⚡ Electrical Parts</div>
-        <div class="mini-part">🛢️ Oils & Lubricants</div>
-        <div class="mini-part">🔧 Suspension & Axles</div>
-        <div class="mini-part">📦 Body & Accessories</div>
-      </div>
-    </div>
-  </div>
+  <button id="skip" onclick="enterSite()">Skip Intro</button>
+  <div id="pg"></div>
 
-  <!-- ZONE 3: Highway — Stats & Why Us (left panel) -->
-  <div class="content-panel left" id="panel-stats">
-    <div class="panel-card">
-      <span class="panel-tag">🛣️ Open Highway · Zone 3</span>
-      <h2 class="panel-h">Trusted For <em>Years</em></h2>
-      <div class="panel-rule"></div>
-      <div class="mini-stats">
-        <div class="mini-stat">
-          <div class="mini-stat-n"><em id="cnt1">0</em>+</div>
-          <div class="mini-stat-l">Customers</div>
-        </div>
-        <div class="mini-stat">
-          <div class="mini-stat-n"><em id="cnt2">0</em>+</div>
-          <div class="mini-stat-l">Brands</div>
-        </div>
-        <div class="mini-stat">
-          <div class="mini-stat-n"><em id="cnt3">0</em>+</div>
-          <div class="mini-stat-l">Parts</div>
-        </div>
-      </div>
-      <p class="panel-p" style="margin-top:1rem;font-size:.78rem">100% genuine parts · Authorized dealer · Highway location — right on NH-947</p>
-    </div>
-  </div>
+</div><!-- /hud -->
 
-  <!-- ZONE 4: Mountains — Brands & Contact (right panel) -->
-  <div class="content-panel right" id="panel-contact">
-    <div class="panel-card">
-      <span class="panel-tag">⛰️ Mountain Pass · Zone 4</span>
-      <h2 class="panel-h">Find <em>&amp; Contact</em></h2>
-      <div class="panel-rule"></div>
-      <div class="c-items">
-        <div class="c-item">
-          <span class="c-ico">📍</span>
-          <div class="c-inf">Nr. Referral Hospital, Kandla National Highway Road,<br>Santalpur, Dist. Patan – 385350</div>
-        </div>
-        <div class="c-item">
-          <span class="c-ico">📞</span>
-          <div class="c-inf"><a href="tel:+919825259065">9825259065</a> &nbsp;|&nbsp; <a href="tel:+919870037002">9870037002</a></div>
-        </div>
-      </div>
-      <div class="cta-row">
-        <a class="wa-btn" href="https://wa.me/919870037002?text=Hello%20Abhinandan%20Auto%20Mobiles%2C%20I%20need%20genuine%20spare%20parts." target="_blank">💬 Chat on WhatsApp</a>
-        <a class="map-btn" href="https://www.google.com/maps/place/Abhinandan/@23.7611009,71.1681038,17z" target="_blank">🗺️ Get Directions</a>
-      </div>
-    </div>
-  </div>
+<!-- ═══ MAIN SITE ═══ -->
+<div id="site">
 
-  <!-- ZONE 4b: Reviews (left panel, slightly delayed) -->
-  <div class="content-panel left" id="panel-reviews" style="top:55%">
-    <div class="panel-card">
-      <span class="panel-tag">⭐ Customer Reviews</span>
-      <div class="mini-revs">
-        <div class="mini-rev">
-          <div class="mini-rev-stars">★★★★★</div>
-          <div class="mini-rev-txt">"Best spare parts shop on the Kandla highway. Always genuine stock."</div>
-          <div class="mini-rev-who">Ramesh Patel · Transport Owner, Patan</div>
-        </div>
-        <div class="mini-rev">
-          <div class="mini-rev-stars">★★★★★</div>
-          <div class="mini-rev-txt">"Got my TELCO parts in minutes. Very fast service."</div>
-          <div class="mini-rev-who">Suresh Bhai · Fleet Operator, Santalpur</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-</div><!-- end #content-overlay -->
-
-<!-- ═══════════════════════════════════════════
-     FULL SITE BELOW SCROLL SPACER
-═══════════════════════════════════════════ -->
-<div id="full-site">
-
-  <!-- STRIP -->
-  <div class="strip">
-    <div class="strip-track">
-      <span class="strip-item">Quality Parts<span class="strip-dot"></span></span>
-      <span class="strip-item">Trusted Service<span class="strip-dot"></span></span>
-      <span class="strip-item">TATA · TVS · GAJRA<span class="strip-dot"></span></span>
-      <span class="strip-item">TELCO · CASTROL<span class="strip-dot"></span></span>
-      <span class="strip-item">Santalpur · NH-947<span class="strip-dot"></span></span>
-      <span class="strip-item">Stronger Together<span class="strip-dot"></span></span>
-      <span class="strip-item">Quality Parts<span class="strip-dot"></span></span>
-      <span class="strip-item">Trusted Service<span class="strip-dot"></span></span>
-      <span class="strip-item">TATA · TVS · GAJRA<span class="strip-dot"></span></span>
-      <span class="strip-item">TELCO · CASTROL<span class="strip-dot"></span></span>
-      <span class="strip-item">Santalpur · NH-947<span class="strip-dot"></span></span>
-      <span class="strip-item">Stronger Together<span class="strip-dot"></span></span>
-    </div>
-  </div>
-
-  <!-- BRANDS SECTION -->
-  <section class="sec" id="brands-sec" style="background:var(--off)">
-    <div class="sec-inner">
-      <span class="sec-tag r">Authorized Partners</span>
-      <h2 class="sec-h r">Brands We <em>Deal In</em></h2>
-      <div class="rule r"></div>
-      <p class="sec-p r">Certified, genuine parts from India's most trusted automotive brands — all under one roof.</p>
-      <div class="brands-full r" style="transition-delay:.1s">
-        <div class="bf-cell"><span class="bf-ico">🔵</span><div class="bf-nm">TATA</div><div class="bf-sm">Trucks & LCV Parts</div></div>
-        <div class="bf-cell"><span class="bf-ico">🟠</span><div class="bf-nm">TVS</div><div class="bf-sm">Two-Wheeler Parts</div></div>
-        <div class="bf-cell"><span class="bf-ico">⚙️</span><div class="bf-nm">GAJRA</div><div class="bf-sm">Clutch & Bearings</div></div>
-        <div class="bf-cell"><span class="bf-ico">🔧</span><div class="bf-nm">TELCO</div><div class="bf-sm">Tata Engineering</div></div>
-        <div class="bf-cell"><span class="bf-ico">🟡</span><div class="bf-nm">CASTROL</div><div class="bf-sm">Oils & Lubricants</div></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- PARTS SECTION -->
-  <section class="sec" id="parts-sec">
-    <div class="sec-inner">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:end;margin-bottom:2.5rem">
-        <div>
-          <span class="sec-tag rl">What We Stock</span>
-          <h2 class="sec-h rl">Genuine<br><em>Spare Parts</em></h2>
-          <div class="rule rl"></div>
-        </div>
-        <p class="sec-p rr" style="align-self:end">Every component sourced directly from certified manufacturers. Walk in and walk out with the right part — every time.</p>
-      </div>
-      <div class="parts-grid">
-        <div class="pt r" data-n="01" style="transition-delay:.05s"><span class="pt-ico">🔩</span><div class="pt-nm">Engine Components</div><div class="pt-desc">Pistons, rings, gaskets, cylinder heads and all internal engine parts for heavy trucks.</div></div>
-        <div class="pt r" data-n="02" style="transition-delay:.1s"><span class="pt-ico">🛞</span><div class="pt-nm">Clutch & Brakes</div><div class="pt-desc">GAJRA clutch plates, pressure plates, brake pads and full braking systems for all TATA models.</div></div>
-        <div class="pt r" data-n="03" style="transition-delay:.15s"><span class="pt-ico">⚡</span><div class="pt-nm">Electrical Parts</div><div class="pt-desc">Alternators, starters, switches, relays and wiring harnesses. TVS & TATA certified.</div></div>
-        <div class="pt r" data-n="04" style="transition-delay:.2s"><span class="pt-ico">🛢️</span><div class="pt-nm">Lubricants & Oils</div><div class="pt-desc">Full Castrol range — engine oils, gear oils, brake fluids and industrial lubricants.</div></div>
-        <div class="pt r" data-n="05" style="transition-delay:.25s"><span class="pt-ico">🔧</span><div class="pt-nm">Suspension & Axles</div><div class="pt-desc">Leaf springs, shock absorbers, universal cross joints, U-bolts and axle assemblies.</div></div>
-        <div class="pt r" data-n="06" style="transition-delay:.3s"><span class="pt-ico">📦</span><div class="pt-nm">Body & Accessories</div><div class="pt-desc">Mirrors, headlights, body panels, door locks and accessories for TATA commercial vehicles.</div></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- STATS -->
-  <div class="stats-band" id="stats-sec">
-    <div class="stats-row">
-      <div class="st r"><div class="st-n"><em id="s1">0</em>+</div><div class="st-l">Happy Customers</div></div>
-      <div class="st r" style="transition-delay:.08s"><div class="st-n"><em id="s2">0</em>+</div><div class="st-l">Trusted Brands</div></div>
-      <div class="st r" style="transition-delay:.16s"><div class="st-n"><em id="s3">0</em>+</div><div class="st-l">Parts in Stock</div></div>
-      <div class="st r" style="transition-delay:.24s"><div class="st-n">24<em>/7</em></div><div class="st-l">WhatsApp Support</div></div>
-    </div>
-  </div>
-
-  <!-- REVIEWS -->
-  <section class="sec" id="rev-sec">
-    <div class="sec-inner">
-      <span class="sec-tag r">Customer Reviews</span>
-      <h2 class="sec-h r">What They <em>Say</em></h2>
-      <div class="rule r"></div>
-      <div class="rev-grid" id="revGrid">
-        <div class="rv r" style="transition-delay:.05s">
-          <div class="rv-q">"</div>
-          <div class="rv-stars">★★★★★</div>
-          <div class="rv-txt">Genuine parts, great pricing, and the owner is very knowledgeable. I always come here for my TATA truck spare parts.</div>
-          <div class="rv-who">Ramesh Patel</div><div class="rv-role">Transport Owner, Patan</div>
-        </div>
-        <div class="rv r" style="transition-delay:.12s">
-          <div class="rv-q">"</div>
-          <div class="rv-stars">★★★★★</div>
-          <div class="rv-txt">Best spare parts shop on the Kandla highway. Got my TELCO parts within minutes. Very fast service.</div>
-          <div class="rv-who">Suresh Bhai</div><div class="rv-role">Fleet Operator, Santalpur</div>
-        </div>
-        <div class="rv r" style="transition-delay:.19s">
-          <div class="rv-q">"</div>
-          <div class="rv-stars">★★★★★</div>
-          <div class="rv-txt">Castrol oil always available here at the right price. My go-to shop. Highly recommend to all truck drivers.</div>
-          <div class="rv-who">Dinesh Khant</div><div class="rv-role">Truck Driver, Radhanpur</div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- FEEDBACK -->
-  <section class="sec" id="fb-sec" style="background:var(--off)">
-    <div class="sec-inner">
-      <span class="sec-tag r">Share Your Experience</span>
-      <h2 class="sec-h r">Leave <em>Feedback</em></h2>
-      <div class="rule r"></div>
-      <div class="fb-grid">
-        <div class="rl">
-          <p>Your review helps other customers on the highway find reliable genuine parts. After submitting here, please also leave a Google review — it truly helps us grow.</p>
-          <a href="https://www.google.com/maps/place/Abhinandan/@23.7611009,71.1681038,17z" target="_blank" class="g-link">⭐ Write a Google Review</a>
-        </div>
-        <form id="fullFbForm" onsubmit="handleFullFeedback(event)" class="fb-form-full rr">
-          <div>
-            <label class="fb-fl">Your Name *</label>
-            <input class="fi" id="ffn" type="text" placeholder="Ramesh Patel" required>
-          </div>
-          <div>
-            <label class="fb-fl">Mobile Number</label>
-            <input class="fi" id="ffp" type="tel" placeholder="98XXXXXXXX">
-          </div>
-          <div>
-            <label class="fb-fl">Service Type</label>
-            <select class="fi" id="ffs">
-              <option value="">Select type</option>
-              <option>Engine Parts</option>
-              <option>Clutch & Brake Parts</option>
-              <option>Electrical Parts</option>
-              <option>Lubricants & Oils</option>
-              <option>Suspension Parts</option>
-              <option>Other</option>
-            </select>
-          </div>
-          <div>
-            <label class="fb-fl">Rating *</label>
-            <div class="star-pick">
-              <input type="radio" name="ffrt" id="fr5" value="5"><label for="fr5">★</label>
-              <input type="radio" name="ffrt" id="fr4" value="4"><label for="fr4">★</label>
-              <input type="radio" name="ffrt" id="fr3" value="3"><label for="fr3">★</label>
-              <input type="radio" name="ffrt" id="fr2" value="2"><label for="fr2">★</label>
-              <input type="radio" name="ffrt" id="fr1" value="1"><label for="fr1">★</label>
-            </div>
-          </div>
-          <div>
-            <label class="fb-fl">Your Review *</label>
-            <textarea class="fi" id="ffrev" placeholder="Tell us about your experience…" required></textarea>
-          </div>
-          <button type="submit" class="submit-btn">Submit Feedback</button>
-          <div class="ok-msg" id="fullOkMsg">✅ Thank you! Please also leave a Google review using the link on the left.</div>
-          <a class="g-review-link" href="https://www.google.com/maps/place/Abhinandan/@23.7611009,71.1681038,17z" target="_blank">⭐ Also Leave a Google Review →</a>
-        </form>
-      </div>
-    </div>
-  </section>
-
-  <!-- CONTACT -->
-  <section class="sec" id="ct-sec">
-    <div class="sec-inner">
-      <span class="sec-tag r">Get In Touch</span>
-      <h2 class="sec-h r">Find &amp; <em>Contact Us</em></h2>
-      <div class="rule r"></div>
-      <div class="ct-grid">
-        <div class="ct-block rl">
-          <div class="ct-item">
-            <div class="ct-ico">📍</div>
-            <div><div class="ct-lbl">Address</div>
-            <div class="ct-val">Nr. Referral Hospital,<br>Kandla National Highway Road,<br>Santalpur, Dist. Patan – 385350, Gujarat</div></div>
-          </div>
-          <div class="ct-item">
-            <div class="ct-ico">📞</div>
-            <div><div class="ct-lbl">Phone</div>
-            <div class="ct-val"><a href="tel:+919825259065">9825259065</a><br><a href="tel:+919870037002">9870037002</a></div></div>
-          </div>
-          <div class="ct-item">
-            <div class="ct-ico">🕒</div>
-            <div><div class="ct-lbl">Hours</div>
-            <div class="ct-val">Mon–Sat: 8:00 AM – 8:00 PM<br>Sunday: 9:00 AM – 2:00 PM</div></div>
-          </div>
-          <a class="wa-btn" href="https://wa.me/919870037002?text=Hello%20Abhinandan%20Auto%20Mobiles%2C%20I%20need%20genuine%20spare%20parts." target="_blank" style="text-decoration:none">💬 Chat on WhatsApp</a>
-          <a class="map-btn" href="https://www.google.com/maps/place/Abhinandan/@23.7611009,71.1681038,17z" target="_blank" style="text-decoration:none">🗺️ Get Directions on Google Maps</a>
-        </div>
-        <div class="rr">
-          <div style="border:1px solid var(--border);overflow:hidden">
-            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3645.0!2d71.1681038!3d23.7611009!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x395aff1180c18727%3A0x56780fce31c3f335!2sAbhinandan!5e0!3m2!1sen!2sin!4v1" style="display:block;width:100%;height:440px;border:0;filter:grayscale(.2)" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="Location"></iframe>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- FOOTER -->
-  <footer>
-    <div class="ft-row">
+  <nav id="nav">
+    <a class="nlog" href="#">
+      <div class="nbox">A</div>
       <div>
-        <div class="ft-brand">Abhinandan <em>Auto</em> Mobiles</div>
-        <div class="ft-desc">Your trusted destination for genuine spare parts on Kandla National Highway, Santalpur, Dist. Patan – 385350, Gujarat.</div>
+        <div class="nname">Abhinandan Auto Mobiles</div>
+        <div class="nsub">Genuine Spare Parts</div>
       </div>
-      <div class="ft-col">
-        <h4>Quick Links</h4>
-        <ul>
-          <li><a onclick="scrollToSection('brands-sec')">Our Brands</a></li>
-          <li><a onclick="scrollToSection('parts-sec')">Spare Parts</a></li>
-          <li><a onclick="scrollToSection('rev-sec')">Reviews</a></li>
-          <li><a onclick="scrollToSection('fb-sec')">Leave Feedback</a></li>
-          <li><a onclick="scrollToSection('ct-sec')">Contact</a></li>
-        </ul>
+    </a>
+    <div class="nlks">
+      <a href="#products">Products</a>
+      <a href="#brands">Brands</a>
+      <a href="#why">Why Us</a>
+      <a href="#contact">Contact</a>
+    </div>
+    <a href="https://wa.me/919870037002" target="_blank" class="ncta">&#128222;&ensp;WhatsApp</a>
+  </nav>
+
+  <section id="hero">
+    <div class="hero-in">
+      <div>
+        <div class="hew">Santalpur, Patan &mdash; Gujarat</div>
+        <h1 class="hh1">Genuine<br>Spare Parts<br><strong>You Can Trust</strong></h1>
+        <p class="hp">All types of genuine parts for Tata &middot; Ashok Leyland &middot; JCB &middot; Tractors and every commercial vehicle. Original quality, honest pricing &mdash; for 15+ years.</p>
+        <div class="hbtns">
+          <a href="https://wa.me/919870037002" target="_blank" class="ba">&#128222;&ensp;9870037002</a>
+          <a href="https://maps.app.goo.gl/QBDi2SPd5LXC6mHb8" target="_blank" class="bb">&#128205;&ensp;Find Store</a>
+        </div>
       </div>
-      <div class="ft-col">
-        <h4>Contact</h4>
-        <ul>
-          <li><a href="tel:+919825259065">📞 9825259065</a></li>
-          <li><a href="tel:+919870037002">📞 9870037002</a></li>
-          <li><a href="https://wa.me/919870037002" target="_blank">💬 WhatsApp</a></li>
-          <li><a href="https://www.google.com/maps/place/Abhinandan/@23.7611009,71.1681038,17z" target="_blank">🗺️ Google Maps</a></li>
-        </ul>
+      <div>
+        <div class="hstats">
+          <div class="hst rv2"><div class="hn">15+</div><div class="hl2">Years in Business</div></div>
+          <div class="hst rv2" style="transition-delay:.1s"><div class="hn">10K+</div><div class="hl2">Parts in Stock</div></div>
+          <div class="hst rv2" style="transition-delay:.2s"><div class="hn">1K+</div><div class="hl2">Customers</div></div>
+          <div class="hst rv2" style="transition-delay:.3s"><div class="hn">50+</div><div class="hl2">Brands</div></div>
+        </div>
       </div>
     </div>
-    <div class="ft-bot">
-      <span>© 2025 Abhinandan Auto Mobiles. All rights reserved.</span>
-      <span>Quality Parts · Trusted Service · Stronger Together</span>
+  </section>
+
+  <div class="ssep"></div>
+
+  <div class="sec" id="products">
+    <div class="sew rv2">Our Inventory</div>
+    <h2 class="sh rv2">Everything Your <strong>Fleet Needs</strong></h2>
+    <div class="pgd">
+      <div class="pc rv2"><div class="pn">01</div><div class="pnm">Bearings</div><div class="pd">Hub, wheel, crankshaft, camshaft bearings for all HCVs.</div></div>
+      <div class="pc rv2"><div class="pn">02</div><div class="pnm">Clutch Assembly</div><div class="pd">Pressure plates, disc plates, release bearings — Tata & Leyland.</div></div>
+      <div class="pc rv2"><div class="pn">03</div><div class="pnm">Engine Parts</div><div class="pd">Pistons, rings, liners, gaskets, oil seals — genuine OEM only.</div></div>
+      <div class="pc rv2"><div class="pn">04</div><div class="pnm">Electrical</div><div class="pd">Alternators, starters, switches, relays, wiring components.</div></div>
+      <div class="pc rv2"><div class="pn">05</div><div class="pnm">Leaf Springs</div><div class="pd">Front & rear assemblies, U-bolts, spring pins for all models.</div></div>
+      <div class="pc rv2"><div class="pn">06</div><div class="pnm">Brake System</div><div class="pd">Drums, shoes, liners, master cylinders, booster assemblies.</div></div>
+      <div class="pc rv2"><div class="pn">07</div><div class="pnm">Universal Joints</div><div class="pd">Propeller shaft UJs, CV joints for all HCV models.</div></div>
+      <div class="pc rv2"><div class="pn">08</div><div class="pnm">Oils &amp; Fluids</div><div class="pd">Castrol, Servo engine oils, gear oils, greases — all grades.</div></div>
+      <div class="pc rv2"><div class="pn">09</div><div class="pnm">Cab &amp; Lighting</div><div class="pd">Headlamps, fog lights, mirrors, cabin fittings, wipers.</div></div>
     </div>
+  </div>
+
+  <div class="ssep"></div>
+
+  <div class="bsec" id="brands">
+    <div class="bin">
+      <div class="bew rv2">Brands We Stock</div>
+      <div class="brow rv2">
+        <div class="bi">TATA</div><div class="bi">TVS</div>
+        <div class="bi">GAJRA</div><div class="bi">TELCO</div>
+        <div class="bi">CASTROL</div><div class="bi">LEYLAND</div>
+        <div class="bi">JCB</div><div class="bi">CUMMINS</div>
+        <div class="bi">BOSCH</div><div class="bi">WABCO</div>
+        <div class="bi">MAHINDRA</div><div class="bi">TATA AIA</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec" id="why">
+    <div class="sew rv2">Why We&rsquo;re Different</div>
+    <h2 class="sh rv2">Trusted by <strong>Mechanics</strong><br>Across Patan Region</h2>
+    <div class="wgd rv2">
+      <div class="wc"><div class="wnum">01</div><div class="wt2">100% Genuine Only</div><div class="wd2">Only manufacturer-certified parts. No duplicate, no imitation — every part carries original warranty.</div></div>
+      <div class="wc"><div class="wnum">02</div><div class="wt2">Massive Ready Stock</div><div class="wd2">Over 10,000 line items ready same day. If it runs on a diesel engine, we have it.</div></div>
+      <div class="wc"><div class="wnum">03</div><div class="wt2">Expert Guidance</div><div class="wd2">15+ years of knowledge. Give us your vehicle and chassis number — we find the exact right part.</div></div>
+      <div class="wc"><div class="wnum">04</div><div class="wt2">Honest Fair Pricing</div><div class="wd2">Direct from authorized distributors. No middlemen, no inflated margins.</div></div>
+    </div>
+  </div>
+
+  <div class="ssep"></div>
+
+  <div class="sec" id="contact">
+    <div class="sew rv2">Find Us</div>
+    <h2 class="sh rv2">Visit Our <strong>Store</strong></h2>
+    <div class="cgd rv2">
+      <div class="cb">
+        <div class="clb">Address</div>
+        <div class="cv">Nr. Refaral Hospital, Kandla National<br>Highway Road, Santalpur<br>Dist. Patan &mdash; 385350</div>
+      </div>
+      <div class="cb">
+        <div class="clb">Phone</div>
+        <div class="cv">9825259065<br>9870037002</div>
+      </div>
+      <div class="cb">
+        <div class="clb">Working Hours</div>
+        <div class="cv">Mon&ndash;Sat: 9:00 AM &ndash; 7:00 PM<br>Sunday: 10:00 AM &ndash; 2:00 PM</div>
+      </div>
+      <div class="cb" style="display:flex;flex-direction:column;justify-content:flex-end;gap:9px">
+        <a href="https://wa.me/919870037002" target="_blank" class="ba" style="text-align:center">&#128172;&ensp;WhatsApp</a>
+        <a href="https://maps.app.goo.gl/QBDi2SPd5LXC6mHb8" target="_blank" class="bb" style="text-align:center">&#128205;&ensp;Google Maps</a>
+        <button class="bb" onclick="openM()">&#11088;&ensp;Leave Review</button>
+      </div>
+    </div>
+    <div class="rvgd" id="rvc">
+      <div class="rv"><div class="rs">&#9733;&#9733;&#9733;&#9733;&#9733;</div><div class="rt">&ldquo;Best place for Tata truck parts in Patan region. Got bearings same day. Very knowledgeable.&rdquo;</div><div class="ra">Ramesh Patel</div><div class="rsub2">Tata 1109 Owner &middot; Patan</div></div>
+      <div class="rv"><div class="rs">&#9733;&#9733;&#9733;&#9733;&#9733;</div><div class="rt">&ldquo;Genuine parts at fair prices. Clutch plates lasted 2 years. Never had a quality issue.&rdquo;</div><div class="ra">Suresh Motor Works</div><div class="rsub2">Workshop &middot; Santalpur</div></div>
+      <div class="rv"><div class="rs">&#9733;&#9733;&#9733;&#9733;&#9734;</div><div class="rt">&ldquo;Had the Leyland leaf spring when nobody else did. Incredibly reliable, always honest.&rdquo;</div><div class="ra">Mahesh Bhai</div><div class="rsub2">Leyland Fleet Owner</div></div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="flo">&copy; 2025 Abhinandan Auto Mobiles</div>
+    <div class="fcp">Santalpur, Dist. Patan &mdash; 385350 &nbsp;&middot;&nbsp; Quality Parts &nbsp;&middot;&nbsp; Trusted Service</div>
   </footer>
 
-</div><!-- end #full-site -->
+</div><!-- /site -->
 
+<!-- REVIEW MODAL -->
+<div id="modal">
+  <div class="mbox">
+    <button class="mcl" onclick="closeM()">&#10005;</button>
+    <div class="mh2">Leave a Review</div>
+    <div class="ms2">Your experience helps others trust us</div>
+    <div class="ff"><label>Your Name *</label><input type="text" id="rN" placeholder="Full name"></div>
+    <div class="ff"><label>Phone (optional)</label><input type="tel" id="rP" placeholder="Mobile number"></div>
+    <div class="ff"><label>Vehicle / Business</label><input type="text" id="rV" placeholder="e.g. Tata 407, JCB, Workshop..."></div>
+    <div class="ff"><label>Rating *</label><div class="sr3" id="srw"><span onclick="setStar(1)">&#9733;</span><span onclick="setStar(2)">&#9733;</span><span onclick="setStar(3)">&#9733;</span><span onclick="setStar(4)">&#9733;</span><span onclick="setStar(5)">&#9733;</span></div></div>
+    <div class="ff"><label>Review *</label><textarea id="rT" placeholder="Tell us about your experience..."></textarea></div>
+    <button class="msb" onclick="subRev()">Submit Review</button>
+    <div class="mok2" id="mok">&#10003;&ensp;Thank you &mdash; your review has been added.</div>
+  </div>
+</div>
 
-<!-- ═══════════════════════════════════════════
-     JAVASCRIPT — All animation logic
-═══════════════════════════════════════════ -->
+<!-- CDNs -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+
 <script>
-/* ═══ PRELOADER ═══ */
-const preBar = document.getElementById('preBar');
-const preEl  = document.getElementById('preloader');
-let pct = 0;
-const preT = setInterval(() => {
-  pct += Math.random() * 18 + 3;
-  if (pct >= 100) {
-    pct = 100;
-    clearInterval(preT);
-    setTimeout(() => {
-      preEl.classList.add('gone');
-      startHero();
-    }, 400);
-  }
-  preBar.style.width = pct + '%';
-}, 60);
+/* ═══ SUPABASE ═══ */
+var _sb=null;
+(function(){
+  var s=document.createElement('script');
+  s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js';
+  s.onload=function(){_sb=window.supabase.createClient('https://mhhnmndnolhapaoqtbxo.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1oaG5tbmRub2xoYXBhb3F0YnhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4Mzg4NTksImV4cCI6MjA4ODQxNDg1OX0.IMSp8vYiCln_iSuoT_H2qdeX_dP1WMhOOskDw20eJXw');};
+  document.head.appendChild(s);
+})();
 
-/* ═══ HERO ANIMATE IN ═══ */
-function startHero() {
-  const ht = document.getElementById('heroTitle');
-  const hs = document.getElementById('heroSub');
-  setTimeout(() => {
-    ht.style.opacity = '1';
-    ht.style.transform = 'translateY(0)';
-  }, 100);
-  setTimeout(() => {
-    hs.style.opacity = '1';
-    hs.style.transform = 'translateY(0)';
-  }, 500);
-  initGame();
+/* ═══ CURSOR ═══ */
+var cX=0,cY=0,rX=0,rY=0;
+var $c1=document.getElementById('cur'),$c2=document.getElementById('cur2');
+document.addEventListener('mousemove',function(e){cX=e.clientX;cY=e.clientY;$c1.style.left=cX+'px';$c1.style.top=cY+'px';});
+(function lp(){rX+=(cX-rX)*.11;rY+=(cY-rY)*.11;$c2.style.left=rX+'px';$c2.style.top=rY+'px';requestAnimationFrame(lp);})();
+
+/* ═══ THREE.JS GLOBALS ═══ */
+var W=window.innerWidth,H=window.innerHeight;
+var renderer,scene,camera,clock;
+var mtGrp,trkGrp,prtGrp,snowPts,roadGrp;
+var phase=0,cineOn=false;
+
+/* ═══ INIT ═══ */
+function init3(){
+  var cv=document.getElementById('c');
+  renderer=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:false});
+  renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+  renderer.setSize(W,H);
+  renderer.shadowMap.enabled=true;
+  renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+  renderer.toneMapping=THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure=1.08;
+  renderer.outputColorSpace=THREE.SRGBColorSpace;
+
+  scene=new THREE.Scene();
+  /* ── KEY VISUAL DECISION: Warm misty grey background ── */
+  scene.background=new THREE.Color(0xd8d6d2);
+  /* Fog: same color as bg, creates depth & atmosphere, NO harsh lines */
+  scene.fog=new THREE.FogExp2(0xd8d6d2,0.016);
+
+  camera=new THREE.PerspectiveCamera(54,W/H,0.1,1200);
+  camera.position.set(0,90,50);
+  camera.lookAt(0,0,-40);
+
+  clock=new THREE.Clock();
+
+  buildLights();
+  buildGround();
+  buildMountains();
+  buildRoad();
+  buildTruck();
+  buildSnow();
+  buildParts();
+
+  window.addEventListener('resize',function(){
+    W=window.innerWidth;H=window.innerHeight;
+    renderer.setSize(W,H);
+    camera.aspect=W/H;
+    camera.updateProjectionMatrix();
+  });
+
+  loop();
 }
 
-/* ═══ NAV SCROLL SOLID ═══ */
-const nav = document.getElementById('nav');
-const scrollSpacer = document.getElementById('scroll-spacer');
-const fullSite = document.getElementById('full-site');
+/* ── LIGHTS: warm key + cool fill = IGLOO style ── */
+function buildLights(){
+  // Soft ambient — slightly blue-grey
+  scene.add(new THREE.AmbientLight(0xd0d4de,0.65));
 
-function scrollToTop() {
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  // KEY: warm sunlight from upper right — creates strong shadows on mist
+  var key=new THREE.DirectionalLight(0xffeedd,3.0);
+  key.position.set(70,120,30);
+  key.castShadow=true;
+  key.shadow.mapSize.set(2048,2048);
+  key.shadow.camera.near=1; key.shadow.camera.far=500;
+  key.shadow.camera.left=-120; key.shadow.camera.right=120;
+  key.shadow.camera.top=120; key.shadow.camera.bottom=-120;
+  key.shadow.bias=-0.0008;
+  scene.add(key);
+
+  // FILL: cool opposite side
+  var fill=new THREE.DirectionalLight(0xc0d0ee,0.55);
+  fill.position.set(-65,45,25);
+  scene.add(fill);
+
+  // RIM: soft back-separation
+  var rim=new THREE.DirectionalLight(0xfff0e8,0.3);
+  rim.position.set(0,15,-100);
+  scene.add(rim);
+
+  // Ground bounce
+  var bnc=new THREE.DirectionalLight(0xeceefc,0.18);
+  bnc.position.set(0,-20,0);
+  scene.add(bnc);
 }
-function scrollToSection(id) {
-  document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
-  document.getElementById('navLinks').classList.remove('open');
+
+/* ── GROUND ── */
+function buildGround(){
+  // Single infinite-feeling ground plane — fog handles the horizon, no gap lines
+  var g=new THREE.Mesh(
+    new THREE.PlaneGeometry(3000,3000),
+    new THREE.MeshLambertMaterial({color:0xcac8c4})
+  );
+  g.rotation.x=-Math.PI/2;
+  g.position.y=-22;
+  g.receiveShadow=true;
+  scene.add(g);
 }
 
-/* ═══ GAME ENGINE ═══ */
-function initGame() {
-  const stage         = document.getElementById('stage');
-  const sky           = document.getElementById('sky');
-  const celestial     = document.getElementById('celestial');
-  const truckWrap     = document.getElementById('truck-wrap');
-  const zoneLabel     = document.getElementById('zone-label');
-  const heroOverlay   = document.getElementById('hero-overlay');
-  const scrollProg    = document.getElementById('scroll-prog');
-  const cloudCanvas   = document.getElementById('cloudCanvas');
-  const bgFar         = document.getElementById('bgFarCanvas');
-  const bgMid         = document.getElementById('bgMidCanvas');
-  const bgNear        = document.getElementById('bgNearCanvas');
-  const roadCanvas    = document.getElementById('roadCanvas');
-  let W, H;
+/* ── MOUNTAINS ── */
+function buildMountains(){
+  mtGrp=new THREE.Group();
+  scene.add(mtGrp);
 
-  /* ── Canvases resize ── */
-  function resizeAll() {
-    W = window.innerWidth;
-    H = window.innerHeight;
-    [cloudCanvas, bgFar, bgMid, bgNear, roadCanvas].forEach(c => {
-      c.width  = W;
-      c.height = parseInt(c.style.height) || 300;
-    });
-    cloudCanvas.height = H;
-    bgFar.height   = Math.round(H * .45);
-    bgMid.height   = Math.round(H * .38);
-    bgNear.height  = Math.round(H * .30);
-    roadCanvas.height = Math.round(H * .32);
-  }
-  resizeAll();
-  window.addEventListener('resize', () => { resizeAll(); });
-
-  /* ── CLOUD SYSTEM ── */
-  const cCtx = cloudCanvas.getContext('2d');
-  const clouds = [];
-  for (let i = 0; i < 8; i++) {
-    clouds.push({
-      x: Math.random() * W,
-      y: 40 + Math.random() * H * .25,
-      w: 120 + Math.random() * 200,
-      h: 40 + Math.random() * 40,
-      speed: .2 + Math.random() * .4,
-      alpha: .4 + Math.random() * .4
-    });
-  }
-  function drawCloud(ctx, x, y, w, h, alpha, tint='255,255,255') {
-    ctx.save();
-    ctx.globalAlpha = alpha;
-    ctx.fillStyle = `rgba(${tint},1)`;
-    ctx.beginPath();
-    ctx.ellipse(x, y, w*.5, h*.4, 0, 0, Math.PI*2);
-    ctx.fill();
-    ctx.beginPath();
-    ctx.ellipse(x-w*.2, y+h*.15, w*.3, h*.3, 0, 0, Math.PI*2);
-    ctx.fill();
-    ctx.beginPath();
-    ctx.ellipse(x+w*.22, y+h*.1, w*.28, h*.28, 0, 0, Math.PI*2);
-    ctx.fill();
-    ctx.restore();
-  }
-
-  /* ── ZONE CONFIG ── */
-  const zones = [
-    {
-      name: 'Zone 1 — City · Santalpur',
-      skyTop: '#FF8C42', skyBot: '#FFD9A0',
-      sunColor: 'radial-gradient(circle, #FFE566, #FFB020)',
-      sunX: 75, sunY: 18,
-      cloudTint: '255,220,180',
-      roadColor: '#5A5A5A', lineColor: '#FFE000'
-    },
-    {
-      name: 'Zone 2 — Industrial · Warehouse District',
-      skyTop: '#5BA3D4', skyBot: '#B8DFF0',
-      sunColor: 'radial-gradient(circle, #FFF5AA, #FFD050)',
-      sunX: 55, sunY: 12,
-      cloudTint: '255,255,255',
-      roadColor: '#4A4A4A', lineColor: '#FFFFFF'
-    },
-    {
-      name: 'Zone 3 — Open Highway · NH-947',
-      skyTop: '#3B8BC4', skyBot: '#A8D8EA',
-      sunColor: 'radial-gradient(circle, #FFF0A0, #FFC840)',
-      sunX: 50, sunY: 15,
-      cloudTint: '255,255,255',
-      roadColor: '#606060', lineColor: '#FFFF00'
-    },
-    {
-      name: 'Zone 4 — Mountain Pass · Himalayas',
-      skyTop: '#1A2A4A', skyBot: '#6A4A30',
-      sunColor: 'radial-gradient(circle, #FFB870, #FF7030)',
-      sunX: 15, sunY: 20,
-      cloudTint: '200,180,160',
-      roadColor: '#3A3A3A', lineColor: '#FFD080'
-    }
+  var defs=[
+    {x:-115,z:-65,h:210,r:62,c:0xb4b0aa,s:9},
+    {x:-58,z:-48,h:265,r:52,c:0xc0bcb6,s:8},
+    {x:2,z:-95,h:295,r:72,c:0xa8a6a2,s:10},
+    {x:64,z:-58,h:248,r:56,c:0xb0aeaa,s:9},
+    {x:118,z:-72,h:215,r:64,c:0xb6b2ac,s:8},
+    {x:-168,z:-115,h:175,r:82,c:0xc4c0bc,s:7},
+    {x:170,z:-105,h:185,r:78,c:0xbcb8b4,s:7},
+    {x:-32,z:-145,h:162,r:102,c:0xccc8c4,s:6},
+    {x:42,z:-158,h:155,r:94,c:0xc8c4c0,s:6}
   ];
 
-  /* ── PARALLAX BUILDING/SCENE DRAWING ── */
-  function drawFarBg(ctx, w, h, offsetX, zoneIdx, blend) {
-    ctx.clearRect(0, 0, w, h);
-    const z0 = zones[Math.floor(zoneIdx)];
-    const z1 = zones[Math.min(Math.ceil(zoneIdx), zones.length-1)];
-    const t = zoneIdx % 1;
-
-    if (zoneIdx < 1) {
-      // City buildings — back row
-      drawCityFar(ctx, w, h, offsetX, 0.35);
-    } else if (zoneIdx < 2) {
-      // Industrial — warehouses far
-      drawIndustrialFar(ctx, w, h, offsetX, t);
-    } else if (zoneIdx < 3) {
-      // Open plains — distant treeline
-      drawPlainsHorizon(ctx, w, h, offsetX, t);
-    } else {
-      // Mountains
-      drawMountainsFar(ctx, w, h, offsetX, t);
-    }
-  }
-
-  function drawMidBg(ctx, w, h, offsetX, zoneIdx) {
-    ctx.clearRect(0, 0, w, h);
-    if (zoneIdx < 1) {
-      drawCityMid(ctx, w, h, offsetX);
-    } else if (zoneIdx < 2) {
-      drawIndustrialMid(ctx, w, h, offsetX);
-    } else if (zoneIdx < 3) {
-      drawPlainsTreeline(ctx, w, h, offsetX);
-    } else {
-      drawMountainsMid(ctx, w, h, offsetX);
-    }
-  }
-
-  function drawNearBg(ctx, w, h, offsetX, zoneIdx) {
-    ctx.clearRect(0, 0, w, h);
-    if (zoneIdx < 1) {
-      drawCityNear(ctx, w, h, offsetX);
-    } else if (zoneIdx < 2) {
-      drawIndustrialNear(ctx, w, h, offsetX);
-    } else if (zoneIdx < 3) {
-      drawPlainsNear(ctx, w, h, offsetX);
-    } else {
-      drawMountainsNear(ctx, w, h, offsetX);
-    }
-  }
-
-  /* CITY FAR — tall skyline silhouette */
-  function drawCityFar(ctx, w, h, ox, alpha) {
-    const bldgs = [
-      {x:.05,w:.04,h:.7}, {x:.1,w:.05,h:.55}, {x:.16,w:.04,h:.8}, {x:.22,w:.06,h:.5},
-      {x:.29,w:.04,h:.9}, {x:.35,w:.05,h:.65}, {x:.41,w:.04,h:.75}, {x:.48,w:.06,h:.55},
-      {x:.55,w:.04,h:.7}, {x:.62,w:.05,h:.85}, {x:.68,w:.04,h:.6}, {x:.75,w:.06,h:.78},
-      {x:.82,w:.04,h:.55}, {x:.88,w:.05,h:.8}, {x:.95,w:.04,h:.65}
-    ];
-    ctx.save();
-    ctx.globalAlpha = alpha;
-    bldgs.forEach(b => {
-      const bx = ((b.x * w * 2 - ox * .3) % (w * 1.5)) - w * .25;
-      const bw = b.w * w; const bh = b.h * h;
-      ctx.fillStyle = 'rgba(60,35,15,0.6)';
-      ctx.fillRect(bx, h - bh, bw, bh);
-      // Windows
-      ctx.fillStyle = 'rgba(255,220,100,0.4)';
-      for (let wy = h - bh + 8; wy < h - 10; wy += 10) {
-        for (let wx = bx + 4; wx < bx + bw - 4; wx += 8) {
-          if (Math.random() > .4) ctx.fillRect(wx, wy, 3, 4);
-        }
+  defs.forEach(function(d){
+    // Main mountain body with vertex roughness
+    var geo=new THREE.ConeGeometry(d.r*.58,d.h,d.s);
+    var pos=geo.attributes.position;
+    for(var i=0;i<pos.count;i++){
+      var y=pos.getY(i),ratio=(y/d.h)+.5;
+      if(ratio>.04&&ratio<.9){
+        var disp=(Math.random()-.5)*d.r*.13*(1-ratio*.75);
+        pos.setX(i,pos.getX(i)+disp);
+        pos.setZ(i,pos.getZ(i)+disp*.55);
       }
-    });
-    ctx.restore();
-  }
-
-  /* CITY MID — medium buildings */
-  function drawCityMid(ctx, w, h, ox) {
-    const bldgs = [
-      {x:.02,w:.06,h:.65,c:'rgba(80,45,15,0.75)'},{x:.1,w:.07,h:.5,c:'rgba(100,55,20,0.8)'},
-      {x:.19,w:.05,h:.75,c:'rgba(70,35,12,0.8)'},{x:.26,w:.08,h:.55,c:'rgba(90,50,18,0.75)'},
-      {x:.37,w:.06,h:.7,c:'rgba(85,45,16,0.8)'},{x:.46,w:.05,h:.45,c:'rgba(75,40,14,0.75)'},
-      {x:.54,w:.07,h:.68,c:'rgba(95,52,20,0.8)'},{x:.64,w:.06,h:.55,c:'rgba(80,43,15,0.75)'},
-      {x:.73,w:.05,h:.72,c:'rgba(70,38,13,0.8)'},{x:.81,w:.07,h:.48,c:'rgba(88,48,17,0.75)'},
-      {x:.9,w:.06,h:.65,c:'rgba(82,44,16,0.8)'},{x:.98,w:.05,h:.56,c:'rgba(78,42,14,0.75)'}
-    ];
-    bldgs.forEach(b => {
-      const bx = ((b.x * w * 2 - ox * .55) % (w * 1.5)) - w * .25;
-      const bw = b.w * w; const bh = b.h * h;
-      ctx.fillStyle = b.c;
-      ctx.fillRect(bx, h - bh, bw, bh);
-      // Rooftop details
-      ctx.fillStyle = 'rgba(50,25,8,.5)';
-      ctx.fillRect(bx + bw*.3, h - bh - 8, bw*.15, 8);
-      // Lit windows
-      ctx.fillStyle = 'rgba(255,240,150,.55)';
-      for (let wy = h - bh + 6; wy < h - 8; wy += 9) {
-        for (let wx = bx + 5; wx < bx + bw - 5; wx += 7) {
-          if (Math.random() > .35) ctx.fillRect(wx, wy, 3, 4);
-        }
-      }
-    });
-  }
-
-  /* CITY NEAR — close storefronts */
-  function drawCityNear(ctx, w, h, ox) {
-    const shops = [
-      {x:.0,w:.12,h:.55},{x:.13,w:.1,h:.5},{x:.25,w:.12,h:.55},{x:.38,w:.1,h:.48},
-      {x:.5,w:.12,h:.52},{x:.63,w:.1,h:.55},{x:.75,w:.12,h:.5},{x:.88,w:.1,h:.52}
-    ];
-    shops.forEach((s,i) => {
-      const bx = ((s.x * w * 2 - ox * .8) % (w * 1.5)) - w * .25;
-      const bw = s.w * w; const bh = s.h * h;
-      ctx.fillStyle = i%2===0 ? 'rgba(100,60,20,.9)' : 'rgba(120,70,25,.88)';
-      ctx.fillRect(bx, h - bh, bw, bh);
-      // Signboard
-      ctx.fillStyle = 'rgba(212,82,26,.7)';
-      ctx.fillRect(bx + 4, h - bh + 4, bw - 8, bh * .2);
-      // Door
-      ctx.fillStyle = 'rgba(40,20,5,.6)';
-      ctx.fillRect(bx + bw*.35, h - bh*.3, bw*.3, bh*.3);
-    });
-  }
-
-  /* INDUSTRIAL FAR */
-  function drawIndustrialFar(ctx, w, h, ox, t) {
-    const units = [{x:.05,w:.15,h:.55},{x:.22,w:.18,h:.45},{x:.42,w:.15,h:.6},{x:.6,w:.17,h:.5},{x:.8,w:.15,h:.55}];
-    units.forEach(u => {
-      const bx = ((u.x * w * 2 - ox * .28) % (w * 1.5)) - w * .25;
-      const bw = u.w * w; const bh = u.h * h;
-      ctx.fillStyle = 'rgba(70,50,30,.55)';
-      ctx.fillRect(bx, h - bh, bw, bh);
-      // Roof slant
-      ctx.beginPath();
-      ctx.moveTo(bx, h - bh);
-      ctx.lineTo(bx + bw*.5, h - bh - bh*.2);
-      ctx.lineTo(bx + bw, h - bh);
-      ctx.fillStyle = 'rgba(50,35,15,.5)';
-      ctx.fill();
-      // Chimney
-      ctx.fillStyle = 'rgba(60,40,20,.7)';
-      ctx.fillRect(bx + bw*.7, h - bh - bh*.35, bw*.05, bh*.35);
-    });
-  }
-
-  /* INDUSTRIAL MID */
-  function drawIndustrialMid(ctx, w, h, ox) {
-    const warehouses = [{x:.0,w:.2,h:.65},{x:.22,w:.18,h:.55},{x:.42,w:.2,h:.7},{x:.64,w:.18,h:.6},{x:.84,w:.2,h:.65}];
-    warehouses.forEach((u,i) => {
-      const bx = ((u.x * w * 2 - ox * .5) % (w * 1.5)) - w * .25;
-      const bw = u.w * w; const bh = u.h * h;
-      ctx.fillStyle = i%2===0 ? 'rgba(90,65,35,.85)' : 'rgba(80,55,28,.82)';
-      ctx.fillRect(bx, h - bh, bw, bh);
-      // Metal roof ridge
-      ctx.beginPath();
-      ctx.moveTo(bx, h - bh);
-      ctx.lineTo(bx + bw*.5, h - bh - 18);
-      ctx.lineTo(bx + bw, h - bh);
-      ctx.fillStyle = 'rgba(130,90,40,.7)';
-      ctx.fill();
-      // Large door
-      ctx.fillStyle = 'rgba(40,25,10,.6)';
-      ctx.fillRect(bx + bw*.2, h - bh*.4, bw*.6, bh*.4);
-      // Chimney smoke
-      ctx.fillStyle = 'rgba(160,140,120,.2)';
-      ctx.beginPath();
-      ctx.arc(bx + bw*.75, h - bh - 5, 10 + Math.sin(Date.now()*.001) * 5, 0, Math.PI*2);
-      ctx.fill();
-    });
-  }
-
-  /* INDUSTRIAL NEAR */
-  function drawIndustrialNear(ctx, w, h, ox) {
-    // Oil drums, crates etc.
-    for (let i = 0; i < 10; i++) {
-      const bx = ((i * w * .12 - ox * .9) % (w * 1.2)) - w * .1;
-      ctx.fillStyle = 'rgba(80,40,15,.85)';
-      ctx.fillRect(bx, h - h*.28, h*.06, h*.28);
-      ctx.fillStyle = 'rgba(212,82,26,.6)';
-      ctx.fillRect(bx + 2, h - h*.28 + 2, h*.06 - 4, h*.04);
     }
-  }
+    pos.needsUpdate=true;
+    geo.computeVertexNormals();
+    var m=new THREE.Mesh(geo,new THREE.MeshLambertMaterial({color:d.c}));
+    m.position.set(d.x,d.h/2-22,d.z);
+    m.castShadow=true; m.receiveShadow=true;
+    mtGrp.add(m);
 
-  /* PLAINS HORIZON */
-  function drawPlainsHorizon(ctx, w, h, ox, t) {
-    // Rolling hills + trees
-    ctx.save();
-    ctx.fillStyle = 'rgba(80,120,50,.4)';
-    ctx.beginPath();
-    ctx.moveTo(0, h);
-    for (let x = 0; x <= w; x += 20) {
-      const hv = h * .55 + Math.sin((x + ox * .15) * .008) * h * .25;
-      ctx.lineTo(x, hv);
-    }
-    ctx.lineTo(w, h); ctx.closePath(); ctx.fill();
-    // trees
-    for (let i = 0; i < 15; i++) {
-      const tx = ((i * w * .08 - ox * .2) % (w * 1.2)) - w * .1;
-      const ty = h * .4 + Math.sin(i * 1.3) * h * .12;
-      ctx.fillStyle = 'rgba(50,90,35,.55)';
-      ctx.beginPath();
-      ctx.moveTo(tx, ty + h*.12);
-      ctx.lineTo(tx - h*.04, ty + h*.12);
-      ctx.lineTo(tx, ty);
-      ctx.closePath(); ctx.fill();
-    }
-    ctx.restore();
-  }
+    // Snow cap
+    var sh=d.h*.26,sr=d.r*.17;
+    var sc=new THREE.Mesh(
+      new THREE.ConeGeometry(sr,sh,d.s),
+      new THREE.MeshLambertMaterial({color:0xeeecea})
+    );
+    sc.position.set(d.x,d.h-22-sh*.35,d.z);
+    mtGrp.add(sc);
 
-  function drawPlainsTreeline(ctx, w, h, ox) {
-    for (let i = 0; i < 20; i++) {
-      const tx = ((i * w * .06 - ox * .45) % (w * 1.2)) - w * .1;
-      const th = h * (.35 + Math.sin(i * 2.1) * .1);
-      ctx.fillStyle = i%3===0 ? 'rgba(60,100,45,.8)' : 'rgba(40,75,30,.75)';
-      ctx.beginPath();
-      ctx.moveTo(tx, th);
-      ctx.lineTo(tx - h*.05, h);
-      ctx.lineTo(tx + h*.05, h);
-      ctx.closePath(); ctx.fill();
-    }
-  }
-
-  function drawPlainsNear(ctx, w, h, ox) {
-    // Grass tufts + fence posts
-    for (let i = 0; i < 25; i++) {
-      const tx = ((i * w * .045 - ox * .85) % (w * 1.1)) - w * .05;
-      ctx.fillStyle = 'rgba(70,110,40,.7)';
-      ctx.fillRect(tx, h - h*.15, 3, h*.15);
-      ctx.fillRect(tx + 5, h - h*.1, 2, h*.1);
-      ctx.fillRect(tx + 9, h - h*.12, 2.5, h*.12);
-    }
-  }
-
-  /* MOUNTAINS FAR */
-  function drawMountainsFar(ctx, w, h, ox, t) {
-    // Back mountain range
-    ctx.save();
-    const peaks = [.05,.18,.28,.38,.5,.62,.72,.82,.92];
-    ctx.fillStyle = 'rgba(40,55,80,.5)';
-    ctx.beginPath();
-    ctx.moveTo(0, h);
-    peaks.forEach((px,i) => {
-      const mx = ((px * w * 2 - ox * .18) % (w * 1.8)) - w * .4;
-      const my = h * (.05 + (i%3)*.08);
-      ctx.lineTo(mx - w*.06, h * .65);
-      ctx.lineTo(mx, my);
-      ctx.lineTo(mx + w*.06, h * .65);
-    });
-    ctx.lineTo(w, h); ctx.closePath(); ctx.fill();
-    // Snow caps
-    ctx.fillStyle = 'rgba(240,240,255,.6)';
-    peaks.forEach((px,i) => {
-      const mx = ((px * w * 2 - ox * .18) % (w * 1.8)) - w * .4;
-      const my = h * (.05 + (i%3)*.08);
-      ctx.beginPath();
-      ctx.moveTo(mx, my);
-      ctx.lineTo(mx - w*.018, my + h*.06);
-      ctx.lineTo(mx + w*.018, my + h*.06);
-      ctx.closePath(); ctx.fill();
-    });
-    ctx.restore();
-  }
-
-  function drawMountainsMid(ctx, w, h, ox) {
-    ctx.save();
-    const peaks = [.1,.25,.4,.55,.7,.85];
-    ctx.fillStyle = 'rgba(60,40,30,.7)';
-    ctx.beginPath();
-    ctx.moveTo(0, h);
-    peaks.forEach((px,i) => {
-      const mx = ((px * w * 2 - ox * .38) % (w * 1.6)) - w * .3;
-      const my = h * (.12 + (i%2)*.15);
-      ctx.lineTo(mx - w*.08, h * .75);
-      ctx.lineTo(mx, my);
-      ctx.lineTo(mx + w*.08, h * .75);
-    });
-    ctx.lineTo(w, h); ctx.closePath(); ctx.fill();
-    ctx.fillStyle = 'rgba(220,220,240,.55)';
-    peaks.forEach((px,i) => {
-      const mx = ((px * w * 2 - ox * .38) % (w * 1.6)) - w * .3;
-      const my = h * (.12 + (i%2)*.15);
-      ctx.beginPath();
-      ctx.moveTo(mx, my);
-      ctx.lineTo(mx - w*.022, my + h*.07);
-      ctx.lineTo(mx + w*.022, my + h*.07);
-      ctx.closePath(); ctx.fill();
-    });
-    ctx.restore();
-  }
-
-  function drawMountainsNear(ctx, w, h, ox) {
-    ctx.fillStyle = 'rgba(35,25,15,.85)';
-    const pts = [.05,.15,.28,.4,.52,.65,.78,.9];
-    ctx.beginPath();
-    ctx.moveTo(0, h);
-    pts.forEach((px,i) => {
-      const mx = ((px * w * 2 - ox * .7) % (w * 1.5)) - w * .25;
-      const my = h * (.3 + (i%2) * .2);
-      ctx.lineTo(mx - w*.05, h * .85);
-      ctx.lineTo(mx, my);
-      ctx.lineTo(mx + w*.05, h * .85);
-    });
-    ctx.lineTo(w, h); ctx.closePath(); ctx.fill();
-  }
-
-  /* ── ROAD DRAWING ── */
-  function drawRoad(ctx, w, h, offsetX) {
-    ctx.clearRect(0, 0, w, h);
-    // Ground
-    const groundGrad = ctx.createLinearGradient(0, 0, 0, h);
-    groundGrad.addColorStop(0, '#8B7355');
-    groundGrad.addColorStop(1, '#A08060');
-    ctx.fillStyle = groundGrad;
-    ctx.fillRect(0, 0, w, h);
-
-    // Road surface
-    const roadGrad = ctx.createLinearGradient(0, 0, 0, h);
-    roadGrad.addColorStop(0, '#5A5A5A');
-    roadGrad.addColorStop(1, '#4A4A4A');
-    const roadTop = h * .1;
-    const roadBot = h;
-    const roadMidX = w * .5;
-    ctx.beginPath();
-    ctx.moveTo(roadMidX - w*.15, roadTop);
-    ctx.lineTo(roadMidX + w*.15, roadTop);
-    ctx.lineTo(w, roadBot);
-    ctx.lineTo(0, roadBot);
-    ctx.closePath();
-    ctx.fillStyle = roadGrad;
-    ctx.fill();
-
-    // Road border lines
-    ctx.strokeStyle = 'rgba(255,255,255,.2)';
-    ctx.lineWidth = 2;
-    ctx.setLineDash([]);
-    // Left edge
-    ctx.beginPath();
-    ctx.moveTo(roadMidX - w*.15, roadTop);
-    ctx.lineTo(0, roadBot);
-    ctx.stroke();
-    // Right edge
-    ctx.beginPath();
-    ctx.moveTo(roadMidX + w*.15, roadTop);
-    ctx.lineTo(w, roadBot);
-    ctx.stroke();
-
-    // Center dashes
-    ctx.strokeStyle = '#FFE000';
-    ctx.lineWidth = 3;
-    const dashLen = 40, gapLen = 30, totalLen = dashLen + gapLen;
-    const numDashes = 12;
-    ctx.setLineDash([]);
-    for (let i = 0; i < numDashes; i++) {
-      const t1 = (i / numDashes + offsetX * .0003) % 1;
-      const t2 = ((i + .5) / numDashes + offsetX * .0003) % 1;
-      const x1 = roadMidX - w*.15 + (roadMidX - (roadMidX - w*.15)) * t1;
-      const y1 = roadTop + (roadBot - roadTop) * t1;
-      const x2 = roadMidX - w*.15 + (roadMidX - (roadMidX - w*.15)) * t2;
-      const y2 = roadTop + (roadBot - roadTop) * t2;
-      ctx.strokeStyle = 'rgba(255,224,0,' + (.3 + t1 * .5) + ')';
-      ctx.lineWidth = 2 + t1 * 4;
-      ctx.beginPath();
-      ctx.moveTo(x1, y1);
-      ctx.lineTo(x2, y2);
-      ctx.stroke();
-    }
-
-    // Road shoulder markings
-    ctx.setLineDash([20, 15]);
-    ctx.strokeStyle = 'rgba(255,255,255,.15)';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(w*.05, roadBot); ctx.lineTo(roadMidX - w*.12, roadTop + 5); ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(w*.95, roadBot); ctx.lineTo(roadMidX + w*.12, roadTop + 5); ctx.stroke();
-    ctx.setLineDash([]);
-  }
-
-  /* ── TRUCK WHEEL ANIMATION ── */
-  let wheelAngle = 0;
-  function animateTruckWheels(speed) {
-    wheelAngle += speed * .015;
-    const svg = document.getElementById('truck-svg');
-    if (!svg) return;
-    const wheels = svg.querySelectorAll('circle[cy="80"]');
-    wheels.forEach(w => {
-      // Animate the tiny shine arc using transform on the parent
-    });
-    // Smoke animation
-    const s1 = document.getElementById('smoke1');
-    const s2 = document.getElementById('smoke2');
-    if (s1 && speed > 0.5) {
-      s1.setAttribute('cy', 2 - (wheelAngle % 6));
-      s1.setAttribute('r', 3 + (wheelAngle % 2));
-    }
-  }
-
-  /* ── PANELS CONFIG ── */
-  const panels = [
-    { el: document.getElementById('panel-intro'),    start: .0,  end: .22, pos: 'left' },
-    { el: document.getElementById('panel-parts'),    start: .24, end: .48, pos: 'right' },
-    { el: document.getElementById('panel-stats'),    start: .5,  end: .73, pos: 'left' },
-    { el: document.getElementById('panel-contact'),  start: .75, end: .98, pos: 'right' },
-    { el: document.getElementById('panel-reviews'),  start: .77, end: .98, pos: 'left' },
-  ];
-
-  /* ── MAIN SCROLL LOOP ── */
-  let rafId;
-  let lastProgress = 0;
-  const countDone = {cnt1: false, cnt2: false, cnt3: false};
-
-  function animCount(elId, target, duration) {
-    const el = document.getElementById(elId);
-    if (!el) return;
-    const start = performance.now();
-    function step(now) {
-      const p = Math.min((now - start) / duration, 1);
-      const ease = 1 - Math.pow(1 - p, 3);
-      el.textContent = Math.round(ease * target);
-      if (p < 1) requestAnimationFrame(step);
-    }
-    requestAnimationFrame(step);
-  }
-
-  function onScroll() {
-    const spacerTop    = scrollSpacer.offsetTop;
-    const spacerHeight = scrollSpacer.offsetHeight;
-    const scrollY      = window.scrollY;
-    const winH         = window.innerHeight;
-
-    // Progress 0..1 through the scroll spacer
-    let progress = (scrollY - spacerTop) / (spacerHeight - winH);
-    progress = Math.max(0, Math.min(1, progress));
-
-    const speed = Math.abs(progress - lastProgress) * 1000;
-    lastProgress = progress;
-
-    // Scroll progress bar (in the full site)
-    const totalScroll = document.body.scrollHeight - winH;
-    scrollProg.style.width = (scrollY / totalScroll * 100) + '%';
-
-    // Nav
-    if (scrollY > spacerTop + spacerHeight - winH * 1.5) {
-      nav.classList.add('solid');
-    } else {
-      nav.classList.remove('solid');
-    }
-
-    // Only run game animation while in scroll spacer
-    if (scrollY < spacerTop || scrollY > spacerTop + spacerHeight - winH + winH * .2) {
-      if (scrollY > spacerTop + spacerHeight - winH * .5) nav.classList.add('solid');
-      return;
-    }
-
-    // Hero overlay fade
-    heroOverlay.style.opacity = Math.max(0, 1 - progress * 5).toString();
-    heroOverlay.style.pointerEvents = progress > .08 ? 'none' : 'all';
-
-    // Zone index 0..3.999 based on progress
-    const zoneIdx = progress * 4;
-    const zoneInt = Math.floor(Math.min(zoneIdx, 3));
-    const zoneBlend = zoneIdx % 1;
-
-    // Zone label
-    zoneLabel.textContent = zones[Math.min(zoneInt, 3)].name;
-    zoneLabel.style.opacity = progress > .02 && progress < .97 ? '1' : '0';
-
-    // Sky
-    const z = zones[zoneInt];
-    const zn = zones[Math.min(zoneInt + 1, 3)];
-    sky.style.background = `linear-gradient(180deg, ${lerpColor(z.skyTop, zn.skyTop, zoneBlend)} 0%, ${lerpColor(z.skyBot, zn.skyBot, zoneBlend)} 100%)`;
-
-    // Celestial body
-    const cx = lerp(z.sunX, zn.sunX, zoneBlend);
-    const cy = lerp(z.sunY, zn.sunY, zoneBlend);
-    celestial.style.left = cx + 'vw';
-    celestial.style.top  = cy + 'vh';
-    celestial.style.background = zoneInt >= 3 ? 'radial-gradient(circle, #FFE0B0, #FF7030)' : z.sunColor;
-    celestial.style.boxShadow = zoneInt >= 3
-      ? '0 0 40px rgba(255,120,50,.5), 0 0 80px rgba(255,80,30,.2)'
-      : '0 0 60px rgba(255,200,50,.7), 0 0 120px rgba(255,160,0,.3)';
-
-    // Parallax offset driven by scroll
-    const parallaxX = progress * W * 3;
-
-    // Draw canvases
-    const fCtx  = bgFar.getContext('2d');
-    const mCtx  = bgMid.getContext('2d');
-    const nCtx  = bgNear.getContext('2d');
-    const rCtx  = roadCanvas.getContext('2d');
-
-    drawFarBg(fCtx,  bgFar.width,  bgFar.height,  parallaxX, zoneIdx, zoneBlend);
-    drawMidBg(mCtx,  bgMid.width,  bgMid.height,  parallaxX, zoneIdx);
-    drawNearBg(nCtx, bgNear.width, bgNear.height, parallaxX, zoneIdx);
-    drawRoad(rCtx, roadCanvas.width, roadCanvas.height, parallaxX);
-
-    // Clouds
-    cCtx.clearRect(0, 0, cloudCanvas.width, cloudCanvas.height);
-    const cloudTint = zoneInt >= 3 ? '200,180,160' : (zoneInt >= 1 ? '255,255,255' : '255,220,180');
-    clouds.forEach(c => {
-      c.x -= c.speed * (1 + speed * 2);
-      if (c.x + c.w < 0) c.x = cloudCanvas.width + c.w;
-      drawCloud(cCtx, c.x, c.y, c.w, c.h, c.alpha * (zoneInt >= 3 ? .5 : 1), cloudTint);
-    });
-
-    // Truck position — moves from ~15% to ~75% of screen width
-    const truckX = 15 + progress * 55;
-    truckWrap.style.left = truckX + '%';
-    // Slight bobbing
-    const bob = Math.sin(progress * 80) * 1.5;
-    truckWrap.style.bottom = (24 + bob * .1) + '%';
-
-    // Wheel animation
-    animateTruckWheels(speed);
-
-    // Milestone markers
-    ['m1','m2','m3'].forEach((id,i) => {
-      const m = document.getElementById(id);
-      if (m) m.classList.toggle('passed', progress > (i+1) * .25);
-    });
-
-    // Panels
-    panels.forEach(p => {
-      const active = progress >= p.start && progress <= p.end;
-      if (active && !p.el.classList.contains('visible')) {
-        p.el.classList.add('visible');
-      } else if (!active && p.el.classList.contains('visible')) {
-        p.el.classList.remove('visible');
-      }
-    });
-
-    // Counters in panel-stats
-    if (progress >= .5 && !countDone.cnt1) {
-      countDone.cnt1 = true;
-      animCount('cnt1', 500, 1500);
-      animCount('cnt2', 5, 1000);
-      animCount('cnt3', 1000, 1800);
-    }
-  }
-
-  window.addEventListener('scroll', onScroll, { passive: true });
-  onScroll(); // init
-
-  /* ── FULL SITE REVEAL ── */
-  const io = new IntersectionObserver(entries => {
-    entries.forEach(e => {
-      if (e.isIntersecting) {
-        e.target.classList.add('on');
-        io.unobserve(e.target);
-      }
-    });
-  }, { threshold: .1 });
-  document.querySelectorAll('.r,.rl,.rr').forEach(el => io.observe(el));
-
-  /* Full site counters */
-  const cio = new IntersectionObserver(entries => {
-    entries.forEach(e => {
-      if (e.isIntersecting) {
-        const id = e.target.id;
-        if (id === 's1') animCount('s1', 500, 1800);
-        if (id === 's2') animCount('s2', 5, 900);
-        if (id === 's3') animCount('s3', 1000, 2000);
-        cio.unobserve(e.target);
-      }
-    });
-  }, { threshold: .5 });
-  ['s1','s2','s3'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) cio.observe(el);
+    // Mid snow patch
+    var mp=new THREE.Mesh(
+      new THREE.ConeGeometry(d.r*.26,d.h*.16,d.s),
+      new THREE.MeshLambertMaterial({color:0xe6e4e0,transparent:true,opacity:.65})
+    );
+    mp.position.set(d.x+(Math.random()-.5)*8,d.h*.52-22,d.z+(Math.random()-.5)*8);
+    mtGrp.add(mp);
   });
 }
 
-/* ═══ FEEDBACK FORM ═══ */
-function handleFullFeedback(e) {
-  e.preventDefault();
-  const name   = document.getElementById('ffn').value.trim();
-  const svc    = document.getElementById('ffs').value;
-  const rEl    = document.querySelector('input[name="ffrt"]:checked');
-  const rating = rEl ? parseInt(rEl.value) : 5;
-  const review = document.getElementById('ffrev').value.trim();
-  const stars  = '★'.repeat(rating) + '☆'.repeat(5-rating);
-  const card   = document.createElement('div');
-  card.className = 'rv';
-  card.style.cssText = 'opacity:0;transform:translateY(20px);transition:all .7s ease;background:var(--off)';
-  card.innerHTML = `<div class="rv-q">"</div><div class="rv-stars">${stars}</div><div class="rv-txt">${review}</div><div class="rv-who">${name}</div><div class="rv-role">${svc||'Customer'}</div>`;
-  document.getElementById('revGrid').appendChild(card);
-  requestAnimationFrame(() => requestAnimationFrame(() => {
-    card.style.opacity = '1';
-    card.style.transform = 'translateY(0)';
-  }));
-  document.getElementById('fullOkMsg').style.display = 'block';
-  document.getElementById('fullFbForm').reset();
-  setTimeout(() => { document.getElementById('fullOkMsg').style.display = 'none'; }, 8000);
+/* ── ROAD ── */
+function buildRoad(){
+  roadGrp=new THREE.Group();
+  scene.add(roadGrp);
+
+  // Asphalt — slightly darker than ground
+  var rM=new THREE.Mesh(
+    new THREE.PlaneGeometry(10,600),
+    new THREE.MeshLambertMaterial({color:0x262624})
+  );
+  rM.rotation.x=-Math.PI/2; rM.position.set(0,-21.88,-80); rM.receiveShadow=true;
+  roadGrp.add(rM);
+
+  // Gravel shoulders
+  var sMat=new THREE.MeshLambertMaterial({color:0xb0a89e});
+  [-7.5,7.5].forEach(function(x){
+    var s=new THREE.Mesh(new THREE.PlaneGeometry(7,600),sMat);
+    s.rotation.x=-Math.PI/2; s.position.set(x,-21.84,-80);
+    roadGrp.add(s);
+  });
+
+  // White edge lines — NO separate plane, just thin strips
+  var wM=new THREE.MeshBasicMaterial({color:0xe4e4e4});
+  [-4.1,4.1].forEach(function(x){
+    var l=new THREE.Mesh(new THREE.PlaneGeometry(.16,600),wM);
+    l.rotation.x=-Math.PI/2; l.position.set(x,-21.77,-80);
+    roadGrp.add(l);
+  });
+
+  // Yellow centre dashes
+  var yM=new THREE.MeshBasicMaterial({color:0xeec820});
+  for(var i=0;i<140;i++){
+    var d=new THREE.Mesh(new THREE.PlaneGeometry(.13,2.2),yM);
+    d.rotation.x=-Math.PI/2; d.position.set(0,-21.76,i*4.2-310);
+    roadGrp.add(d);
+  }
 }
 
-/* ═══ COLOR LERP UTILS ═══ */
-function hexToRgb(hex) {
-  const r = parseInt(hex.slice(1,3),16);
-  const g = parseInt(hex.slice(3,5),16);
-  const b = parseInt(hex.slice(5,7),16);
-  return [r,g,b];
+/* ── TRUCK ── */
+function buildTruck(){
+  trkGrp=new THREE.Group();
+  trkGrp.visible=false;
+  scene.add(trkGrp);
+
+  var mats={
+    red:  new THREE.MeshLambertMaterial({color:0xcc3300}),
+    redD: new THREE.MeshLambertMaterial({color:0xa82800}),
+    chr:  new THREE.MeshLambertMaterial({color:0xc4ccd8}),
+    chrD: new THREE.MeshLambertMaterial({color:0x8898aa}),
+    gls:  new THREE.MeshLambertMaterial({color:0x78aec0,transparent:true,opacity:.55}),
+    blu:  new THREE.MeshLambertMaterial({color:0x1a2858}),
+    bluD: new THREE.MeshLambertMaterial({color:0x10203e}),
+    blk:  new THREE.MeshLambertMaterial({color:0x121212}),
+    dkg:  new THREE.MeshLambertMaterial({color:0x242424}),
+    org:  new THREE.MeshLambertMaterial({color:0xff5500}),
+    wht:  new THREE.MeshLambertMaterial({color:0xf0f0ec}),
+    rub:  new THREE.MeshLambertMaterial({color:0x111111}),
+    rim:  new THREE.MeshLambertMaterial({color:0xaab8c4}),
+    ylw:  new THREE.MeshLambertMaterial({color:0xecc020}),
+    brs:  new THREE.MeshLambertMaterial({color:0xc8a030}),
+    hl:   new THREE.MeshLambertMaterial({color:0xfff6d8})
+  };
+
+  function bx(w,h,d,m,px,py,pz){
+    var o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);
+    o.position.set(px,py,pz); o.castShadow=true; o.receiveShadow=true; trkGrp.add(o); return o;
+  }
+  function cy(rt,rb,h,seg,m,px,py,pz,rx,rz){
+    var o=new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,h,seg),m);
+    o.position.set(px,py,pz); if(rx)o.rotation.x=rx; if(rz)o.rotation.z=rz;
+    o.castShadow=true; trkGrp.add(o); return o;
+  }
+
+  // CHASSIS
+  bx(3.2,.26,18,mats.dkg,0,.08,-4.5);
+
+  // TRAILER
+  bx(3.65,2.7,11,mats.blu,0,2.85,-6);
+  bx(3.7,.14,11.1,mats.bluD,0,4.22,-6);       // top edge
+  bx(3.67,.44,11.02,mats.org,0,1.82,-6);       // orange stripe
+  bx(3.67,.11,11.02,mats.wht,0,1.54,-6);       // white band
+  bx(3.6,2.7,.09,mats.bluD,0,2.85,-11.54);     // rear face
+  bx(.05,2.7,.11,mats.chr,0,2.85,-11.58);      // door seam
+  bx(1.18,.25,.09,mats.red,-1.42,1.32,-11.56); // rear lights L
+  bx(1.18,.25,.09,mats.red,1.42,1.32,-11.56);  // rear lights R
+  bx(.48,.21,.09,mats.ylw,0,1.32,-11.56);      // amber centre
+  bx(3.7,.48,.52,mats.dkg,0,.5,-11.48);        // rear bumper
+  bx(3.5,.33,11,mats.blk,0,-.07,-6);           // underbody
+
+  // CAB
+  bx(3.45,3.32,4.0,mats.red,0,2.32,1.2);
+  bx(3.25,1.14,2.5,mats.redD,0,4.07,.35);      // sleeper
+  bx(3.32,.73,.88,mats.redD,0,5.18,1.8);       // aero top
+  bx(2.75,1.54,.06,mats.gls,0,2.74,3.22);      // windshield
+  bx(3.0,.13,.08,mats.redD,0,3.55,3.22);       // ws frame top
+  bx(2.42,1.14,.11,mats.blk,0,1.56,3.22);      // grille dark
+  bx(2.52,1.24,.09,mats.chr,0,1.56,3.24);      // grille chrome frame
+  for(var gi=0;gi<4;gi++) bx(2.4,.065,.13,mats.chrD,0,1.16+gi*.28,3.23);  // grille bars
+  bx(1.08,.41,.09,mats.chr,0,2.29,3.24);       // Tata badge
+  bx(.76,.41,.09,mats.hl,1.14,1.29,3.24);      // HL L
+  bx(.76,.41,.09,mats.hl,-1.14,1.29,3.24);     // HL R
+  bx(.82,.47,.07,mats.chr,1.14,1.29,3.22);     // HL bezel L
+  bx(.82,.47,.07,mats.chr,-1.14,1.29,3.22);    // HL bezel R
+  bx(2.28,.09,.09,mats.hl,0,1.73,3.23);        // DRL strip
+  bx(.41,.27,.07,mats.ylw,1.34,.97,3.23);      // turn L
+  bx(.41,.27,.07,mats.ylw,-1.34,.97,3.23);     // turn R
+  bx(.37,.21,.07,mats.wht,.99,.71,3.23);       // fog L
+  bx(.37,.21,.07,mats.wht,-.99,.71,3.23);      // fog R
+  bx(3.52,.61,.63,mats.chr,0,.79,3.14);        // bumper main
+  bx(3.52,.17,.48,mats.dkg,0,.47,3.1);         // bumper bottom
+  bx(.47,.54,.35,mats.blk,-1.3,2.67,3.12);     // intake L
+  bx(.47,.54,.35,mats.blk,1.3,2.67,3.12);      // intake R
+  bx(.11,.09,1.22,mats.dkg,-1.94,3.02,2.58);   // mirror arm L
+  bx(.11,.09,1.22,mats.dkg,1.94,3.02,2.58);    // mirror arm R
+  bx(.68,.48,.19,mats.redD,-2.48,3.02,2.1);    // mirror head L
+  bx(.68,.48,.19,mats.redD,2.48,3.02,2.1);     // mirror head R
+  cy(.09,.11,3.2,10,mats.chr,1.54,3.88,.2);    // exhaust
+  cy(.17,0,.27,10,mats.chr,1.54,5.52,.2);      // exhaust cap
+  cy(.51,.51,1.5,14,mats.dkg,1.94,.73,-1.5,0,Math.PI/2); // fuel tank
+  bx(.54,.14,1.88,mats.blk,1.9,.27,1.1);       // step R
+  bx(.54,.14,1.88,mats.blk,-1.9,.27,1.1);      // step L
+  bx(1.18,.34,.78,mats.dkg,0,.28,-1.38);       // coupler
+  bx(1.58,.14,1.18,mats.chrD,0,.44,-1.58);     // 5th wheel
+
+  // AXLE BARS
+  [-2.6,-5.0].forEach(function(z){bx(5.1,.17,.17,mats.dkg,0,.88,z);});
+
+  // BRAKE DRUMS on rear axles
+  [-2.6,-5.0].forEach(function(z){
+    [-2.12,2.12].forEach(function(x){cy(.68,.68,.48,16,mats.chrD,x,.88,z,0,Math.PI/2);});
+  });
+
+  // WHEELS
+  var wDefs=[
+    {x:-1.97,y:.74,z:2.44,big:false},{x:1.97,y:.74,z:2.44,big:false},
+    {x:-2.11,y:.88,z:-2.6,big:true},{x:2.11,y:.88,z:-2.6,big:true},
+    {x:-2.21,y:.88,z:-2.6,big:true},{x:2.21,y:.88,z:-2.6,big:true},
+    {x:-2.11,y:.88,z:-5.0,big:true},{x:2.11,y:.88,z:-5.0,big:true},
+    {x:-2.21,y:.88,z:-5.0,big:true},{x:2.21,y:.88,z:-5.0,big:true}
+  ];
+  trkGrp.userData.tires=[];
+  wDefs.forEach(function(wp){
+    var wr=wp.big?.87:.71, wth=wp.big?.51:.41;
+    // Tyre torus
+    var t=new THREE.Mesh(new THREE.TorusGeometry(wr*.61,wr*.35,12,30),mats.rub);
+    t.rotation.y=Math.PI/2; t.position.set(wp.x,wp.y,wp.z); t.castShadow=true; trkGrp.add(t);
+    // Rim
+    var r=new THREE.Mesh(new THREE.CylinderGeometry(wr*.55,wr*.55,wth,16),mats.rim);
+    r.rotation.z=Math.PI/2; r.position.set(wp.x,wp.y,wp.z); r.castShadow=true; trkGrp.add(r);
+    // Hub cap
+    var hc=new THREE.Mesh(new THREE.CircleGeometry(wr*.31,12),mats.chr);
+    hc.rotation.y=Math.PI/2;
+    var ho=wp.x<0?-.26:.26;
+    hc.position.set(wp.x+ho,wp.y,wp.z); trkGrp.add(hc);
+    // 6 bolts per wheel
+    for(var b=0;b<6;b++){
+      var ba=b/6*Math.PI*2, br=wr*.21;
+      var bolt=new THREE.Mesh(new THREE.CylinderGeometry(.035,.035,.2,6),mats.chrD);
+      bolt.rotation.z=Math.PI/2;
+      bolt.position.set(wp.x+ho,wp.y+Math.sin(ba)*br,wp.z+Math.cos(ba)*br);
+      trkGrp.add(bolt);
+    }
+    trkGrp.userData.tires.push(t);
+  });
+
+  trkGrp.position.set(0,-21.8,-220);
 }
-function lerpColor(c1, c2, t) {
-  const r1 = hexToRgb(c1), r2 = hexToRgb(c2);
-  const r = Math.round(lerp(r1[0],r2[0],t));
-  const g = Math.round(lerp(r1[1],r2[1],t));
-  const b = Math.round(lerp(r1[2],r2[2],t));
-  return `#${r.toString(16).padStart(2,'0')}${g.toString(16).padStart(2,'0')}${b.toString(16).padStart(2,'0')}`;
+
+/* ── SNOW ── */
+function buildSnow(){
+  var cnt=1400, pos=new Float32Array(cnt*3);
+  for(var i=0;i<cnt;i++){
+    pos[i*3]=(Math.random()-.5)*400;
+    pos[i*3+1]=-20+Math.random()*230;
+    pos[i*3+2]=(Math.random()-.5)*400;
+  }
+  var geo=new THREE.BufferGeometry();
+  geo.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));
+  snowPts=new THREE.Points(geo,new THREE.PointsMaterial({color:0xfcfcfc,size:.55,transparent:true,opacity:.72}));
+  scene.add(snowPts);
 }
-function lerp(a, b, t) { return a + (b-a) * t; }
+
+/* ── PARTS ── */
+function buildParts(){
+  prtGrp=new THREE.Group();
+  prtGrp.visible=false;
+  scene.add(prtGrp);
+
+  function obj(geo,mat){var m=new THREE.Mesh(geo,mat);m.castShadow=true;return m;}
+
+  var st  =new THREE.MeshLambertMaterial({color:0xaebbc8});
+  var stD =new THREE.MeshLambertMaterial({color:0x788898});
+  var chr2=new THREE.MeshLambertMaterial({color:0xc8d2dc});
+  var brs2=new THREE.MeshLambertMaterial({color:0xc4a030});
+  var rub2=new THREE.MeshLambertMaterial({color:0x181818});
+  var cst =new THREE.MeshLambertMaterial({color:0x464840});
+  var dk2 =new THREE.MeshLambertMaterial({color:0x303030});
+
+  var defs=[];
+
+  // 1. BEARING (rings like IGLOO screenshot)
+  var bear=new THREE.Group();
+  bear.add(obj(new THREE.TorusGeometry(3,.9,18,52),st));
+  bear.add(obj(new THREE.TorusGeometry(1.65,.7,16,44),chr2));
+  bear.add(obj(new THREE.TorusGeometry(2.24,.22,8,44),brs2));
+  for(var b=0;b<8;b++){var a=b/8*Math.PI*2,sp=obj(new THREE.SphereGeometry(.28,10,8),chr2);sp.position.set(Math.cos(a)*2.24,Math.sin(a)*2.24,0);bear.add(sp);}
+  var bore=obj(new THREE.CylinderGeometry(.72,.72,.38,20),stD); bore.rotation.x=Math.PI/2; bear.add(bore);
+  defs.push({g:bear,name:'Hub Bearing',sp:18});
+
+  // 2. CLUTCH DISC
+  var clu=new THREE.Group();
+  clu.add(obj(new THREE.CylinderGeometry(3.82,3.82,.27,38),cst));
+  clu.add(obj(new THREE.CylinderGeometry(1.12,1.12,.55,20),stD));
+  for(var cs=0;cs<6;cs++){var csa=cs/6*Math.PI*2,csm=obj(new THREE.CylinderGeometry(.17,.17,.28,8),brs2);csm.position.set(Math.cos(csa)*1.9,0,Math.sin(csa)*1.9);clu.add(csm);}
+  var fr=obj(new THREE.TorusGeometry(2.92,.54,5,38),rub2); fr.rotation.x=Math.PI/2; clu.add(fr);
+  defs.push({g:clu,name:'Clutch Disc',sp:20});
+
+  // 3. UNIVERSAL JOINT
+  var uni=new THREE.Group();
+  var c1=obj(new THREE.CylinderGeometry(.44,.44,4.2,12),stD); uni.add(c1);
+  var c2=obj(new THREE.CylinderGeometry(.44,.44,4.2,12),stD); c2.rotation.z=Math.PI/2; uni.add(c2);
+  [[0,-2.22],[0,2.22],[1,-2.22],[1,2.22]].forEach(function(v){var cp=obj(new THREE.CylinderGeometry(.52,.52,.54,14),chr2);if(v[0]===0)cp.position.y=v[1];else{cp.position.x=v[1];cp.rotation.z=Math.PI/2;}uni.add(cp);});
+  var yk=obj(new THREE.BoxGeometry(1.2,.58,3.5),st); yk.position.z=-2.5; uni.add(yk);
+  var yk2=obj(new THREE.BoxGeometry(1.2,.58,3.5),st); yk2.position.z=2.5; uni.add(yk2);
+  defs.push({g:uni,name:'Universal Joint',sp:16});
+
+  // 4. LEAF SPRING PACK
+  var spr=new THREE.Group();
+  [9,8.2,7.4,6.6,5.8].forEach(function(l,i){var lf=obj(new THREE.BoxGeometry(l,.27,.88),cst);lf.position.y=i*.27;spr.add(lf);});
+  var cl1=obj(new THREE.BoxGeometry(.78,1.48,.14),st); cl1.position.set(0,.7,-.5); spr.add(cl1);
+  var cl2=obj(new THREE.BoxGeometry(.78,1.48,.14),st); cl2.position.set(0,.7,.5); spr.add(cl2);
+  [-3.9,.4].forEach(function(x){var bu=obj(new THREE.CylinderGeometry(.34,.34,.88,12),rub2);bu.rotation.z=Math.PI/2;bu.position.set(x,.38,0);spr.add(bu);});
+  spr.rotation.z=.28;
+  defs.push({g:spr,name:'Leaf Spring',sp:22});
+
+  // 5. PISTON
+  var pis=new THREE.Group();
+  pis.add(obj(new THREE.CylinderGeometry(1.58,1.54,3.82,24),st));
+  var cr=obj(new THREE.CylinderGeometry(1.58,1.58,.21,24),chr2); cr.position.y=2.0; pis.add(cr);
+  [.82,1.26,1.6].forEach(function(y){var rg=obj(new THREE.TorusGeometry(1.58,.075,6,28),brs2);rg.rotation.x=Math.PI/2;rg.position.y=y;pis.add(rg);});
+  var gp=obj(new THREE.CylinderGeometry(.37,.37,3.38,12),stD); gp.rotation.z=Math.PI/2; gp.position.y=.28; pis.add(gp);
+  defs.push({g:pis,name:'Piston',sp:14});
+
+  // 6. BRAKE DRUM
+  var bdr=new THREE.Group();
+  bdr.add(obj(new THREE.CylinderGeometry(4.2,4.2,.88,34),cst));
+  var lp=obj(new THREE.TorusGeometry(4.2,.19,7,34),stD); lp.rotation.x=Math.PI/2; lp.position.y=.44; bdr.add(lp);
+  var lp2=obj(new THREE.TorusGeometry(4.2,.19,7,34),stD); lp2.rotation.x=Math.PI/2; lp2.position.y=-.44; bdr.add(lp2);
+  for(var bh=0;bh<5;bh++){var bha=bh/5*Math.PI*2,bho=obj(new THREE.CylinderGeometry(.17,.17,.9,8),stD);bho.position.set(Math.cos(bha)*3.2,0,Math.sin(bha)*3.2);bdr.add(bho);}
+  defs.push({g:bdr,name:'Brake Drum',sp:19});
+
+  // 7. WHEEL HUB
+  var hub=new THREE.Group();
+  hub.add(obj(new THREE.CylinderGeometry(3.18,3.18,.54,34),st));
+  var hs=obj(new THREE.CylinderGeometry(1.08,1.28,3.95,16),stD); hs.position.y=2.0; hub.add(hs);
+  for(var ws=0;ws<8;ws++){var wsa=ws/8*Math.PI*2,std2=obj(new THREE.CylinderGeometry(.11,.11,2.78,6),chr2);std2.position.set(Math.cos(wsa)*2.38,.08,Math.sin(wsa)*2.38);hub.add(std2);var nt=obj(new THREE.CylinderGeometry(.21,.21,.34,6),brs2);nt.position.set(Math.cos(wsa)*2.38,1.54,Math.sin(wsa)*2.38);hub.add(nt);}
+  defs.push({g:hub,name:'Wheel Hub',sp:16});
+
+  prtGrp.userData.parts=[];
+  defs.forEach(function(d,i){
+    var ang=i/defs.length*Math.PI*2, rad=d.sp||16;
+    d.g.userData.tgt={
+      x:Math.cos(ang)*(rad+Math.random()*4)+(Math.random()-.5)*5,
+      y:1.5+Math.random()*8,
+      z:Math.sin(ang)*(rad*.68)+(Math.random()-.5)*5
+    };
+    d.g.userData.flo=Math.random()*Math.PI*2;
+    d.g.position.set(0,0,0);
+    d.g.scale.set(0,0,0);
+    prtGrp.add(d.g);
+    prtGrp.userData.parts.push(d.g);
+  });
+}
+
+
+/* ═══ CINEMATIC CONTROL ═══ */
+var $hud=document.getElementById('hud');
+var $pg=document.getElementById('pg');
+var $slbl=document.getElementById('slbl');
+var $srhint=document.getElementById('srhint');
+
+function setPg(p){$pg.style.width=p+'%';}
+function setLbl(n){var s=n<10?'0'+n:n;$slbl.textContent='SCENE '+s+' / 05';}
+function show(id){var e=document.getElementById(id);if(e)e.classList.add('show');}
+function hide(id){var e=document.getElementById(id);if(e)e.classList.remove('show');}
+
+function startCine(){
+  var intro=document.getElementById('intro');
+  intro.classList.add('gone');
+  setTimeout(function(){intro.style.display='none';},1000);
+  $hud.style.display='block';
+  cineOn=true;
+  phase=1;
+  p1();
+}
+
+/* ── PHASE 1: Mountain panorama with snow ── */
+function p1(){
+  setLbl(1); setPg(5);
+  $srhint.classList.remove('gone');
+
+  gsap.to(camera.position,{x:18,y:105,z:55,duration:5.5,ease:'power2.inOut',
+    onUpdate:function(){camera.lookAt(0,0,-55);}
+  });
+
+  setTimeout(function(){show('s1');setPg(16);},1200);
+  setTimeout(function(){if(phase===1){hide('s1');p2();}},9500);
+}
+
+/* ── PHASE 2: Truck drives up empty road ── */
+function p2(){
+  phase=2; setLbl(2); setPg(23);
+  $srhint.classList.add('gone');
+  scene.fog=new THREE.FogExp2(0xd8d6d2,.013);
+
+  gsap.to(camera.position,{x:-5,y:9,z:52,duration:4,ease:'power2.inOut',
+    onUpdate:function(){camera.lookAt(trkGrp.position.x,trkGrp.position.y+4.5,trkGrp.position.z);}
+  });
+
+  setTimeout(function(){
+    trkGrp.visible=true;
+    trkGrp.position.set(0,-21.8,-230);
+    show('s2'); setPg(42);
+
+    gsap.to(trkGrp.position,{z:10,duration:9,ease:'power1.inOut',
+      onUpdate:function(){
+        camera.lookAt(trkGrp.position.x,trkGrp.position.y+4.5,trkGrp.position.z);
+        trkGrp.userData.tires.forEach(function(t){t.rotation.y-=.15;});
+        trkGrp.rotation.z=Math.sin(clock.getElapsedTime()*2.8)*.004;
+      }
+    });
+
+    setTimeout(function(){if(phase===2){hide('s2');p3();}},10500);
+  },2200);
+}
+
+/* ── PHASE 3: 360° orbit ── */
+function p3(){
+  phase=3; setLbl(3); setPg(52);
+  show('s3');
+  scene.fog=new THREE.FogExp2(0xd8d6d2,.01);
+
+  var tz=trkGrp.position.z;
+  gsap.to(camera.position,{x:24,y:8.5,z:tz,duration:2.5,ease:'power2.out'});
+
+  setTimeout(function(){
+    var oa={a:0};
+    gsap.to(oa,{a:Math.PI*2,duration:10,ease:'none',
+      onUpdate:function(){
+        var a=oa.a;
+        camera.position.x=Math.sin(a)*25;
+        camera.position.z=tz+Math.cos(a)*25;
+        // Dip low at back for underbody — dramatic
+        if(a>Math.PI*.35&&a<Math.PI*.75){
+          camera.position.y=1.2+Math.sin((a-Math.PI*.35)/(Math.PI*.4))*7.5;
+        } else {
+          camera.position.y=7+Math.abs(Math.sin(a))*3.5;
+        }
+        camera.lookAt(trkGrp.position.x,trkGrp.position.y+2.5,tz);
+      },
+      onComplete:function(){hide('s3');p4();}
+    });
+  },3000);
+}
+
+/* ── PHASE 4: Truck disassembles — parts explode ── */
+function p4(){
+  phase=4; setLbl(4); setPg(70);
+  // Activate glass blur effect for this scene
+  document.getElementById('glassblur').classList.add('active');
+  scene.fog=new THREE.FogExp2(0xe0deda,.006);
+
+  var tz=trkGrp.position.z;
+  gsap.to(camera.position,{x:0,y:16,z:tz+40,duration:2.5,ease:'power2.out',
+    onUpdate:function(){camera.lookAt(0,5,tz);}
+  });
+
+  setTimeout(function(){
+    show('s4'); setPg(78);
+
+    // Implode truck
+    gsap.to(trkGrp.scale,{x:0,y:0,z:0,duration:.85,ease:'back.in(1.6)',
+      onComplete:function(){trkGrp.visible=false;}
+    });
+
+    // Place parts at truck location
+    prtGrp.position.copy(trkGrp.position);
+    prtGrp.visible=true;
+
+    // Staggered explosion
+    prtGrp.userData.parts.forEach(function(p,i){
+      var d=i*.09;
+      gsap.to(p.scale,{x:1,y:1,z:1,duration:.72,delay:d,ease:'back.out(2.2)'});
+      gsap.to(p.position,{x:p.userData.tgt.x,y:p.userData.tgt.y,z:p.userData.tgt.z,duration:1.5,delay:d,ease:'power3.out'});
+      gsap.to(p.rotation,{x:Math.random()*6,y:Math.random()*6,z:Math.random()*6,duration:1.6,delay:d,ease:'power2.out'});
+    });
+
+    // Show annotation labels after parts settle
+    setTimeout(function(){
+      ['a1','a2','a3','a4'].forEach(function(id,idx){
+        setTimeout(function(){document.getElementById(id).classList.add('vis');},idx*220);
+      });
+    },2000);
+
+    setPg(90);
+    setTimeout(function(){if(phase===4)p5();},7500);
+  },3000);
+}
+
+/* ── PHASE 5: Enter CTA ── */
+function p5(){
+  phase=5; setLbl(5); setPg(100);
+  hide('s4');
+  ['a1','a2','a3','a4'].forEach(function(id){document.getElementById(id).classList.remove('vis');});
+  scene.fog=new THREE.FogExp2(0xd8d6d2,.014);
+  document.getElementById('glassblur').classList.remove('active');
+  show('s5');
+
+  var tz=prtGrp.position.z, oa={a:0};
+  gsap.to(oa,{a:Math.PI*6,duration:40,ease:'none',repeat:-1,
+    onUpdate:function(){
+      camera.position.x=Math.sin(oa.a)*30;
+      camera.position.z=tz+Math.cos(oa.a)*30;
+      camera.position.y=17+Math.sin(oa.a*.4)*5;
+      camera.lookAt(prtGrp.position.x,5,tz);
+    }
+  });
+}
+
+function enterSite(){
+  gsap.killTweensOf(camera.position);
+  // Fade everything out
+  gsap.to([$hud,document.getElementById('c'),document.getElementById('grain'),
+           document.getElementById('vig'),document.getElementById('mist-top'),
+           document.getElementById('mist-bot'),document.getElementById('glassblur')],
+    {opacity:0,duration:1.1,ease:'power2.inOut',
+      onComplete:function(){
+        [$hud,'c','grain','vig','mist-top','mist-bot','glassblur'].forEach(function(id){
+          var el=typeof id==='string'?document.getElementById(id):id;
+          if(el)el.style.display='none';
+        });
+      }
+    }
+  );
+  var site=document.getElementById('site');
+  site.style.display='block';
+  document.body.classList.add('live');
+  setTimeout(function(){
+    site.style.opacity='1';
+    initReveal();
+  },700);
+}
+
+/* ═══ RENDER LOOP ═══ */
+function loop(){
+  requestAnimationFrame(loop);
+  var t=clock.getElapsedTime();
+
+  // Idle orbit (before cine starts)
+  if(!cineOn){
+    camera.position.x=Math.sin(t*.09)*28;
+    camera.position.z=28+Math.cos(t*.07)*18;
+    camera.position.y=85+Math.sin(t*.13)*7;
+    camera.lookAt(0,0,-45);
+  }
+
+  // Snow drift
+  if(snowPts){
+    var pa=snowPts.geometry.attributes.position;
+    for(var i=0;i<pa.count;i++){
+      pa.setY(i,pa.getY(i)-(.18+Math.sin(t+i)*.07));
+      pa.setX(i,pa.getX(i)+Math.sin(t*.14+i*.1)*.035);
+      if(pa.getY(i)<-22){
+        pa.setY(i,180+Math.random()*22);
+        pa.setX(i,(Math.random()-.5)*400);
+        pa.setZ(i,(Math.random()-.5)*400);
+      }
+    }
+    pa.needsUpdate=true;
+  }
+
+  // Parts floating
+  if(prtGrp&&prtGrp.visible&&phase>=4){
+    prtGrp.userData.parts.forEach(function(p){
+      p.position.y=p.userData.tgt.y+Math.sin(t*.55+p.userData.flo)*.55;
+      p.rotation.y+=.0038;
+    });
+  }
+
+  renderer.render(scene,camera);
+}
+
+/* ═══ SCROLL REVEAL ═══ */
+function initReveal(){
+  new IntersectionObserver(function(es){
+    es.forEach(function(e){if(e.isIntersecting)e.target.classList.add('on');});
+  },{threshold:.08}).observe(document.querySelector('#site'));
+  document.querySelectorAll('.rv2').forEach(function(el){
+    new IntersectionObserver(function(es){
+      es.forEach(function(e){if(e.isIntersecting)e.target.classList.add('on');});
+    },{threshold:.1}).observe(el);
+  });
+}
+
+/* ═══ MODAL ═══ */
+var starV=0;
+function openM(){document.getElementById('modal').classList.add('open');}
+function closeM(){document.getElementById('modal').classList.remove('open');}
+function setStar(n){starV=n;var s=document.getElementById('srw').children;for(var i=0;i<5;i++)s[i].className=i<n?'lit':'';}
+async function subRev(){
+  var n=document.getElementById('rN').value.trim(),p=document.getElementById('rP').value.trim();
+  var v=document.getElementById('rV').value.trim(),t=document.getElementById('rT').value.trim();
+  if(!n||!t||!starV){alert('Please fill name, rating and review.');return;}
+  for(var i=0;i<30&&!_sb;i++) await new Promise(r=>setTimeout(r,200));
+  if(_sb)_sb.from('website_visitors').insert({name:n,phone:p||'',review_text:t,rating:starV,vehicle:v||''}).then(()=>{});
+  var c=document.createElement('div'); c.className='rv';
+  c.innerHTML='<div class="rs">'+('&#9733;'.repeat(starV)+'&#9734;'.repeat(5-starV))+'</div><div class="rt">&ldquo;'+t+'&rdquo;</div><div class="ra">'+n+'</div><div class="rsub2">'+(v||'Customer')+'</div>';
+  document.getElementById('rvc').appendChild(c);
+  document.getElementById('mok').style.display='block';
+  ['rN','rP','rV','rT'].forEach(function(id){document.getElementById(id).value='';});
+  setStar(0); setTimeout(closeM,2600);
+}
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeM();});
+document.getElementById('modal').addEventListener('click',function(e){if(e.target===this)closeM();});
+
+/* SITE default opacity */
+document.getElementById('site').style.opacity='0';
+document.getElementById('site').style.transition='opacity 1.1s ease';
+
+/* ═══ BOOT ═══ */
+window.addEventListener('load',function(){
+  if(typeof THREE==='undefined')return;
+  init3();
+});
 </script>
 </body>
 </html>
