@@ -253,7 +253,7 @@
     <div class="import-preview" id="importPreview"></div>
 
     <div id="importActions" style="display:none;margin-top:16px;display:flex;gap:10px;">
-      <button id="doImportBtn" onclick="doImport()" style="background:linear-gradient(135deg,#2563eb,#3b82f6);border:none;color:white;padding:10px 24px;border-radius:8px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;">✅ Import All Products</button>
+      <button id="doImportBtn" onclick="doImport()" style="background:linear-gradient(135deg,#2563eb,#3b82f6);border:none;color:white;padding:10px 24px;border-radius:8px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;">✅ Import Selected</button>
       <button onclick="closeImportModal()" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:white;padding:10px 18px;border-radius:8px;cursor:pointer;font-family:'DM Sans',sans-serif;">Cancel</button>
     </div>
     <div style="margin-top:16px;" id="importCloseBtn">
@@ -647,20 +647,63 @@ function handleFile(file) {
       statusDiv.className = 'import-status success'
       statusDiv.innerText = `✅ Found ${importData.length} products ready to import`
 
-      // Show preview (first 5 rows)
+  // Show ALL rows with checkboxes
       const preview = document.getElementById('importPreview')
-      preview.innerHTML = `<div style="font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:8px;">Preview (first 5 rows of ${importData.length} total):</div>
-        <table>
-          <thead><tr><th>Name</th><th>Brand</th><th>Size</th><th>Category</th><th>Qty</th><th>Buy ₹</th><th>Sell ₹</th></tr></thead>
-          <tbody>${importData.slice(0, 5).map(r => `<tr>
-            <td>${r.item_name}</td><td>${r.brand || '—'}</td><td>${r.product_size || '—'}</td>
-            <td>${r.category || '—'}</td><td>${r.quantity}</td>
-            <td>${r.purchase_price ? '₹' + r.purchase_price : '—'}</td>
-            <td>${r.selling_price ? '₹' + r.selling_price : '—'}</td>
-          </tr>`).join('')}</tbody>
-        </table>`
+      preview.innerHTML = `
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px;">
+          <div style="font-size:12px;color:rgba(255,255,255,0.5);">
+            All <strong style="color:white;">${importData.length}</strong> products — select which ones to import
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <button onclick="selectAllImport(true)" style="background:rgba(37,99,235,0.2);border:1px solid rgba(37,99,235,0.4);color:#60a5fa;padding:5px 14px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;box-shadow:none;">✅ Select All</button>
+            <button onclick="selectAllImport(false)" style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.6);padding:5px 14px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;box-shadow:none;">☐ Deselect All</button>
+            <span id="selectedCount" style="font-size:12px;font-weight:700;color:#34d399;">${importData.length} selected</span>
+          </div>
+        </div>
+        <div style="max-height:320px;overflow-y:auto;border-radius:8px;border:1px solid rgba(255,255,255,0.1);">
+        <table style="width:100%;border-collapse:collapse;font-size:12px;">
+          <thead>
+            <tr style="background:rgba(37,99,235,0.2);position:sticky;top:0;z-index:1;">
+              <th style="padding:9px 12px;color:rgba(255,255,255,0.7);text-align:center;width:40px;">
+                <input type="checkbox" id="masterCheck" checked
+                  style="width:16px;height:16px;accent-color:#2563eb;cursor:pointer;"
+                  onchange="masterCheckChange(this)">
+              </th>
+              <th style="padding:9px 12px;color:rgba(255,255,255,0.7);text-align:left;">#</th>
+              <th style="padding:9px 12px;color:rgba(255,255,255,0.7);text-align:left;">Name</th>
+              <th style="padding:9px 12px;color:rgba(255,255,255,0.7);text-align:left;">Brand</th>
+              <th style="padding:9px 12px;color:rgba(255,255,255,0.7);text-align:left;">Size</th>
+              <th style="padding:9px 12px;color:rgba(255,255,255,0.7);text-align:left;">Category</th>
+              <th style="padding:9px 12px;color:rgba(255,255,255,0.7);text-align:center;">Qty</th>
+              <th style="padding:9px 12px;color:rgba(255,255,255,0.7);text-align:right;">Buy ₹</th>
+              <th style="padding:9px 12px;color:rgba(255,255,255,0.7);text-align:right;">Sell ₹</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${importData.map((r, i) => `
+              <tr id="import-row-${i}" style="border-bottom:1px solid rgba(255,255,255,0.05);background:transparent;transition:background 0.15s;"
+                onmouseover="this.style.background='rgba(255,255,255,0.03)'"
+                onmouseout="this.style.background='transparent'">
+                <td style="padding:8px 12px;text-align:center;">
+                  <input type="checkbox" class="row-check" data-index="${i}" checked
+                    style="width:16px;height:16px;accent-color:#2563eb;cursor:pointer;"
+                    onchange="rowCheckChange()">
+                </td>
+                <td style="padding:8px 12px;color:rgba(255,255,255,0.3);font-size:11px;">${i + 1}</td>
+                <td style="padding:8px 12px;color:white;font-weight:500;">${r.item_name}</td>
+                <td style="padding:8px 12px;color:rgba(255,255,255,0.6);">${r.brand || '—'}</td>
+                <td style="padding:8px 12px;color:rgba(255,255,255,0.5);">${r.product_size || '—'}</td>
+                <td style="padding:8px 12px;color:rgba(255,255,255,0.5);">${r.category || '—'}</td>
+                <td style="padding:8px 12px;text-align:center;color:#fbbf24;font-weight:600;">${r.quantity}</td>
+                <td style="padding:8px 12px;text-align:right;color:rgba(255,255,255,0.7);">${r.purchase_price ? '₹' + r.purchase_price : '—'}</td>
+                <td style="padding:8px 12px;text-align:right;color:#34d399;font-weight:600;">${r.selling_price ? '₹' + r.selling_price : '—'}</td>
+              </tr>`).join('')}
+          </tbody>
+        </table>
+        </div>`
 
       document.getElementById('importActions').style.display = 'flex'
+      
     } catch (err) {
       statusDiv.className = 'import-status error'
       statusDiv.innerText = '❌ Error: ' + err.message
@@ -694,26 +737,35 @@ function parseCSVLine(line) {
 }
 
 window.doImport = async function() {
-  if (!importData.length) return
+  // Get only the checked rows
+  const checked = document.querySelectorAll('.row-check:checked')
+  const selectedIndexes = [...checked].map(c => parseInt(c.dataset.index))
+  const toImport = selectedIndexes.map(i => importData[i])
+
+  if (!toImport.length) {
+    alert('Please select at least one product to import.')
+    return
+  }
+
   const btn = document.getElementById('doImportBtn')
   btn.innerText = '⏳ Importing...'
   btn.disabled = true
   const statusDiv = document.getElementById('importStatusDiv')
 
   try {
-    // Insert in batches of 50
     let inserted = 0, errors = 0
-    for (let i = 0; i < importData.length; i += 50) {
-      const batch = importData.slice(i, i + 50)
+    for (let i = 0; i < toImport.length; i += 50) {
+      const batch = toImport.slice(i, i + 50)
       const { data, error } = await supabase.from('inventory').insert(batch).select()
       if (error) { errors += batch.length; console.error(error) }
       else { inserted += (data || []).length }
-      statusDiv.innerText = `⏳ Importing... ${Math.min(i + 50, importData.length)} / ${importData.length}`
+      statusDiv.innerText = `⏳ Importing... ${Math.min(i + 50, toImport.length)} / ${toImport.length}`
     }
 
     statusDiv.className = errors > 0 ? 'import-status error' : 'import-status success'
     statusDiv.innerText = `✅ Import complete! ${inserted} products added.${errors > 0 ? ` (${errors} errors)` : ''}`
     document.getElementById('importActions').style.display = 'none'
+    document.getElementById('importPreview').innerHTML = ''
     importData = []
     await loadProducts()
   } catch (err) {
@@ -721,9 +773,44 @@ window.doImport = async function() {
     statusDiv.innerText = '❌ Import failed: ' + err.message
   }
 
-  btn.innerText = '✅ Import All Products'
+  btn.innerText = '✅ Import Selected'
   btn.disabled = false
 }
+
+ window.selectAllImport = function(checked) {
+  document.querySelectorAll('.row-check').forEach(c => { c.checked = checked })
+  const master = document.getElementById('masterCheck')
+  if (master) master.checked = checked
+  updateSelectedCount()
+}
+
+window.masterCheckChange = function(master) {
+  document.querySelectorAll('.row-check').forEach(c => { c.checked = master.checked })
+  updateSelectedCount()
+}
+
+window.rowCheckChange = function() {
+  const all = document.querySelectorAll('.row-check')
+  const checked = document.querySelectorAll('.row-check:checked')
+  const master = document.getElementById('masterCheck')
+  if (master) {
+    master.checked = all.length === checked.length
+    master.indeterminate = checked.length > 0 && checked.length < all.length
+  }
+  updateSelectedCount()
+}
+
+function updateSelectedCount() {
+  const count = document.querySelectorAll('.row-check:checked').length
+  const el = document.getElementById('selectedCount')
+  if (el) {
+    el.innerText = count + ' selected'
+    el.style.color = count === 0 ? '#f87171' : '#34d399'
+  }
+  // Update the import button text
+  const btn = document.getElementById('doImportBtn')
+  if (btn) btn.innerText = `✅ Import ${count} Selected`
+} 
 
 document.getElementById('importModal').addEventListener('click', function(e) { if (e.target === this) closeImportModal() })
 
