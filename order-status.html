@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="auth.js"></script>
+<title>Order Status - Abhinandan Auto Mobiles</title>
+<link rel="stylesheet" href="style.css">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px;}
+.stat-card{background:linear-gradient(135deg,rgba(255,255,255,0.07),rgba(255,255,255,0.03));border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:16px 18px;position:relative;overflow:hidden;}
+.stat-card::before{content:'';position:absolute;top:0;left:10%;right:10%;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent);}
+.stat-label{font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:6px;}
+.stat-value{font-family:'Playfair Display',serif;font-size:24px;font-weight:700;color:white;}
+
+/* STATUS BADGES */
+.status-badge{display:inline-block;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;letter-spacing:0.5px;}
+.status-pending{background:rgba(251,191,36,0.15);color:#fbbf24;border:1px solid rgba(251,191,36,0.3);}
+.status-partial{background:rgba(96,165,250,0.15);color:#60a5fa;border:1px solid rgba(96,165,250,0.3);}
+.status-received{background:rgba(52,211,153,0.15);color:#34d399;border:1px solid rgba(52,211,153,0.3);}
+.status-cancelled{background:rgba(248,113,113,0.12);color:#f87171;border:1px solid rgba(248,113,113,0.25);}
+
+/* ORDER CARDS */
+.order-card{background:linear-gradient(135deg,rgba(255,255,255,0.06),rgba(255,255,255,0.03));border:1px solid rgba(255,255,255,0.09);border-radius:16px;margin-bottom:14px;overflow:hidden;transition:all 0.2s;}
+.order-card:hover{border-color:rgba(37,99,235,0.35);box-shadow:0 6px 24px rgba(0,0,0,0.3);}
+.order-card.reminder-due{border-color:rgba(251,146,60,0.4);box-shadow:0 0 16px rgba(251,146,60,0.15);}
+.order-header{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;cursor:pointer;flex-wrap:wrap;gap:10px;}
+.order-header:hover{background:rgba(255,255,255,0.02);}
+.order-no{font-size:12px;color:rgba(255,255,255,0.4);font-family:monospace;}
+.order-merchant{font-size:16px;font-weight:700;color:white;margin:2px 0;}
+.order-date{font-size:12px;color:rgba(255,255,255,0.4);}
+.order-meta{display:flex;gap:16px;align-items:center;flex-wrap:wrap;}
+.order-amount{font-size:18px;font-weight:700;color:#a78bfa;}
+.order-items-count{font-size:12px;color:rgba(255,255,255,0.4);}
+.order-actions-row{display:flex;gap:8px;flex-wrap:wrap;}
+.order-body{display:none;border-top:1px solid rgba(255,255,255,0.07);padding:16px 20px;}
+.order-body.open{display:block;}
+.items-table{width:100%;border-collapse:collapse;font-size:13px;}
+.items-table th{padding:9px 12px;font-size:10px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid rgba(255,255,255,0.07);text-align:left;}
+.items-table td{padding:10px 12px;border-bottom:1px solid rgba(255,255,255,0.04);color:rgba(255,255,255,0.8);vertical-align:middle;}
+.items-table tr:last-child td{border-bottom:none;}
+.qty-input-rcv{width:70px;padding:5px 8px;border-radius:7px;border:1.5px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.08);color:white;font-size:13px;font-family:'DM Sans',sans-serif;text-align:center;outline:none;}
+.qty-input-rcv:focus{border-color:#34d399;}
+.qty-input-rcv:disabled{opacity:0.4;cursor:not-allowed;}
+.rcv-check{width:18px;height:18px;accent-color:#34d399;cursor:pointer;}
+.reminder-banner{background:rgba(251,146,60,0.1);border:1px solid rgba(251,146,60,0.3);border-radius:10px;padding:10px 16px;display:flex;align-items:center;gap:10px;margin-bottom:16px;font-size:13px;color:#fb923c;}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:9999;overflow-y:auto;padding:20px;backdrop-filter:blur(6px);}
+.modal-box{background:linear-gradient(135deg,#0f172a,#0d1524);border:1px solid rgba(255,255,255,0.12);border-radius:20px;width:95%;max-width:640px;margin:30px auto;padding:28px;}
+.modal-title{font-family:'Playfair Display',serif;font-size:20px;color:white;margin-bottom:20px;}
+.form-label{font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:6px;display:block;}
+.form-group{margin-bottom:14px;}
+.form-group input,.form-group select,.form-group textarea{margin-bottom:0;width:100%;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+/* ORDER ITEMS IN MODAL */
+.order-item-row{display:grid;grid-template-columns:2fr 1fr 1fr 1fr auto;gap:8px;align-items:end;margin-bottom:8px;}
+.order-item-row input{margin-bottom:0;padding:8px 10px;font-size:13px;}
+.order-item-row select{margin-bottom:0;padding:8px 10px;font-size:13px;}
+.remove-item-btn{background:rgba(220,38,38,0.2);border:1px solid rgba(220,38,38,0.3);color:#f87171;width:32px;height:36px;border-radius:8px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.toolbar{display:flex;gap:12px;align-items:center;margin-bottom:20px;flex-wrap:wrap;}
+.toolbar input,.toolbar select{margin-bottom:0;}
+.toolbar input{flex:1;min-width:200px;}
+.toolbar select{width:160px;}
+.btn-green{background:linear-gradient(135deg,#059669,#34d399)!important;box-shadow:0 4px 14px rgba(5,150,105,0.3)!important;}
+.btn-amber{background:linear-gradient(135deg,#d97706,#f59e0b)!important;box-shadow:0 4px 14px rgba(217,119,6,0.3)!important;}
+.modal-footer{display:flex;gap:12px;margin-top:20px;justify-content:flex-end;}
+.btn-cancel{background:rgba(255,255,255,0.08)!important;border:1px solid rgba(255,255,255,0.15)!important;box-shadow:none!important;color:rgba(255,255,255,0.7)!important;}
+</style>
+</head>
+<body>
+<div class="sidebar">
+  <h2>Auto ERP</h2>
+  <div class="sidebar-divider"></div>
+  <div class="sidebar-label">Main</div>
+  <a href="dashboard.html" class="owner-only">🏠 Dashboard</a>
+  <a href="billing.html">🧾 Sales Billing</a>
+  <a href="purchase-billing.html" class="owner-only">📦 Purchase Billing</a>
+  <a href="order-status.html" class="active owner-only">📋 Order Status</a>
+  <div class="sidebar-label owner-only">Records</div>
+  <a href="products.html" class="owner-only">🔧 Products</a>
+  <a href="customers.html" class="owner-only">👥 Customers</a>
+  <a href="customer-ledger.html" class="owner-only">📒 Customer Ledger</a>
+  <a href="merchants.html" class="owner-only">🏭 Merchants</a>
+  <a href="merchant-ledger.html" class="owner-only">🏪 Merchant Ledger</a>
+  <a href="reports.html" class="owner-only">📊 Reports</a>
+  <div class="sidebar-bottom"><div class="sidebar-version">Auto ERP v1.0</div></div>
+</div>
+
+<div class="main">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:12px;">
+    <h1>📋 Order Status</h1>
+    <button onclick="openNewOrderModal()" style="background:linear-gradient(135deg,#2563eb,#3b82f6);box-shadow:0 4px 14px rgba(37,99,235,0.3);padding:10px 22px;border-radius:10px;font-weight:700;font-size:14px;cursor:pointer;font-family:'DM Sans',sans-serif;color:white;border:none;">+ New Order</button>
+  </div>
+  <div style="font-size:13px;color:rgba(255,255,255,0.4);margin-bottom:20px;">Track pending orders from suppliers. Receive products when they arrive — auto-creates purchase bill.</div>
+
+  <div class="stats-row" id="statsRow">
+    <div class="stat-card"><div class="stat-label">Total Orders</div><div class="stat-value" id="stTotal" style="color:#a78bfa;">—</div></div>
+    <div class="stat-card"><div class="stat-label">Pending</div><div class="stat-value" id="stPending" style="color:#fbbf24;">—</div></div>
+    <div class="stat-card"><div class="stat-label">Partial</div><div class="stat-value" id="stPartial" style="color:#60a5fa;">—</div></div>
+    <div class="stat-card"><div class="stat-label">Received</div><div class="stat-value" id="stReceived" style="color:#34d399;">—</div></div>
+  </div>
+
+  <div class="card">
+    <div class="toolbar">
+      <input id="searchInput" placeholder="🔍 Search merchant, order number..." oninput="renderOrders()">
+      <select id="filterStatus" onchange="renderOrders()">
+        <option value="all">All Orders</option>
+        <option value="pending">Pending</option>
+        <option value="partial">Partial</option>
+        <option value="received">Received</option>
+        <option value="cancelled">Cancelled</option>
+      </select>
+    </div>
+    <div id="ordersContainer">
+      <div style="text-align:center;padding:40px;color:rgba(255,255,255,0.3);">⏳ Loading orders...</div>
+    </div>
+  </div>
+</div>
+
+<!-- NEW ORDER MODAL -->
+<div class="modal-overlay" id="newOrderModal">
+  <div class="modal-box" style="max-width:740px;">
+    <div class="modal-title" id="orderModalTitle">📋 Place New Order</div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Merchant / Supplier *</label>
+        <input id="oMerchant" placeholder="Type merchant name..." autocomplete="off" oninput="searchMerchants(this.value)">
+        <ul id="merchantSuggest" style="position:absolute;z-index:9999;background:#1e293b;border:1px solid rgba(255,255,255,0.12);border-radius:8px;list-style:none;padding:0;margin:2px 0 0;max-height:180px;overflow-y:auto;display:none;width:280px;"></ul>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Phone</label>
+        <input id="oPhone" placeholder="Auto-filled">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Order Date *</label>
+        <input type="date" id="oDate">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Expected Delivery Date</label>
+        <input type="date" id="oExpected">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Notes <span style="font-size:10px;color:rgba(255,255,255,0.25);">(optional)</span></label>
+      <input id="oNotes" placeholder="Any notes for this order...">
+    </div>
+
+    <div style="font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.35);margin:16px 0 10px;">ORDER ITEMS</div>
+    <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr auto;gap:8px;margin-bottom:6px;">
+      <div style="font-size:10px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:1px;">Product</div>
+      <div style="font-size:10px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:1px;">Brand</div>
+      <div style="font-size:10px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:1px;">Qty</div>
+      <div style="font-size:10px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:1px;">Price ₹</div>
+      <div></div>
+    </div>
+    <div id="orderItemsContainer"></div>
+    <button onclick="addOrderItem()" style="background:rgba(37,99,235,0.15);border:1px solid rgba(37,99,235,0.3);color:#60a5fa;padding:8px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:4px;">+ Add Item</button>
+
+    <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:14px;margin-top:16px;display:flex;justify-content:space-between;align-items:center;">
+      <span style="font-size:14px;color:rgba(255,255,255,0.6);">Order Total:</span>
+      <span style="font-size:20px;font-weight:700;color:#a78bfa;" id="orderTotalDisplay">₹0</span>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeNewOrderModal()">✕ Cancel</button>
+      <button onclick="saveOrder()" style="background:linear-gradient(135deg,#2563eb,#3b82f6);border:none;color:white;padding:10px 24px;border-radius:10px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">📋 Place Order</button>
+    </div>
+  </div>
+</div>
+
+<!-- RECEIVE MODAL -->
+<div class="modal-overlay" id="receiveModal">
+  <div class="modal-box" style="max-width:740px;">
+    <div class="modal-title">✅ Receive Products</div>
+    <div id="receiveOrderInfo" style="background:rgba(52,211,153,0.07);border:1px solid rgba(52,211,153,0.2);border-radius:10px;padding:14px;margin-bottom:16px;font-size:13px;color:rgba(255,255,255,0.7);"></div>
+    <div style="font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:12px;">✅ Check the items you received and enter the quantity. Unchecked items remain pending.</div>
+    <div style="overflow-x:auto;">
+      <table class="items-table" id="receiveItemsTable">
+        <thead><tr>
+          <th>✓</th><th>Product</th><th>Brand</th><th>Ordered</th><th>Already Rcvd</th><th>Receive Qty</th><th>Price ₹</th>
+        </tr></thead>
+        <tbody id="receiveItemsBody"></tbody>
+      </table>
+    </div>
+    <div style="background:rgba(37,99,235,0.08);border:1px solid rgba(37,99,235,0.2);border-radius:10px;padding:14px;margin-top:16px;">
+      <div style="font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Bill Payment (auto-creates purchase bill)</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+        <div><label class="form-label">Cash ₹</label><input type="number" id="rcvCash" placeholder="0" oninput="calcReceiveTotal()"></div>
+        <div><label class="form-label">UPI ₹</label><input type="number" id="rcvUpi" placeholder="0" oninput="calcReceiveTotal()"></div>
+        <div><label class="form-label">Credit ₹</label><input type="number" id="rcvCredit" placeholder="0" oninput="calcReceiveTotal()"></div>
+      </div>
+      <div id="rcvPaySummary" style="margin-top:10px;font-size:13px;color:rgba(255,255,255,0.5);"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeReceiveModal()">✕ Cancel</button>
+      <button onclick="processReceive()" style="background:linear-gradient(135deg,#059669,#34d399);border:none;color:white;padding:10px 24px;border-radius:10px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">✅ Confirm Receive & Create Bill</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const _S = document.createElement('script')
+_S.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js'
+_S.onload = () => initOrderStatus(window.supabase.createClient(
+  "https://mhhnmndnolhapaoqtbxo.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1oaG5tbmRub2xoYXBhb3F0YnhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4Mzg4NTksImV4cCI6MjA4ODQxNDg1OX0.IMSp8vYiCln_iSuoT_H2qdeX_dP1WMhOOskDw20eJXw"
+))
+document.head.appendChild(_S)
+
+function initOrderStatus(supabase) {
+  let allOrders = [], allItems = {}, editingOrderId = null, receivingOrder = null
+  let merchantTimer = null
+
+  // ── SET TODAY DATE DEFAULTS ──
+  const today = new Date().toISOString().slice(0,10)
+  document.getElementById('oDate').value = today
+
+  // ── LOAD ALL ORDERS ──
+  async function loadOrders() {
+    const [{ data: orders }, { data: items }] = await Promise.all([
+      supabase.from('purchase_orders').select('*').order('created_at', { ascending: false }),
+      supabase.from('purchase_order_items').select('*')
+    ])
+    allOrders = orders || []
+    allItems = {}
+    ;(items || []).forEach(item => {
+      if (!allItems[item.order_id]) allItems[item.order_id] = []
+      allItems[item.order_id].push(item)
+    })
+    updateStats()
+    renderOrders()
+    checkReminders()
+  }
+
+  function updateStats() {
+    document.getElementById('stTotal').innerText = allOrders.length
+    document.getElementById('stPending').innerText = allOrders.filter(o => o.status === 'pending').length
+    document.getElementById('stPartial').innerText = allOrders.filter(o => o.status === 'partial').length
+    document.getElementById('stReceived').innerText = allOrders.filter(o => o.status === 'received').length
+  }
+
+  function checkReminders() {
+    const today = new Date()
+    allOrders.filter(o => o.status === 'pending' || o.status === 'partial').forEach(o => {
+      const orderDate = new Date(o.order_date)
+      const daysSince = Math.floor((today - orderDate) / (1000*60*60*24))
+      if (daysSince >= 2 && !o.reminder_sent) {
+        // Auto-mark reminder as shown
+        supabase.from('purchase_orders').update({ reminder_sent: true }).eq('id', o.id)
+      }
+    })
+  }
+
+  window.renderOrders = function() {
+    const search = (document.getElementById('searchInput').value || '').toLowerCase()
+    const statusFilter = document.getElementById('filterStatus').value
+    const container = document.getElementById('ordersContainer')
+
+    let filtered = allOrders.filter(o => {
+      const matchSearch = !search || (o.merchant_name||'').toLowerCase().includes(search) || (o.order_number||'').toLowerCase().includes(search)
+      const matchStatus = statusFilter === 'all' || o.status === statusFilter
+      return matchSearch && matchStatus
+    })
+
+    if (!filtered.length) {
+      container.innerHTML = `<div style="text-align:center;padding:50px;color:rgba(255,255,255,0.3);">
+        <div style="font-size:40px;margin-bottom:12px;">📋</div>
+        <div>No orders found. Click "+ New Order" to place one.</div>
+      </div>`
+      return
+    }
+
+    container.innerHTML = filtered.map(order => {
+      const items = allItems[order.id] || []
+      const totalOrdered = items.reduce((s, i) => s + i.ordered_qty, 0)
+      const totalReceived = items.reduce((s, i) => s + (i.received_qty || 0), 0)
+      const today = new Date()
+      const orderDate = new Date(order.order_date)
+      const daysSince = Math.floor((today - orderDate) / (1000*60*60*24))
+      const isReminder = (order.status === 'pending' || order.status === 'partial') && daysSince >= 2
+
+      return `<div class="order-card ${isReminder ? 'reminder-due' : ''}" id="order-card-${order.id}">
+        <div class="order-header" onclick="toggleOrder(${order.id})">
+          <div>
+            <div class="order-no">${order.order_number}</div>
+            <div class="order-merchant">${esc(order.merchant_name)}</div>
+            <div class="order-date">📅 Ordered: ${fmtDate(order.order_date)}${order.expected_date ? ' · Expected: ' + fmtDate(order.expected_date) : ''}</div>
+          </div>
+          <div class="order-meta">
+            <div>
+              <div class="order-amount">₹${Math.round(order.total_amount || 0).toLocaleString('en-IN')}</div>
+              <div class="order-items-count">${items.length} item${items.length !== 1 ? 's' : ''} · ${totalReceived}/${totalOrdered} units received</div>
+              ${isReminder ? '<div style="font-size:11px;color:#fb923c;margin-top:2px;">⏰ 2+ days — check if received</div>' : ''}
+            </div>
+            <span class="status-badge status-${order.status}">${order.status.charAt(0).toUpperCase() + order.status.slice(1)}</span>
+            <div class="order-actions-row">
+              ${order.status !== 'received' && order.status !== 'cancelled' ?
+                `<button onclick="event.stopPropagation();openReceiveModal(${order.id})" style="background:rgba(52,211,153,0.2);border:1px solid rgba(52,211,153,0.35);color:#34d399;padding:6px 14px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">✅ Receive</button>` : ''}
+              <button onclick="event.stopPropagation();editOrder(${order.id})" style="background:rgba(96,165,250,0.15);border:1px solid rgba(96,165,250,0.3);color:#60a5fa;padding:6px 12px;border-radius:8px;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;">✏️</button>
+              <button onclick="event.stopPropagation();printOrder(${order.id})" style="background:rgba(167,139,250,0.15);border:1px solid rgba(167,139,250,0.3);color:#a78bfa;padding:6px 12px;border-radius:8px;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;">🖨</button>
+              ${order.status !== 'received' ?
+                `<button onclick="event.stopPropagation();cancelOrder(${order.id})" style="background:rgba(220,38,38,0.15);border:1px solid rgba(220,38,38,0.25);color:#f87171;padding:6px 12px;border-radius:8px;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;">✕</button>` : ''}
+              <button onclick="event.stopPropagation();deleteOrder(${order.id})" style="background:rgba(220,38,38,0.15);border:1px solid rgba(220,38,38,0.25);color:#f87171;padding:6px 12px;border-radius:8px;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;">🗑️</button>
+            </div>
+          </div>
+        </div>
+        <div class="order-body" id="order-body-${order.id}">
+          ${order.notes ? `<div style="background:rgba(255,255,255,0.04);border-radius:8px;padding:10px 14px;font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:14px;font-style:italic;">📝 ${esc(order.notes)}</div>` : ''}
+          ${order.linked_bill_number ? `<div style="background:rgba(52,211,153,0.08);border:1px solid rgba(52,211,153,0.2);border-radius:8px;padding:10px 14px;font-size:13px;color:#34d399;margin-bottom:14px;">✅ Bill created: <strong>${esc(order.linked_bill_number)}</strong></div>` : ''}
+          <table class="items-table">
+            <thead><tr>
+              <th>Product</th><th>Brand</th><th>Size</th><th>Ordered</th><th>Received</th><th>Pending</th><th>Price</th><th>Total</th>
+            </tr></thead>
+            <tbody>
+              ${items.map(item => {
+                const pending = item.ordered_qty - (item.received_qty || 0)
+                return `<tr>
+                  <td style="font-weight:500;color:white;">${esc(item.item_name)}</td>
+                  <td style="color:rgba(255,255,255,0.5);">${esc(item.brand || '—')}</td>
+                  <td style="color:rgba(255,255,255,0.5);">${esc(item.product_size || '—')}</td>
+                  <td style="text-align:center;">${item.ordered_qty}</td>
+                  <td style="text-align:center;color:#34d399;">${item.received_qty || 0}</td>
+                  <td style="text-align:center;color:${pending > 0 ? '#fbbf24' : '#34d399'};">${pending > 0 ? pending : '✓'}</td>
+                  <td>₹${(item.purchase_price || 0).toLocaleString('en-IN')}</td>
+                  <td style="font-weight:600;color:#a78bfa;">₹${(item.ordered_qty * (item.purchase_price || 0)).toLocaleString('en-IN')}</td>
+                </tr>`
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>`
+    }).join('')
+  }
+
+  window.toggleOrder = function(id) {
+    const body = document.getElementById('order-body-' + id)
+    body.classList.toggle('open')
+  }
+
+  // ── NEW ORDER MODAL ──
+  window.openNewOrderModal = function() {
+    editingOrderId = null
+    document.getElementById('orderModalTitle').innerText = '📋 Place New Order'
+    document.getElementById('oMerchant').value = ''
+    document.getElementById('oPhone').value = ''
+    document.getElementById('oDate').value = new Date().toISOString().slice(0,10)
+    document.getElementById('oExpected').value = ''
+    document.getElementById('oNotes').value = ''
+    document.getElementById('orderItemsContainer').innerHTML = ''
+    addOrderItem()
+    updateOrderTotal()
+    document.getElementById('newOrderModal').style.display = 'block'
+  }
+
+  window.closeNewOrderModal = function() {
+    document.getElementById('newOrderModal').style.display = 'none'
+  }
+
+  window.addOrderItem = function() {
+    const container = document.getElementById('orderItemsContainer')
+    const idx = container.children.length
+    const div = document.createElement('div')
+    div.className = 'order-item-row'
+    div.dataset.idx = idx
+    div.innerHTML = `
+      <input placeholder="Product name *" class="oi-name" oninput="updateOrderTotal()">
+      <input placeholder="Brand" class="oi-brand">
+      <input type="number" placeholder="Qty" min="1" value="1" class="oi-qty" oninput="updateOrderTotal()">
+      <input type="number" placeholder="Price ₹" min="0" value="0" class="oi-price" oninput="updateOrderTotal()">
+      <button class="remove-item-btn" onclick="this.parentElement.remove();updateOrderTotal()">✕</button>
+    `
+    container.appendChild(div)
+    div.querySelector('.oi-name').focus()
+  }
+
+  window.updateOrderTotal = function() {
+    let total = 0
+    document.querySelectorAll('.order-item-row').forEach(row => {
+      const qty = parseFloat(row.querySelector('.oi-qty').value) || 0
+      const price = parseFloat(row.querySelector('.oi-price').value) || 0
+      total += qty * price
+    })
+    document.getElementById('orderTotalDisplay').innerText = '₹' + Math.round(total).toLocaleString('en-IN')
+  }
+
+  // Merchant search
+  window.searchMerchants = function(q) {
+    clearTimeout(merchantTimer)
+    if (!q.trim()) { hideMerchantSuggest(); return }
+    merchantTimer = setTimeout(async () => {
+      const { data } = await supabase.from('merchants').select('name,phone').ilike('name', '%' + q + '%').limit(6)
+      const ul = document.getElementById('merchantSuggest')
+      ul.innerHTML = ''
+      ;(data || []).forEach(m => {
+        const li = document.createElement('li')
+        li.style.cssText = 'padding:10px 14px;cursor:pointer;border-bottom:1px solid rgba(255,255,255,0.06);font-size:13px;color:white;font-family:"DM Sans",sans-serif;'
+        li.innerText = m.name + (m.phone ? ' — ' + m.phone : '')
+        li.onmousedown = () => {
+          document.getElementById('oMerchant').value = m.name
+          document.getElementById('oPhone').value = m.phone || ''
+          hideMerchantSuggest()
+        }
+        ul.appendChild(li)
+      })
+      if (data && data.length) { ul.style.display = 'block' } else hideMerchantSuggest()
+    }, 300)
+  }
+
+  function hideMerchantSuggest() { document.getElementById('merchantSuggest').style.display = 'none' }
+  document.addEventListener('click', e => { if (!document.getElementById('oMerchant').contains(e.target)) hideMerchantSuggest() })
+
+  // ── GENERATE ORDER NUMBER ──
+  async function generateOrderNo() {
+    const now = new Date()
+    const dd = String(now.getDate()).padStart(2, '0')
+    const mm = String(now.getMonth() + 1).padStart(2, '0')
+    const yy = String(now.getFullYear()).slice(2)
+    const prefix = 'ORD-' + dd + mm + yy + '-'
+    const { data } = await supabase.from('purchase_orders').select('order_number').like('order_number', prefix + '%').order('order_number', { ascending: false }).limit(1)
+    let lastNo = 0
+    if (data && data.length) { const parts = data[0].order_number.split('-'); lastNo = parseInt(parts[parts.length - 1]) || 0 }
+    return prefix + String(lastNo + 1).padStart(4, '0')
+  }
+
+  // ── SAVE ORDER ──
+  window.saveOrder = async function() {
+    const merchant = document.getElementById('oMerchant').value.trim()
+    if (!merchant) { alert('Please enter merchant name'); return }
+
+    const items = []
+    document.querySelectorAll('.order-item-row').forEach(row => {
+      const name = row.querySelector('.oi-name').value.trim()
+      if (!name) return
+      items.push({
+        item_name: name,
+        brand: row.querySelector('.oi-brand').value.trim() || null,
+        ordered_qty: parseInt(row.querySelector('.oi-qty').value) || 1,
+        purchase_price: parseFloat(row.querySelector('.oi-price').value) || 0,
+        received_qty: 0
+      })
+    })
+    if (!items.length) { alert('Add at least one product'); return }
+
+    const total = items.reduce((s, i) => s + i.ordered_qty * i.purchase_price, 0)
+    const orderNo = await generateOrderNo()
+
+    const { data: orderData, error } = await supabase.from('purchase_orders').insert([{
+      order_number: orderNo,
+      merchant_name: merchant,
+      merchant_phone: document.getElementById('oPhone').value.trim() || null,
+      order_date: document.getElementById('oDate').value,
+      expected_date: document.getElementById('oExpected').value || null,
+      notes: document.getElementById('oNotes').value.trim() || null,
+      status: 'pending',
+      total_amount: total
+    }]).select().single()
+
+    if (error) { alert('Error: ' + error.message); return }
+
+    // Insert items
+    await supabase.from('purchase_order_items').insert(items.map(i => ({ ...i, order_id: orderData.id })))
+
+    closeNewOrderModal()
+    alert('✅ Order placed! Order No: ' + orderNo)
+    loadOrders()
+  }
+
+  // ── EDIT ORDER ──
+  window.editOrder = async function(id) {
+    const order = allOrders.find(o => o.id === id)
+    if (!order) return
+    editingOrderId = id
+    document.getElementById('orderModalTitle').innerText = '✏️ Edit Order — ' + order.order_number
+    document.getElementById('oMerchant').value = order.merchant_name || ''
+    document.getElementById('oPhone').value = order.merchant_phone || ''
+    document.getElementById('oDate').value = order.order_date || ''
+    document.getElementById('oExpected').value = order.expected_date || ''
+    document.getElementById('oNotes').value = order.notes || ''
+
+    const container = document.getElementById('orderItemsContainer')
+    container.innerHTML = ''
+    const items = allItems[id] || []
+    items.forEach(item => {
+      const div = document.createElement('div')
+      div.className = 'order-item-row'
+      div.innerHTML = `
+        <input placeholder="Product name *" class="oi-name" value="${esc(item.item_name)}" oninput="updateOrderTotal()">
+        <input placeholder="Brand" class="oi-brand" value="${esc(item.brand || '')}">
+        <input type="number" placeholder="Qty" min="1" value="${item.ordered_qty}" class="oi-qty" oninput="updateOrderTotal()">
+        <input type="number" placeholder="Price ₹" min="0" value="${item.purchase_price || 0}" class="oi-price" oninput="updateOrderTotal()">
+        <button class="remove-item-btn" onclick="this.parentElement.remove();updateOrderTotal()">✕</button>
+      `
+      container.appendChild(div)
+    })
+    updateOrderTotal()
+    document.getElementById('newOrderModal').style.display = 'block'
+
+    // Override saveOrder for edit
+    document.querySelector('#newOrderModal button[onclick="saveOrder()"]').onclick = async function() {
+      const merchant = document.getElementById('oMerchant').value.trim()
+      if (!merchant) { alert('Please enter merchant name'); return }
+      const newItems = []
+      document.querySelectorAll('.order-item-row').forEach(row => {
+        const name = row.querySelector('.oi-name').value.trim()
+        if (!name) return
+        newItems.push({ item_name: name, brand: row.querySelector('.oi-brand').value.trim() || null, ordered_qty: parseInt(row.querySelector('.oi-qty').value) || 1, purchase_price: parseFloat(row.querySelector('.oi-price').value) || 0, received_qty: 0, order_id: id })
+      })
+      const total = newItems.reduce((s, i) => s + i.ordered_qty * i.purchase_price, 0)
+      await supabase.from('purchase_orders').update({ merchant_name: merchant, merchant_phone: document.getElementById('oPhone').value.trim() || null, order_date: document.getElementById('oDate').value, expected_date: document.getElementById('oExpected').value || null, notes: document.getElementById('oNotes').value.trim() || null, total_amount: total }).eq('id', id)
+      await supabase.from('purchase_order_items').delete().eq('order_id', id)
+      await supabase.from('purchase_order_items').insert(newItems)
+      closeNewOrderModal()
+      loadOrders()
+    }
+  }
+
+  // ── CANCEL / DELETE ──
+  window.cancelOrder = async function(id) {
+    if (!confirm('Cancel this order?')) return
+    await supabase.from('purchase_orders').update({ status: 'cancelled' }).eq('id', id)
+    loadOrders()
+  }
+
+  window.deleteOrder = async function(id) {
+    if (!confirm('Delete this order permanently?')) return
+    await supabase.from('purchase_order_items').delete().eq('order_id', id)
+    await supabase.from('purchase_orders').delete().eq('id', id)
+    loadOrders()
+  }
+
+  // ── RECEIVE MODAL ──
+  window.openReceiveModal = function(id) {
+    receivingOrder = allOrders.find(o => o.id === id)
+    if (!receivingOrder) return
+    const items = allItems[id] || []
+
+    document.getElementById('receiveOrderInfo').innerHTML = `
+      <strong style="color:white;">${esc(receivingOrder.merchant_name)}</strong> &nbsp;|&nbsp; Order: <strong>${esc(receivingOrder.order_number)}</strong> &nbsp;|&nbsp; Date: ${fmtDate(receivingOrder.order_date)}`
+
+    const tbody = document.getElementById('receiveItemsBody')
+    tbody.innerHTML = items.map((item, idx) => {
+      const pendingQty = item.ordered_qty - (item.received_qty || 0)
+      if (pendingQty <= 0) return `<tr>
+        <td style="text-align:center;"><input type="checkbox" disabled style="opacity:0.3;"></td>
+        <td style="color:rgba(255,255,255,0.35);text-decoration:line-through;">${esc(item.item_name)}</td>
+        <td style="color:rgba(255,255,255,0.35);">${esc(item.brand || '—')}</td>
+        <td style="text-align:center;color:rgba(255,255,255,0.35);">${item.ordered_qty}</td>
+        <td style="text-align:center;color:#34d399;">${item.received_qty || 0}</td>
+        <td colspan="2" style="text-align:center;"><span style="font-size:11px;background:rgba(52,211,153,0.1);color:#34d399;padding:3px 10px;border-radius:6px;">✓ Fully Received</span></td>
+      </tr>`
+      return `<tr>
+        <td style="text-align:center;"><input type="checkbox" class="rcv-check" data-idx="${idx}" data-item-id="${item.id}" onchange="calcReceiveTotal()"></td>
+        <td style="font-weight:500;color:white;">${esc(item.item_name)}</td>
+        <td style="color:rgba(255,255,255,0.5);">${esc(item.brand || '—')}</td>
+        <td style="text-align:center;">${item.ordered_qty}</td>
+        <td style="text-align:center;color:#34d399;">${item.received_qty || 0}</td>
+        <td style="text-align:center;"><input type="number" class="qty-input-rcv" data-idx="${idx}" data-price="${item.purchase_price || 0}" value="${pendingQty}" min="1" max="${pendingQty}" oninput="calcReceiveTotal()"></td>
+        <td style="color:#a78bfa;">₹${(item.purchase_price || 0).toLocaleString('en-IN')}</td>
+      </tr>`
+    }).join('')
+
+    ;['rcvCash','rcvUpi','rcvCredit'].forEach(id => document.getElementById(id).value = '')
+    calcReceiveTotal()
+    document.getElementById('receiveModal').style.display = 'block'
+  }
+
+  window.closeReceiveModal = function() {
+    document.getElementById('receiveModal').style.display = 'none'
+    receivingOrder = null
+  }
+
+  window.calcReceiveTotal = function() {
+    let total = 0
+    document.querySelectorAll('.rcv-check:checked').forEach(chk => {
+      const idx = chk.dataset.idx
+      const qtyInput = document.querySelector(`.qty-input-rcv[data-idx="${idx}"]`)
+      const price = parseFloat(qtyInput.dataset.price) || 0
+      const qty = parseInt(qtyInput.value) || 0
+      total += qty * price
+    })
+    const cash = parseFloat(document.getElementById('rcvCash').value) || 0
+    const upi = parseFloat(document.getElementById('rcvUpi').value) || 0
+    const cred = parseFloat(document.getElementById('rcvCredit').value) || 0
+    const paid = cash + upi + cred
+    let remain = total - paid
+    let statusText = ''
+    if (total === 0) statusText = '<span style="color:rgba(255,255,255,0.4);">Select items to receive</span>'
+    else if (paid === 0) statusText = `<span style="color:#fbbf24;">Total: ₹${total.toLocaleString('en-IN')} — Enter payment or leave blank for full credit</span>`
+    else if (remain > 0) statusText = `<span style="color:#fbbf24;">Total: ₹${total.toLocaleString('en-IN')} · Remaining ₹${remain.toLocaleString('en-IN')} will be credit</span>`
+    else if (remain < 0) statusText = `<span style="color:#f87171;">❌ Payment ₹${paid.toLocaleString('en-IN')} exceeds total ₹${total.toLocaleString('en-IN')}</span>`
+    else statusText = `<span style="color:#34d399;">✅ Fully settled — ₹${total.toLocaleString('en-IN')}</span>`
+    document.getElementById('rcvPaySummary').innerHTML = statusText
+  }
+
+  // ── PROCESS RECEIVE ──
+  window.processReceive = async function() {
+    if (!receivingOrder) return
+    const items = allItems[receivingOrder.id] || []
+
+    const receivedItems = []
+    document.querySelectorAll('.rcv-check:checked').forEach(chk => {
+      const idx = parseInt(chk.dataset.idx)
+      const qtyInput = document.querySelector(`.qty-input-rcv[data-idx="${idx}"]`)
+      const qty = parseInt(qtyInput.value) || 0
+      if (qty > 0 && items[idx]) {
+        receivedItems.push({ ...items[idx], receiveQty: qty })
+      }
+    })
+
+    if (!receivedItems.length) { alert('Select at least one item to receive'); return }
+
+    let cash = parseFloat(document.getElementById('rcvCash').value) || 0
+    let upi = parseFloat(document.getElementById('rcvUpi').value) || 0
+    let credit = parseFloat(document.getElementById('rcvCredit').value) || 0
+    const total = receivedItems.reduce((s, i) => s + i.receiveQty * (i.purchase_price || 0), 0)
+
+    if (cash + upi + credit > total) { alert('❌ Payment exceeds total'); return }
+    if (cash + upi + credit === 0) credit = total // auto credit if nothing entered
+
+    const paid = cash + upi + credit
+
+    // 1. Generate purchase bill number
+    const now = new Date()
+    const dd = String(now.getDate()).padStart(2,'0'), mm = String(now.getMonth()+1).padStart(2,'0'), yy = String(now.getFullYear()).slice(2)
+    const prefix = 'PUR-' + dd + mm + yy + '-'
+    const { data: lastBill } = await supabase.from('purchases').select('bill_number').like('bill_number', prefix + '%').order('bill_number', { ascending: false }).limit(1)
+    let lastNo = 0
+    if (lastBill && lastBill.length) { const parts = lastBill[0].bill_number.split('-'); lastNo = parseInt(parts[parts.length-1]) || 0 }
+    const billNo = prefix + String(lastNo + 1).padStart(4, '0')
+
+    // 2. Create purchase bill
+    const { data: purData, error: purErr } = await supabase.from('purchases').insert([{
+      bill_number: billNo,
+      merchant_name: receivingOrder.merchant_name,
+      merchant_phone: receivingOrder.merchant_phone || null,
+      total_amount: total,
+      cash, upi, credit,
+      discount: 0,
+      bill_type: 'purchase',
+      bill_date: now.toISOString().slice(0,10)
+    }]).select().single()
+
+    if (purErr) { alert('Error creating bill: ' + purErr.message); return }
+
+    // 3. Create purchase items & update inventory
+    for (const item of receivedItems) {
+      // Search inventory for matching product
+      const { data: invItems } = await supabase.from('inventory').select('id,quantity').ilike('item_name', item.item_name).limit(1)
+
+      let itemId = null
+      if (invItems && invItems.length) {
+        itemId = invItems[0].id
+        await supabase.rpc('increment_inventory', { p_item_id: itemId, p_qty: item.receiveQty })
+        await supabase.from('inventory').update({ purchase_price: item.purchase_price }).eq('id', itemId)
+      } else {
+        // Create new inventory item
+        const { data: newItem } = await supabase.from('inventory').insert([{
+          item_name: item.item_name, brand: item.brand || null,
+          quantity: item.receiveQty, purchase_price: item.purchase_price || 0,
+          supplier: receivingOrder.merchant_name
+        }]).select().single()
+        if (newItem) itemId = newItem.id
+      }
+
+      await supabase.from('purchase_items').insert([{
+        purchase_id: purData.id,
+        item_id: itemId,
+        item_name: item.item_name,
+        quantity: item.receiveQty,
+        purchase_price: item.purchase_price || 0,
+        total: item.receiveQty * (item.purchase_price || 0)
+      }])
+
+      // Update received_qty on order item
+      const newReceived = (item.received_qty || 0) + item.receiveQty
+      await supabase.from('purchase_order_items').update({ received_qty: newReceived }).eq('id', item.id)
+    }
+
+    // 4. Update order status
+    const allOrderItems = allItems[receivingOrder.id] || []
+    const allFullyReceived = allOrderItems.every(i => {
+      const ri = receivedItems.find(r => r.id === i.id)
+      const newRcv = (i.received_qty || 0) + (ri ? ri.receiveQty : 0)
+      return newRcv >= i.ordered_qty
+    })
+    const newStatus = allFullyReceived ? 'received' : 'partial'
+    await supabase.from('purchase_orders').update({ status: newStatus, linked_bill_number: billNo }).eq('id', receivingOrder.id)
+
+    closeReceiveModal()
+    alert(`✅ Received & bill created!\nBill No: ${billNo}\nTotal: ₹${total.toLocaleString('en-IN')}`)
+    loadOrders()
+  }
+
+  // ── PRINT ORDER ──
+  window.printOrder = function(id) {
+    const order = allOrders.find(o => o.id === id)
+    if (!order) return
+    const items = allItems[id] || []
+    const total = items.reduce((s, i) => s + i.ordered_qty * (i.purchase_price || 0), 0)
+    const printWin = window.open('', '_blank', 'width=800,height=600')
+    printWin.document.write(`<!DOCTYPE html><html><head><title>Order ${order.order_number}</title>
+    <style>body{font-family:'DM Sans',sans-serif;padding:28px;color:#111;}h2{font-size:20px;margin:0 0 4px;}table{width:100%;border-collapse:collapse;font-size:13px;margin-top:16px;}th{background:#1e3a5f;color:white;padding:9px 12px;text-align:left;}td{padding:9px 12px;border-bottom:1px solid #e5e7eb;}.total-row{font-weight:700;font-size:16px;}</style></head>
+    <body><h2>Purchase Order — ${order.order_number}</h2>
+    <p style="color:#666;">Merchant: <strong>${order.merchant_name}</strong> &nbsp;|&nbsp; Date: ${fmtDate(order.order_date)} &nbsp;|&nbsp; Status: ${order.status}</p>
+    ${order.notes ? `<p style="font-style:italic;color:#666;">Note: ${order.notes}</p>` : ''}
+    <table><thead><tr><th>#</th><th>Product</th><th>Brand</th><th>Qty</th><th>Price</th><th>Amount</th></tr></thead>
+    <tbody>${items.map((item, i) => `<tr><td>${i+1}</td><td>${item.item_name}</td><td>${item.brand || '—'}</td><td>${item.ordered_qty}</td><td>₹${(item.purchase_price||0).toLocaleString('en-IN')}</td><td>₹${(item.ordered_qty * (item.purchase_price||0)).toLocaleString('en-IN')}</td></tr>`).join('')}</tbody>
+    <tfoot><tr class="total-row"><td colspan="5" style="text-align:right;">Total:</td><td>₹${Math.round(total).toLocaleString('en-IN')}</td></tr></tfoot>
+    </table>
+    <p style="margin-top:24px;font-size:12px;color:#888;">Abhinandan Auto Mobiles · Santalpur - Palanpur Highway · +91 98700 37002</p>
+    <script>window.print();setTimeout(()=>window.close(),800);<\/script></body></html>`)
+    printWin.document.close()
+  }
+
+  function fmtDate(d) {
+    if (!d) return '—'
+    return new Date(d + 'T12:00:00').toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
+  }
+  function esc(s) { return (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;') }
+
+  ;['newOrderModal','receiveModal'].forEach(id => {
+    document.getElementById(id).addEventListener('click', function(e) {
+      if (e.target === this) {
+        if (id === 'newOrderModal') closeNewOrderModal()
+        else closeReceiveModal()
+      }
+    })
+  })
+
+  loadOrders()
+}
+</script>
+</body>
+</html>
