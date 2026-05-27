@@ -239,7 +239,7 @@
     <div style="font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:16px;line-height:1.7;">
       Upload a <strong style="color:white;">CSV or Excel (.xlsx)</strong> file. Required column: <code style="background:rgba(255,255,255,0.1);padding:2px 6px;border-radius:4px;">item_name</code><br>
       Optional columns: <code style="background:rgba(255,255,255,0.1);padding:2px 6px;border-radius:4px;">brand, product_size, category, unit_type, purchase_price, selling_price, quantity, supplier, notes</code><br>
-      <a href="#" onclick="downloadTemplate()" style="color:#60a5fa;">📥 Download template CSV</a>
+      <a href="#" onclick="downloadTemplate(); return false;" style="color:#60a5fa;">📥 Download template CSV</a>
     </div>
 
     <div class="import-zone" id="importZone" onclick="document.getElementById('fileInput').click()">
@@ -523,10 +523,17 @@ window.downloadTemplate = function() {
     'item_name,brand,product_size,category,unit_type,purchase_price,selling_price,quantity,supplier,notes',
     'Brake Pad XR200,Bosch,Standard,Brakes,piece,450,600,10,ABC Motors,Front brake pad',
     'Engine Oil 5W30,Castrol,1 Litre,Oil,litre,280,350,25,Dharmang,',
+    'Hub Bolt M14,TVS,,Wheels,piece,25,40,100,A.F.H.,',
   ]
-  const blob = new Blob([lines.join('\n')], { type: 'text/csv' })
+  const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8;' })
+  const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
-  a.href = URL.createObjectURL(blob); a.download = 'AAM-Products-Template.csv'; a.click()
+  a.href = url
+  a.download = 'AAM-Products-Template.csv'
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
+  URL.revokeObjectURL(url)
   return false
 }
 
@@ -559,53 +566,90 @@ function handleFile(file) {
       if (isExcel) {
         const wb = XLSX.read(e.target.result, { type: 'array' })
         const ws = wb.Sheets[wb.SheetNames[0]]
-        rows = XLSX.utils.sheet_to_json(ws, { defval: '' })
-      } else {
-        // CSV parse
-        const text = e.target.result
-        const lines = text.split('\n').map(l => l.trim()).filter(Boolean)
-        // Skip comment lines (start with ")
-        const dataLines = lines.filter(l => !l.startsWith('"Abhinandan') && !l.startsWith('"Generated'))
-        if (!dataLines.length) { throw new Error('No data found') }
-        const headers = dataLines[0].split(',').map(h => h.replace(/^"|"$/g, '').trim())
-        rows = dataLines.slice(1).map(line => {
-          const vals = line.match(/(".*?"|[^,]+|(?<=,)(?=,)|(?<=,)$|^(?=,))/g) || line.split(',')
-          const obj = {}
-          headers.forEach((h, i) => { obj[h] = (vals[i] || '').replace(/^"|"$/g, '').trim() })
-          return obj
-        })
-      }
-
-      if (!rows.length) { throw new Error('No data rows found') }
-      if (!rows[0].item_name && !rows[0]['Item Name'] && !rows[0]['ITEM NAME']) {
-        throw new Error('Missing required column: item_name')
-      }
-
-      // Normalize column names
-      importData = rows.map(r => {
-        const get = (...keys) => { for (const k of keys) { if (r[k] !== undefined) return String(r[k]).trim() } return '' }
-        return {
-          item_name: get('item_name', 'Item Name', 'ITEM NAME', 'Name', 'Product Name'),
-          brand: get('brand', 'Brand'),
-          product_size: get('product_size', 'Size', 'Product Size'),
-          category: get('category', 'Category'),
-          unit_type: get('unit_type', 'Unit', 'Unit Type'),
-          purchase_price: parseFloat(get('purchase_price', 'Purchase Price', 'Buy Price')) || null,
-          selling_price: parseFloat(get('selling_price', 'Selling Price', 'Sell Price', 'MRP')) || null,
-          quantity: parseInt(get('quantity', 'Quantity', 'Qty', 'Stock')) || 0,
-          supplier: get('supplier', 'Supplier'),
-          notes: get('notes', 'Notes', 'Remarks'),
+        // Use raw: false so numbers stay as numbers
+        const allRows = XLSX.utils.sheet_to_json(ws, { defval: '', header: 1 })
+        // Find the header row — scan each row until we find one containing 'item_name'
+        let headerRowIndex = -1
+        for (let i = 0; i < allRows.length; i++) {
+          const rowStr = allRows[i].map(c => String(c).trim().toLowerCase())
+          if (rowStr.includes('item_name') || rowStr.includes('item name') || rowStr.includes('name')) {
+            headerRowIndex = i
+            break
+          }
         }
-      }).filter(r => r.item_name)
+        if (headerRowIndex === -1) throw new Error('Could not find a header row with "item_name" column')
+        const headers = allRows[headerRowIndex].map(c => String(c).trim())
+        rows = allRows.slice(headerRowIndex + 1)
+          .filter(row => row.some(cell => cell !== '' && cell !== null && cell !== undefined))
+          .map(row => {
+            const obj = {}
+            headers.forEach((h, i) => { obj[h] = row[i] !== undefined ? String(row[i]).trim() : '' })
+            return obj
+          })
+      } else {
+        // CSV parse — skip any rows before the header row
+        const text = e.target.result
+        const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0)
 
-      if (!importData.length) throw new Error('No valid rows with item_name found')
+        // Find the header row — the first row that contains 'item_name'
+        let headerRowIndex = -1
+        for (let i = 0; i < lines.length; i++) {
+          if (lines[i].toLowerCase().includes('item_name') || lines[i].toLowerCase().includes('item name')) {
+            headerRowIndex = i
+            break
+          }
+        }
+        if (headerRowIndex === -1) throw new Error('Could not find header row with "item_name" in your CSV file')
+
+        // Parse headers from that row
+        const headers = parseCSVLine(lines[headerRowIndex])
+
+        // Parse data rows after the header
+        rows = lines.slice(headerRowIndex + 1)
+          .map(line => parseCSVLine(line))
+          .filter(vals => vals.some(v => v.trim() !== ''))
+          .map(vals => {
+            const obj = {}
+            headers.forEach((h, i) => { obj[h.trim()] = (vals[i] || '').trim() })
+            return obj
+          })
+      }
+
+      if (!rows.length) throw new Error('No data rows found after the header row')
+
+      // Normalize column names — accept variations like "Item Name", "ITEM NAME", "Name" etc.
+      importData = rows.map(r => {
+        const get = (...keys) => {
+          for (const k of keys) {
+            // Try exact match first, then case-insensitive
+            if (r[k] !== undefined && r[k] !== '') return String(r[k]).trim()
+            const found = Object.keys(r).find(rk => rk.toLowerCase().replace(/[\s_]/g,'') === k.toLowerCase().replace(/[\s_]/g,''))
+            if (found && r[found] !== '') return String(r[found]).trim()
+          }
+          return ''
+        }
+        return {
+          item_name:      get('item_name', 'Item Name', 'ITEM NAME', 'Name', 'Product Name', 'ProductName'),
+          brand:          get('brand', 'Brand', 'BRAND'),
+          product_size:   get('product_size', 'Size', 'Product Size', 'ProductSize'),
+          category:       get('category', 'Category', 'CATEGORY'),
+          unit_type:      get('unit_type', 'Unit', 'Unit Type', 'UnitType'),
+          purchase_price: parseFloat(get('purchase_price', 'Purchase Price', 'Buy Price', 'PurchasePrice', 'Cost')) || null,
+          selling_price:  parseFloat(get('selling_price', 'Selling Price', 'Sell Price', 'MRP', 'SellingPrice')) || null,
+          quantity:       parseInt(get('quantity', 'Quantity', 'Qty', 'Stock', 'QUANTITY')) || 0,
+          supplier:       get('supplier', 'Supplier', 'SUPPLIER'),
+          notes:          get('notes', 'Notes', 'Remarks', 'NOTES'),
+        }
+      }).filter(r => r.item_name !== '')  // skip rows without a product name
+
+      if (!importData.length) throw new Error('No valid rows with item_name found after filtering')
 
       statusDiv.className = 'import-status success'
       statusDiv.innerText = `✅ Found ${importData.length} products ready to import`
 
       // Show preview (first 5 rows)
       const preview = document.getElementById('importPreview')
-      preview.innerHTML = `<div style="font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:8px;">Preview (first 5 rows):</div>
+      preview.innerHTML = `<div style="font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:8px;">Preview (first 5 rows of ${importData.length} total):</div>
         <table>
           <thead><tr><th>Name</th><th>Brand</th><th>Size</th><th>Category</th><th>Qty</th><th>Buy ₹</th><th>Sell ₹</th></tr></thead>
           <tbody>${importData.slice(0, 5).map(r => `<tr>
@@ -627,6 +671,26 @@ function handleFile(file) {
 
   if (isExcel) reader.readAsArrayBuffer(file)
   else reader.readAsText(file)
+}
+
+// Helper: properly parse a CSV line respecting quoted fields
+function parseCSVLine(line) {
+  const result = []
+  let current = ''
+  let inQuotes = false
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i]
+    if (ch === '"') {
+      if (inQuotes && line[i+1] === '"') { current += '"'; i++ }
+      else inQuotes = !inQuotes
+    } else if (ch === ',' && !inQuotes) {
+      result.push(current); current = ''
+    } else {
+      current += ch
+    }
+  }
+  result.push(current)
+  return result
 }
 
 window.doImport = async function() {
