@@ -138,6 +138,7 @@
         <thead>
           <tr>
             <th>Product Name</th>
+            <th>Item Code</th>
             <th>Brand</th>
             <th>Size</th>
             <th>Category</th>
@@ -168,9 +169,15 @@
 <div class="modal-overlay" id="productModal">
   <div class="modal-box">
     <h3 id="modalTitle">Add Product</h3>
-    <div class="form-field">
-      <label>Product Name *</label>
-      <input id="fName" placeholder="e.g. Brake Pad XR200">
+    <div class="form-row">
+      <div class="form-field">
+        <label>Product Name *</label>
+        <input id="fName" placeholder="e.g. Brake Pad XR200">
+      </div>
+      <div class="form-field">
+        <label>Item Code <span style="font-size:10px;color:rgba(255,255,255,0.3);">(optional)</span></label>
+        <input id="fItemCode" placeholder="e.g. BP-XR200, OIL-5W30">
+      </div>
     </div>
     <div class="form-row">
       <div class="form-field">
@@ -357,6 +364,7 @@ function renderTable() {
     const stockVal = Math.round(qty * (p.purchase_price || 0))
     return `<tr>
       <td style="font-weight:500;color:white;">${p.item_name}</td>
+      <td style="color:rgba(255,255,255,0.5);font-size:12px;font-family:monospace;">${p.item_code || '—'}</td>
       <td style="color:rgba(255,255,255,0.6);">${p.brand || '—'}</td>
       <td style="color:rgba(255,255,255,0.5);font-size:13px;">${p.product_size || '—'}</td>
       <td style="color:rgba(255,255,255,0.5);font-size:13px;">${p.category || '—'}</td>
@@ -421,6 +429,7 @@ window.openEditModal = function(id) {
   editingId = id
   document.getElementById('modalTitle').innerText = '✏️ Edit Product'
   document.getElementById('fName').value = p.item_name || ''
+  document.getElementById('fItemCode').value = p.item_code || ''
   document.getElementById('fBrand').value = p.brand || ''
   document.getElementById('fSize').value = p.product_size || ''
   document.getElementById('fCategory').value = p.category || ''
@@ -436,8 +445,9 @@ window.openEditModal = function(id) {
 window.saveProduct = async function() {
   const name = document.getElementById('fName').value.trim()
   if (!name) { alert('Product name is required'); return }
-  const payload = {
+ const payload = {
     item_name: name,
+    item_code: document.getElementById('fItemCode').value.trim() || null,
     brand: document.getElementById('fBrand').value.trim() || null,
     product_size: document.getElementById('fSize').value.trim() || null,
     category: document.getElementById('fCategory').value.trim() || null,
@@ -475,10 +485,10 @@ window.closeModal = function() {
 }
 
 function clearForm() {
-  ['fName','fBrand','fSize','fCategory','fPurchasePrice','fSellingPrice','fQuantity','fSupplier','fNotes'].forEach(id => { document.getElementById(id).value = '' })
+  ['fName','fItemCode','fBrand','fSize','fCategory','fPurchasePrice','fSellingPrice','fQuantity','fSupplier','fNotes'].forEach(id => { const el = document.getElementById(id); if(el) el.value = '' })
   document.getElementById('fUnit').value = ''
 }
-
+  
 document.getElementById('productModal').addEventListener('click', function(e) { if (e.target === this) closeModal() })
 
 // ══════════════════════════════════════
