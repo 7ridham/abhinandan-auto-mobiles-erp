@@ -476,35 +476,16 @@
     <div class="pnl-wrapper" id="pnlAccountWrapper">
       <div style="color:var(--text-dim);font-family:'DM Sans',sans-serif;font-size:14px;padding:40px;text-align:center;">Loading P&amp;L Account…</div>
     </div>
-    <div class="report-card no-print" style="margin-top:20px;">
+   <div class="report-card no-print" style="margin-top:20px;border-color:rgba(96,165,250,0.2);">
       <div class="report-card-header">
-        <div class="report-card-title">✏️ Manage Expenses &amp; Other Income</div>
-        <span style="font-size:11px;color:var(--text-dim);font-family:'DM Sans',sans-serif;">Click Save after editing</span>
+        <div class="report-card-title">💡 How to Add Expenses & Other Income</div>
       </div>
-      <div style="padding:16px;">
-        <div class="section-divider">Expenses (Debit Side)</div>
-        <div id="expenseEntriesList">Loading…</div>
-        <div class="section-divider" style="margin-top:20px;">Other Income (Credit Side)</div>
-        <div id="incomeEntriesList">Loading…</div>
-        <div class="add-entry-form no-print" style="margin-top:16px;">
-          <div>
-            <div style="font-size:11px;color:var(--text-dim);font-family:'DM Sans',sans-serif;margin-bottom:4px;">Type</div>
-            <select id="newEntryType"><option value="expense">Expense</option><option value="income">Income</option></select>
-          </div>
-          <div>
-            <div style="font-size:11px;color:var(--text-dim);font-family:'DM Sans',sans-serif;margin-bottom:4px;">Name / Label</div>
-            <input type="text" id="newEntryLabel" placeholder="e.g. Electricity Bill" style="width:180px;">
-          </div>
-          <div>
-            <div style="font-size:11px;color:var(--text-dim);font-family:'DM Sans',sans-serif;margin-bottom:4px;">Amount (₹)</div>
-            <input type="number" id="newEntryAmount" placeholder="0" style="width:120px;">
-          </div>
-          <div>
-            <div style="font-size:11px;color:var(--text-dim);font-family:'DM Sans',sans-serif;margin-bottom:4px;">Note</div>
-            <input type="text" id="newEntryNote" placeholder="optional" style="width:160px;">
-          </div>
-          <button class="add-btn" onclick="addPnLEntry()">+ Add Entry</button>
-        </div>
+      <div style="padding:16px 20px;font-size:13px;color:var(--text-muted);line-height:1.9;">
+        To add <strong style="color:var(--text-main);">expenses</strong> (rent, electricity, salary, etc.) or
+        <strong style="color:var(--text-main);">other income</strong> (commission, rent received, etc.) to this P&amp;L Account:<br>
+        Go to <strong style="color:white;">📂 Accounts tab → Record a Transaction (Journal Entry)</strong><br>
+        Select <strong style="color:#f87171;">💸 Pay Expense</strong> or <strong style="color:#34d399;">💰 Receive Income</strong> —
+        those entries automatically appear in this P&amp;L account.
       </div>
     </div>
   </div>
@@ -1126,7 +1107,6 @@ window.loadPnLAccount = async function() {
         Net Margin: <strong style="color:${netProfit>=0?'#34d399':'#f87171'};">${netSales>0?((netProfit/netSales)*100).toFixed(1):0}%</strong>
       </div>
     </div>`
-  renderPnLEntries(manualItems,fy)
 }
 
 function renderPnLEntries(items,fy) {
