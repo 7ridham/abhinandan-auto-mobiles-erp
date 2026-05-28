@@ -26,7 +26,7 @@
   .import-btn{background:rgba(37,99,235,0.2)!important;border:1px solid rgba(37,99,235,0.4)!important;white-space:nowrap;padding:11px 18px!important;}
   .export-btn-top{background:rgba(52,211,153,0.15)!important;border:1px solid rgba(52,211,153,0.3)!important;color:#34d399!important;white-space:nowrap;padding:11px 18px!important;}
   .products-table-wrap{overflow-x:auto;border-radius:12px;border:1px solid rgba(255,255,255,0.08);}
-  .products-table{width:100%;border-collapse:collapse;min-width:900px;}
+  .products-table{width:100%;border-collapse:collapse;min-width:800px;}
   .products-table thead tr{background:rgba(255,255,255,0.05);border-bottom:1px solid rgba(255,255,255,0.1);}
   .products-table thead th{padding:12px 14px;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.4);text-align:left;white-space:nowrap;border-bottom:none;}
   .products-table tbody tr{border-bottom:1px solid rgba(255,255,255,0.05);transition:background 0.15s;}
@@ -135,20 +135,19 @@
 
     <div class="products-table-wrap">
       <table class="products-table">
-        <thead>
+       <thead>
           <tr>
-            <th>Product Name</th>
-            <th>Item Code</th>
-            <th>Brand</th>
-            <th>Size</th>
-            <th>Category</th>
-            <th>Stock</th>
-            <th>Unit</th>
-            <th>Purchase ₹</th>
-            <th>Selling ₹</th>
-            <th>Stock Value</th>
-            <th>Supplier</th>
-            <th>Actions</th>
+            <th style="min-width:180px;">Product Name</th>
+            <th style="min-width:90px;">Code</th>
+            <th style="min-width:80px;">Brand</th>
+            <th style="min-width:70px;">Category</th>
+            <th style="min-width:90px;">Stock</th>
+            <th style="min-width:55px;">Unit</th>
+            <th style="min-width:80px;">Buy ₹</th>
+            <th style="min-width:80px;">Sell ₹</th>
+            <th style="min-width:90px;">Value</th>
+            <th style="min-width:100px;">Supplier</th>
+            <th style="min-width:110px;">Actions</th>
           </tr>
         </thead>
         <tbody id="productTableBody">
@@ -366,7 +365,6 @@ function renderTable() {
       <td style="font-weight:500;color:white;">${p.item_name}</td>
       <td style="color:rgba(255,255,255,0.5);font-size:12px;font-family:monospace;">${p.item_code || '—'}</td>
       <td style="color:rgba(255,255,255,0.6);">${p.brand || '—'}</td>
-      <td style="color:rgba(255,255,255,0.5);font-size:13px;">${p.product_size || '—'}</td>
       <td style="color:rgba(255,255,255,0.5);font-size:13px;">${p.category || '—'}</td>
       <td><span class="stock-badge ${stockClass}">${stockLabel}</span></td>
       <td style="color:rgba(255,255,255,0.5);font-size:13px;">${p.unit_type || '—'}</td>
@@ -387,7 +385,7 @@ function renderTable() {
   const totalSelValue = filtered.reduce((s, p) => s + (p.quantity || 0) * (p.selling_price || 0), 0)
   const totalStockVal = filtered.reduce((s, p) => s + (p.quantity || 0) * (p.purchase_price || 0), 0)
   tfoot.innerHTML = `<tr>
-    <td colspan="4" style="color:#60a5fa;">📊 TOTALS (${filtered.length} products shown)</td>
+    <td colspan="3" style="color:#60a5fa;">📊 TOTALS (${filtered.length} products shown)</td>
     <td style="color:#fbbf24;">${totalStock.toLocaleString('en-IN')} units</td>
     <td></td>
     <td style="color:#f87171;">₹${Math.round(totalPurValue).toLocaleString('en-IN')}</td>
