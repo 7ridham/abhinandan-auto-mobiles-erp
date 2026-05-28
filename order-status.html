@@ -5,42 +5,30 @@
 <title>Order Status - Abhinandan Auto Mobiles</title>
 <link rel="stylesheet" href="style.css">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
-/* ══════════════════════════════════════
-   ORDER STATUS — COMPLETE STYLES
-══════════════════════════════════════ */
 .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px;}
 .stat-card{background:linear-gradient(135deg,rgba(255,255,255,0.07),rgba(255,255,255,0.03));border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:16px 18px;position:relative;overflow:hidden;}
 .stat-card::before{content:'';position:absolute;top:0;left:10%;right:10%;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent);}
 .stat-label{font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:6px;}
 .stat-value{font-family:'Playfair Display',serif;font-size:24px;font-weight:700;color:white;}
-
-/* Light theme stat cards */
 html.light-theme .stat-card{background:rgba(255,255,255,0.92)!important;border-color:rgba(0,0,0,0.09)!important;}
 html.light-theme .stat-label{color:#475569!important;}
 html.light-theme .stat-value{color:#0f172a!important;}
 
-/* STATUS BADGES */
 .status-badge{display:inline-block;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;letter-spacing:0.5px;white-space:nowrap;}
 .status-pending{background:rgba(251,191,36,0.15);color:#fbbf24;border:1px solid rgba(251,191,36,0.3);}
 .status-partial{background:rgba(96,165,250,0.15);color:#60a5fa;border:1px solid rgba(96,165,250,0.3);}
 .status-received{background:rgba(52,211,153,0.15);color:#34d399;border:1px solid rgba(52,211,153,0.3);}
 .status-cancelled{background:rgba(248,113,113,0.12);color:#f87171;border:1px solid rgba(248,113,113,0.25);}
 
-/* ORDER CARDS */
 .order-card{background:linear-gradient(135deg,rgba(255,255,255,0.06),rgba(255,255,255,0.03));border:1px solid rgba(255,255,255,0.09);border-radius:16px;margin-bottom:14px;overflow:hidden;transition:all 0.2s;}
 .order-card:hover{border-color:rgba(37,99,235,0.35);box-shadow:0 6px 24px rgba(0,0,0,0.3);}
 .order-card.reminder-due{border-color:rgba(251,146,60,0.4);box-shadow:0 0 16px rgba(251,146,60,0.15);}
-
-/* Light theme order cards */
-html.light-theme .order-card{background:rgba(255,255,255,0.92)!important;border-color:rgba(0,0,0,0.1)!important;box-shadow:0 2px 12px rgba(0,0,0,0.07)!important;}
-html.light-theme .order-card:hover{border-color:rgba(37,99,235,0.3)!important;box-shadow:0 6px 20px rgba(0,0,0,0.12)!important;}
-html.light-theme .order-card.reminder-due{border-color:rgba(251,146,60,0.5)!important;}
+html.light-theme .order-card{background:rgba(255,255,255,0.92)!important;border-color:rgba(0,0,0,0.1)!important;}
+html.light-theme .order-card:hover{border-color:rgba(37,99,235,0.3)!important;}
 
 .order-header{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;cursor:pointer;flex-wrap:wrap;gap:10px;}
 .order-header:hover{background:rgba(255,255,255,0.02);}
-html.light-theme .order-header:hover{background:rgba(0,0,0,0.02)!important;}
 .order-no{font-size:12px;color:rgba(255,255,255,0.4);font-family:monospace;}
 html.light-theme .order-no{color:#64748b!important;}
 .order-merchant{font-size:16px;font-weight:700;color:white;margin:2px 0;}
@@ -56,56 +44,48 @@ html.light-theme .order-items-count{color:#64748b!important;}
 html.light-theme .order-body{border-top-color:rgba(0,0,0,0.08)!important;}
 .order-body.open{display:block;}
 
-/* Items table inside order cards */
 .items-table{width:100%;border-collapse:collapse;font-size:13px;}
 .items-table th{padding:9px 12px;font-size:10px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid rgba(255,255,255,0.07);text-align:left;}
 html.light-theme .items-table th{color:#64748b!important;border-bottom-color:rgba(0,0,0,0.08)!important;}
 .items-table td{padding:10px 12px;border-bottom:1px solid rgba(255,255,255,0.04);color:rgba(255,255,255,0.8);vertical-align:middle;}
 html.light-theme .items-table td{color:#1e293b!important;border-bottom-color:rgba(0,0,0,0.05)!important;}
 .items-table tr:last-child td{border-bottom:none;}
-.qty-input-rcv{width:70px;padding:5px 8px;border-radius:7px;border:1.5px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.08);color:white;font-size:13px;font-family:'DM Sans',sans-serif;text-align:center;outline:none;}
-.qty-input-rcv:focus{border-color:#34d399;}
-.qty-input-rcv:disabled{opacity:0.4;cursor:not-allowed;}
-html.light-theme .qty-input-rcv{background:white!important;color:#0f172a!important;border-color:rgba(0,0,0,0.15)!important;}
-.price-input-rcv{width:90px;padding:5px 8px;border-radius:7px;border:1.5px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.08);color:#34d399;font-size:13px;font-family:'DM Sans',sans-serif;text-align:center;outline:none;font-weight:600;}
-.price-input-rcv:focus{border-color:#34d399;}
-html.light-theme .price-input-rcv{background:white!important;color:#059669!important;border-color:rgba(0,0,0,0.15)!important;}
-.rcv-check{width:18px;height:18px;accent-color:#34d399;cursor:pointer;}
 
-/* Product search dropdown */
-.prod-search-wrap{position:relative;}
-.prod-dropdown{position:absolute;top:100%;left:0;right:0;z-index:9999;background:#1a2740;border:1px solid rgba(255,255,255,0.15);border-top:none;border-radius:0 0 10px 10px;list-style:none;padding:0;margin:0;max-height:220px;overflow-y:auto;box-shadow:0 12px 36px rgba(0,0,0,0.6);}
-.prod-dropdown li{padding:10px 14px;cursor:pointer;border-bottom:1px solid rgba(255,255,255,0.06);font-size:13px;color:white;transition:background 0.15s;}
-.prod-dropdown li:hover{background:rgba(37,99,235,0.2);}
-.prod-dropdown li.add-new{color:#fbbf24;background:rgba(251,191,36,0.05);border-top:1px solid rgba(251,191,36,0.2);}
-.prod-dropdown li.add-new:hover{background:rgba(251,191,36,0.12);}
-.prod-dropdown li:last-child{border-bottom:none;}
-html.light-theme .prod-dropdown{background:#f8faff!important;border-color:rgba(0,0,0,0.12)!important;}
-html.light-theme .prod-dropdown li{color:#0f172a!important;border-bottom-color:rgba(0,0,0,0.06)!important;}
-html.light-theme .prod-dropdown li:hover{background:rgba(37,99,235,0.08)!important;}
-
-/* New product mini form */
-.new-prod-form{background:rgba(251,191,36,0.06);border:1.5px dashed rgba(251,191,36,0.3);border-radius:10px;padding:14px;margin-top:6px;display:none;}
-.new-prod-form.open{display:block;}
-.new-prod-form .npf-title{font-size:11px;font-weight:700;color:#fbbf24;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;}
-.new-prod-form input,.new-prod-form select{background:rgba(255,255,255,0.07);border:1.5px solid rgba(255,255,255,0.12);border-radius:8px;color:white;padding:7px 10px;font-size:13px;font-family:'DM Sans',sans-serif;outline:none;width:100%;}
-html.light-theme .new-prod-form{background:rgba(251,191,36,0.04)!important;}
-html.light-theme .new-prod-form input,html.light-theme .new-prod-form select{background:white!important;color:#0f172a!important;border-color:rgba(0,0,0,0.12)!important;}
-
-/* Order item row */
-.order-item-row{display:grid;grid-template-columns:2fr 1fr 0.7fr 0.7fr 0.9fr auto;gap:8px;align-items:end;margin-bottom:8px;padding:10px;background:rgba(255,255,255,0.03);border-radius:10px;border:1px solid rgba(255,255,255,0.06);}
+/* Order item row in modal - simplified */
+.order-item-row{display:grid;grid-template-columns:2fr 1fr 1fr 0.7fr 0.7fr auto;gap:8px;align-items:end;margin-bottom:8px;padding:10px;background:rgba(255,255,255,0.03);border-radius:10px;border:1px solid rgba(255,255,255,0.06);}
 html.light-theme .order-item-row{background:rgba(0,0,0,0.02)!important;border-color:rgba(0,0,0,0.07)!important;}
-.order-item-row input,.order-item-row select{margin-bottom:0;padding:8px 10px;font-size:13px;background:rgba(255,255,255,0.07);border:1.5px solid rgba(255,255,255,0.1);border-radius:8px;color:white;font-family:'DM Sans',sans-serif;outline:none;width:100%;}
-html.light-theme .order-item-row input,html.light-theme .order-item-row select{background:white!important;color:#0f172a!important;border-color:rgba(0,0,0,0.12)!important;}
-.order-item-row input:focus,.order-item-row select:focus{border-color:rgba(37,99,235,0.5);}
-.remove-item-btn{background:rgba(220,38,38,0.2);border:1px solid rgba(220,38,38,0.3);color:#f87171;width:34px;height:34px;border-radius:8px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'DM Sans',sans-serif;}
-.remove-item-btn:hover{background:rgba(220,38,38,0.35);}
+.order-item-row input{margin-bottom:0;padding:8px 10px;font-size:13px;background:rgba(255,255,255,0.07);border:1.5px solid rgba(255,255,255,0.1);border-radius:8px;color:white;font-family:'DM Sans',sans-serif;outline:none;width:100%;}
+html.light-theme .order-item-row input{background:white!important;color:#0f172a!important;border-color:rgba(0,0,0,0.12)!important;}
+.order-item-row input:focus{border-color:rgba(37,99,235,0.5);}
 .item-row-label{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:4px;display:block;}
 html.light-theme .item-row-label{color:#64748b!important;}
+.remove-item-btn{background:rgba(220,38,38,0.2);border:1px solid rgba(220,38,38,0.3);color:#f87171;width:34px;height:34px;border-radius:8px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'DM Sans',sans-serif;margin-top:18px;}
 
-/* MODAL */
+/* Product search dropdown */
+.prod-dropdown{position:absolute;top:100%;left:0;right:0;z-index:9999;background:#1a2740;border:1px solid rgba(255,255,255,0.15);border-top:none;border-radius:0 0 10px 10px;list-style:none;padding:0;margin:0;max-height:200px;overflow-y:auto;box-shadow:0 12px 36px rgba(0,0,0,0.6);display:none;}
+.prod-dropdown li{padding:10px 14px;cursor:pointer;border-bottom:1px solid rgba(255,255,255,0.06);font-size:13px;color:white;}
+.prod-dropdown li:hover{background:rgba(37,99,235,0.2);}
+.prod-dropdown li.new-item{color:#fbbf24;border-top:1px solid rgba(251,191,36,0.2);}
+.prod-dropdown li.new-item:hover{background:rgba(251,191,36,0.1);}
+html.light-theme .prod-dropdown{background:#f8faff!important;border-color:rgba(0,0,0,0.12)!important;}
+html.light-theme .prod-dropdown li{color:#0f172a!important;}
+
+/* Receive modal rows */
+.rcv-row{display:grid;grid-template-columns:36px 2fr 1fr 70px 70px 80px 90px;gap:8px;align-items:center;padding:10px 14px;border-bottom:1px solid rgba(255,255,255,0.05);}
+html.light-theme .rcv-row{border-bottom-color:rgba(0,0,0,0.05)!important;}
+.rcv-row.rcv-head{background:rgba(255,255,255,0.04);font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.35);border-bottom:1px solid rgba(255,255,255,0.08);}
+html.light-theme .rcv-row.rcv-head{background:rgba(0,0,0,0.03)!important;color:#64748b!important;}
+.rcv-row.done{opacity:0.45;}
+.rcv-qty{width:68px;padding:5px 8px;border-radius:7px;border:1.5px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.08);color:white;font-size:13px;font-family:'DM Sans',sans-serif;text-align:center;outline:none;}
+.rcv-qty:focus{border-color:#34d399;}
+html.light-theme .rcv-qty{background:white!important;color:#0f172a!important;border-color:rgba(0,0,0,0.15)!important;}
+.rcv-sell{width:88px;padding:5px 8px;border-radius:7px;border:1.5px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.08);color:#34d399;font-size:13px;font-family:'DM Sans',sans-serif;text-align:center;outline:none;font-weight:600;}
+.rcv-sell:focus{border-color:#34d399;}
+html.light-theme .rcv-sell{background:white!important;color:#059669!important;border-color:rgba(0,0,0,0.15)!important;}
+
+/* Modal */
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:9999;overflow-y:auto;padding:20px;backdrop-filter:blur(6px);}
-.modal-box{background:linear-gradient(135deg,#0f172a,#0d1524);border:1px solid rgba(255,255,255,0.12);border-radius:20px;width:95%;max-width:700px;margin:30px auto;padding:28px;}
+.modal-box{background:linear-gradient(135deg,#0f172a,#0d1524);border:1px solid rgba(255,255,255,0.12);border-radius:20px;width:95%;max-width:720px;margin:30px auto;padding:28px;}
 html.light-theme .modal-box{background:linear-gradient(135deg,#f0f4ff,#ffffff)!important;border-color:rgba(0,0,0,0.1)!important;}
 .modal-title{font-family:'Playfair Display',serif;font-size:20px;color:white;margin-bottom:20px;}
 html.light-theme .modal-title{color:#0f172a!important;}
@@ -113,72 +93,53 @@ html.light-theme .modal-title{color:#0f172a!important;}
 html.light-theme .form-label{color:#475569!important;}
 .form-group{margin-bottom:14px;}
 .form-group input,.form-group select,.form-group textarea{margin-bottom:0;width:100%;padding:10px 14px;border-radius:8px;border:1.5px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.06);color:white;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;}
-html.light-theme .form-group input,html.light-theme .form-group select,html.light-theme .form-group textarea{background:white!important;color:#0f172a!important;border-color:rgba(0,0,0,0.12)!important;}
+html.light-theme .form-group input,html.light-theme .form-group select{background:white!important;color:#0f172a!important;border-color:rgba(0,0,0,0.12)!important;}
 .form-group input:focus,.form-group select:focus{border-color:rgba(37,99,235,0.5);}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.modal-section-head{font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.35);margin:16px 0 10px;padding-bottom:8px;border-bottom:1px solid rgba(255,255,255,0.07);}
+html.light-theme .modal-section-head{color:#64748b!important;border-bottom-color:rgba(0,0,0,0.08)!important;}
 .modal-footer{display:flex;gap:12px;margin-top:20px;justify-content:flex-end;}
 .btn-cancel{background:rgba(255,255,255,0.08)!important;border:1px solid rgba(255,255,255,0.15)!important;box-shadow:none!important;color:rgba(255,255,255,0.7)!important;}
-html.light-theme .btn-cancel{background:rgba(0,0,0,0.06)!important;border-color:rgba(0,0,0,0.12)!important;color:#334155!important;}
-
-/* Toolbar */
+html.light-theme .btn-cancel{background:rgba(0,0,0,0.06)!important;color:#334155!important;}
 .toolbar{display:flex;gap:12px;align-items:center;margin-bottom:20px;flex-wrap:wrap;}
 .toolbar input,.toolbar select{margin-bottom:0;}
 .toolbar input{flex:1;min-width:200px;}
 .toolbar select{width:160px;}
 
-/* Section head inside modal */
-.modal-section-head{font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.35);margin:16px 0 10px;padding-bottom:8px;border-bottom:1px solid rgba(255,255,255,0.07);}
-html.light-theme .modal-section-head{color:#64748b!important;border-bottom-color:rgba(0,0,0,0.08)!important;}
-
-/* Receive modal item rows */
-.rcv-item-row{padding:12px 14px;border-bottom:1px solid rgba(255,255,255,0.05);display:grid;grid-template-columns:30px 2fr 1fr 70px 70px 90px 90px;gap:8px;align-items:center;}
-html.light-theme .rcv-item-row{border-bottom-color:rgba(0,0,0,0.05)!important;}
-.rcv-item-row.fully-received{opacity:0.5;}
-.rcv-item-row.rcv-head{background:rgba(255,255,255,0.04);font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.35);padding:8px 14px;border-bottom:1px solid rgba(255,255,255,0.08);}
-html.light-theme .rcv-item-row.rcv-head{background:rgba(0,0,0,0.03)!important;color:#64748b!important;border-bottom-color:rgba(0,0,0,0.08)!important;}
-
-/* Print area */
+/* Print */
 #printReceiptArea{display:none;}
-#printPendingArea{display:none;}
+#printOrderArea{display:none;}
 @media print{
   body>*{display:none!important;}
-  body.print-receipt #printReceiptArea{display:block!important;}
-  body.print-pending #printPendingArea{display:block!important;}
-  body.print-order #printOrderArea{display:block!important;}
+  body.print-receipt #printReceiptArea{display:block!important;padding:28px;}
+  body.print-order #printOrderArea{display:block!important;padding:28px;}
   *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}
 }
-
-/* Receipt print styles */
-.receipt-paper{max-width:800px;margin:0 auto;background:#fff;font-family:'DM Sans',sans-serif;color:#111;padding:0;}
+.rpt-paper{max-width:800px;margin:0 auto;background:#fff;font-family:'DM Sans',sans-serif;color:#111;}
 .rpt-header{background:linear-gradient(135deg,#78350f,#d97706);color:white;padding:24px 32px;display:flex;justify-content:space-between;align-items:center;}
-.rpt-company{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;margin-bottom:4px;}
+.rpt-co{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;margin-bottom:4px;}
 .rpt-sub{font-size:11px;opacity:.85;margin:2px 0;}
 .rpt-badge{display:inline-block;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.4);font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:3px 12px;border-radius:20px;margin-bottom:6px;}
 .rpt-no{font-size:14px;font-weight:600;}
 .rpt-date{font-size:12px;opacity:.8;}
-.rpt-meta{display:flex;gap:28px;padding:14px 32px;background:#fffbeb;border-bottom:1px solid #e5e7eb;flex-wrap:wrap;}
+.rpt-meta{display:flex;gap:24px;padding:12px 32px;background:#fffbeb;border-bottom:1px solid #e5e7eb;flex-wrap:wrap;}
 .rpt-meta-block label{font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:#6b7280;display:block;margin-bottom:2px;}
-.rpt-meta-block span{font-size:14px;font-weight:600;color:#111;}
-.rpt-table-wrap{padding:0 32px;margin-top:16px;}
-.rpt-table{width:100%;border-collapse:collapse;font-size:13px;}
-.rpt-table thead tr{background:#78350f;color:white;}
-.rpt-table thead th{padding:9px 12px;text-align:left;font-weight:600;font-size:12px;}
-.rpt-table thead th:not(:first-child){text-align:center;}
-.rpt-table thead th:last-child{text-align:right;}
-.rpt-table tbody tr{border-bottom:1px solid #e5e7eb;}
-.rpt-table tbody tr:nth-child(even){background:#fffbeb;}
-.rpt-table tbody td{padding:9px 12px;color:#374151;}
-.rpt-table tbody td:not(:first-child){text-align:center;}
-.rpt-table tbody td:last-child{text-align:right;font-weight:600;}
-.rpt-totals{display:flex;justify-content:flex-end;padding:16px 32px 0;}
-.rpt-totals-inner{min-width:220px;}
-.rpt-total-row{display:flex;justify-content:space-between;padding:5px 0;font-size:13px;color:#374151;border-bottom:1px dashed #e5e7eb;}
-.rpt-total-row:last-child{border-bottom:none;border-top:2px solid #78350f;margin-top:6px;padding-top:10px;font-size:16px;font-weight:700;color:#111;}
-.rpt-pay{margin:14px 32px;padding:12px;background:#fffbeb;border:1px solid #e5e7eb;border-radius:8px;}
-.rpt-footer{margin:16px 32px 24px;padding-top:14px;border-top:1px solid #e5e7eb;font-size:12px;color:#6b7280;}
-.rpt-footer .thank-you{font-size:14px;font-weight:600;color:#78350f;margin-bottom:4px;}
-.pending-section{margin:12px 32px;padding:12px 16px;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;}
-.pending-section .ps-title{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#dc2626;margin-bottom:8px;}
+.rpt-meta-block span{font-size:13px;font-weight:600;color:#111;}
+.rpt-tbl{width:100%;border-collapse:collapse;font-size:13px;margin:16px 0 0;}
+.rpt-tbl thead tr{background:#78350f;color:white;}
+.rpt-tbl th{padding:9px 12px;text-align:left;font-size:12px;}
+.rpt-tbl th:not(:first-child){text-align:center;}
+.rpt-tbl th:last-child{text-align:right;}
+.rpt-tbl tbody tr{border-bottom:1px solid #e5e7eb;}
+.rpt-tbl tbody tr:nth-child(even){background:#fffbeb;}
+.rpt-tbl td{padding:9px 12px;color:#374151;}
+.rpt-tbl td:not(:first-child){text-align:center;}
+.rpt-tbl td:last-child{text-align:right;font-weight:600;}
+.rpt-totals{display:flex;justify-content:flex-end;padding:14px 32px 0;}
+.rpt-total-row{display:flex;justify-content:space-between;padding:5px 0;font-size:13px;border-bottom:1px dashed #e5e7eb;}
+.rpt-total-row:last-child{border-bottom:none;border-top:2px solid #78350f;margin-top:6px;padding-top:10px;font-size:16px;font-weight:700;}
+.rpt-pay{margin:12px 32px;padding:12px;background:#fffbeb;border:1px solid #e5e7eb;border-radius:8px;}
+.rpt-footer{margin:16px 32px 24px;padding-top:12px;border-top:1px solid #e5e7eb;font-size:12px;color:#6b7280;}
 </style>
 </head>
 <body>
@@ -206,9 +167,9 @@ html.light-theme .rcv-item-row.rcv-head{background:rgba(0,0,0,0.03)!important;co
     <h1>📋 Order Status</h1>
     <button onclick="openNewOrderModal()" style="background:linear-gradient(135deg,#2563eb,#3b82f6);box-shadow:0 4px 14px rgba(37,99,235,0.3);padding:10px 22px;border-radius:10px;font-weight:700;font-size:14px;cursor:pointer;font-family:'DM Sans',sans-serif;color:white;border:none;">+ New Order</button>
   </div>
-  <div style="font-size:13px;color:rgba(255,255,255,0.4);margin-bottom:20px;">Track pending orders from suppliers. Receive products when they arrive — auto-creates purchase bill & receipt.</div>
+  <div style="font-size:13px;color:rgba(255,255,255,0.4);margin-bottom:20px;">Track pending orders from suppliers. Receive products when they arrive — auto-creates purchase bill.</div>
 
-  <div class="stats-row" id="statsRow">
+  <div class="stats-row">
     <div class="stat-card"><div class="stat-label">Total Orders</div><div class="stat-value" id="stTotal" style="color:#a78bfa;">—</div></div>
     <div class="stat-card"><div class="stat-label">Pending</div><div class="stat-value" id="stPending" style="color:#fbbf24;">—</div></div>
     <div class="stat-card"><div class="stat-label">Partial</div><div class="stat-value" id="stPartial" style="color:#60a5fa;">—</div></div>
@@ -234,22 +195,19 @@ html.light-theme .rcv-item-row.rcv-head{background:rgba(0,0,0,0.03)!important;co
 </div>
 
 
-<!-- ════════════════════════════════════
-     NEW / EDIT ORDER MODAL
-════════════════════════════════════ -->
+<!-- NEW / EDIT ORDER MODAL -->
 <div class="modal-overlay" id="newOrderModal">
-  <div class="modal-box" style="max-width:780px;">
+  <div class="modal-box">
     <div class="modal-title" id="orderModalTitle">📋 Place New Order</div>
-
     <div class="form-row">
       <div class="form-group" style="position:relative;">
         <label class="form-label">Merchant / Supplier *</label>
-        <input id="oMerchant" placeholder="Type merchant name..." autocomplete="off" oninput="searchMerchants(this.value)">
+        <input id="oMerchant" placeholder="Type to search..." autocomplete="off" oninput="searchMerchants(this.value)">
         <ul id="merchantSuggest" style="position:absolute;z-index:9999;background:#1e293b;border:1px solid rgba(255,255,255,0.12);border-radius:8px;list-style:none;padding:0;margin:2px 0 0;max-height:180px;overflow-y:auto;display:none;width:100%;left:0;top:100%;box-shadow:0 12px 36px rgba(0,0,0,0.5);"></ul>
       </div>
       <div class="form-group">
         <label class="form-label">Phone</label>
-        <input id="oPhone" placeholder="Auto-filled or enter manually">
+        <input id="oPhone" placeholder="Auto-filled or manual">
       </div>
     </div>
     <div class="form-row">
@@ -264,23 +222,23 @@ html.light-theme .rcv-item-row.rcv-head{background:rgba(0,0,0,0.03)!important;co
     </div>
     <div class="form-group">
       <label class="form-label">Notes <span style="font-size:10px;color:rgba(255,255,255,0.25);">(optional)</span></label>
-      <input id="oNotes" placeholder="e.g. 50% advance paid, urgent order...">
+      <input id="oNotes" placeholder="e.g. 50% advance paid, urgent...">
     </div>
 
     <div class="modal-section-head">📦 ORDER ITEMS</div>
 
-    <div style="display:grid;grid-template-columns:2fr 1fr 0.7fr 0.7fr 0.9fr auto;gap:8px;margin-bottom:6px;padding:0 4px;">
-      <div style="font-size:9px;color:rgba(255,255,255,0.3);font-weight:700;letter-spacing:1px;text-transform:uppercase;">Product *</div>
-      <div style="font-size:9px;color:rgba(255,255,255,0.3);font-weight:700;letter-spacing:1px;text-transform:uppercase;">Item Code</div>
-      <div style="font-size:9px;color:rgba(255,255,255,0.3);font-weight:700;letter-spacing:1px;text-transform:uppercase;">Qty *</div>
-      <div style="font-size:9px;color:rgba(255,255,255,0.3);font-weight:700;letter-spacing:1px;text-transform:uppercase;">Price ₹</div>
-      <div style="font-size:9px;color:rgba(255,255,255,0.3);font-weight:700;letter-spacing:1px;text-transform:uppercase;">Category</div>
+    <!-- Column headers for item rows -->
+    <div style="display:grid;grid-template-columns:2fr 1fr 1fr 0.7fr 0.7fr 34px;gap:8px;padding:0 4px;margin-bottom:4px;">
+      <div class="item-row-label">Product *</div>
+      <div class="item-row-label">Brand</div>
+      <div class="item-row-label">Item Code</div>
+      <div class="item-row-label">Qty *</div>
+      <div class="item-row-label">Price ₹</div>
       <div></div>
     </div>
 
     <div id="orderItemsContainer"></div>
-
-    <button onclick="addOrderItem()" style="background:rgba(37,99,235,0.15);border:1px solid rgba(37,99,235,0.3);color:#60a5fa;padding:8px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:4px;">+ Add Item</button>
+    <button onclick="addOrderItem()" style="background:rgba(37,99,235,0.15);border:1px solid rgba(37,99,235,0.3);color:#60a5fa;padding:8px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:6px;">+ Add Item</button>
 
     <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:14px;margin-top:16px;display:flex;justify-content:space-between;align-items:center;">
       <span style="font-size:14px;color:rgba(255,255,255,0.6);">Order Total:</span>
@@ -289,127 +247,91 @@ html.light-theme .rcv-item-row.rcv-head{background:rgba(0,0,0,0.03)!important;co
 
     <div class="modal-footer">
       <button class="btn-cancel" onclick="closeNewOrderModal()" style="padding:10px 20px;border-radius:10px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:14px;">✕ Cancel</button>
-      <button id="placeOrderBtn" onclick="saveOrder()" style="background:linear-gradient(135deg,#2563eb,#3b82f6);border:none;color:white;padding:10px 24px;border-radius:10px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:14px;">📋 Place Order</button>
+      <button id="placeOrderBtn" style="background:linear-gradient(135deg,#2563eb,#3b82f6);border:none;color:white;padding:10px 24px;border-radius:10px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:14px;">📋 Place Order</button>
     </div>
   </div>
 </div>
 
 
-<!-- ════════════════════════════════════
-     RECEIVE PRODUCTS MODAL
-════════════════════════════════════ -->
+<!-- RECEIVE PRODUCTS MODAL -->
 <div class="modal-overlay" id="receiveModal">
-  <div class="modal-box" style="max-width:860px;">
+  <div class="modal-box" style="max-width:820px;">
     <div class="modal-title">✅ Receive Products</div>
-    <div id="receiveOrderInfo" style="background:rgba(52,211,153,0.07);border:1px solid rgba(52,211,153,0.2);border-radius:10px;padding:14px;margin-bottom:16px;font-size:13px;color:rgba(255,255,255,0.7);line-height:1.7;"></div>
-    <div style="font-size:12px;color:rgba(255,255,255,0.5);margin-bottom:14px;">✅ Check the items you received. Enter qty and selling price. Unchecked items remain pending.</div>
+    <div id="receiveOrderInfo" style="background:rgba(52,211,153,0.07);border:1px solid rgba(52,211,153,0.2);border-radius:10px;padding:14px;margin-bottom:12px;font-size:13px;color:rgba(255,255,255,0.7);line-height:1.7;"></div>
+    <div style="font-size:12px;color:rgba(255,255,255,0.5);margin-bottom:10px;">✅ Check items you received. Enter quantity and selling price. Unchecked items stay pending.</div>
 
-    <!-- Items table header -->
-    <div class="rcv-item-row rcv-head">
+    <!-- Receive rows header -->
+    <div class="rcv-row rcv-head">
       <div>✓</div>
       <div>Product / Brand</div>
       <div>Item Code</div>
-      <div>Ordered</div>
-      <div>Rcvd</div>
-      <div>Receive Qty</div>
-      <div>Sell Price ₹</div>
+      <div style="text-align:center;">Ordered</div>
+      <div style="text-align:center;">Rcvd</div>
+      <div style="text-align:center;">Rcv Qty</div>
+      <div style="text-align:center;">Sell ₹</div>
     </div>
-    <div id="receiveItemsList" style="border:1px solid rgba(255,255,255,0.07);border-radius:0 0 10px 10px;overflow:hidden;margin-bottom:16px;"></div>
+    <div id="receiveItemsList" style="border:1px solid rgba(255,255,255,0.07);border-top:none;border-radius:0 0 10px 10px;overflow:hidden;margin-bottom:14px;max-height:360px;overflow-y:auto;"></div>
 
-    <!-- Payment section -->
-    <div style="background:rgba(37,99,235,0.08);border:1px solid rgba(37,99,235,0.2);border-radius:10px;padding:16px;margin-bottom:16px;">
-      <div style="font-size:11px;font-weight:700;color:rgba(96,165,250,0.8);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">💳 Bill Payment (auto-creates purchase bill)</div>
+    <!-- Payment -->
+    <div style="background:rgba(37,99,235,0.08);border:1px solid rgba(37,99,235,0.2);border-radius:10px;padding:14px;margin-bottom:14px;">
+      <div style="font-size:11px;font-weight:700;color:rgba(96,165,250,0.8);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">💳 Payment for this delivery</div>
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
-        <div><label class="form-label">Cash ₹</label><input type="number" id="rcvCash" placeholder="0" min="0" oninput="calcReceiveTotal()" style="margin-bottom:0;"></div>
-        <div><label class="form-label">UPI ₹</label><input type="number" id="rcvUpi" placeholder="0" min="0" oninput="calcReceiveTotal()" style="margin-bottom:0;"></div>
-        <div><label class="form-label">Credit ₹</label><input type="number" id="rcvCredit" placeholder="0" min="0" oninput="calcReceiveTotal()" style="margin-bottom:0;"></div>
+        <div><label class="form-label">Cash ₹</label><input type="number" id="rcvCash" placeholder="0" min="0" oninput="calcRcvTotal()" style="margin-bottom:0;"></div>
+        <div><label class="form-label">UPI ₹</label><input type="number" id="rcvUpi" placeholder="0" min="0" oninput="calcRcvTotal()" style="margin-bottom:0;"></div>
+        <div><label class="form-label">Credit ₹</label><input type="number" id="rcvCredit" placeholder="0" min="0" oninput="calcRcvTotal()" style="margin-bottom:0;"></div>
       </div>
-      <div id="rcvPaySummary" style="margin-top:10px;font-size:13px;color:rgba(255,255,255,0.5);padding:8px 0;"></div>
+      <div id="rcvPaySummary" style="margin-top:10px;font-size:13px;color:rgba(255,255,255,0.5);"></div>
     </div>
 
     <div class="modal-footer">
       <button onclick="closeReceiveModal()" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.7);padding:10px 20px;border-radius:10px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:14px;box-shadow:none;">✕ Cancel</button>
-      <button onclick="processReceive(false)" style="background:rgba(37,99,235,0.2);border:1px solid rgba(37,99,235,0.4);color:#60a5fa;padding:10px 20px;border-radius:10px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;">💾 Save Only</button>
+      <button onclick="processReceive(false)" style="background:rgba(37,99,235,0.2);border:1px solid rgba(37,99,235,0.4);color:#60a5fa;padding:10px 20px;border-radius:10px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;box-shadow:none;">💾 Save Only</button>
       <button onclick="processReceive(true)" style="background:linear-gradient(135deg,#059669,#34d399);border:none;color:white;padding:10px 24px;border-radius:10px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:14px;">✅ Confirm & Print Receipt</button>
     </div>
   </div>
 </div>
 
 
-<!-- ════════════════════════════════════
-     PRINT: RECEIVED RECEIPT
-════════════════════════════════════ -->
+<!-- PRINT: RECEIPT -->
 <div id="printReceiptArea">
-  <div class="receipt-paper">
+  <div class="rpt-paper">
     <div class="rpt-header">
-      <div>
-        <div class="rpt-company">Abhinandan Auto Mobiles</div>
-        <div class="rpt-sub">Santalpur - Palanpur Highway</div>
-        <div class="rpt-sub">+91 98700 37002</div>
-      </div>
-      <div style="text-align:right;">
-        <div class="rpt-badge">GOODS RECEIPT</div>
-        <div class="rpt-no">Bill # <span id="ptBillNo">—</span></div>
-        <div class="rpt-date" id="ptDate">—</div>
-      </div>
+      <div><div class="rpt-co">Abhinandan Auto Mobiles</div><div class="rpt-sub">Santalpur - Palanpur Highway · +91 98700 37002</div></div>
+      <div style="text-align:right;"><div class="rpt-badge">GOODS RECEIPT</div><div class="rpt-no">Bill # <span id="ptBillNo">—</span></div><div class="rpt-date" id="ptDate">—</div></div>
     </div>
     <div class="rpt-meta">
       <div class="rpt-meta-block"><label>Supplier</label><span id="ptMerchant">—</span></div>
-      <div class="rpt-meta-block"><label>Phone</label><span id="ptPhone">—</span></div>
       <div class="rpt-meta-block"><label>Order No</label><span id="ptOrderNo">—</span></div>
       <div class="rpt-meta-block"><label>Payment</label><span id="ptPayMode">—</span></div>
     </div>
-    <div class="rpt-table-wrap">
-      <table class="rpt-table">
-        <thead><tr><th>#</th><th>Product</th><th>Brand</th><th>Item Code</th><th>Qty Rcvd</th><th>Purchase ₹</th><th>Sell ₹</th><th>Amount</th></tr></thead>
-        <tbody id="ptItems"></tbody>
-      </table>
-    </div>
-    <div class="rpt-totals">
-      <div class="rpt-totals-inner">
+    <table class="rpt-tbl" style="margin:0 32px;width:calc(100% - 64px);">
+      <thead><tr><th>#</th><th>Product</th><th>Brand</th><th>Qty</th><th>Buy ₹</th><th>Sell ₹</th><th>Amount</th></tr></thead>
+      <tbody id="ptItems"></tbody>
+    </table>
+    <div class="rpt-totals" style="min-width:220px;">
+      <div style="min-width:220px;">
         <div class="rpt-total-row"><span>Subtotal</span><span>₹<span id="ptSubtotal">0</span></span></div>
         <div class="rpt-total-row"><span style="font-weight:700;">Grand Total</span><span style="color:#78350f;">₹<span id="ptTotal">0</span></span></div>
       </div>
     </div>
     <div class="rpt-pay">
-      <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#6b7280;margin-bottom:8px;">Payment Breakdown</div>
-      <div style="display:flex;gap:24px;font-size:13px;flex-wrap:wrap;">
+      <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#6b7280;margin-bottom:8px;">Payment</div>
+      <div style="display:flex;gap:24px;font-size:13px;">
         <div><span style="color:#6b7280;">Cash: </span><strong id="ptCash">₹0</strong></div>
         <div><span style="color:#6b7280;">UPI: </span><strong id="ptUpi">₹0</strong></div>
         <div><span style="color:#6b7280;">Credit: </span><strong id="ptCredit">₹0</strong></div>
       </div>
     </div>
-    <!-- Pending items section -->
-    <div class="pending-section" id="ptPendingSection" style="display:none;">
-      <div class="ps-title">⏳ Still Pending (not yet received)</div>
-      <table style="width:100%;border-collapse:collapse;font-size:12px;">
-        <thead><tr style="background:#fef2f2;"><th style="padding:7px 10px;text-align:left;color:#dc2626;">Product</th><th style="padding:7px 10px;text-align:left;color:#dc2626;">Brand</th><th style="padding:7px 10px;text-align:center;color:#dc2626;">Ordered</th><th style="padding:7px 10px;text-align:center;color:#dc2626;">Received</th><th style="padding:7px 10px;text-align:center;color:#dc2626;">Still Pending</th></tr></thead>
-        <tbody id="ptPendingItems"></tbody>
-      </table>
-    </div>
-    <div class="rpt-footer">
-      <div class="thank-you">Stock Received 🙏</div>
-      <div>This is an internal goods receipt note.</div>
-    </div>
+    <div class="rpt-footer"><div style="font-size:14px;font-weight:600;color:#78350f;margin-bottom:4px;">Stock Received 🙏</div><div>Internal goods receipt note.</div></div>
   </div>
 </div>
 
-
-<!-- ════════════════════════════════════
-     PRINT: FULL ORDER (for print order button)
-════════════════════════════════════ -->
+<!-- PRINT: ORDER -->
 <div id="printOrderArea">
-  <div class="receipt-paper">
+  <div class="rpt-paper">
     <div class="rpt-header">
-      <div>
-        <div class="rpt-company">Abhinandan Auto Mobiles</div>
-        <div class="rpt-sub">Santalpur - Palanpur Highway · +91 98700 37002</div>
-      </div>
-      <div style="text-align:right;">
-        <div class="rpt-badge">PURCHASE ORDER</div>
-        <div class="rpt-no">Order # <span id="poOrderNo">—</span></div>
-        <div class="rpt-date" id="poDate">—</div>
-      </div>
+      <div><div class="rpt-co">Abhinandan Auto Mobiles</div><div class="rpt-sub">Santalpur - Palanpur Highway · +91 98700 37002</div></div>
+      <div style="text-align:right;"><div class="rpt-badge">PURCHASE ORDER</div><div class="rpt-no">Order # <span id="poOrderNo">—</span></div><div class="rpt-date" id="poDate">—</div></div>
     </div>
     <div class="rpt-meta">
       <div class="rpt-meta-block"><label>Merchant</label><span id="poMerchant">—</span></div>
@@ -417,23 +339,15 @@ html.light-theme .rcv-item-row.rcv-head{background:rgba(0,0,0,0.03)!important;co
       <div class="rpt-meta-block"><label>Expected</label><span id="poExpected">—</span></div>
       <div class="rpt-meta-block"><label>Status</label><span id="poStatus">—</span></div>
     </div>
-    <div id="poNoteBar" style="display:none;margin:8px 32px;padding:10px 14px;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;font-size:13px;color:#92400e;">📝 Note: <span id="poNote"></span></div>
-    <div class="rpt-table-wrap">
-      <table class="rpt-table">
-        <thead><tr><th>#</th><th>Product</th><th>Brand</th><th>Item Code</th><th>Size</th><th>Category</th><th>Qty</th><th>Price ₹</th><th>Amount</th></tr></thead>
-        <tbody id="poItems"></tbody>
-      </table>
-    </div>
-    <div class="rpt-totals">
-      <div class="rpt-totals-inner">
-        <div class="rpt-total-row"><span style="font-weight:700;">Order Total</span><span style="color:#78350f;">₹<span id="poTotal">0</span></span></div>
-      </div>
-    </div>
-    <div class="rpt-footer">
-      <div style="display:flex;justify-content:space-between;margin-top:16px;">
-        <div><div style="border-top:1px solid #000;width:140px;margin-top:28px;margin-bottom:4px;"></div><div style="font-size:11px;color:#6b7280;">Supplier Signature</div></div>
-        <div><div style="border-top:1px solid #000;width:140px;margin-top:28px;margin-bottom:4px;"></div><div style="font-size:11px;color:#6b7280;">For Abhinandan Auto Mobiles</div></div>
-      </div>
+    <div id="poNoteBar" style="display:none;margin:8px 32px;padding:10px 14px;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;font-size:13px;color:#92400e;">📝 <span id="poNote"></span></div>
+    <table class="rpt-tbl" style="margin:0 32px;width:calc(100% - 64px);">
+      <thead><tr><th>#</th><th>Product</th><th>Brand</th><th>Code</th><th>Qty</th><th>Price ₹</th><th>Amount</th></tr></thead>
+      <tbody id="poItems"></tbody>
+    </table>
+    <div class="rpt-totals"><div style="min-width:220px;"><div class="rpt-total-row"><span style="font-weight:700;">Order Total</span><span style="color:#78350f;">₹<span id="poTotal">0</span></span></div></div></div>
+    <div class="rpt-footer" style="display:flex;justify-content:space-between;margin-top:16px;">
+      <div><div style="border-top:1px solid #000;width:130px;margin-top:28px;margin-bottom:4px;"></div><div style="font-size:11px;color:#6b7280;">Supplier Signature</div></div>
+      <div><div style="border-top:1px solid #000;width:130px;margin-top:28px;margin-bottom:4px;"></div><div style="font-size:11px;color:#6b7280;">For Abhinandan Auto Mobiles</div></div>
     </div>
   </div>
 </div>
@@ -442,49 +356,53 @@ html.light-theme .rcv-item-row.rcv-head{background:rgba(0,0,0,0.03)!important;co
 <script>
 const _S = document.createElement('script')
 _S.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js'
-_S.onload = () => initOrderStatus(window.supabase.createClient(
+_S.onload = () => initApp(window.supabase.createClient(
   "https://mhhnmndnolhapaoqtbxo.supabase.co",
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1oaG5tbmRub2xoYXBhb3F0YnhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4Mzg4NTksImV4cCI6MjA4ODQxNDg1OX0.IMSp8vYiCln_iSuoT_H2qdeX_dP1WMhOOskDw20eJXw"
 ))
 document.head.appendChild(_S)
 
-function initOrderStatus(supabase) {
+function initApp(supabase) {
 
 // ── STATE ──
 let allOrders = []
-let allItems = {}          // { orderId: [items...] }
+let allItems = {}        // { orderId: [items...] }
 let editingOrderId = null
 let receivingOrderId = null
-let inventoryCache = []    // full product list from inventory
+let invCache = []        // inventory products
 let merchantTimer = null
-let prodTimers = {}        // timers per item row
+let prodTimers = {}
 
-// ── INIT ──
+// ── BOOT ──
 document.getElementById('oDate').value = new Date().toISOString().slice(0,10)
+document.getElementById('placeOrderBtn').addEventListener('click', saveOrder)
 loadData()
 
-// ════════════════════════════════════
-// DATA LOADING
-// WHY: We load orders + items in one
-// parallel call so the receive modal
-// always has item data ready.
-// ════════════════════════════════════
+// ════════════════════════
+// LOAD DATA
+// WHY: Load everything at once so
+// the receive modal always has items.
+// ════════════════════════
 async function loadData() {
-  document.getElementById('ordersContainer').innerHTML = '<div style="text-align:center;padding:40px;color:rgba(255,255,255,0.3);">⏳ Loading...</div>'
+  document.getElementById('ordersContainer').innerHTML =
+    '<div style="text-align:center;padding:40px;color:rgba(255,255,255,0.3);">⏳ Loading...</div>'
 
-  // Load inventory cache for product search
-  const invRes = await supabase.from('inventory').select('id,item_name,item_code,brand,product_size,category,unit_type,purchase_price,selling_price,quantity').order('item_name')
-  inventoryCache = invRes.data || []
+  // Load inventory for product search autocomplete
+  const { data: inv } = await supabase
+    .from('inventory')
+    .select('id,item_name,item_code,brand,product_size,category,unit_type,purchase_price,selling_price,quantity')
+    .order('item_name')
+  invCache = inv || []
 
-  // Load orders and items together
+  // Load orders + items in parallel
   const [{ data: orders }, { data: items }] = await Promise.all([
     supabase.from('purchase_orders').select('*').order('created_at', { ascending: false }),
-    supabase.from('purchase_order_items').select('*')
+    supabase.from('purchase_order_items').select('*').order('id')
   ])
 
   allOrders = orders || []
 
-  // Build items map keyed by order_id
+  // Build items lookup: { orderId: [items] }
   allItems = {}
   ;(items || []).forEach(item => {
     if (!allItems[item.order_id]) allItems[item.order_id] = []
@@ -502,33 +420,30 @@ function updateStats() {
   document.getElementById('stReceived').innerText = allOrders.filter(o => o.status === 'received').length
 }
 
-// ════════════════════════════════════
+// ════════════════════════
 // RENDER ORDERS
-// ════════════════════════════════════
+// ════════════════════════
 window.renderOrders = function() {
   const search = (document.getElementById('searchInput').value || '').toLowerCase()
-  const statusFilter = document.getElementById('filterStatus').value
+  const sf = document.getElementById('filterStatus').value
   const container = document.getElementById('ordersContainer')
 
   let filtered = allOrders.filter(o => {
     const items = allItems[o.id] || []
-    const matchSearch = !search ||
+    const ms = !search ||
       (o.merchant_name || '').toLowerCase().includes(search) ||
       (o.order_number || '').toLowerCase().includes(search) ||
       items.some(i => (i.item_name || '').toLowerCase().includes(search))
-
-    let matchStatus
-    if (statusFilter === 'active') matchStatus = o.status === 'pending' || o.status === 'partial'
-    else if (statusFilter === 'all') matchStatus = true
-    else matchStatus = o.status === statusFilter
-
-    return matchSearch && matchStatus
+    let ms2 = sf === 'all' ? true :
+              sf === 'active' ? (o.status === 'pending' || o.status === 'partial') :
+              o.status === sf
+    return ms && ms2
   })
 
   if (!filtered.length) {
     container.innerHTML = `<div style="text-align:center;padding:50px;color:rgba(255,255,255,0.3);">
       <div style="font-size:40px;margin-bottom:12px;">📋</div>
-      <div style="font-size:14px;">No orders found. Click "+ New Order" to place one.</div>
+      <div>No orders found. Click "+ New Order" to place one.</div>
     </div>`
     return
   }
@@ -536,13 +451,12 @@ window.renderOrders = function() {
   const today = new Date()
   container.innerHTML = filtered.map(order => {
     const items = allItems[order.id] || []
-    const totalOrdered = items.reduce((s, i) => s + (i.ordered_qty || 0), 0)
-    const totalReceived = items.reduce((s, i) => s + (i.received_qty || 0), 0)
+    const totOrdered = items.reduce((s, i) => s + (i.ordered_qty || 0), 0)
+    const totRcvd = items.reduce((s, i) => s + (i.received_qty || 0), 0)
     const orderDate = new Date(order.order_date + 'T12:00:00')
-    const daysSince = Math.floor((today - orderDate) / (1000 * 60 * 60 * 24))
+    const daysSince = Math.floor((today - orderDate) / (1000*60*60*24))
     const isOverdue = (order.status === 'pending' || order.status === 'partial') && daysSince >= 2
 
-    // Build items rows for expanded view
     const itemRows = items.length ? items.map(item => {
       const pending = (item.ordered_qty || 0) - (item.received_qty || 0)
       return `<tr>
@@ -555,27 +469,28 @@ window.renderOrders = function() {
         <td style="text-align:center;color:#34d399;">${item.received_qty || 0}</td>
         <td style="text-align:center;color:${pending > 0 ? '#fbbf24' : '#34d399'};">${pending > 0 ? pending : '✓'}</td>
         <td style="color:#a78bfa;">₹${(item.purchase_price || 0).toLocaleString('en-IN')}</td>
-        <td style="font-weight:600;color:#34d399;">₹${item.selling_price ? item.selling_price.toLocaleString('en-IN') : '—'}</td>
-        <td style="font-weight:600;text-align:right;">₹${((item.ordered_qty || 0) * (item.purchase_price || 0)).toLocaleString('en-IN')}</td>
+        <td style="color:#34d399;">${item.selling_price ? '₹' + item.selling_price.toLocaleString('en-IN') : '—'}</td>
+        <td style="text-align:right;font-weight:600;">₹${((item.ordered_qty || 0) * (item.purchase_price || 0)).toLocaleString('en-IN')}</td>
       </tr>`
-    }).join('') : `<tr><td colspan="11" style="text-align:center;padding:20px;color:rgba(255,255,255,0.3);">No items found — edit this order to add items.</td></tr>`
+    }).join('') :
+    `<tr><td colspan="11" style="text-align:center;padding:16px;color:rgba(255,255,255,0.3);">No items — click ✏️ to add items</td></tr>`
 
-    return `<div class="order-card${isOverdue ? ' reminder-due' : ''}" id="order-card-${order.id}">
+    return `<div class="order-card${isOverdue ? ' reminder-due' : ''}" id="oc-${order.id}">
       <div class="order-header" onclick="toggleOrder(${order.id})">
         <div>
           <div class="order-no">${esc(order.order_number)}</div>
           <div class="order-merchant">${esc(order.merchant_name)}</div>
-          <div class="order-date">📅 Ordered: ${fmtDate(order.order_date)}${order.expected_date ? ' · Expected: ' + fmtDate(order.expected_date) : ''}${isOverdue ? ' <span style="color:#fb923c;font-size:11px;">⏰ ' + daysSince + 'd ago</span>' : ''}</div>
+          <div class="order-date">📅 ${fmtDate(order.order_date)}${order.expected_date ? ' · Expected: ' + fmtDate(order.expected_date) : ''}${isOverdue ? ' <span style="color:#fb923c;font-size:11px;">⏰ ' + daysSince + 'd ago</span>' : ''}</div>
         </div>
         <div class="order-meta">
           <div>
             <div class="order-amount">₹${Math.round(order.total_amount || 0).toLocaleString('en-IN')}</div>
-            <div class="order-items-count">${items.length} item${items.length !== 1 ? 's' : ''} · ${totalReceived}/${totalOrdered} units rcvd</div>
+            <div class="order-items-count">${items.length} item${items.length !== 1 ? 's' : ''} · ${totRcvd}/${totOrdered} rcvd</div>
           </div>
           <span class="status-badge status-${order.status}">${order.status.charAt(0).toUpperCase() + order.status.slice(1)}</span>
           <div class="order-actions-row" onclick="event.stopPropagation()">
             ${order.status !== 'received' && order.status !== 'cancelled' ?
-              `<button onclick="openReceiveModal(${order.id})" style="background:rgba(52,211,153,0.2);border:1px solid rgba(52,211,153,0.35);color:#34d399;padding:6px 14px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;box-shadow:none;white-space:nowrap;">✅ Receive</button>` : ''}
+              `<button onclick="openReceiveModal(${order.id})" style="background:rgba(52,211,153,0.2);border:1px solid rgba(52,211,153,0.35);color:#34d399;padding:6px 14px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;box-shadow:none;">✅ Receive</button>` : ''}
             <button onclick="editOrder(${order.id})" style="background:rgba(96,165,250,0.15);border:1px solid rgba(96,165,250,0.3);color:#60a5fa;padding:6px 12px;border-radius:8px;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;box-shadow:none;" title="Edit">✏️</button>
             <button onclick="printOrder(${order.id})" style="background:rgba(167,139,250,0.15);border:1px solid rgba(167,139,250,0.3);color:#a78bfa;padding:6px 12px;border-radius:8px;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;box-shadow:none;" title="Print">🖨</button>
             ${order.status !== 'received' && order.status !== 'cancelled' ?
@@ -584,15 +499,15 @@ window.renderOrders = function() {
           </div>
         </div>
       </div>
-      <div class="order-body" id="order-body-${order.id}">
-        ${order.notes ? `<div style="background:rgba(255,255,255,0.04);border-radius:8px;padding:10px 14px;font-size:13px;color:rgba(255,255,255,0.55);margin-bottom:14px;font-style:italic;">📝 ${esc(order.notes)}</div>` : ''}
-        ${order.linked_bill_number ? `<div style="background:rgba(52,211,153,0.08);border:1px solid rgba(52,211,153,0.2);border-radius:8px;padding:10px 14px;font-size:13px;color:#34d399;margin-bottom:14px;">✅ Purchase bill created: <strong>${esc(order.linked_bill_number)}</strong></div>` : ''}
+      <div class="order-body" id="ob-${order.id}">
+        ${order.notes ? `<div style="background:rgba(255,255,255,0.04);border-radius:8px;padding:10px 14px;font-size:13px;color:rgba(255,255,255,0.55);margin-bottom:12px;font-style:italic;">📝 ${esc(order.notes)}</div>` : ''}
+        ${order.linked_bill_number ? `<div style="background:rgba(52,211,153,0.08);border:1px solid rgba(52,211,153,0.2);border-radius:8px;padding:10px 14px;font-size:13px;color:#34d399;margin-bottom:12px;">✅ Purchase bill: <strong>${esc(order.linked_bill_number)}</strong></div>` : ''}
         <div style="overflow-x:auto;">
           <table class="items-table">
             <thead><tr>
-              <th>Product</th><th>Brand</th><th>Item Code</th><th>Size</th><th>Category</th>
+              <th>Product</th><th>Brand</th><th>Code</th><th>Size</th><th>Category</th>
               <th style="text-align:center;">Ordered</th><th style="text-align:center;">Received</th>
-              <th style="text-align:center;">Pending</th><th>Buy Price</th><th>Sell Price</th><th style="text-align:right;">Total</th>
+              <th style="text-align:center;">Pending</th><th>Buy ₹</th><th>Sell ₹</th><th style="text-align:right;">Total</th>
             </tr></thead>
             <tbody>${itemRows}</tbody>
           </table>
@@ -602,15 +517,15 @@ window.renderOrders = function() {
   }).join('')
 }
 
-window.toggleOrder = function(id) {
-  const body = document.getElementById('order-body-' + id)
-  if (body) body.classList.toggle('open')
+window.toggleOrder = id => {
+  const b = document.getElementById('ob-' + id)
+  if (b) b.classList.toggle('open')
 }
 
 
-// ════════════════════════════════════
+// ════════════════════════
 // NEW ORDER MODAL
-// ════════════════════════════════════
+// ════════════════════════
 window.openNewOrderModal = function() {
   editingOrderId = null
   document.getElementById('orderModalTitle').innerText = '📋 Place New Order'
@@ -620,10 +535,9 @@ window.openNewOrderModal = function() {
   document.getElementById('oExpected').value = ''
   document.getElementById('oNotes').value = ''
   document.getElementById('orderItemsContainer').innerHTML = ''
-  document.getElementById('placeOrderBtn').onclick = saveOrder
-  document.getElementById('placeOrderBtn').innerHTML = '📋 Place Order'
+  document.getElementById('placeOrderBtn').innerText = '📋 Place Order'
   addOrderItem()
-  updateOrderTotal()
+  calcOrderTotal()
   document.getElementById('newOrderModal').style.display = 'block'
 }
 
@@ -632,144 +546,120 @@ window.closeNewOrderModal = function() {
   editingOrderId = null
 }
 
-// ─ Add an order item row with product search ─
+// ─ Add item row ─
+// SIMPLIFIED: Product | Brand | Item Code | Qty | Price | Remove
+// Category is removed from here (it lives in expanded view, not needed on order form)
 window.addOrderItem = function() {
   const container = document.getElementById('orderItemsContainer')
-  const idx = Date.now() // unique ID for this row
+  const rowId = 'r' + Date.now()
   const div = document.createElement('div')
   div.className = 'order-item-row'
-  div.dataset.rowid = idx
+  div.dataset.rowid = rowId
+  // Store extra data as data attributes
+  div.dataset.brand = ''
+  div.dataset.size = ''
+  div.dataset.category = ''
+  div.dataset.unit = ''
+  div.dataset.invId = ''
+  div.dataset.sellPrice = ''
+  div.dataset.isNew = 'false'
+
   div.innerHTML = `
     <div style="position:relative;">
-      <label class="item-row-label">Product *</label>
-      <input placeholder="Type to search or enter name..." class="oi-name" data-rowid="${idx}"
-        oninput="searchProducts(this, ${idx})" autocomplete="off"
+      <input placeholder="Type to search product..." class="oi-name"
+        oninput="onProdInput(this,'${rowId}')" autocomplete="off"
         style="margin-bottom:0;padding:8px 10px;font-size:13px;background:rgba(255,255,255,0.07);border:1.5px solid rgba(255,255,255,0.1);border-radius:8px;color:white;font-family:'DM Sans',sans-serif;outline:none;width:100%;">
-      <ul class="prod-dropdown" id="pdrop-${idx}"></ul>
-      <div class="new-prod-form" id="npf-${idx}">
-        <div class="npf-title">➕ New Product Details</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px;">
-          <input placeholder="Category (e.g. Brakes)" class="npf-cat" style="font-size:12px;">
-          <input placeholder="Size (e.g. 185/65)" class="npf-size" style="font-size:12px;">
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
-          <input placeholder="Unit (e.g. piece)" class="npf-unit" style="font-size:12px;">
-          <input placeholder="Sell Price ₹ (optional)" type="number" class="npf-sell" style="font-size:12px;">
-        </div>
-      </div>
+      <ul class="prod-dropdown" id="pd-${rowId}"></ul>
     </div>
     <div>
-      <label class="item-row-label">Item Code</label>
-      <input placeholder="Optional" class="oi-code" data-rowid="${idx}"
+      <input placeholder="Brand" class="oi-brand"
         style="margin-bottom:0;padding:8px 10px;font-size:13px;background:rgba(255,255,255,0.07);border:1.5px solid rgba(255,255,255,0.1);border-radius:8px;color:white;font-family:'DM Sans',sans-serif;outline:none;width:100%;">
     </div>
     <div>
-      <label class="item-row-label">Qty *</label>
-      <input type="number" placeholder="1" min="1" value="1" class="oi-qty" data-rowid="${idx}"
-        oninput="updateOrderTotal()"
-        style="margin-bottom:0;padding:8px 10px;font-size:13px;background:rgba(255,255,255,0.07);border:1.5px solid rgba(255,255,255,0.1);border-radius:8px;color:white;font-family:'DM Sans',sans-serif;outline:none;width:100%;">
+      <input placeholder="Code (optional)" class="oi-code"
+        style="margin-bottom:0;padding:8px 10px;font-size:13px;background:rgba(255,255,255,0.07);border:1.5px solid rgba(255,255,255,0.1);border-radius:8px;color:rgba(255,255,255,0.6);font-family:'DM Sans',sans-serif;outline:none;width:100%;">
     </div>
     <div>
-      <label class="item-row-label">Price ₹</label>
-      <input type="number" placeholder="0" min="0" value="0" class="oi-price" data-rowid="${idx}"
-        oninput="updateOrderTotal()"
-        style="margin-bottom:0;padding:8px 10px;font-size:13px;background:rgba(255,255,255,0.07);border:1.5px solid rgba(255,255,255,0.1);border-radius:8px;color:white;font-family:'DM Sans',sans-serif;outline:none;width:100%;color:#a78bfa;font-weight:600;">
+      <input type="number" placeholder="1" min="1" value="1" class="oi-qty"
+        oninput="calcOrderTotal()"
+        style="margin-bottom:0;padding:8px 10px;font-size:13px;background:rgba(255,255,255,0.07);border:1.5px solid rgba(255,255,255,0.1);border-radius:8px;color:white;font-family:'DM Sans',sans-serif;outline:none;width:100%;text-align:center;">
     </div>
     <div>
-      <label class="item-row-label">Category</label>
-      <input placeholder="Auto-filled" class="oi-cat" data-rowid="${idx}"
-        style="margin-bottom:0;padding:8px 10px;font-size:13px;background:rgba(255,255,255,0.07);border:1.5px solid rgba(255,255,255,0.1);border-radius:8px;color:rgba(255,255,255,0.7);font-family:'DM Sans',sans-serif;outline:none;width:100%;">
+      <input type="number" placeholder="0" min="0" value="0" class="oi-price"
+        oninput="calcOrderTotal()"
+        style="margin-bottom:0;padding:8px 10px;font-size:13px;background:rgba(255,255,255,0.07);border:1.5px solid rgba(255,255,255,0.1);border-radius:8px;color:#a78bfa;font-family:'DM Sans',sans-serif;outline:none;width:100%;text-align:center;font-weight:600;">
     </div>
-    <button class="remove-item-btn" onclick="this.closest('.order-item-row').remove();updateOrderTotal();" style="margin-top:18px;" title="Remove item">✕</button>
+    <button class="remove-item-btn" onclick="this.closest('.order-item-row').remove();calcOrderTotal();" title="Remove">✕</button>
   `
   container.appendChild(div)
   div.querySelector('.oi-name').focus()
 }
 
-// ─ Product search for order items ─
-window.searchProducts = function(input, rowId) {
+// Product search
+window.onProdInput = function(input, rowId) {
   const q = input.value.trim()
-  const dropdown = document.getElementById('pdrop-' + rowId)
-  const npf = document.getElementById('npf-' + rowId)
-
+  const dd = document.getElementById('pd-' + rowId)
   clearTimeout(prodTimers[rowId])
-
-  if (!q) { dropdown.style.display = 'none'; npf.classList.remove('open'); return }
+  if (!q) { dd.style.display = 'none'; return }
 
   prodTimers[rowId] = setTimeout(() => {
-    const matches = inventoryCache.filter(p =>
+    const matches = invCache.filter(p =>
       (p.item_name || '').toLowerCase().includes(q.toLowerCase()) ||
       (p.item_code || '').toLowerCase().includes(q.toLowerCase()) ||
       (p.brand || '').toLowerCase().includes(q.toLowerCase())
     ).slice(0, 10)
 
-    dropdown.innerHTML = ''
+    dd.innerHTML = ''
 
-    if (matches.length) {
-      matches.forEach(p => {
-        const li = document.createElement('li')
-        li.innerHTML = `<strong>${esc(p.item_name)}</strong>
-          ${p.brand ? `<span style="color:rgba(255,255,255,0.5);"> · ${esc(p.brand)}</span>` : ''}
-          ${p.item_code ? `<span style="color:rgba(255,255,255,0.3);font-size:11px;font-family:monospace;"> [${esc(p.item_code)}]</span>` : ''}
-          <span style="color:#a78bfa;font-size:11px;"> ₹${p.purchase_price || 0}</span>
-          <span style="color:${p.quantity <= 0 ? '#f87171' : p.quantity <= 5 ? '#fbbf24' : '#34d399'};font-size:11px;"> (${p.quantity || 0} in stock)</span>`
-        li.onmousedown = (e) => {
-          e.preventDefault()
-          fillProductRow(rowId, p)
-          dropdown.style.display = 'none'
-          npf.classList.remove('open')
-        }
-        dropdown.appendChild(li)
-      })
-    }
+    matches.forEach(p => {
+      const li = document.createElement('li')
+      li.innerHTML = `<strong>${esc(p.item_name)}</strong>
+        ${p.brand ? `<span style="color:rgba(255,255,255,0.45);"> · ${esc(p.brand)}</span>` : ''}
+        ${p.item_code ? `<span style="color:rgba(255,255,255,0.3);font-size:11px;font-family:monospace;"> [${esc(p.item_code)}]</span>` : ''}
+        <span style="color:#a78bfa;font-size:12px;"> ₹${p.purchase_price || 0}</span>
+        <span style="color:${p.quantity <= 0 ? '#f87171' : p.quantity <= 5 ? '#fbbf24' : '#34d399'};font-size:11px;"> (${p.quantity || 0} stock)</span>`
+      li.onmousedown = e => {
+        e.preventDefault()
+        fillRow(rowId, p)
+        dd.style.display = 'none'
+      }
+      dd.appendChild(li)
+    })
 
-    // Always add "Add as new product" option
-    const addLi = document.createElement('li')
-    addLi.className = 'add-new'
-    addLi.innerHTML = `➕ Add "<strong>${esc(q)}</strong>" as new product`
-    addLi.onmousedown = (e) => {
+    // "Add as new" option
+    const li2 = document.createElement('li')
+    li2.className = 'new-item'
+    li2.innerHTML = `➕ Use "<strong>${esc(q)}</strong>" as new product`
+    li2.onmousedown = e => {
       e.preventDefault()
-      dropdown.style.display = 'none'
-      npf.classList.add('open')
-      // Set the name field
-      input.value = q
+      const row = document.querySelector(`.order-item-row[data-rowid="${rowId}"]`)
+      if (row) { row.dataset.isNew = 'true'; row.dataset.invId = '' }
+      dd.style.display = 'none'
     }
-    dropdown.appendChild(addLi)
+    dd.appendChild(li2)
 
-    dropdown.style.display = 'block'
-    // Position dropdown relative to input
-    const rect = input.getBoundingClientRect()
-    dropdown.style.width = rect.width + 'px'
-  }, 250)
+    dd.style.display = matches.length || q ? 'block' : 'none'
+  }, 220)
 }
 
-function fillProductRow(rowId, product) {
+function fillRow(rowId, product) {
   const row = document.querySelector(`.order-item-row[data-rowid="${rowId}"]`)
   if (!row) return
   row.querySelector('.oi-name').value = product.item_name || ''
+  row.querySelector('.oi-brand').value = product.brand || ''
   row.querySelector('.oi-code').value = product.item_code || ''
   row.querySelector('.oi-price').value = product.purchase_price || 0
-  row.querySelector('.oi-cat').value = product.category || ''
-  // Store extra data as dataset
   row.dataset.brand = product.brand || ''
   row.dataset.size = product.product_size || ''
+  row.dataset.category = product.category || ''
   row.dataset.unit = product.unit_type || ''
   row.dataset.invId = product.id || ''
-  row.dataset.sellPrice = product.selling_price || 0
-  updateOrderTotal()
+  row.dataset.sellPrice = product.selling_price || ''
+  row.dataset.isNew = 'false'
+  calcOrderTotal()
 }
 
-// Close dropdown when clicking outside
-document.addEventListener('click', (e) => {
-  document.querySelectorAll('.prod-dropdown').forEach(d => {
-    if (!d.closest('.prod-search-wrap')?.contains(e.target) && !e.target.classList.contains('oi-name')) {
-      d.style.display = 'none'
-    }
-  })
-  hideMerchantSuggest()
-})
-
-window.updateOrderTotal = function() {
+window.calcOrderTotal = function() {
   let total = 0
   document.querySelectorAll('.order-item-row').forEach(row => {
     const qty = parseFloat(row.querySelector('.oi-qty')?.value) || 0
@@ -779,148 +669,145 @@ window.updateOrderTotal = function() {
   document.getElementById('orderTotalDisplay').innerText = '₹' + Math.round(total).toLocaleString('en-IN')
 }
 
+// Close dropdowns on outside click
+document.addEventListener('click', e => {
+  document.querySelectorAll('.prod-dropdown').forEach(d => { d.style.display = 'none' })
+  if (!e.target.closest('#oMerchant') && !e.target.closest('#merchantSuggest')) {
+    document.getElementById('merchantSuggest').style.display = 'none'
+  }
+})
 
-// ════════════════════════════════════
-// GENERATE BILL / ORDER NUMBER
-// Uses the ORDER DATE for the prefix,
-// not today's date.
-// WHY: If you placed an order 2 days
-// ago with order_date = 26 May, the
-// order number should say ORD-260526
-// not ORD-280526.
-// ════════════════════════════════════
-async function generateOrderNo(orderDate) {
-  const d = new Date(orderDate + 'T12:00:00')
-  const dd = String(d.getDate()).padStart(2, '0')
-  const mm = String(d.getMonth() + 1).padStart(2, '0')
-  const yy = String(d.getFullYear()).slice(2)
+
+// ════════════════════════
+// GENERATE NUMBERS
+// ════════════════════════
+async function genOrderNo(dateStr) {
+  const d = new Date(dateStr + 'T12:00:00')
+  const dd = String(d.getDate()).padStart(2,'0'), mm = String(d.getMonth()+1).padStart(2,'0'), yy = String(d.getFullYear()).slice(2)
   const prefix = 'ORD-' + dd + mm + yy + '-'
-  const { data } = await supabase.from('purchase_orders')
-    .select('order_number').like('order_number', prefix + '%')
-    .order('order_number', { ascending: false }).limit(1)
-  let lastNo = 0
-  if (data && data.length) { const parts = data[0].order_number.split('-'); lastNo = parseInt(parts[parts.length - 1]) || 0 }
-  return prefix + String(lastNo + 1).padStart(4, '0')
+  const { data } = await supabase.from('purchase_orders').select('order_number').like('order_number', prefix+'%').order('order_number',{ascending:false}).limit(1)
+  let n = 0; if (data && data.length) { const p = data[0].order_number.split('-'); n = parseInt(p[p.length-1]) || 0 }
+  return prefix + String(n+1).padStart(4,'0')
 }
 
-async function generatePurBillNo(billDate) {
-  const d = new Date(billDate + 'T12:00:00')
-  const dd = String(d.getDate()).padStart(2, '0')
-  const mm = String(d.getMonth() + 1).padStart(2, '0')
-  const yy = String(d.getFullYear()).slice(2)
+async function genPurBillNo() {
+  const now = new Date()
+  const dd = String(now.getDate()).padStart(2,'0'), mm = String(now.getMonth()+1).padStart(2,'0'), yy = String(now.getFullYear()).slice(2)
   const prefix = 'PUR-' + dd + mm + yy + '-'
-  const { data } = await supabase.from('purchases')
-    .select('bill_number').like('bill_number', prefix + '%')
-    .order('bill_number', { ascending: false }).limit(1)
-  let lastNo = 0
-  if (data && data.length) { const parts = data[0].bill_number.split('-'); lastNo = parseInt(parts[parts.length - 1]) || 0 }
-  return prefix + String(lastNo + 1).padStart(4, '0')
+  const { data } = await supabase.from('purchases').select('bill_number').like('bill_number', prefix+'%').order('bill_number',{ascending:false}).limit(1)
+  let n = 0; if (data && data.length) { const p = data[0].bill_number.split('-'); n = parseInt(p[p.length-1]) || 0 }
+  return prefix + String(n+1).padStart(4,'0')
 }
 
 
-// ════════════════════════════════════
+// ════════════════════════
 // SAVE ORDER
-// ════════════════════════════════════
+// ROOT FIX: We now explicitly verify
+// items were saved by checking insert
+// result and logging errors clearly.
+// ════════════════════════
 window.saveOrder = async function() {
   const merchant = document.getElementById('oMerchant').value.trim()
   if (!merchant) { alert('Please enter merchant name'); return }
-
   const orderDate = document.getElementById('oDate').value
   if (!orderDate) { alert('Please select order date'); return }
 
-  // Collect items
+  // Collect item rows
   const items = []
-  let hasError = false
-  document.querySelectorAll('.order-item-row').forEach(row => {
+  const rows = document.querySelectorAll('.order-item-row')
+  for (const row of rows) {
     const name = row.querySelector('.oi-name')?.value.trim()
-    if (!name) return
+    if (!name) continue
     const qty = parseInt(row.querySelector('.oi-qty')?.value) || 0
-    if (qty <= 0) { alert('Quantity must be at least 1 for: ' + name); hasError = true; return }
-    const npf = row.querySelector('.new-prod-form')
-    const isNew = npf && npf.classList.contains('open')
+    if (qty <= 0) { alert('Quantity must be ≥ 1 for: ' + name); return }
     items.push({
-      item_name: name,
-      item_code: row.querySelector('.oi-code')?.value.trim() || null,
-      brand: row.dataset.brand || null,
-      product_size: row.dataset.size || (isNew ? row.querySelector('.npf-size')?.value.trim() : null) || null,
-      category: row.querySelector('.oi-cat')?.value.trim() || (isNew ? row.querySelector('.npf-cat')?.value.trim() : null) || null,
-      unit_type: row.dataset.unit || (isNew ? row.querySelector('.npf-unit')?.value.trim() : null) || null,
-      ordered_qty: qty,
+      item_name:      name,
+      brand:          row.querySelector('.oi-brand')?.value.trim() || null,
+      item_code:      row.querySelector('.oi-code')?.value.trim() || null,
+      product_size:   row.dataset.size || null,
+      category:       row.dataset.category || null,
+      unit_type:      row.dataset.unit || null,
+      ordered_qty:    qty,
       purchase_price: parseFloat(row.querySelector('.oi-price')?.value) || 0,
-      selling_price: parseFloat(row.dataset.sellPrice) || parseFloat(row.querySelector('.npf-sell')?.value) || null,
-      received_qty: 0,
-      is_new_product: isNew ? true : false,
-      inv_id: row.dataset.invId || null
+      selling_price:  row.dataset.sellPrice ? parseFloat(row.dataset.sellPrice) : null,
+      received_qty:   0,
+      inv_id:         row.dataset.invId || null
     })
-  })
-  if (hasError) return
+  }
   if (!items.length) { alert('Add at least one product'); return }
 
   const total = items.reduce((s, i) => s + (i.ordered_qty || 0) * (i.purchase_price || 0), 0)
 
   const btn = document.getElementById('placeOrderBtn')
-  btn.disabled = true
-  btn.innerHTML = '⏳ Saving...'
+  btn.disabled = true; btn.innerText = '⏳ Saving...'
 
   try {
     if (editingOrderId) {
-      // UPDATE existing order
-      await supabase.from('purchase_orders').update({
-        merchant_name: merchant,
+      // UPDATE order header
+      const { error: updErr } = await supabase.from('purchase_orders').update({
+        merchant_name:  merchant,
         merchant_phone: document.getElementById('oPhone').value.trim() || null,
-        order_date: orderDate,
-        expected_date: document.getElementById('oExpected').value || null,
-        notes: document.getElementById('oNotes').value.trim() || null,
-        total_amount: total
+        order_date:     orderDate,
+        expected_date:  document.getElementById('oExpected').value || null,
+        notes:          document.getElementById('oNotes').value.trim() || null,
+        total_amount:   total
       }).eq('id', editingOrderId)
-      // Replace items
-      await supabase.from('purchase_order_items').delete().eq('order_id', editingOrderId)
-      await supabase.from('purchase_order_items').insert(items.map(i => ({
-        order_id: editingOrderId, item_name: i.item_name, item_code: i.item_code,
-        brand: i.brand, product_size: i.product_size, category: i.category, unit_type: i.unit_type,
-        ordered_qty: i.ordered_qty, purchase_price: i.purchase_price,
-        selling_price: i.selling_price, received_qty: 0
-      })))
+      if (updErr) throw new Error('Update order: ' + updErr.message)
+
+      // DELETE old items then INSERT new ones
+      const { error: delErr } = await supabase.from('purchase_order_items').delete().eq('order_id', editingOrderId)
+      if (delErr) throw new Error('Delete items: ' + delErr.message)
+
+      const { data: insData, error: insErr } = await supabase.from('purchase_order_items').insert(
+        items.map(i => ({ ...i, order_id: editingOrderId }))
+      ).select()
+      if (insErr) throw new Error('Insert items: ' + insErr.message)
+
+      console.log('✅ Items saved:', insData?.length, 'items for order', editingOrderId)
       closeNewOrderModal()
-      alert('✅ Order updated!')
+      await loadData()
+      alert('✅ Order updated! ' + (insData?.length || 0) + ' items saved.')
+
     } else {
-      // NEW order — generate order number based on ORDER DATE
-      const orderNo = await generateOrderNo(orderDate)
-      const { data: orderData, error } = await supabase.from('purchase_orders').insert([{
-        order_number: orderNo,
-        merchant_name: merchant,
+      // NEW order
+      const orderNo = await genOrderNo(orderDate)
+      const { data: orderData, error: orderErr } = await supabase.from('purchase_orders').insert([{
+        order_number:   orderNo,
+        merchant_name:  merchant,
         merchant_phone: document.getElementById('oPhone').value.trim() || null,
-        order_date: orderDate,
-        expected_date: document.getElementById('oExpected').value || null,
-        notes: document.getElementById('oNotes').value.trim() || null,
-        status: 'pending',
-        total_amount: total
+        order_date:     orderDate,
+        expected_date:  document.getElementById('oExpected').value || null,
+        notes:          document.getElementById('oNotes').value.trim() || null,
+        status:         'pending',
+        total_amount:   total
       }]).select().single()
-      if (error) { alert('Error: ' + error.message); btn.disabled = false; btn.innerHTML = '📋 Place Order'; return }
+      if (orderErr) throw new Error('Create order: ' + orderErr.message)
 
-      await supabase.from('purchase_order_items').insert(items.map(i => ({
-        order_id: orderData.id, item_name: i.item_name, item_code: i.item_code,
-        brand: i.brand, product_size: i.product_size, category: i.category, unit_type: i.unit_type,
-        ordered_qty: i.ordered_qty, purchase_price: i.purchase_price,
-        selling_price: i.selling_price, received_qty: 0
-      })))
+      // INSERT items with order_id
+      const itemsToInsert = items.map(i => ({ ...i, order_id: orderData.id }))
+      const { data: insData, error: insErr } = await supabase.from('purchase_order_items').insert(itemsToInsert).select()
+      if (insErr) throw new Error('Insert items: ' + insErr.message)
 
+      console.log('✅ New order', orderNo, '— items saved:', insData?.length)
       closeNewOrderModal()
-      alert('✅ Order placed!\nOrder No: ' + orderNo)
+      await loadData()
+      alert('✅ Order placed: ' + orderNo + '\n' + (insData?.length || 0) + ' items saved.')
     }
   } catch(err) {
-    alert('Error: ' + err.message)
+    console.error('saveOrder error:', err)
+    alert('❌ Error: ' + err.message)
   }
 
   btn.disabled = false
-  btn.innerHTML = '📋 Place Order'
-  await loadData()
+  btn.innerText = editingOrderId ? '💾 Update Order' : '📋 Place Order'
 }
 
 
-// ════════════════════════════════════
+// ════════════════════════
 // EDIT ORDER
-// ════════════════════════════════════
+// ROOT FIX: Pull items from allItems
+// which is already loaded in memory.
+// ════════════════════════
 window.editOrder = async function(id) {
   const order = allOrders.find(o => o.id === id)
   if (!order) return
@@ -929,57 +816,67 @@ window.editOrder = async function(id) {
   document.getElementById('orderModalTitle').innerText = '✏️ Edit Order — ' + order.order_number
   document.getElementById('oMerchant').value = order.merchant_name || ''
   document.getElementById('oPhone').value = order.merchant_phone || ''
-  document.getElementById('oDate').value = order.order_date || new Date().toISOString().slice(0,10)
+  document.getElementById('oDate').value = order.order_date || ''
   document.getElementById('oExpected').value = order.expected_date || ''
   document.getElementById('oNotes').value = order.notes || ''
 
   const container = document.getElementById('orderItemsContainer')
   container.innerHTML = ''
 
-  const items = allItems[id] || []
+  // Load items — try memory first, then DB as fallback
+  let items = allItems[id] || []
+  if (!items.length) {
+    const { data } = await supabase.from('purchase_order_items').select('*').eq('order_id', id)
+    items = data || []
+    if (items.length) allItems[id] = items // update cache
+  }
+
+  console.log('Editing order', id, '— items loaded:', items.length)
+
+  // Add a row for each item
   items.forEach(item => {
     window.addOrderItem()
-    // Get the last added row
     const rows = container.querySelectorAll('.order-item-row')
     const row = rows[rows.length - 1]
     if (!row) return
     const rowId = row.dataset.rowid
-    row.querySelector('.oi-name').value = item.item_name || ''
-    row.querySelector('.oi-code').value = item.item_code || ''
+    row.querySelector('.oi-name').value  = item.item_name || ''
+    row.querySelector('.oi-brand').value = item.brand || ''
+    row.querySelector('.oi-code').value  = item.item_code || ''
+    row.querySelector('.oi-qty').value   = item.ordered_qty || 1
     row.querySelector('.oi-price').value = item.purchase_price || 0
-    row.querySelector('.oi-qty').value = item.ordered_qty || 1
-    row.querySelector('.oi-cat').value = item.category || ''
-    row.dataset.brand = item.brand || ''
-    row.dataset.size = item.product_size || ''
-    row.dataset.unit = item.unit_type || ''
-    row.dataset.sellPrice = item.selling_price || 0
+    row.dataset.brand     = item.brand || ''
+    row.dataset.size      = item.product_size || ''
+    row.dataset.category  = item.category || ''
+    row.dataset.unit      = item.unit_type || ''
+    row.dataset.invId     = item.inv_id || ''
+    row.dataset.sellPrice = item.selling_price || ''
+    row.dataset.isNew     = 'false'
   })
 
+  // If no items found, add one blank row
   if (!items.length) addOrderItem()
 
-  updateOrderTotal()
-
-  // Change button
-  document.getElementById('placeOrderBtn').innerHTML = '💾 Update Order'
-  document.getElementById('placeOrderBtn').onclick = saveOrder
-
+  calcOrderTotal()
+  document.getElementById('placeOrderBtn').innerText = '💾 Update Order'
   document.getElementById('newOrderModal').style.display = 'block'
 }
 
 
-// ════════════════════════════════════
+// ════════════════════════
 // RECEIVE PRODUCTS MODAL
-// This is the core fix — we now build
-// the receive UI from allItems[id]
-// which is always populated.
-// ════════════════════════════════════
+// ROOT FIX: Items come from allItems
+// (already loaded). Each item has a
+// checkbox + qty + sell price input.
+// ════════════════════════
 window.openReceiveModal = function(id) {
   const order = allOrders.find(o => o.id === id)
   if (!order) { alert('Order not found'); return }
 
+  // Get items from memory
   const items = allItems[id] || []
   if (!items.length) {
-    alert('⚠️ No items found for this order. Please edit the order and add items first.')
+    alert('⚠️ This order has no items yet.\nClick ✏️ Edit to add products first, then save the order.')
     return
   }
 
@@ -988,65 +885,62 @@ window.openReceiveModal = function(id) {
   document.getElementById('receiveOrderInfo').innerHTML =
     `<strong style="color:white;font-size:15px;">${esc(order.merchant_name)}</strong>` +
     ` &nbsp;|&nbsp; Order: <strong>${esc(order.order_number)}</strong>` +
-    ` &nbsp;|&nbsp; Date: ${fmtDate(order.order_date)}` +
-    (order.merchant_phone ? ` &nbsp;|&nbsp; 📞 ${order.merchant_phone}` : '')
+    ` &nbsp;|&nbsp; Date: ${fmtDate(order.order_date)}`
 
-  // Build receive items list
-  const listEl = document.getElementById('receiveItemsList')
-  listEl.innerHTML = ''
+  // Build receive rows
+  const list = document.getElementById('receiveItemsList')
+  list.innerHTML = ''
 
   items.forEach((item, idx) => {
     const pending = (item.ordered_qty || 0) - (item.received_qty || 0)
-    const fullyReceived = pending <= 0
-
+    const done = pending <= 0
     const row = document.createElement('div')
-    row.className = 'rcv-item-row' + (fullyReceived ? ' fully-received' : '')
-    row.dataset.itemId = item.id
-    row.dataset.itemIdx = idx
+    row.className = 'rcv-row' + (done ? ' done' : '')
+    row.dataset.idx = idx
 
-    if (fullyReceived) {
+    if (done) {
       row.innerHTML = `
-        <div><input type="checkbox" disabled class="rcv-check" style="accent-color:#34d399;"></div>
+        <div><input type="checkbox" disabled style="accent-color:#34d399;opacity:0.4;"></div>
         <div>
-          <div style="font-weight:500;color:rgba(255,255,255,0.5);text-decoration:line-through;">${esc(item.item_name)}</div>
-          <div style="font-size:11px;color:rgba(255,255,255,0.3);">${esc(item.brand || '')} ${item.item_code ? '[' + esc(item.item_code) + ']' : ''}</div>
+          <div style="font-weight:500;color:rgba(255,255,255,0.4);text-decoration:line-through;">${esc(item.item_name)}</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.3);">${esc(item.brand || '')}</div>
         </div>
         <div style="font-size:11px;color:rgba(255,255,255,0.3);font-family:monospace;">${esc(item.item_code || '—')}</div>
         <div style="text-align:center;color:rgba(255,255,255,0.4);">${item.ordered_qty || 0}</div>
-        <div style="text-align:center;"><span style="background:rgba(52,211,153,0.1);color:#34d399;font-size:11px;padding:3px 8px;border-radius:6px;">✓ Done</span></div>
+        <div style="text-align:center;"><span style="font-size:11px;background:rgba(52,211,153,0.1);color:#34d399;padding:2px 8px;border-radius:5px;">✓ Done</span></div>
         <div style="text-align:center;color:rgba(255,255,255,0.3);">—</div>
-        <div style="text-align:center;color:rgba(255,255,255,0.3);">—</div>
-      `
+        <div style="text-align:center;color:rgba(255,255,255,0.3);">—</div>`
     } else {
       row.innerHTML = `
-        <div><input type="checkbox" class="rcv-check" data-idx="${idx}" style="accent-color:#34d399;width:18px;height:18px;cursor:pointer;" onchange="calcReceiveTotal()"></div>
+        <div><input type="checkbox" class="rcv-chk" data-idx="${idx}"
+          style="width:18px;height:18px;accent-color:#34d399;cursor:pointer;"
+          onchange="calcRcvTotal()"></div>
         <div>
           <div style="font-weight:500;color:white;">${esc(item.item_name)}</div>
-          <div style="font-size:11px;color:rgba(255,255,255,0.4);">${esc(item.brand || '')} ${item.category ? '· ' + esc(item.category) : ''} ${item.product_size ? '· ' + esc(item.product_size) : ''}</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.4);">${esc(item.brand || '')} ${item.category ? '· ' + esc(item.category) : ''}</div>
         </div>
         <div style="font-size:11px;color:rgba(255,255,255,0.4);font-family:monospace;">${esc(item.item_code || '—')}</div>
         <div style="text-align:center;">${item.ordered_qty || 0}</div>
         <div style="text-align:center;color:#34d399;">${item.received_qty || 0}</div>
         <div style="text-align:center;">
-          <input type="number" class="qty-input-rcv rcv-qty" data-idx="${idx}" data-max="${pending}"
-            data-price="${item.purchase_price || 0}"
+          <input type="number" class="rcv-qty"
+            data-idx="${idx}" data-price="${item.purchase_price || 0}"
             value="${pending}" min="1" max="${pending}"
-            oninput="calcReceiveTotal()">
+            oninput="calcRcvTotal()">
         </div>
         <div style="text-align:center;">
-          <input type="number" class="price-input-rcv rcv-sell" data-idx="${idx}"
-            placeholder="Sell ₹" value="${item.selling_price || ''}"
-            min="0" style="width:90px;">
-        </div>
-      `
+          <input type="number" class="rcv-sell"
+            data-idx="${idx}"
+            placeholder="Sell ₹"
+            value="${item.selling_price || ''}"
+            min="0">
+        </div>`
     }
-
-    listEl.appendChild(row)
+    list.appendChild(row)
   })
 
-  // Reset payments
   ;['rcvCash','rcvUpi','rcvCredit'].forEach(id => { document.getElementById(id).value = '' })
-  calcReceiveTotal()
+  document.getElementById('rcvPaySummary').innerHTML = '<span style="color:rgba(255,255,255,0.4);">Check items above to see total</span>'
   document.getElementById('receiveModal').style.display = 'block'
 }
 
@@ -1055,44 +949,31 @@ window.closeReceiveModal = function() {
   receivingOrderId = null
 }
 
-window.calcReceiveTotal = function() {
+window.calcRcvTotal = function() {
   let total = 0
-  document.querySelectorAll('.rcv-check:checked').forEach(chk => {
+  document.querySelectorAll('.rcv-chk:checked').forEach(chk => {
     const idx = chk.dataset.idx
-    const qtyEl = document.querySelector('.rcv-qty[data-idx="' + idx + '"]')
-    const qty = parseInt(qtyEl?.value) || 0
-    const price = parseFloat(qtyEl?.dataset.price) || 0
-    total += qty * price
+    const qtyEl = document.querySelector('.rcv-qty[data-idx="'+idx+'"]')
+    total += (parseInt(qtyEl?.value) || 0) * (parseFloat(qtyEl?.dataset.price) || 0)
   })
-
   const cash = parseFloat(document.getElementById('rcvCash').value) || 0
   const upi = parseFloat(document.getElementById('rcvUpi').value) || 0
-  const credit = parseFloat(document.getElementById('rcvCredit').value) || 0
-  const paid = cash + upi + credit
-  const remain = total - paid
-
-  let statusHtml = ''
-  if (total === 0) {
-    statusHtml = '<span style="color:rgba(255,255,255,0.4);">Select items above to receive</span>'
-  } else if (paid === 0) {
-    statusHtml = `<span style="color:#fbbf24;">📦 Total: ₹${total.toLocaleString('en-IN')} — Enter payment or leave blank for full credit</span>`
-  } else if (remain > 0) {
-    statusHtml = `<span style="color:#fbbf24;">Total: ₹${total.toLocaleString('en-IN')} · Remaining ₹${remain.toLocaleString('en-IN')} → will be credit</span>`
-  } else if (remain < 0) {
-    statusHtml = `<span style="color:#f87171;">❌ Payment ₹${paid.toLocaleString('en-IN')} exceeds total ₹${total.toLocaleString('en-IN')}</span>`
-  } else {
-    statusHtml = `<span style="color:#34d399;">✅ Fully settled — ₹${total.toLocaleString('en-IN')}</span>`
-  }
-  document.getElementById('rcvPaySummary').innerHTML = statusHtml
+  const cred = parseFloat(document.getElementById('rcvCredit').value) || 0
+  const paid = cash + upi + cred
+  const rem = total - paid
+  let html = ''
+  if (!total) html = '<span style="color:rgba(255,255,255,0.4);">Check items to see total</span>'
+  else if (paid === 0) html = `<span style="color:#fbbf24;">Total: ₹${total.toLocaleString('en-IN')} — leave blank for full credit</span>`
+  else if (rem > 0) html = `<span style="color:#fbbf24;">Total: ₹${total.toLocaleString('en-IN')} · ₹${rem.toLocaleString('en-IN')} → credit</span>`
+  else if (rem < 0) html = `<span style="color:#f87171;">❌ Overpaid by ₹${Math.abs(rem).toLocaleString('en-IN')}</span>`
+  else html = `<span style="color:#34d399;">✅ Fully settled ₹${total.toLocaleString('en-IN')}</span>`
+  document.getElementById('rcvPaySummary').innerHTML = html
 }
 
 
-// ════════════════════════════════════
+// ════════════════════════
 // PROCESS RECEIVE
-// Creates purchase bill, updates
-// inventory, updates order status,
-// and optionally prints receipt.
-// ════════════════════════════════════
+// ════════════════════════
 window.processReceive = async function(shouldPrint) {
   if (!receivingOrderId) return
   const order = allOrders.find(o => o.id === receivingOrderId)
@@ -1100,40 +981,38 @@ window.processReceive = async function(shouldPrint) {
   const items = allItems[receivingOrderId] || []
 
   // Collect checked items
-  const receivedItems = []
-  document.querySelectorAll('.rcv-check:checked').forEach(chk => {
+  const rcvItems = []
+  document.querySelectorAll('.rcv-chk:checked').forEach(chk => {
     const idx = parseInt(chk.dataset.idx)
     const item = items[idx]
     if (!item) return
-    const qtyEl = document.querySelector('.rcv-qty[data-idx="' + idx + '"]')
-    const sellEl = document.querySelector('.rcv-sell[data-idx="' + idx + '"]')
+    const qtyEl = document.querySelector('.rcv-qty[data-idx="'+idx+'"]')
+    const sellEl = document.querySelector('.rcv-sell[data-idx="'+idx+'"]')
     const qty = parseInt(qtyEl?.value) || 0
-    if (qty <= 0) return
     const maxAllowed = (item.ordered_qty || 0) - (item.received_qty || 0)
+    if (qty <= 0) return
     if (qty > maxAllowed) { alert('Cannot receive ' + qty + ' of "' + item.item_name + '". Max: ' + maxAllowed); return }
-    receivedItems.push({
+    rcvItems.push({
       ...item,
       rcvQty: qty,
-      rcvSellPrice: parseFloat(sellEl?.value) || item.selling_price || null
+      rcvSell: parseFloat(sellEl?.value) || item.selling_price || null
     })
   })
 
-  if (!receivedItems.length) { alert('Please check at least one item to receive'); return }
+  if (!rcvItems.length) { alert('Check at least one item to receive'); return }
 
-  const total = receivedItems.reduce((s, i) => s + i.rcvQty * (i.purchase_price || 0), 0)
+  const total = rcvItems.reduce((s, i) => s + i.rcvQty * (i.purchase_price || 0), 0)
   let cash = parseFloat(document.getElementById('rcvCash').value) || 0
   let upi = parseFloat(document.getElementById('rcvUpi').value) || 0
   let credit = parseFloat(document.getElementById('rcvCredit').value) || 0
+  if (cash + upi + credit > total) { alert('❌ Payment exceeds total'); return }
+  if (cash + upi + credit === 0) credit = total // auto full credit
 
-  if (cash + upi + credit > total) { alert('❌ Payment exceeds total ₹' + total.toLocaleString('en-IN')); return }
-  if (cash + upi + credit === 0) credit = total // auto full credit if nothing entered
-
-  // Generate bill number based on today (receive date)
-  const todayStr = new Date().toISOString().slice(0, 10)
-  const billNo = await generatePurBillNo(todayStr)
+  const todayStr = new Date().toISOString().slice(0,10)
+  const billNo = await genPurBillNo()
 
   try {
-    // 1. Create purchase bill in `purchases` table
+    // 1. Create purchase bill
     const { data: purData, error: purErr } = await supabase.from('purchases').insert([{
       bill_number: billNo,
       merchant_name: order.merchant_name,
@@ -1141,31 +1020,28 @@ window.processReceive = async function(shouldPrint) {
       total_amount: total,
       cash, upi, credit,
       discount: 0,
-      bill_type: 'purchase',
-      bill_date: todayStr
+      bill_type: 'purchase'
     }]).select().single()
+    if (purErr) throw new Error('Create bill: ' + purErr.message)
 
-    if (purErr) { alert('Error creating bill: ' + purErr.message); return }
-
-    // 2. Create purchase_items & update inventory
-    for (const item of receivedItems) {
+    // 2. Update inventory + create purchase_items
+    for (const item of rcvItems) {
       let invId = item.inv_id || null
 
       if (invId) {
-        // Existing product — increment stock
         await supabase.rpc('increment_inventory', { p_item_id: invId, p_qty: item.rcvQty })
         if (item.purchase_price) await supabase.from('inventory').update({ purchase_price: item.purchase_price }).eq('id', invId)
-        if (item.rcvSellPrice) await supabase.from('inventory').update({ selling_price: item.rcvSellPrice }).eq('id', invId)
+        if (item.rcvSell) await supabase.from('inventory').update({ selling_price: item.rcvSell }).eq('id', invId)
       } else {
-        // Search inventory by name
+        // Search by name
         const { data: existing } = await supabase.from('inventory').select('id').ilike('item_name', item.item_name).limit(1)
         if (existing && existing.length) {
           invId = existing[0].id
           await supabase.rpc('increment_inventory', { p_item_id: invId, p_qty: item.rcvQty })
           if (item.purchase_price) await supabase.from('inventory').update({ purchase_price: item.purchase_price }).eq('id', invId)
-          if (item.rcvSellPrice) await supabase.from('inventory').update({ selling_price: item.rcvSellPrice }).eq('id', invId)
+          if (item.rcvSell) await supabase.from('inventory').update({ selling_price: item.rcvSell }).eq('id', invId)
         } else {
-          // Create new inventory item
+          // Create new inventory product
           const { data: newInv } = await supabase.from('inventory').insert([{
             item_name: item.item_name,
             item_code: item.item_code || null,
@@ -1175,14 +1051,14 @@ window.processReceive = async function(shouldPrint) {
             unit_type: item.unit_type || null,
             quantity: item.rcvQty,
             purchase_price: item.purchase_price || 0,
-            selling_price: item.rcvSellPrice || null,
+            selling_price: item.rcvSell || null,
             supplier: order.merchant_name
           }]).select().single()
           if (newInv) invId = newInv.id
         }
       }
 
-      // Insert purchase_items record
+      // purchase_items record
       await supabase.from('purchase_items').insert([{
         purchase_id: purData.id,
         item_id: invId,
@@ -1196,142 +1072,101 @@ window.processReceive = async function(shouldPrint) {
       const newRcv = (item.received_qty || 0) + item.rcvQty
       await supabase.from('purchase_order_items').update({
         received_qty: newRcv,
-        selling_price: item.rcvSellPrice || item.selling_price || null
+        selling_price: item.rcvSell || item.selling_price || null
       }).eq('id', item.id)
     }
 
     // 3. Update order status
-    const updatedItems = [...items]
-    receivedItems.forEach(ri => {
-      const idx = updatedItems.findIndex(i => i.id === ri.id)
-      if (idx !== -1) updatedItems[idx] = { ...updatedItems[idx], received_qty: (updatedItems[idx].received_qty || 0) + ri.rcvQty }
+    const updatedItems = items.map(i => {
+      const ri = rcvItems.find(r => r.id === i.id)
+      return ri ? { ...i, received_qty: (i.received_qty || 0) + ri.rcvQty } : i
     })
-    const allFullyDone = updatedItems.every(i => (i.received_qty || 0) >= (i.ordered_qty || 0))
-    const newStatus = allFullyDone ? 'received' : 'partial'
-    await supabase.from('purchase_orders').update({ status: newStatus, linked_bill_number: billNo }).eq('id', order.id)
+    const allDone = updatedItems.every(i => (i.received_qty || 0) >= (i.ordered_qty || 0))
+    await supabase.from('purchase_orders').update({
+      status: allDone ? 'received' : 'partial',
+      linked_bill_number: billNo
+    }).eq('id', order.id)
 
     if (shouldPrint) {
-      fillReceiptPrintArea(order, receivedItems, updatedItems, billNo, todayStr, cash, upi, credit, total)
-      closeReceiveModal()
-      await loadData()
+      fillPrintReceipt(order, rcvItems, billNo, todayStr, cash, upi, credit, total)
+    }
+
+    closeReceiveModal()
+    await loadData()
+
+    if (shouldPrint) {
       setTimeout(() => {
         document.body.classList.add('print-receipt')
         const ot = document.title; document.title = 'GRN-' + billNo
         window.print()
         setTimeout(() => { document.body.classList.remove('print-receipt'); document.title = ot }, 1000)
-      }, 400)
+      }, 500)
     } else {
-      closeReceiveModal()
-      await loadData()
-      alert('✅ Products received!\nBill No: ' + billNo + '\nTotal: ₹' + total.toLocaleString('en-IN'))
+      alert('✅ Received!\nBill: ' + billNo + '\nTotal: ₹' + total.toLocaleString('en-IN'))
     }
 
   } catch(err) {
-    alert('Error: ' + err.message)
-    console.error(err)
+    console.error('processReceive error:', err)
+    alert('❌ Error: ' + err.message)
   }
 }
 
-
-// ════════════════════════════════════
-// FILL RECEIPT PRINT AREA
-// Populates the print-ready receipt
-// with received items AND pending items
-// ════════════════════════════════════
-function fillReceiptPrintArea(order, receivedItems, allOrderItems, billNo, todayStr, cash, upi, credit, total) {
+function fillPrintReceipt(order, rcvItems, billNo, dateStr, cash, upi, credit, total) {
   document.getElementById('ptBillNo').innerText = billNo
-  document.getElementById('ptDate').innerText = new Date(todayStr + 'T12:00:00').toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' })
+  document.getElementById('ptDate').innerText = fmtDateLong(dateStr)
   document.getElementById('ptMerchant').innerText = order.merchant_name || '—'
-  document.getElementById('ptPhone').innerText = order.merchant_phone || '—'
   document.getElementById('ptOrderNo').innerText = order.order_number || '—'
-
   const modes = []
   if (cash > 0) modes.push('Cash ₹' + Math.round(cash).toLocaleString('en-IN'))
   if (upi > 0) modes.push('UPI ₹' + Math.round(upi).toLocaleString('en-IN'))
   if (credit > 0) modes.push('Credit ₹' + Math.round(credit).toLocaleString('en-IN'))
   document.getElementById('ptPayMode').innerText = modes.join(' + ') || 'Credit'
-
-  // Received items table
-  let subtotal = 0
-  document.getElementById('ptItems').innerHTML = receivedItems.map((item, i) => {
-    const amt = item.rcvQty * (item.purchase_price || 0)
-    subtotal += amt
+  let sub = 0
+  document.getElementById('ptItems').innerHTML = rcvItems.map((item, i) => {
+    const amt = item.rcvQty * (item.purchase_price || 0); sub += amt
     return `<tr>
-      <td style="padding:9px 12px;color:#6b7280;">${i + 1}</td>
+      <td style="padding:9px 12px;color:#6b7280;">${i+1}</td>
       <td style="padding:9px 12px;">${item.item_name}</td>
       <td style="padding:9px 12px;">${item.brand || '—'}</td>
-      <td style="padding:9px 12px;font-family:monospace;">${item.item_code || '—'}</td>
       <td style="padding:9px 12px;text-align:center;">${item.rcvQty}</td>
-      <td style="padding:9px 12px;text-align:center;">₹${(item.purchase_price || 0).toLocaleString('en-IN')}</td>
-      <td style="padding:9px 12px;text-align:center;">${item.rcvSellPrice ? '₹' + item.rcvSellPrice.toLocaleString('en-IN') : '—'}</td>
-      <td style="padding:9px 12px;text-align:right;font-weight:600;">₹${amt.toLocaleString('en-IN')}</td>
-    </tr>`
+      <td style="padding:9px 12px;text-align:center;">₹${(item.purchase_price||0).toLocaleString('en-IN')}</td>
+      <td style="padding:9px 12px;text-align:center;">${item.rcvSell ? '₹' + item.rcvSell.toLocaleString('en-IN') : '—'}</td>
+      <td style="padding:9px 12px;text-align:right;font-weight:600;">₹${amt.toLocaleString('en-IN')}</td></tr>`
   }).join('')
-
-  document.getElementById('ptSubtotal').innerText = subtotal.toLocaleString('en-IN')
+  document.getElementById('ptSubtotal').innerText = sub.toLocaleString('en-IN')
   document.getElementById('ptTotal').innerText = Math.round(total).toLocaleString('en-IN')
   document.getElementById('ptCash').innerText = '₹' + Math.round(cash).toLocaleString('en-IN')
   document.getElementById('ptUpi').innerText = '₹' + Math.round(upi).toLocaleString('en-IN')
   document.getElementById('ptCredit').innerText = '₹' + Math.round(credit).toLocaleString('en-IN')
-
-  // Pending items section
-  const pendingItems = allOrderItems.filter(i => (i.received_qty || 0) < (i.ordered_qty || 0))
-  const pendingSection = document.getElementById('ptPendingSection')
-  if (pendingItems.length) {
-    document.getElementById('ptPendingItems').innerHTML = pendingItems.map(item => {
-      const stillPending = (item.ordered_qty || 0) - (item.received_qty || 0)
-      return `<tr>
-        <td style="padding:7px 10px;">${item.item_name}</td>
-        <td style="padding:7px 10px;">${item.brand || '—'}</td>
-        <td style="padding:7px 10px;text-align:center;">${item.ordered_qty || 0}</td>
-        <td style="padding:7px 10px;text-align:center;">${item.received_qty || 0}</td>
-        <td style="padding:7px 10px;text-align:center;color:#dc2626;font-weight:700;">${stillPending}</td>
-      </tr>`
-    }).join('')
-    pendingSection.style.display = 'block'
-  } else {
-    pendingSection.style.display = 'none'
-  }
 }
 
 
-// ════════════════════════════════════
-// PRINT ORDER (the purchase order PDF)
-// ════════════════════════════════════
+// ════════════════════════
+// PRINT ORDER
+// ════════════════════════
 window.printOrder = function(id) {
   const order = allOrders.find(o => o.id === id)
   if (!order) return
   const items = allItems[id] || []
-  const total = items.reduce((s, i) => s + (i.ordered_qty || 0) * (i.purchase_price || 0), 0)
-
+  const total = items.reduce((s, i) => s + (i.ordered_qty||0) * (i.purchase_price||0), 0)
   document.getElementById('poOrderNo').innerText = order.order_number || '—'
   document.getElementById('poDate').innerText = fmtDateLong(order.order_date)
   document.getElementById('poMerchant').innerText = order.merchant_name || '—'
   document.getElementById('poPhone').innerText = order.merchant_phone || '—'
   document.getElementById('poExpected').innerText = order.expected_date ? fmtDateLong(order.expected_date) : 'Not specified'
   document.getElementById('poStatus').innerText = order.status.charAt(0).toUpperCase() + order.status.slice(1)
-
-  if (order.notes) {
-    document.getElementById('poNoteBar').style.display = 'block'
-    document.getElementById('poNote').innerText = order.notes
-  } else {
-    document.getElementById('poNoteBar').style.display = 'none'
-  }
-
-  document.getElementById('poItems').innerHTML = items.map((item, i) => `<tr>
-    <td style="padding:9px 12px;color:#6b7280;">${i + 1}</td>
+  if (order.notes) { document.getElementById('poNoteBar').style.display = 'block'; document.getElementById('poNote').innerText = order.notes }
+  else document.getElementById('poNoteBar').style.display = 'none'
+  document.getElementById('poItems').innerHTML = items.map((item, i) =>
+    `<tr><td style="padding:9px 12px;color:#6b7280;">${i+1}</td>
     <td style="padding:9px 12px;font-weight:500;">${esc(item.item_name)}</td>
-    <td style="padding:9px 12px;">${esc(item.brand || '—')}</td>
-    <td style="padding:9px 12px;font-family:monospace;">${esc(item.item_code || '—')}</td>
-    <td style="padding:9px 12px;">${esc(item.product_size || '—')}</td>
-    <td style="padding:9px 12px;">${esc(item.category || '—')}</td>
-    <td style="padding:9px 12px;text-align:center;">${item.ordered_qty || 0}</td>
-    <td style="padding:9px 12px;text-align:center;">₹${(item.purchase_price || 0).toLocaleString('en-IN')}</td>
-    <td style="padding:9px 12px;text-align:right;font-weight:600;">₹${((item.ordered_qty || 0) * (item.purchase_price || 0)).toLocaleString('en-IN')}</td>
-  </tr>`).join('')
-
+    <td style="padding:9px 12px;">${esc(item.brand||'—')}</td>
+    <td style="padding:9px 12px;font-family:monospace;">${esc(item.item_code||'—')}</td>
+    <td style="padding:9px 12px;text-align:center;">${item.ordered_qty||0}</td>
+    <td style="padding:9px 12px;text-align:center;">₹${(item.purchase_price||0).toLocaleString('en-IN')}</td>
+    <td style="padding:9px 12px;text-align:right;font-weight:600;">₹${((item.ordered_qty||0)*(item.purchase_price||0)).toLocaleString('en-IN')}</td></tr>`
+  ).join('')
   document.getElementById('poTotal').innerText = Math.round(total).toLocaleString('en-IN')
-
   document.body.classList.add('print-order')
   const ot = document.title; document.title = order.order_number
   window.print()
@@ -1339,30 +1174,30 @@ window.printOrder = function(id) {
 }
 
 
-// ════════════════════════════════════
-// CANCEL / DELETE ORDER
-// ════════════════════════════════════
+// ════════════════════════
+// CANCEL / DELETE
+// ════════════════════════
 window.cancelOrder = async function(id) {
-  if (!confirm('Cancel this order? It will remain visible as cancelled.')) return
+  if (!confirm('Cancel this order?')) return
   await supabase.from('purchase_orders').update({ status: 'cancelled' }).eq('id', id)
   await loadData()
 }
 
 window.deleteOrder = async function(id) {
-  if (!confirm('Permanently delete this order and all its items? This cannot be undone.')) return
+  if (!confirm('Permanently delete this order?')) return
   await supabase.from('purchase_order_items').delete().eq('order_id', id)
   await supabase.from('purchase_orders').delete().eq('id', id)
   await loadData()
 }
 
 
-// ════════════════════════════════════
+// ════════════════════════
 // MERCHANT AUTOCOMPLETE
-// ════════════════════════════════════
+// ════════════════════════
 window.searchMerchants = function(q) {
   clearTimeout(merchantTimer)
   const ul = document.getElementById('merchantSuggest')
-  if (!q.trim()) { hideMerchantSuggest(); return }
+  if (!q.trim()) { ul.style.display = 'none'; return }
   merchantTimer = setTimeout(async () => {
     const { data } = await supabase.from('merchants').select('name,phone').ilike('name', '%' + q + '%').limit(8)
     ul.innerHTML = ''
@@ -1374,46 +1209,36 @@ window.searchMerchants = function(q) {
         li.onmousedown = () => {
           document.getElementById('oMerchant').value = m.name
           document.getElementById('oPhone').value = m.phone || ''
-          hideMerchantSuggest()
+          ul.style.display = 'none'
         }
         ul.appendChild(li)
       })
       ul.style.display = 'block'
-    } else {
-      hideMerchantSuggest()
-    }
+    } else ul.style.display = 'none'
   }, 300)
 }
 
-function hideMerchantSuggest() { document.getElementById('merchantSuggest').style.display = 'none' }
 
-
-// ════════════════════════════════════
+// ════════════════════════
 // HELPERS
-// ════════════════════════════════════
+// ════════════════════════
 function esc(s) {
-  return (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+  return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')
 }
-
 function fmtDate(d) {
   if (!d) return '—'
-  return new Date(d + 'T12:00:00').toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
+  return new Date(d + 'T12:00:00').toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' })
 }
-
 function fmtDateLong(d) {
   if (!d) return '—'
-  return new Date(d + 'T12:00:00').toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' })
+  return new Date(d + 'T12:00:00').toLocaleDateString('en-IN', { day:'2-digit', month:'long', year:'numeric' })
 }
 
-// Close modals on backdrop click
-document.getElementById('newOrderModal').addEventListener('click', function(e) {
-  if (e.target === this) closeNewOrderModal()
-})
-document.getElementById('receiveModal').addEventListener('click', function(e) {
-  if (e.target === this) closeReceiveModal()
-})
+// Close modal on backdrop click
+document.getElementById('newOrderModal').addEventListener('click', e => { if (e.target === document.getElementById('newOrderModal')) closeNewOrderModal() })
+document.getElementById('receiveModal').addEventListener('click', e => { if (e.target === document.getElementById('receiveModal')) closeReceiveModal() })
 
-} // end initOrderStatus
+} // end initApp
 </script>
 </body>
 </html>
