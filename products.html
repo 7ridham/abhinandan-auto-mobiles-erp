@@ -295,6 +295,11 @@
       <button class="save-btn" onclick="saveProduct()">✅ Save Product</button>
       <button class="cancel-btn" onclick="closeModal()">Cancel</button>
     </div>
+    <div id="deleteProductSection" style="display:none;margin-top:14px;padding-top:14px;border-top:1px solid rgba(220,38,38,0.2);">
+      <button onclick="deleteFromModal()" style="background:rgba(220,38,38,0.15);border:1px solid rgba(220,38,38,0.35);color:#f87171;padding:8px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;box-shadow:none;width:100%;">
+        🗑️ Delete This Product
+      </button>
+    </div>
   </div>
 </div>
 
@@ -528,9 +533,8 @@ function renderTable() {
       <td style="color:#34d399;font-weight:600;">${p.selling_price ? '₹'+p.selling_price.toLocaleString('en-IN') : '—'}</td>
       <td style="color:#a78bfa;font-weight:600;">${stockVal > 0 ? '₹'+stockVal.toLocaleString('en-IN') : '—'}</td>
       <td style="color:rgba(255,255,255,0.45);font-size:12px;">${suppDisplay}</td>
-      <td>
-        <button class="action-btn edit-btn" onclick="openEditModal(${p.id})">✏️</button>
-        <button class="action-btn delete-btn" onclick="deleteProduct(${p.id},'${(p.item_name||'').replace(/'/g,"\\'")}')">🗑</button>
+     <td>
+        <button class="action-btn edit-btn" onclick="openEditModal(${p.id})">✏️ Edit</button>
       </td>
     </tr>`
   }).join('')
@@ -575,6 +579,7 @@ window.openAddModal = function() {
   editingId = null
   document.getElementById('modalTitle').innerText = '➕ Add Product'
   clearForm()
+  document.getElementById('deleteProductSection').style.display = 'none'
   document.getElementById('productModal').style.display = 'flex'
 }
 
@@ -594,6 +599,7 @@ window.openEditModal = function(id) {
   document.getElementById('fQuantity').value      = p.quantity        || ''
   document.getElementById('fSupplier').value      = p.supplier        || ''
   document.getElementById('fNotes').value         = p.notes           || ''
+  document.getElementById('deleteProductSection').style.display = 'block'
   document.getElementById('productModal').style.display = 'flex'
 }
 
@@ -639,7 +645,19 @@ window.deleteProduct = async function(id, name) {
 
 window.closeModal = function() {
   document.getElementById('productModal').style.display = 'none'
+  document.getElementById('deleteProductSection').style.display = 'none'
   editingId = null; clearForm()
+}
+
+window.deleteFromModal = async function() {
+  const p = allProducts.find(x => x.id === editingId)
+  if (!p) return
+  if (!confirm(`Delete "${p.item_name}"?\n\nThis cannot be undone.`)) return
+  const { error } = await supabase.from('inventory').delete().eq('id', editingId)
+  if (error) { alert('Error deleting ❌\n' + error.message); return }
+  allProducts = allProducts.filter(x => x.id !== editingId)
+  closeModal()
+  updateStats(); buildAllFilterOptions(); filterAndRender()
 }
 
 function clearForm() {
