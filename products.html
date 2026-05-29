@@ -8,52 +8,81 @@
 <style>
   .page-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:12px;}
   .page-header h1{margin-bottom:0;}
-  .stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:24px;}
-  .stat-card{background:linear-gradient(135deg,rgba(255,255,255,0.07),rgba(255,255,255,0.03));border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:18px 20px;text-align:center;}
-  .stat-card .s-label{font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:8px;}
-  .stat-card .s-value{font-size:24px;font-weight:700;color:white;}
+  .stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:20px;}
+  .stat-card{background:linear-gradient(135deg,rgba(255,255,255,0.07),rgba(255,255,255,0.03));border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:14px 16px;text-align:center;}
+  .stat-card .s-label{font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:6px;}
+  .stat-card .s-value{font-size:22px;font-weight:700;color:white;}
   .stat-card .s-value.blue{color:#60a5fa;}.stat-card .s-value.green{color:#34d399;}.stat-card .s-value.red{color:#f87171;}.stat-card .s-value.amber{color:#fbbf24;}
   html.light-theme .stat-card .s-label{color:#475569!important;font-weight:700!important;}
   html.light-theme .stat-card .s-value{color:#0f172a!important;}
-  html.light-theme .stat-card .s-value.blue{color:#2563eb!important;}.stat-card .s-value.green{color:#059669!important;}
-  html.light-theme .stat-card .s-value.red{color:#dc2626!important;}.stat-card .s-value.amber{color:#b45309!important;}
+  html.light-theme .stat-card .s-value.blue{color:#2563eb!important;}
+  html.light-theme .stat-card .s-value.red{color:#dc2626!important;}
+  html.light-theme .stat-card .s-value.amber{color:#b45309!important;}
   html.light-theme .stat-card{background:rgba(255,255,255,0.95)!important;border:1px solid rgba(0,0,0,0.09)!important;box-shadow:0 2px 16px rgba(0,0,0,0.08)!important;}
-  .toolbar{display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap;align-items:center;}
+
+  /* TOOLBAR — 2 rows on smaller screens */
+  .toolbar{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;align-items:center;}
   .toolbar input{flex:1;min-width:200px;margin-bottom:0;}
-  .toolbar select{width:auto;min-width:140px;margin-bottom:0;}
-  .add-btn{background:linear-gradient(135deg,#059669,#34d399)!important;box-shadow:0 4px 14px rgba(5,150,105,0.35)!important;white-space:nowrap;padding:11px 20px!important;}
-  .add-btn:hover{background:linear-gradient(135deg,#047857,#059669)!important;}
-  .import-btn{background:rgba(37,99,235,0.2)!important;border:1px solid rgba(37,99,235,0.4)!important;white-space:nowrap;padding:11px 18px!important;}
-  .export-btn-top{background:rgba(52,211,153,0.15)!important;border:1px solid rgba(52,211,153,0.3)!important;color:#34d399!important;white-space:nowrap;padding:11px 18px!important;}
+  .toolbar select{width:auto;min-width:120px;margin-bottom:0;font-size:13px;}
+  .filter-row{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center;}
+  .filter-row select{min-width:110px;font-size:13px;padding:8px 12px;margin-bottom:0;}
+  .filter-row label{font-size:11px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:rgba(255,255,255,0.4);}
+  .clear-filters-btn{background:rgba(255,255,255,0.07)!important;border:1px solid rgba(255,255,255,0.15)!important;color:rgba(255,255,255,0.5)!important;font-size:12px!important;padding:7px 12px!important;box-shadow:none!important;}
+
+  .add-btn{background:linear-gradient(135deg,#059669,#34d399)!important;box-shadow:0 4px 14px rgba(5,150,105,0.35)!important;white-space:nowrap;padding:10px 18px!important;font-size:13px!important;}
+  .import-btn{background:rgba(37,99,235,0.2)!important;border:1px solid rgba(37,99,235,0.4)!important;white-space:nowrap;padding:10px 16px!important;font-size:13px!important;}
+  .export-btn-top{background:rgba(52,211,153,0.15)!important;border:1px solid rgba(52,211,153,0.3)!important;color:#34d399!important;white-space:nowrap;padding:10px 16px!important;font-size:13px!important;}
+
+  /* TABLE */
   .products-table-wrap{overflow-x:auto;border-radius:12px;border:1px solid rgba(255,255,255,0.08);}
-  .products-table{width:100%;border-collapse:collapse;min-width:800px;}
+  .products-table{width:100%;border-collapse:collapse;min-width:820px;table-layout:fixed;}
   .products-table thead tr{background:rgba(255,255,255,0.05);border-bottom:1px solid rgba(255,255,255,0.1);}
-  .products-table thead th{padding:12px 14px;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.4);text-align:left;white-space:nowrap;border-bottom:none;}
+  .products-table thead th{padding:10px 10px;font-size:10px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:rgba(255,255,255,0.4);text-align:left;white-space:nowrap;border-bottom:none;overflow:hidden;text-overflow:ellipsis;}
   .products-table tbody tr{border-bottom:1px solid rgba(255,255,255,0.05);transition:background 0.15s;}
   .products-table tbody tr:hover{background:rgba(255,255,255,0.04);}
-  .products-table tbody td{padding:12px 14px;font-size:14px;color:rgba(255,255,255,0.85);border-bottom:none;vertical-align:middle;}
+  .products-table tbody td{padding:10px 10px;font-size:13px;color:rgba(255,255,255,0.85);border-bottom:none;vertical-align:middle;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
   .products-table tbody tr:last-child{border-bottom:none;}
-  /* TOTALS ROW */
-  .products-table tfoot tr{background:rgba(37,99,235,0.15);border-top:2px solid rgba(37,99,235,0.3);}
-  .products-table tfoot td{padding:12px 14px;font-size:13px;font-weight:700;color:white;border-bottom:none;}
-  .stock-badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600;}
-  .stock-ok{background:rgba(52,211,153,0.15);color:#34d399;}.stock-low{background:rgba(251,191,36,0.15);color:#fbbf24;}.stock-empty{background:rgba(248,113,113,0.15);color:#f87171;}
-  .action-btn{padding:5px 12px!important;font-size:12px!important;border-radius:7px!important;box-shadow:none!important;margin-right:4px;}
+
+  /* TOTALS FOOTER ROW */
+  .products-table tfoot tr{background:rgba(37,99,235,0.12);border-top:2px solid rgba(37,99,235,0.35);}
+  .products-table tfoot td{padding:10px 10px;font-size:12px;font-weight:700;color:white;border-bottom:none;white-space:nowrap;}
+
+  /* COLUMN WIDTHS — fixed layout so totals align */
+  .col-name    {width:18%;}
+  .col-code    {width:8%;}
+  .col-brand   {width:8%;}
+  .col-size    {width:8%;}
+  .col-cat     {width:8%;}
+  .col-stock   {width:9%;}
+  .col-buy     {width:8%;}
+  .col-sell    {width:8%;}
+  .col-val     {width:9%;}
+  .col-supp    {width:10%;}
+  .col-actions {width:6%;}
+
+  .stock-badge{display:inline-block;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600;white-space:nowrap;}
+  .stock-ok{background:rgba(52,211,153,0.15);color:#34d399;}
+  .stock-low{background:rgba(251,191,36,0.15);color:#fbbf24;}
+  .stock-empty{background:rgba(248,113,113,0.15);color:#f87171;}
+
+  .action-btn{padding:4px 8px!important;font-size:11px!important;border-radius:6px!important;box-shadow:none!important;margin-right:2px;}
   .edit-btn{background:rgba(37,99,235,0.25)!important;border:1px solid rgba(37,99,235,0.4)!important;}
   .delete-btn{background:rgba(220,38,38,0.2)!important;border:1px solid rgba(220,38,38,0.35)!important;}
-  .empty-state{text-align:center;padding:60px 20px;color:rgba(255,255,255,0.25);font-size:15px;}
-  .pagination{display:flex;justify-content:space-between;align-items:center;margin-top:16px;flex-wrap:wrap;gap:10px;}
+
+  .empty-state{text-align:center;padding:50px 20px;color:rgba(255,255,255,0.25);font-size:14px;}
+  .pagination{display:flex;justify-content:space-between;align-items:center;margin-top:14px;flex-wrap:wrap;gap:10px;}
   .pagination-info{font-size:13px;color:rgba(255,255,255,0.4);}
   .pagination-btns{display:flex;gap:6px;}
-  .pg-btn{padding:7px 14px!important;font-size:13px!important;background:rgba(255,255,255,0.07)!important;border:1px solid rgba(255,255,255,0.1)!important;box-shadow:none!important;border-radius:8px!important;}
+  .pg-btn{padding:6px 12px!important;font-size:12px!important;background:rgba(255,255,255,0.07)!important;border:1px solid rgba(255,255,255,0.1)!important;box-shadow:none!important;border-radius:7px!important;}
   .pg-btn:hover{background:rgba(255,255,255,0.12)!important;transform:none!important;}
   .pg-btn.active{background:rgba(37,99,235,0.35)!important;border-color:rgba(37,99,235,0.5)!important;}
   .pg-btn:disabled{opacity:0.3;cursor:not-allowed;transform:none!important;}
+
+  /* MODAL */
   .modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:9999;align-items:center;justify-content:center;}
   .modal-box{background:#0f172a;border:1px solid rgba(255,255,255,0.12);border-radius:16px;padding:28px;width:90%;max-width:560px;max-height:90vh;overflow-y:auto;}
   .modal-box h3{font-family:'Playfair Display',serif;font-size:20px;color:white;margin-bottom:20px;text-transform:none;letter-spacing:0;}
   .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-  .form-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
   .form-field{margin-bottom:14px;}
   .form-field label{display:block;font-size:11px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:rgba(255,255,255,0.45);margin-bottom:6px;}
   .form-field input,.form-field select,.form-field textarea{margin-bottom:0;width:100%;}
@@ -61,25 +90,25 @@
   .modal-actions{display:flex;gap:10px;margin-top:20px;}
   .save-btn{flex:1;background:linear-gradient(135deg,#059669,#34d399)!important;box-shadow:0 4px 14px rgba(5,150,105,0.3)!important;}
   .cancel-btn{background:rgba(255,255,255,0.08)!important;border:1px solid rgba(255,255,255,0.15)!important;box-shadow:none!important;}
+
   /* IMPORT MODAL */
-  .import-zone{border:2px dashed rgba(37,99,235,0.4);border-radius:12px;padding:40px 20px;text-align:center;cursor:pointer;transition:all 0.2s;background:rgba(37,99,235,0.05);}
+  .import-zone{border:2px dashed rgba(37,99,235,0.4);border-radius:12px;padding:36px 20px;text-align:center;cursor:pointer;transition:all 0.2s;background:rgba(37,99,235,0.05);}
   .import-zone:hover,.import-zone.drag-over{border-color:rgba(37,99,235,0.8);background:rgba(37,99,235,0.1);}
-  .import-zone .iz-icon{font-size:40px;margin-bottom:12px;}
-  .import-zone .iz-text{font-size:15px;font-weight:600;color:rgba(255,255,255,0.8);margin-bottom:6px;}
+  .import-zone .iz-icon{font-size:36px;margin-bottom:10px;}
+  .import-zone .iz-text{font-size:15px;font-weight:600;color:rgba(255,255,255,0.8);margin-bottom:5px;}
   .import-zone .iz-sub{font-size:12px;color:rgba(255,255,255,0.4);}
-  .import-preview{max-height:280px;overflow-y:auto;margin-top:16px;}
-  .import-preview table{width:100%;border-collapse:collapse;font-size:12px;}
-  .import-preview th{padding:8px 10px;background:rgba(37,99,235,0.2);color:rgba(255,255,255,0.7);text-align:left;border-bottom:1px solid rgba(255,255,255,0.1);}
-  .import-preview td{padding:8px 10px;color:rgba(255,255,255,0.7);border-bottom:1px solid rgba(255,255,255,0.06);}
-  .import-status{padding:12px 16px;border-radius:10px;font-size:13px;font-weight:600;margin-top:12px;}
+  .import-preview{max-height:300px;overflow-y:auto;margin-top:14px;}
+  .import-status{padding:10px 14px;border-radius:9px;font-size:13px;font-weight:600;margin-top:10px;}
   .import-status.success{background:rgba(52,211,153,0.15);color:#34d399;border:1px solid rgba(52,211,153,0.3);}
   .import-status.error{background:rgba(248,113,113,0.15);color:#f87171;border:1px solid rgba(248,113,113,0.3);}
   .import-status.info{background:rgba(96,165,250,0.15);color:#60a5fa;border:1px solid rgba(96,165,250,0.3);}
+
   html.light-theme .products-table thead th{color:#475569!important;}
   html.light-theme .products-table tbody td{color:#1e293b!important;}
   html.light-theme .products-table tbody tr:hover{background:rgba(37,99,235,0.04)!important;}
-  html.light-theme .products-table tfoot tr{background:rgba(37,99,235,0.1)!important;}
+  html.light-theme .products-table tfoot tr{background:rgba(37,99,235,0.08)!important;}
   html.light-theme .products-table tfoot td{color:#0f172a!important;}
+  html.light-theme .filter-row label{color:#475569!important;}
 </style>
 </head>
 <body>
@@ -104,50 +133,80 @@
 <div class="main">
   <div class="page-header">
     <h1>Products & Inventory</h1>
-    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
       <button class="export-btn-top" onclick="exportProducts()">⬇️ Export CSV</button>
-      <button class="import-btn" onclick="openImportModal()">⬆️ Import CSV/Excel</button>
+      <button class="import-btn" onclick="openImportModal()">⬆️ Import</button>
       <button class="add-btn" onclick="openAddModal()">+ Add Product</button>
     </div>
   </div>
 
+  <!-- STATS -->
   <div class="stats-row" id="statsRow">
     <div class="stat-card"><div class="s-label">Total Products</div><div class="s-value blue" id="statTotal">—</div></div>
     <div class="stat-card"><div class="s-label">In Stock</div><div class="s-value green" id="statInStock">—</div></div>
     <div class="stat-card"><div class="s-label">Low Stock</div><div class="s-value amber" id="statLow">—</div></div>
     <div class="stat-card"><div class="s-label">Out of Stock</div><div class="s-value red" id="statOut">—</div></div>
-    <div class="stat-card"><div class="s-label">Total Stock Units</div><div class="s-value" id="statUnits" style="color:#a78bfa;">—</div></div>
-    <div class="stat-card"><div class="s-label">Inventory Value</div><div class="s-value" id="statValue" style="font-size:18px;">—</div></div>
+    <div class="stat-card"><div class="s-label">Total Units</div><div class="s-value" id="statUnits" style="color:#a78bfa;">—</div></div>
+    <div class="stat-card"><div class="s-label">Inventory Value</div><div class="s-value" id="statValue" style="font-size:16px;">—</div></div>
   </div>
 
   <div class="card">
+    <!-- SEARCH ROW -->
     <div class="toolbar">
-      <input id="searchInput" placeholder="🔍 Search by name, brand, category, supplier..." oninput="filterAndRender()">
-      <select id="filterCategory" onchange="filterAndRender()"><option value="">All Categories</option></select>
-      <select id="filterBrand" onchange="filterAndRender()"><option value="">All Brands</option></select>
-      <select id="filterStock" onchange="filterAndRender()">
-        <option value="">All Stock</option>
-        <option value="ok">In Stock</option>
-        <option value="low">Low Stock (≤5)</option>
+      <input id="searchInput" placeholder="🔍 Search name, brand, size, category, code, supplier..." oninput="filterAndRender()">
+      <select id="filterStock" onchange="filterAndRender()" style="min-width:130px;">
+        <option value="">All Stock Levels</option>
+        <option value="ok">In Stock (&gt;5)</option>
+        <option value="low">Low Stock (1–5)</option>
         <option value="empty">Out of Stock</option>
       </select>
     </div>
 
+    <!-- CASCADE FILTER ROW -->
+    <div class="filter-row">
+      <label>Filter:</label>
+      <select id="filterCategory" onchange="onCategoryChange()" title="Filter by Category">
+        <option value="">All Categories</option>
+      </select>
+      <select id="filterBrand" onchange="onBrandChange()" title="Filter by Brand">
+        <option value="">All Brands</option>
+      </select>
+      <select id="filterSize" onchange="filterAndRender()" title="Filter by Size">
+        <option value="">All Sizes</option>
+      </select>
+      <button class="clear-filters-btn" onclick="clearFilters()">✕ Clear Filters</button>
+      <span id="filterActiveLabel" style="font-size:12px;color:#fbbf24;display:none;font-weight:600;"></span>
+    </div>
+
+    <!-- TABLE -->
     <div class="products-table-wrap">
       <table class="products-table">
-       <thead>
+        <colgroup>
+          <col class="col-name">
+          <col class="col-code">
+          <col class="col-brand">
+          <col class="col-size">
+          <col class="col-cat">
+          <col class="col-stock">
+          <col class="col-buy">
+          <col class="col-sell">
+          <col class="col-val">
+          <col class="col-supp">
+          <col class="col-actions">
+        </colgroup>
+        <thead>
           <tr>
-            <th style="min-width:180px;">Product Name</th>
-            <th style="min-width:90px;">Code</th>
-            <th style="min-width:80px;">Brand</th>
-            <th style="min-width:70px;">Category</th>
-            <th style="min-width:90px;">Stock</th>
-            <th style="min-width:55px;">Unit</th>
-            <th style="min-width:80px;">Buy ₹</th>
-            <th style="min-width:80px;">Sell ₹</th>
-            <th style="min-width:90px;">Value</th>
-            <th style="min-width:100px;">Supplier</th>
-            <th style="min-width:110px;">Actions</th>
+            <th>Product Name</th>
+            <th>Code</th>
+            <th>Brand</th>
+            <th>Size</th>
+            <th>Category</th>
+            <th>Stock</th>
+            <th>Buy ₹</th>
+            <th>Sell ₹</th>
+            <th>Value</th>
+            <th>Supplier</th>
+            <th>Edit</th>
           </tr>
         </thead>
         <tbody id="productTableBody">
@@ -181,7 +240,7 @@
     <div class="form-row">
       <div class="form-field">
         <label>Brand</label>
-        <input id="fBrand" placeholder="e.g. Bosch, MRF">
+        <input id="fBrand" placeholder="e.g. Bosch, MRF, Castrol">
       </div>
       <div class="form-field">
         <label>Product Size</label>
@@ -243,28 +302,25 @@
 <div class="modal-overlay" id="importModal">
   <div class="modal-box" style="max-width:700px;">
     <h3>⬆️ Import Products from CSV / Excel</h3>
-    <div style="font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:16px;line-height:1.7;">
-      Upload a <strong style="color:white;">CSV or Excel (.xlsx)</strong> file. Required column: <code style="background:rgba(255,255,255,0.1);padding:2px 6px;border-radius:4px;">item_name</code><br>
-      Optional columns: <code style="background:rgba(255,255,255,0.1);padding:2px 6px;border-radius:4px;">brand, product_size, category, unit_type, purchase_price, selling_price, quantity, supplier, notes</code><br>
+    <div style="font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:16px;line-height:1.8;">
+      Required column: <code style="background:rgba(255,255,255,0.1);padding:2px 6px;border-radius:4px;">item_name</code>
+      &nbsp;|&nbsp; Optional: <code style="background:rgba(255,255,255,0.1);padding:2px 6px;border-radius:4px;">brand, product_size, category, unit_type, purchase_price, selling_price, quantity, supplier</code><br>
       <a href="#" onclick="downloadTemplate(); return false;" style="color:#60a5fa;">📥 Download template CSV</a>
     </div>
-
     <div class="import-zone" id="importZone" onclick="document.getElementById('fileInput').click()">
       <div class="iz-icon">📂</div>
       <div class="iz-text">Click to select file or drag & drop here</div>
       <div class="iz-sub">Supports .csv and .xlsx files</div>
     </div>
     <input type="file" id="fileInput" accept=".csv,.xlsx" style="display:none;" onchange="handleFileSelect(this)">
-
     <div id="importStatusDiv" style="display:none;" class="import-status info"></div>
     <div class="import-preview" id="importPreview"></div>
-
-    <div id="importActions" style="display:none;margin-top:16px;display:flex;gap:10px;">
-      <button id="doImportBtn" onclick="doImport()" style="background:linear-gradient(135deg,#2563eb,#3b82f6);border:none;color:white;padding:10px 24px;border-radius:8px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;">✅ Import Selected</button>
-      <button onclick="closeImportModal()" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:white;padding:10px 18px;border-radius:8px;cursor:pointer;font-family:'DM Sans',sans-serif;">Cancel</button>
+    <div id="importActions" style="display:none;margin-top:14px;gap:10px;flex-wrap:wrap;">
+      <button id="doImportBtn" onclick="doImport()" style="background:linear-gradient(135deg,#2563eb,#3b82f6);border:none;color:white;padding:10px 22px;border-radius:8px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;">✅ Import Selected</button>
+      <button onclick="closeImportModal()" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:white;padding:10px 16px;border-radius:8px;cursor:pointer;font-family:'DM Sans',sans-serif;">Cancel</button>
     </div>
-    <div style="margin-top:16px;" id="importCloseBtn">
-      <button onclick="closeImportModal()" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.7);padding:9px 18px;border-radius:8px;cursor:pointer;font-family:'DM Sans',sans-serif;box-shadow:none;">✕ Close</button>
+    <div style="margin-top:14px;">
+      <button onclick="closeImportModal()" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.6);padding:8px 16px;border-radius:8px;cursor:pointer;font-family:'DM Sans',sans-serif;box-shadow:none;">✕ Close</button>
     </div>
   </div>
 </div>
@@ -272,31 +328,34 @@
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
-
-const supabaseUrl = "https://mhhnmndnolhapaoqtbxo.supabase.co"
-const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1oaG5tbmRub2xoYXBhb3F0YnhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4Mzg4NTksImV4cCI6MjA4ODQxNDg1OX0.IMSp8vYiCln_iSuoT_H2qdeX_dP1WMhOOskDw20eJXw"
-const supabase = createClient(supabaseUrl, supabaseKey)
+const supabase = createClient(
+  "https://mhhnmndnolhapaoqtbxo.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1oaG5tbmRub2xoYXBhb3F0YnhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4Mzg4NTksImV4cCI6MjA4ODQxNDg1OX0.IMSp8vYiCln_iSuoT_H2qdeX_dP1WMhOOskDw20eJXw"
+)
 
 let allProducts = [], filtered = [], editingId = null, importData = []
 const PAGE_SIZE = 25
 let currentPage = 1
 
+// ══════════════════════════════
+// LOAD
+// ══════════════════════════════
 async function loadProducts() {
   const { data, error } = await supabase.from('inventory').select('*').order('item_name', { ascending: true })
-  if (error) { console.log(error); return }
+  if (error) { console.error(error); return }
   allProducts = data || []
   updateStats()
-  buildFilters()
+  buildAllFilterOptions()
   filterAndRender()
 }
 
 function updateStats() {
   const total = allProducts.length
-  const inStock = allProducts.filter(p => (p.quantity || 0) > 5).length
-  const low = allProducts.filter(p => (p.quantity || 0) > 0 && (p.quantity || 0) <= 5).length
-  const out = allProducts.filter(p => (p.quantity || 0) === 0).length
-  const totalUnits = allProducts.reduce((s, p) => s + (p.quantity || 0), 0)
-  const value = allProducts.reduce((s, p) => s + ((p.quantity || 0) * (p.purchase_price || 0)), 0)
+  const inStock = allProducts.filter(p => (p.quantity||0) > 5).length
+  const low = allProducts.filter(p => (p.quantity||0) > 0 && (p.quantity||0) <= 5).length
+  const out = allProducts.filter(p => (p.quantity||0) === 0).length
+  const totalUnits = allProducts.reduce((s, p) => s + (p.quantity||0), 0)
+  const value = allProducts.reduce((s, p) => s + (p.quantity||0) * (p.purchase_price||0), 0)
   document.getElementById('statTotal').innerText = total
   document.getElementById('statInStock').innerText = inStock
   document.getElementById('statLow').innerText = low
@@ -305,37 +364,131 @@ function updateStats() {
   document.getElementById('statValue').innerText = '₹' + Math.round(value).toLocaleString('en-IN')
 }
 
-function buildFilters() {
-  const cats = [...new Set(allProducts.map(p => p.category).filter(Boolean))].sort()
-  const brands = [...new Set(allProducts.map(p => p.brand).filter(Boolean))].sort()
-  const catSel = document.getElementById('filterCategory')
-  const brandSel = document.getElementById('filterBrand')
-  const prevCat = catSel.value, prevBrand = brandSel.value
-  catSel.innerHTML = '<option value="">All Categories</option>' + cats.map(c => `<option value="${c}">${c}</option>`).join('')
-  brandSel.innerHTML = '<option value="">All Brands</option>' + brands.map(b => `<option value="${b}">${b}</option>`).join('')
-  catSel.value = prevCat
-  brandSel.value = prevBrand
+// ══════════════════════════════
+// CASCADE FILTERS
+// ══════════════════════════════
+// Build ALL filter dropdowns from the current subset
+function buildAllFilterOptions(subset) {
+  const pool = subset || allProducts
+  const catSel    = document.getElementById('filterCategory')
+  const brandSel  = document.getElementById('filterBrand')
+  const sizeSel   = document.getElementById('filterSize')
+
+  const prevCat   = catSel.value
+  const prevBrand = brandSel.value
+  const prevSize  = sizeSel.value
+
+  // Category dropdown always shows all categories from full dataset
+  const allCats   = [...new Set(allProducts.map(p => p.category).filter(Boolean))].sort()
+  catSel.innerHTML = '<option value="">All Categories</option>' + allCats.map(c => `<option value="${esc(c)}">${c}</option>`).join('')
+
+  // Brand dropdown — filtered by selected category
+  const catFilter = catSel.value || prevCat
+  const brandsPool = catFilter ? allProducts.filter(p => p.category === catFilter) : allProducts
+  const allBrands = [...new Set(brandsPool.map(p => p.brand).filter(Boolean))].sort()
+  brandSel.innerHTML = '<option value="">All Brands</option>' + allBrands.map(b => `<option value="${esc(b)}">${b}</option>`).join('')
+
+  // Size dropdown — filtered by selected category + brand
+  const brandFilter = brandSel.value || prevBrand
+  const sizesPool = allProducts.filter(p =>
+    (!catFilter   || p.category === catFilter) &&
+    (!brandFilter || p.brand    === brandFilter)
+  )
+  const allSizes = [...new Set(sizesPool.map(p => p.product_size).filter(Boolean))].sort()
+  sizeSel.innerHTML = '<option value="">All Sizes</option>' + allSizes.map(s => `<option value="${esc(s)}">${s}</option>`).join('')
+
+  // Restore values if still valid
+  catSel.value   = allCats.includes(prevCat)     ? prevCat   : ''
+  brandSel.value = allBrands.includes(prevBrand)  ? prevBrand : ''
+  sizeSel.value  = allSizes.includes(prevSize)    ? prevSize  : ''
 }
 
+// When Category changes → rebuild Brand & Size dropdowns, re-render
+window.onCategoryChange = function() {
+  const catFilter = document.getElementById('filterCategory').value
+
+  // Rebuild brand dropdown scoped to selected category
+  const brandsPool = catFilter ? allProducts.filter(p => p.category === catFilter) : allProducts
+  const allBrands = [...new Set(brandsPool.map(p => p.brand).filter(Boolean))].sort()
+  const brandSel = document.getElementById('filterBrand')
+  brandSel.innerHTML = '<option value="">All Brands</option>' + allBrands.map(b => `<option value="${esc(b)}">${b}</option>`).join('')
+
+  // Rebuild size dropdown scoped to selected category
+  const sizesPool = catFilter ? allProducts.filter(p => p.category === catFilter) : allProducts
+  const allSizes = [...new Set(sizesPool.map(p => p.product_size).filter(Boolean))].sort()
+  const sizeSel = document.getElementById('filterSize')
+  sizeSel.innerHTML = '<option value="">All Sizes</option>' + allSizes.map(s => `<option value="${esc(s)}">${s}</option>`).join('')
+
+  filterAndRender()
+}
+
+// When Brand changes → rebuild Size dropdown, re-render
+window.onBrandChange = function() {
+  const catFilter   = document.getElementById('filterCategory').value
+  const brandFilter = document.getElementById('filterBrand').value
+
+  const sizesPool = allProducts.filter(p =>
+    (!catFilter   || p.category === catFilter) &&
+    (!brandFilter || p.brand    === brandFilter)
+  )
+  const allSizes = [...new Set(sizesPool.map(p => p.product_size).filter(Boolean))].sort()
+  const sizeSel = document.getElementById('filterSize')
+  sizeSel.innerHTML = '<option value="">All Sizes</option>' + allSizes.map(s => `<option value="${esc(s)}">${s}</option>`).join('')
+
+  filterAndRender()
+}
+
+window.clearFilters = function() {
+  document.getElementById('searchInput').value   = ''
+  document.getElementById('filterCategory').value = ''
+  document.getElementById('filterBrand').value    = ''
+  document.getElementById('filterSize').value     = ''
+  document.getElementById('filterStock').value    = ''
+  buildAllFilterOptions()
+  filterAndRender()
+}
+
+// ══════════════════════════════
+// FILTER + RENDER
+// ══════════════════════════════
 window.filterAndRender = function() {
-  const q = document.getElementById('searchInput').value.toLowerCase()
-  const cat = document.getElementById('filterCategory').value
+  const q     = document.getElementById('searchInput').value.toLowerCase()
+  const cat   = document.getElementById('filterCategory').value
   const brand = document.getElementById('filterBrand').value
+  const size  = document.getElementById('filterSize').value
   const stock = document.getElementById('filterStock').value
+
   filtered = allProducts.filter(p => {
     const matchQ = !q ||
-      (p.item_name || '').toLowerCase().includes(q) ||
-      (p.brand || '').toLowerCase().includes(q) ||
+      (p.item_name    || '').toLowerCase().includes(q) ||
+      (p.brand        || '').toLowerCase().includes(q) ||
       (p.product_size || '').toLowerCase().includes(q) ||
-      (p.category || '').toLowerCase().includes(q) ||
-      (p.supplier || '').toLowerCase().includes(q)
-    const matchCat = !cat || p.category === cat
-    const matchBrand = !brand || p.brand === brand
+      (p.category     || '').toLowerCase().includes(q) ||
+      (p.item_code    || '').toLowerCase().includes(q) ||
+      (p.supplier     || '').toLowerCase().includes(q)
+    const matchCat   = !cat   || p.category     === cat
+    const matchBrand = !brand || p.brand        === brand
+    const matchSize  = !size  || p.product_size === size
     const qty = p.quantity || 0
-    const matchStock = !stock || (stock === 'ok' && qty > 5) || (stock === 'low' && qty > 0 && qty <= 5) || (stock === 'empty' && qty === 0)
-    return matchQ && matchCat && matchBrand && matchStock
+    const matchStock = !stock ||
+      (stock === 'ok'    && qty > 5) ||
+      (stock === 'low'   && qty > 0 && qty <= 5) ||
+      (stock === 'empty' && qty === 0)
+    return matchQ && matchCat && matchBrand && matchSize && matchStock
   })
+
   currentPage = 1
+
+  // Show active filter badge
+  const active = [cat, brand, size].filter(Boolean)
+  const lbl = document.getElementById('filterActiveLabel')
+  if (active.length) {
+    lbl.style.display = 'inline'
+    lbl.innerText = '🔍 ' + active.join(' → ') + ` (${filtered.length} results)`
+  } else {
+    lbl.style.display = 'none'
+  }
+
   renderTable()
 }
 
@@ -357,63 +510,67 @@ function renderTable() {
 
   tbody.innerHTML = pageData.map(p => {
     const qty = p.quantity || 0
-    let stockClass = 'stock-ok', stockLabel = qty.toLocaleString('en-IN') + ' in stock'
-    if (qty === 0) { stockClass = 'stock-empty'; stockLabel = 'Out of stock' }
-    else if (qty <= 5) { stockClass = 'stock-low'; stockLabel = qty + ' — Low' }
+    let sc = 'stock-ok', sl = qty.toLocaleString('en-IN')
+    if (qty === 0)      { sc = 'stock-empty'; sl = 'Out' }
+    else if (qty <= 5)  { sc = 'stock-low';   sl = qty + ' Low' }
     const stockVal = Math.round(qty * (p.purchase_price || 0))
+    const name = p.item_name || ''
+    const nameDisplay = name.length > 22 ? `<span title="${esc(name)}">${esc(name.slice(0,22))}…</span>` : esc(name)
+    const suppDisplay = (p.supplier || '').length > 12 ? `<span title="${esc(p.supplier)}">${esc(p.supplier.slice(0,12))}…</span>` : esc(p.supplier || '—')
     return `<tr>
-      <td style="font-weight:500;color:white;">${p.item_name}</td>
-      <td style="color:rgba(255,255,255,0.5);font-size:12px;font-family:monospace;">${p.item_code || '—'}</td>
-      <td style="color:rgba(255,255,255,0.6);">${p.brand || '—'}</td>
-      <td style="color:rgba(255,255,255,0.5);font-size:13px;">${p.category || '—'}</td>
-      <td><span class="stock-badge ${stockClass}">${stockLabel}</span></td>
-      <td style="color:rgba(255,255,255,0.5);font-size:13px;">${p.unit_type || '—'}</td>
-      <td style="color:rgba(255,255,255,0.7);">${p.purchase_price ? '₹' + p.purchase_price.toLocaleString('en-IN') : '—'}</td>
-      <td style="color:#34d399;font-weight:600;">${p.selling_price ? '₹' + p.selling_price.toLocaleString('en-IN') : '—'}</td>
-      <td style="color:#a78bfa;font-weight:600;">${stockVal > 0 ? '₹' + stockVal.toLocaleString('en-IN') : '—'}</td>
-      <td style="color:rgba(255,255,255,0.5);font-size:13px;">${p.supplier || '—'}</td>
+      <td style="font-weight:600;color:white;">${nameDisplay}</td>
+      <td style="color:rgba(255,255,255,0.45);font-size:11px;font-family:monospace;">${esc(p.item_code || '—')}</td>
+      <td style="color:rgba(255,255,255,0.65);">${esc(p.brand || '—')}</td>
+      <td style="color:rgba(255,255,255,0.55);font-size:12px;">${esc(p.product_size || '—')}</td>
+      <td style="color:rgba(255,255,255,0.55);font-size:12px;">${esc(p.category || '—')}</td>
+      <td><span class="stock-badge ${sc}">${sl}</span></td>
+      <td style="color:rgba(255,255,255,0.75);">${p.purchase_price ? '₹'+p.purchase_price.toLocaleString('en-IN') : '—'}</td>
+      <td style="color:#34d399;font-weight:600;">${p.selling_price ? '₹'+p.selling_price.toLocaleString('en-IN') : '—'}</td>
+      <td style="color:#a78bfa;font-weight:600;">${stockVal > 0 ? '₹'+stockVal.toLocaleString('en-IN') : '—'}</td>
+      <td style="color:rgba(255,255,255,0.45);font-size:12px;">${suppDisplay}</td>
       <td>
-        <button class="action-btn edit-btn" onclick="openEditModal(${p.id})">✏️ Edit</button>
-        <button class="action-btn delete-btn" onclick="deleteProduct(${p.id}, '${(p.item_name || '').replace(/'/g, "\\'")}')">🗑</button>
+        <button class="action-btn edit-btn" onclick="openEditModal(${p.id})">✏️</button>
+        <button class="action-btn delete-btn" onclick="deleteProduct(${p.id},'${(p.item_name||'').replace(/'/g,"\\'")}')">🗑</button>
       </td>
     </tr>`
   }).join('')
 
-  // TOTALS ROW
-  const totalStock = filtered.reduce((s, p) => s + (p.quantity || 0), 0)
-  const totalPurValue = filtered.reduce((s, p) => s + (p.quantity || 0) * (p.purchase_price || 0), 0)
-  const totalSelValue = filtered.reduce((s, p) => s + (p.quantity || 0) * (p.selling_price || 0), 0)
-  const totalStockVal = filtered.reduce((s, p) => s + (p.quantity || 0) * (p.purchase_price || 0), 0)
+  // ── TOTALS ROW — 11 columns exactly ──
+  // col:  1=Name  2=Code  3=Brand  4=Size  5=Cat  6=Stock  7=Buy  8=Sell  9=Val  10=Supp  11=Actions
+  const tStock   = filtered.reduce((s,p) => s + (p.quantity||0), 0)
+  const tBuyVal  = filtered.reduce((s,p) => s + (p.quantity||0)*(p.purchase_price||0), 0)
+  const tSellVal = filtered.reduce((s,p) => s + (p.quantity||0)*(p.selling_price||0), 0)
+  const tStockV  = filtered.reduce((s,p) => s + (p.quantity||0)*(p.purchase_price||0), 0)
   tfoot.innerHTML = `<tr>
-    <td colspan="3" style="color:#60a5fa;">📊 TOTALS (${filtered.length} products shown)</td>
-    <td style="color:#fbbf24;">${totalStock.toLocaleString('en-IN')} units</td>
-    <td></td>
-    <td style="color:#f87171;">₹${Math.round(totalPurValue).toLocaleString('en-IN')}</td>
-    <td style="color:#34d399;">₹${Math.round(totalSelValue).toLocaleString('en-IN')}</td>
-    <td style="color:#a78bfa;">₹${Math.round(totalStockVal).toLocaleString('en-IN')}</td>
+    <td colspan="5" style="color:#60a5fa;font-size:12px;">📊 TOTALS — ${filtered.length} products</td>
+    <td style="color:#fbbf24;">${tStock.toLocaleString('en-IN')} units</td>
+    <td style="color:#f87171;">₹${Math.round(tBuyVal).toLocaleString('en-IN')}</td>
+    <td style="color:#34d399;">₹${Math.round(tSellVal).toLocaleString('en-IN')}</td>
+    <td style="color:#a78bfa;">₹${Math.round(tStockV).toLocaleString('en-IN')}</td>
     <td colspan="2"></td>
   </tr>`
 
-  document.getElementById('paginationInfo').innerText = `Showing ${start + 1}–${Math.min(start + PAGE_SIZE, total)} of ${total} products`
+  // Pagination
+  document.getElementById('paginationInfo').innerText = `Showing ${start+1}–${Math.min(start+PAGE_SIZE,total)} of ${total} products`
   const btns = document.getElementById('paginationBtns')
   btns.innerHTML = ''
-  const prevBtn = document.createElement('button')
-  prevBtn.className = 'pg-btn'; prevBtn.innerText = '← Prev'; prevBtn.disabled = currentPage === 1
-  prevBtn.onclick = () => { currentPage--; renderTable() }
-  btns.appendChild(prevBtn)
-  const startP = Math.max(1, currentPage - 2), endP = Math.min(pages, startP + 4)
-  for (let i = startP; i <= endP; i++) {
+  const mkBtn = (label, disabled, fn, active) => {
     const b = document.createElement('button')
-    b.className = 'pg-btn' + (i === currentPage ? ' active' : '')
-    b.innerText = i; b.onclick = ((pg) => () => { currentPage = pg; renderTable() })(i)
+    b.className = 'pg-btn' + (active ? ' active' : '')
+    b.innerText = label; b.disabled = disabled; b.onclick = fn
     btns.appendChild(b)
   }
-  const nextBtn = document.createElement('button')
-  nextBtn.className = 'pg-btn'; nextBtn.innerText = 'Next →'; nextBtn.disabled = currentPage === pages
-  nextBtn.onclick = () => { currentPage++; renderTable() }
-  btns.appendChild(nextBtn)
+  mkBtn('← Prev', currentPage===1, () => { currentPage--; renderTable() })
+  const startP = Math.max(1, currentPage-2), endP = Math.min(pages, startP+4)
+  for (let i = startP; i <= endP; i++) { const pg=i; mkBtn(String(i), false, () => { currentPage=pg; renderTable() }, i===currentPage) }
+  mkBtn('Next →', currentPage===pages, () => { currentPage++; renderTable() })
 }
 
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;') }
+
+// ══════════════════════════════
+// ADD / EDIT / DELETE
+// ══════════════════════════════
 window.openAddModal = function() {
   editingId = null
   document.getElementById('modalTitle').innerText = '➕ Add Product'
@@ -426,47 +583,50 @@ window.openEditModal = function(id) {
   if (!p) return
   editingId = id
   document.getElementById('modalTitle').innerText = '✏️ Edit Product'
-  document.getElementById('fName').value = p.item_name || ''
-  document.getElementById('fItemCode').value = p.item_code || ''
-  document.getElementById('fBrand').value = p.brand || ''
-  document.getElementById('fSize').value = p.product_size || ''
-  document.getElementById('fCategory').value = p.category || ''
-  document.getElementById('fUnit').value = p.unit_type || ''
-  document.getElementById('fPurchasePrice').value = p.purchase_price || ''
-  document.getElementById('fSellingPrice').value = p.selling_price || ''
-  document.getElementById('fQuantity').value = p.quantity || ''
-  document.getElementById('fSupplier').value = p.supplier || ''
-  document.getElementById('fNotes').value = p.notes || ''
+  document.getElementById('fName').value          = p.item_name       || ''
+  document.getElementById('fItemCode').value      = p.item_code       || ''
+  document.getElementById('fBrand').value         = p.brand           || ''
+  document.getElementById('fSize').value          = p.product_size    || ''
+  document.getElementById('fCategory').value      = p.category        || ''
+  document.getElementById('fUnit').value          = p.unit_type       || ''
+  document.getElementById('fPurchasePrice').value = p.purchase_price  || ''
+  document.getElementById('fSellingPrice').value  = p.selling_price   || ''
+  document.getElementById('fQuantity').value      = p.quantity        || ''
+  document.getElementById('fSupplier').value      = p.supplier        || ''
+  document.getElementById('fNotes').value         = p.notes           || ''
   document.getElementById('productModal').style.display = 'flex'
 }
 
 window.saveProduct = async function() {
   const name = document.getElementById('fName').value.trim()
   if (!name) { alert('Product name is required'); return }
- const payload = {
-    item_name: name,
-    item_code: document.getElementById('fItemCode').value.trim() || null,
-    brand: document.getElementById('fBrand').value.trim() || null,
-    product_size: document.getElementById('fSize').value.trim() || null,
-    category: document.getElementById('fCategory').value.trim() || null,
-    unit_type: document.getElementById('fUnit').value || null,
+  const payload = {
+    item_name:      name,
+    item_code:      document.getElementById('fItemCode').value.trim()       || null,
+    brand:          document.getElementById('fBrand').value.trim()          || null,
+    product_size:   document.getElementById('fSize').value.trim()           || null,
+    category:       document.getElementById('fCategory').value.trim()       || null,
+    unit_type:      document.getElementById('fUnit').value                  || null,
     purchase_price: parseFloat(document.getElementById('fPurchasePrice').value) || null,
-    selling_price: parseFloat(document.getElementById('fSellingPrice').value) || null,
-    quantity: parseInt(document.getElementById('fQuantity').value) || 0,
-    supplier: document.getElementById('fSupplier').value.trim() || null,
-    notes: document.getElementById('fNotes').value.trim() || null,
+    selling_price:  parseFloat(document.getElementById('fSellingPrice').value)  || null,
+    quantity:       parseInt(document.getElementById('fQuantity').value)    || 0,
+    supplier:       document.getElementById('fSupplier').value.trim()       || null,
+    notes:          document.getElementById('fNotes').value.trim()          || null,
   }
   if (editingId) {
     const { error } = await supabase.from('inventory').update(payload).eq('id', editingId)
-    if (error) { alert('Error updating ❌'); return }
+    if (error) { alert('Error updating ❌\n' + error.message); return }
     const idx = allProducts.findIndex(p => p.id === editingId)
     if (idx !== -1) allProducts[idx] = { ...allProducts[idx], ...payload }
   } else {
     const { data, error } = await supabase.from('inventory').insert([payload]).select().single()
-    if (error) { alert('Error adding ❌'); return }
+    if (error) { alert('Error adding ❌\n' + error.message); return }
     allProducts.unshift(data)
   }
-  closeModal(); updateStats(); buildFilters(); filterAndRender()
+  closeModal()
+  updateStats()
+  buildAllFilterOptions()
+  filterAndRender()
 }
 
 window.deleteProduct = async function(id, name) {
@@ -474,7 +634,7 @@ window.deleteProduct = async function(id, name) {
   const { error } = await supabase.from('inventory').delete().eq('id', id)
   if (error) { alert('Error deleting ❌'); return }
   allProducts = allProducts.filter(p => p.id !== id)
-  updateStats(); buildFilters(); filterAndRender()
+  updateStats(); buildAllFilterOptions(); filterAndRender()
 }
 
 window.closeModal = function() {
@@ -483,36 +643,37 @@ window.closeModal = function() {
 }
 
 function clearForm() {
-  ['fName','fItemCode','fBrand','fSize','fCategory','fPurchasePrice','fSellingPrice','fQuantity','fSupplier','fNotes'].forEach(id => { const el = document.getElementById(id); if(el) el.value = '' })
+  ;['fName','fItemCode','fBrand','fSize','fCategory','fPurchasePrice','fSellingPrice','fQuantity','fSupplier','fNotes']
+    .forEach(id => { const el=document.getElementById(id); if(el) el.value='' })
   document.getElementById('fUnit').value = ''
 }
-  
-document.getElementById('productModal').addEventListener('click', function(e) { if (e.target === this) closeModal() })
 
-// ══════════════════════════════════════
+document.getElementById('productModal').addEventListener('click', function(e) { if (e.target===this) closeModal() })
+
+// ══════════════════════════════
 // EXPORT
-// ══════════════════════════════════════
+// ══════════════════════════════
 window.exportProducts = function() {
   if (!allProducts.length) { alert('No products to export'); return }
-  const headers = ['item_name','brand','product_size','category','unit_type','purchase_price','selling_price','quantity','supplier','notes']
-  const esc = v => `"${String(v == null ? '' : v).replace(/"/g, '""')}"`
+  const headers = ['item_name','item_code','brand','product_size','category','unit_type','purchase_price','selling_price','quantity','supplier','notes']
+  const e = v => `"${String(v==null?'':v).replace(/"/g,'""')}"`
   const lines = [
     '"Abhinandan Auto Mobiles — Products Export"',
     '"Generated: ' + new Date().toLocaleString('en-IN') + '"',
     '',
     headers.join(','),
-    ...allProducts.map(p => headers.map(h => esc(p[h])).join(','))
+    ...allProducts.map(p => headers.map(h => e(p[h])).join(','))
   ]
   const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8;' })
   const a = document.createElement('a')
   a.href = URL.createObjectURL(blob)
-  a.download = 'AAM-Products-' + new Date().toISOString().slice(0, 10) + '.csv'
+  a.download = 'AAM-Products-' + new Date().toISOString().slice(0,10) + '.csv'
   a.click()
 }
 
-// ══════════════════════════════════════
+// ══════════════════════════════
 // IMPORT
-// ══════════════════════════════════════
+// ══════════════════════════════
 window.openImportModal = function() {
   document.getElementById('importModal').style.display = 'flex'
   document.getElementById('importPreview').innerHTML = ''
@@ -535,37 +696,35 @@ window.downloadTemplate = function() {
     'Hub Bolt M14,TVS,,Wheels,piece,25,40,100,A.F.H.,',
   ]
   const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8;' })
-  const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
-  a.href = url
-  a.download = 'AAM-Products-Template.csv'
-  document.body.appendChild(a)
-  a.click()
-  document.body.removeChild(a)
-  URL.revokeObjectURL(url)
+  a.href = URL.createObjectURL(blob); a.download = 'AAM-Products-Template.csv'
+  document.body.appendChild(a); a.click(); document.body.removeChild(a)
+  URL.revokeObjectURL(a.href)
   return false
 }
 
-// Drag & drop
 const zone = document.getElementById('importZone')
 zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over') })
 zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'))
-zone.addEventListener('drop', e => {
-  e.preventDefault(); zone.classList.remove('drag-over')
-  const file = e.dataTransfer.files[0]
-  if (file) handleFile(file)
-})
+zone.addEventListener('drop', e => { e.preventDefault(); zone.classList.remove('drag-over'); if(e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]) })
 
-window.handleFileSelect = function(input) {
-  if (input.files[0]) handleFile(input.files[0])
+window.handleFileSelect = function(input) { if (input.files[0]) handleFile(input.files[0]) }
+
+function parseCSVLine(line) {
+  const result = []; let current = '', inQ = false
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i]
+    if (ch==='"') { if(inQ&&line[i+1]==='"'){current+='"';i++} else inQ=!inQ }
+    else if (ch===','&&!inQ) { result.push(current); current='' }
+    else current+=ch
+  }
+  result.push(current); return result
 }
 
 function handleFile(file) {
   const statusDiv = document.getElementById('importStatusDiv')
-  statusDiv.style.display = 'block'
-  statusDiv.className = 'import-status info'
+  statusDiv.style.display = 'block'; statusDiv.className = 'import-status info'
   statusDiv.innerText = `📂 Reading "${file.name}"...`
-
   const reader = new FileReader()
   const isExcel = file.name.endsWith('.xlsx') || file.name.endsWith('.xls')
 
@@ -575,253 +734,152 @@ function handleFile(file) {
       if (isExcel) {
         const wb = XLSX.read(e.target.result, { type: 'array' })
         const ws = wb.Sheets[wb.SheetNames[0]]
-        // Use raw: false so numbers stay as numbers
         const allRows = XLSX.utils.sheet_to_json(ws, { defval: '', header: 1 })
-        // Find the header row — scan each row until we find one containing 'item_name'
-        let headerRowIndex = -1
+        let headerIdx = -1
         for (let i = 0; i < allRows.length; i++) {
-          const rowStr = allRows[i].map(c => String(c).trim().toLowerCase())
-          if (rowStr.includes('item_name') || rowStr.includes('item name') || rowStr.includes('name')) {
-            headerRowIndex = i
-            break
-          }
+          if (allRows[i].map(c => String(c).toLowerCase()).some(c => c.includes('item_name') || c==='name')) { headerIdx=i; break }
         }
-        if (headerRowIndex === -1) throw new Error('Could not find a header row with "item_name" column')
-        const headers = allRows[headerRowIndex].map(c => String(c).trim())
-        rows = allRows.slice(headerRowIndex + 1)
-          .filter(row => row.some(cell => cell !== '' && cell !== null && cell !== undefined))
-          .map(row => {
-            const obj = {}
-            headers.forEach((h, i) => { obj[h] = row[i] !== undefined ? String(row[i]).trim() : '' })
-            return obj
-          })
+        if (headerIdx===-1) throw new Error('Cannot find header row with "item_name"')
+        const headers = allRows[headerIdx].map(c => String(c).trim())
+        rows = allRows.slice(headerIdx+1).filter(r => r.some(c => c!=='')).map(r => {
+          const obj={}; headers.forEach((h,i) => { obj[h]=String(r[i]||'').trim() }); return obj
+        })
       } else {
-        // CSV parse — skip any rows before the header row
-        const text = e.target.result
-        const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0)
+        const lines = e.target.result.split('\n').map(l=>l.trim()).filter(l=>l.length>0)
+        let headerIdx = lines.findIndex(l => l.toLowerCase().includes('item_name'))
+        if (headerIdx===-1) throw new Error('Cannot find header row with "item_name"')
+        const headers = parseCSVLine(lines[headerIdx])
+        rows = lines.slice(headerIdx+1).map(l => parseCSVLine(l)).filter(v=>v.some(x=>x.trim()!=='')).map(vals=>{
+          const obj={}; headers.forEach((h,i) => { obj[h.trim()]=(vals[i]||'').trim() }); return obj
+        })
+      }
+      if (!rows.length) throw new Error('No data rows found')
 
-        // Find the header row — the first row that contains 'item_name'
-        let headerRowIndex = -1
-        for (let i = 0; i < lines.length; i++) {
-          if (lines[i].toLowerCase().includes('item_name') || lines[i].toLowerCase().includes('item name')) {
-            headerRowIndex = i
-            break
-          }
-        }
-        if (headerRowIndex === -1) throw new Error('Could not find header row with "item_name" in your CSV file')
-
-        // Parse headers from that row
-        const headers = parseCSVLine(lines[headerRowIndex])
-
-        // Parse data rows after the header
-        rows = lines.slice(headerRowIndex + 1)
-          .map(line => parseCSVLine(line))
-          .filter(vals => vals.some(v => v.trim() !== ''))
-          .map(vals => {
-            const obj = {}
-            headers.forEach((h, i) => { obj[h.trim()] = (vals[i] || '').trim() })
-            return obj
-          })
+      const get = (r, ...keys) => {
+        for (const k of keys) {
+          if (r[k]!==undefined && r[k]!=='') return String(r[k]).trim()
+          const fnd = Object.keys(r).find(rk => rk.toLowerCase().replace(/[\s_]/g,'')===k.toLowerCase().replace(/[\s_]/g,''))
+          if (fnd && r[fnd]!=='') return String(r[fnd]).trim()
+        }; return ''
       }
 
-      if (!rows.length) throw new Error('No data rows found after the header row')
+      importData = rows.map(r => ({
+        item_name:      get(r,'item_name','Item Name','Name','Product Name'),
+        item_code:      get(r,'item_code','Code','ItemCode') || null,
+        brand:          get(r,'brand','Brand') || null,
+        product_size:   get(r,'product_size','Size','Product Size') || null,
+        category:       get(r,'category','Category') || null,
+        unit_type:      get(r,'unit_type','Unit','UnitType') || null,
+        purchase_price: parseFloat(get(r,'purchase_price','Buy Price','Cost','Purchase Price')) || null,
+        selling_price:  parseFloat(get(r,'selling_price','Sell Price','MRP','Selling Price')) || null,
+        quantity:       parseInt(get(r,'quantity','Qty','Stock','Quantity'))  || 0,
+        supplier:       get(r,'supplier','Supplier') || null,
+        notes:          get(r,'notes','Notes','Remarks') || null,
+      })).filter(r => r.item_name)
 
-      // Normalize column names — accept variations like "Item Name", "ITEM NAME", "Name" etc.
-      importData = rows.map(r => {
-        const get = (...keys) => {
-          for (const k of keys) {
-            // Try exact match first, then case-insensitive
-            if (r[k] !== undefined && r[k] !== '') return String(r[k]).trim()
-            const found = Object.keys(r).find(rk => rk.toLowerCase().replace(/[\s_]/g,'') === k.toLowerCase().replace(/[\s_]/g,''))
-            if (found && r[found] !== '') return String(r[found]).trim()
-          }
-          return ''
-        }
-        return {
-          item_name:      get('item_name', 'Item Name', 'ITEM NAME', 'Name', 'Product Name', 'ProductName'),
-          brand:          get('brand', 'Brand', 'BRAND'),
-          product_size:   get('product_size', 'Size', 'Product Size', 'ProductSize'),
-          category:       get('category', 'Category', 'CATEGORY'),
-          unit_type:      get('unit_type', 'Unit', 'Unit Type', 'UnitType'),
-          purchase_price: parseFloat(get('purchase_price', 'Purchase Price', 'Buy Price', 'PurchasePrice', 'Cost')) || null,
-          selling_price:  parseFloat(get('selling_price', 'Selling Price', 'Sell Price', 'MRP', 'SellingPrice')) || null,
-          quantity:       parseInt(get('quantity', 'Quantity', 'Qty', 'Stock', 'QUANTITY')) || 0,
-          supplier:       get('supplier', 'Supplier', 'SUPPLIER'),
-          notes:          get('notes', 'Notes', 'Remarks', 'NOTES'),
-        }
-      }).filter(r => r.item_name !== '')  // skip rows without a product name
-
-      if (!importData.length) throw new Error('No valid rows with item_name found after filtering')
-
+      if (!importData.length) throw new Error('No valid rows (item_name column empty)')
       statusDiv.className = 'import-status success'
-      statusDiv.innerText = `✅ Found ${importData.length} products ready to import`
+      statusDiv.innerText = `✅ Found ${importData.length} products`
 
-  // Show ALL rows with checkboxes
       const preview = document.getElementById('importPreview')
       preview.innerHTML = `
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px;">
-          <div style="font-size:12px;color:rgba(255,255,255,0.5);">
-            All <strong style="color:white;">${importData.length}</strong> products — select which ones to import
-          </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:8px;">
+          <span style="font-size:12px;color:rgba(255,255,255,0.5);"><strong style="color:white;">${importData.length}</strong> products found</span>
           <div style="display:flex;gap:8px;align-items:center;">
-            <button onclick="selectAllImport(true)" style="background:rgba(37,99,235,0.2);border:1px solid rgba(37,99,235,0.4);color:#60a5fa;padding:5px 14px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;box-shadow:none;">✅ Select All</button>
-            <button onclick="selectAllImport(false)" style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.6);padding:5px 14px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;box-shadow:none;">☐ Deselect All</button>
+            <button onclick="selectAllImport(true)" style="background:rgba(37,99,235,0.2);border:1px solid rgba(37,99,235,0.4);color:#60a5fa;padding:4px 12px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;box-shadow:none;">✅ All</button>
+            <button onclick="selectAllImport(false)" style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.5);padding:4px 12px;border-radius:6px;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;box-shadow:none;">☐ None</button>
             <span id="selectedCount" style="font-size:12px;font-weight:700;color:#34d399;">${importData.length} selected</span>
           </div>
         </div>
-        <div style="max-height:320px;overflow-y:auto;border-radius:8px;border:1px solid rgba(255,255,255,0.1);">
+        <div style="max-height:280px;overflow-y:auto;border-radius:8px;border:1px solid rgba(255,255,255,0.1);">
         <table style="width:100%;border-collapse:collapse;font-size:12px;">
-          <thead>
-            <tr style="background:rgba(37,99,235,0.2);position:sticky;top:0;z-index:1;">
-              <th style="padding:9px 12px;color:rgba(255,255,255,0.7);text-align:center;width:40px;">
-                <input type="checkbox" id="masterCheck" checked
-                  style="width:16px;height:16px;accent-color:#2563eb;cursor:pointer;"
-                  onchange="masterCheckChange(this)">
-              </th>
-              <th style="padding:9px 12px;color:rgba(255,255,255,0.7);text-align:left;">#</th>
-              <th style="padding:9px 12px;color:rgba(255,255,255,0.7);text-align:left;">Name</th>
-              <th style="padding:9px 12px;color:rgba(255,255,255,0.7);text-align:left;">Brand</th>
-              <th style="padding:9px 12px;color:rgba(255,255,255,0.7);text-align:left;">Size</th>
-              <th style="padding:9px 12px;color:rgba(255,255,255,0.7);text-align:left;">Category</th>
-              <th style="padding:9px 12px;color:rgba(255,255,255,0.7);text-align:center;">Qty</th>
-              <th style="padding:9px 12px;color:rgba(255,255,255,0.7);text-align:right;">Buy ₹</th>
-              <th style="padding:9px 12px;color:rgba(255,255,255,0.7);text-align:right;">Sell ₹</th>
-            </tr>
-          </thead>
+          <thead><tr style="background:rgba(37,99,235,0.2);position:sticky;top:0;">
+            <th style="padding:8px 10px;text-align:center;width:36px;"><input type="checkbox" id="masterCheck" checked style="accent-color:#2563eb;cursor:pointer;" onchange="masterCheckChange(this)"></th>
+            <th style="padding:8px 10px;text-align:left;color:rgba(255,255,255,0.7);">#</th>
+            <th style="padding:8px 10px;text-align:left;color:rgba(255,255,255,0.7);">Name</th>
+            <th style="padding:8px 10px;text-align:left;color:rgba(255,255,255,0.7);">Brand</th>
+            <th style="padding:8px 10px;text-align:left;color:rgba(255,255,255,0.7);">Size</th>
+            <th style="padding:8px 10px;text-align:left;color:rgba(255,255,255,0.7);">Category</th>
+            <th style="padding:8px 10px;text-align:center;color:rgba(255,255,255,0.7);">Qty</th>
+            <th style="padding:8px 10px;text-align:right;color:rgba(255,255,255,0.7);">Buy ₹</th>
+            <th style="padding:8px 10px;text-align:right;color:rgba(255,255,255,0.7);">Sell ₹</th>
+          </tr></thead>
           <tbody>
-            ${importData.map((r, i) => `
-              <tr id="import-row-${i}" style="border-bottom:1px solid rgba(255,255,255,0.05);background:transparent;transition:background 0.15s;"
-                onmouseover="this.style.background='rgba(255,255,255,0.03)'"
-                onmouseout="this.style.background='transparent'">
-                <td style="padding:8px 12px;text-align:center;">
-                  <input type="checkbox" class="row-check" data-index="${i}" checked
-                    style="width:16px;height:16px;accent-color:#2563eb;cursor:pointer;"
-                    onchange="rowCheckChange()">
-                </td>
-                <td style="padding:8px 12px;color:rgba(255,255,255,0.3);font-size:11px;">${i + 1}</td>
-                <td style="padding:8px 12px;color:white;font-weight:500;">${r.item_name}</td>
-                <td style="padding:8px 12px;color:rgba(255,255,255,0.6);">${r.brand || '—'}</td>
-                <td style="padding:8px 12px;color:rgba(255,255,255,0.5);">${r.product_size || '—'}</td>
-                <td style="padding:8px 12px;color:rgba(255,255,255,0.5);">${r.category || '—'}</td>
-                <td style="padding:8px 12px;text-align:center;color:#fbbf24;font-weight:600;">${r.quantity}</td>
-                <td style="padding:8px 12px;text-align:right;color:rgba(255,255,255,0.7);">${r.purchase_price ? '₹' + r.purchase_price : '—'}</td>
-                <td style="padding:8px 12px;text-align:right;color:#34d399;font-weight:600;">${r.selling_price ? '₹' + r.selling_price : '—'}</td>
-              </tr>`).join('')}
+            ${importData.map((r,i) => `<tr style="border-bottom:1px solid rgba(255,255,255,0.04);">
+              <td style="padding:7px 10px;text-align:center;"><input type="checkbox" class="row-check" data-index="${i}" checked style="accent-color:#2563eb;cursor:pointer;" onchange="rowCheckChange()"></td>
+              <td style="padding:7px 10px;color:rgba(255,255,255,0.3);font-size:11px;">${i+1}</td>
+              <td style="padding:7px 10px;color:white;font-weight:500;">${r.item_name}</td>
+              <td style="padding:7px 10px;color:rgba(255,255,255,0.6);">${r.brand||'—'}</td>
+              <td style="padding:7px 10px;color:rgba(255,255,255,0.5);">${r.product_size||'—'}</td>
+              <td style="padding:7px 10px;color:rgba(255,255,255,0.5);">${r.category||'—'}</td>
+              <td style="padding:7px 10px;text-align:center;color:#fbbf24;font-weight:600;">${r.quantity}</td>
+              <td style="padding:7px 10px;text-align:right;color:rgba(255,255,255,0.7);">${r.purchase_price?'₹'+r.purchase_price:'—'}</td>
+              <td style="padding:7px 10px;text-align:right;color:#34d399;font-weight:600;">${r.selling_price?'₹'+r.selling_price:'—'}</td>
+            </tr>`).join('')}
           </tbody>
-        </table>
-        </div>`
+        </table></div>`
 
       document.getElementById('importActions').style.display = 'flex'
-      
-    } catch (err) {
+    } catch(err) {
       statusDiv.className = 'import-status error'
-      statusDiv.innerText = '❌ Error: ' + err.message
+      statusDiv.innerText = '❌ ' + err.message
       document.getElementById('importPreview').innerHTML = ''
       document.getElementById('importActions').style.display = 'none'
     }
   }
-
-  if (isExcel) reader.readAsArrayBuffer(file)
-  else reader.readAsText(file)
-}
-
-// Helper: properly parse a CSV line respecting quoted fields
-function parseCSVLine(line) {
-  const result = []
-  let current = ''
-  let inQuotes = false
-  for (let i = 0; i < line.length; i++) {
-    const ch = line[i]
-    if (ch === '"') {
-      if (inQuotes && line[i+1] === '"') { current += '"'; i++ }
-      else inQuotes = !inQuotes
-    } else if (ch === ',' && !inQuotes) {
-      result.push(current); current = ''
-    } else {
-      current += ch
-    }
-  }
-  result.push(current)
-  return result
+  if (isExcel) reader.readAsArrayBuffer(file); else reader.readAsText(file)
 }
 
 window.doImport = async function() {
-  // Get only the checked rows
-  const checked = document.querySelectorAll('.row-check:checked')
-  const selectedIndexes = [...checked].map(c => parseInt(c.dataset.index))
-  const toImport = selectedIndexes.map(i => importData[i])
-
-  if (!toImport.length) {
-    alert('Please select at least one product to import.')
-    return
-  }
-
+  const checked = [...document.querySelectorAll('.row-check:checked')].map(c => importData[+c.dataset.index])
+  if (!checked.length) { alert('Select at least one product'); return }
   const btn = document.getElementById('doImportBtn')
-  btn.innerText = '⏳ Importing...'
-  btn.disabled = true
+  btn.innerText = '⏳ Importing...'; btn.disabled = true
   const statusDiv = document.getElementById('importStatusDiv')
-
   try {
-    let inserted = 0, errors = 0
-    for (let i = 0; i < toImport.length; i += 50) {
-      const batch = toImport.slice(i, i + 50)
+    let inserted=0, errors=0
+    for (let i=0; i<checked.length; i+=50) {
+      const batch = checked.slice(i, i+50)
       const { data, error } = await supabase.from('inventory').insert(batch).select()
-      if (error) { errors += batch.length; console.error(error) }
-      else { inserted += (data || []).length }
-      statusDiv.innerText = `⏳ Importing... ${Math.min(i + 50, toImport.length)} / ${toImport.length}`
+      if (error) { errors+=batch.length; console.error(error) } else inserted+=(data||[]).length
+      statusDiv.innerText = `⏳ Importing ${Math.min(i+50,checked.length)} / ${checked.length}...`
     }
-
-    statusDiv.className = errors > 0 ? 'import-status error' : 'import-status success'
-    statusDiv.innerText = `✅ Import complete! ${inserted} products added.${errors > 0 ? ` (${errors} errors)` : ''}`
+    statusDiv.className = errors>0 ? 'import-status error' : 'import-status success'
+    statusDiv.innerText = `✅ Done! ${inserted} products added.${errors>0?` (${errors} errors)`:''}`
     document.getElementById('importActions').style.display = 'none'
     document.getElementById('importPreview').innerHTML = ''
     importData = []
     await loadProducts()
-  } catch (err) {
-    statusDiv.className = 'import-status error'
-    statusDiv.innerText = '❌ Import failed: ' + err.message
+  } catch(err) {
+    statusDiv.className = 'import-status error'; statusDiv.innerText = '❌ ' + err.message
   }
-
-  btn.innerText = '✅ Import Selected'
-  btn.disabled = false
+  btn.innerText = '✅ Import Selected'; btn.disabled = false
 }
 
- window.selectAllImport = function(checked) {
-  document.querySelectorAll('.row-check').forEach(c => { c.checked = checked })
-  const master = document.getElementById('masterCheck')
-  if (master) master.checked = checked
+window.selectAllImport = function(v) {
+  document.querySelectorAll('.row-check').forEach(c => c.checked=v)
+  const m = document.getElementById('masterCheck'); if(m) m.checked=v; m.indeterminate=false
   updateSelectedCount()
 }
-
-window.masterCheckChange = function(master) {
-  document.querySelectorAll('.row-check').forEach(c => { c.checked = master.checked })
+window.masterCheckChange = function(m) {
+  document.querySelectorAll('.row-check').forEach(c => c.checked=m.checked)
   updateSelectedCount()
 }
-
 window.rowCheckChange = function() {
-  const all = document.querySelectorAll('.row-check')
-  const checked = document.querySelectorAll('.row-check:checked')
-  const master = document.getElementById('masterCheck')
-  if (master) {
-    master.checked = all.length === checked.length
-    master.indeterminate = checked.length > 0 && checked.length < all.length
-  }
+  const all=document.querySelectorAll('.row-check'), chk=document.querySelectorAll('.row-check:checked')
+  const m=document.getElementById('masterCheck')
+  if(m) { m.checked=all.length===chk.length; m.indeterminate=chk.length>0&&chk.length<all.length }
   updateSelectedCount()
 }
-
 function updateSelectedCount() {
-  const count = document.querySelectorAll('.row-check:checked').length
-  const el = document.getElementById('selectedCount')
-  if (el) {
-    el.innerText = count + ' selected'
-    el.style.color = count === 0 ? '#f87171' : '#34d399'
-  }
-  // Update the import button text
-  const btn = document.getElementById('doImportBtn')
-  if (btn) btn.innerText = `✅ Import ${count} Selected`
-} 
+  const c=document.querySelectorAll('.row-check:checked').length
+  const el=document.getElementById('selectedCount')
+  if(el) { el.innerText=c+' selected'; el.style.color=c===0?'#f87171':'#34d399' }
+  const btn=document.getElementById('doImportBtn')
+  if(btn) btn.innerText=`✅ Import ${c} Selected`
+}
 
-document.getElementById('importModal').addEventListener('click', function(e) { if (e.target === this) closeImportModal() })
+document.getElementById('importModal').addEventListener('click', function(e) { if(e.target===this) closeImportModal() })
 
 loadProducts()
 </script>
