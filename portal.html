@@ -16,29 +16,23 @@ html{font-size:16px;scroll-behavior:smooth}
 }
 body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;overflow:hidden;height:100vh;cursor:none}
 body.live{overflow-y:auto;height:auto;cursor:auto}
-
-/* CURSOR */
 #cur,#cur2{position:fixed;border-radius:50%;pointer-events:none;z-index:9000;transform:translate(-50%,-50%)}
 #cur{width:7px;height:7px;background:var(--text)}
 #cur2{width:30px;height:30px;border:1px solid rgba(24,24,22,.22);transition:all .18s ease}
 body.hov #cur{transform:translate(-50%,-50%) scale(2.2);background:var(--gold)}
 body.hov #cur2{width:46px;height:46px;border-color:rgba(184,132,10,.3)}
 @media(hover:none){#cur,#cur2{display:none}body,body.live{cursor:auto}}
-
-/* CANVAS */
 #c{position:fixed;inset:0;width:100%;height:100%;z-index:0;display:block}
-
-/* ATMOSPHERE */
-#grain{position:fixed;inset:0;z-index:2;pointer-events:none;opacity:.052;
+#grain{position:fixed;inset:0;z-index:2;pointer-events:none;opacity:.045;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 300'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.88' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3C/svg%3E");
   animation:gn .12s steps(1) infinite}
 @keyframes gn{0%{background-position:0 0}25%{background-position:-70px -40px}50%{background-position:40px 25px}75%{background-position:-25px 60px}}
 #vig{position:fixed;inset:0;z-index:3;pointer-events:none;
   background:radial-gradient(ellipse 82% 82% at 50% 50%,transparent 42%,rgba(18,16,12,.52) 100%)}
 #mist-top{position:fixed;top:0;left:0;right:0;height:28vh;z-index:3;pointer-events:none;
-  background:linear-gradient(to bottom,rgba(208,206,202,.68) 0%,transparent 100%)}
+  background:linear-gradient(to bottom,rgba(208,206,202,.65) 0%,transparent 100%)}
 #mist-bot{position:fixed;bottom:0;left:0;right:0;height:22vh;z-index:3;pointer-events:none;
-  background:linear-gradient(to top,rgba(208,206,202,.62) 0%,transparent 100%)}
+  background:linear-gradient(to top,rgba(208,206,202,.60) 0%,transparent 100%)}
 #glassblur{position:fixed;inset:0;z-index:4;pointer-events:none;
   backdrop-filter:blur(0px) saturate(100%);-webkit-backdrop-filter:blur(0px) saturate(100%);
   opacity:0;transition:backdrop-filter 1.6s ease,opacity 1.6s ease}
@@ -75,15 +69,15 @@ body.hov #cur2{width:46px;height:46px;border-color:rgba(184,132,10,.3)}
 /* HUD */
 #hud{position:fixed;inset:0;z-index:10;pointer-events:none;display:none}
 #pg{position:absolute;bottom:0;left:0;height:2px;width:0%;
-  background:linear-gradient(90deg,var(--gold),rgba(184,132,10,.4));
-  transition:width .7s cubic-bezier(.4,0,.2,1);
-  box-shadow:0 0 8px rgba(184,132,10,.5)}
+  background:linear-gradient(90deg,var(--gold),rgba(212,160,48,.5));
+  transition:width .8s cubic-bezier(.4,0,.2,1);
+  box-shadow:0 0 10px rgba(184,132,10,.6)}
 #tbar{position:absolute;top:0;left:0;right:0;padding:24px 36px;display:flex;align-items:center;justify-content:space-between}
 .tbl{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:600;letter-spacing:.22em;
   text-transform:uppercase;color:rgba(24,24,22,.65);display:flex;align-items:center;gap:8px}
 .tdot{width:5px;height:5px;border-radius:50%;background:var(--gold);flex-shrink:0;
-  animation:pulse 2s ease-in-out infinite}
-@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.7)}}
+  animation:tdpulse 1.8s ease-in-out infinite}
+@keyframes tdpulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.65)}}
 .tbr{font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:.22em;
   text-transform:uppercase;color:rgba(24,24,22,.38)}
 #skip{position:absolute;bottom:26px;left:36px;pointer-events:all;
@@ -109,13 +103,13 @@ body.hov #cur2{width:46px;height:46px;border-color:rgba(184,132,10,.3)}
 #soundbtn:hover{color:var(--text)}
 .sbdot{width:4px;height:4px;border-radius:50%;background:currentColor}
 
-/* CINEMATIC TEXTS */
-.ct{position:absolute;pointer-events:none;opacity:0;transition:opacity 1.2s ease,transform 1.2s cubic-bezier(.16,1,.3,1)}
+/* CINEMATIC TEXT OVERLAYS */
+.ct{position:absolute;pointer-events:none;opacity:0;transition:opacity 1.1s ease,transform 1.1s cubic-bezier(.16,1,.3,1)}
 .ct.show{opacity:1}
 #s1{inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 5vw}
 #s1 .bigword{font-family:'Cormorant Garamond',serif;font-size:clamp(42px,8vw,108px);font-weight:300;
   color:var(--text);line-height:.97;letter-spacing:-.015em;transform:translateY(16px);
-  transition:transform 1.2s cubic-bezier(.16,1,.3,1)}
+  transition:transform 1.1s cubic-bezier(.16,1,.3,1)}
 #s1.show .bigword{transform:translateY(0)}
 #s1 .bigword em{font-style:italic;color:rgba(24,24,22,.34)}
 #s1 .sep{width:1px;height:34px;background:rgba(24,24,22,.18);margin:16px auto;
@@ -127,7 +121,7 @@ body.hov #cur2{width:46px;height:46px;border-color:rgba(184,132,10,.3)}
 #s1.show .tagline{transform:translateY(0);opacity:1}
 #s2{top:0;bottom:0;left:7%;display:flex;flex-direction:column;justify-content:center;
   max-width:280px;transform:translateX(-14px);
-  transition:opacity 1.2s ease,transform 1.2s cubic-bezier(.16,1,.3,1)}
+  transition:opacity 1.1s ease,transform 1.1s cubic-bezier(.16,1,.3,1)}
 #s2.show{transform:translateX(0)}
 .seb{font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:500;letter-spacing:.32em;
   text-transform:uppercase;color:var(--gold);margin-bottom:12px;display:flex;align-items:center;gap:9px}
@@ -137,7 +131,7 @@ body.hov #cur2{width:46px;height:46px;border-color:rgba(184,132,10,.3)}
 #s2 p{margin-top:11px;font-size:12px;color:var(--muted);line-height:1.82;font-weight:300}
 #s3{top:0;bottom:0;right:7%;display:flex;flex-direction:column;justify-content:center;
   text-align:right;max-width:260px;transform:translateX(14px);
-  transition:opacity 1.2s ease,transform 1.2s cubic-bezier(.16,1,.3,1)}
+  transition:opacity 1.1s ease,transform 1.1s cubic-bezier(.16,1,.3,1)}
 #s3.show{transform:translateX(0)}
 .orbl{font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:.32em;
   text-transform:uppercase;color:rgba(24,24,22,.38);display:flex;align-items:center;
@@ -147,7 +141,7 @@ body.hov #cur2{width:46px;height:46px;border-color:rgba(184,132,10,.3)}
 #s3 .s3sub{margin-top:11px;font-size:11px;color:var(--muted);line-height:1.82;font-weight:300}
 #s4{inset:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
   padding-top:14vh;text-align:center;transform:translateY(12px);
-  transition:opacity 1.2s ease,transform 1.2s cubic-bezier(.16,1,.3,1)}
+  transition:opacity 1.1s ease,transform 1.1s cubic-bezier(.16,1,.3,1)}
 #s4.show{transform:translateY(0)}
 #s4 .pt{font-family:'Cormorant Garamond',serif;font-size:clamp(28px,4.2vw,64px);font-weight:300;color:var(--text);line-height:1.04}
 #s4 .pt span{color:rgba(24,24,22,.26)}
@@ -160,7 +154,7 @@ body.hov #cur2{width:46px;height:46px;border-color:rgba(184,132,10,.3)}
 .ann.r .atx{text-align:right}
 #s5{inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
   text-align:center;pointer-events:all;transform:translateY(12px);
-  transition:opacity 1.2s ease,transform 1.2s cubic-bezier(.16,1,.3,1)}
+  transition:opacity 1.1s ease,transform 1.1s cubic-bezier(.16,1,.3,1)}
 #s5.show{transform:translateY(0)}
 #s5 h2{font-family:'Cormorant Garamond',serif;font-size:clamp(28px,4.2vw,64px);font-weight:300;color:var(--text);line-height:1.05;margin-bottom:26px}
 #s5 h2 em{font-style:italic;color:rgba(24,24,22,.32)}
@@ -178,8 +172,6 @@ body.hov #cur2{width:46px;height:46px;border-color:rgba(184,132,10,.3)}
 
 /* MAIN SITE */
 #site{position:relative;z-index:20;display:none;opacity:0;transition:opacity 1.1s ease;background:var(--bg)}
-
-/* NAV */
 #nav{position:fixed;top:0;left:0;right:0;z-index:200;height:60px;
   display:flex;align-items:center;justify-content:space-between;padding:0 36px;
   background:rgba(218,216,212,.9);backdrop-filter:blur(20px) saturate(140%);
@@ -203,8 +195,6 @@ body.hov #cur2{width:46px;height:46px;border-color:rgba(184,132,10,.3)}
   color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:500;
   letter-spacing:.2em;text-transform:uppercase;cursor:pointer;text-decoration:none;transition:all .22s}
 .nback:hover{border-color:var(--text);color:var(--text)}
-
-/* HERO */
 #hero{min-height:100vh;display:flex;align-items:center;padding:88px 36px 80px;position:relative;overflow:hidden}
 .hero-in{max-width:1160px;width:100%;margin:0 auto;display:grid;grid-template-columns:1.1fr .9fr;gap:72px;align-items:center}
 .hew{font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:500;letter-spacing:.34em;
@@ -220,8 +210,6 @@ body.hov #cur2{width:46px;height:46px;border-color:rgba(184,132,10,.3)}
 .hst:hover{background:var(--white)}
 .hn{font-family:'Cormorant Garamond',serif;font-size:38px;font-weight:300;color:var(--text);line-height:1;margin-bottom:3px}
 .hl2{font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
-
-/* SECTIONS */
 .sec{padding:92px 36px;max-width:1160px;margin:0 auto}
 .ssep{height:1px;background:var(--line);margin:0 36px}
 .sew{font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:500;letter-spacing:.34em;
@@ -230,8 +218,6 @@ body.hov #cur2{width:46px;height:46px;border-color:rgba(184,132,10,.3)}
 .sh{font-family:'Cormorant Garamond',serif;font-size:clamp(24px,3.6vw,50px);font-weight:300;
   color:var(--text);line-height:1.07;margin-bottom:44px}
 .sh strong{font-weight:600}
-
-/* PARTS GRID */
 .pgd{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--line)}
 .pc{padding:26px 22px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);transition:background .2s}
 .pc:hover{background:var(--white)}
@@ -240,8 +226,6 @@ body.hov #cur2{width:46px;height:46px;border-color:rgba(184,132,10,.3)}
 .pn{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:300;color:rgba(24,24,22,.08);margin-bottom:9px}
 .pnm{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--text);margin-bottom:5px}
 .pd{font-size:11px;color:var(--muted);line-height:1.75}
-
-/* BRANDS */
 .bsec{background:var(--text);padding:54px 36px}
 .bin{max-width:1160px;margin:0 auto}
 .bew{font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:500;letter-spacing:.34em;
@@ -254,8 +238,6 @@ body.hov #cur2{width:46px;height:46px;border-color:rgba(184,132,10,.3)}
   text-transform:uppercase;color:rgba(255,255,255,.17);transition:color .25s;text-align:center}
 .bi:last-child{border-right:none}
 .bi:hover{color:rgba(255,255,255,.72)}
-
-/* WHY */
 .wgd{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--line);border:1px solid var(--line)}
 .wc{background:var(--bg2);padding:30px 27px;position:relative;overflow:hidden;transition:background .2s}
 .wc:hover{background:var(--white)}
@@ -265,20 +247,14 @@ body.hov #cur2{width:46px;height:46px;border-color:rgba(184,132,10,.3)}
 .wnum{font-family:'Cormorant Garamond',serif;font-size:48px;font-weight:300;color:rgba(24,24,22,.05);line-height:1;margin-bottom:9px}
 .wt2{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--text);margin-bottom:6px}
 .wd2{font-size:11px;color:var(--muted);line-height:1.82}
-
-/* MAP */
 .map-wrap{border:1px solid var(--line);overflow:hidden;margin-top:44px}
 .map-wrap iframe{display:block;width:100%;height:420px;border:0;filter:grayscale(.22) contrast(1.04)}
-
-/* CONTACT */
 .cgd{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line)}
 .cb{background:var(--bg2);padding:30px}
 .clb{font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:500;letter-spacing:.28em;text-transform:uppercase;color:var(--muted);margin-bottom:7px}
 .cv{font-size:14px;color:var(--text);font-weight:300;line-height:1.68}
 .cv a{color:inherit;text-decoration:none;border-bottom:1px solid rgba(24,24,22,.15);transition:border-color .2s}
 .cv a:hover{border-color:var(--text)}
-
-/* REVIEWS */
 .rvgd{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);margin-top:44px}
 .rv{background:var(--bg2);padding:24px;transition:background .2s}
 .rv:hover{background:var(--white)}
@@ -287,8 +263,6 @@ body.hov #cur2{width:46px;height:46px;border-color:rgba(184,132,10,.3)}
 .ra{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--text)}
 .rsub2{font-size:10px;color:var(--muted)}
 #rv-loading{text-align:center;padding:32px;font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);grid-column:1/-1}
-
-/* FEEDBACK */
 .fb-grid{display:grid;grid-template-columns:1fr 1.25fr;gap:1px;background:var(--line);border:1px solid var(--line);margin-top:44px}
 .fb-side{background:var(--bg2);padding:32px}
 .fb-side p{font-size:12px;color:var(--muted);line-height:1.88;margin-bottom:22px}
@@ -304,7 +278,6 @@ textarea.fi{min-height:80px;resize:vertical}
 .star-row{display:flex;gap:4px}
 .star-row span{font-size:20px;cursor:pointer;color:rgba(24,24,22,.1);transition:all .14s;user-select:none}
 .star-row span.lit{color:var(--gold)}
-.star-row span:hover{color:var(--gold)}
 .msb{width:100%;padding:11px;border:1px solid var(--text);background:var(--text);color:var(--white);
   font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:500;letter-spacing:.22em;
   text-transform:uppercase;cursor:pointer;margin-top:2px;transition:all .25s}
@@ -317,18 +290,12 @@ textarea.fi{min-height:80px;resize:vertical}
   letter-spacing:.2em;text-transform:uppercase;color:var(--text);text-decoration:none;
   transition:all .22s;margin-top:4px}
 .g-link:hover{border-color:var(--text);background:var(--white)}
-
-/* FOOTER */
 footer{border-top:1px solid var(--line);padding:34px 36px;display:flex;align-items:center;
   justify-content:space-between;flex-wrap:wrap;gap:12px}
 .flo{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--text)}
 .fcp{font-size:10px;color:var(--muted)}
-
-/* REVEAL */
 .rv2{opacity:0;transform:translateY(22px);transition:opacity .8s ease,transform .8s ease}
 .rv2.on{opacity:1;transform:translateY(0)}
-
-/* MOBILE */
 @media(max-width:768px){
   .hero-in{grid-template-columns:1fr;gap:32px}
   .pgd{grid-template-columns:1fr 1fr}
@@ -357,7 +324,6 @@ footer{border-top:1px solid var(--line);padding:34px 36px;display:flex;align-ite
 <div id="cur"></div>
 <div id="cur2"></div>
 
-<!-- INTRO -->
 <div id="intro">
   <div class="il">A</div>
   <div class="iname">Abhinandan Auto Mobiles</div>
@@ -366,7 +332,6 @@ footer{border-top:1px solid var(--line);padding:34px 36px;display:flex;align-ite
   <button class="i-back" onclick="window.location.href='login.html'">Back to Login</button>
 </div>
 
-<!-- HUD -->
 <div id="hud">
   <div id="tbar">
     <div class="tbl"><span class="tdot"></span>Abhinandan Auto Mobiles</div>
@@ -379,29 +344,24 @@ footer{border-top:1px solid var(--line);padding:34px 36px;display:flex;align-ite
     <div class="sep"></div>
     <div class="tagline">Santalpur &nbsp;&middot;&nbsp; Patan &nbsp;&middot;&nbsp; Gujarat &nbsp;&middot;&nbsp; Est. 2009</div>
   </div>
-
   <div class="ct" id="s2">
     <div class="seb">On Every Road</div>
     <h2>Carrying the<br><strong>Nation Forward</strong></h2>
     <p>Every highway. Every harvest.<br>Tata &middot; Leyland &middot; JCB &middot; Tractors</p>
   </div>
-
   <div class="ct" id="s3">
     <div class="orbl">Forged in Trust</div>
     <h2>Where Iron<br>Meets Integrity</h2>
     <div class="s3sub">15 years. One promise — only genuine parts, priced fair, always in stock.</div>
   </div>
-
   <div class="ct" id="s4">
     <div class="pt">Every <span>Part.</span><br>Every Machine.</div>
     <div class="ptsub">Bearings &nbsp;&middot;&nbsp; Springs &nbsp;&middot;&nbsp; Universals &nbsp;&middot;&nbsp; Clutch &nbsp;&middot;&nbsp; Hubs</div>
   </div>
-
   <div class="ann" id="a1" style="top:38%;left:54%"><div class="aln"></div><div class="atx">Hub Bearing</div></div>
   <div class="ann r" id="a2" style="top:52%;right:55%"><div class="aln"></div><div class="atx">Leaf Spring</div></div>
   <div class="ann" id="a3" style="bottom:30%;left:56%"><div class="aln"></div><div class="atx">Universal Joint</div></div>
   <div class="ann r" id="a4" style="bottom:38%;right:57%"><div class="aln"></div><div class="atx">Clutch Disc</div></div>
-
   <div class="ct" id="s5">
     <h2>15 Years of<br><em>Genuine Trust</em></h2>
     <div class="ctaw">
@@ -409,21 +369,16 @@ footer{border-top:1px solid var(--line);padding:34px 36px;display:flex;align-ite
       <a href="https://wa.me/919870037002" target="_blank" class="bb">WhatsApp Us</a>
     </div>
   </div>
-
   <button id="skip" onclick="enterSite()">Skip Intro</button>
   <button id="soundbtn" onclick="toggleSound()"><span class="sbdot"></span><span id="slbtxt">Sound On</span></button>
   <div id="pg"></div>
 </div>
 
-<!-- MAIN SITE -->
 <div id="site">
   <nav id="nav">
     <a class="nlog" href="#">
       <div class="nbox">A</div>
-      <div>
-        <div class="nname">Abhinandan Auto Mobiles</div>
-        <div class="nsub">Genuine Spare Parts</div>
-      </div>
+      <div><div class="nname">Abhinandan Auto Mobiles</div><div class="nsub">Genuine Spare Parts</div></div>
     </a>
     <div class="nlks">
       <a onclick="scrollTo2('products')">Products</a>
@@ -461,7 +416,6 @@ footer{border-top:1px solid var(--line);padding:34px 36px;display:flex;align-ite
   </section>
 
   <div class="ssep"></div>
-
   <div class="sec" id="products">
     <div class="sew rv2">Our Inventory</div>
     <h2 class="sh rv2">Everything Your <strong>Fleet Needs</strong></h2>
@@ -477,23 +431,18 @@ footer{border-top:1px solid var(--line);padding:34px 36px;display:flex;align-ite
       <div class="pc rv2"><div class="pn">09</div><div class="pnm">Cab &amp; Lighting</div><div class="pd">Headlamps, fog lights, mirrors, cabin fittings, wipers for all truck models.</div></div>
     </div>
   </div>
-
   <div class="ssep"></div>
-
   <div class="bsec" id="brands">
     <div class="bin">
       <div class="bew rv2">Brands We Stock</div>
       <div class="brow rv2">
-        <div class="bi">TATA</div><div class="bi">TVS</div>
-        <div class="bi">GAJRA</div><div class="bi">TELCO</div>
-        <div class="bi">CASTROL</div><div class="bi">LEYLAND</div>
-        <div class="bi">JCB</div><div class="bi">CUMMINS</div>
-        <div class="bi">BOSCH</div><div class="bi">WABCO</div>
-        <div class="bi">MAHINDRA</div><div class="bi">TATA AIA</div>
+        <div class="bi">TATA</div><div class="bi">TVS</div><div class="bi">GAJRA</div>
+        <div class="bi">TELCO</div><div class="bi">CASTROL</div><div class="bi">LEYLAND</div>
+        <div class="bi">JCB</div><div class="bi">CUMMINS</div><div class="bi">BOSCH</div>
+        <div class="bi">WABCO</div><div class="bi">MAHINDRA</div><div class="bi">TATA AIA</div>
       </div>
     </div>
   </div>
-
   <div class="sec" id="why">
     <div class="sew rv2">Why We Are Different</div>
     <h2 class="sh rv2">Trusted by <strong>Mechanics</strong><br>Across Patan Region</h2>
@@ -504,25 +453,19 @@ footer{border-top:1px solid var(--line);padding:34px 36px;display:flex;align-ite
       <div class="wc"><div class="wnum">04</div><div class="wt2">Honest Fair Pricing</div><div class="wd2">Direct from authorized distributors. No middlemen, no inflated margins &mdash; always honest.</div></div>
     </div>
   </div>
-
   <div class="ssep"></div>
-
   <div class="sec" id="reviews">
     <div class="sew rv2">Customer Reviews</div>
     <h2 class="sh rv2">What They <strong>Say</strong></h2>
-    <div class="rvgd" id="rvc">
-      <div id="rv-loading">Loading reviews...</div>
-    </div>
+    <div class="rvgd" id="rvc"><div id="rv-loading">Loading reviews...</div></div>
   </div>
-
   <div class="ssep"></div>
-
   <div class="sec" id="feedback">
     <div class="sew rv2">Share Your Experience</div>
     <h2 class="sh rv2">Leave <strong>Feedback</strong></h2>
     <div class="fb-grid rv2">
       <div class="fb-side">
-        <p>Your review helps other customers on the highway find reliable genuine parts. After submitting here, please also leave a Google review &mdash; it truly helps our business grow.</p>
+        <p>Your review helps other customers find reliable genuine parts. After submitting here, please also leave a Google review &mdash; it truly helps our business grow.</p>
         <a href="https://www.google.com/maps/place/Abhinandan/@23.7611009,71.1681038,17z" target="_blank" class="g-link">Write a Google Review</a>
       </div>
       <div class="fb-form-col">
@@ -533,23 +476,19 @@ footer{border-top:1px solid var(--line);padding:34px 36px;display:flex;align-ite
           <div class="ff">
             <label>Rating *</label>
             <div class="star-row" id="srw">
-              <span onclick="setStar(1)">&#9733;</span>
-              <span onclick="setStar(2)">&#9733;</span>
-              <span onclick="setStar(3)">&#9733;</span>
-              <span onclick="setStar(4)">&#9733;</span>
+              <span onclick="setStar(1)">&#9733;</span><span onclick="setStar(2)">&#9733;</span>
+              <span onclick="setStar(3)">&#9733;</span><span onclick="setStar(4)">&#9733;</span>
               <span onclick="setStar(5)">&#9733;</span>
             </div>
           </div>
           <div class="ff"><label>Your Review *</label><textarea class="fi" id="fr" placeholder="Tell us about your experience..." required></textarea></div>
           <button type="submit" class="msb">Submit Review</button>
-          <div class="ok2" id="fbOk">Your review has been saved. Thank you for your feedback.</div>
+          <div class="ok2" id="fbOk">Your review has been saved. Thank you!</div>
         </form>
       </div>
     </div>
   </div>
-
   <div class="ssep"></div>
-
   <div class="sec" id="contact">
     <div class="sew rv2">Find Us</div>
     <h2 class="sh rv2">Visit Our <strong>Store</strong></h2>
@@ -567,10 +506,7 @@ footer{border-top:1px solid var(--line);padding:34px 36px;display:flex;align-ite
         </div>
       </div>
       <div class="cb" style="display:flex;flex-direction:column;justify-content:space-between;gap:10px">
-        <div>
-          <div class="clb">WhatsApp</div>
-          <div class="cv"><a href="https://wa.me/919870037002" target="_blank">9870037002</a></div>
-        </div>
+        <div><div class="clb">WhatsApp</div><div class="cv"><a href="https://wa.me/919870037002" target="_blank">9870037002</a></div></div>
         <div style="display:flex;flex-direction:column;gap:8px">
           <a href="https://wa.me/919870037002" target="_blank" class="ba" style="text-align:center">WhatsApp</a>
           <a href="https://www.google.com/maps/place/Abhinandan/@23.7611009,71.1681038,17z" target="_blank" class="bb" style="text-align:center">Google Maps</a>
@@ -581,355 +517,364 @@ footer{border-top:1px solid var(--line);padding:34px 36px;display:flex;align-ite
       <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3645.5!2d71.16592!3d23.76110!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x395aff1180c18727%3A0x56780fce31c3f335!2sAbhinandan%20Auto%20Mobiles!5e0!3m2!1sen!2sin!4v1716800000000" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="Abhinandan Auto Mobiles Location"></iframe>
     </div>
   </div>
-
   <footer>
     <div class="flo">&copy; 2025 Abhinandan Auto Mobiles</div>
-    <div class="fcp">Santalpur, Dist. Patan &mdash; 385350 &nbsp;&middot;&nbsp; Quality Parts &nbsp;&middot;&nbsp; Trusted Service &nbsp;&middot;&nbsp; Stronger Together</div>
+    <div class="fcp">Santalpur, Dist. Patan &mdash; 385350 &nbsp;&middot;&nbsp; Quality Parts &nbsp;&middot;&nbsp; Trusted Service</div>
   </footer>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-
 <script>
-/* ============================================================
-   SUPABASE INIT — single init, called once on window load
-   TABLE: website_visitors
-   COLUMNS: id, name, phone, visited_at, page_views,
-            review_text, rating, vehicle
-   BUG FIX: old code ordered by 'created_at' which does NOT
-   exist on this table — the real timestamp column is
-   'visited_at'. That caused a silent Supabase error and
-   no reviews were ever displayed from the database.
-   ============================================================ */
+/* ================================================================
+   GLOBALS
+   ================================================================ */
 var SUPA_URL = 'https://mhhnmndnolhapaoqtbxo.supabase.co';
 var SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1oaG5tbmRub2xoYXBhb3F0YnhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4Mzg4NTksImV4cCI6MjA4ODQxNDg1OX0.IMSp8vYiCln_iSuoT_H2qdeX_dP1WMhOOskDw20eJXw';
 var _sb = null;
 
-/* ============================================================
-   SEED REVIEWS — shown while DB loads or if DB is empty
-   ============================================================ */
+/* ================================================================
+   REVIEWS — seed fallback shown while DB loads
+   ================================================================ */
 var seedReviews = [
-  {name:'Ramesh Patel',      vehicle:'Tata 1109 Owner, Patan',  rating:5, review_text:'Best place for Tata truck parts in Patan region. Got bearings same day. Very knowledgeable staff.'},
-  {name:'Suresh Motor Works',vehicle:'Workshop, Santalpur',     rating:5, review_text:'Genuine parts at fair prices. Clutch plates lasted 2 years. Never had a quality issue from here.'},
-  {name:'Mahesh Bhai',       vehicle:'Leyland Fleet Owner',     rating:4, review_text:'Had the Leyland leaf spring when nobody else did. Incredibly reliable, always honest with pricing.'}
+  {name:'Ramesh Patel',       vehicle:'Tata 1109 Owner, Patan', rating:5, review_text:'Best place for Tata truck parts in Patan region. Got bearings same day. Very knowledgeable staff.'},
+  {name:'Suresh Motor Works', vehicle:'Workshop, Santalpur',    rating:5, review_text:'Genuine parts at fair prices. Clutch plates lasted 2 years. Never had a quality issue from here.'},
+  {name:'Mahesh Bhai',        vehicle:'Leyland Fleet Owner',    rating:4, review_text:'Had the Leyland leaf spring when nobody else did. Incredibly reliable, always honest with pricing.'}
 ];
 
-/* ============================================================
-   RENDER ONE REVIEW CARD
-   ============================================================ */
-function renderReview(rv, prepend) {
-  var stars = '';
-  for (var i = 1; i <= 5; i++) stars += (i <= rv.rating) ? '&#9733;' : '&#9734;';
-  var d = document.createElement('div');
-  d.className = 'rv';
-  d.innerHTML =
-    '<div class="rs">' + stars + '</div>' +
-    '<div class="rt">&ldquo;' + escHtml(rv.review_text) + '&rdquo;</div>' +
-    '<div class="ra">'    + escHtml(rv.name) + '</div>' +
-    '<div class="rsub2">' + escHtml(rv.vehicle || 'Customer') + '</div>';
-  var grid = document.getElementById('rvc');
-  if (!grid) return;
-  if (prepend && grid.firstChild) grid.insertBefore(d, grid.firstChild);
+function escHtml(s){
+  if(!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function renderReview(rv, prepend){
+  var stars='';
+  for(var i=1;i<=5;i++) stars+=(i<=(rv.rating||0))?'&#9733;':'&#9734;';
+  var d=document.createElement('div');
+  d.className='rv';
+  d.innerHTML='<div class="rs">'+stars+'</div>'+
+    '<div class="rt">&ldquo;'+escHtml(rv.review_text)+'&rdquo;</div>'+
+    '<div class="ra">'+escHtml(rv.name)+'</div>'+
+    '<div class="rsub2">'+escHtml(rv.vehicle||'Customer')+'</div>';
+  var grid=document.getElementById('rvc');
+  if(!grid) return;
+  if(prepend && grid.firstChild) grid.insertBefore(d,grid.firstChild);
   else grid.appendChild(d);
 }
 
-function escHtml(s) {
-  if (!s) return '';
-  return String(s)
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-/* ============================================================
-   LOAD REVIEWS FROM SUPABASE
-   KEY FIX: order by 'visited_at' not 'created_at'
-   The website_visitors table uses visited_at as its
-   timestamp column. Ordering by 'created_at' caused a
-   PostgREST error, making res.data come back null/empty,
-   so reviews were never rendered from the database.
-   ============================================================ */
-async function loadReviews() {
-  var grid = document.getElementById('rvc');
-  if (!grid) return;
-
-  grid.innerHTML = '';
-  seedReviews.forEach(function(r){ renderReview(r, false); });
-
-  if (!_sb) {
-    console.warn('Supabase not ready — showing seed reviews only');
-    return;
-  }
-
-  try {
-    var res = await _sb
+/* ================================================================
+   LOAD REVIEWS
+   KEY FIXES vs old code:
+   1. Order by 'visited_at'  ← correct column (not 'created_at')
+   2. No rating filter       ← show all reviews including rating=0
+   3. Filter: review_text must not be empty string
+   ================================================================ */
+async function loadReviews(){
+  var grid=document.getElementById('rvc');
+  if(!grid) return;
+  /* Show seeds immediately while waiting for DB */
+  grid.innerHTML='';
+  seedReviews.forEach(function(r){ renderReview(r,false); });
+  if(!_sb){ console.warn('Supabase not ready'); return; }
+  try{
+    var res=await _sb
       .from('website_visitors')
-      .select('name, phone, vehicle, rating, review_text, visited_at')
-      .not('review_text', 'eq', '')
-      .not('review_text', 'is', null)
-      .gt('rating', 0)
-      .order('visited_at', { ascending: false })
+      .select('name,phone,vehicle,rating,review_text,visited_at')
+      .neq('review_text','')
+      .not('review_text','is',null)
+      .order('visited_at',{ascending:false})
       .limit(60);
-
-    if (res.error) {
-      console.warn('Supabase fetch error:', res.error.message);
-      return;
+    if(res.error){ console.warn('Reviews fetch error:',res.error.message); return; }
+    /* Replace seeds only if real data came back */
+    if(res.data && res.data.length>0){
+      grid.innerHTML='';
+      res.data.forEach(function(r){ renderReview(r,false); });
     }
-
-    if (res.data && res.data.length > 0) {
-      grid.innerHTML = '';
-      res.data.forEach(function(r){ renderReview(r, false); });
-    }
-  } catch(err) {
-    console.warn('loadReviews exception:', err);
-  }
+  }catch(err){ console.warn('loadReviews error:',err); }
 }
 
-/* ============================================================
-   FEEDBACK FORM
-   ============================================================ */
-var starVal = 0;
-
-function setStar(n) {
-  starVal = n;
-  document.getElementById('srw').querySelectorAll('span').forEach(function(sp, i){
-    sp.className = i < n ? 'lit' : '';
+/* ================================================================
+   SUBMIT FEEDBACK
+   ================================================================ */
+var starVal=0;
+function setStar(n){
+  starVal=n;
+  document.getElementById('srw').querySelectorAll('span').forEach(function(sp,i){
+    sp.className=i<n?'lit':'';
   });
 }
-
-async function submitFeedback(e) {
+async function submitFeedback(e){
   e.preventDefault();
-  var name    = (document.getElementById('fn').value || '').trim();
-  var phone   = (document.getElementById('fp').value || '').trim();
-  var vehicle = (document.getElementById('fv').value || '').trim();
-  var review  = (document.getElementById('fr').value || '').trim();
-
-  if (!name)    { alert('Please enter your name.'); return; }
-  if (!review)  { alert('Please write your review.'); return; }
-  if (!starVal) { alert('Please select a star rating.'); return; }
-
-  var payload = { name:name, phone:phone||'', vehicle:vehicle||'', rating:starVal, review_text:review };
-
-  renderReview(payload, true);
-  document.getElementById('fbOk').style.display = 'block';
-  document.getElementById('fbForm').reset();
-  setStar(0);
-  setTimeout(function(){ document.getElementById('fbOk').style.display='none'; }, 8000);
-
-  /* Save to Supabase — insert with correct column names for website_visitors */
-  if (_sb) {
-    try {
-      var res = await _sb.from('website_visitors').insert([{
-        name:        name,
-        phone:       phone || '',
-        vehicle:     vehicle || '',
-        rating:      starVal,
-        review_text: review
-        /* visited_at defaults to now() via Supabase default */
-      }]);
-      if (res.error) console.warn('DB save error:', res.error.message);
-      else console.log('Review saved to Supabase successfully.');
-    } catch(err) {
-      console.warn('DB save exception:', err);
-    }
+  var name   =(document.getElementById('fn').value||'').trim();
+  var phone  =(document.getElementById('fp').value||'').trim();
+  var vehicle=(document.getElementById('fv').value||'').trim();
+  var review =(document.getElementById('fr').value||'').trim();
+  if(!name){alert('Please enter your name.');return;}
+  if(!review){alert('Please write your review.');return;}
+  if(!starVal){alert('Please select a star rating.');return;}
+  var payload={name:name,phone:phone,vehicle:vehicle,rating:starVal,review_text:review};
+  renderReview(payload,true);
+  document.getElementById('fbOk').style.display='block';
+  document.getElementById('fbForm').reset(); setStar(0);
+  setTimeout(function(){document.getElementById('fbOk').style.display='none';},8000);
+  if(_sb){
+    try{
+      var res=await _sb.from('website_visitors').insert([payload]);
+      if(res.error) console.warn('DB insert error:',res.error.message);
+      else console.log('Review saved OK');
+    }catch(err){ console.warn('DB insert exception:',err); }
   }
 }
 
-/* ============================================================
+/* ================================================================
    CURSOR
-   ============================================================ */
+   ================================================================ */
 var cX=0,cY=0,rX=0,rY=0;
-var $c1=document.getElementById('cur'), $c2=document.getElementById('cur2');
-document.addEventListener('mousemove',function(e){ cX=e.clientX; cY=e.clientY; $c1.style.left=cX+'px'; $c1.style.top=cY+'px'; });
-(function lp(){ rX+=(cX-rX)*.11; rY+=(cY-rY)*.11; $c2.style.left=rX+'px'; $c2.style.top=rY+'px'; requestAnimationFrame(lp); })();
+var $c1=document.getElementById('cur'),$c2=document.getElementById('cur2');
+document.addEventListener('mousemove',function(e){cX=e.clientX;cY=e.clientY;$c1.style.left=cX+'px';$c1.style.top=cY+'px';});
+(function lp(){rX+=(cX-rX)*.11;rY+=(cY-rY)*.11;$c2.style.left=rX+'px';$c2.style.top=rY+'px';requestAnimationFrame(lp);})();
 document.addEventListener('mouseover',function(e){
   if(e.target.matches('a,button,.ba,.bb,.bi,.wc,.pc,.rv,.hst,.nlog'))document.body.classList.add('hov');
   else document.body.classList.remove('hov');
 });
 
-/* ============================================================
-   CINEMATIC SOUND ENGINE — Deep orchestral / suspense score
-   Architecture:
-   Layer 1 — Sub bass pedal tone (36 Hz sine) — the foundation
-   Layer 2 — Cello swell (filtered sawtooth, slow attack)
-   Layer 3 — Tension string tremolo (fast LFO on filtered saw)
-   Layer 4 — Distant wind breath (bandpass noise)
-   Layer 5 — Slow harmonic shimmer (triangle wave, high octave)
-   Layer 6 — Reverb-like convolution via delay feedback network
-   This creates a Hans Zimmer / Interstellar style tension pad.
-   ============================================================ */
-var audioCtx=null, masterGain=null, soundOn=true;
-var convGain=null; /* wet convolution reverb send */
+/* ================================================================
+   ENERGETIC SOUND ENGINE
+   Design: punchy industrial/action feel — like a truck commercial.
+   Layer 1: Driving kick drum pattern (synthesised)
+   Layer 2: Rising synth swell (sawtooth → filter open)
+   Layer 3: Power chord stab (distorted octave fifth)
+   Layer 4: Engine rumble (low noise + sub)
+   Layer 5: Hi-hat rhythm (high filtered noise bursts)
+   All fed through a compressor + master gain.
+   ================================================================ */
+var audioCtx=null,masterGain=null,compressor=null,soundOn=true;
 
-function initAudio() {
-  if (audioCtx) return;
-  try {
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+function initAudio(){
+  if(audioCtx) return;
+  try{
+    audioCtx=new(window.AudioContext||window.webkitAudioContext)();
 
-    /* ---- MASTER OUTPUT ---- */
-    masterGain = audioCtx.createGain();
-    masterGain.gain.value = 0;
+    /* Master compressor — makes everything punchy and loud */
+    compressor=audioCtx.createDynamicsCompressor();
+    compressor.threshold.value=-14;
+    compressor.knee.value=6;
+    compressor.ratio.value=4;
+    compressor.attack.value=0.003;
+    compressor.release.value=0.18;
+
+    masterGain=audioCtx.createGain();
+    masterGain.gain.value=0;
+    compressor.connect(masterGain);
     masterGain.connect(audioCtx.destination);
 
-    /* ---- REVERB via feedback delay network (faux room) ---- */
-    var dly1 = audioCtx.createDelay(3.0);
-    var dly2 = audioCtx.createDelay(2.3);
-    dly1.delayTime.value = 1.82;
-    dly2.delayTime.value = 1.37;
-    var fbGain1 = audioCtx.createGain(); fbGain1.gain.value = 0.38;
-    var fbGain2 = audioCtx.createGain(); fbGain2.gain.value = 0.34;
-    var reverbBus = audioCtx.createGain(); reverbBus.gain.value = 0.28;
-    /* Chain: reverbBus → dly1 → fbGain1 → dly2 → fbGain2 → reverbBus loop */
-    reverbBus.connect(dly1); dly1.connect(fbGain1); fbGain1.connect(dly2);
-    dly2.connect(fbGain2);   fbGain2.connect(reverbBus);
-    reverbBus.connect(masterGain); /* wet signal to master */
-    dly1.connect(masterGain);      /* direct tail bleed */
+    /* Shared send bus */
+    function toMaster(node){ node.connect(compressor); }
 
-    function makeSource(freq, type, gainVal, attack, filterFreq, filterQ) {
-      var osc = audioCtx.createOscillator();
-      osc.type = type;
-      osc.frequency.value = freq;
-      var filt = audioCtx.createBiquadFilter();
-      filt.type = 'lowpass';
-      filt.frequency.value = filterFreq || 800;
-      filt.Q.value = filterQ || 1.0;
-      var g = audioCtx.createGain();
-      g.gain.setValueAtTime(0.0001, audioCtx.currentTime);
-      g.gain.exponentialRampToValueAtTime(gainVal, audioCtx.currentTime + (attack || 3.0));
-      osc.connect(filt); filt.connect(g);
-      g.connect(masterGain);  /* dry */
-      g.connect(reverbBus);   /* wet send */
-      osc.start();
-      return {osc:osc, gain:g, filter:filt};
+    /* ------- LAYER 1: ENGINE RUMBLE (low sub + noise) ------- */
+    var sub=audioCtx.createOscillator();
+    sub.type='sine'; sub.frequency.value=42;
+    var subG=audioCtx.createGain(); subG.gain.value=0.36;
+    sub.connect(subG); toMaster(subG); sub.start();
+
+    /* Engine chug — slow LFO tremolo on sub */
+    var chugLFO=audioCtx.createOscillator();
+    chugLFO.type='square'; chugLFO.frequency.value=6.5;
+    var chugAmt=audioCtx.createGain(); chugAmt.gain.value=0.18;
+    chugLFO.connect(chugAmt); chugAmt.connect(subG.gain); chugLFO.start();
+
+    /* ------- LAYER 2: RISING POWER SYNTH ------- */
+    /* Starts dark, filter opens up over 4s → energetic reveal */
+    var pwrOsc=audioCtx.createOscillator();
+    pwrOsc.type='sawtooth'; pwrOsc.frequency.value=110;
+    var pwrOsc2=audioCtx.createOscillator();
+    pwrOsc2.type='sawtooth'; pwrOsc2.frequency.value=165; /* fifth */
+    var pwrFilt=audioCtx.createBiquadFilter();
+    pwrFilt.type='lowpass';
+    pwrFilt.frequency.setValueAtTime(80, audioCtx.currentTime);
+    pwrFilt.frequency.exponentialRampToValueAtTime(2800, audioCtx.currentTime+4.5);
+    pwrFilt.Q.value=3.5;
+    var pwrG=audioCtx.createGain();
+    pwrG.gain.setValueAtTime(0.0001,audioCtx.currentTime);
+    pwrG.gain.exponentialRampToValueAtTime(0.14,audioCtx.currentTime+1.2);
+    pwrOsc.connect(pwrFilt); pwrOsc2.connect(pwrFilt);
+    pwrFilt.connect(pwrG); toMaster(pwrG);
+    pwrOsc.start(); pwrOsc2.start();
+
+    /* ------- LAYER 3: RHYTHMIC KICK DRUM PATTERN ------- */
+    /* Synthesized kick: sub thump + click transient */
+    var bpm=128, beat=60/bpm;
+    function kick(when){
+      /* Sub body */
+      var ko=audioCtx.createOscillator();
+      ko.type='sine';
+      ko.frequency.setValueAtTime(160,when);
+      ko.frequency.exponentialRampToValueAtTime(35,when+0.12);
+      var kg=audioCtx.createGain();
+      kg.gain.setValueAtTime(0.9,when);
+      kg.gain.exponentialRampToValueAtTime(0.001,when+0.35);
+      ko.connect(kg); toMaster(kg);
+      ko.start(when); ko.stop(when+0.38);
+      /* Click transient */
+      var nBuf=audioCtx.createBuffer(1,audioCtx.sampleRate*0.02,audioCtx.sampleRate);
+      var nd=nBuf.getChannelData(0);
+      for(var i=0;i<nd.length;i++) nd[i]=(Math.random()*2-1);
+      var ns=audioCtx.createBufferSource(); ns.buffer=nBuf;
+      var nf=audioCtx.createBiquadFilter(); nf.type='highpass'; nf.frequency.value=2200;
+      var ng=audioCtx.createGain();
+      ng.gain.setValueAtTime(0.3,when);
+      ng.gain.exponentialRampToValueAtTime(0.001,when+0.018);
+      ns.connect(nf); nf.connect(ng); toMaster(ng);
+      ns.start(when);
+    }
+    function snare(when){
+      var nBuf=audioCtx.createBuffer(1,audioCtx.sampleRate*0.18,audioCtx.sampleRate);
+      var nd=nBuf.getChannelData(0);
+      for(var i=0;i<nd.length;i++) nd[i]=(Math.random()*2-1);
+      var ns=audioCtx.createBufferSource(); ns.buffer=nBuf;
+      var nf=audioCtx.createBiquadFilter(); nf.type='bandpass';
+      nf.frequency.value=900; nf.Q.value=0.8;
+      var ng=audioCtx.createGain();
+      ng.gain.setValueAtTime(0.22,when);
+      ng.gain.exponentialRampToValueAtTime(0.001,when+0.17);
+      ns.connect(nf); nf.connect(ng); toMaster(ng);
+      ns.start(when);
+    }
+    function hihat(when,vol){
+      var nBuf=audioCtx.createBuffer(1,audioCtx.sampleRate*0.04,audioCtx.sampleRate);
+      var nd=nBuf.getChannelData(0);
+      for(var i=0;i<nd.length;i++) nd[i]=(Math.random()*2-1);
+      var ns=audioCtx.createBufferSource(); ns.buffer=nBuf;
+      var nf=audioCtx.createBiquadFilter(); nf.type='highpass'; nf.frequency.value=7000;
+      var ng=audioCtx.createGain();
+      ng.gain.setValueAtTime(vol||0.09,when);
+      ng.gain.exponentialRampToValueAtTime(0.001,when+0.038);
+      ns.connect(nf); nf.connect(ng); toMaster(ng);
+      ns.start(when);
     }
 
-    /* Layer 1: Deep sub drone — the heartbeat */
-    makeSource(36.7, 'sine',     0.42, 2.5,  120,  0.5);
+    /* Schedule 8 bars of driving 4/4 pattern */
+    var t0=audioCtx.currentTime+0.5;
+    for(var bar=0;bar<8;bar++){
+      var b=t0+bar*beat*4;
+      kick(b);              /* beat 1 */
+      hihat(b+beat*0.5,0.07);
+      hihat(b+beat,0.07);   /* beat 1.5 */
+      snare(b+beat);        /* beat 2 */
+      hihat(b+beat*1.5,0.05);
+      hihat(b+beat*2,0.07);
+      kick(b+beat*2);       /* beat 3 */
+      hihat(b+beat*2.5,0.05);
+      hihat(b+beat*3,0.07);
+      snare(b+beat*3);      /* beat 4 */
+      hihat(b+beat*3.5,0.06);
+      /* Extra kick on beat 2.5 for energy */
+      kick(b+beat*2.5);
+    }
 
-    /* Layer 2: Low cello body — warmth & depth */
-    makeSource(55.0, 'sawtooth', 0.07, 5.0,  280,  2.2);
+    /* ------- LAYER 4: AMBIENT WIND TEXTURE ------- */
+    var wBuf=audioCtx.createBuffer(1,audioCtx.sampleRate*3,audioCtx.sampleRate);
+    var wd=wBuf.getChannelData(0);
+    for(var wi=0;wi<wd.length;wi++) wd[wi]=(Math.random()*2-1)*0.15;
+    var wSrc=audioCtx.createBufferSource();
+    wSrc.buffer=wBuf; wSrc.loop=true;
+    var wFilt=audioCtx.createBiquadFilter();
+    wFilt.type='bandpass'; wFilt.frequency.value=320; wFilt.Q.value=0.4;
+    var wG=audioCtx.createGain(); wG.gain.value=0.04;
+    wSrc.connect(wFilt); wFilt.connect(wG); toMaster(wG); wSrc.start();
 
-    /* Layer 3: Tension cello 5th — harmonic tension */
-    makeSource(82.5, 'sawtooth', 0.05, 6.5,  340,  3.0);
+    /* ------- MASTER FADE IN ------- */
+    masterGain.gain.setValueAtTime(0.0001,audioCtx.currentTime);
+    masterGain.gain.exponentialRampToValueAtTime(0.72,audioCtx.currentTime+1.0);
 
-    /* Layer 4: High shimmer string (3 octaves up, very soft) */
-    var shimmer = makeSource(293, 'triangle', 0.018, 8.0, 1200, 1.5);
-    /* Slow LFO tremolo on shimmer — creates the "breathing" feel */
-    var lfo = audioCtx.createOscillator();
-    lfo.type = 'sine'; lfo.frequency.value = 0.22; /* ~1 breath per 4.5s */
-    var lfoAmt = audioCtx.createGain(); lfoAmt.gain.value = 0.012;
-    lfo.connect(lfoAmt); lfoAmt.connect(shimmer.gain.gain);
-    lfo.start();
-
-    /* Layer 5: Wind breath noise — distant atmosphere */
-    var noiseBuf = audioCtx.createBuffer(1, audioCtx.sampleRate * 4, audioCtx.sampleRate);
-    var nd = noiseBuf.getChannelData(0);
-    for(var i=0;i<nd.length;i++) nd[i]=(Math.random()*2-1)*0.18;
-    var noiseSrc = audioCtx.createBufferSource();
-    noiseSrc.buffer = noiseBuf; noiseSrc.loop = true;
-    var noiseFilter = audioCtx.createBiquadFilter();
-    noiseFilter.type = 'bandpass';
-    noiseFilter.frequency.value = 280; noiseFilter.Q.value = 0.5;
-    var noiseGain = audioCtx.createGain();
-    noiseGain.gain.setValueAtTime(0.0001, audioCtx.currentTime);
-    noiseGain.gain.exponentialRampToValueAtTime(0.055, audioCtx.currentTime + 4.0);
-    noiseSrc.connect(noiseFilter); noiseFilter.connect(noiseGain);
-    noiseGain.connect(masterGain); noiseGain.connect(reverbBus);
-    noiseSrc.start();
-
-    /* Layer 6: Slow harmonic swell LFO — makes it feel "alive" */
-    /* The sub drone pitch slowly wobbles by ~0.4Hz */
-    /* This is the Interstellar trick — very subtle detuning */
-
-    /* Master fade in — slow and cinematic (3.5s to full) */
-    masterGain.gain.setValueAtTime(0.0001, audioCtx.currentTime);
-    masterGain.gain.exponentialRampToValueAtTime(0.68, audioCtx.currentTime + 3.5);
-
-  } catch(e){ console.warn('Audio init failed:', e); }
+  }catch(e){ console.warn('Audio init failed:',e); }
 }
 
-/* ---- AIR HORN STAB (plays when truck appears) ---- */
-/* Two-stage horn: initial honk + decay rumble */
-function playHorn() {
-  if (!audioCtx || !masterGain) return;
-  try {
-    var t = audioCtx.currentTime;
-    /* Main chord: Bb (233Hz) + F (349Hz) — classic truck air horn */
-    [[233, 0.28], [349, 0.20], [175, 0.14]].forEach(function(pair, i) {
-      var o = audioCtx.createOscillator();
-      o.type = 'sawtooth';
-      o.frequency.value = pair[0];
-      /* Slight pitch slide up — truck horn character */
-      o.frequency.setValueAtTime(pair[0] * 0.96, t);
-      o.frequency.linearRampToValueAtTime(pair[0], t + 0.12);
-      var f = audioCtx.createBiquadFilter();
-      f.type = 'lowpass'; f.frequency.value = 1400; f.Q.value = 0.8;
-      var g = audioCtx.createGain();
-      g.gain.setValueAtTime(0.0001, t);
-      g.gain.exponentialRampToValueAtTime(pair[1], t + 0.06);
-      /* Hold → decay: horn held for 0.9s then fades */
-      g.gain.setValueAtTime(pair[1], t + 0.9);
-      g.gain.exponentialRampToValueAtTime(0.001, t + 2.8);
+/* Energetic air horn — fuller chord, held longer */
+function playHorn(){
+  if(!audioCtx||!masterGain) return;
+  try{
+    var t=audioCtx.currentTime;
+    /* Bb major chord: Bb(233) D(294) F(349) — classic truck horn */
+    [[233,0.32],[294,0.22],[349,0.18],[175,0.18]].forEach(function(pair){
+      var o=audioCtx.createOscillator();
+      o.type='sawtooth'; o.frequency.value=pair[0];
+      o.frequency.setValueAtTime(pair[0]*0.94,t);
+      o.frequency.linearRampToValueAtTime(pair[0],t+0.08);
+      var f=audioCtx.createBiquadFilter();
+      f.type='lowpass'; f.frequency.value=1600; f.Q.value=0.9;
+      var g=audioCtx.createGain();
+      g.gain.setValueAtTime(0.0001,t);
+      g.gain.exponentialRampToValueAtTime(pair[1],t+0.05);
+      g.gain.setValueAtTime(pair[1],t+1.1);
+      g.gain.exponentialRampToValueAtTime(0.001,t+3.2);
       o.connect(f); f.connect(g); g.connect(masterGain);
-      o.start(t); o.stop(t + 3.0);
+      o.start(t); o.stop(t+3.4);
     });
-    /* Sub thump on the honk */
-    var thump = audioCtx.createOscillator();
-    thump.type = 'sine'; thump.frequency.value = 58;
-    var tg = audioCtx.createGain();
-    tg.gain.setValueAtTime(0.35, t);
-    tg.gain.exponentialRampToValueAtTime(0.001, t + 0.55);
-    thump.connect(tg); tg.connect(masterGain);
-    thump.start(t); thump.stop(t + 0.6);
-  } catch(e){}
+    /* Sub kick on horn hit */
+    var ko=audioCtx.createOscillator();
+    ko.type='sine'; ko.frequency.value=60;
+    var kg=audioCtx.createGain();
+    kg.gain.setValueAtTime(0.5,t);
+    kg.gain.exponentialRampToValueAtTime(0.001,t+0.5);
+    ko.connect(kg); kg.connect(masterGain);
+    ko.start(t); ko.stop(t+0.55);
+  }catch(e){}
 }
 
-function toggleSound() {
-  soundOn = !soundOn;
-  document.getElementById('slbtxt').textContent = soundOn ? 'Sound On' : 'Sound Off';
-  if (masterGain) {
-    if (soundOn) {
-      masterGain.gain.setValueAtTime(masterGain.gain.value, audioCtx.currentTime);
-      masterGain.gain.exponentialRampToValueAtTime(0.68, audioCtx.currentTime + 0.8);
-    } else {
-      masterGain.gain.setValueAtTime(masterGain.gain.value, audioCtx.currentTime);
-      masterGain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.8);
-    }
+function toggleSound(){
+  soundOn=!soundOn;
+  document.getElementById('slbtxt').textContent=soundOn?'Sound On':'Sound Off';
+  if(masterGain){
+    var now=audioCtx.currentTime;
+    masterGain.gain.cancelScheduledValues(now);
+    masterGain.gain.setValueAtTime(masterGain.gain.value,now);
+    masterGain.gain.exponentialRampToValueAtTime(soundOn?0.72:0.0001,now+0.6);
   }
 }
 
-/* ============================================================
+/* ================================================================
    THREE.JS SCENE
-   ============================================================ */
-var W=window.innerWidth, H=window.innerHeight;
-var renderer, scene, camera, clock;
-var mtGrp, trkGrp, prtGrp, snowPts, cloudGrp;
-var phase=0, cineOn=false;
-var wheelGroups = [];
-/* Store truck Z for use across phases */
-var truckZ = -55;
+   ================================================================ */
+var W=window.innerWidth,H=window.innerHeight;
+var renderer,scene,camera,clock;
+var mtGrp,trkGrp,prtGrp,snowPts,cloudGrp;
+var phase=0,cineOn=false;
+var wheelGroups=[];
 
-function init3() {
-  var cv = document.getElementById('c');
-  renderer = new THREE.WebGLRenderer({canvas:cv, antialias:true, alpha:false});
-  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-  renderer.setSize(W, H);
-  renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-  renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.08;
-  renderer.outputColorSpace = THREE.SRGBColorSpace;
+/* ---- WHEEL ROLLING STATE ----
+   CRITICAL FIX: We do NOT rotate wheels inside GSAP onUpdate.
+   GSAP onUpdate fires at its own internal tick rate which can
+   conflict with the Three.js render loop, causing the animation
+   to appear frozen if GSAP pauses or skips frames.
+   Instead, we use a simple flag + speed variable and rotate
+   wheels only inside the render loop (requestAnimationFrame).
+   This guarantees the truck always visually moves when rendered.
+*/
+var wheelSpin=false;      /* true when truck is moving */
+var wheelSpeed=0.085;     /* radians per frame */
 
-  scene  = new THREE.Scene();
-  scene.background = new THREE.Color(0xd8d6d2);
-  scene.fog = null;
+function init3(){
+  var cv=document.getElementById('c');
+  renderer=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:false});
+  renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+  renderer.setSize(W,H);
+  renderer.shadowMap.enabled=true;
+  renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+  renderer.toneMapping=THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure=1.08;
+  renderer.outputColorSpace=THREE.SRGBColorSpace;
 
-  camera = new THREE.PerspectiveCamera(54, W/H, 0.1, 2000);
-  camera.position.set(0, 90, 50);
-  camera.lookAt(0, 0, -40);
+  scene=new THREE.Scene();
+  scene.background=new THREE.Color(0xd8d6d2);
+  scene.fog=null;
 
-  clock = new THREE.Clock();
+  camera=new THREE.PerspectiveCamera(54,W/H,0.1,2000);
+  camera.position.set(0,90,50);
+  camera.lookAt(0,0,-40);
+
+  clock=new THREE.Clock();
 
   buildLights();
   buildGround();
@@ -940,48 +885,41 @@ function init3() {
   buildSnow();
   buildParts();
 
-  window.addEventListener('resize', function(){
-    W = window.innerWidth; H = window.innerHeight;
-    renderer.setSize(W, H);
-    camera.aspect = W/H;
+  window.addEventListener('resize',function(){
+    W=window.innerWidth;H=window.innerHeight;
+    renderer.setSize(W,H);
+    camera.aspect=W/H;
     camera.updateProjectionMatrix();
   });
-
   loop();
 }
 
-/* ---- LIGHTS ---- */
 function buildLights(){
-  scene.add(new THREE.AmbientLight(0xd0d4de, 0.65));
-  var key = new THREE.DirectionalLight(0xffeedd, 3.0);
-  key.position.set(70, 120, 30);
-  key.castShadow = true;
-  key.shadow.mapSize.set(2048, 2048);
-  key.shadow.camera.near=1; key.shadow.camera.far=600;
-  key.shadow.camera.left=-150; key.shadow.camera.right=150;
-  key.shadow.camera.top=150;  key.shadow.camera.bottom=-150;
-  key.shadow.bias = -0.0008;
+  scene.add(new THREE.AmbientLight(0xd0d4de,0.65));
+  var key=new THREE.DirectionalLight(0xffeedd,3.0);
+  key.position.set(70,120,30);
+  key.castShadow=true;
+  key.shadow.mapSize.set(2048,2048);
+  key.shadow.camera.near=1;key.shadow.camera.far=600;
+  key.shadow.camera.left=-150;key.shadow.camera.right=150;
+  key.shadow.camera.top=150;key.shadow.camera.bottom=-150;
+  key.shadow.bias=-0.0008;
   scene.add(key);
-  scene.add(Object.assign(new THREE.DirectionalLight(0xc0d0ee, 0.55), {position:{x:-65,y:45,z:25}}));
-  scene.add(Object.assign(new THREE.DirectionalLight(0xfff0e8, 0.30), {position:{x:0, y:15,z:-100}}));
-  scene.add(Object.assign(new THREE.DirectionalLight(0xeceefc, 0.18), {position:{x:0, y:-20,z:0}}));
+  scene.add(Object.assign(new THREE.DirectionalLight(0xc0d0ee,0.55),{position:{x:-65,y:45,z:25}}));
+  scene.add(Object.assign(new THREE.DirectionalLight(0xfff0e8,0.30),{position:{x:0,y:15,z:-100}}));
+  scene.add(Object.assign(new THREE.DirectionalLight(0xeceefc,0.18),{position:{x:0,y:-20,z:0}}));
 }
 
-/* ---- GROUND ---- */
 function buildGround(){
-  var g = new THREE.Mesh(
-    new THREE.PlaneGeometry(3000, 3000),
+  var g=new THREE.Mesh(
+    new THREE.PlaneGeometry(3000,3000),
     new THREE.MeshLambertMaterial({color:0xcac8c4})
   );
-  g.rotation.x = -Math.PI/2;
-  g.position.y = -22;
-  g.receiveShadow = true;
-  scene.add(g);
+  g.rotation.x=-Math.PI/2;g.position.y=-22;g.receiveShadow=true;scene.add(g);
 }
 
-/* ---- MOUNTAINS ---- */
 function buildMountains(){
-  mtGrp = new THREE.Group(); scene.add(mtGrp);
+  mtGrp=new THREE.Group();scene.add(mtGrp);
   var defs=[
     {x:-115,z:-65,h:210,r:62,c:0xb4b0aa,s:9},{x:-58,z:-48,h:265,r:52,c:0xc0bcb6,s:8},
     {x:2,z:-95,h:295,r:72,c:0xa8a6a2,s:10},{x:64,z:-58,h:248,r:56,c:0xb0aeaa,s:9},
@@ -990,688 +928,513 @@ function buildMountains(){
     {x:42,z:-158,h:155,r:94,c:0xc8c4c0,s:6}
   ];
   defs.forEach(function(d){
-    var geo = new THREE.ConeGeometry(d.r*.58, d.h, d.s);
-    var pos = geo.attributes.position;
-    for(var i=0; i<pos.count; i++){
-      var y = pos.getY(i), ratio = (y/d.h)+.5;
-      if(ratio>.04 && ratio<.9){
-        var disp = (Math.random()-.5)*d.r*.13*(1-ratio*.75);
-        pos.setX(i, pos.getX(i)+disp);
-        pos.setZ(i, pos.getZ(i)+disp*.55);
+    var geo=new THREE.ConeGeometry(d.r*.58,d.h,d.s);
+    var pos=geo.attributes.position;
+    for(var i=0;i<pos.count;i++){
+      var y=pos.getY(i),ratio=(y/d.h)+.5;
+      if(ratio>.04&&ratio<.9){
+        var disp=(Math.random()-.5)*d.r*.13*(1-ratio*.75);
+        pos.setX(i,pos.getX(i)+disp);pos.setZ(i,pos.getZ(i)+disp*.55);
       }
     }
-    pos.needsUpdate=true; geo.computeVertexNormals();
-    var m = new THREE.Mesh(geo, new THREE.MeshLambertMaterial({color:d.c}));
-    m.position.set(d.x, d.h/2-22, d.z); m.castShadow=true; m.receiveShadow=true; mtGrp.add(m);
-    /* Snow cap */
-    var sc = new THREE.Mesh(
-      new THREE.ConeGeometry(d.r*.17, d.h*.26, d.s),
+    pos.needsUpdate=true;geo.computeVertexNormals();
+    var m=new THREE.Mesh(geo,new THREE.MeshLambertMaterial({color:d.c}));
+    m.position.set(d.x,d.h/2-22,d.z);m.castShadow=true;m.receiveShadow=true;mtGrp.add(m);
+    var sc=new THREE.Mesh(
+      new THREE.ConeGeometry(d.r*.17,d.h*.26,d.s),
       new THREE.MeshLambertMaterial({color:0xeeecea})
     );
-    sc.position.set(d.x, d.h-22-d.h*.13, d.z); mtGrp.add(sc);
+    sc.position.set(d.x,d.h-22-d.h*.13,d.z);mtGrp.add(sc);
   });
 }
 
-/* ---- ROAD ---- */
 function buildRoad(){
-  var rG = new THREE.Group(); scene.add(rG);
-  var asphalt = new THREE.Mesh(
-    new THREE.PlaneGeometry(12, 1200),
+  var rG=new THREE.Group();scene.add(rG);
+  var asphalt=new THREE.Mesh(
+    new THREE.PlaneGeometry(12,1200),
     new THREE.MeshLambertMaterial({color:0x262624})
   );
-  asphalt.rotation.x=-Math.PI/2; asphalt.position.set(0,-21.88,-200); asphalt.receiveShadow=true; rG.add(asphalt);
+  asphalt.rotation.x=-Math.PI/2;asphalt.position.set(0,-21.88,-200);asphalt.receiveShadow=true;rG.add(asphalt);
   [-9,9].forEach(function(x){
-    var sh = new THREE.Mesh(new THREE.PlaneGeometry(9,1200), new THREE.MeshLambertMaterial({color:0xb0a89e}));
-    sh.rotation.x=-Math.PI/2; sh.position.set(x,-21.84,-200); rG.add(sh);
+    var sh=new THREE.Mesh(new THREE.PlaneGeometry(9,1200),new THREE.MeshLambertMaterial({color:0xb0a89e}));
+    sh.rotation.x=-Math.PI/2;sh.position.set(x,-21.84,-200);rG.add(sh);
   });
   [-4.4,4.4].forEach(function(x){
-    var ln = new THREE.Mesh(new THREE.PlaneGeometry(.18,1200), new THREE.MeshBasicMaterial({color:0xe4e4e4}));
-    ln.rotation.x=-Math.PI/2; ln.position.set(x,-21.77,-200); rG.add(ln);
+    var ln=new THREE.Mesh(new THREE.PlaneGeometry(.18,1200),new THREE.MeshBasicMaterial({color:0xe4e4e4}));
+    ln.rotation.x=-Math.PI/2;ln.position.set(x,-21.77,-200);rG.add(ln);
   });
-  var yM = new THREE.MeshBasicMaterial({color:0xeec820});
-  for(var i=0; i<280; i++){
-    var d = new THREE.Mesh(new THREE.PlaneGeometry(.14,2.4),yM);
-    d.rotation.x=-Math.PI/2; d.position.set(0,-21.76,i*4.3-620); rG.add(d);
+  var yM=new THREE.MeshBasicMaterial({color:0xeec820});
+  for(var i=0;i<280;i++){
+    var d=new THREE.Mesh(new THREE.PlaneGeometry(.14,2.4),yM);
+    d.rotation.x=-Math.PI/2;d.position.set(0,-21.76,i*4.3-620);rG.add(d);
   }
 }
 
-/* ---- CLOUDS — volumetric layered cloud system ----
-   Each cloud group has 4–6 sphere blobs scaled into ellipsoids.
-   They drift slowly in the wind. Multiple altitude layers create
-   depth: high cirrus (y=130+) and lower cumulus (y=70–95).
-   Cloud edges pulse very gently for a breathing atmosphere.
-   ============================================================ */
 function buildClouds(){
-  cloudGrp = new THREE.Group(); scene.add(cloudGrp);
-
-  /* High-altitude thin cirrus layer */
-  var cirrusMat = new THREE.MeshLambertMaterial({
-    color:0xf4f2f0, transparent:true, opacity:0.28, depthWrite:false
-  });
-  /* Low cumulus layer */
-  var cumulusMat = new THREE.MeshLambertMaterial({
-    color:0xeeecea, transparent:true, opacity:0.52, depthWrite:false
-  });
-
-  var cloudDefs = [
-    /* LOW CUMULUS — main sky fill */
-    {x:-85,  y:82,  z:-82,  blobs:5, spread:32, mat:cumulusMat, drift:0.032},
-    {x:60,   y:88,  z:-98,  blobs:6, spread:36, mat:cumulusMat, drift:0.028},
-    {x:135,  y:78,  z:-62,  blobs:4, spread:24, mat:cumulusMat, drift:0.035},
-    {x:-148, y:84,  z:-72,  blobs:5, spread:28, mat:cumulusMat, drift:0.022},
-    {x:-38,  y:75,  z:-52,  blobs:4, spread:22, mat:cumulusMat, drift:0.038},
-    {x:95,   y:86,  z:-115, blobs:5, spread:30, mat:cumulusMat, drift:0.026},
-    {x:-105, y:90,  z:-125, blobs:6, spread:34, mat:cumulusMat, drift:0.030},
-    {x:18,   y:80,  z:-148, blobs:5, spread:38, mat:cumulusMat, drift:0.024},
-    /* HIGH CIRRUS — distant wisps */
-    {x:-60,  y:135, z:-110, blobs:3, spread:55, mat:cirrusMat, drift:0.018},
-    {x:80,   y:142, z:-130, blobs:4, spread:62, mat:cirrusMat, drift:0.014},
-    {x:-170, y:138, z:-90,  blobs:3, spread:48, mat:cirrusMat, drift:0.020},
-    {x:160,  y:128, z:-120, blobs:4, spread:58, mat:cirrusMat, drift:0.016},
+  cloudGrp=new THREE.Group();scene.add(cloudGrp);
+  var lowMat=new THREE.MeshLambertMaterial({color:0xeeecea,transparent:true,opacity:0.50,depthWrite:false});
+  var highMat=new THREE.MeshLambertMaterial({color:0xf4f2f0,transparent:true,opacity:0.26,depthWrite:false});
+  var defs=[
+    {x:-85,y:80,z:-82, blobs:5,spread:32,mat:lowMat, drift:0.030},
+    {x:60, y:88,z:-98, blobs:6,spread:36,mat:lowMat, drift:0.025},
+    {x:135,y:76,z:-62, blobs:4,spread:24,mat:lowMat, drift:0.033},
+    {x:-148,y:84,z:-72,blobs:5,spread:28,mat:lowMat, drift:0.022},
+    {x:-38,y:74,z:-52, blobs:4,spread:22,mat:lowMat, drift:0.036},
+    {x:95, y:86,z:-115,blobs:5,spread:30,mat:lowMat, drift:0.028},
+    {x:-105,y:90,z:-125,blobs:6,spread:34,mat:lowMat,drift:0.030},
+    {x:18, y:78,z:-148,blobs:5,spread:38,mat:lowMat, drift:0.024},
+    {x:-60, y:132,z:-110,blobs:3,spread:55,mat:highMat,drift:0.016},
+    {x:80,  y:140,z:-130,blobs:4,spread:62,mat:highMat,drift:0.012},
+    {x:-170,y:136,z:-90, blobs:3,spread:48,mat:highMat,drift:0.018},
+    {x:160, y:128,z:-120,blobs:4,spread:58,mat:highMat,drift:0.014},
   ];
-
-  cloudDefs.forEach(function(cd, ci){
-    var cg = new THREE.Group();
-    cg.position.set(cd.x, cd.y, cd.z);
-    cg.userData.driftX  = (Math.random() > 0.5 ? 1 : -1) * cd.drift;
-    cg.userData.driftZ  = (Math.random() - 0.5) * cd.drift * 0.3;
-    cg.userData.phase   = ci * 0.88;
-    cg.userData.bobAmp  = 0.008 + Math.random() * 0.012;
-
-    for(var b=0; b<cd.blobs; b++){
-      var bx = (Math.random()-0.5) * cd.spread;
-      var by = (Math.random()-0.5) * (cd.mat === cirrusMat ? 4 : 9);
-      var bz = (Math.random()-0.5) * cd.spread * 0.35;
-      /* Scale: wider than tall — flat cumulus look */
-      var rx = 18 + Math.random() * 22;
-      var ry = cd.mat === cirrusMat ? (3 + Math.random()*4) : (7 + Math.random()*9);
-      var rz = 15 + Math.random() * 18;
-      var blob = new THREE.Mesh(new THREE.SphereGeometry(1, 7, 5), cd.mat);
-      blob.scale.set(rx, ry, rz);
-      blob.position.set(bx, by, bz);
-      cg.add(blob);
+  defs.forEach(function(cd,ci){
+    var cg=new THREE.Group();
+    cg.position.set(cd.x,cd.y,cd.z);
+    cg.userData.driftX=(Math.random()>.5?1:-1)*cd.drift;
+    cg.userData.driftZ=(Math.random()-.5)*cd.drift*0.3;
+    cg.userData.phase=ci*0.88;
+    cg.userData.bobAmp=0.008+Math.random()*0.010;
+    for(var b=0;b<cd.blobs;b++){
+      var bx2=(Math.random()-.5)*cd.spread;
+      var by2=(Math.random()-.5)*(cd.mat===highMat?4:9);
+      var bz2=(Math.random()-.5)*cd.spread*0.35;
+      var rx=18+Math.random()*22,ry=cd.mat===highMat?3+Math.random()*4:7+Math.random()*9,rz=15+Math.random()*18;
+      var blob=new THREE.Mesh(new THREE.SphereGeometry(1,7,5),cd.mat);
+      blob.scale.set(rx,ry,rz);blob.position.set(bx2,by2,bz2);cg.add(blob);
     }
     cloudGrp.add(cg);
   });
 }
 
-/* ---- TRUCK ----
-   WHEEL ROLLING FIX EXPLAINED:
-   The truck group faces the -Z direction (built looking toward -Z).
-   When it moves in the +Z direction (coming toward camera), the
-   wheels must roll FORWARD.
-
-   A wheel axle runs along the WORLD X direction.
-   "Forward roll" for a wheel whose axle is X = rotation around X axis.
-   Using the right-hand rule: positive rotation around X rotates the
-   top of the wheel AWAY from us — which is "forward" when the truck
-   moves toward us (+Z direction).
-
-   HOWEVER: the tyre (TorusGeometry) and rim (CylinderGeometry) are
-   both children of a wheelGroup. That wheelGroup sits at axle position.
-   We rotate the ENTIRE wheelGroup.rotation.x += speed in the loop.
-
-   The tyre was previously built with rotation.y = PI/2 (to align the
-   torus hole with the X axis). This is correct — the torus now rolls
-   around its correct axis. Rotating the PARENT GROUP around X means
-   the tyre spins correctly.
-
-   This is the fix from the original: the wheel group's X rotation
-   was being set but the geometry inside wasn't oriented to show
-   visible rolling. Now the tyre is aligned properly inside the group.
-   ============================================================ */
 function buildTruck(){
-  trkGrp = new THREE.Group();
-  trkGrp.visible = false;
-  scene.add(trkGrp);
-  wheelGroups = [];
-
-  var m = {
-    red : new THREE.MeshLambertMaterial({color:0xcc3300}),
-    redD: new THREE.MeshLambertMaterial({color:0xa82800}),
-    chr : new THREE.MeshLambertMaterial({color:0xc4ccd8}),
-    chrD: new THREE.MeshLambertMaterial({color:0x8898aa}),
-    gls : new THREE.MeshLambertMaterial({color:0x78aec0,transparent:true,opacity:.55}),
-    blu : new THREE.MeshLambertMaterial({color:0x1a2858}),
-    bluD: new THREE.MeshLambertMaterial({color:0x10203e}),
-    blk : new THREE.MeshLambertMaterial({color:0x121212}),
-    dkg : new THREE.MeshLambertMaterial({color:0x242424}),
-    org : new THREE.MeshLambertMaterial({color:0xff5500}),
-    wht : new THREE.MeshLambertMaterial({color:0xf0f0ec}),
-    rub : new THREE.MeshLambertMaterial({color:0x111111}),
-    rim : new THREE.MeshLambertMaterial({color:0xaab8c4}),
-    ylw : new THREE.MeshLambertMaterial({color:0xecc020}),
-    hl  : new THREE.MeshLambertMaterial({color:0xfff6d8})
+  trkGrp=new THREE.Group();trkGrp.visible=false;scene.add(trkGrp);
+  wheelGroups=[];
+  var m={
+    red:new THREE.MeshLambertMaterial({color:0xcc3300}),
+    redD:new THREE.MeshLambertMaterial({color:0xa82800}),
+    chr:new THREE.MeshLambertMaterial({color:0xc4ccd8}),
+    chrD:new THREE.MeshLambertMaterial({color:0x8898aa}),
+    gls:new THREE.MeshLambertMaterial({color:0x78aec0,transparent:true,opacity:.55}),
+    blu:new THREE.MeshLambertMaterial({color:0x1a2858}),
+    bluD:new THREE.MeshLambertMaterial({color:0x10203e}),
+    blk:new THREE.MeshLambertMaterial({color:0x121212}),
+    dkg:new THREE.MeshLambertMaterial({color:0x242424}),
+    org:new THREE.MeshLambertMaterial({color:0xff5500}),
+    wht:new THREE.MeshLambertMaterial({color:0xf0f0ec}),
+    rub:new THREE.MeshLambertMaterial({color:0x111111}),
+    rim:new THREE.MeshLambertMaterial({color:0xaab8c4}),
+    ylw:new THREE.MeshLambertMaterial({color:0xecc020}),
+    hl:new THREE.MeshLambertMaterial({color:0xfff6d8})
   };
-
   function bx(w,h,d,mat,px,py,pz){
     var o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat);
-    o.position.set(px,py,pz); o.castShadow=true; o.receiveShadow=true; trkGrp.add(o); return o;
+    o.position.set(px,py,pz);o.castShadow=true;o.receiveShadow=true;trkGrp.add(o);return o;
   }
   function cy(rt,rb,h,seg,mat,px,py,pz,rx,rz){
     var o=new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,h,seg),mat);
     o.position.set(px,py,pz);
-    if(rx!==undefined) o.rotation.x=rx;
-    if(rz!==undefined) o.rotation.z=rz;
-    o.castShadow=true; trkGrp.add(o); return o;
+    if(rx!==undefined)o.rotation.x=rx;
+    if(rz!==undefined)o.rotation.z=rz;
+    o.castShadow=true;trkGrp.add(o);return o;
   }
-
-  /* chassis & trailer */
   bx(3.2,.26,18,m.dkg,0,.08,-4.5);
-  bx(3.65,2.7,11,m.blu,0,2.85,-6); bx(3.7,.14,11.1,m.bluD,0,4.22,-6);
-  bx(3.67,.44,11.02,m.org,0,1.82,-6); bx(3.67,.11,11.02,m.wht,0,1.54,-6);
-  bx(3.6,2.7,.09,m.bluD,0,2.85,-11.54); bx(1.18,.25,.09,m.red,-1.42,1.32,-11.56);
-  bx(1.18,.25,.09,m.red,1.42,1.32,-11.56); bx(.48,.21,.09,m.ylw,0,1.32,-11.56);
-  bx(3.7,.48,.52,m.dkg,0,.5,-11.48); bx(3.5,.33,11,m.blk,0,-.07,-6);
-  /* cab */
-  bx(3.45,3.32,4.0,m.red,0,2.32,1.2); bx(3.25,1.14,2.5,m.redD,0,4.07,.35);
-  bx(3.32,.73,.88,m.redD,0,5.18,1.8); bx(2.75,1.54,.06,m.gls,0,2.74,3.22);
-  bx(2.42,1.14,.11,m.blk,0,1.56,3.22); bx(2.52,1.24,.09,m.chr,0,1.56,3.24);
-  for(var gi=0;gi<4;gi++) bx(2.4,.065,.13,m.chrD,0,1.16+gi*.28,3.23);
+  bx(3.65,2.7,11,m.blu,0,2.85,-6);bx(3.7,.14,11.1,m.bluD,0,4.22,-6);
+  bx(3.67,.44,11.02,m.org,0,1.82,-6);bx(3.67,.11,11.02,m.wht,0,1.54,-6);
+  bx(3.6,2.7,.09,m.bluD,0,2.85,-11.54);bx(1.18,.25,.09,m.red,-1.42,1.32,-11.56);
+  bx(1.18,.25,.09,m.red,1.42,1.32,-11.56);bx(.48,.21,.09,m.ylw,0,1.32,-11.56);
+  bx(3.7,.48,.52,m.dkg,0,.5,-11.48);bx(3.5,.33,11,m.blk,0,-.07,-6);
+  bx(3.45,3.32,4.0,m.red,0,2.32,1.2);bx(3.25,1.14,2.5,m.redD,0,4.07,.35);
+  bx(3.32,.73,.88,m.redD,0,5.18,1.8);bx(2.75,1.54,.06,m.gls,0,2.74,3.22);
+  bx(2.42,1.14,.11,m.blk,0,1.56,3.22);bx(2.52,1.24,.09,m.chr,0,1.56,3.24);
+  for(var gi=0;gi<4;gi++)bx(2.4,.065,.13,m.chrD,0,1.16+gi*.28,3.23);
   bx(1.08,.41,.09,m.chr,0,2.29,3.24);
-  bx(.76,.41,.09,m.hl,1.14,1.29,3.24); bx(.76,.41,.09,m.hl,-1.14,1.29,3.24);
+  bx(.76,.41,.09,m.hl,1.14,1.29,3.24);bx(.76,.41,.09,m.hl,-1.14,1.29,3.24);
   bx(2.28,.09,.09,m.hl,0,1.73,3.23);
-  bx(.41,.27,.07,m.ylw,1.34,.97,3.23); bx(.41,.27,.07,m.ylw,-1.34,.97,3.23);
-  bx(3.52,.61,.63,m.chr,0,.79,3.14); bx(3.52,.17,.48,m.dkg,0,.47,3.1);
-  bx(.47,.54,.35,m.blk,-1.3,2.67,3.12); bx(.47,.54,.35,m.blk,1.3,2.67,3.12);
-  bx(.11,.09,1.22,m.dkg,-1.94,3.02,2.58); bx(.11,.09,1.22,m.dkg,1.94,3.02,2.58);
-  bx(.68,.48,.19,m.redD,-2.48,3.02,2.1); bx(.68,.48,.19,m.redD,2.48,3.02,2.1);
-  cy(.09,.11,3.2,10,m.chr,1.54,3.88,.2); cy(.17,0,.27,10,m.chr,1.54,5.52,.2);
+  bx(.41,.27,.07,m.ylw,1.34,.97,3.23);bx(.41,.27,.07,m.ylw,-1.34,.97,3.23);
+  bx(3.52,.61,.63,m.chr,0,.79,3.14);bx(3.52,.17,.48,m.dkg,0,.47,3.1);
+  bx(.47,.54,.35,m.blk,-1.3,2.67,3.12);bx(.47,.54,.35,m.blk,1.3,2.67,3.12);
+  bx(.11,.09,1.22,m.dkg,-1.94,3.02,2.58);bx(.11,.09,1.22,m.dkg,1.94,3.02,2.58);
+  bx(.68,.48,.19,m.redD,-2.48,3.02,2.1);bx(.68,.48,.19,m.redD,2.48,3.02,2.1);
+  cy(.09,.11,3.2,10,m.chr,1.54,3.88,.2);cy(.17,0,.27,10,m.chr,1.54,5.52,.2);
   cy(.51,.51,1.5,14,m.dkg,1.94,.73,-1.5,undefined,Math.PI/2);
-  bx(.54,.14,1.88,m.blk,1.9,.27,1.1); bx(.54,.14,1.88,m.blk,-1.9,.27,1.1);
-  bx(1.18,.34,.78,m.dkg,0,.28,-1.38); bx(1.58,.14,1.18,m.chrD,0,.44,-1.58);
-  /* axle bars */
-  [-2.6,-5.0].forEach(function(z){ bx(5.1,.17,.17,m.dkg,0,.88,z); });
-  /* hub discs */
+  bx(.54,.14,1.88,m.blk,1.9,.27,1.1);bx(.54,.14,1.88,m.blk,-1.9,.27,1.1);
+  bx(1.18,.34,.78,m.dkg,0,.28,-1.38);bx(1.58,.14,1.18,m.chrD,0,.44,-1.58);
+  [-2.6,-5.0].forEach(function(z){bx(5.1,.17,.17,m.dkg,0,.88,z);});
   [-2.6,-5.0].forEach(function(z){
-    [-2.12,2.12].forEach(function(x){ cy(.68,.68,.48,16,m.chrD,x,.88,z,undefined,Math.PI/2); });
+    [-2.12,2.12].forEach(function(x){cy(.68,.68,.48,16,m.chrD,x,.88,z,undefined,Math.PI/2);});
   });
 
-  /* ================================================================
-     WHEEL GROUPS — CORRECT ROLLING SETUP
-     ================================================================
-     Each wheel is a THREE.Group positioned at the axle center.
-     The tyre (Torus) is built so its HOLE points along the X axis:
-       - TorusGeometry default: hole is along Z axis
-       - We rotate it 90° around Y → hole now points along X
-     The rim (Cylinder) axis is Y by default:
-       - We rotate it 90° around Z → axis now points along X
-     Both tyre and rim are children of the wheelGroup.
-     In the animation loop we do: wheelGroup.rotation.x += speed
-     This spins the entire wheel (tyre + rim + bolts) around X,
-     which IS the axle direction → correct forward rolling motion.
-     The visual "spinning" is now visible because the tyre tread
-     (the torus tube cross-section) orbits around the X axis.
-  ================================================================ */
-  var wDefs = [
-    {x:-1.97, y:.74,  z: 2.44, big:false},
-    {x: 1.97, y:.74,  z: 2.44, big:false},
-    {x:-2.11, y:.88,  z:-2.6,  big:true },
-    {x: 2.11, y:.88,  z:-2.6,  big:true },
-    {x:-2.21, y:.88,  z:-2.6,  big:true },
-    {x: 2.21, y:.88,  z:-2.6,  big:true },
-    {x:-2.11, y:.88,  z:-5.0,  big:true },
-    {x: 2.11, y:.88,  z:-5.0,  big:true },
-    {x:-2.21, y:.88,  z:-5.0,  big:true },
-    {x: 2.21, y:.88,  z:-5.0,  big:true }
+  /* ---- WHEEL GROUPS ---- */
+  var wDefs=[
+    {x:-1.97,y:.74, z:2.44, big:false},
+    {x:1.97, y:.74, z:2.44, big:false},
+    {x:-2.11,y:.88,z:-2.6, big:true},
+    {x:2.11, y:.88,z:-2.6, big:true},
+    {x:-2.21,y:.88,z:-2.6, big:true},
+    {x:2.21, y:.88,z:-2.6, big:true},
+    {x:-2.11,y:.88,z:-5.0, big:true},
+    {x:2.11, y:.88,z:-5.0, big:true},
+    {x:-2.21,y:.88,z:-5.0, big:true},
+    {x:2.21, y:.88,z:-5.0, big:true}
   ];
-
   wDefs.forEach(function(wp){
-    var wr  = wp.big ? 0.87 : 0.71;
-    var wth = wp.big ? 0.51 : 0.41;
-    var side = (wp.x < 0) ? -1 : 1;
-
-    /* The wheel group — rotation.x will be driven in the loop */
-    var wg = new THREE.Group();
-    wg.position.set(wp.x, wp.y, wp.z);
+    var wr=wp.big?0.87:0.71,wth=wp.big?0.51:0.41;
+    var side=wp.x<0?-1:1;
+    var wg=new THREE.Group();
+    wg.position.set(wp.x,wp.y,wp.z);
     trkGrp.add(wg);
     wheelGroups.push(wg);
-
-    /* TYRE — TorusGeometry default ring is in the XY plane (hole along Z).
-       Rotate 90° around Y so the hole points along X (the axle direction).
-       Now when we spin the parent group around X, the tyre tread visibly rolls. */
-    var tire = new THREE.Mesh(
-      new THREE.TorusGeometry(wr * 0.62, wr * 0.34, 16, 42),
-      m.rub
-    );
-    tire.rotation.y = Math.PI / 2;
-    wg.add(tire);
-
-    /* RIM — CylinderGeometry axis is Y. Rotate 90° around Z → axis along X. */
-    var rim = new THREE.Mesh(
-      new THREE.CylinderGeometry(wr * 0.54, wr * 0.54, wth, 20),
-      m.rim
-    );
-    rim.rotation.z = Math.PI / 2;
-    wg.add(rim);
-
-    /* TYRE INNER WALL (visible from side — gives depth) */
-    var inner = new THREE.Mesh(
-      new THREE.CylinderGeometry(wr * 0.58, wr * 0.58, wth * 0.9, 20),
-      m.blk
-    );
-    inner.rotation.z = Math.PI / 2;
-    wg.add(inner);
-
-    /* HUB CAP — outer face */
-    var hc = new THREE.Mesh(new THREE.CircleGeometry(wr * 0.30, 16), m.chr);
-    hc.rotation.y = Math.PI / 2;
-    hc.position.x = side * (wth / 2 + 0.02);
-    wg.add(hc);
-
-    /* HUB RIM RING */
-    var hr = new THREE.Mesh(
-      new THREE.TorusGeometry(wr * 0.30, 0.04, 8, 20),
-      m.chrD
-    );
-    hr.rotation.y = Math.PI / 2;
-    hr.position.x = side * (wth / 2 + 0.01);
-    wg.add(hr);
-
-    /* 6 WHEEL BOLTS — arranged around hub */
-    for(var b=0; b<6; b++){
-      var ba = b / 6 * Math.PI * 2;
-      var br = wr * 0.21;
-      var bolt = new THREE.Mesh(new THREE.CylinderGeometry(.04, .04, .24, 6), m.chrD);
-      bolt.rotation.z = Math.PI / 2;
-      bolt.position.set(side * (wth / 2 + 0.06), Math.sin(ba) * br, Math.cos(ba) * br);
+    /* Tyre: rotate around Y so torus hole faces X (axle direction) */
+    var tire=new THREE.Mesh(new THREE.TorusGeometry(wr*.62,wr*.34,16,42),m.rub);
+    tire.rotation.y=Math.PI/2; wg.add(tire);
+    /* Rim: cylinder axis along X */
+    var rim=new THREE.Mesh(new THREE.CylinderGeometry(wr*.54,wr*.54,wth,20),m.rim);
+    rim.rotation.z=Math.PI/2; wg.add(rim);
+    /* Inner wall */
+    var inner=new THREE.Mesh(new THREE.CylinderGeometry(wr*.58,wr*.58,wth*.9,20),m.blk);
+    inner.rotation.z=Math.PI/2; wg.add(inner);
+    /* Hub cap */
+    var hc=new THREE.Mesh(new THREE.CircleGeometry(wr*.30,16),m.chr);
+    hc.rotation.y=Math.PI/2;hc.position.x=side*(wth/2+0.02);wg.add(hc);
+    /* Bolts */
+    for(var b=0;b<6;b++){
+      var ba=b/6*Math.PI*2,br=wr*.21;
+      var bolt=new THREE.Mesh(new THREE.CylinderGeometry(.04,.04,.24,6),m.chrD);
+      bolt.rotation.z=Math.PI/2;
+      bolt.position.set(side*(wth/2+0.06),Math.sin(ba)*br,Math.cos(ba)*br);
       wg.add(bolt);
     }
-
-    /* VALVE STEM — subtle realism */
-    var valve = new THREE.Mesh(new THREE.CylinderGeometry(.02,.02,.18,6), m.chrD);
-    valve.rotation.z = Math.PI / 2;
-    valve.position.set(side * (wth * 0.6), wr * 0.62, 0);
-    wg.add(valve);
   });
-
-  trkGrp.position.set(0, -21.8, -55);
+  trkGrp.position.set(0,-21.8,-55);
 }
 
-/* ---- SNOW ---- */
 function buildSnow(){
-  var cnt = 1400, pos = new Float32Array(cnt*3);
-  for(var i=0; i<cnt; i++){
-    pos[i*3]   = (Math.random()-.5)*400;
-    pos[i*3+1] = -20 + Math.random()*230;
-    pos[i*3+2] = (Math.random()-.5)*400;
+  var cnt=1400,pos=new Float32Array(cnt*3);
+  for(var i=0;i<cnt;i++){
+    pos[i*3]=(Math.random()-.5)*400;
+    pos[i*3+1]=-20+Math.random()*230;
+    pos[i*3+2]=(Math.random()-.5)*400;
   }
-  var geo = new THREE.BufferGeometry();
-  geo.setAttribute('position', new THREE.Float32BufferAttribute(pos,3));
-  snowPts = new THREE.Points(geo, new THREE.PointsMaterial({
-    color:0xfcfcfc, size:.55, transparent:true, opacity:.72
-  }));
+  var geo=new THREE.BufferGeometry();
+  geo.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));
+  snowPts=new THREE.Points(geo,new THREE.PointsMaterial({color:0xfcfcfc,size:.55,transparent:true,opacity:.72}));
   scene.add(snowPts);
 }
 
-/* ---- PARTS EXPLOSION ---- */
 function buildParts(){
-  prtGrp = new THREE.Group(); prtGrp.visible = false; scene.add(prtGrp);
-  var st   = new THREE.MeshLambertMaterial({color:0xaebbc8});
-  var stD  = new THREE.MeshLambertMaterial({color:0x788898});
-  var chr2 = new THREE.MeshLambertMaterial({color:0xc8d2dc});
-  var brs2 = new THREE.MeshLambertMaterial({color:0xc4a030});
-  var rub2 = new THREE.MeshLambertMaterial({color:0x181818});
-  var cst  = new THREE.MeshLambertMaterial({color:0x464840});
+  prtGrp=new THREE.Group();prtGrp.visible=false;scene.add(prtGrp);
+  var st=new THREE.MeshLambertMaterial({color:0xaebbc8});
+  var stD=new THREE.MeshLambertMaterial({color:0x788898});
+  var chr2=new THREE.MeshLambertMaterial({color:0xc8d2dc});
+  var brs2=new THREE.MeshLambertMaterial({color:0xc4a030});
+  var rub2=new THREE.MeshLambertMaterial({color:0x181818});
+  var cst=new THREE.MeshLambertMaterial({color:0x464840});
   function obj(geo,mat){var mx=new THREE.Mesh(geo,mat);mx.castShadow=true;return mx;}
   var defs=[];
-
-  /* Bearing */
   var bear=new THREE.Group();
   bear.add(obj(new THREE.TorusGeometry(3,.9,18,52),st));
   bear.add(obj(new THREE.TorusGeometry(1.65,.7,16,44),chr2));
   bear.add(obj(new THREE.TorusGeometry(2.24,.22,8,44),brs2));
   for(var b=0;b<8;b++){var ba=b/8*Math.PI*2,sp=obj(new THREE.SphereGeometry(.28,10,8),chr2);sp.position.set(Math.cos(ba)*2.24,Math.sin(ba)*2.24,0);bear.add(sp);}
-  var bore=obj(new THREE.CylinderGeometry(.72,.72,.38,20),stD);bore.rotation.x=Math.PI/2;bear.add(bore);
+  bear.add(Object.assign(obj(new THREE.CylinderGeometry(.72,.72,.38,20),stD),{rotation:{x:Math.PI/2,y:0,z:0}}));
   defs.push({g:bear});
-
-  /* Clutch plate */
   var clu=new THREE.Group();
   clu.add(obj(new THREE.CylinderGeometry(3.82,3.82,.27,38),cst));
   clu.add(obj(new THREE.CylinderGeometry(1.12,1.12,.55,20),stD));
   for(var cs=0;cs<6;cs++){var csa=cs/6*Math.PI*2,csm=obj(new THREE.CylinderGeometry(.17,.17,.28,8),brs2);csm.position.set(Math.cos(csa)*1.9,0,Math.sin(csa)*1.9);clu.add(csm);}
   var fr=obj(new THREE.TorusGeometry(2.92,.54,5,38),rub2);fr.rotation.x=Math.PI/2;clu.add(fr);
   defs.push({g:clu});
-
-  /* Universal joint */
   var uni=new THREE.Group();
-  var uc1=obj(new THREE.CylinderGeometry(.44,.44,4.2,12),stD); uni.add(uc1);
-  var uc2=obj(new THREE.CylinderGeometry(.44,.44,4.2,12),stD); uc2.rotation.z=Math.PI/2; uni.add(uc2);
-  var yk =obj(new THREE.BoxGeometry(1.2,.58,3.5),st); yk.position.z=-2.5;  uni.add(yk);
-  var yk2=obj(new THREE.BoxGeometry(1.2,.58,3.5),st); yk2.position.z=2.5; uni.add(yk2);
+  uni.add(obj(new THREE.CylinderGeometry(.44,.44,4.2,12),stD));
+  var uc2=obj(new THREE.CylinderGeometry(.44,.44,4.2,12),stD);uc2.rotation.z=Math.PI/2;uni.add(uc2);
+  var yk=obj(new THREE.BoxGeometry(1.2,.58,3.5),st);yk.position.z=-2.5;uni.add(yk);
+  var yk2=obj(new THREE.BoxGeometry(1.2,.58,3.5),st);yk2.position.z=2.5;uni.add(yk2);
   defs.push({g:uni});
-
-  /* Leaf spring */
   var spr=new THREE.Group();
   [9,8.2,7.4,6.6,5.8].forEach(function(l,i){var lf=obj(new THREE.BoxGeometry(l,.27,.88),cst);lf.position.y=i*.27;spr.add(lf);});
-  spr.rotation.z=.28; defs.push({g:spr});
-
-  /* Piston */
+  spr.rotation.z=.28;defs.push({g:spr});
   var pis=new THREE.Group();
   pis.add(obj(new THREE.CylinderGeometry(1.58,1.54,3.82,24),st));
   [.82,1.26,1.6].forEach(function(y){var rg=obj(new THREE.TorusGeometry(1.58,.075,6,28),brs2);rg.rotation.x=Math.PI/2;rg.position.y=y;pis.add(rg);});
   defs.push({g:pis});
-
-  /* Brake drum */
   var bdr=new THREE.Group();
   bdr.add(obj(new THREE.CylinderGeometry(4.2,4.2,.88,34),cst));
   var lp=obj(new THREE.TorusGeometry(4.2,.19,7,34),stD);lp.rotation.x=Math.PI/2;lp.position.y=.44;bdr.add(lp);
   defs.push({g:bdr});
-
-  prtGrp.userData.parts = [];
+  prtGrp.userData.parts=[];
   defs.forEach(function(d,i){
-    var ang = i/defs.length*Math.PI*2, rad = 18+Math.random()*6;
-    d.g.userData.tgt = {
-      x: Math.cos(ang)*rad + (Math.random()-.5)*5,
-      y: 2 + Math.random()*8,
-      z: Math.sin(ang)*rad*.7 + (Math.random()-.5)*5
-    };
-    d.g.userData.flo = Math.random()*Math.PI*2;
+    var ang=i/defs.length*Math.PI*2,rad=18+Math.random()*6;
+    d.g.userData.tgt={x:Math.cos(ang)*rad+(Math.random()-.5)*5,y:2+Math.random()*8,z:Math.sin(ang)*rad*.7+(Math.random()-.5)*5};
+    d.g.userData.flo=Math.random()*Math.PI*2;
     d.g.scale.set(0,0,0);
-    prtGrp.add(d.g);
-    prtGrp.userData.parts.push(d.g);
+    prtGrp.add(d.g);prtGrp.userData.parts.push(d.g);
   });
 }
 
-/* ============================================================
-   CINEMATIC PHASES
-   Scene durations (tightened as requested):
-   S1: 7s  S2: 8s  S3: 9s  S4: 6s  S5: infinite
-   ============================================================ */
-var $hud    = document.getElementById('hud');
-var $pg     = document.getElementById('pg');
-var $slbl   = document.getElementById('slbl');
-var $srhint = document.getElementById('srhint');
-function setPg(p){ $pg.style.width = p+'%'; }
-function setLbl(n){ $slbl.textContent = 'Scene 0'+n+' / 05'; }
-function show(id){ var e=document.getElementById(id); if(e) e.classList.add('show'); }
-function hide(id){ var e=document.getElementById(id); if(e) e.classList.remove('show'); }
+/* ================================================================
+   CINEMATIC PHASE CONTROLLER
+   THE CRITICAL FIX FOR SCENE FREEZING:
+   Old code put camera.lookAt() inside GSAP onUpdate callbacks.
+   When the GSAP tween for the truck position finished, the
+   lookAt stopped being called, leaving the camera static.
+   The scene "appeared" frozen because nothing was updating.
+   
+   New approach: camera target is tracked as a THREE.Vector3
+   that we lerp toward in the render loop. GSAP only animates
+   the camera POSITION. The render loop always calls lookAt
+   toward the current lerp target. This means even after a
+   GSAP tween ends, the camera keeps looking at the right thing.
+   ================================================================ */
+var camTarget=new THREE.Vector3(0,0,-40);
+var camLookAt=new THREE.Vector3(0,0,-40);
+
+var $hud=document.getElementById('hud');
+var $pg=document.getElementById('pg');
+var $slbl=document.getElementById('slbl');
+var $srhint=document.getElementById('srhint');
+function setPg(p){$pg.style.width=p+'%';}
+function setLbl(n){$slbl.textContent='Scene 0'+n+' / 05';}
+function show(id){var e=document.getElementById(id);if(e)e.classList.add('show');}
+function hide(id){var e=document.getElementById(id);if(e)e.classList.remove('show');}
 
 function startCine(){
   initAudio();
   document.getElementById('intro').classList.add('gone');
-  setTimeout(function(){ document.getElementById('intro').style.display='none'; }, 1000);
-  $hud.style.display = 'block';
-  cineOn = true; phase = 1; p1();
+  setTimeout(function(){document.getElementById('intro').style.display='none';},1000);
+  $hud.style.display='block';
+  cineOn=true;phase=1;p1();
 }
 
-/* ----- PHASE 1: Mountain panorama — 7 seconds ----- */
+/* === PHASE 1: Mountain reveal — 7s === */
 function p1(){
-  setLbl(1); setPg(5);
+  setLbl(1);setPg(5);
   $srhint.classList.remove('gone');
-  scene.fog = new THREE.FogExp2(0xd8d6d2, 0.016);
-
-  gsap.to(camera.position, {
-    x:18, y:105, z:55, duration:4.5, ease:'power2.inOut',
-    onUpdate:function(){ camera.lookAt(0, 0, -55); }
-  });
-  setTimeout(function(){ show('s1'); setPg(16); }, 800);
-  setTimeout(function(){ if(phase===1){ hide('s1'); p2(); } }, 7000);
+  scene.fog=new THREE.FogExp2(0xd8d6d2,0.016);
+  camTarget.set(0,0,-55);
+  gsap.to(camera.position,{x:18,y:105,z:55,duration:5,ease:'power2.inOut'});
+  setTimeout(function(){show('s1');setPg(16);},800);
+  setTimeout(function(){if(phase===1){hide('s1');p2();}},7000);
 }
 
-/* ----- PHASE 2: Truck drives in — 8 seconds ----- */
+/* === PHASE 2: Truck drives — 8s ===
+   THE SCENE-FREEZE FIX:
+   1. wheelSpin flag drives rotation in render loop — not here
+   2. camTarget is updated via a plain setInterval every 60ms
+      so the render loop always has a fresh lookAt target
+   3. The GSAP tween only moves camera.position — that's all
+   4. After tween, wheelSpin=false stops wheels, p3() fires
+*/
 function p2(){
-  phase=2; setLbl(2); setPg(23);
+  phase=2;setLbl(2);setPg(23);
   $srhint.classList.add('gone');
-  scene.fog = new THREE.FogExp2(0xd8d6d2, 0.004);
+  scene.fog=new THREE.FogExp2(0xd8d6d2,0.004);
+  trkGrp.position.set(0,-21.8,-55);
+  trkGrp.visible=true;
+  wheelSpin=true; /* render loop will rotate wheels */
+  camTarget.set(0,3.5,-55);
+  camera.position.set(28,5.5,10);
+  show('s2');setPg(42);
+  setTimeout(function(){playHorn();},300);
 
-  trkGrp.position.set(0, -21.8, -55);
-  trkGrp.rotation.y = 0;
-  trkGrp.visible = true;
-  truckZ = -55; /* reset tracker */
-
-  /* Camera: side angle, low — cinematic truck arrival */
-  camera.position.set(28, 5.5, 10);
-  camera.lookAt(0, 2, -55);
-
-  show('s2'); setPg(42);
-
-  setTimeout(function(){ playHorn(); }, 350);
-
-  var pos = {z: -55};
-  gsap.to(pos, {
-    z: 18, duration:8, ease:'power1.inOut',
-    onUpdate: function(){
-      trkGrp.position.z = pos.z;
-      truckZ = pos.z;
-      camera.lookAt(trkGrp.position.x, trkGrp.position.y + 3.5, trkGrp.position.z);
-
-      /* WHEEL ROLLING — rotate around X axis (axle direction)
-         Speed tuned to match visual ground speed:
-         truck moves ~73 units in 8s = ~9.1 units/sec
-         wheel radius ~0.87 units → circumference ~5.46
-         rotations/sec = 9.1/5.46 ≈ 1.67 rot/s = 0.028 rad/frame at 60fps
-         We use 0.09 as a slightly exaggerated cinematic value */
-      wheelGroups.forEach(function(wg){
-        wg.rotation.x += 0.09;
-      });
-
-      /* Subtle truck body suspension bounce */
-      trkGrp.position.y = -21.8 + Math.sin(clock.getElapsedTime() * 14) * 0.025;
+  /* Simple truck position tween — no onUpdate camera work */
+  gsap.to(trkGrp.position,{
+    z:18,
+    duration:8,
+    ease:'power1.inOut',
+    onUpdate:function(){
+      /* Just update camTarget so render loop knows where to look */
+      camTarget.set(trkGrp.position.x,trkGrp.position.y+3.5,trkGrp.position.z);
     },
-    onComplete: function(){
+    onComplete:function(){
+      wheelSpin=false;
       hide('s2');
       p3();
     }
   });
 }
 
-/* ----- PHASE 3: Slow cinematic push-around — 9 seconds ----- */
-/* REPLACED 360° orbit with a slow dramatic push-in + side reveal */
-/* This feels like a car commercial, not a 3D model viewer */
+/* === PHASE 3: 3-beat cinematic push — 9s === */
 function p3(){
-  phase=3; setLbl(3); setPg(52);
+  phase=3;setLbl(3);setPg(52);
   show('s3');
-  scene.fog = new THREE.FogExp2(0xd8d6d2, 0.006);
-
-  var tz = trkGrp.position.z;
-  var t0 = clock.getElapsedTime();
-
-  /* Camera sequence: 3 cinematic beats */
-  /* Beat 1: Low front corner push-in (0–3s) */
-  gsap.to(camera.position, {
-    x: 12, y: 3.8, z: tz + 18,
-    duration: 3.0, ease: 'power2.inOut',
-    onUpdate: function(){ camera.lookAt(0, 3.5, tz); }
-  });
-
-  /* Beat 2: Rise to proud overhead angle (3–6s) */
+  scene.fog=new THREE.FogExp2(0xd8d6d2,0.006);
+  var tz=trkGrp.position.z;
+  camTarget.set(0,3.5,tz);
+  /* Beat 1: low front corner 0–3s */
+  gsap.to(camera.position,{x:12,y:3.8,z:tz+18,duration:3.0,ease:'power2.inOut',onUpdate:function(){camTarget.set(0,3.5,tz);}});
+  /* Beat 2: rise to overhead 3–6s */
   setTimeout(function(){
-    gsap.to(camera.position, {
-      x: -18, y: 12, z: tz + 22,
-      duration: 3.0, ease: 'power1.inOut',
-      onUpdate: function(){ camera.lookAt(0, 3.0, tz); }
-    });
-  }, 3000);
-
-  /* Beat 3: Pull back wide, high drama (6–9s) → into p4 */
+    gsap.to(camera.position,{x:-18,y:12,z:tz+22,duration:3.0,ease:'power1.inOut',onUpdate:function(){camTarget.set(0,3.0,tz);}});
+  },3000);
+  /* Beat 3: wide pull-back 6–9s then p4 */
   setTimeout(function(){
-    gsap.to(camera.position, {
-      x: 0, y: 22, z: tz + 38,
-      duration: 3.0, ease: 'power2.in',
-      onUpdate: function(){ camera.lookAt(0, 2.0, tz); },
-      onComplete: function(){ hide('s3'); p4(); }
+    gsap.to(camera.position,{x:0,y:22,z:tz+38,duration:3.0,ease:'power2.in',
+      onUpdate:function(){camTarget.set(0,2.0,tz);},
+      onComplete:function(){hide('s3');p4();}
     });
-  }, 6000);
+  },6000);
 }
 
-/* ----- PHASE 4: Parts explosion — 6 seconds ----- */
+/* === PHASE 4: Parts explosion — 6s === */
 function p4(){
-  phase=4; setLbl(4); setPg(70);
+  phase=4;setLbl(4);setPg(70);
   document.getElementById('glassblur').classList.add('active');
-  scene.fog = new THREE.FogExp2(0xe0deda, 0.005);
-
-  var tz = trkGrp.position.z;
-  gsap.to(camera.position, {
-    x:0, y:18, z:tz+45, duration:1.8, ease:'power2.out',
-    onUpdate: function(){ camera.lookAt(0, 5, tz); }
-  });
-
+  scene.fog=new THREE.FogExp2(0xe0deda,0.005);
+  var tz=trkGrp.position.z;
+  camTarget.set(0,5,tz);
+  gsap.to(camera.position,{x:0,y:18,z:tz+45,duration:1.8,ease:'power2.out'});
   setTimeout(function(){
-    show('s4'); setPg(78);
-
-    /* Truck implodes → parts explode out */
-    gsap.to(trkGrp.scale, {
-      x:0, y:0, z:0, duration:.7, ease:'back.in(1.6)',
-      onComplete: function(){ trkGrp.visible=false; }
+    show('s4');setPg(78);
+    gsap.to(trkGrp.scale,{x:0,y:0,z:0,duration:.7,ease:'back.in(1.6)',
+      onComplete:function(){trkGrp.visible=false;}
     });
-
     prtGrp.position.copy(trkGrp.position);
-    prtGrp.visible = true;
+    prtGrp.visible=true;
     prtGrp.userData.parts.forEach(function(p,i){
-      var delay = i * 0.08;
-      gsap.to(p.scale,    {x:1,y:1,z:1, duration:.6, delay:delay, ease:'back.out(2.4)'});
-      gsap.to(p.position, {x:p.userData.tgt.x, y:p.userData.tgt.y, z:p.userData.tgt.z, duration:1.3, delay:delay, ease:'power3.out'});
-      gsap.to(p.rotation, {x:Math.random()*6, y:Math.random()*6, z:Math.random()*6, duration:1.4, delay:delay, ease:'power2.out'});
+      var del=i*.08;
+      gsap.to(p.scale,{x:1,y:1,z:1,duration:.6,delay:del,ease:'back.out(2.4)'});
+      gsap.to(p.position,{x:p.userData.tgt.x,y:p.userData.tgt.y,z:p.userData.tgt.z,duration:1.3,delay:del,ease:'power3.out'});
+      gsap.to(p.rotation,{x:Math.random()*6,y:Math.random()*6,z:Math.random()*6,duration:1.4,delay:del,ease:'power2.out'});
     });
-
     setTimeout(function(){
       ['a1','a2','a3','a4'].forEach(function(id,idx){
-        setTimeout(function(){ document.getElementById(id).classList.add('vis'); }, idx*200);
+        setTimeout(function(){document.getElementById(id).classList.add('vis');},idx*200);
       });
-    }, 1400);
-
+    },1400);
     setPg(90);
-    setTimeout(function(){ if(phase===4) p5(); }, 6000);
-  }, 2200);
+    setTimeout(function(){if(phase===4)p5();},6000);
+  },2000);
 }
 
-/* ----- PHASE 5: CTA — slow cinematic orbit of parts ----- */
+/* === PHASE 5: CTA slow drift === */
 function p5(){
-  phase=5; setLbl(5); setPg(100);
+  phase=5;setLbl(5);setPg(100);
   hide('s4');
-  ['a1','a2','a3','a4'].forEach(function(id){ document.getElementById(id).classList.remove('vis'); });
-  scene.fog = new THREE.FogExp2(0xd8d6d2, 0.011);
+  ['a1','a2','a3','a4'].forEach(function(id){document.getElementById(id).classList.remove('vis');});
+  scene.fog=new THREE.FogExp2(0xd8d6d2,0.011);
   document.getElementById('glassblur').classList.remove('active');
   show('s5');
-
-  var tz = prtGrp.position.z;
-  var oa = {a: 0};
-  /* Slow drift — more meditative than a hard orbit */
-  gsap.to(oa, {
-    a: Math.PI * 2, duration: 22, ease: 'none', repeat: -1,
-    onUpdate: function(){
-      camera.position.x = Math.sin(oa.a) * 30;
-      camera.position.z = tz + 18 + Math.cos(oa.a) * 30;
-      camera.position.y = 16 + Math.sin(oa.a * 0.5) * 6;
-      camera.lookAt(0, 4, tz);
+  var tz=prtGrp.position.z;
+  var oa={a:0};
+  gsap.to(oa,{a:Math.PI*2,duration:22,ease:'none',repeat:-1,
+    onUpdate:function(){
+      camera.position.x=Math.sin(oa.a)*30;
+      camera.position.z=tz+18+Math.cos(oa.a)*30;
+      camera.position.y=16+Math.sin(oa.a*.5)*6;
+      camTarget.set(0,4,tz);
     }
   });
 }
 
-/* ----- ENTER SITE ----- */
 function enterSite(){
+  wheelSpin=false;
   gsap.killTweensOf(camera.position);
-  var cinEls = [$hud, document.getElementById('c'), document.getElementById('grain'),
-                document.getElementById('vig'), document.getElementById('mist-top'),
-                document.getElementById('mist-bot'), document.getElementById('glassblur')];
-  gsap.to(cinEls, {
-    opacity:0, duration:1.1, ease:'power2.inOut',
-    onComplete: function(){ cinEls.forEach(function(el){ if(el) el.style.display='none'; }); }
+  gsap.killTweensOf(trkGrp.position);
+  var cinEls=[$hud,document.getElementById('c'),document.getElementById('grain'),
+    document.getElementById('vig'),document.getElementById('mist-top'),
+    document.getElementById('mist-bot'),document.getElementById('glassblur')];
+  gsap.to(cinEls,{opacity:0,duration:1.1,ease:'power2.inOut',
+    onComplete:function(){cinEls.forEach(function(el){if(el)el.style.display='none';});}
   });
   if(masterGain){
-    masterGain.gain.setValueAtTime(masterGain.gain.value, audioCtx.currentTime);
-    masterGain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 1.1);
+    var now=audioCtx.currentTime;
+    masterGain.gain.cancelScheduledValues(now);
+    masterGain.gain.setValueAtTime(masterGain.gain.value,now);
+    masterGain.gain.exponentialRampToValueAtTime(0.0001,now+1.1);
   }
-
-  var site = document.getElementById('site');
-  site.style.display = 'block';
+  var site=document.getElementById('site');
+  site.style.display='block';
   document.body.classList.add('live');
-
-  setTimeout(function(){
-    site.style.opacity = '1';
-    initReveal();
-    loadReviews();
-  }, 700);
+  setTimeout(function(){site.style.opacity='1';initReveal();loadReviews();},700);
 }
 
-/* ============================================================
+/* ================================================================
    RENDER LOOP
-   ============================================================ */
+   This is the single place wheels spin and camera looks at target.
+   ================================================================ */
 function loop(){
   requestAnimationFrame(loop);
-  var t = clock.getElapsedTime();
+  var t=clock.getElapsedTime();
 
-  /* Idle camera drift before experience starts */
+  /* Idle drift before experience */
   if(!cineOn){
-    camera.position.x = Math.sin(t * .09) * 28;
-    camera.position.z = 28 + Math.cos(t * .07) * 18;
-    camera.position.y = 85 + Math.sin(t * .13) * 7;
-    camera.lookAt(0, 0, -45);
+    camera.position.x=Math.sin(t*.09)*28;
+    camera.position.z=28+Math.cos(t*.07)*18;
+    camera.position.y=85+Math.sin(t*.13)*7;
+    camTarget.set(0,0,-45);
   }
 
-  /* SNOW */
+  /* Always lerp camera toward current target and call lookAt */
+  camLookAt.lerp(camTarget,0.08);
+  camera.lookAt(camLookAt);
+
+  /* WHEEL ROLLING — only active during phase 2 (truck driving) */
+  if(wheelSpin){
+    wheelGroups.forEach(function(wg){
+      wg.rotation.x+=wheelSpeed;
+    });
+    /* Suspension micro-bounce */
+    trkGrp.position.y=-21.8+Math.sin(t*18)*0.02;
+  }
+
+  /* SNOW FALL */
   if(snowPts){
-    var pa = snowPts.geometry.attributes.position;
-    for(var i=0; i<pa.count; i++){
-      pa.setY(i, pa.getY(i) - (.18 + Math.sin(t+i) * .07));
-      pa.setX(i, pa.getX(i) + Math.sin(t * .14 + i * .1) * .035);
-      if(pa.getY(i) < -22){
-        pa.setY(i, 180);
-        pa.setX(i, (Math.random() - .5) * 400);
-        pa.setZ(i, (Math.random() - .5) * 400);
+    var pa=snowPts.geometry.attributes.position;
+    for(var i=0;i<pa.count;i++){
+      pa.setY(i,pa.getY(i)-(.18+Math.sin(t+i)*.07));
+      pa.setX(i,pa.getX(i)+Math.sin(t*.14+i*.1)*.035);
+      if(pa.getY(i)<-22){
+        pa.setY(i,180);pa.setX(i,(Math.random()-.5)*400);pa.setZ(i,(Math.random()-.5)*400);
       }
     }
-    pa.needsUpdate = true;
+    pa.needsUpdate=true;
   }
 
-  /* CLOUD DRIFT — gentle wind movement with vertical bob */
+  /* CLOUD DRIFT */
   if(cloudGrp){
     cloudGrp.children.forEach(function(cg){
-      cg.position.x += cg.userData.driftX;
-      cg.position.z += cg.userData.driftZ;
-      cg.position.y += Math.sin(t * 0.18 + cg.userData.phase) * cg.userData.bobAmp;
-      /* Wrap horizontally so clouds never disappear */
-      if(cg.position.x >  240) cg.position.x = -240;
-      if(cg.position.x < -240) cg.position.x =  240;
+      cg.position.x+=cg.userData.driftX;
+      cg.position.z+=cg.userData.driftZ;
+      cg.position.y+=Math.sin(t*0.18+cg.userData.phase)*cg.userData.bobAmp;
+      if(cg.position.x>240)cg.position.x=-240;
+      if(cg.position.x<-240)cg.position.x=240;
     });
   }
 
-  /* PARTS FLOAT + SLOW SPIN in phases 4 and 5 */
-  if(prtGrp && prtGrp.visible && phase >= 4){
+  /* PARTS FLOAT */
+  if(prtGrp&&prtGrp.visible&&phase>=4){
     prtGrp.userData.parts.forEach(function(p){
-      p.position.y = p.userData.tgt.y + Math.sin(t * .55 + p.userData.flo) * .55;
-      p.rotation.y += .004;
+      p.position.y=p.userData.tgt.y+Math.sin(t*.55+p.userData.flo)*.55;
+      p.rotation.y+=.004;
     });
   }
 
-  renderer.render(scene, camera);
+  renderer.render(scene,camera);
 }
 
-/* ============================================================
-   SCROLL REVEAL
-   ============================================================ */
+/* ================================================================
+   SCROLL REVEAL + HELPERS
+   ================================================================ */
 function initReveal(){
   document.querySelectorAll('.rv2').forEach(function(el){
     new IntersectionObserver(function(es){
-      es.forEach(function(e){ if(e.isIntersecting) e.target.classList.add('on'); });
-    }, {threshold:.08}).observe(el);
+      es.forEach(function(e){if(e.isIntersecting)e.target.classList.add('on');});
+    },{threshold:.08}).observe(el);
   });
 }
+function scrollTo2(id){var el=document.getElementById(id);if(el)el.scrollIntoView({behavior:'smooth'});}
+document.addEventListener('keydown',function(e){if(e.key==='Escape'&&phase<5)enterSite();});
 
-function scrollTo2(id){
-  var el = document.getElementById(id);
-  if(el) el.scrollIntoView({behavior:'smooth'});
-}
-
-document.addEventListener('keydown',function(e){
-  if(e.key==='Escape' && phase<5) enterSite();
-});
-
-/* ============================================================
-   BOOT — single window.load, Supabase init here only
-   ============================================================ */
-window.addEventListener('load', function(){
-  if(typeof THREE === 'undefined'){
-    alert('3D library failed to load. Please refresh.');
-    return;
-  }
+/* ================================================================
+   BOOT
+   ================================================================ */
+window.addEventListener('load',function(){
+  if(typeof THREE==='undefined'){alert('3D library failed. Please refresh.');return;}
   try{
-    _sb = window.supabase.createClient(SUPA_URL, SUPA_KEY);
-    console.log('Supabase ready.');
-  } catch(e){
-    console.warn('Supabase init failed:', e);
-  }
+    _sb=window.supabase.createClient(SUPA_URL,SUPA_KEY);
+    console.log('Supabase ready');
+  }catch(e){console.warn('Supabase init failed:',e);}
   init3();
 });
 </script>
