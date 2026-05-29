@@ -1,1244 +1,1493 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <script src="auth.js"></script>
-<title>Order Status - Abhinandan Auto Mobiles</title>
-<link rel="stylesheet" href="style.css">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-<style>
-.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px;}
-.stat-card{background:linear-gradient(135deg,rgba(255,255,255,0.07),rgba(255,255,255,0.03));border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:16px 18px;position:relative;overflow:hidden;}
-.stat-card::before{content:'';position:absolute;top:0;left:10%;right:10%;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent);}
-.stat-label{font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:6px;}
-.stat-value{font-family:'Playfair Display',serif;font-size:24px;font-weight:700;color:white;}
-html.light-theme .stat-card{background:rgba(255,255,255,0.92)!important;border-color:rgba(0,0,0,0.09)!important;}
-html.light-theme .stat-label{color:#475569!important;}
-html.light-theme .stat-value{color:#0f172a!important;}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Status - Auto ERP</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-.status-badge{display:inline-block;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;letter-spacing:0.5px;white-space:nowrap;}
-.status-pending{background:rgba(251,191,36,0.15);color:#fbbf24;border:1px solid rgba(251,191,36,0.3);}
-.status-partial{background:rgba(96,165,250,0.15);color:#60a5fa;border:1px solid rgba(96,165,250,0.3);}
-.status-received{background:rgba(52,211,153,0.15);color:#34d399;border:1px solid rgba(52,211,153,0.3);}
-.status-cancelled{background:rgba(248,113,113,0.12);color:#f87171;border:1px solid rgba(248,113,113,0.25);}
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #e2e8f0;
+            min-height: 100vh;
+        }
 
-.order-card{background:linear-gradient(135deg,rgba(255,255,255,0.06),rgba(255,255,255,0.03));border:1px solid rgba(255,255,255,0.09);border-radius:16px;margin-bottom:14px;overflow:hidden;transition:all 0.2s;}
-.order-card:hover{border-color:rgba(37,99,235,0.35);box-shadow:0 6px 24px rgba(0,0,0,0.3);}
-.order-card.reminder-due{border-color:rgba(251,146,60,0.4);box-shadow:0 0 16px rgba(251,146,60,0.15);}
-html.light-theme .order-card{background:rgba(255,255,255,0.92)!important;border-color:rgba(0,0,0,0.1)!important;}
-html.light-theme .order-card:hover{border-color:rgba(37,99,235,0.3)!important;}
+        .container {
+            display: grid;
+            grid-template-columns: 260px 1fr;
+            min-height: 100vh;
+        }
 
-.order-header{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;cursor:pointer;flex-wrap:wrap;gap:10px;}
-.order-header:hover{background:rgba(255,255,255,0.02);}
-.order-no{font-size:12px;color:rgba(255,255,255,0.4);font-family:monospace;}
-html.light-theme .order-no{color:#64748b!important;}
-.order-merchant{font-size:16px;font-weight:700;color:white;margin:2px 0;}
-html.light-theme .order-merchant{color:#0f172a!important;}
-.order-date{font-size:12px;color:rgba(255,255,255,0.4);}
-html.light-theme .order-date{color:#64748b!important;}
-.order-meta{display:flex;gap:16px;align-items:center;flex-wrap:wrap;}
-.order-amount{font-size:18px;font-weight:700;color:#a78bfa;}
-.order-items-count{font-size:12px;color:rgba(255,255,255,0.4);}
-html.light-theme .order-items-count{color:#64748b!important;}
-.order-actions-row{display:flex;gap:8px;flex-wrap:wrap;}
-.order-body{display:none;border-top:1px solid rgba(255,255,255,0.07);padding:16px 20px;}
-html.light-theme .order-body{border-top-color:rgba(0,0,0,0.08)!important;}
-.order-body.open{display:block;}
+        /* Sidebar */
+        .sidebar {
+            background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+            padding: 24px 16px;
+            border-right: 1px solid #334155;
+            overflow-y: auto;
+        }
 
-.items-table{width:100%;border-collapse:collapse;font-size:13px;}
-.items-table th{padding:9px 12px;font-size:10px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid rgba(255,255,255,0.07);text-align:left;}
-html.light-theme .items-table th{color:#64748b!important;border-bottom-color:rgba(0,0,0,0.08)!important;}
-.items-table td{padding:10px 12px;border-bottom:1px solid rgba(255,255,255,0.04);color:rgba(255,255,255,0.8);vertical-align:middle;}
-html.light-theme .items-table td{color:#1e293b!important;border-bottom-color:rgba(0,0,0,0.05)!important;}
-.items-table tr:last-child td{border-bottom:none;}
+        .logo {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            margin-bottom: 32px;
+        }
 
-/* Order item row in modal - simplified */
-.order-item-row{display:grid;grid-template-columns:2fr 1fr 1fr 0.7fr 0.7fr auto;gap:8px;align-items:end;margin-bottom:8px;padding:10px;background:rgba(255,255,255,0.03);border-radius:10px;border:1px solid rgba(255,255,255,0.06);}
-html.light-theme .order-item-row{background:rgba(0,0,0,0.02)!important;border-color:rgba(0,0,0,0.07)!important;}
-.order-item-row input{margin-bottom:0;padding:8px 10px;font-size:13px;background:rgba(255,255,255,0.07);border:1.5px solid rgba(255,255,255,0.1);border-radius:8px;color:white;font-family:'DM Sans',sans-serif;outline:none;width:100%;}
-html.light-theme .order-item-row input{background:white!important;color:#0f172a!important;border-color:rgba(0,0,0,0.12)!important;}
-.order-item-row input:focus{border-color:rgba(37,99,235,0.5);}
-.item-row-label{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:4px;display:block;}
-html.light-theme .item-row-label{color:#64748b!important;}
-.remove-item-btn{background:rgba(220,38,38,0.2);border:1px solid rgba(220,38,38,0.3);color:#f87171;width:34px;height:34px;border-radius:8px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'DM Sans',sans-serif;margin-top:18px;}
+        .logo-main {
+            font-size: 20px;
+            font-weight: 700;
+            color: #fff;
+        }
 
-/* Product search dropdown */
-.prod-dropdown{position:absolute;top:100%;left:0;right:0;z-index:9999;background:#1a2740;border:1px solid rgba(255,255,255,0.15);border-top:none;border-radius:0 0 10px 10px;list-style:none;padding:0;margin:0;max-height:200px;overflow-y:auto;box-shadow:0 12px 36px rgba(0,0,0,0.6);display:none;}
-.prod-dropdown li{padding:10px 14px;cursor:pointer;border-bottom:1px solid rgba(255,255,255,0.06);font-size:13px;color:white;}
-.prod-dropdown li:hover{background:rgba(37,99,235,0.2);}
-.prod-dropdown li.new-item{color:#fbbf24;border-top:1px solid rgba(251,191,36,0.2);}
-.prod-dropdown li.new-item:hover{background:rgba(251,191,36,0.1);}
-html.light-theme .prod-dropdown{background:#f8faff!important;border-color:rgba(0,0,0,0.12)!important;}
-html.light-theme .prod-dropdown li{color:#0f172a!important;}
+        .logo-sub {
+            font-size: 11px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
 
-/* Receive modal rows */
-.rcv-row{display:grid;grid-template-columns:36px 2fr 1fr 70px 70px 80px 90px;gap:8px;align-items:center;padding:10px 14px;border-bottom:1px solid rgba(255,255,255,0.05);}
-html.light-theme .rcv-row{border-bottom-color:rgba(0,0,0,0.05)!important;}
-.rcv-row.rcv-head{background:rgba(255,255,255,0.04);font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.35);border-bottom:1px solid rgba(255,255,255,0.08);}
-html.light-theme .rcv-row.rcv-head{background:rgba(0,0,0,0.03)!important;color:#64748b!important;}
-.rcv-row.done{opacity:0.45;}
-.rcv-qty{width:68px;padding:5px 8px;border-radius:7px;border:1.5px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.08);color:white;font-size:13px;font-family:'DM Sans',sans-serif;text-align:center;outline:none;}
-.rcv-qty:focus{border-color:#34d399;}
-html.light-theme .rcv-qty{background:white!important;color:#0f172a!important;border-color:rgba(0,0,0,0.15)!important;}
-.rcv-sell{width:88px;padding:5px 8px;border-radius:7px;border:1.5px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.08);color:#34d399;font-size:13px;font-family:'DM Sans',sans-serif;text-align:center;outline:none;font-weight:600;}
-.rcv-sell:focus{border-color:#34d399;}
-html.light-theme .rcv-sell{background:white!important;color:#059669!important;border-color:rgba(0,0,0,0.15)!important;}
+        .section-title {
+            font-size: 11px;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 24px;
+            margin-bottom: 12px;
+        }
 
-/* Modal */
-.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:9999;overflow-y:auto;padding:20px;backdrop-filter:blur(6px);}
-.modal-box{background:linear-gradient(135deg,#0f172a,#0d1524);border:1px solid rgba(255,255,255,0.12);border-radius:20px;width:95%;max-width:720px;margin:30px auto;padding:28px;}
-html.light-theme .modal-box{background:linear-gradient(135deg,#f0f4ff,#ffffff)!important;border-color:rgba(0,0,0,0.1)!important;}
-.modal-title{font-family:'Playfair Display',serif;font-size:20px;color:white;margin-bottom:20px;}
-html.light-theme .modal-title{color:#0f172a!important;}
-.form-label{font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:6px;display:block;}
-html.light-theme .form-label{color:#475569!important;}
-.form-group{margin-bottom:14px;}
-.form-group input,.form-group select,.form-group textarea{margin-bottom:0;width:100%;padding:10px 14px;border-radius:8px;border:1.5px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.06);color:white;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;}
-html.light-theme .form-group input,html.light-theme .form-group select{background:white!important;color:#0f172a!important;border-color:rgba(0,0,0,0.12)!important;}
-.form-group input:focus,.form-group select:focus{border-color:rgba(37,99,235,0.5);}
-.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-.modal-section-head{font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.35);margin:16px 0 10px;padding-bottom:8px;border-bottom:1px solid rgba(255,255,255,0.07);}
-html.light-theme .modal-section-head{color:#64748b!important;border-bottom-color:rgba(0,0,0,0.08)!important;}
-.modal-footer{display:flex;gap:12px;margin-top:20px;justify-content:flex-end;}
-.btn-cancel{background:rgba(255,255,255,0.08)!important;border:1px solid rgba(255,255,255,0.15)!important;box-shadow:none!important;color:rgba(255,255,255,0.7)!important;}
-html.light-theme .btn-cancel{background:rgba(0,0,0,0.06)!important;color:#334155!important;}
-.toolbar{display:flex;gap:12px;align-items:center;margin-bottom:20px;flex-wrap:wrap;}
-.toolbar input,.toolbar select{margin-bottom:0;}
-.toolbar input{flex:1;min-width:200px;}
-.toolbar select{width:160px;}
+        .nav-list {
+            list-style: none;
+        }
 
-/* Print */
-#printReceiptArea{display:none;}
-#printOrderArea{display:none;}
-@media print{
-  body>*{display:none!important;}
-  body.print-receipt #printReceiptArea{display:block!important;padding:28px;}
-  body.print-order #printOrderArea{display:block!important;padding:28px;}
-  *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}
-}
-.rpt-paper{max-width:800px;margin:0 auto;background:#fff;font-family:'DM Sans',sans-serif;color:#111;}
-.rpt-header{background:linear-gradient(135deg,#78350f,#d97706);color:white;padding:24px 32px;display:flex;justify-content:space-between;align-items:center;}
-.rpt-co{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;margin-bottom:4px;}
-.rpt-sub{font-size:11px;opacity:.85;margin:2px 0;}
-.rpt-badge{display:inline-block;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.4);font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:3px 12px;border-radius:20px;margin-bottom:6px;}
-.rpt-no{font-size:14px;font-weight:600;}
-.rpt-date{font-size:12px;opacity:.8;}
-.rpt-meta{display:flex;gap:24px;padding:12px 32px;background:#fffbeb;border-bottom:1px solid #e5e7eb;flex-wrap:wrap;}
-.rpt-meta-block label{font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:#6b7280;display:block;margin-bottom:2px;}
-.rpt-meta-block span{font-size:13px;font-weight:600;color:#111;}
-.rpt-tbl{width:100%;border-collapse:collapse;font-size:13px;margin:16px 0 0;}
-.rpt-tbl thead tr{background:#78350f;color:white;}
-.rpt-tbl th{padding:9px 12px;text-align:left;font-size:12px;}
-.rpt-tbl th:not(:first-child){text-align:center;}
-.rpt-tbl th:last-child{text-align:right;}
-.rpt-tbl tbody tr{border-bottom:1px solid #e5e7eb;}
-.rpt-tbl tbody tr:nth-child(even){background:#fffbeb;}
-.rpt-tbl td{padding:9px 12px;color:#374151;}
-.rpt-tbl td:not(:first-child){text-align:center;}
-.rpt-tbl td:last-child{text-align:right;font-weight:600;}
-.rpt-totals{display:flex;justify-content:flex-end;padding:14px 32px 0;}
-.rpt-total-row{display:flex;justify-content:space-between;padding:5px 0;font-size:13px;border-bottom:1px dashed #e5e7eb;}
-.rpt-total-row:last-child{border-bottom:none;border-top:2px solid #78350f;margin-top:6px;padding-top:10px;font-size:16px;font-weight:700;}
-.rpt-pay{margin:12px 32px;padding:12px;background:#fffbeb;border:1px solid #e5e7eb;border-radius:8px;}
-.rpt-footer{margin:16px 32px 24px;padding-top:12px;border-top:1px solid #e5e7eb;font-size:12px;color:#6b7280;}
-</style>
+        .nav-item {
+            margin-bottom: 8px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            color: #cbd5e1;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .nav-link:hover {
+            background: rgba(59, 130, 246, 0.1);
+            color: #3b82f6;
+        }
+
+        .nav-link.active {
+            background: rgba(59, 130, 246, 0.15);
+            color: #3b82f6;
+            font-weight: 500;
+        }
+
+        .main {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            padding: 32px;
+            border-bottom: 1px solid #334155;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .header-content {
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+        }
+
+        .header-icon {
+            font-size: 32px;
+        }
+
+        .header-text h1 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .header-text p {
+            color: #94a3b8;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary:hover {
+            background: #2563eb;
+            transform: translateY(-2px);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            padding: 32px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border: 1px solid #334155;
+            padding: 24px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+
+        .stat-bar {
+            height: 4px;
+            background: #334155;
+            border-radius: 2px;
+            margin-bottom: 12px;
+            overflow: hidden;
+        }
+
+        .stat-bar-fill {
+            height: 100%;
+            background: #3b82f6;
+            border-radius: 2px;
+        }
+
+        .stat-card:nth-child(1) .stat-bar-fill { background: #a78bfa; }
+        .stat-card:nth-child(2) .stat-bar-fill { background: #fbbf24; }
+        .stat-card:nth-child(3) .stat-bar-fill { background: #38bdf8; }
+        .stat-card:nth-child(4) .stat-bar-fill { background: #34d399; }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #f1f5f9;
+        }
+
+        .content-area {
+            padding: 32px;
+            flex: 1;
+        }
+
+        .search-filter-bar {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 24px;
+            align-items: center;
+        }
+
+        .search-box {
+            flex: 1;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px 16px 12px 40px;
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid #334155;
+            border-radius: 8px;
+            color: #e2e8f0;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            background: rgba(30, 41, 59, 1);
+        }
+
+        .search-box input::placeholder {
+            color: #64748b;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #64748b;
+        }
+
+        .filter-dropdown {
+            padding: 10px 16px;
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid #334155;
+            border-radius: 8px;
+            color: #e2e8f0;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .filter-dropdown:hover {
+            border-color: #3b82f6;
+        }
+
+        .orders-container {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 32px;
+            min-height: 400px;
+        }
+
+        .loading-state, .error-state, .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            color: #94a3b8;
+            font-size: 16px;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #334155;
+            border-top-color: #3b82f6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .order-item {
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .order-item:hover {
+            border-color: #3b82f6;
+            background: rgba(15, 23, 42, 0.8);
+        }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .order-number {
+            font-weight: 600;
+            font-size: 16px;
+            color: #f1f5f9;
+        }
+
+        .order-status-badge {
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-pending {
+            background: rgba(251, 191, 36, 0.2);
+            color: #fbbf24;
+        }
+
+        .status-partial {
+            background: rgba(56, 189, 248, 0.2);
+            color: #38bdf8;
+        }
+
+        .status-received {
+            background: rgba(52, 211, 153, 0.2);
+            color: #34d399;
+        }
+
+        .order-details {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            font-size: 13px;
+            color: #cbd5e1;
+        }
+
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .detail-label {
+            color: #94a3b8;
+            font-weight: 500;
+        }
+
+        .detail-value {
+            color: #f1f5f9;
+            font-weight: 600;
+        }
+
+        .order-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+        }
+
+        .btn-small {
+            padding: 8px 14px;
+            background: rgba(59, 130, 246, 0.15);
+            border: 1px solid #3b82f6;
+            color: #3b82f6;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-small:hover {
+            background: rgba(59, 130, 246, 0.25);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border: 1px solid #334155;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 900px;
+            max-height: 80vh;
+            overflow-y: auto;
+            padding: 32px;
+        }
+
+        .modal-header {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: #94a3b8;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 10px 12px;
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid #334155;
+            border-radius: 6px;
+            color: #e2e8f0;
+            font-family: inherit;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+            background: rgba(30, 41, 59, 1);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .items-section {
+            margin: 24px 0;
+            padding: 20px;
+            background: rgba(15, 23, 42, 0.5);
+            border-radius: 8px;
+            border: 1px solid #334155;
+        }
+
+        .items-header {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .order-items-grid {
+            display: grid;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .order-item-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 0.7fr 0.7fr auto;
+            gap: 12px;
+            align-items: center;
+            background: rgba(30, 41, 59, 0.5);
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid #334155;
+        }
+
+        .order-item-row input {
+            padding: 8px 10px;
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid #334155;
+            border-radius: 4px;
+            color: #e2e8f0;
+            font-size: 13px;
+        }
+
+        .order-item-row input:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+
+        .remove-item-btn {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            border: 1px solid #ef4444;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .remove-item-btn:hover {
+            background: rgba(239, 68, 68, 0.3);
+        }
+
+        .add-item-btn {
+            background: rgba(59, 130, 246, 0.15);
+            border: 1px solid #3b82f6;
+            color: #3b82f6;
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 14px;
+        }
+
+        .add-item-btn:hover {
+            background: rgba(59, 130, 246, 0.25);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 32px;
+            justify-content: flex-end;
+        }
+
+        .btn-secondary {
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid #334155;
+            color: #e2e8f0;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 14px;
+        }
+
+        .btn-secondary:hover {
+            border-color: #3b82f6;
+            color: #3b82f6;
+        }
+
+        .receive-modal .modal-content {
+            max-width: 700px;
+        }
+
+        .receive-items {
+            display: grid;
+            gap: 12px;
+            margin: 20px 0;
+        }
+
+        .receive-item {
+            background: rgba(15, 23, 42, 0.5);
+            padding: 16px;
+            border-radius: 8px;
+            border: 1px solid #334155;
+        }
+
+        .receive-item-info {
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+
+        .receive-item-name {
+            font-weight: 600;
+            color: #f1f5f9;
+            margin-bottom: 4px;
+        }
+
+        .receive-item-details {
+            color: #94a3b8;
+            font-size: 13px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .receive-item-inputs {
+            display: grid;
+            grid-template-columns: auto 1fr 1fr 1fr;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .receive-item-inputs input {
+            padding: 8px 10px;
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid #334155;
+            border-radius: 4px;
+            color: #e2e8f0;
+            font-size: 13px;
+        }
+
+        .receive-item-inputs input:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+
+        .receive-item-inputs input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .receive-item-inputs label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            color: #cbd5e1;
+            font-size: 13px;
+        }
+
+        .success-message {
+            background: rgba(52, 211, 153, 0.2);
+            border: 1px solid #34d399;
+            color: #34d399;
+            padding: 12px 16px;
+            border-radius: 6px;
+            margin-bottom: 16px;
+            font-size: 14px;
+        }
+
+        .error-message {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid #ef4444;
+            color: #ef4444;
+            padding: 12px 16px;
+            border-radius: 6px;
+            margin-bottom: 16px;
+            font-size: 14px;
+        }
+
+        .print-area {
+            display: none;
+        }
+
+        @media print {
+            .container {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar, .header, .stats-grid, .search-filter-bar, .order-actions, .modal-actions, .add-item-btn {
+                display: none !important;
+            }
+
+            body.print-order .print-area#printOrderArea,
+            body.print-receipt .print-area#printReceiptArea {
+                display: block !important;
+            }
+
+            .print-area {
+                padding: 0;
+                margin: 0;
+            }
+        }
+
+        .print-content {
+            background: white;
+            color: black;
+            padding: 20px;
+            page-break-after: always;
+        }
+
+        .print-header {
+            text-align: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid black;
+            padding-bottom: 10px;
+        }
+
+        .print-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        .print-table th, .print-table td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .print-table th {
+            background: #f0f0f0;
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">
+                <div class="logo-main">Auto ERP</div>
+                <div class="logo-sub">Abhinandan Auto Mobiles</div>
+            </div>
 
-<div class="sidebar">
-  <h2>Auto ERP</h2>
-  <div class="sidebar-divider"></div>
-  <div class="sidebar-label">Main</div>
-  <a href="dashboard.html" class="owner-only">🏠 Dashboard</a>
-  <a href="billing.html">🧾 Sales Billing</a>
-  <a href="purchase-billing.html" class="owner-only">📦 Purchase Billing</a>
-  <a href="order-status.html" class="active owner-only">📋 Order Status</a>
-  <div class="sidebar-label owner-only">Records</div>
-  <a href="products.html" class="owner-only">🔧 Products</a>
-  <a href="customers.html" class="owner-only">👥 Customers</a>
-  <a href="customer-ledger.html" class="owner-only">📒 Customer Ledger</a>
-  <a href="merchants.html" class="owner-only">🏭 Merchants</a>
-  <a href="merchant-ledger.html" class="owner-only">🏪 Merchant Ledger</a>
-  <a href="reports.html" class="owner-only">📊 Reports</a>
-  <div class="sidebar-bottom"><div class="sidebar-version">Auto ERP v1.0</div></div>
-</div>
+            <div class="section-title">MAIN</div>
+            <ul class="nav-list">
+                <li class="nav-item"><a href="dashboard.html" class="nav-link">📊 Dashboard</a></li>
+                <li class="nav-item"><a href="sales.html" class="nav-link">📄 Sales Billing</a></li>
+                <li class="nav-item"><a href="purchase.html" class="nav-link">🛍️ Purchase Billing</a></li>
+                <li class="nav-item"><a href="order-status.html" class="nav-link active">📋 Order Status</a></li>
+            </ul>
 
-<div class="main">
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:12px;">
-    <h1>📋 Order Status</h1>
-    <button onclick="openNewOrderModal()" style="background:linear-gradient(135deg,#2563eb,#3b82f6);box-shadow:0 4px 14px rgba(37,99,235,0.3);padding:10px 22px;border-radius:10px;font-weight:700;font-size:14px;cursor:pointer;font-family:'DM Sans',sans-serif;color:white;border:none;">+ New Order</button>
-  </div>
-  <div style="font-size:13px;color:rgba(255,255,255,0.4);margin-bottom:20px;">Track pending orders from suppliers. Receive products when they arrive — auto-creates purchase bill.</div>
+            <div class="section-title">RECORDS</div>
+            <ul class="nav-list">
+                <li class="nav-item"><a href="products.html" class="nav-link">🔍 Products</a></li>
+                <li class="nav-item"><a href="customers.html" class="nav-link">👥 Customers</a></li>
+                <li class="nav-item"><a href="customer-ledger.html" class="nav-link">📊 Customer Ledger</a></li>
+                <li class="nav-item"><a href="merchants.html" class="nav-link">🏪 Merchants</a></li>
+                <li class="nav-item"><a href="merchant-ledger.html" class="nav-link">📊 Merchant Ledger</a></li>
+                <li class="nav-item"><a href="reports.html" class="nav-link">📈 Reports</a></li>
+            </ul>
 
-  <div class="stats-row">
-    <div class="stat-card"><div class="stat-label">Total Orders</div><div class="stat-value" id="stTotal" style="color:#a78bfa;">—</div></div>
-    <div class="stat-card"><div class="stat-label">Pending</div><div class="stat-value" id="stPending" style="color:#fbbf24;">—</div></div>
-    <div class="stat-card"><div class="stat-label">Partial</div><div class="stat-value" id="stPartial" style="color:#60a5fa;">—</div></div>
-    <div class="stat-card"><div class="stat-label">Received</div><div class="stat-value" id="stReceived" style="color:#34d399;">—</div></div>
-  </div>
+            <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #334155;">
+                <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: rgba(59, 130, 246, 0.1); border-radius: 8px;">
+                    <div style="width: 36px; height: 36px; background: #3b82f6; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700;">A</div>
+                    <div>
+                        <div style="font-weight: 600; font-size: 14px;">Abhinandan</div>
+                        <div style="font-size: 12px; color: #fbbf24;">Owner</div>
+                    </div>
+                </div>
+            </div>
 
-  <div class="card">
-    <div class="toolbar">
-      <input id="searchInput" placeholder="🔍 Search merchant, order number, product..." oninput="renderOrders()">
-      <select id="filterStatus" onchange="renderOrders()">
-        <option value="active">Active (Pending + Partial)</option>
-        <option value="all">All Orders</option>
-        <option value="pending">Pending Only</option>
-        <option value="partial">Partial Only</option>
-        <option value="received">Received</option>
-        <option value="cancelled">Cancelled</option>
-      </select>
-    </div>
-    <div id="ordersContainer">
-      <div style="text-align:center;padding:40px;color:rgba(255,255,255,0.3);">⏳ Loading orders...</div>
-    </div>
-  </div>
-</div>
-
-
-<!-- NEW / EDIT ORDER MODAL -->
-<div class="modal-overlay" id="newOrderModal">
-  <div class="modal-box">
-    <div class="modal-title" id="orderModalTitle">📋 Place New Order</div>
-    <div class="form-row">
-      <div class="form-group" style="position:relative;">
-        <label class="form-label">Merchant / Supplier *</label>
-        <input id="oMerchant" placeholder="Type to search..." autocomplete="off" oninput="searchMerchants(this.value)">
-        <ul id="merchantSuggest" style="position:absolute;z-index:9999;background:#1e293b;border:1px solid rgba(255,255,255,0.12);border-radius:8px;list-style:none;padding:0;margin:2px 0 0;max-height:180px;overflow-y:auto;display:none;width:100%;left:0;top:100%;box-shadow:0 12px 36px rgba(0,0,0,0.5);"></ul>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Phone</label>
-        <input id="oPhone" placeholder="Auto-filled or manual">
-      </div>
-    </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label class="form-label">Order Date *</label>
-        <input type="date" id="oDate">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Expected Delivery Date</label>
-        <input type="date" id="oExpected">
-      </div>
-    </div>
-    <div class="form-group">
-      <label class="form-label">Notes <span style="font-size:10px;color:rgba(255,255,255,0.25);">(optional)</span></label>
-      <input id="oNotes" placeholder="e.g. 50% advance paid, urgent...">
-    </div>
-
-    <div class="modal-section-head">📦 ORDER ITEMS</div>
-
-    <!-- Column headers for item rows -->
-    <div style="display:grid;grid-template-columns:2fr 1fr 1fr 0.7fr 0.7fr 34px;gap:8px;padding:0 4px;margin-bottom:4px;">
-      <div class="item-row-label">Product *</div>
-      <div class="item-row-label">Brand</div>
-      <div class="item-row-label">Item Code</div>
-      <div class="item-row-label">Qty *</div>
-      <div class="item-row-label">Price ₹</div>
-      <div></div>
-    </div>
-
-    <div id="orderItemsContainer"></div>
-    <button onclick="addOrderItem()" style="background:rgba(37,99,235,0.15);border:1px solid rgba(37,99,235,0.3);color:#60a5fa;padding:8px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:6px;">+ Add Item</button>
-
-    <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:14px;margin-top:16px;display:flex;justify-content:space-between;align-items:center;">
-      <span style="font-size:14px;color:rgba(255,255,255,0.6);">Order Total:</span>
-      <span style="font-size:20px;font-weight:700;color:#a78bfa;" id="orderTotalDisplay">₹0</span>
-    </div>
-
-    <div class="modal-footer">
-      <button class="btn-cancel" onclick="closeNewOrderModal()" style="padding:10px 20px;border-radius:10px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:14px;">✕ Cancel</button>
-      <button id="placeOrderBtn" style="background:linear-gradient(135deg,#2563eb,#3b82f6);border:none;color:white;padding:10px 24px;border-radius:10px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:14px;">📋 Place Order</button>
-    </div>
-  </div>
-</div>
-
-
-<!-- RECEIVE PRODUCTS MODAL -->
-<div class="modal-overlay" id="receiveModal">
-  <div class="modal-box" style="max-width:820px;">
-    <div class="modal-title">✅ Receive Products</div>
-    <div id="receiveOrderInfo" style="background:rgba(52,211,153,0.07);border:1px solid rgba(52,211,153,0.2);border-radius:10px;padding:14px;margin-bottom:12px;font-size:13px;color:rgba(255,255,255,0.7);line-height:1.7;"></div>
-    <div style="font-size:12px;color:rgba(255,255,255,0.5);margin-bottom:10px;">✅ Check items you received. Enter quantity and selling price. Unchecked items stay pending.</div>
-
-    <!-- Receive rows header -->
-    <div class="rcv-row rcv-head">
-      <div>✓</div>
-      <div>Product / Brand</div>
-      <div>Item Code</div>
-      <div style="text-align:center;">Ordered</div>
-      <div style="text-align:center;">Rcvd</div>
-      <div style="text-align:center;">Rcv Qty</div>
-      <div style="text-align:center;">Sell ₹</div>
-    </div>
-    <div id="receiveItemsList" style="border:1px solid rgba(255,255,255,0.07);border-top:none;border-radius:0 0 10px 10px;overflow:hidden;margin-bottom:14px;max-height:360px;overflow-y:auto;"></div>
-
-    <!-- Payment -->
-    <div style="background:rgba(37,99,235,0.08);border:1px solid rgba(37,99,235,0.2);border-radius:10px;padding:14px;margin-bottom:14px;">
-      <div style="font-size:11px;font-weight:700;color:rgba(96,165,250,0.8);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">💳 Payment for this delivery</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
-        <div><label class="form-label">Cash ₹</label><input type="number" id="rcvCash" placeholder="0" min="0" oninput="calcRcvTotal()" style="margin-bottom:0;"></div>
-        <div><label class="form-label">UPI ₹</label><input type="number" id="rcvUpi" placeholder="0" min="0" oninput="calcRcvTotal()" style="margin-bottom:0;"></div>
-        <div><label class="form-label">Credit ₹</label><input type="number" id="rcvCredit" placeholder="0" min="0" oninput="calcRcvTotal()" style="margin-bottom:0;"></div>
-      </div>
-      <div id="rcvPaySummary" style="margin-top:10px;font-size:13px;color:rgba(255,255,255,0.5);"></div>
-    </div>
-
-    <div class="modal-footer">
-      <button onclick="closeReceiveModal()" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.7);padding:10px 20px;border-radius:10px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:14px;box-shadow:none;">✕ Cancel</button>
-      <button onclick="processReceive(false)" style="background:rgba(37,99,235,0.2);border:1px solid rgba(37,99,235,0.4);color:#60a5fa;padding:10px 20px;border-radius:10px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;box-shadow:none;">💾 Save Only</button>
-      <button onclick="processReceive(true)" style="background:linear-gradient(135deg,#059669,#34d399);border:none;color:white;padding:10px 24px;border-radius:10px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:14px;">✅ Confirm & Print Receipt</button>
-    </div>
-  </div>
-</div>
-
-
-<!-- PRINT: RECEIPT -->
-<div id="printReceiptArea">
-  <div class="rpt-paper">
-    <div class="rpt-header">
-      <div><div class="rpt-co">Abhinandan Auto Mobiles</div><div class="rpt-sub">Santalpur - Palanpur Highway · +91 98700 37002</div></div>
-      <div style="text-align:right;"><div class="rpt-badge">GOODS RECEIPT</div><div class="rpt-no">Bill # <span id="ptBillNo">—</span></div><div class="rpt-date" id="ptDate">—</div></div>
-    </div>
-    <div class="rpt-meta">
-      <div class="rpt-meta-block"><label>Supplier</label><span id="ptMerchant">—</span></div>
-      <div class="rpt-meta-block"><label>Order No</label><span id="ptOrderNo">—</span></div>
-      <div class="rpt-meta-block"><label>Payment</label><span id="ptPayMode">—</span></div>
-    </div>
-    <table class="rpt-tbl" style="margin:0 32px;width:calc(100% - 64px);">
-      <thead><tr><th>#</th><th>Product</th><th>Brand</th><th>Qty</th><th>Buy ₹</th><th>Sell ₹</th><th>Amount</th></tr></thead>
-      <tbody id="ptItems"></tbody>
-    </table>
-    <div class="rpt-totals" style="min-width:220px;">
-      <div style="min-width:220px;">
-        <div class="rpt-total-row"><span>Subtotal</span><span>₹<span id="ptSubtotal">0</span></span></div>
-        <div class="rpt-total-row"><span style="font-weight:700;">Grand Total</span><span style="color:#78350f;">₹<span id="ptTotal">0</span></span></div>
-      </div>
-    </div>
-    <div class="rpt-pay">
-      <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#6b7280;margin-bottom:8px;">Payment</div>
-      <div style="display:flex;gap:24px;font-size:13px;">
-        <div><span style="color:#6b7280;">Cash: </span><strong id="ptCash">₹0</strong></div>
-        <div><span style="color:#6b7280;">UPI: </span><strong id="ptUpi">₹0</strong></div>
-        <div><span style="color:#6b7280;">Credit: </span><strong id="ptCredit">₹0</strong></div>
-      </div>
-    </div>
-    <div class="rpt-footer"><div style="font-size:14px;font-weight:600;color:#78350f;margin-bottom:4px;">Stock Received 🙏</div><div>Internal goods receipt note.</div></div>
-  </div>
-</div>
-
-<!-- PRINT: ORDER -->
-<div id="printOrderArea">
-  <div class="rpt-paper">
-    <div class="rpt-header">
-      <div><div class="rpt-co">Abhinandan Auto Mobiles</div><div class="rpt-sub">Santalpur - Palanpur Highway · +91 98700 37002</div></div>
-      <div style="text-align:right;"><div class="rpt-badge">PURCHASE ORDER</div><div class="rpt-no">Order # <span id="poOrderNo">—</span></div><div class="rpt-date" id="poDate">—</div></div>
-    </div>
-    <div class="rpt-meta">
-      <div class="rpt-meta-block"><label>Merchant</label><span id="poMerchant">—</span></div>
-      <div class="rpt-meta-block"><label>Phone</label><span id="poPhone">—</span></div>
-      <div class="rpt-meta-block"><label>Expected</label><span id="poExpected">—</span></div>
-      <div class="rpt-meta-block"><label>Status</label><span id="poStatus">—</span></div>
-    </div>
-    <div id="poNoteBar" style="display:none;margin:8px 32px;padding:10px 14px;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;font-size:13px;color:#92400e;">📝 <span id="poNote"></span></div>
-    <table class="rpt-tbl" style="margin:0 32px;width:calc(100% - 64px);">
-      <thead><tr><th>#</th><th>Product</th><th>Brand</th><th>Code</th><th>Qty</th><th>Price ₹</th><th>Amount</th></tr></thead>
-      <tbody id="poItems"></tbody>
-    </table>
-    <div class="rpt-totals"><div style="min-width:220px;"><div class="rpt-total-row"><span style="font-weight:700;">Order Total</span><span style="color:#78350f;">₹<span id="poTotal">0</span></span></div></div></div>
-    <div class="rpt-footer" style="display:flex;justify-content:space-between;margin-top:16px;">
-      <div><div style="border-top:1px solid #000;width:130px;margin-top:28px;margin-bottom:4px;"></div><div style="font-size:11px;color:#6b7280;">Supplier Signature</div></div>
-      <div><div style="border-top:1px solid #000;width:130px;margin-top:28px;margin-bottom:4px;"></div><div style="font-size:11px;color:#6b7280;">For Abhinandan Auto Mobiles</div></div>
-    </div>
-  </div>
-</div>
-
-
-<script>
-const _S = document.createElement('script')
-_S.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js'
-_S.onload = () => initApp(window.supabase.createClient(
-  "https://mhhnmndnolhapaoqtbxo.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1oaG5tbmRub2xoYXBhb3F0YnhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4Mzg4NTksImV4cCI6MjA4ODQxNDg1OX0.IMSp8vYiCln_iSuoT_H2qdeX_dP1WMhOOskDw20eJXw"
-))
-document.head.appendChild(_S)
-
-function initApp(supabase) {
-
-// ── STATE ──
-let allOrders = []
-let allItems = {}        // { orderId: [items...] }
-let editingOrderId = null
-let receivingOrderId = null
-let invCache = []        // inventory products
-let merchantTimer = null
-let prodTimers = {}
-
-// ── BOOT ──
-document.getElementById('oDate').value = new Date().toISOString().slice(0,10)
-document.getElementById('placeOrderBtn').addEventListener('click', saveOrder)
-loadData()
-
-// ════════════════════════
-// LOAD DATA
-// WHY: Load everything at once so
-// the receive modal always has items.
-// ════════════════════════
-async function loadData() {
-  document.getElementById('ordersContainer').innerHTML =
-    '<div style="text-align:center;padding:40px;color:rgba(255,255,255,0.3);">⏳ Loading...</div>'
-
-  // Load inventory for product search autocomplete
-  const { data: inv } = await supabase
-    .from('inventory')
-    .select('id,item_name,item_code,brand,product_size,category,unit_type,purchase_price,selling_price,quantity')
-    .order('item_name')
-  invCache = inv || []
-
-  // Load orders + items in parallel
-  const [{ data: orders }, { data: items }] = await Promise.all([
-    supabase.from('purchase_orders').select('*').order('created_at', { ascending: false }),
-    supabase.from('purchase_order_items').select('*').order('id')
-  ])
-
-  allOrders = orders || []
-
-  // Build items lookup: { orderId: [items] }
-  allItems = {}
-  ;(items || []).forEach(item => {
-    if (!allItems[item.order_id]) allItems[item.order_id] = []
-    allItems[item.order_id].push(item)
-  })
-
-  updateStats()
-  renderOrders()
-}
-
-function updateStats() {
-  document.getElementById('stTotal').innerText = allOrders.length
-  document.getElementById('stPending').innerText = allOrders.filter(o => o.status === 'pending').length
-  document.getElementById('stPartial').innerText = allOrders.filter(o => o.status === 'partial').length
-  document.getElementById('stReceived').innerText = allOrders.filter(o => o.status === 'received').length
-}
-
-// ════════════════════════
-// RENDER ORDERS
-// ════════════════════════
-window.renderOrders = function() {
-  const search = (document.getElementById('searchInput').value || '').toLowerCase()
-  const sf = document.getElementById('filterStatus').value
-  const container = document.getElementById('ordersContainer')
-
-  let filtered = allOrders.filter(o => {
-    const items = allItems[o.id] || []
-    const ms = !search ||
-      (o.merchant_name || '').toLowerCase().includes(search) ||
-      (o.order_number || '').toLowerCase().includes(search) ||
-      items.some(i => (i.item_name || '').toLowerCase().includes(search))
-    let ms2 = sf === 'all' ? true :
-              sf === 'active' ? (o.status === 'pending' || o.status === 'partial') :
-              o.status === sf
-    return ms && ms2
-  })
-
-  if (!filtered.length) {
-    container.innerHTML = `<div style="text-align:center;padding:50px;color:rgba(255,255,255,0.3);">
-      <div style="font-size:40px;margin-bottom:12px;">📋</div>
-      <div>No orders found. Click "+ New Order" to place one.</div>
-    </div>`
-    return
-  }
-
-  const today = new Date()
-  container.innerHTML = filtered.map(order => {
-    const items = allItems[order.id] || []
-    const totOrdered = items.reduce((s, i) => s + (i.ordered_qty || 0), 0)
-    const totRcvd = items.reduce((s, i) => s + (i.received_qty || 0), 0)
-    const orderDate = new Date(order.order_date + 'T12:00:00')
-    const daysSince = Math.floor((today - orderDate) / (1000*60*60*24))
-    const isOverdue = (order.status === 'pending' || order.status === 'partial') && daysSince >= 2
-
-    const itemRows = items.length ? items.map(item => {
-      const pending = (item.ordered_qty || 0) - (item.received_qty || 0)
-      return `<tr>
-        <td style="font-weight:500;">${esc(item.item_name)}</td>
-        <td style="color:rgba(255,255,255,0.5);">${esc(item.brand || '—')}</td>
-        <td style="color:rgba(255,255,255,0.4);font-family:monospace;font-size:12px;">${esc(item.item_code || '—')}</td>
-        <td style="color:rgba(255,255,255,0.5);">${esc(item.product_size || '—')}</td>
-        <td style="color:rgba(255,255,255,0.5);">${esc(item.category || '—')}</td>
-        <td style="text-align:center;">${item.ordered_qty || 0}</td>
-        <td style="text-align:center;color:#34d399;">${item.received_qty || 0}</td>
-        <td style="text-align:center;color:${pending > 0 ? '#fbbf24' : '#34d399'};">${pending > 0 ? pending : '✓'}</td>
-        <td style="color:#a78bfa;">₹${(item.purchase_price || 0).toLocaleString('en-IN')}</td>
-        <td style="color:#34d399;">${item.selling_price ? '₹' + item.selling_price.toLocaleString('en-IN') : '—'}</td>
-        <td style="text-align:right;font-weight:600;">₹${((item.ordered_qty || 0) * (item.purchase_price || 0)).toLocaleString('en-IN')}</td>
-      </tr>`
-    }).join('') :
-    `<tr><td colspan="11" style="text-align:center;padding:16px;color:rgba(255,255,255,0.3);">No items — click ✏️ to add items</td></tr>`
-
-    return `<div class="order-card${isOverdue ? ' reminder-due' : ''}" id="oc-${order.id}">
-      <div class="order-header" onclick="toggleOrder(${order.id})">
-        <div>
-          <div class="order-no">${esc(order.order_number)}</div>
-          <div class="order-merchant">${esc(order.merchant_name)}</div>
-          <div class="order-date">📅 ${fmtDate(order.order_date)}${order.expected_date ? ' · Expected: ' + fmtDate(order.expected_date) : ''}${isOverdue ? ' <span style="color:#fb923c;font-size:11px;">⏰ ' + daysSince + 'd ago</span>' : ''}</div>
+            <div style="position: absolute; bottom: 20px; left: 20px; font-size: 12px; color: #64748b;">
+                Auto ERP v1.0
+            </div>
         </div>
-        <div class="order-meta">
-          <div>
-            <div class="order-amount">₹${Math.round(order.total_amount || 0).toLocaleString('en-IN')}</div>
-            <div class="order-items-count">${items.length} item${items.length !== 1 ? 's' : ''} · ${totRcvd}/${totOrdered} rcvd</div>
-          </div>
-          <span class="status-badge status-${order.status}">${order.status.charAt(0).toUpperCase() + order.status.slice(1)}</span>
-          <div class="order-actions-row" onclick="event.stopPropagation()">
-            ${order.status !== 'received' && order.status !== 'cancelled' ?
-              `<button onclick="openReceiveModal(${order.id})" style="background:rgba(52,211,153,0.2);border:1px solid rgba(52,211,153,0.35);color:#34d399;padding:6px 14px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;box-shadow:none;">✅ Receive</button>` : ''}
-            <button onclick="editOrder(${order.id})" style="background:rgba(96,165,250,0.15);border:1px solid rgba(96,165,250,0.3);color:#60a5fa;padding:6px 12px;border-radius:8px;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;box-shadow:none;" title="Edit">✏️</button>
-            <button onclick="printOrder(${order.id})" style="background:rgba(167,139,250,0.15);border:1px solid rgba(167,139,250,0.3);color:#a78bfa;padding:6px 12px;border-radius:8px;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;box-shadow:none;" title="Print">🖨</button>
-            ${order.status !== 'received' && order.status !== 'cancelled' ?
-              `<button onclick="cancelOrder(${order.id})" style="background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.25);color:#f87171;padding:6px 10px;border-radius:8px;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;box-shadow:none;" title="Cancel">✕</button>` : ''}
-            <button onclick="deleteOrder(${order.id})" style="background:rgba(220,38,38,0.15);border:1px solid rgba(220,38,38,0.25);color:#f87171;padding:6px 10px;border-radius:8px;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;box-shadow:none;" title="Delete">🗑️</button>
-          </div>
+
+        <!-- Main Content -->
+        <div class="main">
+            <div class="header">
+                <div class="header-content">
+                    <div class="header-icon">📋</div>
+                    <div class="header-text">
+                        <h1>Order Status</h1>
+                        <p>Track pending orders from suppliers. Receive products when they arrive — auto-creates purchase bill.</p>
+                    </div>
+                </div>
+                <button class="btn-primary" onclick="openNewOrderModal()">+ New Order</button>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Total Orders</div>
+                    <div class="stat-bar"><div class="stat-bar-fill"></div></div>
+                    <div class="stat-value" id="statTotal">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Pending</div>
+                    <div class="stat-bar"><div class="stat-bar-fill"></div></div>
+                    <div class="stat-value" id="statPending">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Partial</div>
+                    <div class="stat-bar"><div class="stat-bar-fill"></div></div>
+                    <div class="stat-value" id="statPartial">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Received</div>
+                    <div class="stat-bar"><div class="stat-bar-fill"></div></div>
+                    <div class="stat-value" id="statReceived">0</div>
+                </div>
+            </div>
+
+            <div class="content-area">
+                <div class="search-filter-bar">
+                    <div class="search-box">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" id="searchInput" placeholder="Search merchant, order number, product..." onkeyup="filterOrders()">
+                    </div>
+                    <select class="filter-dropdown" id="statusFilter" onchange="filterOrders()">
+                        <option value="">All Statuses</option>
+                        <option value="pending">Pending</option>
+                        <option value="partial">Partial</option>
+                        <option value="received">Received</option>
+                    </select>
+                    <select class="filter-dropdown" id="viewFilter" onchange="filterOrders()">
+                        <option value="active">Active (Pending + Partial)</option>
+                        <option value="all">All Orders</option>
+                        <option value="pending">Pending Only</option>
+                        <option value="received">Received Only</option>
+                    </select>
+                </div>
+
+                <div class="orders-container" id="ordersContainer">
+                    <div class="loading-state">
+                        <div class="loading-spinner"></div>
+                        <span>Loading orders...</span>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
-      <div class="order-body" id="ob-${order.id}">
-        ${order.notes ? `<div style="background:rgba(255,255,255,0.04);border-radius:8px;padding:10px 14px;font-size:13px;color:rgba(255,255,255,0.55);margin-bottom:12px;font-style:italic;">📝 ${esc(order.notes)}</div>` : ''}
-        ${order.linked_bill_number ? `<div style="background:rgba(52,211,153,0.08);border:1px solid rgba(52,211,153,0.2);border-radius:8px;padding:10px 14px;font-size:13px;color:#34d399;margin-bottom:12px;">✅ Purchase bill: <strong>${esc(order.linked_bill_number)}</strong></div>` : ''}
-        <div style="overflow-x:auto;">
-          <table class="items-table">
-            <thead><tr>
-              <th>Product</th><th>Brand</th><th>Code</th><th>Size</th><th>Category</th>
-              <th style="text-align:center;">Ordered</th><th style="text-align:center;">Received</th>
-              <th style="text-align:center;">Pending</th><th>Buy ₹</th><th>Sell ₹</th><th style="text-align:right;">Total</th>
-            </tr></thead>
-            <tbody>${itemRows}</tbody>
-          </table>
+    </div>
+
+    <!-- Edit Order Modal -->
+    <div class="modal" id="editModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span>Edit Order #<span id="editOrderNumber"></span></span>
+                <button class="modal-close" onclick="closeEditModal()">✕</button>
+            </div>
+
+            <div id="editMessage"></div>
+
+            <div class="form-group">
+                <label class="form-label">Merchant Name</label>
+                <input type="text" class="form-input" id="editMerchantName" disabled>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Merchant Phone</label>
+                <input type="text" class="form-input" id="editMerchantPhone" disabled>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Order Date</label>
+                <input type="date" class="form-input" id="editOrderDate">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Expected Delivery Date</label>
+                <input type="date" class="form-input" id="editExpectedDate">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Notes</label>
+                <textarea class="form-textarea" id="editNotes" placeholder="Add any notes about this order..."></textarea>
+            </div>
+
+            <div class="items-section">
+                <div class="items-header">Order Items</div>
+                <div class="order-items-grid" id="editItemsList"></div>
+                <button class="add-item-btn" onclick="addEditItem()">+ Add Item</button>
+            </div>
+
+            <div class="form-group" style="display: flex; gap: 12px;">
+                <div style="flex: 1;">
+                    <label class="form-label">Order Total (₹)</label>
+                    <input type="number" class="form-input" id="editTotal" disabled>
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeEditModal()">Cancel</button>
+                <button class="btn-primary" onclick="saveEditOrder()">Save Changes</button>
+                <button class="btn-small" style="background: rgba(52, 211, 153, 0.2); border-color: #34d399; color: #34d399; margin-left: auto;" onclick="openReceiveModal()">📦 Receive Products</button>
+            </div>
         </div>
-      </div>
-    </div>`
-  }).join('')
-}
-
-window.toggleOrder = id => {
-  const b = document.getElementById('ob-' + id)
-  if (b) b.classList.toggle('open')
-}
-
-
-// ════════════════════════
-// NEW ORDER MODAL
-// ════════════════════════
-window.openNewOrderModal = function() {
-  editingOrderId = null
-  document.getElementById('orderModalTitle').innerText = '📋 Place New Order'
-  document.getElementById('oMerchant').value = ''
-  document.getElementById('oPhone').value = ''
-  document.getElementById('oDate').value = new Date().toISOString().slice(0,10)
-  document.getElementById('oExpected').value = ''
-  document.getElementById('oNotes').value = ''
-  document.getElementById('orderItemsContainer').innerHTML = ''
-  document.getElementById('placeOrderBtn').innerText = '📋 Place Order'
-  addOrderItem()
-  calcOrderTotal()
-  document.getElementById('newOrderModal').style.display = 'block'
-}
-
-window.closeNewOrderModal = function() {
-  document.getElementById('newOrderModal').style.display = 'none'
-  editingOrderId = null
-}
-
-// ─ Add item row ─
-// SIMPLIFIED: Product | Brand | Item Code | Qty | Price | Remove
-// Category is removed from here (it lives in expanded view, not needed on order form)
-window.addOrderItem = function() {
-  const container = document.getElementById('orderItemsContainer')
-  const rowId = 'r' + Date.now()
-  const div = document.createElement('div')
-  div.className = 'order-item-row'
-  div.dataset.rowid = rowId
-  // Store extra data as data attributes
-  div.dataset.brand = ''
-  div.dataset.size = ''
-  div.dataset.category = ''
-  div.dataset.unit = ''
-  div.dataset.invId = ''
-  div.dataset.sellPrice = ''
-  div.dataset.isNew = 'false'
-
-  div.innerHTML = `
-    <div style="position:relative;">
-      <input placeholder="Type to search product..." class="oi-name"
-        oninput="onProdInput(this,'${rowId}')" autocomplete="off"
-        style="margin-bottom:0;padding:8px 10px;font-size:13px;background:rgba(255,255,255,0.07);border:1.5px solid rgba(255,255,255,0.1);border-radius:8px;color:white;font-family:'DM Sans',sans-serif;outline:none;width:100%;">
-      <ul class="prod-dropdown" id="pd-${rowId}"></ul>
     </div>
-    <div>
-      <input placeholder="Brand" class="oi-brand"
-        style="margin-bottom:0;padding:8px 10px;font-size:13px;background:rgba(255,255,255,0.07);border:1.5px solid rgba(255,255,255,0.1);border-radius:8px;color:white;font-family:'DM Sans',sans-serif;outline:none;width:100%;">
-    </div>
-    <div>
-      <input placeholder="Code (optional)" class="oi-code"
-        style="margin-bottom:0;padding:8px 10px;font-size:13px;background:rgba(255,255,255,0.07);border:1.5px solid rgba(255,255,255,0.1);border-radius:8px;color:rgba(255,255,255,0.6);font-family:'DM Sans',sans-serif;outline:none;width:100%;">
-    </div>
-    <div>
-      <input type="number" placeholder="1" min="1" value="1" class="oi-qty"
-        oninput="calcOrderTotal()"
-        style="margin-bottom:0;padding:8px 10px;font-size:13px;background:rgba(255,255,255,0.07);border:1.5px solid rgba(255,255,255,0.1);border-radius:8px;color:white;font-family:'DM Sans',sans-serif;outline:none;width:100%;text-align:center;">
-    </div>
-    <div>
-      <input type="number" placeholder="0" min="0" value="0" class="oi-price"
-        oninput="calcOrderTotal()"
-        style="margin-bottom:0;padding:8px 10px;font-size:13px;background:rgba(255,255,255,0.07);border:1.5px solid rgba(255,255,255,0.1);border-radius:8px;color:#a78bfa;font-family:'DM Sans',sans-serif;outline:none;width:100%;text-align:center;font-weight:600;">
-    </div>
-    <button class="remove-item-btn" onclick="this.closest('.order-item-row').remove();calcOrderTotal();" title="Remove">✕</button>
-  `
-  container.appendChild(div)
-  div.querySelector('.oi-name').focus()
-}
 
-// Product search
-window.onProdInput = function(input, rowId) {
-  const q = input.value.trim()
-  const dd = document.getElementById('pd-' + rowId)
-  clearTimeout(prodTimers[rowId])
-  if (!q) { dd.style.display = 'none'; return }
+    <!-- Receive Products Modal -->
+    <div class="modal receive-modal" id="receiveModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span>Receive Products for Order #<span id="receiveOrderNumber"></span></span>
+                <button class="modal-close" onclick="closeReceiveModal()">✕</button>
+            </div>
 
-  prodTimers[rowId] = setTimeout(() => {
-    const matches = invCache.filter(p =>
-      (p.item_name || '').toLowerCase().includes(q.toLowerCase()) ||
-      (p.item_code || '').toLowerCase().includes(q.toLowerCase()) ||
-      (p.brand || '').toLowerCase().includes(q.toLowerCase())
-    ).slice(0, 10)
+            <div id="receiveMessage"></div>
 
-    dd.innerHTML = ''
+            <div class="receive-items" id="receiveItemsList"></div>
 
-    matches.forEach(p => {
-      const li = document.createElement('li')
-      li.innerHTML = `<strong>${esc(p.item_name)}</strong>
-        ${p.brand ? `<span style="color:rgba(255,255,255,0.45);"> · ${esc(p.brand)}</span>` : ''}
-        ${p.item_code ? `<span style="color:rgba(255,255,255,0.3);font-size:11px;font-family:monospace;"> [${esc(p.item_code)}]</span>` : ''}
-        <span style="color:#a78bfa;font-size:12px;"> ₹${p.purchase_price || 0}</span>
-        <span style="color:${p.quantity <= 0 ? '#f87171' : p.quantity <= 5 ? '#fbbf24' : '#34d399'};font-size:11px;"> (${p.quantity || 0} stock)</span>`
-      li.onmousedown = e => {
-        e.preventDefault()
-        fillRow(rowId, p)
-        dd.style.display = 'none'
-      }
-      dd.appendChild(li)
-    })
-
-    // "Add as new" option
-    const li2 = document.createElement('li')
-    li2.className = 'new-item'
-    li2.innerHTML = `➕ Use "<strong>${esc(q)}</strong>" as new product`
-    li2.onmousedown = e => {
-      e.preventDefault()
-      const row = document.querySelector(`.order-item-row[data-rowid="${rowId}"]`)
-      if (row) { row.dataset.isNew = 'true'; row.dataset.invId = '' }
-      dd.style.display = 'none'
-    }
-    dd.appendChild(li2)
-
-    dd.style.display = matches.length || q ? 'block' : 'none'
-  }, 220)
-}
-
-function fillRow(rowId, product) {
-  const row = document.querySelector(`.order-item-row[data-rowid="${rowId}"]`)
-  if (!row) return
-  row.querySelector('.oi-name').value = product.item_name || ''
-  row.querySelector('.oi-brand').value = product.brand || ''
-  row.querySelector('.oi-code').value = product.item_code || ''
-  row.querySelector('.oi-price').value = product.purchase_price || 0
-  row.dataset.brand = product.brand || ''
-  row.dataset.size = product.product_size || ''
-  row.dataset.category = product.category || ''
-  row.dataset.unit = product.unit_type || ''
-  row.dataset.invId = product.id || ''
-  row.dataset.sellPrice = product.selling_price || ''
-  row.dataset.isNew = 'false'
-  calcOrderTotal()
-}
-
-window.calcOrderTotal = function() {
-  let total = 0
-  document.querySelectorAll('.order-item-row').forEach(row => {
-    const qty = parseFloat(row.querySelector('.oi-qty')?.value) || 0
-    const price = parseFloat(row.querySelector('.oi-price')?.value) || 0
-    total += qty * price
-  })
-  document.getElementById('orderTotalDisplay').innerText = '₹' + Math.round(total).toLocaleString('en-IN')
-}
-
-// Close dropdowns on outside click
-document.addEventListener('click', e => {
-  document.querySelectorAll('.prod-dropdown').forEach(d => { d.style.display = 'none' })
-  if (!e.target.closest('#oMerchant') && !e.target.closest('#merchantSuggest')) {
-    document.getElementById('merchantSuggest').style.display = 'none'
-  }
-})
-
-
-// ════════════════════════
-// GENERATE NUMBERS
-// ════════════════════════
-async function genOrderNo(dateStr) {
-  const d = new Date(dateStr + 'T12:00:00')
-  const dd = String(d.getDate()).padStart(2,'0'), mm = String(d.getMonth()+1).padStart(2,'0'), yy = String(d.getFullYear()).slice(2)
-  const prefix = 'ORD-' + dd + mm + yy + '-'
-  const { data } = await supabase.from('purchase_orders').select('order_number').like('order_number', prefix+'%').order('order_number',{ascending:false}).limit(1)
-  let n = 0; if (data && data.length) { const p = data[0].order_number.split('-'); n = parseInt(p[p.length-1]) || 0 }
-  return prefix + String(n+1).padStart(4,'0')
-}
-
-async function genPurBillNo() {
-  const now = new Date()
-  const dd = String(now.getDate()).padStart(2,'0'), mm = String(now.getMonth()+1).padStart(2,'0'), yy = String(now.getFullYear()).slice(2)
-  const prefix = 'PUR-' + dd + mm + yy + '-'
-  const { data } = await supabase.from('purchases').select('bill_number').like('bill_number', prefix+'%').order('bill_number',{ascending:false}).limit(1)
-  let n = 0; if (data && data.length) { const p = data[0].bill_number.split('-'); n = parseInt(p[p.length-1]) || 0 }
-  return prefix + String(n+1).padStart(4,'0')
-}
-
-
-// ════════════════════════
-// SAVE ORDER
-// ROOT FIX: We now explicitly verify
-// items were saved by checking insert
-// result and logging errors clearly.
-// ════════════════════════
-window.saveOrder = async function() {
-  const merchant = document.getElementById('oMerchant').value.trim()
-  if (!merchant) { alert('Please enter merchant name'); return }
-  const orderDate = document.getElementById('oDate').value
-  if (!orderDate) { alert('Please select order date'); return }
-
-  // Collect item rows
-  const items = []
-  const rows = document.querySelectorAll('.order-item-row')
-  for (const row of rows) {
-    const name = row.querySelector('.oi-name')?.value.trim()
-    if (!name) continue
-    const qty = parseInt(row.querySelector('.oi-qty')?.value) || 0
-    if (qty <= 0) { alert('Quantity must be ≥ 1 for: ' + name); return }
-    items.push({
-      item_name:      name,
-      brand:          row.querySelector('.oi-brand')?.value.trim() || null,
-      item_code:      row.querySelector('.oi-code')?.value.trim() || null,
-      product_size:   row.dataset.size || null,
-      category:       row.dataset.category || null,
-      unit_type:      row.dataset.unit || null,
-      ordered_qty:    qty,
-      purchase_price: parseFloat(row.querySelector('.oi-price')?.value) || 0,
-      selling_price:  row.dataset.sellPrice ? parseFloat(row.dataset.sellPrice) : null,
-      received_qty:   0,
-      inv_id:         row.dataset.invId || null
-    })
-  }
-  if (!items.length) { alert('Add at least one product'); return }
-
-  const total = items.reduce((s, i) => s + (i.ordered_qty || 0) * (i.purchase_price || 0), 0)
-
-  const btn = document.getElementById('placeOrderBtn')
-  btn.disabled = true; btn.innerText = '⏳ Saving...'
-
-  try {
-    if (editingOrderId) {
-      // UPDATE order header
-      const { error: updErr } = await supabase.from('purchase_orders').update({
-        merchant_name:  merchant,
-        merchant_phone: document.getElementById('oPhone').value.trim() || null,
-        order_date:     orderDate,
-        expected_date:  document.getElementById('oExpected').value || null,
-        notes:          document.getElementById('oNotes').value.trim() || null,
-        total_amount:   total
-      }).eq('id', editingOrderId)
-      if (updErr) throw new Error('Update order: ' + updErr.message)
-
-      // DELETE old items then INSERT new ones
-      const { error: delErr } = await supabase.from('purchase_order_items').delete().eq('order_id', editingOrderId)
-      if (delErr) throw new Error('Delete items: ' + delErr.message)
-
-      const { data: insData, error: insErr } = await supabase.from('purchase_order_items').insert(
-        items.map(i => ({ ...i, order_id: editingOrderId }))
-      ).select()
-      if (insErr) throw new Error('Insert items: ' + insErr.message)
-
-      console.log('✅ Items saved:', insData?.length, 'items for order', editingOrderId)
-      closeNewOrderModal()
-      await loadData()
-      alert('✅ Order updated! ' + (insData?.length || 0) + ' items saved.')
-
-    } else {
-      // NEW order
-      const orderNo = await genOrderNo(orderDate)
-      const { data: orderData, error: orderErr } = await supabase.from('purchase_orders').insert([{
-        order_number:   orderNo,
-        merchant_name:  merchant,
-        merchant_phone: document.getElementById('oPhone').value.trim() || null,
-        order_date:     orderDate,
-        expected_date:  document.getElementById('oExpected').value || null,
-        notes:          document.getElementById('oNotes').value.trim() || null,
-        status:         'pending',
-        total_amount:   total
-      }]).select().single()
-      if (orderErr) throw new Error('Create order: ' + orderErr.message)
-
-      // INSERT items with order_id
-      const itemsToInsert = items.map(i => ({ ...i, order_id: orderData.id }))
-      const { data: insData, error: insErr } = await supabase.from('purchase_order_items').insert(itemsToInsert).select()
-      if (insErr) throw new Error('Insert items: ' + insErr.message)
-
-      console.log('✅ New order', orderNo, '— items saved:', insData?.length)
-      closeNewOrderModal()
-      await loadData()
-      alert('✅ Order placed: ' + orderNo + '\n' + (insData?.length || 0) + ' items saved.')
-    }
-  } catch(err) {
-    console.error('saveOrder error:', err)
-    alert('❌ Error: ' + err.message)
-  }
-
-  btn.disabled = false
-  btn.innerText = editingOrderId ? '💾 Update Order' : '📋 Place Order'
-}
-
-
-// ════════════════════════
-// EDIT ORDER
-// ROOT FIX: Pull items from allItems
-// which is already loaded in memory.
-// ════════════════════════
-window.editOrder = async function(id) {
-  const order = allOrders.find(o => o.id === id)
-  if (!order) return
-  editingOrderId = id
-
-  document.getElementById('orderModalTitle').innerText = '✏️ Edit Order — ' + order.order_number
-  document.getElementById('oMerchant').value = order.merchant_name || ''
-  document.getElementById('oPhone').value = order.merchant_phone || ''
-  document.getElementById('oDate').value = order.order_date || ''
-  document.getElementById('oExpected').value = order.expected_date || ''
-  document.getElementById('oNotes').value = order.notes || ''
-
-  const container = document.getElementById('orderItemsContainer')
-  container.innerHTML = ''
-
-  // Load items — try memory first, then DB as fallback
-  let items = allItems[id] || []
-  if (!items.length) {
-    const { data } = await supabase.from('purchase_order_items').select('*').eq('order_id', id)
-    items = data || []
-    if (items.length) allItems[id] = items // update cache
-  }
-
-  console.log('Editing order', id, '— items loaded:', items.length)
-
-  // Add a row for each item
-  items.forEach(item => {
-    window.addOrderItem()
-    const rows = container.querySelectorAll('.order-item-row')
-    const row = rows[rows.length - 1]
-    if (!row) return
-    const rowId = row.dataset.rowid
-    row.querySelector('.oi-name').value  = item.item_name || ''
-    row.querySelector('.oi-brand').value = item.brand || ''
-    row.querySelector('.oi-code').value  = item.item_code || ''
-    row.querySelector('.oi-qty').value   = item.ordered_qty || 1
-    row.querySelector('.oi-price').value = item.purchase_price || 0
-    row.dataset.brand     = item.brand || ''
-    row.dataset.size      = item.product_size || ''
-    row.dataset.category  = item.category || ''
-    row.dataset.unit      = item.unit_type || ''
-    row.dataset.invId     = item.inv_id || ''
-    row.dataset.sellPrice = item.selling_price || ''
-    row.dataset.isNew     = 'false'
-  })
-
-  // If no items found, add one blank row
-  if (!items.length) addOrderItem()
-
-  calcOrderTotal()
-  document.getElementById('placeOrderBtn').innerText = '💾 Update Order'
-  document.getElementById('newOrderModal').style.display = 'block'
-}
-
-
-// ════════════════════════
-// RECEIVE PRODUCTS MODAL
-// ROOT FIX: Items come from allItems
-// (already loaded). Each item has a
-// checkbox + qty + sell price input.
-// ════════════════════════
-window.openReceiveModal = function(id) {
-  const order = allOrders.find(o => o.id === id)
-  if (!order) { alert('Order not found'); return }
-
-  // Get items from memory
-  const items = allItems[id] || []
-  if (!items.length) {
-    alert('⚠️ This order has no items yet.\nClick ✏️ Edit to add products first, then save the order.')
-    return
-  }
-
-  receivingOrderId = id
-
-  document.getElementById('receiveOrderInfo').innerHTML =
-    `<strong style="color:white;font-size:15px;">${esc(order.merchant_name)}</strong>` +
-    ` &nbsp;|&nbsp; Order: <strong>${esc(order.order_number)}</strong>` +
-    ` &nbsp;|&nbsp; Date: ${fmtDate(order.order_date)}`
-
-  // Build receive rows
-  const list = document.getElementById('receiveItemsList')
-  list.innerHTML = ''
-
-  items.forEach((item, idx) => {
-    const pending = (item.ordered_qty || 0) - (item.received_qty || 0)
-    const done = pending <= 0
-    const row = document.createElement('div')
-    row.className = 'rcv-row' + (done ? ' done' : '')
-    row.dataset.idx = idx
-
-    if (done) {
-      row.innerHTML = `
-        <div><input type="checkbox" disabled style="accent-color:#34d399;opacity:0.4;"></div>
-        <div>
-          <div style="font-weight:500;color:rgba(255,255,255,0.4);text-decoration:line-through;">${esc(item.item_name)}</div>
-          <div style="font-size:11px;color:rgba(255,255,255,0.3);">${esc(item.brand || '')}</div>
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeReceiveModal()">Cancel</button>
+                <button class="btn-primary" onclick="processReceive()">✓ Confirm & Print Receipt</button>
+            </div>
         </div>
-        <div style="font-size:11px;color:rgba(255,255,255,0.3);font-family:monospace;">${esc(item.item_code || '—')}</div>
-        <div style="text-align:center;color:rgba(255,255,255,0.4);">${item.ordered_qty || 0}</div>
-        <div style="text-align:center;"><span style="font-size:11px;background:rgba(52,211,153,0.1);color:#34d399;padding:2px 8px;border-radius:5px;">✓ Done</span></div>
-        <div style="text-align:center;color:rgba(255,255,255,0.3);">—</div>
-        <div style="text-align:center;color:rgba(255,255,255,0.3);">—</div>`
-    } else {
-      row.innerHTML = `
-        <div><input type="checkbox" class="rcv-chk" data-idx="${idx}"
-          style="width:18px;height:18px;accent-color:#34d399;cursor:pointer;"
-          onchange="calcRcvTotal()"></div>
-        <div>
-          <div style="font-weight:500;color:white;">${esc(item.item_name)}</div>
-          <div style="font-size:11px;color:rgba(255,255,255,0.4);">${esc(item.brand || '')} ${item.category ? '· ' + esc(item.category) : ''}</div>
-        </div>
-        <div style="font-size:11px;color:rgba(255,255,255,0.4);font-family:monospace;">${esc(item.item_code || '—')}</div>
-        <div style="text-align:center;">${item.ordered_qty || 0}</div>
-        <div style="text-align:center;color:#34d399;">${item.received_qty || 0}</div>
-        <div style="text-align:center;">
-          <input type="number" class="rcv-qty"
-            data-idx="${idx}" data-price="${item.purchase_price || 0}"
-            value="${pending}" min="1" max="${pending}"
-            oninput="calcRcvTotal()">
-        </div>
-        <div style="text-align:center;">
-          <input type="number" class="rcv-sell"
-            data-idx="${idx}"
-            placeholder="Sell ₹"
-            value="${item.selling_price || ''}"
-            min="0">
-        </div>`
-    }
-    list.appendChild(row)
-  })
+    </div>
 
-  ;['rcvCash','rcvUpi','rcvCredit'].forEach(id => { document.getElementById(id).value = '' })
-  document.getElementById('rcvPaySummary').innerHTML = '<span style="color:rgba(255,255,255,0.4);">Check items above to see total</span>'
-  document.getElementById('receiveModal').style.display = 'block'
-}
+    <!-- Print Areas -->
+    <div class="print-area" id="printOrderArea"></div>
+    <div class="print-area" id="printReceiptArea"></div>
 
-window.closeReceiveModal = function() {
-  document.getElementById('receiveModal').style.display = 'none'
-  receivingOrderId = null
-}
+    <script>
+        // Supabase Configuration
+        const SUPABASE_URL = 'https://mhhnmndnolhapaoqtbxo.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1oaG5tbmRub2xoYXBhb3F0YnhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4Mzg4NTksImV4cCI6MjA4ODQxNDg1OX0.IMSp8vYiCln_iSuoT_H2qdeX_dP1WMhOOskDw20eJXw';
 
-window.calcRcvTotal = function() {
-  let total = 0
-  document.querySelectorAll('.rcv-chk:checked').forEach(chk => {
-    const idx = chk.dataset.idx
-    const qtyEl = document.querySelector('.rcv-qty[data-idx="'+idx+'"]')
-    total += (parseInt(qtyEl?.value) || 0) * (parseFloat(qtyEl?.dataset.price) || 0)
-  })
-  const cash = parseFloat(document.getElementById('rcvCash').value) || 0
-  const upi = parseFloat(document.getElementById('rcvUpi').value) || 0
-  const cred = parseFloat(document.getElementById('rcvCredit').value) || 0
-  const paid = cash + upi + cred
-  const rem = total - paid
-  let html = ''
-  if (!total) html = '<span style="color:rgba(255,255,255,0.4);">Check items to see total</span>'
-  else if (paid === 0) html = `<span style="color:#fbbf24;">Total: ₹${total.toLocaleString('en-IN')} — leave blank for full credit</span>`
-  else if (rem > 0) html = `<span style="color:#fbbf24;">Total: ₹${total.toLocaleString('en-IN')} · ₹${rem.toLocaleString('en-IN')} → credit</span>`
-  else if (rem < 0) html = `<span style="color:#f87171;">❌ Overpaid by ₹${Math.abs(rem).toLocaleString('en-IN')}</span>`
-  else html = `<span style="color:#34d399;">✅ Fully settled ₹${total.toLocaleString('en-IN')}</span>`
-  document.getElementById('rcvPaySummary').innerHTML = html
-}
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+        // Global State
+        let allOrders = [];
+        let allItems = {};
+        let invCache = {};
+        let merchantCache = [];
+        let currentEditOrderId = null;
+        let currentReceiveOrderId = null;
 
-// ════════════════════════
-// PROCESS RECEIVE
-// ════════════════════════
-window.processReceive = async function(shouldPrint) {
-  if (!receivingOrderId) return
-  const order = allOrders.find(o => o.id === receivingOrderId)
-  if (!order) return
-  const items = allItems[receivingOrderId] || []
+        // Initialize
+        document.addEventListener('DOMContentLoaded', async () => {
+            console.log('🚀 Page loaded, starting data load...');
+            await loadData();
+        });
 
-  // Collect checked items
-  const rcvItems = []
-  document.querySelectorAll('.rcv-chk:checked').forEach(chk => {
-    const idx = parseInt(chk.dataset.idx)
-    const item = items[idx]
-    if (!item) return
-    const qtyEl = document.querySelector('.rcv-qty[data-idx="'+idx+'"]')
-    const sellEl = document.querySelector('.rcv-sell[data-idx="'+idx+'"]')
-    const qty = parseInt(qtyEl?.value) || 0
-    const maxAllowed = (item.ordered_qty || 0) - (item.received_qty || 0)
-    if (qty <= 0) return
-    if (qty > maxAllowed) { alert('Cannot receive ' + qty + ' of "' + item.item_name + '". Max: ' + maxAllowed); return }
-    rcvItems.push({
-      ...item,
-      rcvQty: qty,
-      rcvSell: parseFloat(sellEl?.value) || item.selling_price || null
-    })
-  })
+        // Load all data
+        async function loadData() {
+            try {
+                console.log('📥 Fetching orders and items from Supabase...');
 
-  if (!rcvItems.length) { alert('Check at least one item to receive'); return }
+                // Fetch orders
+                const { data: orders, error: ordersError } = await supabase
+                    .from('purchase_orders')
+                    .select('*')
+                    .order('order_date', { ascending: false });
 
-  const total = rcvItems.reduce((s, i) => s + i.rcvQty * (i.purchase_price || 0), 0)
-  let cash = parseFloat(document.getElementById('rcvCash').value) || 0
-  let upi = parseFloat(document.getElementById('rcvUpi').value) || 0
-  let credit = parseFloat(document.getElementById('rcvCredit').value) || 0
-  if (cash + upi + credit > total) { alert('❌ Payment exceeds total'); return }
-  if (cash + upi + credit === 0) credit = total // auto full credit
+                if (ordersError) {
+                    throw new Error(`Failed to fetch orders: ${ordersError.message}`);
+                }
 
-  const todayStr = new Date().toISOString().slice(0,10)
-  const billNo = await genPurBillNo()
+                console.log(`✅ Fetched ${orders?.length || 0} orders`);
+                allOrders = orders || [];
 
-  try {
-    // 1. Create purchase bill
-    const { data: purData, error: purErr } = await supabase.from('purchases').insert([{
-      bill_number: billNo,
-      merchant_name: order.merchant_name,
-      merchant_phone: order.merchant_phone || null,
-      total_amount: total,
-      cash, upi, credit,
-      discount: 0,
-      bill_type: 'purchase'
-    }]).select().single()
-    if (purErr) throw new Error('Create bill: ' + purErr.message)
+                // Fetch items
+                const { data: items, error: itemsError } = await supabase
+                    .from('purchase_order_items')
+                    .select('*');
 
-    // 2. Update inventory + create purchase_items
-    for (const item of rcvItems) {
-      let invId = item.inv_id || null
+                if (itemsError) {
+                    throw new Error(`Failed to fetch items: ${itemsError.message}`);
+                }
 
-      if (invId) {
-        await supabase.rpc('increment_inventory', { p_item_id: invId, p_qty: item.rcvQty })
-        if (item.purchase_price) await supabase.from('inventory').update({ purchase_price: item.purchase_price }).eq('id', invId)
-        if (item.rcvSell) await supabase.from('inventory').update({ selling_price: item.rcvSell }).eq('id', invId)
-      } else {
-        // Search by name
-        const { data: existing } = await supabase.from('inventory').select('id').ilike('item_name', item.item_name).limit(1)
-        if (existing && existing.length) {
-          invId = existing[0].id
-          await supabase.rpc('increment_inventory', { p_item_id: invId, p_qty: item.rcvQty })
-          if (item.purchase_price) await supabase.from('inventory').update({ purchase_price: item.purchase_price }).eq('id', invId)
-          if (item.rcvSell) await supabase.from('inventory').update({ selling_price: item.rcvSell }).eq('id', invId)
-        } else {
-          // Create new inventory product
-          const { data: newInv } = await supabase.from('inventory').insert([{
-            item_name: item.item_name,
-            item_code: item.item_code || null,
-            brand: item.brand || null,
-            product_size: item.product_size || null,
-            category: item.category || null,
-            unit_type: item.unit_type || null,
-            quantity: item.rcvQty,
-            purchase_price: item.purchase_price || 0,
-            selling_price: item.rcvSell || null,
-            supplier: order.merchant_name
-          }]).select().single()
-          if (newInv) invId = newInv.id
+                console.log(`✅ Fetched ${items?.length || 0} items`);
+
+                // Build items map
+                allItems = {};
+                items?.forEach(item => {
+                    if (!allItems[item.order_id]) {
+                        allItems[item.order_id] = [];
+                    }
+                    allItems[item.order_id].push(item);
+                });
+
+                // Fetch inventory for autocomplete
+                const { data: inventory, error: invError } = await supabase
+                    .from('inventory')
+                    .select('id, item_name, brand, category, unit_type, item_code');
+
+                if (!invError && inventory) {
+                    invCache = {};
+                    inventory.forEach(inv => {
+                        invCache[inv.id] = inv;
+                    });
+                    console.log(`✅ Fetched ${inventory.length} inventory items`);
+                }
+
+                // Fetch merchants
+                const { data: merchants, error: merchError } = await supabase
+                    .from('merchants')
+                    .select('id, merchant_name, merchant_phone');
+
+                if (!merchError && merchants) {
+                    merchantCache = merchants;
+                    console.log(`✅ Fetched ${merchants.length} merchants`);
+                }
+
+                console.log('✅ All data loaded successfully!');
+                renderOrders();
+                updateStats();
+
+            } catch (err) {
+                console.error('❌ Error loading data:', err);
+                showError('Failed to load orders. Please try refreshing the page.');
+            }
         }
-      }
 
-      // purchase_items record
-      await supabase.from('purchase_items').insert([{
-        purchase_id: purData.id,
-        item_id: invId,
-        item_name: item.item_name,
-        quantity: item.rcvQty,
-        purchase_price: item.purchase_price || 0,
-        total: item.rcvQty * (item.purchase_price || 0)
-      }])
+        // Render orders
+        function renderOrders() {
+            const container = document.getElementById('ordersContainer');
+            const searchText = document.getElementById('searchInput').value.toLowerCase();
+            const statusFilter = document.getElementById('statusFilter').value;
+            const viewFilter = document.getElementById('viewFilter').value;
 
-      // Update received_qty on order item
-      const newRcv = (item.received_qty || 0) + item.rcvQty
-      await supabase.from('purchase_order_items').update({
-        received_qty: newRcv,
-        selling_price: item.rcvSell || item.selling_price || null
-      }).eq('id', item.id)
-    }
+            let filtered = allOrders.filter(order => {
+                const matchesSearch = !searchText || 
+                    order.merchant_name.toLowerCase().includes(searchText) ||
+                    order.order_number.toLowerCase().includes(searchText) ||
+                    (allItems[order.id] || []).some(item => 
+                        item.item_name.toLowerCase().includes(searchText)
+                    );
 
-    // 3. Update order status
-    const updatedItems = items.map(i => {
-      const ri = rcvItems.find(r => r.id === i.id)
-      return ri ? { ...i, received_qty: (i.received_qty || 0) + ri.rcvQty } : i
-    })
-    const allDone = updatedItems.every(i => (i.received_qty || 0) >= (i.ordered_qty || 0))
-    await supabase.from('purchase_orders').update({
-      status: allDone ? 'received' : 'partial',
-      linked_bill_number: billNo
-    }).eq('id', order.id)
+                const matchesStatus = !statusFilter || order.status === statusFilter;
 
-    if (shouldPrint) {
-      fillPrintReceipt(order, rcvItems, billNo, todayStr, cash, upi, credit, total)
-    }
+                const matchesView = 
+                    viewFilter === 'all' ? true :
+                    viewFilter === 'active' ? (order.status === 'pending' || order.status === 'partial') :
+                    viewFilter === 'pending' ? order.status === 'pending' :
+                    viewFilter === 'received' ? order.status === 'received' : true;
 
-    closeReceiveModal()
-    await loadData()
+                return matchesSearch && matchesStatus && matchesView;
+            });
 
-    if (shouldPrint) {
-      setTimeout(() => {
-        document.body.classList.add('print-receipt')
-        const ot = document.title; document.title = 'GRN-' + billNo
-        window.print()
-        setTimeout(() => { document.body.classList.remove('print-receipt'); document.title = ot }, 1000)
-      }, 500)
-    } else {
-      alert('✅ Received!\nBill: ' + billNo + '\nTotal: ₹' + total.toLocaleString('en-IN'))
-    }
+            if (filtered.length === 0) {
+                container.innerHTML = '<div class="empty-state">📭 No orders found</div>';
+                return;
+            }
 
-  } catch(err) {
-    console.error('processReceive error:', err)
-    alert('❌ Error: ' + err.message)
-  }
-}
+            container.innerHTML = filtered.map(order => {
+                const items = allItems[order.id] || [];
+                const itemCount = items.length;
+                const receivedCount = items.filter(i => i.received_qty > 0).length;
 
-function fillPrintReceipt(order, rcvItems, billNo, dateStr, cash, upi, credit, total) {
-  document.getElementById('ptBillNo').innerText = billNo
-  document.getElementById('ptDate').innerText = fmtDateLong(dateStr)
-  document.getElementById('ptMerchant').innerText = order.merchant_name || '—'
-  document.getElementById('ptOrderNo').innerText = order.order_number || '—'
-  const modes = []
-  if (cash > 0) modes.push('Cash ₹' + Math.round(cash).toLocaleString('en-IN'))
-  if (upi > 0) modes.push('UPI ₹' + Math.round(upi).toLocaleString('en-IN'))
-  if (credit > 0) modes.push('Credit ₹' + Math.round(credit).toLocaleString('en-IN'))
-  document.getElementById('ptPayMode').innerText = modes.join(' + ') || 'Credit'
-  let sub = 0
-  document.getElementById('ptItems').innerHTML = rcvItems.map((item, i) => {
-    const amt = item.rcvQty * (item.purchase_price || 0); sub += amt
-    return `<tr>
-      <td style="padding:9px 12px;color:#6b7280;">${i+1}</td>
-      <td style="padding:9px 12px;">${item.item_name}</td>
-      <td style="padding:9px 12px;">${item.brand || '—'}</td>
-      <td style="padding:9px 12px;text-align:center;">${item.rcvQty}</td>
-      <td style="padding:9px 12px;text-align:center;">₹${(item.purchase_price||0).toLocaleString('en-IN')}</td>
-      <td style="padding:9px 12px;text-align:center;">${item.rcvSell ? '₹' + item.rcvSell.toLocaleString('en-IN') : '—'}</td>
-      <td style="padding:9px 12px;text-align:right;font-weight:600;">₹${amt.toLocaleString('en-IN')}</td></tr>`
-  }).join('')
-  document.getElementById('ptSubtotal').innerText = sub.toLocaleString('en-IN')
-  document.getElementById('ptTotal').innerText = Math.round(total).toLocaleString('en-IN')
-  document.getElementById('ptCash').innerText = '₹' + Math.round(cash).toLocaleString('en-IN')
-  document.getElementById('ptUpi').innerText = '₹' + Math.round(upi).toLocaleString('en-IN')
-  document.getElementById('ptCredit').innerText = '₹' + Math.round(credit).toLocaleString('en-IN')
-}
-
-
-// ════════════════════════
-// PRINT ORDER
-// ════════════════════════
-window.printOrder = function(id) {
-  const order = allOrders.find(o => o.id === id)
-  if (!order) return
-  const items = allItems[id] || []
-  const total = items.reduce((s, i) => s + (i.ordered_qty||0) * (i.purchase_price||0), 0)
-  document.getElementById('poOrderNo').innerText = order.order_number || '—'
-  document.getElementById('poDate').innerText = fmtDateLong(order.order_date)
-  document.getElementById('poMerchant').innerText = order.merchant_name || '—'
-  document.getElementById('poPhone').innerText = order.merchant_phone || '—'
-  document.getElementById('poExpected').innerText = order.expected_date ? fmtDateLong(order.expected_date) : 'Not specified'
-  document.getElementById('poStatus').innerText = order.status.charAt(0).toUpperCase() + order.status.slice(1)
-  if (order.notes) { document.getElementById('poNoteBar').style.display = 'block'; document.getElementById('poNote').innerText = order.notes }
-  else document.getElementById('poNoteBar').style.display = 'none'
-  document.getElementById('poItems').innerHTML = items.map((item, i) =>
-    `<tr><td style="padding:9px 12px;color:#6b7280;">${i+1}</td>
-    <td style="padding:9px 12px;font-weight:500;">${esc(item.item_name)}</td>
-    <td style="padding:9px 12px;">${esc(item.brand||'—')}</td>
-    <td style="padding:9px 12px;font-family:monospace;">${esc(item.item_code||'—')}</td>
-    <td style="padding:9px 12px;text-align:center;">${item.ordered_qty||0}</td>
-    <td style="padding:9px 12px;text-align:center;">₹${(item.purchase_price||0).toLocaleString('en-IN')}</td>
-    <td style="padding:9px 12px;text-align:right;font-weight:600;">₹${((item.ordered_qty||0)*(item.purchase_price||0)).toLocaleString('en-IN')}</td></tr>`
-  ).join('')
-  document.getElementById('poTotal').innerText = Math.round(total).toLocaleString('en-IN')
-  document.body.classList.add('print-order')
-  const ot = document.title; document.title = order.order_number
-  window.print()
-  setTimeout(() => { document.body.classList.remove('print-order'); document.title = ot }, 800)
-}
-
-
-// ════════════════════════
-// CANCEL / DELETE
-// ════════════════════════
-window.cancelOrder = async function(id) {
-  if (!confirm('Cancel this order?')) return
-  await supabase.from('purchase_orders').update({ status: 'cancelled' }).eq('id', id)
-  await loadData()
-}
-
-window.deleteOrder = async function(id) {
-  if (!confirm('Permanently delete this order?')) return
-  await supabase.from('purchase_order_items').delete().eq('order_id', id)
-  await supabase.from('purchase_orders').delete().eq('id', id)
-  await loadData()
-}
-
-
-// ════════════════════════
-// MERCHANT AUTOCOMPLETE
-// ════════════════════════
-window.searchMerchants = function(q) {
-  clearTimeout(merchantTimer)
-  const ul = document.getElementById('merchantSuggest')
-  if (!q.trim()) { ul.style.display = 'none'; return }
-  merchantTimer = setTimeout(async () => {
-    const { data } = await supabase.from('merchants').select('name,phone').ilike('name', '%' + q + '%').limit(8)
-    ul.innerHTML = ''
-    if (data && data.length) {
-      data.forEach(m => {
-        const li = document.createElement('li')
-        li.style.cssText = 'padding:10px 14px;cursor:pointer;border-bottom:1px solid rgba(255,255,255,0.06);font-size:13px;color:white;font-family:"DM Sans",sans-serif;list-style:none;'
-        li.innerHTML = `<strong>${esc(m.name)}</strong>${m.phone ? `<span style="color:rgba(255,255,255,0.4);font-size:12px;"> · ${m.phone}</span>` : ''}`
-        li.onmousedown = () => {
-          document.getElementById('oMerchant').value = m.name
-          document.getElementById('oPhone').value = m.phone || ''
-          ul.style.display = 'none'
+                return `
+                    <div class="order-item" onclick="editOrder(${order.id})">
+                        <div class="order-header">
+                            <div class="order-number">${order.order_number}</div>
+                            <span class="order-status-badge status-${order.status}">${order.status.toUpperCase()}</span>
+                        </div>
+                        <div class="order-details">
+                            <div class="detail-item">
+                                <span class="detail-label">Merchant</span>
+                                <span class="detail-value">${order.merchant_name}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Items</span>
+                                <span class="detail-value">${receivedCount}/${itemCount}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Order Date</span>
+                                <span class="detail-value">${formatDate(order.order_date)}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Total Amount</span>
+                                <span class="detail-value">₹${order.total_amount?.toLocaleString() || '0'}</span>
+                            </div>
+                        </div>
+                        <div class="order-actions">
+                            <button class="btn-small" onclick="event.stopPropagation(); editOrder(${order.id})">✏️ Edit</button>
+                            <button class="btn-small" onclick="event.stopPropagation(); receiveOrder(${order.id})">📦 Receive</button>
+                            <button class="btn-small" onclick="event.stopPropagation(); printOrder(${order.id})" style="background: rgba(168, 85, 247, 0.15); border-color: #a855f7; color: #a855f7;">🖨️ Print</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
         }
-        ul.appendChild(li)
-      })
-      ul.style.display = 'block'
-    } else ul.style.display = 'none'
-  }, 300)
-}
 
+        // Update stats
+        function updateStats() {
+            document.getElementById('statTotal').textContent = allOrders.length;
+            document.getElementById('statPending').textContent = allOrders.filter(o => o.status === 'pending').length;
+            document.getElementById('statPartial').textContent = allOrders.filter(o => o.status === 'partial').length;
+            document.getElementById('statReceived').textContent = allOrders.filter(o => o.status === 'received').length;
+        }
 
-// ════════════════════════
-// HELPERS
-// ════════════════════════
-function esc(s) {
-  return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')
-}
-function fmtDate(d) {
-  if (!d) return '—'
-  return new Date(d + 'T12:00:00').toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' })
-}
-function fmtDateLong(d) {
-  if (!d) return '—'
-  return new Date(d + 'T12:00:00').toLocaleDateString('en-IN', { day:'2-digit', month:'long', year:'numeric' })
-}
+        // Filter orders
+        function filterOrders() {
+            renderOrders();
+        }
 
-// Close modal on backdrop click
-document.getElementById('newOrderModal').addEventListener('click', e => { if (e.target === document.getElementById('newOrderModal')) closeNewOrderModal() })
-document.getElementById('receiveModal').addEventListener('click', e => { if (e.target === document.getElementById('receiveModal')) closeReceiveModal() })
+        // Edit order
+        function editOrder(orderId) {
+            currentEditOrderId = orderId;
+            const order = allOrders.find(o => o.id === orderId);
+            const items = allItems[orderId] || [];
 
-} // end initApp
-</script>
+            document.getElementById('editOrderNumber').textContent = order.order_number;
+            document.getElementById('editMerchantName').value = order.merchant_name;
+            document.getElementById('editMerchantPhone').value = order.merchant_phone || '';
+            document.getElementById('editOrderDate').value = order.order_date;
+            document.getElementById('editExpectedDate').value = order.expected_date || '';
+            document.getElementById('editNotes').value = order.notes || '';
+            document.getElementById('editTotal').value = order.total_amount || 0;
+
+            const itemsList = document.getElementById('editItemsList');
+            itemsList.innerHTML = items.map((item, idx) => `
+                <div class="order-item-row" data-item-index="${idx}" data-item-id="${item.id}">
+                    <input type="text" class="oi-product" placeholder="Product Name" value="${item.item_name}" list="productList">
+                    <input type="text" class="oi-brand" placeholder="Brand" value="${item.brand || ''}">
+                    <input type="text" class="oi-code" placeholder="Item Code" value="${item.item_code || ''}">
+                    <input type="number" class="oi-qty" placeholder="Qty" value="${item.ordered_qty}" min="1">
+                    <input type="number" class="oi-price" placeholder="Price ₹" value="${item.purchase_price}" min="0" step="0.01">
+                    <button type="button" class="remove-item-btn" onclick="removeEditItem(${idx})">Remove</button>
+                </div>
+            `).join('');
+
+            document.getElementById('editModal').classList.add('active');
+        }
+
+        // Add edit item
+        function addEditItem() {
+            const itemsList = document.getElementById('editItemsList');
+            const newRow = document.createElement('div');
+            newRow.className = 'order-item-row';
+            newRow.innerHTML = `
+                <input type="text" class="oi-product" placeholder="Product Name" list="productList">
+                <input type="text" class="oi-brand" placeholder="Brand">
+                <input type="text" class="oi-code" placeholder="Item Code">
+                <input type="number" class="oi-qty" placeholder="Qty" value="1" min="1">
+                <input type="number" class="oi-price" placeholder="Price ₹" min="0" step="0.01">
+                <button type="button" class="remove-item-btn" onclick="this.parentElement.remove()">Remove</button>
+            `;
+            itemsList.appendChild(newRow);
+        }
+
+        // Remove edit item
+        function removeEditItem(idx) {
+            document.querySelector(`[data-item-index="${idx}"]`).remove();
+        }
+
+        // Save edit order
+        async function saveEditOrder() {
+            const order = allOrders.find(o => o.id === currentEditOrderId);
+            const itemsList = document.getElementById('editItemsList');
+            const rows = itemsList.querySelectorAll('.order-item-row');
+
+            try {
+                console.log('💾 Saving order...');
+
+                // Validate items
+                const items = Array.from(rows).map(row => ({
+                    item_name: row.querySelector('.oi-product').value || 'Unnamed',
+                    brand: row.querySelector('.oi-brand').value || '',
+                    item_code: row.querySelector('.oi-code').value || '',
+                    ordered_qty: parseInt(row.querySelector('.oi-qty').value) || 1,
+                    purchase_price: parseFloat(row.querySelector('.oi-price').value) || 0
+                }));
+
+                const totalAmount = items.reduce((sum, item) => sum + (item.ordered_qty * item.purchase_price), 0);
+
+                // Update order
+                const { error: updateError } = await supabase
+                    .from('purchase_orders')
+                    .update({
+                        order_date: document.getElementById('editOrderDate').value,
+                        expected_date: document.getElementById('editExpectedDate').value,
+                        notes: document.getElementById('editNotes').value,
+                        total_amount: totalAmount
+                    })
+                    .eq('id', currentEditOrderId);
+
+                if (updateError) throw new Error(`Update failed: ${updateError.message}`);
+
+                // Delete old items
+                const { error: deleteError } = await supabase
+                    .from('purchase_order_items')
+                    .delete()
+                    .eq('order_id', currentEditOrderId);
+
+                if (deleteError) throw new Error(`Delete failed: ${deleteError.message}`);
+
+                // Insert new items
+                const { error: insertError } = await supabase
+                    .from('purchase_order_items')
+                    .insert(items.map(item => ({
+                        order_id: currentEditOrderId,
+                        ...item
+                    })));
+
+                if (insertError) throw new Error(`Insert failed: ${insertError.message}`);
+
+                console.log('✅ Order saved successfully!');
+                showSuccess('Order updated successfully!');
+                closeEditModal();
+                await loadData();
+
+            } catch (err) {
+                console.error('❌ Save error:', err);
+                showEditError(err.message);
+            }
+        }
+
+        // Receive order
+        function receiveOrder(orderId) {
+            currentReceiveOrderId = orderId;
+            const order = allOrders.find(o => o.id === orderId);
+            const items = allItems[orderId] || [];
+
+            document.getElementById('receiveOrderNumber').textContent = order.order_number;
+
+            const itemsList = document.getElementById('receiveItemsList');
+            itemsList.innerHTML = items.map((item, idx) => `
+                <div class="receive-item">
+                    <div class="receive-item-info">
+                        <div class="receive-item-name">${item.item_name}</div>
+                        <div class="receive-item-details">
+                            <div>Brand: ${item.brand || '—'}</div>
+                            <div>Code: ${item.item_code || '—'}</div>
+                            <div>Ordered: ${item.ordered_qty}</div>
+                            <div>Already Received: ${item.received_qty || 0}</div>
+                        </div>
+                    </div>
+                    <div class="receive-item-inputs">
+                        <label><input type="checkbox" class="rcv-chk" data-item-id="${item.id}" checked> Receive</label>
+                        <input type="number" class="rcv-qty" value="${item.ordered_qty - (item.received_qty || 0)}" min="1" placeholder="Qty">
+                        <input type="number" class="rcv-sell" value="${item.selling_price || ''}" placeholder="Sell Price ₹">
+                        <div></div>
+                    </div>
+                </div>
+            `).join('');
+
+            document.getElementById('receiveModal').classList.add('active');
+        }
+
+        // Process receive
+        async function processReceive() {
+            try {
+                console.log('📦 Processing received items...');
+
+                const checkedItems = document.querySelectorAll('.rcv-chk:checked');
+                const order = allOrders.find(o => o.id === currentReceiveOrderId);
+
+                if (checkedItems.length === 0) {
+                    throw new Error('Please select at least one item to receive');
+                }
+
+                const itemsToReceive = Array.from(checkedItems).map(chk => {
+                    const itemId = parseInt(chk.dataset.itemId);
+                    const qty = parseInt(chk.closest('.receive-item').querySelector('.rcv-qty').value);
+                    const sellPrice = parseFloat(chk.closest('.receive-item').querySelector('.rcv-sell').value) || 0;
+                    return { itemId, qty, sellPrice };
+                });
+
+                // Create purchase bill
+                const billNo = `PUR-${new Date().toISOString().split('T')[0].replace(/-/g, '')}-${Math.random().toString(36).substr(2, 5).toUpperCase()}`;
+                const { data: purchaseData, error: purchaseError } = await supabase
+                    .from('purchases')
+                    .insert({
+                        purchase_bill_number: billNo,
+                        merchant_id: order.merchant_id,
+                        purchase_date: new Date().toISOString().split('T')[0],
+                        total_amount: 0
+                    })
+                    .select();
+
+                if (purchaseError) throw new Error(`Purchase creation failed: ${purchaseError.message}`);
+
+                const purchaseId = purchaseData[0].id;
+                let totalAmount = 0;
+
+                // Update items and create purchase items
+                for (const { itemId, qty, sellPrice } of itemsToReceive) {
+                    const orderItem = (allItems[currentReceiveOrderId] || []).find(i => i.id === itemId);
+                    if (!orderItem) continue;
+
+                    totalAmount += qty * orderItem.purchase_price;
+
+                    // Update order item with received qty and sell price
+                    const { error: updateItemError } = await supabase
+                        .from('purchase_order_items')
+                        .update({
+                            received_qty: (orderItem.received_qty || 0) + qty,
+                            selling_price: sellPrice
+                        })
+                        .eq('id', itemId);
+
+                    if (updateItemError) throw new Error(`Update item failed: ${updateItemError.message}`);
+
+                    // Create purchase item
+                    const { error: purchaseItemError } = await supabase
+                        .from('purchase_items')
+                        .insert({
+                            purchase_id: purchaseId,
+                            item_name: orderItem.item_name,
+                            quantity: qty,
+                            purchase_price: orderItem.purchase_price,
+                            total: qty * orderItem.purchase_price
+                        });
+
+                    if (purchaseItemError) throw new Error(`Purchase item creation failed: ${purchaseItemError.message}`);
+
+                    // Update inventory
+                    const { error: invError } = await supabase
+                        .rpc('increment_inventory', {
+                            p_item_name: orderItem.item_name,
+                            p_brand: orderItem.brand || '',
+                            p_quantity: qty
+                        });
+
+                    if (invError) throw new Error(`Inventory update failed: ${invError.message}`);
+                }
+
+                // Update purchase total
+                await supabase
+                    .from('purchases')
+                    .update({ total_amount: totalAmount })
+                    .eq('id', purchaseId);
+
+                // Update order status
+                const allOrderItems = allItems[currentReceiveOrderId] || [];
+                const allReceived = allOrderItems.every(i => i.received_qty >= i.ordered_qty);
+                const someReceived = allOrderItems.some(i => i.received_qty > 0);
+
+                await supabase
+                    .from('purchase_orders')
+                    .update({
+                        status: allReceived ? 'received' : someReceived ? 'partial' : 'pending',
+                        linked_bill_number: billNo
+                    })
+                    .eq('id', currentReceiveOrderId);
+
+                console.log('✅ Items received successfully!');
+                await printReceipt(billNo, itemsToReceive);
+                closeReceiveModal();
+                await loadData();
+
+            } catch (err) {
+                console.error('❌ Receive error:', err);
+                showReceiveError(err.message);
+            }
+        }
+
+        // Print receipt
+        function printReceipt(billNo, items) {
+            const order = allOrders.find(o => o.id === currentReceiveOrderId);
+            const receiptArea = document.getElementById('printReceiptArea');
+
+            receiptArea.innerHTML = `
+                <div class="print-content">
+                    <div class="print-header">
+                        <h2>PURCHASE RECEIPT</h2>
+                        <p>Bill No: ${billNo}</p>
+                        <p>Date: ${new Date().toLocaleDateString()}</p>
+                    </div>
+                    <div style="margin: 20px 0;">
+                        <strong>Order Number:</strong> ${order.order_number}<br>
+                        <strong>Merchant:</strong> ${order.merchant_name}<br>
+                        <strong>Phone:</strong> ${order.merchant_phone}
+                    </div>
+                    <table class="print-table">
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>Qty</th>
+                                <th>Price</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${items.map(item => {
+                                const orderItem = (allItems[currentReceiveOrderId] || []).find(i => i.id === item.itemId);
+                                return `
+                                    <tr>
+                                        <td>${orderItem.item_name}</td>
+                                        <td>${item.qty}</td>
+                                        <td>₹${orderItem.purchase_price}</td>
+                                        <td>₹${(item.qty * orderItem.purchase_price).toFixed(2)}</td>
+                                    </tr>
+                                `;
+                            }).join('')}
+                        </tbody>
+                    </table>
+                    <div style="margin-top: 20px; text-align: right;">
+                        <strong>Total: ₹${items.reduce((sum, i) => {
+                            const orderItem = (allItems[currentReceiveOrderId] || []).find(o => o.id === i.itemId);
+                            return sum + (i.qty * orderItem.purchase_price);
+                        }, 0).toFixed(2)}</strong>
+                    </div>
+                </div>
+            `;
+
+            document.body.classList.add('print-receipt');
+            setTimeout(() => {
+                window.print();
+                document.body.classList.remove('print-receipt');
+            }, 100);
+        }
+
+        // Print order
+        function printOrder(orderId) {
+            const order = allOrders.find(o => o.id === orderId);
+            const items = allItems[orderId] || [];
+            const printArea = document.getElementById('printOrderArea');
+
+            printArea.innerHTML = `
+                <div class="print-content">
+                    <div class="print-header">
+                        <h2>PURCHASE ORDER</h2>
+                        <p>Order No: ${order.order_number}</p>
+                        <p>Date: ${formatDate(order.order_date)}</p>
+                    </div>
+                    <div style="margin: 20px 0;">
+                        <strong>Merchant:</strong> ${order.merchant_name}<br>
+                        <strong>Phone:</strong> ${order.merchant_phone}<br>
+                        <strong>Expected Delivery:</strong> ${order.expected_date ? formatDate(order.expected_date) : '—'}
+                    </div>
+                    <table class="print-table">
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>Brand</th>
+                                <th>Code</th>
+                                <th>Qty</th>
+                                <th>Price</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${items.map(item => `
+                                <tr>
+                                    <td>${item.item_name}</td>
+                                    <td>${item.brand || '—'}</td>
+                                    <td>${item.item_code || '—'}</td>
+                                    <td>${item.ordered_qty}</td>
+                                    <td>₹${item.purchase_price}</td>
+                                    <td>₹${(item.ordered_qty * item.purchase_price).toFixed(2)}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                    <div style="margin-top: 20px; text-align: right;">
+                        <strong>Total: ₹${items.reduce((sum, i) => sum + (i.ordered_qty * i.purchase_price), 0).toFixed(2)}</strong>
+                    </div>
+                    ${order.notes ? `<div style="margin-top: 20px; border-top: 1px solid black; padding-top: 10px;"><strong>Notes:</strong> ${order.notes}</div>` : ''}
+                </div>
+            `;
+
+            document.body.classList.add('print-order');
+            setTimeout(() => {
+                window.print();
+                document.body.classList.remove('print-order');
+            }, 100);
+        }
+
+        // New order modal
+        function openNewOrderModal() {
+            alert('Coming soon! New order feature will be added.');
+        }
+
+        // Close modals
+        function closeEditModal() {
+            document.getElementById('editModal').classList.remove('active');
+            currentEditOrderId = null;
+        }
+
+        function closeReceiveModal() {
+            document.getElementById('receiveModal').classList.remove('active');
+            currentReceiveOrderId = null;
+        }
+
+        // Show messages
+        function showSuccess(msg) {
+            const editMsg = document.getElementById('editMessage');
+            if (editMsg) {
+                editMsg.innerHTML = `<div class="success-message">${msg}</div>`;
+                setTimeout(() => editMsg.innerHTML = '', 3000);
+            }
+        }
+
+        function showError(msg) {
+            const container = document.getElementById('ordersContainer');
+            container.innerHTML = `<div class="error-state">❌ ${msg}</div>`;
+        }
+
+        function showEditError(msg) {
+            const editMsg = document.getElementById('editMessage');
+            if (editMsg) {
+                editMsg.innerHTML = `<div class="error-message">❌ ${msg}</div>`;
+                setTimeout(() => editMsg.innerHTML = '', 3000);
+            }
+        }
+
+        function showReceiveError(msg) {
+            const receiveMsg = document.getElementById('receiveMessage');
+            if (receiveMsg) {
+                receiveMsg.innerHTML = `<div class="error-message">❌ ${msg}</div>`;
+                setTimeout(() => receiveMsg.innerHTML = '', 3000);
+            }
+        }
+
+        // Format date
+        function formatDate(dateStr) {
+            if (!dateStr) return '—';
+            return new Date(dateStr).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+        }
+    </script>
 </body>
 </html>
