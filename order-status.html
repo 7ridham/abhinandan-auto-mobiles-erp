@@ -6,6 +6,7 @@
 <link rel="stylesheet" href="style.css">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
+/* ── Stats ── */
 .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px;}
 .stat-card{background:linear-gradient(135deg,rgba(255,255,255,0.07),rgba(255,255,255,0.03));border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:16px 18px;position:relative;overflow:hidden;}
 .stat-card::before{content:'';position:absolute;top:0;left:10%;right:10%;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent);}
@@ -14,19 +15,17 @@
 html.light-theme .stat-card{background:rgba(255,255,255,0.92)!important;border-color:rgba(0,0,0,0.09)!important;}
 html.light-theme .stat-label{color:#475569!important;}
 html.light-theme .stat-value{color:#0f172a!important;}
-
-.status-badge{display:inline-block;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;letter-spacing:0.5px;white-space:nowrap;}
+/* ── Status badges ── */
+.status-badge{display:inline-block;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;white-space:nowrap;}
 .status-pending{background:rgba(251,191,36,0.15);color:#fbbf24;border:1px solid rgba(251,191,36,0.3);}
 .status-partial{background:rgba(96,165,250,0.15);color:#60a5fa;border:1px solid rgba(96,165,250,0.3);}
 .status-received{background:rgba(52,211,153,0.15);color:#34d399;border:1px solid rgba(52,211,153,0.3);}
 .status-cancelled{background:rgba(248,113,113,0.12);color:#f87171;border:1px solid rgba(248,113,113,0.25);}
-
+/* ── Order cards ── */
 .order-card{background:linear-gradient(135deg,rgba(255,255,255,0.06),rgba(255,255,255,0.03));border:1px solid rgba(255,255,255,0.09);border-radius:16px;margin-bottom:14px;overflow:hidden;transition:all 0.2s;}
 .order-card:hover{border-color:rgba(37,99,235,0.35);box-shadow:0 6px 24px rgba(0,0,0,0.3);}
-.order-card.reminder-due{border-color:rgba(251,146,60,0.4);box-shadow:0 0 16px rgba(251,146,60,0.15);}
+.order-card.overdue{border-color:rgba(251,146,60,0.4);box-shadow:0 0 16px rgba(251,146,60,0.12);}
 html.light-theme .order-card{background:rgba(255,255,255,0.92)!important;border-color:rgba(0,0,0,0.1)!important;}
-html.light-theme .order-card:hover{border-color:rgba(37,99,235,0.3)!important;}
-
 .order-header{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;cursor:pointer;flex-wrap:wrap;gap:10px;}
 .order-header:hover{background:rgba(255,255,255,0.02);}
 .order-no{font-size:12px;color:rgba(255,255,255,0.4);font-family:monospace;}
@@ -35,95 +34,92 @@ html.light-theme .order-no{color:#64748b!important;}
 html.light-theme .order-merchant{color:#0f172a!important;}
 .order-date{font-size:12px;color:rgba(255,255,255,0.4);}
 html.light-theme .order-date{color:#64748b!important;}
-.order-meta{display:flex;gap:16px;align-items:center;flex-wrap:wrap;}
+.order-meta{display:flex;gap:14px;align-items:center;flex-wrap:wrap;}
 .order-amount{font-size:18px;font-weight:700;color:#a78bfa;}
-.order-items-count{font-size:12px;color:rgba(255,255,255,0.4);}
-html.light-theme .order-items-count{color:#64748b!important;}
-.order-actions-row{display:flex;gap:8px;flex-wrap:wrap;}
+.order-cnt{font-size:12px;color:rgba(255,255,255,0.4);}
+html.light-theme .order-cnt{color:#64748b!important;}
+.order-actions{display:flex;gap:6px;flex-wrap:wrap;}
 .order-body{display:none;border-top:1px solid rgba(255,255,255,0.07);padding:16px 20px;}
 html.light-theme .order-body{border-top-color:rgba(0,0,0,0.08)!important;}
 .order-body.open{display:block;}
-
+/* ── Items table ── */
 .items-table{width:100%;border-collapse:collapse;font-size:13px;}
 .items-table th{padding:9px 12px;font-size:10px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid rgba(255,255,255,0.07);text-align:left;}
-html.light-theme .items-table th{color:#64748b!important;border-bottom-color:rgba(0,0,0,0.08)!important;}
-.items-table td{padding:10px 12px;border-bottom:1px solid rgba(255,255,255,0.04);color:rgba(255,255,255,0.8);vertical-align:middle;}
-html.light-theme .items-table td{color:#1e293b!important;border-bottom-color:rgba(0,0,0,0.05)!important;}
+html.light-theme .items-table th{color:#64748b!important;}
+.items-table td{padding:10px 12px;border-bottom:1px solid rgba(255,255,255,0.04);color:rgba(255,255,255,0.8);}
+html.light-theme .items-table td{color:#1e293b!important;}
 .items-table tr:last-child td{border-bottom:none;}
-
-.order-item-row{display:grid;grid-template-columns:2fr 1fr 1fr 0.7fr 0.7fr 34px;gap:8px;align-items:end;margin-bottom:8px;padding:10px;background:rgba(255,255,255,0.03);border-radius:10px;border:1px solid rgba(255,255,255,0.06);}
-html.light-theme .order-item-row{background:rgba(0,0,0,0.02)!important;border-color:rgba(0,0,0,0.07)!important;}
-.order-item-row .oi-input{margin-bottom:0;padding:8px 10px;font-size:13px;background:rgba(255,255,255,0.07);border:1.5px solid rgba(255,255,255,0.1);border-radius:8px;color:white;font-family:'DM Sans',sans-serif;outline:none;width:100%;}
-html.light-theme .order-item-row .oi-input{background:white!important;color:#0f172a!important;border-color:rgba(0,0,0,0.12)!important;}
-.oi-input:focus{border-color:rgba(37,99,235,0.5)!important;}
-.item-row-label{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:4px;display:block;}
-html.light-theme .item-row-label{color:#64748b!important;}
-.remove-item-btn{background:rgba(220,38,38,0.2);border:1px solid rgba(220,38,38,0.3);color:#f87171;width:34px;height:34px;border-radius:8px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'DM Sans',sans-serif;margin-top:18px;box-shadow:none;}
-
-.prod-dropdown{position:absolute;top:100%;left:0;right:0;z-index:9999;background:#1a2740;border:1px solid rgba(255,255,255,0.15);border-top:none;border-radius:0 0 10px 10px;list-style:none;padding:0;margin:0;max-height:200px;overflow-y:auto;box-shadow:0 12px 36px rgba(0,0,0,0.6);display:none;}
-.prod-dropdown li{padding:10px 14px;cursor:pointer;border-bottom:1px solid rgba(255,255,255,0.06);font-size:13px;color:white;}
-.prod-dropdown li:hover{background:rgba(37,99,235,0.2);}
-.prod-dropdown li.new-item{color:#fbbf24;border-top:1px solid rgba(251,191,36,0.2);}
-.prod-dropdown li.new-item:hover{background:rgba(251,191,36,0.1);}
-html.light-theme .prod-dropdown{background:#f8faff!important;border-color:rgba(0,0,0,0.12)!important;}
-html.light-theme .prod-dropdown li{color:#0f172a!important;}
-
+/* ── Order form item rows ── */
+.oi-row{display:grid;grid-template-columns:2fr 1fr 1fr 0.7fr 0.7fr 34px;gap:8px;align-items:end;margin-bottom:8px;padding:10px;background:rgba(255,255,255,0.03);border-radius:10px;border:1px solid rgba(255,255,255,0.06);}
+html.light-theme .oi-row{background:rgba(0,0,0,0.02)!important;border-color:rgba(0,0,0,0.07)!important;}
+.oi{padding:8px 10px;font-size:13px;background:rgba(255,255,255,0.07);border:1.5px solid rgba(255,255,255,0.1);border-radius:8px;color:white;font-family:'DM Sans',sans-serif;outline:none;width:100%;margin:0;}
+html.light-theme .oi{background:white!important;color:#0f172a!important;border-color:rgba(0,0,0,0.12)!important;}
+.oi:focus{border-color:rgba(37,99,235,0.5)!important;}
+.oi-lbl{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:4px;display:block;}
+html.light-theme .oi-lbl{color:#64748b!important;}
+.rm-btn{background:rgba(220,38,38,0.2);border:1px solid rgba(220,38,38,0.3);color:#f87171;width:34px;height:34px;border-radius:8px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:none;margin-top:18px;}
+/* ── Product dropdown ── */
+.prod-dd{position:absolute;top:100%;left:0;right:0;z-index:9999;background:#1a2740;border:1px solid rgba(255,255,255,0.15);border-top:none;border-radius:0 0 10px 10px;list-style:none;padding:0;margin:0;max-height:200px;overflow-y:auto;box-shadow:0 12px 36px rgba(0,0,0,0.6);display:none;}
+.prod-dd li{padding:10px 14px;cursor:pointer;border-bottom:1px solid rgba(255,255,255,0.06);font-size:13px;color:white;}
+.prod-dd li:hover{background:rgba(37,99,235,0.2);}
+.prod-dd li.new-item{color:#fbbf24;border-top:1px solid rgba(251,191,36,0.15);}
+.prod-dd li.new-item:hover{background:rgba(251,191,36,0.1);}
+html.light-theme .prod-dd{background:#f8faff!important;}
+html.light-theme .prod-dd li{color:#0f172a!important;}
+/* ── Receive modal rows ── */
 .rcv-row{display:grid;grid-template-columns:36px 2fr 1fr 70px 70px 80px 90px;gap:8px;align-items:center;padding:10px 14px;border-bottom:1px solid rgba(255,255,255,0.05);}
 html.light-theme .rcv-row{border-bottom-color:rgba(0,0,0,0.05)!important;}
-.rcv-row.rcv-head{background:rgba(255,255,255,0.04);font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.35);border-bottom:1px solid rgba(255,255,255,0.08);}
-html.light-theme .rcv-row.rcv-head{background:rgba(0,0,0,0.03)!important;color:#64748b!important;}
-.rcv-row.done{opacity:0.45;}
-.rcv-qty{width:68px;padding:5px 8px;border-radius:7px;border:1.5px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.08);color:white;font-size:13px;font-family:'DM Sans',sans-serif;text-align:center;outline:none;}
+.rcv-head{background:rgba(255,255,255,0.04);font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.35);border-bottom:1px solid rgba(255,255,255,0.08);}
+html.light-theme .rcv-head{background:rgba(0,0,0,0.03)!important;color:#64748b!important;}
+.rcv-done{opacity:0.45;}
+.rcv-qty{width:68px;padding:5px 8px;border-radius:7px;border:1.5px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.08);color:white;font-size:13px;text-align:center;outline:none;font-family:'DM Sans',sans-serif;}
 .rcv-qty:focus{border-color:#34d399;}
 html.light-theme .rcv-qty{background:white!important;color:#0f172a!important;border-color:rgba(0,0,0,0.15)!important;}
-.rcv-sell{width:88px;padding:5px 8px;border-radius:7px;border:1.5px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.08);color:#34d399;font-size:13px;font-family:'DM Sans',sans-serif;text-align:center;outline:none;font-weight:600;}
-.rcv-sell:focus{border-color:#34d399;}
+.rcv-sell{width:88px;padding:5px 8px;border-radius:7px;border:1.5px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.08);color:#34d399;font-size:13px;text-align:center;outline:none;font-weight:600;font-family:'DM Sans',sans-serif;}
 html.light-theme .rcv-sell{background:white!important;color:#059669!important;border-color:rgba(0,0,0,0.15)!important;}
-
+/* ── Modals ── */
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:9999;overflow-y:auto;padding:20px;backdrop-filter:blur(6px);}
 .modal-box{background:linear-gradient(135deg,#0f172a,#0d1524);border:1px solid rgba(255,255,255,0.12);border-radius:20px;width:95%;max-width:720px;margin:30px auto;padding:28px;}
 html.light-theme .modal-box{background:linear-gradient(135deg,#f0f4ff,#ffffff)!important;border-color:rgba(0,0,0,0.1)!important;}
 .modal-title{font-family:'Playfair Display',serif;font-size:20px;color:white;margin-bottom:20px;}
 html.light-theme .modal-title{color:#0f172a!important;}
-.form-label{font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:6px;display:block;}
-html.light-theme .form-label{color:#475569!important;}
-.form-group{margin-bottom:14px;}
-.form-group input,.form-group select,.form-group textarea{margin-bottom:0;width:100%;padding:10px 14px;border-radius:8px;border:1.5px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.06);color:white;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;}
-html.light-theme .form-group input,html.light-theme .form-group select{background:white!important;color:#0f172a!important;border-color:rgba(0,0,0,0.12)!important;}
-.form-group input:focus,.form-group select:focus{border-color:rgba(37,99,235,0.5);}
-.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-.modal-section-head{font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.35);margin:16px 0 10px;padding-bottom:8px;border-bottom:1px solid rgba(255,255,255,0.07);}
-html.light-theme .modal-section-head{color:#64748b!important;border-bottom-color:rgba(0,0,0,0.08)!important;}
-.modal-footer{display:flex;gap:12px;margin-top:20px;justify-content:flex-end;}
-.btn-cancel{background:rgba(255,255,255,0.08)!important;border:1px solid rgba(255,255,255,0.15)!important;box-shadow:none!important;color:rgba(255,255,255,0.7)!important;}
-html.light-theme .btn-cancel{background:rgba(0,0,0,0.06)!important;color:#334155!important;}
+.flbl{font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:6px;display:block;}
+html.light-theme .flbl{color:#475569!important;}
+.fgrp{margin-bottom:14px;}
+.fgrp input,.fgrp select{margin-bottom:0;width:100%;padding:10px 14px;border-radius:8px;border:1.5px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.06);color:white;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;}
+html.light-theme .fgrp input,html.light-theme .fgrp select{background:white!important;color:#0f172a!important;border-color:rgba(0,0,0,0.12)!important;}
+.fgrp input:focus,.fgrp select:focus{border-color:rgba(37,99,235,0.5);}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.sec-hd{font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.35);margin:16px 0 10px;padding-bottom:8px;border-bottom:1px solid rgba(255,255,255,0.07);}
+html.light-theme .sec-hd{color:#64748b!important;border-bottom-color:rgba(0,0,0,0.08)!important;}
+.modal-foot{display:flex;gap:12px;margin-top:20px;justify-content:flex-end;}
+.btn-can{background:rgba(255,255,255,0.08)!important;border:1px solid rgba(255,255,255,0.15)!important;box-shadow:none!important;color:rgba(255,255,255,0.7)!important;padding:10px 20px;border-radius:10px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:14px;}
+html.light-theme .btn-can{background:rgba(0,0,0,0.06)!important;color:#334155!important;}
+/* ── Toolbar ── */
 .toolbar{display:flex;gap:12px;align-items:center;margin-bottom:20px;flex-wrap:wrap;}
 .toolbar input,.toolbar select{margin-bottom:0;}
 .toolbar input{flex:1;min-width:200px;}
 .toolbar select{width:180px;}
-
-/* Setup message box */
-.setup-sql-box{background:#080c14;border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:16px;font-size:12px;color:#34d399;overflow-x:auto;white-space:pre;max-height:260px;overflow-y:auto;font-family:monospace;line-height:1.6;position:relative;}
-
-/* Print */
-#printReceiptArea{display:none;}
-#printOrderArea{display:none;}
+/* ── Setup SQL box ── */
+.sql-box{background:#080c14;border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:16px;font-size:12px;color:#34d399;overflow-x:auto;white-space:pre;max-height:260px;overflow-y:auto;font-family:monospace;line-height:1.6;}
+/* ── Print ── */
+#printReceiptArea,#printOrderArea{display:none;}
 @media print{
   body>*{display:none!important;}
   body.print-receipt #printReceiptArea{display:block!important;padding:28px;}
-  body.print-order #printOrderArea{display:block!important;padding:28px;}
+  body.print-order  #printOrderArea{display:block!important;padding:28px;}
   *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}
 }
 .rpt-paper{max-width:800px;margin:0 auto;background:#fff;font-family:'DM Sans',sans-serif;color:#111;}
-.rpt-header{background:linear-gradient(135deg,#78350f,#d97706);color:white;padding:24px 32px;display:flex;justify-content:space-between;align-items:center;}
+.rpt-hdr{background:linear-gradient(135deg,#78350f,#d97706);color:white;padding:24px 32px;display:flex;justify-content:space-between;align-items:center;}
 .rpt-co{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;margin-bottom:4px;}
-.rpt-sub{font-size:11px;opacity:.85;margin:2px 0;}
+.rpt-sub{font-size:11px;opacity:.85;}
 .rpt-badge{display:inline-block;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.4);font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:3px 12px;border-radius:20px;margin-bottom:6px;}
 .rpt-no{font-size:14px;font-weight:600;}
-.rpt-date{font-size:12px;opacity:.8;}
+.rpt-dt{font-size:12px;opacity:.8;}
 .rpt-meta{display:flex;gap:24px;padding:12px 32px;background:#fffbeb;border-bottom:1px solid #e5e7eb;flex-wrap:wrap;}
-.rpt-meta-block label{font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:#6b7280;display:block;margin-bottom:2px;}
-.rpt-meta-block span{font-size:13px;font-weight:600;color:#111;}
+.rpt-mb label{font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:#6b7280;display:block;margin-bottom:2px;}
+.rpt-mb span{font-size:13px;font-weight:600;color:#111;}
 .rpt-tbl{width:100%;border-collapse:collapse;font-size:13px;margin:16px 0 0;}
 .rpt-tbl thead tr{background:#78350f;color:white;}
 .rpt-tbl th{padding:9px 12px;text-align:left;font-size:12px;}
@@ -134,11 +130,11 @@ html.light-theme .btn-cancel{background:rgba(0,0,0,0.06)!important;color:#334155
 .rpt-tbl td{padding:9px 12px;color:#374151;}
 .rpt-tbl td:not(:first-child){text-align:center;}
 .rpt-tbl td:last-child{text-align:right;font-weight:600;}
-.rpt-totals{display:flex;justify-content:flex-end;padding:14px 32px 0;}
-.rpt-total-row{display:flex;justify-content:space-between;padding:5px 0;font-size:13px;border-bottom:1px dashed #e5e7eb;}
-.rpt-total-row:last-child{border-bottom:none;border-top:2px solid #78350f;margin-top:6px;padding-top:10px;font-size:16px;font-weight:700;}
+.rpt-tots{display:flex;justify-content:flex-end;padding:14px 32px 0;}
+.rpt-tot-row{display:flex;justify-content:space-between;padding:5px 0;font-size:13px;border-bottom:1px dashed #e5e7eb;}
+.rpt-tot-row:last-child{border-bottom:none;border-top:2px solid #78350f;margin-top:6px;padding-top:10px;font-size:16px;font-weight:700;}
 .rpt-pay{margin:12px 32px;padding:12px;background:#fffbeb;border:1px solid #e5e7eb;border-radius:8px;}
-.rpt-footer{margin:16px 32px 24px;padding-top:12px;border-top:1px solid #e5e7eb;font-size:12px;color:#6b7280;}
+.rpt-foot{margin:16px 32px 24px;padding-top:12px;border-top:1px solid #e5e7eb;font-size:12px;color:#6b7280;}
 </style>
 </head>
 <body>
@@ -164,9 +160,9 @@ html.light-theme .btn-cancel{background:rgba(0,0,0,0.06)!important;color:#334155
 <div class="main">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:12px;">
     <h1>📋 Order Status</h1>
-    <button onclick="openNewOrderModal()" style="background:linear-gradient(135deg,#2563eb,#3b82f6);box-shadow:0 4px 14px rgba(37,99,235,0.3);padding:10px 22px;border-radius:10px;font-weight:700;font-size:14px;cursor:pointer;font-family:'DM Sans',sans-serif;color:white;border:none;">+ New Order</button>
+    <button onclick="openNewOrder()" style="background:linear-gradient(135deg,#2563eb,#3b82f6);box-shadow:0 4px 14px rgba(37,99,235,0.3);padding:10px 22px;border-radius:10px;font-weight:700;font-size:14px;cursor:pointer;font-family:'DM Sans',sans-serif;color:white;border:none;">+ New Order</button>
   </div>
-  <div style="font-size:13px;color:rgba(255,255,255,0.4);margin-bottom:20px;">Track pending orders from suppliers. Receive products when they arrive — auto-creates purchase bill.</div>
+  <p style="font-size:13px;color:rgba(255,255,255,0.4);margin-bottom:20px;">Track pending orders from suppliers. Receive items when they arrive — auto-creates purchase bill.</p>
 
   <div class="stats-row">
     <div class="stat-card"><div class="stat-label">Total Orders</div><div class="stat-value" id="stTotal" style="color:#a78bfa;">—</div></div>
@@ -177,8 +173,8 @@ html.light-theme .btn-cancel{background:rgba(0,0,0,0.06)!important;color:#334155
 
   <div class="card">
     <div class="toolbar">
-      <input id="searchInput" placeholder="🔍 Search merchant, order number, product..." oninput="renderOrders && renderOrders()">
-      <select id="filterStatus" onchange="renderOrders && renderOrders()">
+      <input id="searchBox" placeholder="🔍 Search merchant, order number, product..." oninput="doRender()">
+      <select id="statusFilter" onchange="doRender()">
         <option value="active">Active (Pending + Partial)</option>
         <option value="all">All Orders</option>
         <option value="pending">Pending Only</option>
@@ -187,8 +183,8 @@ html.light-theme .btn-cancel{background:rgba(0,0,0,0.06)!important;color:#334155
         <option value="cancelled">Cancelled</option>
       </select>
     </div>
-    <div id="ordersContainer">
-      <div style="text-align:center;padding:40px;color:rgba(255,255,255,0.3);">⏳ Connecting to database...</div>
+    <div id="ordersBox">
+      <div style="text-align:center;padding:50px;color:rgba(255,255,255,0.3);">⏳ Connecting to database...</div>
     </div>
   </div>
 </div>
@@ -197,53 +193,47 @@ html.light-theme .btn-cancel{background:rgba(0,0,0,0.06)!important;color:#334155
 <!-- ══ NEW / EDIT ORDER MODAL ══ -->
 <div class="modal-overlay" id="newOrderModal">
   <div class="modal-box">
-    <div class="modal-title" id="orderModalTitle">📋 Place New Order</div>
-    <div class="form-row">
-      <div class="form-group" style="position:relative;">
-        <label class="form-label">Merchant / Supplier *</label>
-        <input id="oMerchant" placeholder="Type to search..." autocomplete="off" oninput="searchMerchants(this.value)">
-        <ul id="merchantSuggest" style="position:absolute;z-index:9999;background:#1e293b;border:1px solid rgba(255,255,255,0.12);border-radius:8px;list-style:none;padding:0;margin:2px 0 0;max-height:180px;overflow-y:auto;display:none;width:100%;left:0;top:100%;box-shadow:0 12px 36px rgba(0,0,0,0.5);"></ul>
+    <div class="modal-title" id="newOrderTitle">📋 Place New Order</div>
+    <div class="frow">
+      <div class="fgrp" style="position:relative;">
+        <label class="flbl">Merchant / Supplier *</label>
+        <input id="oMerch" placeholder="Type to search..." autocomplete="off" oninput="searchMerch(this.value)">
+        <ul id="merchList" style="position:absolute;z-index:9999;background:#1e293b;border:1px solid rgba(255,255,255,0.12);border-radius:8px;list-style:none;padding:0;margin:2px 0 0;max-height:180px;overflow-y:auto;display:none;width:100%;left:0;top:100%;box-shadow:0 12px 36px rgba(0,0,0,0.5);"></ul>
       </div>
-      <div class="form-group">
-        <label class="form-label">Phone</label>
+      <div class="fgrp">
+        <label class="flbl">Phone</label>
         <input id="oPhone" placeholder="Auto-filled or manual">
       </div>
     </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label class="form-label">Order Date *</label>
+    <div class="frow">
+      <div class="fgrp">
+        <label class="flbl">Order Date *</label>
         <input type="date" id="oDate">
       </div>
-      <div class="form-group">
-        <label class="form-label">Expected Delivery Date</label>
+      <div class="fgrp">
+        <label class="flbl">Expected Delivery Date</label>
         <input type="date" id="oExpected">
       </div>
     </div>
-    <div class="form-group">
-      <label class="form-label">Notes <span style="font-size:10px;color:rgba(255,255,255,0.25);">(optional)</span></label>
+    <div class="fgrp">
+      <label class="flbl">Notes <span style="font-size:10px;opacity:0.5;">(optional)</span></label>
       <input id="oNotes" placeholder="e.g. 50% advance paid, urgent delivery...">
     </div>
-
-    <div class="modal-section-head">📦 ORDER ITEMS</div>
+    <div class="sec-hd">📦 ORDER ITEMS</div>
     <div style="display:grid;grid-template-columns:2fr 1fr 1fr 0.7fr 0.7fr 34px;gap:8px;padding:0 4px;margin-bottom:4px;">
-      <div class="item-row-label">Product *</div>
-      <div class="item-row-label">Brand</div>
-      <div class="item-row-label">Item Code</div>
-      <div class="item-row-label">Qty *</div>
-      <div class="item-row-label">Price ₹</div>
-      <div></div>
+      <div class="oi-lbl">Product *</div><div class="oi-lbl">Brand</div>
+      <div class="oi-lbl">Item Code</div><div class="oi-lbl">Qty *</div>
+      <div class="oi-lbl">Price ₹</div><div></div>
     </div>
-    <div id="orderItemsContainer"></div>
-    <button onclick="addOrderItem()" style="background:rgba(37,99,235,0.15);border:1px solid rgba(37,99,235,0.3);color:#60a5fa;padding:8px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:6px;box-shadow:none;">+ Add Item</button>
-
+    <div id="oItemsBox"></div>
+    <button onclick="addOItem()" style="background:rgba(37,99,235,0.15);border:1px solid rgba(37,99,235,0.3);color:#60a5fa;padding:8px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:6px;box-shadow:none;">+ Add Item</button>
     <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:14px;margin-top:16px;display:flex;justify-content:space-between;align-items:center;">
       <span style="font-size:14px;color:rgba(255,255,255,0.6);">Order Total:</span>
-      <span style="font-size:20px;font-weight:700;color:#a78bfa;" id="orderTotalDisplay">₹0</span>
+      <span style="font-size:20px;font-weight:700;color:#a78bfa;" id="oTotalDisplay">₹0</span>
     </div>
-
-    <div class="modal-footer">
-      <button class="btn-cancel" onclick="closeNewOrderModal()" style="padding:10px 20px;border-radius:10px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:14px;">✕ Cancel</button>
-      <button id="placeOrderBtn" style="background:linear-gradient(135deg,#2563eb,#3b82f6);border:none;color:white;padding:10px 24px;border-radius:10px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:14px;">📋 Place Order</button>
+    <div class="modal-foot">
+      <button class="btn-can" onclick="closeNewOrder()">✕ Cancel</button>
+      <button id="saveOrderBtn" onclick="saveOrder()" style="background:linear-gradient(135deg,#2563eb,#3b82f6);border:none;color:white;padding:10px 24px;border-radius:10px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:14px;">📋 Place Order</button>
     </div>
   </div>
 </div>
@@ -253,91 +243,84 @@ html.light-theme .btn-cancel{background:rgba(0,0,0,0.06)!important;color:#334155
 <div class="modal-overlay" id="receiveModal">
   <div class="modal-box" style="max-width:820px;">
     <div class="modal-title">✅ Receive Products</div>
-    <div id="receiveOrderInfo" style="background:rgba(52,211,153,0.07);border:1px solid rgba(52,211,153,0.2);border-radius:10px;padding:14px;margin-bottom:12px;font-size:13px;color:rgba(255,255,255,0.7);line-height:1.7;"></div>
-    <div style="font-size:12px;color:rgba(255,255,255,0.5);margin-bottom:10px;">✅ Check items received. Enter quantity and updated selling price. Unchecked items stay pending.</div>
-
+    <div id="rcvOrderInfo" style="background:rgba(52,211,153,0.07);border:1px solid rgba(52,211,153,0.2);border-radius:10px;padding:14px;margin-bottom:12px;font-size:13px;color:rgba(255,255,255,0.7);line-height:1.7;"></div>
+    <div style="font-size:12px;color:rgba(255,255,255,0.5);margin-bottom:10px;">Check items you received. Unchecked items remain pending.</div>
     <div class="rcv-row rcv-head">
-      <div>✓</div>
-      <div>Product / Brand</div>
-      <div>Item Code</div>
-      <div style="text-align:center;">Ordered</div>
-      <div style="text-align:center;">Rcvd</div>
-      <div style="text-align:center;">Rcv Qty</div>
-      <div style="text-align:center;">Sell ₹</div>
+      <div>✓</div><div>Product / Brand</div><div>Code</div>
+      <div style="text-align:center;">Ordered</div><div style="text-align:center;">Rcvd</div>
+      <div style="text-align:center;">Rcv Qty</div><div style="text-align:center;">Sell ₹</div>
     </div>
-    <div id="receiveItemsList" style="border:1px solid rgba(255,255,255,0.07);border-top:none;border-radius:0 0 10px 10px;overflow:hidden;margin-bottom:14px;max-height:360px;overflow-y:auto;"></div>
-
+    <div id="rcvItemsList" style="border:1px solid rgba(255,255,255,0.07);border-top:none;border-radius:0 0 10px 10px;overflow:hidden;margin-bottom:14px;max-height:360px;overflow-y:auto;"></div>
     <div style="background:rgba(37,99,235,0.08);border:1px solid rgba(37,99,235,0.2);border-radius:10px;padding:14px;margin-bottom:14px;">
       <div style="font-size:11px;font-weight:700;color:rgba(96,165,250,0.8);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">💳 Payment for this delivery</div>
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
-        <div><label class="form-label">Cash ₹</label><input type="number" id="rcvCash" placeholder="0" min="0" oninput="calcRcvTotal()" style="margin-bottom:0;"></div>
-        <div><label class="form-label">UPI ₹</label><input type="number" id="rcvUpi" placeholder="0" min="0" oninput="calcRcvTotal()" style="margin-bottom:0;"></div>
-        <div><label class="form-label">Credit ₹</label><input type="number" id="rcvCredit" placeholder="0" min="0" oninput="calcRcvTotal()" style="margin-bottom:0;"></div>
+        <div><label class="flbl">Cash ₹</label><input type="number" id="rcvCash" placeholder="0" min="0" oninput="calcRcvTotal()" style="margin-bottom:0;"></div>
+        <div><label class="flbl">UPI ₹</label><input type="number" id="rcvUpi" placeholder="0" min="0" oninput="calcRcvTotal()" style="margin-bottom:0;"></div>
+        <div><label class="flbl">Credit ₹</label><input type="number" id="rcvCredit" placeholder="0" min="0" oninput="calcRcvTotal()" style="margin-bottom:0;"></div>
       </div>
-      <div id="rcvPaySummary" style="margin-top:10px;font-size:13px;color:rgba(255,255,255,0.5);"></div>
+      <div id="rcvPayInfo" style="margin-top:10px;font-size:13px;color:rgba(255,255,255,0.5);"></div>
     </div>
-
-    <div class="modal-footer">
-      <button onclick="closeReceiveModal()" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.7);padding:10px 20px;border-radius:10px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:14px;box-shadow:none;">✕ Cancel</button>
-      <button onclick="processReceive(false)" style="background:rgba(37,99,235,0.2);border:1px solid rgba(37,99,235,0.4);color:#60a5fa;padding:10px 20px;border-radius:10px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;box-shadow:none;">💾 Save Only</button>
-      <button onclick="processReceive(true)" style="background:linear-gradient(135deg,#059669,#34d399);border:none;color:white;padding:10px 24px;border-radius:10px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:14px;">✅ Confirm & Print Receipt</button>
+    <div class="modal-foot">
+      <button onclick="closeReceive()" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.7);padding:10px 20px;border-radius:10px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:14px;box-shadow:none;">✕ Cancel</button>
+      <button onclick="doReceive(false)" style="background:rgba(37,99,235,0.2);border:1px solid rgba(37,99,235,0.4);color:#60a5fa;padding:10px 20px;border-radius:10px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;box-shadow:none;">💾 Save Only</button>
+      <button onclick="doReceive(true)" style="background:linear-gradient(135deg,#059669,#34d399);border:none;color:white;padding:10px 24px;border-radius:10px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:14px;">✅ Confirm & Print</button>
     </div>
   </div>
 </div>
 
 
-<!-- ══ PRINT: RECEIPT ══ -->
+<!-- ══ PRINT: GOODS RECEIPT ══ -->
 <div id="printReceiptArea">
   <div class="rpt-paper">
-    <div class="rpt-header">
+    <div class="rpt-hdr">
       <div><div class="rpt-co">Abhinandan Auto Mobiles</div><div class="rpt-sub">Santalpur - Palanpur Highway · +91 98700 37002</div></div>
-      <div style="text-align:right;"><div class="rpt-badge">GOODS RECEIPT</div><div class="rpt-no">Bill # <span id="ptBillNo">—</span></div><div class="rpt-date" id="ptDate">—</div></div>
+      <div style="text-align:right;"><div class="rpt-badge">GOODS RECEIPT</div><div class="rpt-no">Bill # <span id="ptBillNo">—</span></div><div class="rpt-dt" id="ptDate">—</div></div>
     </div>
     <div class="rpt-meta">
-      <div class="rpt-meta-block"><label>Supplier</label><span id="ptMerchant">—</span></div>
-      <div class="rpt-meta-block"><label>Order No</label><span id="ptOrderNo">—</span></div>
-      <div class="rpt-meta-block"><label>Payment</label><span id="ptPayMode">—</span></div>
+      <div class="rpt-mb"><label>Supplier</label><span id="ptMerch">—</span></div>
+      <div class="rpt-mb"><label>Order No</label><span id="ptOrderNo">—</span></div>
+      <div class="rpt-mb"><label>Payment</label><span id="ptPayMode">—</span></div>
     </div>
     <table class="rpt-tbl" style="margin:0 32px;width:calc(100% - 64px);">
       <thead><tr><th>#</th><th>Product</th><th>Brand</th><th>Qty</th><th>Buy ₹</th><th>Sell ₹</th><th>Amount</th></tr></thead>
       <tbody id="ptItems"></tbody>
     </table>
-    <div class="rpt-totals"><div style="min-width:220px;">
-      <div class="rpt-total-row"><span>Subtotal</span><span>₹<span id="ptSubtotal">0</span></span></div>
-      <div class="rpt-total-row"><span style="font-weight:700;">Grand Total</span><span style="color:#78350f;">₹<span id="ptTotal">0</span></span></div>
+    <div class="rpt-tots"><div style="min-width:220px;">
+      <div class="rpt-tot-row"><span>Subtotal</span><span>₹<span id="ptSub">0</span></span></div>
+      <div class="rpt-tot-row"><span style="font-weight:700;">Grand Total</span><span style="color:#78350f;">₹<span id="ptTotal">0</span></span></div>
     </div></div>
     <div class="rpt-pay">
-      <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#6b7280;margin-bottom:8px;">Payment Breakdown</div>
+      <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#6b7280;margin-bottom:8px;">Payment</div>
       <div style="display:flex;gap:24px;font-size:13px;">
         <div><span style="color:#6b7280;">Cash: </span><strong id="ptCash">₹0</strong></div>
         <div><span style="color:#6b7280;">UPI: </span><strong id="ptUpi">₹0</strong></div>
         <div><span style="color:#6b7280;">Credit: </span><strong id="ptCredit">₹0</strong></div>
       </div>
     </div>
-    <div class="rpt-footer"><div style="font-size:14px;font-weight:600;color:#78350f;margin-bottom:4px;">Stock Received 🙏</div><div>Internal goods receipt note.</div></div>
+    <div class="rpt-foot"><div style="font-size:14px;font-weight:600;color:#78350f;margin-bottom:4px;">Stock Received 🙏</div><div>Internal goods receipt note.</div></div>
   </div>
 </div>
 
-<!-- ══ PRINT: ORDER ══ -->
+<!-- ══ PRINT: PURCHASE ORDER ══ -->
 <div id="printOrderArea">
   <div class="rpt-paper">
-    <div class="rpt-header">
+    <div class="rpt-hdr">
       <div><div class="rpt-co">Abhinandan Auto Mobiles</div><div class="rpt-sub">Santalpur - Palanpur Highway · +91 98700 37002</div></div>
-      <div style="text-align:right;"><div class="rpt-badge">PURCHASE ORDER</div><div class="rpt-no">Order # <span id="poOrderNo">—</span></div><div class="rpt-date" id="poDate">—</div></div>
+      <div style="text-align:right;"><div class="rpt-badge">PURCHASE ORDER</div><div class="rpt-no">Order # <span id="poNo">—</span></div><div class="rpt-dt" id="poDt">—</div></div>
     </div>
     <div class="rpt-meta">
-      <div class="rpt-meta-block"><label>Merchant</label><span id="poMerchant">—</span></div>
-      <div class="rpt-meta-block"><label>Phone</label><span id="poPhone">—</span></div>
-      <div class="rpt-meta-block"><label>Expected</label><span id="poExpected">—</span></div>
-      <div class="rpt-meta-block"><label>Status</label><span id="poStatus">—</span></div>
+      <div class="rpt-mb"><label>Merchant</label><span id="poMerch">—</span></div>
+      <div class="rpt-mb"><label>Phone</label><span id="poPhone">—</span></div>
+      <div class="rpt-mb"><label>Expected</label><span id="poExpected">—</span></div>
+      <div class="rpt-mb"><label>Status</label><span id="poStatus">—</span></div>
     </div>
     <div id="poNoteBar" style="display:none;margin:8px 32px;padding:10px 14px;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;font-size:13px;color:#92400e;">📝 <span id="poNote"></span></div>
     <table class="rpt-tbl" style="margin:0 32px;width:calc(100% - 64px);">
       <thead><tr><th>#</th><th>Product</th><th>Brand</th><th>Code</th><th>Qty</th><th>Price ₹</th><th>Amount</th></tr></thead>
       <tbody id="poItems"></tbody>
     </table>
-    <div class="rpt-totals"><div style="min-width:220px;"><div class="rpt-total-row"><span style="font-weight:700;">Order Total</span><span style="color:#78350f;">₹<span id="poTotal">0</span></span></div></div></div>
-    <div class="rpt-footer" style="display:flex;justify-content:space-between;margin-top:16px;">
+    <div class="rpt-tots"><div style="min-width:220px;"><div class="rpt-tot-row"><span style="font-weight:700;">Order Total</span><span style="color:#78350f;">₹<span id="poTotal">0</span></span></div></div></div>
+    <div class="rpt-foot" style="display:flex;justify-content:space-between;margin-top:16px;">
       <div><div style="border-top:1px solid #000;width:130px;margin-top:28px;margin-bottom:4px;"></div><div style="font-size:11px;color:#6b7280;">Supplier Signature</div></div>
       <div><div style="border-top:1px solid #000;width:130px;margin-top:28px;margin-bottom:4px;"></div><div style="font-size:11px;color:#6b7280;">For Abhinandan Auto Mobiles</div></div>
     </div>
@@ -346,121 +329,84 @@ html.light-theme .btn-cancel{background:rgba(0,0,0,0.06)!important;color:#334155
 
 
 <script>
-// ════════════════════════════════════════════════════════════
-// CONFIGURATION
-// ════════════════════════════════════════════════════════════
-const SB_URL = 'https://mhhnmndnolhapaoqtbxo.supabase.co'
-const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1oaG5tbmRub2xoYXBhb3F0YnhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4Mzg4NTksImV4cCI6MjA4ODQxNDg1OX0.IMSp8vYiCln_iSuoT_H2qdeX_dP1WMhOOskDw20eJXw'
+// ═══════════════════════════════════════════════════════════════════
+//  CONFIGURATION
+// ═══════════════════════════════════════════════════════════════════
+var SB_URL = 'https://mhhnmndnolhapaoqtbxo.supabase.co'
+var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1oaG5tbmRub2xoYXBhb3F0YnhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4Mzg4NTksImV4cCI6MjA4ODQxNDg1OX0.IMSp8vYiCln_iSuoT_H2qdeX_dP1WMhOOskDw20eJXw'
 
-// SQL to show user when tables don't exist
-const SETUP_SQL =
-`-- Paste this in Supabase → SQL Editor → New query → Run
+var SETUP_SQL = "-- Run this in Supabase Dashboard → SQL Editor → New query → Run\n\nCREATE TABLE IF NOT EXISTS purchase_orders (\n  id            BIGSERIAL PRIMARY KEY,\n  order_number  TEXT NOT NULL UNIQUE,\n  merchant_name TEXT NOT NULL,\n  merchant_phone TEXT,\n  order_date    DATE NOT NULL,\n  expected_date DATE,\n  notes         TEXT,\n  status        TEXT DEFAULT 'pending',\n  total_amount  NUMERIC(12,2) DEFAULT 0,\n  linked_bill_number TEXT,\n  reminder_sent BOOLEAN DEFAULT FALSE,\n  created_at    TIMESTAMPTZ DEFAULT NOW()\n);\n\nCREATE TABLE IF NOT EXISTS purchase_order_items (\n  id             BIGSERIAL PRIMARY KEY,\n  order_id       BIGINT REFERENCES purchase_orders(id) ON DELETE CASCADE,\n  item_name      TEXT NOT NULL,\n  brand          TEXT,\n  item_code      TEXT,\n  product_size   TEXT,\n  category       TEXT,\n  unit_type      TEXT,\n  inv_id         BIGINT,\n  ordered_qty    INTEGER DEFAULT 1,\n  received_qty   INTEGER DEFAULT 0,\n  purchase_price NUMERIC(12,2) DEFAULT 0,\n  selling_price  NUMERIC(12,2),\n  created_at     TIMESTAMPTZ DEFAULT NOW()\n);\n\nALTER TABLE purchase_orders ENABLE ROW LEVEL SECURITY;\nALTER TABLE purchase_order_items ENABLE ROW LEVEL SECURITY;\n\nCREATE POLICY \"allow_all_purchase_orders\" ON purchase_orders FOR ALL USING (true) WITH CHECK (true);\nCREATE POLICY \"allow_all_purchase_order_items\" ON purchase_order_items FOR ALL USING (true) WITH CHECK (true);"
 
-CREATE TABLE IF NOT EXISTS purchase_orders (
-  id            BIGSERIAL PRIMARY KEY,
-  order_number  TEXT NOT NULL UNIQUE,
-  merchant_name TEXT NOT NULL,
-  merchant_phone TEXT,
-  order_date    DATE NOT NULL,
-  expected_date DATE,
-  notes         TEXT,
-  status        TEXT DEFAULT 'pending',
-  total_amount  NUMERIC(12,2) DEFAULT 0,
-  linked_bill_number TEXT,
-  reminder_sent BOOLEAN DEFAULT FALSE,
-  created_at    TIMESTAMPTZ DEFAULT NOW()
-);
-
-CREATE TABLE IF NOT EXISTS purchase_order_items (
-  id             BIGSERIAL PRIMARY KEY,
-  order_id       BIGINT REFERENCES purchase_orders(id) ON DELETE CASCADE,
-  item_name      TEXT NOT NULL,
-  brand          TEXT,
-  item_code      TEXT,
-  product_size   TEXT,
-  category       TEXT,
-  unit_type      TEXT,
-  inv_id         BIGINT,
-  ordered_qty    INTEGER DEFAULT 1,
-  received_qty   INTEGER DEFAULT 0,
-  purchase_price NUMERIC(12,2) DEFAULT 0,
-  selling_price  NUMERIC(12,2),
-  created_at     TIMESTAMPTZ DEFAULT NOW()
-);
-
-ALTER TABLE purchase_orders ENABLE ROW LEVEL SECURITY;
-ALTER TABLE purchase_order_items ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "allow_all_purchase_orders"
-  ON purchase_orders FOR ALL USING (true) WITH CHECK (true);
-
-CREATE POLICY "allow_all_purchase_order_items"
-  ON purchase_order_items FOR ALL USING (true) WITH CHECK (true);`
-
-// ════════════════════════════════════════════════════════════
-// ROOT FIX — SUPABASE INITIALIZATION
+// ═══════════════════════════════════════════════════════════════════
+//  SUPABASE INITIALIZATION — THE DEFINITIVE FIX
 //
-// WHY THIS WAS BROKEN BEFORE:
-//   The old code loaded the Supabase UMD script a second time.
-//   auth.js already loads it first. There's a race condition
-//   where _S.onload might fire before window.supabase is set,
-//   causing a silent crash and forever "Loading..." state.
+//  Root cause of the "Loading forever" bug:
+//  auth.js loads Supabase UMD and sets window._supabase when ready.
+//  The old code loaded a SECOND Supabase script and had a race
+//  condition where window.supabase could be undefined when onload
+//  fired, crashing silently with no error shown.
 //
-// THE FIX:
-//   Wait for auth.js to finish its own Supabase load (it sets
-//   window._supabase when done). If already set, use it.
-//   Only load Supabase ourselves as a last resort.
-// ════════════════════════════════════════════════════════════
-function waitForSupabase(cb) {
-  // auth.js sets window._supabase once Supabase is loaded
-  if (window._supabase) {
-    cb(window._supabase)
-    return
-  }
-  // Or the UMD module is available (set by auth.js's script load)
+//  Fix: poll for window._supabase (set by auth.js) every 100ms.
+//  If auth.js finishes: use its client immediately.
+//  If Supabase UMD module is available: create our own client.
+//  If 8 seconds pass with nothing: show a clear timeout message.
+// ═══════════════════════════════════════════════════════════════════
+function waitForSB(callback) {
+  // auth.js creates window._supabase after its Supabase script loads
+  if (window._supabase) { callback(window._supabase); return }
+  // Supabase UMD module available (also set by auth.js's script load)
   if (window.supabase && window.supabase.createClient) {
-    cb(window.supabase.createClient(SB_URL, SB_KEY))
-    return
+    callback(window.supabase.createClient(SB_URL, SB_KEY)); return
   }
-  // Still loading — poll every 100ms, give up after 8 seconds
-  let tries = 0
-  const timer = setInterval(function() {
+  // Not ready yet — poll every 100ms up to 8 seconds
+  var tries = 0
+  var t = setInterval(function() {
     tries++
     if (window._supabase) {
-      clearInterval(timer)
-      cb(window._supabase)
+      clearInterval(t); callback(window._supabase)
     } else if (window.supabase && window.supabase.createClient) {
-      clearInterval(timer)
-      cb(window.supabase.createClient(SB_URL, SB_KEY))
+      clearInterval(t); callback(window.supabase.createClient(SB_URL, SB_KEY))
     } else if (tries >= 80) {
-      clearInterval(timer)
-      document.getElementById('ordersContainer').innerHTML =
-        '<div style="text-align:center;padding:40px;color:#f87171;">' +
+      clearInterval(t)
+      document.getElementById('ordersBox').innerHTML =
+        '<div style="text-align:center;padding:40px;">' +
         '<div style="font-size:36px;margin-bottom:12px;">⚠️</div>' +
-        '<div style="font-size:15px;font-weight:700;margin-bottom:8px;">Database connection timed out</div>' +
-        '<div style="font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:14px;">Please check your internet connection and refresh the page.</div>' +
+        '<div style="color:#f87171;font-size:15px;font-weight:700;margin-bottom:8px;">Database connection timed out</div>' +
+        '<div style="color:rgba(255,255,255,0.5);font-size:13px;margin-bottom:16px;">Check your internet connection and refresh the page.</div>' +
         '<button onclick="location.reload()" style="background:#2563eb;border:none;color:white;padding:10px 22px;border-radius:8px;cursor:pointer;font-family:\'DM Sans\',sans-serif;font-weight:600;">🔄 Refresh Page</button>' +
         '</div>'
     }
   }, 100)
 }
 
-// Show setup message when tables don't exist
-function showSetupMessage() {
+// Start when DOM is ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', function() { waitForSB(boot) })
+} else {
+  waitForSB(boot)
+}
+
+
+// ═══════════════════════════════════════════════════════════════════
+//  SHOW SETUP MESSAGE (when tables don't exist yet)
+// ═══════════════════════════════════════════════════════════════════
+function showSetup(errDetail) {
   document.getElementById('stTotal').innerText   = '0'
   document.getElementById('stPending').innerText = '0'
   document.getElementById('stPartial').innerText = '0'
-  document.getElementById('stReceived').innerText = '0'
-  document.getElementById('ordersContainer').innerHTML =
+  document.getElementById('stReceived').innerText= '0'
+  var sqlEsc = SETUP_SQL.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+  document.getElementById('ordersBox').innerHTML =
     '<div style="background:rgba(251,191,36,0.07);border:1px solid rgba(251,191,36,0.25);border-radius:14px;padding:28px;">' +
       '<div style="font-size:18px;font-weight:700;color:#fbbf24;margin-bottom:10px;">⚙️ One-Time Setup Required</div>' +
+      (errDetail ? '<div style="font-size:12px;color:#f87171;padding:8px 12px;background:rgba(220,38,38,0.1);border-radius:6px;margin-bottom:12px;font-family:monospace;">' + errDetail + '</div>' : '') +
       '<div style="font-size:14px;color:rgba(255,255,255,0.7);margin-bottom:16px;line-height:1.8;">' +
         'The Order Status feature needs 2 new tables in your Supabase database.<br>' +
-        '<strong style="color:white;">Steps: Supabase Dashboard → SQL Editor → New query → paste SQL below → click Run</strong>' +
+        '<strong style="color:white;">Supabase Dashboard → SQL Editor → New query → paste SQL below → Run</strong>' +
       '</div>' +
       '<div style="position:relative;">' +
-        '<pre class="setup-sql-box" id="setupSqlBox">' + SETUP_SQL.replace(/</g,'&lt;') + '</pre>' +
-        '<button onclick="copySetupSQL()" id="copySQLBtn" style="position:absolute;top:10px;right:10px;background:rgba(52,211,153,0.2);border:1px solid rgba(52,211,153,0.35);color:#34d399;padding:4px 12px;border-radius:7px;font-size:11px;font-weight:600;cursor:pointer;font-family:\'DM Sans\',sans-serif;box-shadow:none;">📋 Copy SQL</button>' +
+        '<pre class="sql-box" id="sqlPre">' + sqlEsc + '</pre>' +
+        '<button onclick="copySql()" id="copySqlBtn" style="position:absolute;top:10px;right:10px;background:rgba(52,211,153,0.2);border:1px solid rgba(52,211,153,0.35);color:#34d399;padding:4px 12px;border-radius:7px;font-size:11px;font-weight:600;cursor:pointer;box-shadow:none;">📋 Copy SQL</button>' +
       '</div>' +
       '<div style="margin-top:16px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;">' +
         '<button onclick="loadData()" style="background:linear-gradient(135deg,#2563eb,#3b82f6);border:none;color:white;padding:9px 20px;border-radius:9px;font-weight:600;cursor:pointer;font-family:\'DM Sans\',sans-serif;font-size:13px;box-shadow:0 4px 14px rgba(37,99,235,0.3);">🔄 I ran the SQL — Check Again</button>' +
@@ -469,887 +415,746 @@ function showSetupMessage() {
     '</div>'
 }
 
-window.copySetupSQL = function() {
-  try {
-    navigator.clipboard.writeText(SETUP_SQL).then(function() {
-      var btn = document.getElementById('copySQLBtn')
-      if (btn) { btn.innerText = '✅ Copied!'; setTimeout(function(){ btn.innerText = '📋 Copy SQL' }, 2500) }
-    })
-  } catch(e) {
-    // Clipboard not available; user can select text manually
-    var box = document.getElementById('setupSqlBox')
-    if (box) { var sel = window.getSelection(); var range = document.createRange(); range.selectNodeContents(box); sel.removeAllRanges(); sel.addRange(range) }
-  }
-}
-
-// ── BOOT: wait for Supabase, then init ──
-var _supabaseReady = false
-function tryInit() {
-  waitForSupabase(function(supabase) {
-    if (!supabase) return
-    _supabaseReady = true
-    initApp(supabase)
+window.copySql = function() {
+  navigator.clipboard.writeText(SETUP_SQL).then(function() {
+    var b = document.getElementById('copySqlBtn')
+    if (b) { b.innerText = '✅ Copied!'; setTimeout(function(){ b.innerText = '📋 Copy SQL' }, 2500) }
+  }).catch(function() {
+    var pre = document.getElementById('sqlPre')
+    if (pre) { var s = window.getSelection(); var r = document.createRange(); r.selectNodeContents(pre); s.removeAllRanges(); s.addRange(r) }
   })
 }
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', tryInit)
-} else {
-  tryInit()
+
+
+// ═══════════════════════════════════════════════════════════════════
+//  BOOT — called once Supabase client is ready
+// ═══════════════════════════════════════════════════════════════════
+var _sb = null   // supabase client, set by boot()
+
+function boot(sbClient) {
+  _sb = sbClient
+  // Init defaults
+  document.getElementById('oDate').value = new Date().toISOString().slice(0,10)
+  // Load data
+  loadData()
 }
 
 
-// ════════════════════════════════════════════════════════════
-// initApp — all logic lives here, receives a working supabase client
-// ════════════════════════════════════════════════════════════
-function initApp(supabase) {
+// ═══════════════════════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════════════════════
+var allOrders    = []
+var allItems     = {}   // { orderId: [items] }
+var invCache     = []
+var editingId    = null
+var receivingId  = null
+var merchTimer   = null
+var prodTimers   = {}
 
-// ── STATE ──
-var allOrders = []
-var allItems = {}
-var editingOrderId = null
-var receivingOrderId = null
-var invCache = []
-var merchantTimer = null
-var prodTimers = {}
 
-// ── SET DEFAULTS ──
-document.getElementById('oDate').value = new Date().toISOString().slice(0,10)
-document.getElementById('placeOrderBtn').addEventListener('click', saveOrder)
-
-// ════════════════════════════════════════════
-// LOAD DATA
-// WHY: We load all orders + items at once so
-// the receive modal always has the items in memory.
-// ROOT FIX: Added try/catch and explicit error
-// checking so the page NEVER hangs on "Loading..."
-// ════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════
+//  LOAD DATA
+//  THE FIX: Every query is wrapped in try/catch.
+//  If purchase_orders table doesn't exist, we detect it from
+//  the error message and show the SQL setup guide.
+//  No more silent failures, no more "Loading..." forever.
+// ═══════════════════════════════════════════════════════════════════
 window.loadData = async function() {
-  document.getElementById('ordersContainer').innerHTML =
-    '<div style="text-align:center;padding:40px;color:rgba(255,255,255,0.3);">⏳ Loading orders...</div>'
+  document.getElementById('ordersBox').innerHTML =
+    '<div style="text-align:center;padding:50px;color:rgba(255,255,255,0.3);">⏳ Loading orders...</div>'
 
   try {
-    // ── Step 1: Load inventory for product search autocomplete ──
-    // NOTE: We intentionally do NOT select item_code here because
-    // older inventory tables may not have that column. item_code
-    // only lives in purchase_order_items (the new table we control).
-    var invRes = await supabase
-      .from('inventory')
+    // Step 1: Load inventory (for product autocomplete in new order modal)
+    // NOTE: We do NOT select item_code — it doesn't exist in the inventory table.
+    var invRes = await _sb.from('inventory')
       .select('id,item_name,brand,product_size,category,unit_type,purchase_price,selling_price,quantity')
       .order('item_name')
     invCache = invRes.data || []
 
-    // ── Step 2: Load purchase orders ──
-    var ordersRes = await supabase
-      .from('purchase_orders')
+    // Step 2: Load purchase_orders (the critical query)
+    var ordersRes = await _sb.from('purchase_orders')
       .select('*')
       .order('created_at', { ascending: false })
 
-    // If table doesn't exist yet, show the SQL setup guide
+    // If table doesn't exist → show setup instructions instead of freezing
     if (ordersRes.error) {
-      var errMsg = ordersRes.error.message || ''
-      if (errMsg.toLowerCase().includes('does not exist') ||
-          errMsg.toLowerCase().includes('relation') ||
-          ordersRes.error.code === 'PGRST200' ||
+      var em = ordersRes.error.message || ''
+      if (em.toLowerCase().includes('does not exist') ||
+          em.toLowerCase().includes('relation')       ||
+          ordersRes.error.code === 'PGRST200'         ||
           ordersRes.error.code === '42P01') {
-        showSetupMessage()
+        showSetup(em)
         return
       }
-      throw new Error(ordersRes.error.message)
+      throw new Error(em || 'Unknown Supabase error')
     }
 
-    // ── Step 3: Load order items ──
-    var itemsRes = await supabase
-      .from('purchase_order_items')
-      .select('*')
-      .order('id')
+    // Step 3: Load order items
+    var itemsRes = await _sb.from('purchase_order_items')
+      .select('*').order('id')
 
-    // Build lookup map: { orderId: [item, item, ...] }
+    // Build state
     allOrders = ordersRes.data || []
-    allItems = {}
+    allItems  = {}
     ;(itemsRes.data || []).forEach(function(item) {
       if (!allItems[item.order_id]) allItems[item.order_id] = []
       allItems[item.order_id].push(item)
     })
 
     updateStats()
-    renderOrders()
+    doRender()
 
   } catch(err) {
     console.error('loadData error:', err)
-    document.getElementById('ordersContainer').innerHTML =
+    document.getElementById('ordersBox').innerHTML =
       '<div style="background:rgba(220,38,38,0.08);border:1px solid rgba(220,38,38,0.2);border-radius:12px;padding:28px;text-align:center;">' +
         '<div style="font-size:32px;margin-bottom:12px;">⚠️</div>' +
         '<div style="font-size:15px;font-weight:700;color:#f87171;margin-bottom:8px;">Failed to load orders</div>' +
-        '<div style="font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:16px;">' + (err.message || 'Unknown error') + '</div>' +
-        '<button onclick="loadData()" style="background:rgba(37,99,235,0.2);border:1px solid rgba(37,99,235,0.35);color:#60a5fa;padding:8px 18px;border-radius:8px;font-size:13px;cursor:pointer;font-family:\'DM Sans\',sans-serif;box-shadow:none;">🔄 Retry</button>' +
+        '<div style="font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:16px;">' + (err.message||'Unknown error') + '</div>' +
+        '<button onclick="loadData()" style="background:rgba(37,99,235,0.2);border:1px solid rgba(37,99,235,0.35);color:#60a5fa;padding:8px 18px;border-radius:8px;font-size:13px;cursor:pointer;box-shadow:none;">🔄 Retry</button>' +
       '</div>'
   }
 }
 
+
+// ═══════════════════════════════════════════════════════════════════
+//  STATS + RENDER
+// ═══════════════════════════════════════════════════════════════════
 function updateStats() {
-  document.getElementById('stTotal').innerText   = allOrders.length
-  document.getElementById('stPending').innerText = allOrders.filter(function(o){ return o.status === 'pending' }).length
-  document.getElementById('stPartial').innerText = allOrders.filter(function(o){ return o.status === 'partial' }).length
-  document.getElementById('stReceived').innerText= allOrders.filter(function(o){ return o.status === 'received' }).length
+  document.getElementById('stTotal').innerText    = allOrders.length
+  document.getElementById('stPending').innerText  = allOrders.filter(function(o){ return o.status==='pending'  }).length
+  document.getElementById('stPartial').innerText  = allOrders.filter(function(o){ return o.status==='partial'  }).length
+  document.getElementById('stReceived').innerText = allOrders.filter(function(o){ return o.status==='received' }).length
 }
 
-// ════════════════════════
-// RENDER ORDERS
-// ════════════════════════
-window.renderOrders = function() {
-  var search = (document.getElementById('searchInput').value || '').toLowerCase()
-  var sf = document.getElementById('filterStatus').value
-  var container = document.getElementById('ordersContainer')
+window.doRender = function() {
+  var q   = (document.getElementById('searchBox').value||'').toLowerCase()
+  var sf  = document.getElementById('statusFilter').value
+  var box = document.getElementById('ordersBox')
+  var today = new Date()
 
-  var filtered = allOrders.filter(function(o) {
-    var items = allItems[o.id] || []
-    var matchSearch = !search ||
-      (o.merchant_name || '').toLowerCase().includes(search) ||
-      (o.order_number || '').toLowerCase().includes(search) ||
-      items.some(function(i){ return (i.item_name || '').toLowerCase().includes(search) })
-    var matchStatus =
-      sf === 'all'    ? true :
-      sf === 'active' ? (o.status === 'pending' || o.status === 'partial') :
-      o.status === sf
-    return matchSearch && matchStatus
+  var list = allOrders.filter(function(o) {
+    var items = allItems[o.id]||[]
+    var mSearch = !q ||
+      (o.merchant_name||'').toLowerCase().includes(q) ||
+      (o.order_number||'').toLowerCase().includes(q)  ||
+      items.some(function(i){ return (i.item_name||'').toLowerCase().includes(q) })
+    var mStatus =
+      sf==='all'    ? true :
+      sf==='active' ? (o.status==='pending'||o.status==='partial') :
+      o.status===sf
+    return mSearch && mStatus
   })
 
-  if (!filtered.length) {
-    container.innerHTML =
-      '<div style="text-align:center;padding:50px;color:rgba(255,255,255,0.3);">' +
-        '<div style="font-size:40px;margin-bottom:12px;">📋</div>' +
-        '<div>No orders found. Click "+ New Order" to place one.</div>' +
-      '</div>'
+  if (!list.length) {
+    box.innerHTML = '<div style="text-align:center;padding:50px;color:rgba(255,255,255,0.3);"><div style="font-size:40px;margin-bottom:12px;">📋</div><div>No orders found. Click "+ New Order" to get started.</div></div>'
     return
   }
 
-  var today = new Date()
-  container.innerHTML = filtered.map(function(order) {
-    var items = allItems[order.id] || []
-    var totOrdered = items.reduce(function(s,i){ return s + (i.ordered_qty||0) }, 0)
-    var totRcvd    = items.reduce(function(s,i){ return s + (i.received_qty||0) }, 0)
-    var orderDate  = new Date(order.order_date + 'T12:00:00')
-    var daysSince  = Math.floor((today - orderDate) / (1000*60*60*24))
-    var isOverdue  = (order.status === 'pending' || order.status === 'partial') && daysSince >= 2
+  box.innerHTML = list.map(function(o) {
+    var items     = allItems[o.id]||[]
+    var totOrd    = items.reduce(function(s,i){ return s+(i.ordered_qty||0) },0)
+    var totRcvd   = items.reduce(function(s,i){ return s+(i.received_qty||0) },0)
+    var oDate     = new Date(o.order_date+'T12:00:00')
+    var days      = Math.floor((today-oDate)/(1000*60*60*24))
+    var isOverdue = (o.status==='pending'||o.status==='partial') && days>=2
 
-    var itemRows = items.length ? items.map(function(item) {
-      var pending = (item.ordered_qty||0) - (item.received_qty||0)
-      return '<tr>' +
-        '<td style="font-weight:500;">' + esc(item.item_name) + '</td>' +
-        '<td style="color:rgba(255,255,255,0.5);">' + esc(item.brand||'—') + '</td>' +
-        '<td style="color:rgba(255,255,255,0.4);font-family:monospace;font-size:12px;">' + esc(item.item_code||'—') + '</td>' +
-        '<td style="color:rgba(255,255,255,0.5);">' + esc(item.product_size||'—') + '</td>' +
-        '<td style="color:rgba(255,255,255,0.5);">' + esc(item.category||'—') + '</td>' +
-        '<td style="text-align:center;">' + (item.ordered_qty||0) + '</td>' +
-        '<td style="text-align:center;color:#34d399;">' + (item.received_qty||0) + '</td>' +
-        '<td style="text-align:center;color:' + (pending>0?'#fbbf24':'#34d399') + ';">' + (pending>0?pending:'✓') + '</td>' +
-        '<td style="color:#a78bfa;">₹' + (item.purchase_price||0).toLocaleString('en-IN') + '</td>' +
-        '<td style="color:#34d399;">' + (item.selling_price?'₹'+item.selling_price.toLocaleString('en-IN'):'—') + '</td>' +
-        '<td style="text-align:right;font-weight:600;">₹' + ((item.ordered_qty||0)*(item.purchase_price||0)).toLocaleString('en-IN') + '</td>' +
+    var trs = items.length ? items.map(function(it) {
+      var pend = (it.ordered_qty||0)-(it.received_qty||0)
+      return '<tr>'+
+        '<td style="font-weight:500;">'+esc(it.item_name)+'</td>'+
+        '<td style="color:rgba(255,255,255,0.5);">'+esc(it.brand||'—')+'</td>'+
+        '<td style="color:rgba(255,255,255,0.4);font-family:monospace;font-size:12px;">'+esc(it.item_code||'—')+'</td>'+
+        '<td style="color:rgba(255,255,255,0.5);">'+esc(it.product_size||'—')+'</td>'+
+        '<td style="color:rgba(255,255,255,0.5);">'+esc(it.category||'—')+'</td>'+
+        '<td style="text-align:center;">'+(it.ordered_qty||0)+'</td>'+
+        '<td style="text-align:center;color:#34d399;">'+(it.received_qty||0)+'</td>'+
+        '<td style="text-align:center;color:'+(pend>0?'#fbbf24':'#34d399')+';font-weight:600;">'+(pend>0?pend:'✓')+'</td>'+
+        '<td style="color:#a78bfa;">₹'+(it.purchase_price||0).toLocaleString('en-IN')+'</td>'+
+        '<td style="color:#34d399;">'+(it.selling_price?'₹'+it.selling_price.toLocaleString('en-IN'):'—')+'</td>'+
+        '<td style="text-align:right;font-weight:600;">₹'+((it.ordered_qty||0)*(it.purchase_price||0)).toLocaleString('en-IN')+'</td>'+
       '</tr>'
     }).join('') :
-    '<tr><td colspan="11" style="text-align:center;padding:16px;color:rgba(255,255,255,0.3);">No items — click ✏️ to add items</td></tr>'
+    '<tr><td colspan="11" style="text-align:center;padding:16px;color:rgba(255,255,255,0.3);">No items — click ✏️ Edit to add products</td></tr>'
 
-    return '<div class="order-card' + (isOverdue?' reminder-due':'') + '" id="oc-' + order.id + '">' +
-      '<div class="order-header" onclick="toggleOrder(' + order.id + ')">' +
-        '<div>' +
-          '<div class="order-no">' + esc(order.order_number) + '</div>' +
-          '<div class="order-merchant">' + esc(order.merchant_name) + '</div>' +
-          '<div class="order-date">📅 ' + fmtDate(order.order_date) +
-            (order.expected_date ? ' · Expected: ' + fmtDate(order.expected_date) : '') +
-            (isOverdue ? ' <span style="color:#fb923c;font-size:11px;">⏰ ' + daysSince + 'd ago — check if arrived</span>' : '') +
-          '</div>' +
-        '</div>' +
-        '<div class="order-meta">' +
-          '<div>' +
-            '<div class="order-amount">₹' + Math.round(order.total_amount||0).toLocaleString('en-IN') + '</div>' +
-            '<div class="order-items-count">' + items.length + ' item' + (items.length!==1?'s':'') + ' · ' + totRcvd + '/' + totOrdered + ' rcvd</div>' +
-          '</div>' +
-          '<span class="status-badge status-' + order.status + '">' + order.status.charAt(0).toUpperCase() + order.status.slice(1) + '</span>' +
-          '<div class="order-actions-row" onclick="event.stopPropagation()">' +
-            (order.status !== 'received' && order.status !== 'cancelled' ?
-              '<button onclick="openReceiveModal(' + order.id + ')" style="background:rgba(52,211,153,0.2);border:1px solid rgba(52,211,153,0.35);color:#34d399;padding:6px 14px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:\'DM Sans\',sans-serif;box-shadow:none;">✅ Receive</button>' : '') +
-            '<button onclick="editOrder(' + order.id + ')" style="background:rgba(96,165,250,0.15);border:1px solid rgba(96,165,250,0.3);color:#60a5fa;padding:6px 12px;border-radius:8px;font-size:13px;cursor:pointer;font-family:\'DM Sans\',sans-serif;box-shadow:none;" title="Edit">✏️</button>' +
-            '<button onclick="printOrder(' + order.id + ')" style="background:rgba(167,139,250,0.15);border:1px solid rgba(167,139,250,0.3);color:#a78bfa;padding:6px 12px;border-radius:8px;font-size:13px;cursor:pointer;font-family:\'DM Sans\',sans-serif;box-shadow:none;" title="Print">🖨</button>' +
-            (order.status !== 'received' && order.status !== 'cancelled' ?
-              '<button onclick="cancelOrder(' + order.id + ')" style="background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.25);color:#f87171;padding:6px 10px;border-radius:8px;font-size:12px;cursor:pointer;font-family:\'DM Sans\',sans-serif;box-shadow:none;" title="Cancel">✕</button>' : '') +
-            '<button onclick="deleteOrder(' + order.id + ')" style="background:rgba(220,38,38,0.15);border:1px solid rgba(220,38,38,0.25);color:#f87171;padding:6px 10px;border-radius:8px;font-size:12px;cursor:pointer;font-family:\'DM Sans\',sans-serif;box-shadow:none;" title="Delete">🗑️</button>' +
-          '</div>' +
-        '</div>' +
-      '</div>' +
-      '<div class="order-body" id="ob-' + order.id + '">' +
-        (order.notes ? '<div style="background:rgba(255,255,255,0.04);border-radius:8px;padding:10px 14px;font-size:13px;color:rgba(255,255,255,0.55);margin-bottom:12px;font-style:italic;">📝 ' + esc(order.notes) + '</div>' : '') +
-        (order.linked_bill_number ? '<div style="background:rgba(52,211,153,0.08);border:1px solid rgba(52,211,153,0.2);border-radius:8px;padding:10px 14px;font-size:13px;color:#34d399;margin-bottom:12px;">✅ Purchase bill: <strong>' + esc(order.linked_bill_number) + '</strong></div>' : '') +
-        '<div style="overflow-x:auto;">' +
-          '<table class="items-table">' +
-            '<thead><tr>' +
-              '<th>Product</th><th>Brand</th><th>Code</th><th>Size</th><th>Category</th>' +
-              '<th style="text-align:center;">Ordered</th><th style="text-align:center;">Received</th>' +
-              '<th style="text-align:center;">Pending</th><th>Buy ₹</th><th>Sell ₹</th><th style="text-align:right;">Total</th>' +
-            '</tr></thead>' +
-            '<tbody>' + itemRows + '</tbody>' +
-          '</table>' +
-        '</div>' +
-      '</div>' +
+    return '<div class="order-card'+(isOverdue?' overdue':'')+'" id="oc-'+o.id+'">'+
+      '<div class="order-header" onclick="toggleBody('+o.id+')">'+
+        '<div>'+
+          '<div class="order-no">'+esc(o.order_number)+'</div>'+
+          '<div class="order-merchant">'+esc(o.merchant_name)+'</div>'+
+          '<div class="order-date">📅 '+fmtD(o.order_date)+
+            (o.expected_date?' · Expected: '+fmtD(o.expected_date):'')+
+            (isOverdue?' <span style="color:#fb923c;font-size:11px;">⏰ '+days+'d ago — follow up!</span>':'')+
+          '</div>'+
+        '</div>'+
+        '<div class="order-meta">'+
+          '<div>'+
+            '<div class="order-amount">₹'+Math.round(o.total_amount||0).toLocaleString('en-IN')+'</div>'+
+            '<div class="order-cnt">'+items.length+' item'+(items.length!==1?'s':'')+' · '+totRcvd+'/'+totOrd+' rcvd</div>'+
+          '</div>'+
+          '<span class="status-badge status-'+o.status+'">'+o.status.charAt(0).toUpperCase()+o.status.slice(1)+'</span>'+
+          '<div class="order-actions" onclick="event.stopPropagation()">'+
+            (o.status!=='received'&&o.status!=='cancelled'?
+              '<button onclick="openReceive('+o.id+')" style="background:rgba(52,211,153,0.2);border:1px solid rgba(52,211,153,0.35);color:#34d399;padding:6px 14px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;box-shadow:none;">✅ Receive</button>':'') +
+            '<button onclick="editOrder('+o.id+')" style="background:rgba(96,165,250,0.15);border:1px solid rgba(96,165,250,0.3);color:#60a5fa;padding:6px 12px;border-radius:8px;font-size:13px;cursor:pointer;box-shadow:none;" title="Edit">✏️</button>'+
+            '<button onclick="printOrder('+o.id+')" style="background:rgba(167,139,250,0.15);border:1px solid rgba(167,139,250,0.3);color:#a78bfa;padding:6px 12px;border-radius:8px;font-size:13px;cursor:pointer;box-shadow:none;" title="Print">🖨</button>'+
+            (o.status!=='received'&&o.status!=='cancelled'?
+              '<button onclick="cancelOrder('+o.id+')" style="background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.25);color:#f87171;padding:6px 10px;border-radius:8px;font-size:12px;cursor:pointer;box-shadow:none;" title="Cancel">✕</button>':'') +
+            '<button onclick="deleteOrder('+o.id+')" style="background:rgba(220,38,38,0.15);border:1px solid rgba(220,38,38,0.25);color:#f87171;padding:6px 10px;border-radius:8px;font-size:12px;cursor:pointer;box-shadow:none;" title="Delete">🗑️</button>'+
+          '</div>'+
+        '</div>'+
+      '</div>'+
+      '<div class="order-body" id="ob-'+o.id+'">'+
+        (o.notes?'<div style="background:rgba(255,255,255,0.04);border-radius:8px;padding:10px 14px;font-size:13px;color:rgba(255,255,255,0.55);margin-bottom:12px;font-style:italic;">📝 '+esc(o.notes)+'</div>':'')+
+        (o.linked_bill_number?'<div style="background:rgba(52,211,153,0.08);border:1px solid rgba(52,211,153,0.2);border-radius:8px;padding:10px 14px;font-size:13px;color:#34d399;margin-bottom:12px;">✅ Purchase bill: <strong>'+esc(o.linked_bill_number)+'</strong></div>':'')+
+        '<div style="overflow-x:auto;">'+
+          '<table class="items-table">'+
+            '<thead><tr>'+
+              '<th>Product</th><th>Brand</th><th>Code</th><th>Size</th><th>Category</th>'+
+              '<th style="text-align:center;">Ordered</th><th style="text-align:center;">Received</th>'+
+              '<th style="text-align:center;">Pending</th><th>Buy ₹</th><th>Sell ₹</th><th style="text-align:right;">Total</th>'+
+            '</tr></thead>'+
+            '<tbody>'+trs+'</tbody>'+
+          '</table>'+
+        '</div>'+
+      '</div>'+
     '</div>'
   }).join('')
 }
 
-window.toggleOrder = function(id) {
-  var b = document.getElementById('ob-' + id)
+window.toggleBody = function(id) {
+  var b = document.getElementById('ob-'+id)
   if (b) b.classList.toggle('open')
 }
 
 
-// ════════════════════════
-// NEW ORDER MODAL
-// ════════════════════════
-window.openNewOrderModal = function() {
-  editingOrderId = null
-  document.getElementById('orderModalTitle').innerText = '📋 Place New Order'
-  document.getElementById('oMerchant').value = ''
-  document.getElementById('oPhone').value = ''
-  document.getElementById('oDate').value = new Date().toISOString().slice(0,10)
-  document.getElementById('oExpected').value = ''
-  document.getElementById('oNotes').value = ''
-  document.getElementById('orderItemsContainer').innerHTML = ''
-  document.getElementById('placeOrderBtn').innerText = '📋 Place Order'
-  addOrderItem()
-  calcOrderTotal()
-  document.getElementById('newOrderModal').style.display = 'block'
+// ═══════════════════════════════════════════════════════════════════
+//  NEW / EDIT ORDER MODAL
+// ═══════════════════════════════════════════════════════════════════
+window.openNewOrder = function() {
+  editingId = null
+  document.getElementById('newOrderTitle').innerText = '📋 Place New Order'
+  document.getElementById('oMerch').value   = ''
+  document.getElementById('oPhone').value   = ''
+  document.getElementById('oDate').value    = new Date().toISOString().slice(0,10)
+  document.getElementById('oExpected').value= ''
+  document.getElementById('oNotes').value   = ''
+  document.getElementById('oItemsBox').innerHTML = ''
+  document.getElementById('saveOrderBtn').innerText = '📋 Place Order'
+  addOItem()
+  calcOTotal()
+  document.getElementById('newOrderModal').style.display='block'
 }
 
-window.closeNewOrderModal = function() {
-  document.getElementById('newOrderModal').style.display = 'none'
-  editingOrderId = null
+window.closeNewOrder = function() {
+  document.getElementById('newOrderModal').style.display='none'
+  editingId = null
 }
 
-// ── Add one item row to the order form ──
-window.addOrderItem = function() {
-  var container = document.getElementById('orderItemsContainer')
-  var rowId = 'r' + Date.now()
-  var div = document.createElement('div')
-  div.className = 'order-item-row'
-  div.dataset.rowid = rowId
-  div.dataset.brand = ''; div.dataset.size = ''; div.dataset.category = ''
-  div.dataset.unit = ''; div.dataset.invId = ''; div.dataset.sellPrice = ''
-
+window.addOItem = function() {
+  var box   = document.getElementById('oItemsBox')
+  var rid   = 'r'+Date.now()
+  var div   = document.createElement('div')
+  div.className    = 'oi-row'
+  div.dataset.rid  = rid
+  div.dataset.brand=''; div.dataset.size=''; div.dataset.cat=''
+  div.dataset.unit =''; div.dataset.inv =''; div.dataset.sell=''
   div.innerHTML =
     '<div style="position:relative;">' +
-      '<input placeholder="Type to search product..." class="oi-input oi-name"' +
-        ' oninput="onProdInput(this,\'' + rowId + '\')" autocomplete="off">' +
-      '<ul class="prod-dropdown" id="pd-' + rowId + '"></ul>' +
+      '<input class="oi oi-name" placeholder="Type to search product..." autocomplete="off" oninput="onProdType(this,\''+rid+'\')">' +
+      '<ul class="prod-dd" id="dd-'+rid+'"></ul>' +
     '</div>' +
-    '<div><input placeholder="Brand" class="oi-input oi-brand"></div>' +
-    '<div><input placeholder="Code (opt)" class="oi-input oi-code" style="color:rgba(255,255,255,0.6);"></div>' +
-    '<div><input type="number" placeholder="1" min="1" value="1" class="oi-input oi-qty" oninput="calcOrderTotal()" style="text-align:center;"></div>' +
-    '<div><input type="number" placeholder="0" min="0" value="0" class="oi-input oi-price" oninput="calcOrderTotal()" style="color:#a78bfa;font-weight:600;text-align:center;"></div>' +
-    '<button class="remove-item-btn" onclick="this.closest(\'.order-item-row\').remove();calcOrderTotal();" title="Remove">✕</button>'
-
-  container.appendChild(div)
+    '<div><input class="oi oi-brand" placeholder="Brand"></div>' +
+    '<div><input class="oi oi-code" placeholder="Code (optional)" style="color:rgba(255,255,255,0.6);"></div>' +
+    '<div><input type="number" class="oi oi-qty" placeholder="1" min="1" value="1" oninput="calcOTotal()" style="text-align:center;"></div>' +
+    '<div><input type="number" class="oi oi-price" placeholder="0" min="0" value="0" oninput="calcOTotal()" style="color:#a78bfa;font-weight:600;text-align:center;"></div>' +
+    '<button class="rm-btn" onclick="this.closest(\'.oi-row\').remove();calcOTotal();" title="Remove">✕</button>'
+  box.appendChild(div)
   div.querySelector('.oi-name').focus()
 }
 
-// Product autocomplete
-window.onProdInput = function(input, rowId) {
-  var q = input.value.trim()
-  var dd = document.getElementById('pd-' + rowId)
-  clearTimeout(prodTimers[rowId])
-  if (!q) { dd.style.display = 'none'; return }
-
-  prodTimers[rowId] = setTimeout(function() {
-    var matches = invCache.filter(function(p) {
+window.onProdType = function(input, rid) {
+  var q  = input.value.trim()
+  var dd = document.getElementById('dd-'+rid)
+  clearTimeout(prodTimers[rid])
+  if (!q) { dd.style.display='none'; return }
+  prodTimers[rid] = setTimeout(function() {
+    var hits = invCache.filter(function(p) {
       return (p.item_name||'').toLowerCase().includes(q.toLowerCase()) ||
              (p.brand||'').toLowerCase().includes(q.toLowerCase())
-    }).slice(0, 10)
-
-    dd.innerHTML = ''
-    matches.forEach(function(p) {
+    }).slice(0,10)
+    dd.innerHTML=''
+    hits.forEach(function(p) {
       var li = document.createElement('li')
-      li.innerHTML = '<strong>' + esc(p.item_name) + '</strong>' +
-        (p.brand ? '<span style="color:rgba(255,255,255,0.45);"> · ' + esc(p.brand) + '</span>' : '') +
-        '<span style="color:#a78bfa;font-size:12px;"> ₹' + (p.purchase_price||0) + '</span>' +
-        '<span style="color:' + (p.quantity<=0?'#f87171':p.quantity<=5?'#fbbf24':'#34d399') + ';font-size:11px;"> (' + (p.quantity||0) + ' stock)</span>'
-      li.onmousedown = function(e) {
-        e.preventDefault()
-        fillRow(rowId, p)
-        dd.style.display = 'none'
-      }
+      li.innerHTML = '<strong>'+esc(p.item_name)+'</strong>'+
+        (p.brand?'<span style="color:rgba(255,255,255,0.45);"> · '+esc(p.brand)+'</span>':'')+
+        '<span style="color:#a78bfa;font-size:12px;"> ₹'+(p.purchase_price||0)+'</span>'+
+        '<span style="color:'+(p.quantity<=0?'#f87171':p.quantity<=5?'#fbbf24':'#34d399')+';font-size:11px;"> ('+(p.quantity||0)+' in stock)</span>'
+      li.onmousedown = function(e) { e.preventDefault(); fillRow(rid,p); dd.style.display='none' }
       dd.appendChild(li)
     })
-
     var li2 = document.createElement('li')
-    li2.className = 'new-item'
-    li2.innerHTML = '➕ Use "<strong>' + esc(q) + '</strong>" as new product'
-    li2.onmousedown = function(e) {
-      e.preventDefault()
-      var row = document.querySelector('.order-item-row[data-rowid="' + rowId + '"]')
-      if (row) row.dataset.invId = ''
-      dd.style.display = 'none'
-    }
+    li2.className='new-item'
+    li2.innerHTML = '➕ Use "<strong>'+esc(q)+'</strong>" as new product'
+    li2.onmousedown = function(e) { e.preventDefault(); dd.style.display='none' }
     dd.appendChild(li2)
-    dd.style.display = 'block'
+    dd.style.display='block'
   }, 220)
 }
 
-function fillRow(rowId, product) {
-  var row = document.querySelector('.order-item-row[data-rowid="' + rowId + '"]')
+function fillRow(rid, p) {
+  var row = document.querySelector('.oi-row[data-rid="'+rid+'"]')
   if (!row) return
-  row.querySelector('.oi-name').value  = product.item_name || ''
-  row.querySelector('.oi-brand').value = product.brand || ''
+  row.querySelector('.oi-name').value  = p.item_name||''
+  row.querySelector('.oi-brand').value = p.brand||''
   row.querySelector('.oi-code').value  = ''
-  row.querySelector('.oi-price').value = product.purchase_price || 0
-  row.dataset.brand     = product.brand || ''
-  row.dataset.size      = product.product_size || ''
-  row.dataset.category  = product.category || ''
-  row.dataset.unit      = product.unit_type || ''
-  row.dataset.invId     = product.id || ''
-  row.dataset.sellPrice = product.selling_price || ''
-  calcOrderTotal()
+  row.querySelector('.oi-price').value = p.purchase_price||0
+  row.dataset.brand=p.brand||''; row.dataset.size=p.product_size||''
+  row.dataset.cat=p.category||''; row.dataset.unit=p.unit_type||''
+  row.dataset.inv=p.id||''; row.dataset.sell=p.selling_price||''
+  calcOTotal()
 }
 
-window.calcOrderTotal = function() {
-  var total = 0
-  document.querySelectorAll('.order-item-row').forEach(function(row) {
-    total += (parseFloat(row.querySelector('.oi-qty')?.value)||0) *
-             (parseFloat(row.querySelector('.oi-price')?.value)||0)
+window.calcOTotal = function() {
+  var total=0
+  document.querySelectorAll('.oi-row').forEach(function(r) {
+    total+=(parseFloat(r.querySelector('.oi-qty')&&r.querySelector('.oi-qty').value)||0)*
+           (parseFloat(r.querySelector('.oi-price')&&r.querySelector('.oi-price').value)||0)
   })
-  document.getElementById('orderTotalDisplay').innerText = '₹' + Math.round(total).toLocaleString('en-IN')
+  document.getElementById('oTotalDisplay').innerText='₹'+Math.round(total).toLocaleString('en-IN')
 }
 
-// Close dropdowns on outside click
 document.addEventListener('click', function(e) {
-  document.querySelectorAll('.prod-dropdown').forEach(function(d){ d.style.display='none' })
-  if (!e.target.closest('#oMerchant') && !e.target.closest('#merchantSuggest')) {
-    document.getElementById('merchantSuggest').style.display = 'none'
+  document.querySelectorAll('.prod-dd').forEach(function(d){ d.style.display='none' })
+  if (!e.target.closest('#oMerch') && !e.target.closest('#merchList')) {
+    document.getElementById('merchList').style.display='none'
   }
 })
 
 
-// ════════════════════════
-// GENERATE BILL / ORDER NUMBERS
-// WHY: We query the DB to find the last
-// number used that day and add 1, so
-// numbers never repeat even after deletions.
-// ════════════════════════
+// ═══════════════════════════════════════════════════════════════════
+//  GENERATE ORDER / BILL NUMBERS
+// ═══════════════════════════════════════════════════════════════════
 async function genOrderNo(dateStr) {
-  var d = new Date(dateStr + 'T12:00:00')
-  var dd = String(d.getDate()).padStart(2,'0'), mm = String(d.getMonth()+1).padStart(2,'0'), yy = String(d.getFullYear()).slice(2)
-  var prefix = 'ORD-' + dd + mm + yy + '-'
-  var res = await supabase.from('purchase_orders').select('order_number').like('order_number', prefix+'%').order('order_number',{ascending:false}).limit(1)
-  var n = 0
-  if (res.data && res.data.length) { var p = res.data[0].order_number.split('-'); n = parseInt(p[p.length-1])||0 }
-  return prefix + String(n+1).padStart(4,'0')
+  var d=new Date(dateStr+'T12:00:00')
+  var dd=String(d.getDate()).padStart(2,'0'),mm=String(d.getMonth()+1).padStart(2,'0'),yy=String(d.getFullYear()).slice(2)
+  var pfx='ORD-'+dd+mm+yy+'-'
+  var res=await _sb.from('purchase_orders').select('order_number').like('order_number',pfx+'%').order('order_number',{ascending:false}).limit(1)
+  var n=0
+  if (res.data&&res.data.length){ var p=res.data[0].order_number.split('-'); n=parseInt(p[p.length-1])||0 }
+  return pfx+String(n+1).padStart(4,'0')
 }
 
-async function genPurBillNo() {
-  var now = new Date()
-  var dd = String(now.getDate()).padStart(2,'0'), mm = String(now.getMonth()+1).padStart(2,'0'), yy = String(now.getFullYear()).slice(2)
-  var prefix = 'PUR-' + dd + mm + yy + '-'
-  var res = await supabase.from('purchases').select('bill_number').like('bill_number', prefix+'%').order('bill_number',{ascending:false}).limit(1)
-  var n = 0
-  if (res.data && res.data.length) { var p = res.data[0].bill_number.split('-'); n = parseInt(p[p.length-1])||0 }
-  return prefix + String(n+1).padStart(4,'0')
+async function genBillNo() {
+  var now=new Date()
+  var dd=String(now.getDate()).padStart(2,'0'),mm=String(now.getMonth()+1).padStart(2,'0'),yy=String(now.getFullYear()).slice(2)
+  var pfx='PUR-'+dd+mm+yy+'-'
+  var res=await _sb.from('purchases').select('bill_number').like('bill_number',pfx+'%').order('bill_number',{ascending:false}).limit(1)
+  var n=0
+  if (res.data&&res.data.length){ var p=res.data[0].bill_number.split('-'); n=parseInt(p[p.length-1])||0 }
+  return pfx+String(n+1).padStart(4,'0')
 }
 
 
-// ════════════════════════
-// SAVE ORDER (NEW + EDIT)
-// ════════════════════════
+// ═══════════════════════════════════════════════════════════════════
+//  SAVE ORDER
+// ═══════════════════════════════════════════════════════════════════
 window.saveOrder = async function() {
-  var merchant = document.getElementById('oMerchant').value.trim()
-  if (!merchant) { alert('Please enter merchant name'); return }
-  var orderDate = document.getElementById('oDate').value
-  if (!orderDate) { alert('Please select order date'); return }
+  var merch = document.getElementById('oMerch').value.trim()
+  if (!merch) { alert('Please enter merchant name'); return }
+  var oDate = document.getElementById('oDate').value
+  if (!oDate) { alert('Please select order date'); return }
 
-  var items = []
-  var rows = document.querySelectorAll('.order-item-row')
-  for (var i = 0; i < rows.length; i++) {
-    var row = rows[i]
-    var name = row.querySelector('.oi-name')?.value.trim()
+  var items=[]
+  var rows=document.querySelectorAll('.oi-row')
+  for (var i=0;i<rows.length;i++) {
+    var row=rows[i]
+    var name=(row.querySelector('.oi-name')&&row.querySelector('.oi-name').value||'').trim()
     if (!name) continue
-    var qty = parseInt(row.querySelector('.oi-qty')?.value) || 0
-    if (qty <= 0) { alert('Quantity must be ≥ 1 for: ' + name); return }
+    var qty=parseInt(row.querySelector('.oi-qty')&&row.querySelector('.oi-qty').value)||0
+    if (qty<=0) { alert('Qty must be ≥ 1 for: '+name); return }
     items.push({
-      item_name:      name,
-      brand:          row.querySelector('.oi-brand')?.value.trim() || null,
-      item_code:      row.querySelector('.oi-code')?.value.trim()  || null,
-      product_size:   row.dataset.size     || null,
-      category:       row.dataset.category || null,
-      unit_type:      row.dataset.unit     || null,
-      ordered_qty:    qty,
-      purchase_price: parseFloat(row.querySelector('.oi-price')?.value) || 0,
-      selling_price:  row.dataset.sellPrice ? parseFloat(row.dataset.sellPrice) : null,
-      received_qty:   0,
-      inv_id:         row.dataset.invId || null
+      item_name:     name,
+      brand:        (row.querySelector('.oi-brand')&&row.querySelector('.oi-brand').value||'').trim()||null,
+      item_code:    (row.querySelector('.oi-code')&&row.querySelector('.oi-code').value||'').trim()||null,
+      product_size:  row.dataset.size||null,
+      category:      row.dataset.cat||null,
+      unit_type:     row.dataset.unit||null,
+      ordered_qty:   qty,
+      purchase_price:parseFloat(row.querySelector('.oi-price')&&row.querySelector('.oi-price').value)||0,
+      selling_price: row.dataset.sell?parseFloat(row.dataset.sell):null,
+      received_qty:  0,
+      inv_id:        row.dataset.inv||null
     })
   }
   if (!items.length) { alert('Add at least one product'); return }
 
-  var total = items.reduce(function(s,i){ return s + (i.ordered_qty||0) * (i.purchase_price||0) }, 0)
-
-  var btn = document.getElementById('placeOrderBtn')
-  btn.disabled = true; btn.innerText = '⏳ Saving...'
+  var total=items.reduce(function(s,i){ return s+(i.ordered_qty||0)*(i.purchase_price||0) },0)
+  var btn=document.getElementById('saveOrderBtn')
+  btn.disabled=true; btn.innerText='⏳ Saving...'
 
   try {
-    if (editingOrderId) {
-      // ── Update existing order ──
-      var updRes = await supabase.from('purchase_orders').update({
-        merchant_name:  merchant,
-        merchant_phone: document.getElementById('oPhone').value.trim() || null,
-        order_date:     orderDate,
-        expected_date:  document.getElementById('oExpected').value || null,
-        notes:          document.getElementById('oNotes').value.trim() || null,
+    if (editingId) {
+      var ur=await _sb.from('purchase_orders').update({
+        merchant_name:  merch,
+        merchant_phone: document.getElementById('oPhone').value.trim()||null,
+        order_date:     oDate,
+        expected_date:  document.getElementById('oExpected').value||null,
+        notes:          document.getElementById('oNotes').value.trim()||null,
         total_amount:   total
-      }).eq('id', editingOrderId)
-      if (updRes.error) throw new Error(updRes.error.message)
-
-      await supabase.from('purchase_order_items').delete().eq('order_id', editingOrderId)
-
-      var insRes = await supabase.from('purchase_order_items').insert(
-        items.map(function(i){ return Object.assign({}, i, { order_id: editingOrderId }) })
-      ).select()
-      if (insRes.error) throw new Error(insRes.error.message)
-
-      closeNewOrderModal()
-      await loadData()
-      alert('✅ Order updated! ' + (insRes.data?.length||0) + ' items saved.')
-
+      }).eq('id',editingId)
+      if (ur.error) throw new Error(ur.error.message)
+      await _sb.from('purchase_order_items').delete().eq('order_id',editingId)
+      var ir=await _sb.from('purchase_order_items').insert(items.map(function(it){ return Object.assign({},it,{order_id:editingId}) })).select()
+      if (ir.error) throw new Error(ir.error.message)
+      closeNewOrder(); await loadData()
+      alert('✅ Order updated — '+(ir.data&&ir.data.length||0)+' items saved.')
     } else {
-      // ── Create new order ──
-      var orderNo = await genOrderNo(orderDate)
-      var orderRes = await supabase.from('purchase_orders').insert([{
+      var orderNo=await genOrderNo(oDate)
+      var or2=await _sb.from('purchase_orders').insert([{
         order_number:   orderNo,
-        merchant_name:  merchant,
-        merchant_phone: document.getElementById('oPhone').value.trim() || null,
-        order_date:     orderDate,
-        expected_date:  document.getElementById('oExpected').value || null,
-        notes:          document.getElementById('oNotes').value.trim() || null,
+        merchant_name:  merch,
+        merchant_phone: document.getElementById('oPhone').value.trim()||null,
+        order_date:     oDate,
+        expected_date:  document.getElementById('oExpected').value||null,
+        notes:          document.getElementById('oNotes').value.trim()||null,
         status:         'pending',
         total_amount:   total
       }]).select().single()
-      if (orderRes.error) throw new Error(orderRes.error.message)
-
-      var insRes2 = await supabase.from('purchase_order_items').insert(
-        items.map(function(i){ return Object.assign({}, i, { order_id: orderRes.data.id }) })
-      ).select()
-      if (insRes2.error) throw new Error(insRes2.error.message)
-
-      closeNewOrderModal()
-      await loadData()
-      alert('✅ Order placed: ' + orderNo + '\n' + (insRes2.data?.length||0) + ' items saved.')
+      if (or2.error) throw new Error(or2.error.message)
+      var ir2=await _sb.from('purchase_order_items').insert(items.map(function(it){ return Object.assign({},it,{order_id:or2.data.id}) })).select()
+      if (ir2.error) throw new Error(ir2.error.message)
+      closeNewOrder(); await loadData()
+      alert('✅ Order placed: '+orderNo+'\n'+(ir2.data&&ir2.data.length||0)+' items saved.')
     }
-  } catch(err) {
-    console.error('saveOrder error:', err)
-    alert('❌ Error saving order: ' + err.message)
-  }
+  } catch(e) { console.error(e); alert('❌ Error: '+e.message) }
 
-  btn.disabled = false
-  btn.innerText = editingOrderId ? '💾 Update Order' : '📋 Place Order'
+  btn.disabled=false; btn.innerText=editingId?'💾 Update Order':'📋 Place Order'
 }
 
 
-// ════════════════════════
-// EDIT ORDER
-// ════════════════════════
+// ═══════════════════════════════════════════════════════════════════
+//  EDIT ORDER
+// ═══════════════════════════════════════════════════════════════════
 window.editOrder = async function(id) {
-  var order = allOrders.find(function(o){ return o.id === id })
-  if (!order) return
-  editingOrderId = id
-
-  document.getElementById('orderModalTitle').innerText = '✏️ Edit Order — ' + order.order_number
-  document.getElementById('oMerchant').value = order.merchant_name || ''
-  document.getElementById('oPhone').value = order.merchant_phone || ''
-  document.getElementById('oDate').value = order.order_date || ''
-  document.getElementById('oExpected').value = order.expected_date || ''
-  document.getElementById('oNotes').value = order.notes || ''
-
-  var container = document.getElementById('orderItemsContainer')
-  container.innerHTML = ''
-
-  // Use items from memory cache; fallback to DB if not loaded
-  var items = allItems[id] || []
+  var o=allOrders.find(function(x){ return x.id===id }); if (!o) return
+  editingId=id
+  document.getElementById('newOrderTitle').innerText='✏️ Edit Order — '+o.order_number
+  document.getElementById('oMerch').value    = o.merchant_name||''
+  document.getElementById('oPhone').value    = o.merchant_phone||''
+  document.getElementById('oDate').value     = o.order_date||''
+  document.getElementById('oExpected').value = o.expected_date||''
+  document.getElementById('oNotes').value    = o.notes||''
+  document.getElementById('oItemsBox').innerHTML=''
+  var items=allItems[id]||[]
   if (!items.length) {
-    var res = await supabase.from('purchase_order_items').select('*').eq('order_id', id)
-    items = res.data || []
-    if (items.length) allItems[id] = items
+    var r=await _sb.from('purchase_order_items').select('*').eq('order_id',id)
+    items=r.data||[]; if (items.length) allItems[id]=items
   }
-
-  items.forEach(function(item) {
-    window.addOrderItem()
-    var rows = container.querySelectorAll('.order-item-row')
-    var row = rows[rows.length - 1]
-    if (!row) return
-    row.querySelector('.oi-name').value  = item.item_name || ''
-    row.querySelector('.oi-brand').value = item.brand || ''
-    row.querySelector('.oi-code').value  = item.item_code || ''
-    row.querySelector('.oi-qty').value   = item.ordered_qty || 1
-    row.querySelector('.oi-price').value = item.purchase_price || 0
-    row.dataset.brand     = item.brand || ''
-    row.dataset.size      = item.product_size || ''
-    row.dataset.category  = item.category || ''
-    row.dataset.unit      = item.unit_type || ''
-    row.dataset.invId     = item.inv_id || ''
-    row.dataset.sellPrice = item.selling_price || ''
+  items.forEach(function(it) {
+    addOItem()
+    var rows=document.querySelectorAll('.oi-row')
+    var row=rows[rows.length-1]; if (!row) return
+    row.querySelector('.oi-name').value  = it.item_name||''
+    row.querySelector('.oi-brand').value = it.brand||''
+    row.querySelector('.oi-code').value  = it.item_code||''
+    row.querySelector('.oi-qty').value   = it.ordered_qty||1
+    row.querySelector('.oi-price').value = it.purchase_price||0
+    row.dataset.brand=it.brand||''; row.dataset.size=it.product_size||''
+    row.dataset.cat=it.category||''; row.dataset.unit=it.unit_type||''
+    row.dataset.inv=it.inv_id||''; row.dataset.sell=it.selling_price||''
   })
-
-  if (!items.length) addOrderItem()
-  calcOrderTotal()
-  document.getElementById('placeOrderBtn').innerText = '💾 Update Order'
-  document.getElementById('newOrderModal').style.display = 'block'
+  if (!items.length) addOItem()
+  calcOTotal()
+  document.getElementById('saveOrderBtn').innerText='💾 Update Order'
+  document.getElementById('newOrderModal').style.display='block'
 }
 
 
-// ════════════════════════
-// RECEIVE PRODUCTS MODAL
-// ════════════════════════
-window.openReceiveModal = function(id) {
-  var order = allOrders.find(function(o){ return o.id === id })
-  if (!order) { alert('Order not found'); return }
-
-  var items = allItems[id] || []
-  if (!items.length) {
-    alert('⚠️ This order has no items.\nClick ✏️ Edit to add products first.')
-    return
-  }
-
-  receivingOrderId = id
-
-  document.getElementById('receiveOrderInfo').innerHTML =
-    '<strong style="color:white;font-size:15px;">' + esc(order.merchant_name) + '</strong>' +
-    ' &nbsp;|&nbsp; Order: <strong>' + esc(order.order_number) + '</strong>' +
-    ' &nbsp;|&nbsp; ' + fmtDate(order.order_date)
-
-  var list = document.getElementById('receiveItemsList')
-  list.innerHTML = ''
-
-  items.forEach(function(item, idx) {
-    var pending = (item.ordered_qty||0) - (item.received_qty||0)
-    var done = pending <= 0
-    var row = document.createElement('div')
-    row.className = 'rcv-row' + (done ? ' done' : '')
-
+// ═══════════════════════════════════════════════════════════════════
+//  RECEIVE MODAL
+// ═══════════════════════════════════════════════════════════════════
+window.openReceive = function(id) {
+  var o=allOrders.find(function(x){ return x.id===id }); if (!o) { alert('Order not found'); return }
+  var items=allItems[id]||[]
+  if (!items.length) { alert('⚠️ No items in this order.\nClick ✏️ Edit to add products first.'); return }
+  receivingId=id
+  document.getElementById('rcvOrderInfo').innerHTML=
+    '<strong style="color:white;font-size:15px;">'+esc(o.merchant_name)+'</strong>'+
+    ' &nbsp;|&nbsp; Order: <strong>'+esc(o.order_number)+'</strong>'+
+    ' &nbsp;|&nbsp; '+fmtD(o.order_date)
+  var list=document.getElementById('rcvItemsList')
+  list.innerHTML=''
+  items.forEach(function(it,idx) {
+    var pend=(it.ordered_qty||0)-(it.received_qty||0)
+    var done=pend<=0
+    var row=document.createElement('div')
+    row.className='rcv-row'+(done?' rcv-done':'')
     if (done) {
-      row.innerHTML =
-        '<div><input type="checkbox" disabled style="opacity:0.3;width:16px;height:16px;"></div>' +
-        '<div><div style="font-weight:500;color:rgba(255,255,255,0.4);text-decoration:line-through;">' + esc(item.item_name) + '</div>' +
-          '<div style="font-size:11px;color:rgba(255,255,255,0.3);">' + esc(item.brand||'') + '</div></div>' +
-        '<div style="font-size:11px;color:rgba(255,255,255,0.3);font-family:monospace;">' + esc(item.item_code||'—') + '</div>' +
-        '<div style="text-align:center;color:rgba(255,255,255,0.4);">' + (item.ordered_qty||0) + '</div>' +
-        '<div style="text-align:center;"><span style="font-size:11px;background:rgba(52,211,153,0.1);color:#34d399;padding:2px 8px;border-radius:5px;">✓ Done</span></div>' +
-        '<div style="text-align:center;color:rgba(255,255,255,0.3);">—</div>' +
+      row.innerHTML=
+        '<div><input type="checkbox" disabled style="opacity:0.3;width:16px;height:16px;"></div>'+
+        '<div><div style="font-weight:500;color:rgba(255,255,255,0.4);text-decoration:line-through;">'+esc(it.item_name)+'</div><div style="font-size:11px;color:rgba(255,255,255,0.3);">'+esc(it.brand||'')+'</div></div>'+
+        '<div style="font-size:11px;color:rgba(255,255,255,0.3);font-family:monospace;">'+esc(it.item_code||'—')+'</div>'+
+        '<div style="text-align:center;color:rgba(255,255,255,0.4);">'+(it.ordered_qty||0)+'</div>'+
+        '<div style="text-align:center;"><span style="font-size:11px;background:rgba(52,211,153,0.1);color:#34d399;padding:2px 8px;border-radius:5px;">✓ Done</span></div>'+
+        '<div style="text-align:center;color:rgba(255,255,255,0.3);">—</div>'+
         '<div style="text-align:center;color:rgba(255,255,255,0.3);">—</div>'
     } else {
-      row.innerHTML =
-        '<div><input type="checkbox" class="rcv-chk" data-idx="' + idx + '"' +
-          ' style="width:18px;height:18px;accent-color:#34d399;cursor:pointer;"' +
-          ' onchange="calcRcvTotal()"></div>' +
-        '<div>' +
-          '<div style="font-weight:500;color:white;">' + esc(item.item_name) + '</div>' +
-          '<div style="font-size:11px;color:rgba(255,255,255,0.4);">' + esc(item.brand||'') +
-            (item.category ? ' · ' + esc(item.category) : '') + '</div>' +
-        '</div>' +
-        '<div style="font-size:11px;color:rgba(255,255,255,0.4);font-family:monospace;">' + esc(item.item_code||'—') + '</div>' +
-        '<div style="text-align:center;">' + (item.ordered_qty||0) + '</div>' +
-        '<div style="text-align:center;color:#34d399;">' + (item.received_qty||0) + '</div>' +
-        '<div style="text-align:center;">' +
-          '<input type="number" class="rcv-qty" data-idx="' + idx + '" data-price="' + (item.purchase_price||0) + '"' +
-          ' value="' + pending + '" min="1" max="' + pending + '" oninput="calcRcvTotal()">' +
-        '</div>' +
-        '<div style="text-align:center;">' +
-          '<input type="number" class="rcv-sell" data-idx="' + idx + '"' +
-          ' placeholder="Sell ₹" value="' + (item.selling_price||'') + '" min="0">' +
-        '</div>'
+      row.innerHTML=
+        '<div><input type="checkbox" class="rcv-chk" data-idx="'+idx+'" style="width:18px;height:18px;accent-color:#34d399;cursor:pointer;" onchange="calcRcvTotal()"></div>'+
+        '<div><div style="font-weight:500;color:white;">'+esc(it.item_name)+'</div><div style="font-size:11px;color:rgba(255,255,255,0.4);">'+esc(it.brand||'')+(it.category?' · '+esc(it.category):'')+'</div></div>'+
+        '<div style="font-size:11px;color:rgba(255,255,255,0.4);font-family:monospace;">'+esc(it.item_code||'—')+'</div>'+
+        '<div style="text-align:center;">'+(it.ordered_qty||0)+'</div>'+
+        '<div style="text-align:center;color:#34d399;">'+(it.received_qty||0)+'</div>'+
+        '<div style="text-align:center;"><input type="number" class="rcv-qty" data-idx="'+idx+'" data-price="'+(it.purchase_price||0)+'" value="'+pend+'" min="1" max="'+pend+'" oninput="calcRcvTotal()"></div>'+
+        '<div style="text-align:center;"><input type="number" class="rcv-sell" data-idx="'+idx+'" placeholder="Sell ₹" value="'+(it.selling_price||'')+'" min="0"></div>'
     }
     list.appendChild(row)
   })
-
-  ;['rcvCash','rcvUpi','rcvCredit'].forEach(function(id){ document.getElementById(id).value = '' })
-  document.getElementById('rcvPaySummary').innerHTML = '<span style="color:rgba(255,255,255,0.4);">Check items above to see total</span>'
-  document.getElementById('receiveModal').style.display = 'block'
+  ;['rcvCash','rcvUpi','rcvCredit'].forEach(function(x){ document.getElementById(x).value='' })
+  document.getElementById('rcvPayInfo').innerHTML='<span style="color:rgba(255,255,255,0.4);">Check items above to see total</span>'
+  document.getElementById('receiveModal').style.display='block'
 }
 
-window.closeReceiveModal = function() {
-  document.getElementById('receiveModal').style.display = 'none'
-  receivingOrderId = null
+window.closeReceive = function() {
+  document.getElementById('receiveModal').style.display='none'
+  receivingId=null
 }
 
 window.calcRcvTotal = function() {
-  var total = 0
+  var total=0
   document.querySelectorAll('.rcv-chk:checked').forEach(function(chk) {
-    var idx = chk.dataset.idx
-    var qtyEl = document.querySelector('.rcv-qty[data-idx="' + idx + '"]')
-    total += (parseInt(qtyEl?.value)||0) * (parseFloat(qtyEl?.dataset.price)||0)
+    var idx=chk.dataset.idx
+    var qEl=document.querySelector('.rcv-qty[data-idx="'+idx+'"]')
+    total+=(parseInt(qEl&&qEl.value)||0)*(parseFloat(qEl&&qEl.dataset.price)||0)
   })
-  var cash = parseFloat(document.getElementById('rcvCash').value)||0
-  var upi  = parseFloat(document.getElementById('rcvUpi').value)||0
-  var cred = parseFloat(document.getElementById('rcvCredit').value)||0
-  var paid = cash + upi + cred
-  var rem  = total - paid
-  var html = ''
-  if (!total)    html = '<span style="color:rgba(255,255,255,0.4);">Check items to see total</span>'
-  else if (!paid) html = '<span style="color:#fbbf24;">Total: ₹' + total.toLocaleString('en-IN') + ' — leave blank for full credit</span>'
-  else if (rem>0) html = '<span style="color:#fbbf24;">Total: ₹' + total.toLocaleString('en-IN') + ' · ₹' + rem.toLocaleString('en-IN') + ' → credit</span>'
-  else if (rem<0) html = '<span style="color:#f87171;">❌ Overpaid by ₹' + Math.abs(rem).toLocaleString('en-IN') + '</span>'
-  else            html = '<span style="color:#34d399;">✅ Fully settled ₹' + total.toLocaleString('en-IN') + '</span>'
-  document.getElementById('rcvPaySummary').innerHTML = html
+  var cash=parseFloat(document.getElementById('rcvCash').value)||0
+  var upi= parseFloat(document.getElementById('rcvUpi').value)||0
+  var cred=parseFloat(document.getElementById('rcvCredit').value)||0
+  var paid=cash+upi+cred; var rem=total-paid; var html=''
+  if (!total)     html='<span style="color:rgba(255,255,255,0.4);">Check items to see total</span>'
+  else if (!paid) html='<span style="color:#fbbf24;">Total: ₹'+total.toLocaleString('en-IN')+' — leave blank for full credit</span>'
+  else if (rem>0) html='<span style="color:#fbbf24;">Total: ₹'+total.toLocaleString('en-IN')+' · ₹'+rem.toLocaleString('en-IN')+' → credit</span>'
+  else if (rem<0) html='<span style="color:#f87171;">❌ Overpaid by ₹'+Math.abs(rem).toLocaleString('en-IN')+'</span>'
+  else            html='<span style="color:#34d399;">✅ Fully settled ₹'+total.toLocaleString('en-IN')+'</span>'
+  document.getElementById('rcvPayInfo').innerHTML=html
 }
 
 
-// ════════════════════════
-// PROCESS RECEIVE — creates purchase bill + updates inventory
-// ════════════════════════
-window.processReceive = async function(shouldPrint) {
-  if (!receivingOrderId) return
-  var order = allOrders.find(function(o){ return o.id === receivingOrderId })
-  if (!order) return
-  var items = allItems[receivingOrderId] || []
-
-  var rcvItems = []
+// ═══════════════════════════════════════════════════════════════════
+//  PROCESS RECEIVE
+// ═══════════════════════════════════════════════════════════════════
+window.doReceive = async function(shouldPrint) {
+  if (!receivingId) return
+  var order=allOrders.find(function(x){ return x.id===receivingId }); if (!order) return
+  var items=allItems[receivingId]||[]
+  var rcvd=[]
   document.querySelectorAll('.rcv-chk:checked').forEach(function(chk) {
-    var idx = parseInt(chk.dataset.idx)
-    var item = items[idx]; if (!item) return
-    var qtyEl  = document.querySelector('.rcv-qty[data-idx="' + idx + '"]')
-    var sellEl = document.querySelector('.rcv-sell[data-idx="' + idx + '"]')
-    var qty = parseInt(qtyEl?.value)||0
-    var maxAllowed = (item.ordered_qty||0) - (item.received_qty||0)
-    if (qty <= 0) return
-    if (qty > maxAllowed) { alert('Cannot receive ' + qty + ' of "' + item.item_name + '". Max: ' + maxAllowed); return }
-    rcvItems.push(Object.assign({}, item, {
-      rcvQty:  qty,
-      rcvSell: parseFloat(sellEl?.value) || item.selling_price || null
-    }))
+    var idx=parseInt(chk.dataset.idx)
+    var it=items[idx]; if (!it) return
+    var qEl=document.querySelector('.rcv-qty[data-idx="'+idx+'"]')
+    var sEl=document.querySelector('.rcv-sell[data-idx="'+idx+'"]')
+    var qty=parseInt(qEl&&qEl.value)||0
+    var max=(it.ordered_qty||0)-(it.received_qty||0)
+    if (qty<=0) return
+    if (qty>max) { alert('Cannot receive '+qty+' of "'+it.item_name+'". Max: '+max); return }
+    rcvd.push(Object.assign({},it,{rcvQty:qty,rcvSell:parseFloat(sEl&&sEl.value)||it.selling_price||null}))
   })
-
-  if (!rcvItems.length) { alert('Check at least one item to receive'); return }
-
-  var total = rcvItems.reduce(function(s,i){ return s + i.rcvQty * (i.purchase_price||0) }, 0)
-  var cash   = parseFloat(document.getElementById('rcvCash').value)||0
-  var upi    = parseFloat(document.getElementById('rcvUpi').value)||0
-  var credit = parseFloat(document.getElementById('rcvCredit').value)||0
-  if (cash + upi + credit > total) { alert('❌ Payment exceeds total'); return }
-  if (cash + upi + credit === 0) credit = total // auto full credit
-
+  if (!rcvd.length) { alert('Check at least one item to receive'); return }
+  var total=rcvd.reduce(function(s,i){ return s+i.rcvQty*(i.purchase_price||0) },0)
+  var cash  =parseFloat(document.getElementById('rcvCash').value)||0
+  var upi   =parseFloat(document.getElementById('rcvUpi').value)||0
+  var credit=parseFloat(document.getElementById('rcvCredit').value)||0
+  if (cash+upi+credit>total) { alert('❌ Payment exceeds total'); return }
+  if (cash+upi+credit===0) credit=total
   try {
-    var billNo = await genPurBillNo()
-
-    // 1. Create purchase bill
-    var purRes = await supabase.from('purchases').insert([{
-      bill_number: billNo, merchant_name: order.merchant_name,
-      merchant_phone: order.merchant_phone || null,
-      total_amount: total, cash: cash, upi: upi, credit: credit,
-      discount: 0, bill_type: 'purchase'
+    var billNo=await genBillNo()
+    var purRes=await _sb.from('purchases').insert([{
+      bill_number:order.merchant_name?billNo:billNo, merchant_name:order.merchant_name,
+      merchant_phone:order.merchant_phone||null, total_amount:total,
+      cash:cash, upi:upi, credit:credit, discount:0, bill_type:'purchase'
     }]).select().single()
     if (purRes.error) throw new Error(purRes.error.message)
-
-    // 2. Update inventory + create purchase_items
-    for (var i = 0; i < rcvItems.length; i++) {
-      var item = rcvItems[i]
-      var invId = item.inv_id || null
-
+    for (var i=0;i<rcvd.length;i++) {
+      var it=rcvd[i]; var invId=it.inv_id||null
       if (invId) {
-        await supabase.rpc('increment_inventory', { p_item_id: invId, p_qty: item.rcvQty })
-        if (item.purchase_price) await supabase.from('inventory').update({ purchase_price: item.purchase_price }).eq('id', invId)
-        if (item.rcvSell) await supabase.from('inventory').update({ selling_price: item.rcvSell }).eq('id', invId)
+        await _sb.rpc('increment_inventory',{p_item_id:invId,p_qty:it.rcvQty})
+        if (it.purchase_price) await _sb.from('inventory').update({purchase_price:it.purchase_price}).eq('id',invId)
+        if (it.rcvSell) await _sb.from('inventory').update({selling_price:it.rcvSell}).eq('id',invId)
       } else {
-        var exist = await supabase.from('inventory').select('id').ilike('item_name', item.item_name).limit(1)
-        if (exist.data && exist.data.length) {
-          invId = exist.data[0].id
-          await supabase.rpc('increment_inventory', { p_item_id: invId, p_qty: item.rcvQty })
-          if (item.purchase_price) await supabase.from('inventory').update({ purchase_price: item.purchase_price }).eq('id', invId)
-          if (item.rcvSell) await supabase.from('inventory').update({ selling_price: item.rcvSell }).eq('id', invId)
+        var ex=await _sb.from('inventory').select('id').ilike('item_name',it.item_name).limit(1)
+        if (ex.data&&ex.data.length) {
+          invId=ex.data[0].id
+          await _sb.rpc('increment_inventory',{p_item_id:invId,p_qty:it.rcvQty})
+          if (it.purchase_price) await _sb.from('inventory').update({purchase_price:it.purchase_price}).eq('id',invId)
+          if (it.rcvSell) await _sb.from('inventory').update({selling_price:it.rcvSell}).eq('id',invId)
         } else {
-          var newInv = await supabase.from('inventory').insert([{
-            item_name: item.item_name, brand: item.brand||null,
-            product_size: item.product_size||null, category: item.category||null,
-            unit_type: item.unit_type||null, quantity: item.rcvQty,
-            purchase_price: item.purchase_price||0, selling_price: item.rcvSell||null,
-            supplier: order.merchant_name
+          var ni=await _sb.from('inventory').insert([{
+            item_name:it.item_name,brand:it.brand||null,product_size:it.product_size||null,
+            category:it.category||null,unit_type:it.unit_type||null,quantity:it.rcvQty,
+            purchase_price:it.purchase_price||0,selling_price:it.rcvSell||null,supplier:order.merchant_name
           }]).select().single()
-          if (newInv.data) invId = newInv.data.id
+          if (ni.data) invId=ni.data.id
         }
       }
-
-      await supabase.from('purchase_items').insert([{
-        purchase_id: purRes.data.id, item_id: invId,
-        item_name: item.item_name, quantity: item.rcvQty,
-        purchase_price: item.purchase_price||0,
-        total: item.rcvQty * (item.purchase_price||0)
+      await _sb.from('purchase_items').insert([{
+        purchase_id:purRes.data.id,item_id:invId,item_name:it.item_name,
+        quantity:it.rcvQty,purchase_price:it.purchase_price||0,
+        total:it.rcvQty*(it.purchase_price||0)
       }])
-
-      await supabase.from('purchase_order_items').update({
-        received_qty: (item.received_qty||0) + item.rcvQty,
-        selling_price: item.rcvSell || item.selling_price || null
-      }).eq('id', item.id)
+      await _sb.from('purchase_order_items').update({
+        received_qty:(it.received_qty||0)+it.rcvQty,
+        selling_price:it.rcvSell||it.selling_price||null
+      }).eq('id',it.id)
     }
-
-    // 3. Update order status
-    var updatedItems = items.map(function(i) {
-      var ri = rcvItems.find(function(r){ return r.id === i.id })
-      return ri ? Object.assign({}, i, { received_qty: (i.received_qty||0) + ri.rcvQty }) : i
+    var updItems=items.map(function(it) {
+      var ri=rcvd.find(function(r){ return r.id===it.id })
+      return ri?Object.assign({},it,{received_qty:(it.received_qty||0)+ri.rcvQty}):it
     })
-    var allDone = updatedItems.every(function(i){ return (i.received_qty||0) >= (i.ordered_qty||0) })
-    await supabase.from('purchase_orders').update({
-      status: allDone ? 'received' : 'partial',
-      linked_bill_number: billNo
-    }).eq('id', order.id)
-
-    if (shouldPrint) fillPrintReceipt(order, rcvItems, billNo, cash, upi, credit, total)
-
-    closeReceiveModal()
-    await loadData()
-
+    var allDone=updItems.every(function(it){ return (it.received_qty||0)>=(it.ordered_qty||0) })
+    await _sb.from('purchase_orders').update({
+      status:allDone?'received':'partial', linked_bill_number:billNo
+    }).eq('id',order.id)
+    if (shouldPrint) fillPrintReceipt(order,rcvd,billNo,cash,upi,credit,total)
+    closeReceive(); await loadData()
     if (shouldPrint) {
       setTimeout(function() {
         document.body.classList.add('print-receipt')
-        var ot = document.title; document.title = 'GRN-' + billNo
+        var ot=document.title; document.title='GRN-'+billNo
         window.print()
-        setTimeout(function(){ document.body.classList.remove('print-receipt'); document.title = ot }, 1000)
-      }, 500)
+        setTimeout(function(){ document.body.classList.remove('print-receipt'); document.title=ot },1000)
+      },500)
     } else {
-      alert('✅ Received!\nBill: ' + billNo + '\nTotal: ₹' + total.toLocaleString('en-IN'))
+      alert('✅ Received!\nBill: '+billNo+'\nTotal: ₹'+total.toLocaleString('en-IN'))
     }
-
-  } catch(err) {
-    console.error('processReceive error:', err)
-    alert('❌ Error: ' + err.message)
-  }
+  } catch(err) { console.error(err); alert('❌ Error: '+err.message) }
 }
 
-function fillPrintReceipt(order, rcvItems, billNo, cash, upi, credit, total) {
-  document.getElementById('ptBillNo').innerText   = billNo
-  document.getElementById('ptDate').innerText     = fmtDateLong(new Date().toISOString().slice(0,10))
-  document.getElementById('ptMerchant').innerText = order.merchant_name||'—'
-  document.getElementById('ptOrderNo').innerText  = order.order_number||'—'
-  var modes = []
+function fillPrintReceipt(order,rcvd,billNo,cash,upi,credit,total) {
+  document.getElementById('ptBillNo').innerText = billNo
+  document.getElementById('ptDate').innerText   = fmtDLong(new Date().toISOString().slice(0,10))
+  document.getElementById('ptMerch').innerText  = order.merchant_name||'—'
+  document.getElementById('ptOrderNo').innerText= order.order_number||'—'
+  var modes=[]
   if (cash>0)   modes.push('Cash ₹'+Math.round(cash).toLocaleString('en-IN'))
   if (upi>0)    modes.push('UPI ₹'+Math.round(upi).toLocaleString('en-IN'))
   if (credit>0) modes.push('Credit ₹'+Math.round(credit).toLocaleString('en-IN'))
-  document.getElementById('ptPayMode').innerText = modes.join(' + ')||'Credit'
-  var sub = 0
-  document.getElementById('ptItems').innerHTML = rcvItems.map(function(item, i) {
-    var amt = item.rcvQty * (item.purchase_price||0); sub += amt
-    return '<tr>' +
-      '<td style="padding:9px 12px;color:#6b7280;">' + (i+1) + '</td>' +
-      '<td style="padding:9px 12px;">' + item.item_name + '</td>' +
-      '<td style="padding:9px 12px;">' + (item.brand||'—') + '</td>' +
-      '<td style="padding:9px 12px;text-align:center;">' + item.rcvQty + '</td>' +
-      '<td style="padding:9px 12px;text-align:center;">₹' + (item.purchase_price||0).toLocaleString('en-IN') + '</td>' +
-      '<td style="padding:9px 12px;text-align:center;">' + (item.rcvSell?'₹'+item.rcvSell.toLocaleString('en-IN'):'—') + '</td>' +
-      '<td style="padding:9px 12px;text-align:right;font-weight:600;">₹' + amt.toLocaleString('en-IN') + '</td>' +
-    '</tr>'
+  document.getElementById('ptPayMode').innerText=modes.join(' + ')||'Credit'
+  var sub=0
+  document.getElementById('ptItems').innerHTML=rcvd.map(function(it,i) {
+    var amt=it.rcvQty*(it.purchase_price||0); sub+=amt
+    return '<tr><td style="padding:9px 12px;color:#6b7280;">'+(i+1)+'</td>'+
+      '<td style="padding:9px 12px;">'+it.item_name+'</td>'+
+      '<td style="padding:9px 12px;">'+(it.brand||'—')+'</td>'+
+      '<td style="padding:9px 12px;text-align:center;">'+it.rcvQty+'</td>'+
+      '<td style="padding:9px 12px;text-align:center;">₹'+(it.purchase_price||0).toLocaleString('en-IN')+'</td>'+
+      '<td style="padding:9px 12px;text-align:center;">'+(it.rcvSell?'₹'+it.rcvSell.toLocaleString('en-IN'):'—')+'</td>'+
+      '<td style="padding:9px 12px;text-align:right;font-weight:600;">₹'+amt.toLocaleString('en-IN')+'</td></tr>'
   }).join('')
-  document.getElementById('ptSubtotal').innerText = sub.toLocaleString('en-IN')
-  document.getElementById('ptTotal').innerText    = Math.round(total).toLocaleString('en-IN')
-  document.getElementById('ptCash').innerText     = '₹' + Math.round(cash).toLocaleString('en-IN')
-  document.getElementById('ptUpi').innerText      = '₹' + Math.round(upi).toLocaleString('en-IN')
-  document.getElementById('ptCredit').innerText   = '₹' + Math.round(credit).toLocaleString('en-IN')
+  document.getElementById('ptSub').innerText   = sub.toLocaleString('en-IN')
+  document.getElementById('ptTotal').innerText = Math.round(total).toLocaleString('en-IN')
+  document.getElementById('ptCash').innerText  = '₹'+Math.round(cash).toLocaleString('en-IN')
+  document.getElementById('ptUpi').innerText   = '₹'+Math.round(upi).toLocaleString('en-IN')
+  document.getElementById('ptCredit').innerText= '₹'+Math.round(credit).toLocaleString('en-IN')
 }
 
 
-// ════════════════════════
-// PRINT ORDER
-// ════════════════════════
+// ═══════════════════════════════════════════════════════════════════
+//  PRINT ORDER
+// ═══════════════════════════════════════════════════════════════════
 window.printOrder = function(id) {
-  var order = allOrders.find(function(o){ return o.id === id })
-  if (!order) return
-  var items = allItems[id] || []
-  var total = items.reduce(function(s,i){ return s + (i.ordered_qty||0)*(i.purchase_price||0) }, 0)
-  document.getElementById('poOrderNo').innerText  = order.order_number||'—'
-  document.getElementById('poDate').innerText     = fmtDateLong(order.order_date)
-  document.getElementById('poMerchant').innerText = order.merchant_name||'—'
-  document.getElementById('poPhone').innerText    = order.merchant_phone||'—'
-  document.getElementById('poExpected').innerText = order.expected_date ? fmtDateLong(order.expected_date) : 'Not specified'
-  document.getElementById('poStatus').innerText   = order.status.charAt(0).toUpperCase() + order.status.slice(1)
-  if (order.notes) { document.getElementById('poNoteBar').style.display='block'; document.getElementById('poNote').innerText=order.notes }
+  var o=allOrders.find(function(x){ return x.id===id }); if (!o) return
+  var items=allItems[id]||[]
+  var total=items.reduce(function(s,it){ return s+(it.ordered_qty||0)*(it.purchase_price||0) },0)
+  document.getElementById('poNo').innerText      = o.order_number||'—'
+  document.getElementById('poDt').innerText      = fmtDLong(o.order_date)
+  document.getElementById('poMerch').innerText   = o.merchant_name||'—'
+  document.getElementById('poPhone').innerText   = o.merchant_phone||'—'
+  document.getElementById('poExpected').innerText= o.expected_date?fmtDLong(o.expected_date):'Not specified'
+  document.getElementById('poStatus').innerText  = o.status.charAt(0).toUpperCase()+o.status.slice(1)
+  if (o.notes) { document.getElementById('poNoteBar').style.display='block'; document.getElementById('poNote').innerText=o.notes }
   else document.getElementById('poNoteBar').style.display='none'
-  document.getElementById('poItems').innerHTML = items.map(function(item, i) {
-    return '<tr>' +
-      '<td style="padding:9px 12px;color:#6b7280;">' + (i+1) + '</td>' +
-      '<td style="padding:9px 12px;font-weight:500;">' + esc(item.item_name) + '</td>' +
-      '<td style="padding:9px 12px;">' + esc(item.brand||'—') + '</td>' +
-      '<td style="padding:9px 12px;font-family:monospace;">' + esc(item.item_code||'—') + '</td>' +
-      '<td style="padding:9px 12px;text-align:center;">' + (item.ordered_qty||0) + '</td>' +
-      '<td style="padding:9px 12px;text-align:center;">₹' + (item.purchase_price||0).toLocaleString('en-IN') + '</td>' +
-      '<td style="padding:9px 12px;text-align:right;font-weight:600;">₹' + ((item.ordered_qty||0)*(item.purchase_price||0)).toLocaleString('en-IN') + '</td>' +
-    '</tr>'
+  document.getElementById('poItems').innerHTML=items.map(function(it,i) {
+    return '<tr><td style="padding:9px 12px;color:#6b7280;">'+(i+1)+'</td>'+
+      '<td style="padding:9px 12px;font-weight:500;">'+esc(it.item_name)+'</td>'+
+      '<td style="padding:9px 12px;">'+esc(it.brand||'—')+'</td>'+
+      '<td style="padding:9px 12px;font-family:monospace;">'+esc(it.item_code||'—')+'</td>'+
+      '<td style="padding:9px 12px;text-align:center;">'+(it.ordered_qty||0)+'</td>'+
+      '<td style="padding:9px 12px;text-align:center;">₹'+(it.purchase_price||0).toLocaleString('en-IN')+'</td>'+
+      '<td style="padding:9px 12px;text-align:right;font-weight:600;">₹'+((it.ordered_qty||0)*(it.purchase_price||0)).toLocaleString('en-IN')+'</td></tr>'
   }).join('')
-  document.getElementById('poTotal').innerText = Math.round(total).toLocaleString('en-IN')
+  document.getElementById('poTotal').innerText=Math.round(total).toLocaleString('en-IN')
   document.body.classList.add('print-order')
-  var ot = document.title; document.title = order.order_number
+  var ot=document.title; document.title=o.order_number
   window.print()
-  setTimeout(function(){ document.body.classList.remove('print-order'); document.title = ot }, 800)
+  setTimeout(function(){ document.body.classList.remove('print-order'); document.title=ot },800)
 }
 
 
-// ════════════════════════
-// CANCEL / DELETE
-// ════════════════════════
+// ═══════════════════════════════════════════════════════════════════
+//  CANCEL / DELETE
+// ═══════════════════════════════════════════════════════════════════
 window.cancelOrder = async function(id) {
   if (!confirm('Cancel this order?')) return
-  await supabase.from('purchase_orders').update({ status: 'cancelled' }).eq('id', id)
+  var r=await _sb.from('purchase_orders').update({status:'cancelled'}).eq('id',id)
+  if (r.error) { alert('Error: '+r.error.message); return }
   await loadData()
 }
 
 window.deleteOrder = async function(id) {
   if (!confirm('Permanently delete this order and all its items?')) return
-  await supabase.from('purchase_order_items').delete().eq('order_id', id)
-  await supabase.from('purchase_orders').delete().eq('id', id)
+  await _sb.from('purchase_order_items').delete().eq('order_id',id)
+  await _sb.from('purchase_orders').delete().eq('id',id)
   await loadData()
 }
 
 
-// ════════════════════════
-// MERCHANT AUTOCOMPLETE
-// ════════════════════════
-window.searchMerchants = function(q) {
-  clearTimeout(merchantTimer)
-  var ul = document.getElementById('merchantSuggest')
+// ═══════════════════════════════════════════════════════════════════
+//  MERCHANT AUTOCOMPLETE
+// ═══════════════════════════════════════════════════════════════════
+window.searchMerch = function(q) {
+  clearTimeout(merchTimer)
+  var ul=document.getElementById('merchList')
   if (!q.trim()) { ul.style.display='none'; return }
-  merchantTimer = setTimeout(async function() {
-    var res = await supabase.from('merchants').select('name,phone').ilike('name','%'+q+'%').limit(8)
-    ul.innerHTML = ''
-    if (res.data && res.data.length) {
+  merchTimer=setTimeout(async function() {
+    var res=await _sb.from('merchants').select('name,phone').ilike('name','%'+q+'%').limit(8)
+    ul.innerHTML=''
+    if (res.data&&res.data.length) {
       res.data.forEach(function(m) {
-        var li = document.createElement('li')
-        li.style.cssText = 'padding:10px 14px;cursor:pointer;border-bottom:1px solid rgba(255,255,255,0.06);font-size:13px;color:white;font-family:"DM Sans",sans-serif;list-style:none;'
-        li.innerHTML = '<strong>' + esc(m.name) + '</strong>' + (m.phone ? '<span style="color:rgba(255,255,255,0.4);font-size:12px;"> · '+m.phone+'</span>' : '')
-        li.onmousedown = function() {
-          document.getElementById('oMerchant').value = m.name
-          document.getElementById('oPhone').value = m.phone || ''
-          ul.style.display = 'none'
+        var li=document.createElement('li')
+        li.style.cssText='padding:10px 14px;cursor:pointer;border-bottom:1px solid rgba(255,255,255,0.06);font-size:13px;color:white;font-family:"DM Sans",sans-serif;list-style:none;'
+        li.innerHTML='<strong>'+esc(m.name)+'</strong>'+(m.phone?'<span style="color:rgba(255,255,255,0.4);font-size:12px;"> · '+m.phone+'</span>':'')
+        li.onmousedown=function() {
+          document.getElementById('oMerch').value=m.name
+          document.getElementById('oPhone').value=m.phone||''
+          ul.style.display='none'
         }
         ul.appendChild(li)
       })
-      ul.style.display = 'block'
-    } else ul.style.display = 'none'
-  }, 300)
+      ul.style.display='block'
+    } else ul.style.display='none'
+  },300)
 }
 
 
-// ════════════════════════
-// HELPERS
-// ════════════════════════
+// ═══════════════════════════════════════════════════════════════════
+//  HELPERS
+// ═══════════════════════════════════════════════════════════════════
 function esc(s) {
   return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')
 }
-function fmtDate(d) {
+function fmtD(d) {
   if (!d) return '—'
   return new Date(d+'T12:00:00').toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})
 }
-function fmtDateLong(d) {
+function fmtDLong(d) {
   if (!d) return '—'
   return new Date(d+'T12:00:00').toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'})
 }
 
 // Close modals on backdrop click
-document.getElementById('newOrderModal').addEventListener('click', function(e){ if(e.target===this) closeNewOrderModal() })
-document.getElementById('receiveModal').addEventListener('click',  function(e){ if(e.target===this) closeReceiveModal() })
-
-// ── Start ──
-loadData()
-
-} // end initApp
+document.getElementById('newOrderModal').addEventListener('click',function(e){ if(e.target===this) closeNewOrder() })
+document.getElementById('receiveModal').addEventListener('click', function(e){ if(e.target===this) closeReceive() })
 </script>
 </body>
 </html>
