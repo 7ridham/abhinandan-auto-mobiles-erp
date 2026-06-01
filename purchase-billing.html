@@ -7,7 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-  
+
 <style>
   .page-mode-bar{display:flex;gap:10px;margin-bottom:20px;align-items:center;flex-wrap:wrap;}
   .mode-btn{padding:10px 22px;border-radius:10px;border:2px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.55);font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;}
@@ -27,7 +27,6 @@
   .opt-tag{font-size:10px;color:rgba(255,255,255,0.25);margin-left:6px;font-weight:400;letter-spacing:0;text-transform:none;}
   .new-product-box{background:rgba(245,158,11,0.07);border:1.5px dashed rgba(245,158,11,0.35);border-radius:10px;padding:16px;margin-top:10px;}
 
-  /* FIX 3: Card spacing */
   #purchaseBillMode .card + .card,
   #purchaseBillMode .card > .card {
     margin-top: 18px !important;
@@ -36,19 +35,63 @@
   /* Dropdowns — fixed position */
   #merchantList,#productList{
     position:fixed;z-index:99999;
-    background:#0f1623;
-    border:1px solid rgba(255,255,255,0.15);
+    background:#1a2235;
+    border:1px solid rgba(255,255,255,0.18);
     border-top:none;border-radius:0 0 10px 10px;
     list-style:none;margin:0;padding:0;
     max-height:320px;overflow-y:auto;
-    display:none;box-shadow:0 12px 40px rgba(0,0,0,0.7);
+    display:none;box-shadow:0 12px 40px rgba(0,0,0,0.8);
   }
-  #merchantList li,#productList li{padding:10px 16px;cursor:pointer;border-bottom:1px solid rgba(255,255,255,0.06);font-size:13px;font-family:'DM Sans',sans-serif;color:white;}
+  #merchantList li,#productList li{
+    padding:10px 16px;cursor:pointer;
+    border-bottom:1px solid rgba(255,255,255,0.07);
+    font-size:13px;font-family:'DM Sans',sans-serif;
+    color:#ffffff !important;
+    background:#1a2235;
+    transition:background 0.15s;
+  }
   #merchantList li:last-child,#productList li:last-child{border-bottom:none;}
-  #merchantList li:hover,#productList li:hover{background:rgba(245,158,11,0.15);}
+  #merchantList li:hover,#productList li:hover{
+    background:rgba(245,158,11,0.22) !important;
+    color:#ffffff !important;
+  }
+  #merchantList li *,#productList li *{color:inherit;}
   #merchantList::-webkit-scrollbar,#productList::-webkit-scrollbar{width:6px;}
   #merchantList::-webkit-scrollbar-track,#productList::-webkit-scrollbar-track{background:rgba(255,255,255,0.05);}
   #merchantList::-webkit-scrollbar-thumb,#productList::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.2);border-radius:3px;}
+
+  /* Light theme override for dropdowns */
+  body.light-mode #merchantList,
+  body.light-mode #productList{
+    background:#ffffff;
+    border-color:rgba(0,0,0,0.15);
+    box-shadow:0 12px 40px rgba(0,0,0,0.18);
+  }
+  body.light-mode #merchantList li,
+  body.light-mode #productList li{
+    background:#ffffff;
+    color:#111827 !important;
+    border-bottom:1px solid rgba(0,0,0,0.07);
+  }
+  body.light-mode #merchantList li:hover,
+  body.light-mode #productList li:hover{
+    background:rgba(245,158,11,0.12) !important;
+    color:#111827 !important;
+  }
+  body.light-mode #merchantList li .prod-sub,
+  body.light-mode #productList li .prod-sub{color:#6b7280 !important;}
+  body.light-mode #merchantList li .prod-price,
+  body.light-mode #productList li .prod-price{color:#374151 !important;}
+  body.light-mode #merchantList li .prod-stock-ok{color:#059669 !important;}
+  body.light-mode #merchantList li .prod-stock-warn{color:#d97706 !important;}
+  body.light-mode #merchantList li .prod-stock-bad{color:#dc2626 !important;}
+
+  /* Product list item sub-info */
+  .prod-sub{font-size:11px;color:rgba(255,255,255,0.4);display:block;margin-top:2px;}
+  .prod-price{font-size:12px;color:rgba(255,255,255,0.55);}
+  .prod-stock-ok{color:#34d399;font-weight:600;}
+  .prod-stock-warn{color:#fbbf24;font-weight:600;}
+  .prod-stock-bad{color:#f87171;font-weight:600;}
 
   /* PRINT */
   #printArea{display:none;font-family:'DM Sans',sans-serif;background:#fff;padding:0;color:#111;}
@@ -70,8 +113,9 @@
   .return-ref-bar{display:none;background:#fef2f2;border-bottom:1px solid #fecaca;padding:10px 36px;font-size:13px;color:#dc2626;font-weight:500;}
   .pur-table-wrap{padding:0 36px;margin-top:18px;}
   .pur-table{width:100%;border-collapse:collapse;font-size:14px;}
-  .pur-table thead tr{background:#78350f;color:white;}
-  .pur-table thead th{padding:11px 14px;text-align:left;font-weight:600;font-size:13px;}
+  /* FIX 2: Table header white text */
+  .pur-table thead tr{background:#78350f;}
+  .pur-table thead th{padding:11px 14px;text-align:left;font-weight:600;font-size:13px;color:#ffffff !important;}
   .pur-table thead th:not(:first-child){text-align:center;}
   .pur-table thead th:last-child{text-align:right;}
   .pur-table tbody tr{border-bottom:1px solid #e5e7eb;}
@@ -99,6 +143,12 @@
   .pur-footer-left .note-text{font-size:15px;font-weight:600;color:#78350f;margin-bottom:4px;}
   .sig-label{font-size:12px;color:#6b7280;}
 
+  /* QR code section in print */
+  .pur-qr-row{display:flex;justify-content:space-between;align-items:center;padding:14px 36px 0;}
+  .pur-qr-box{text-align:center;}
+  .pur-qr-box canvas,.pur-qr-box img{width:80px;height:80px;border:3px solid #e5e7eb;border-radius:8px;display:block;}
+  .pur-qr-label{font-size:10px;color:#6b7280;margin-top:4px;text-align:center;}
+
   @media print{
     @page{margin:12mm 10mm;size:A4;}
     html,body{background:white!important;min-height:0!important;height:auto!important;overflow:hidden!important;}
@@ -111,17 +161,20 @@
     .pur-header{background:#78350f!important;}
     .pur-header.return-style{background:#7f1d1d!important;}
     .pur-table thead tr{background:#78350f!important;}
+    .pur-table thead th{color:#ffffff!important;}
     .pur-table{page-break-inside:auto;}
     .pur-table tr{page-break-inside:avoid;page-break-after:auto;}
     .pur-table thead{display:table-header-group;}
-    .pur-totals,.pur-payment-box,.pur-merchant-box,.pur-footer{page-break-inside:avoid;}
+    .pur-totals,.pur-payment-box,.pur-merchant-box,.pur-footer,.pur-qr-row{page-break-inside:avoid;}
   }
 </style>
 </head>
 <body>
 
 <div class="wa-toast" id="waToast"><span>📲</span><span id="waToastMsg">Opening WhatsApp...</span></div>
-
+  
+<button class="sidebar-toggle" onclick="toggleSidebar()" title="Toggle Menu">☰</button>
+<div class="sidebar-overlay" onclick="toggleSidebar()"></div>
 <div class="sidebar">
   <h2>Auto ERP</h2>
   <div class="sidebar-divider"></div>
@@ -141,7 +194,6 @@
 </div>
 
 <div class="main">
-  <!-- FIX 4: History button at top header -->
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
     <h1 style="margin-bottom:0;">Purchase</h1>
     <button id="historyBtnTop" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);padding:9px 18px;font-size:13px;border-radius:8px;box-shadow:none;font-family:'DM Sans',sans-serif;">📜 Purchase History</button>
@@ -223,9 +275,10 @@
     <div class="card" style="margin-top:18px;">
       <h3>Add Products</h3>
       <div style="position:relative;">
-        <input id="productSearch" placeholder="Search product — shows category and size..." autocomplete="off" style="margin-bottom:0;">
+        <!-- FIX 1: Search by product name, brand, category, size -->
+        <input id="productSearch" placeholder="Search by product name, brand, category or size..." autocomplete="off" style="margin-bottom:0;">
       </div>
-      <div style="margin-top:8px;font-size:12px;color:rgba(255,255,255,0.3);">💡 Results show category and size. Use "+ New Product" below for unlisted items.</div>
+      <div style="margin-top:8px;font-size:12px;color:rgba(255,255,255,0.3);">💡 Searches across product name, brand, category and size. Use "+ New Product" below for unlisted items.</div>
       <div style="margin-top:14px;">
         <button id="toggleNewProduct" style="background:rgba(245,158,11,0.12);border:1.5px solid rgba(245,158,11,0.35);color:#f59e0b;padding:8px 18px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;font-family:'DM Sans',sans-serif;">+ New Product (not in system)</button>
       </div>
@@ -234,10 +287,12 @@
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
           <div><label class="field-label">Product Name *</label><input id="newProductName" placeholder="e.g. Brake Pad XR200" style="margin-bottom:0;"></div>
           <div><label class="field-label">Category</label><input id="newProductCategory" placeholder="e.g. Brakes, Oil, Tyres" style="margin-bottom:0;"></div>
+          <div><label class="field-label">Brand</label><input id="newProductBrand" placeholder="e.g. Bosch, TVS, MRF" style="margin-bottom:0;"></div>
+          <div><label class="field-label">Size</label><input id="newProductSize" placeholder="e.g. 15L, 100ml, XL" style="margin-bottom:0;"></div>
           <div><label class="field-label">Purchase Price (₹) *</label><input id="newProductBuyPrice" type="number" placeholder="What you are paying" style="margin-bottom:0;"></div>
           <div><label class="field-label">Selling Price (₹) <span class="opt-tag">(optional)</span></label><input id="newProductSellPrice" type="number" placeholder="Leave blank if not set" style="margin-bottom:0;"></div>
           <div><label class="field-label">Quantity *</label><input id="newProductQty" type="number" placeholder="How many units" style="margin-bottom:0;"></div>
-          <div><label class="field-label">Unit Type</label><input id="newProductUnit" placeholder="e.g. Pcs, Litre, Set, 1L, 15L" style="margin-bottom:0;"></div>
+          <div><label class="field-label">Unit Type</label><input id="newProductUnit" placeholder="e.g. Pcs, Litre, Set" style="margin-bottom:0;"></div>
         </div>
         <div style="margin-top:14px;display:flex;gap:10px;">
           <button onclick="addNewProduct()" style="background:#f59e0b;border:none;color:#111;padding:9px 20px;border-radius:8px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;">✅ Add to Bill</button>
@@ -286,7 +341,7 @@
       <div style="display:flex;gap:12px;margin-top:18px;flex-wrap:wrap;">
         <button id="savePurchaseBtn">💾 Save Purchase</button>
         <button id="printPurchaseBtn">🖨 Print Bill</button>
-        <!-- FIX 5: WhatsApp — direct wa.me link -->
+        <!-- FIX 6: WhatsApp — direct wa.me share (no PDF download) -->
         <button id="waPurchaseBtn" style="background:#25D366;border:none;color:white;padding:10px 18px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;">📲 WhatsApp Bill</button>
         <button id="historyBtn" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);">📜 Purchase History</button>
       </div>
@@ -386,8 +441,15 @@
       </div>
     </div>
     <div class="pur-table-wrap">
+      <!-- FIX 2: thead th have color:#ffffff in CSS above -->
       <table class="pur-table">
-        <thead><tr><th>#</th><th>Item Description</th><th>Qty</th><th>Purchase Price</th><th>Amount</th></tr></thead>
+        <thead><tr>
+          <th>#</th>
+          <th>Item Description</th>
+          <th>Qty</th>
+          <th>Purchase Price</th>
+          <th>Amount</th>
+        </tr></thead>
         <tbody id="printPurItems"></tbody>
       </table>
     </div>
@@ -407,11 +469,23 @@
         <span class="pur-payment-item" id="purDiscountPayItem" style="display:none;"><span class="pm-label" style="color:#059669;">Discount</span><span class="pm-val" style="color:#059669;">₹<span id="printPurDiscountPay">0</span></span></span>
       </div>
     </div>
+
+    <!-- FIX 3: QR Code row in print -->
+    <div class="pur-qr-row">
+      <div style="font-size:12px;color:#6b7280;max-width:500px;">
+        <span style="font-weight:600;color:#374151;">Abhinandan Auto Mobiles</span> — Your trusted auto parts partner.<br>
+        This is an internal purchase record.
+      </div>
+      <div class="pur-qr-box">
+        <canvas id="purQrCanvas" width="80" height="80"></canvas>
+        <p class="pur-qr-label">Scan to Visit Our Portal</p>
+      </div>
+    </div>
+
     <div class="pur-footer">
       <div class="pur-footer-left">
         <p class="note-text" id="printPurFooterMsg">Stock Received 🙏</p>
         <p id="printReturnNote" style="display:none;color:#dc2626;font-weight:600;margin-bottom:4px;">Return processed. Payable adjusted.</p>
-        <p>This is an internal purchase record.</p>
         <p>Abhinandan Auto Mobiles</p>
       </div>
       <div style="display:flex;gap:60px;">
@@ -477,6 +551,31 @@
 <ul id="productList"></ul>
 
 <script>
+// ── QR CODE (tiny pure-JS, no library needed) ──
+// Uses a minimal QR generator via Google Charts API (image, no tracking after load)
+function renderQrCode(url) {
+  var canvas = document.getElementById('purQrCanvas');
+  if (!canvas) return;
+  // Use Google Chart QR (simple, no library)
+  var img = new Image();
+  img.crossOrigin = 'anonymous';
+  img.onload = function() {
+    var ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, 80, 80);
+    ctx.drawImage(img, 0, 0, 80, 80);
+  };
+  img.onerror = function() {
+    // Fallback: draw a simple placeholder
+    var ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, 80, 80);
+    ctx.fillStyle = '#78350f';
+    ctx.font = '8px sans-serif';
+    ctx.fillText('Portal QR', 5, 40);
+  };
+  img.src = 'https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=' + encodeURIComponent(url);
+}
+
 var _sb = document.createElement('script')
 _sb.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js'
 _sb.onload = function() {
@@ -505,6 +604,9 @@ var historyPage         = 1
 var HIST_SIZE           = 20
 var merchantSearchTimer = null
 var productSearchTimer  = null
+
+// Portal URL for QR code
+var PORTAL_URL = window.location.origin + '/portal.html'
 
 // ── DROPDOWN POSITION ──
 function positionDropdown(inputEl, dropdownEl) {
@@ -548,9 +650,7 @@ document.querySelectorAll('.bill-type-btn').forEach(function(btn){
   })
 })
 
-// ════════════════════════════════════════════════════════
-// FIX 1: BILL NUMBER GENERATOR uses selected date
-// ════════════════════════════════════════════════════════
+// ── BILL NUMBER GENERATOR uses selected date ──
 async function generatePurBillNo(dateStr) {
   var parts = dateStr.split('-')
   var dd = parts[2], mm = parts[1], yy = parts[0].slice(2)
@@ -633,7 +733,8 @@ document.getElementById('toggleNewProduct').addEventListener('click',function(){
 })
 
 // ════════════════════════════════════════════════════════
-// FIX 2: PRODUCT SEARCH shows category + unit_type
+// FIX 1: PRODUCT SEARCH — searches name, brand, category, size
+// Displays: name, brand, category, size, stock, price
 // ════════════════════════════════════════════════════════
 var pInput = document.getElementById('productSearch')
 var pList  = document.getElementById('productList')
@@ -644,23 +745,47 @@ pInput.addEventListener('input', function() {
   pList.innerHTML=''
   if(!text){pList.style.display='none';return}
   productSearchTimer=setTimeout(async function(){
-    var res=await supabase.from('inventory')
-      .select('id,item_name,purchase_price,quantity,category,unit_type')
-      .ilike('item_name','%'+text+'%').order('item_name').limit(15)
+    // Search across item_name, brand, category, size columns
+    // Use OR across all 4 fields
+    var res = await supabase.from('inventory')
+      .select('id,item_name,purchase_price,quantity,category,unit_type,brand,size')
+      .or(
+        'item_name.ilike.%'+text+'%,' +
+        'brand.ilike.%'+text+'%,' +
+        'category.ilike.%'+text+'%,' +
+        'size.ilike.%'+text+'%'
+      )
+      .order('item_name').limit(20)
+
     pList.innerHTML=''
     if(!res.data||!res.data.length){
-      var li=document.createElement('li');li.style.color='rgba(255,255,255,0.35)';li.style.cursor='default'
-      li.innerText='No products found'
+      var li=document.createElement('li');
+      li.style.cursor='default';
+      li.innerHTML='<span style="color:rgba(255,255,255,0.4);">No products found for "'+text+'"</span>';
       pList.appendChild(li)
     }else{
       res.data.forEach(function(p){
-        var sc=p.quantity<=0?'#f87171':p.quantity<=5?'#fbbf24':'#34d399'
-        var detail=[]
-        if(p.category&&p.category.trim())detail.push(p.category.trim())
-        if(p.unit_type&&p.unit_type.trim())detail.push(p.unit_type.trim())
-        var detailStr=detail.length?' <span style="color:rgba(255,255,255,0.35);font-size:11px;">• '+detail.join(' • ')+'</span>':''
-        var li=document.createElement('li')
-        li.innerHTML=p.item_name+detailStr+' <span style="color:rgba(255,255,255,0.4);font-size:12px;">— Stock: <span style="color:'+sc+';font-weight:600;">'+(p.quantity||0)+'</span> | Buy: ₹'+(p.purchase_price||0)+'</span>'
+        var stockColor = p.quantity<=0 ? '#f87171' : p.quantity<=5 ? '#fbbf24' : '#34d399'
+        var stockClass = p.quantity<=0 ? 'prod-stock-bad' : p.quantity<=5 ? 'prod-stock-warn' : 'prod-stock-ok'
+
+        // Build detail tags: category, brand, size
+        var tags = []
+        if(p.category && p.category.trim()) tags.push(p.category.trim())
+        if(p.brand    && p.brand.trim())    tags.push(p.brand.trim())
+        if(p.size     && p.size.trim())     tags.push(p.size.trim())
+        if(p.unit_type && p.unit_type.trim() && !tags.includes(p.unit_type.trim())) tags.push(p.unit_type.trim())
+
+        var li = document.createElement('li')
+        li.style.padding = '10px 14px'
+
+        li.innerHTML =
+          '<div style="font-weight:600;font-size:13px;">'+p.item_name+'</div>'+
+          (tags.length ? '<span class="prod-sub">'+tags.join(' • ')+'</span>' : '')+
+          '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px;">'+
+            '<span class="prod-price">Buy: ₹'+(p.purchase_price||0)+'</span>'+
+            '<span class="'+stockClass+'">Stock: '+(p.quantity||0)+'</span>'+
+          '</div>'
+
         li.onclick=function(){addExistingToBill(p);pInput.value='';pList.style.display='none'}
         pList.appendChild(li)
       })
@@ -672,28 +797,48 @@ pInput.addEventListener('input', function() {
 pInput.addEventListener('focus',function(){if(pList.children.length){positionDropdown(pInput,pList);pList.style.display='block'}})
 
 function addExistingToBill(product){
-  var ans=prompt('Purchase price for "'+product.item_name+'"'+(product.unit_type?' ('+product.unit_type+')':'')+' (₹):\n(Press OK to use: ₹'+(product.purchase_price||0)+')')
+  var label = product.item_name
+  var tags = []
+  if(product.brand    && product.brand.trim())    tags.push(product.brand.trim())
+  if(product.category && product.category.trim()) tags.push(product.category.trim())
+  if(product.size     && product.size.trim())     tags.push(product.size.trim())
+  if(product.unit_type && product.unit_type.trim()) tags.push(product.unit_type.trim())
+  var hint = tags.length ? ' ('+tags.join(' / ')+')' : ''
+
+  var ans=prompt('Purchase price for "'+label+hint+'" (₹):\n(Press OK to use: ₹'+(product.purchase_price||0)+')')
   if(ans===null)return
   var bp=parseFloat(ans)||parseFloat(product.purchase_price)||0
   for(var i=0;i<purchaseItems.length;i++){
     if(purchaseItems[i].id===product.id){purchaseItems[i].qty++;purchaseItems[i].buyPrice=bp;renderPurchaseBill();return}
   }
-  purchaseItems.push({id:product.id,name:product.item_name,buyPrice:bp,qty:1,isNew:false,category:product.category||'',unitType:product.unit_type||''})
+  purchaseItems.push({
+    id:product.id,
+    name:product.item_name,
+    buyPrice:bp,
+    qty:1,
+    isNew:false,
+    category:product.category||'',
+    brand:product.brand||'',
+    size:product.size||'',
+    unitType:product.unit_type||''
+  })
   renderPurchaseBill()
 }
 
 window.addNewProduct=function(){
-  var name=document.getElementById('newProductName').value.trim()
-  var bp=parseFloat(document.getElementById('newProductBuyPrice').value)||0
-  var sp=parseFloat(document.getElementById('newProductSellPrice').value)||0
-  var qty=parseInt(document.getElementById('newProductQty').value)||0
-  var cat=document.getElementById('newProductCategory').value.trim()
-  var unit=document.getElementById('newProductUnit').value.trim()
+  var name    = document.getElementById('newProductName').value.trim()
+  var bp      = parseFloat(document.getElementById('newProductBuyPrice').value)||0
+  var sp      = parseFloat(document.getElementById('newProductSellPrice').value)||0
+  var qty     = parseInt(document.getElementById('newProductQty').value)||0
+  var cat     = document.getElementById('newProductCategory').value.trim()
+  var brand   = document.getElementById('newProductBrand').value.trim()
+  var size    = document.getElementById('newProductSize').value.trim()
+  var unit    = document.getElementById('newProductUnit').value.trim()
   if(!name){alert('Enter product name ❌');return}
   if(!bp){alert('Enter purchase price ❌');return}
   if(!qty){alert('Enter quantity ❌');return}
-  purchaseItems.push({id:null,name:name,buyPrice:bp,sellPrice:sp,qty:qty,category:cat,unitType:unit,isNew:true})
-  ;['newProductName','newProductBuyPrice','newProductSellPrice','newProductQty','newProductCategory','newProductUnit'].forEach(function(id){document.getElementById(id).value=''})
+  purchaseItems.push({id:null,name:name,buyPrice:bp,sellPrice:sp,qty:qty,category:cat,brand:brand,size:size,unitType:unit,isNew:true})
+  ;['newProductName','newProductBuyPrice','newProductSellPrice','newProductQty','newProductCategory','newProductBrand','newProductSize','newProductUnit'].forEach(function(id){document.getElementById(id).value=''})
   document.getElementById('newProductBox').style.display='none'
   renderPurchaseBill()
 }
@@ -713,8 +858,12 @@ function renderPurchaseBill(){
     var lt=item.qty*item.buyPrice;totalAmount+=lt
     var newBadge=item.isNew?'<span style="font-size:11px;background:rgba(245,158,11,0.2);color:#f59e0b;padding:2px 8px;border-radius:10px;margin-left:6px;">NEW</span>':''
     var editBadge=item.isEdited?'<span style="font-size:10px;background:rgba(245,158,11,0.15);color:#fbbf24;padding:1px 7px;border-radius:8px;margin-left:4px;">edited</span>':''
-    // Show category + unitType in the bill table
-    var dp=[];if(item.category)dp.push(item.category);if(item.unitType)dp.push(item.unitType)
+    // Show category, brand, size
+    var dp=[]
+    if(item.brand)dp.push(item.brand)
+    if(item.category)dp.push(item.category)
+    if(item.size)dp.push(item.size)
+    if(item.unitType && !dp.includes(item.unitType))dp.push(item.unitType)
     var detailBadge=dp.length?'<span style="font-size:10px;color:rgba(255,255,255,0.3);margin-left:6px;">('+dp.join(' • ')+')</span>':''
     var tr=document.createElement('tr')
     tr.innerHTML='<td style="font-weight:500;">'+item.name+detailBadge+newBadge+editBadge+'</td>'+
@@ -790,7 +939,7 @@ function getMerchantInfo(){
 }
 
 // ════════════════════════════════════════════════════════
-// FIX 2B: FILL PRINT AREA — shows category + unitType on bill
+// FILL PRINT AREA — shows brand, category, size on bill
 // ════════════════════════════════════════════════════════
 function fillPrintArea(opts){
   var isReturn=opts.isReturn,billNo=opts.billNo,date=opts.date,
@@ -821,9 +970,20 @@ function fillPrintArea(opts){
   var tbody=document.getElementById('printPurItems');tbody.innerHTML=''
   items.forEach(function(item,i){
     var desc=item.name
-    var dp=[];if(item.category)dp.push(item.category);if(item.unitType)dp.push(item.unitType)
+    // Build detail line: brand, category, size
+    var dp=[]
+    if(item.brand    && item.brand.trim())    dp.push(item.brand.trim())
+    if(item.category && item.category.trim()) dp.push(item.category.trim())
+    if(item.size     && item.size.trim())     dp.push(item.size.trim())
+    if(item.unitType && item.unitType.trim()) dp.push(item.unitType.trim())
     var detailSpan=dp.length?'<br><span style="font-size:11px;color:#6b7280;">'+dp.join(' • ')+'</span>':''
-    tbody.innerHTML+='<tr><td style="padding:10px 14px;color:#6b7280;">'+(i+1)+'</td><td style="padding:10px 14px;">'+desc+detailSpan+'</td><td style="padding:10px 14px;text-align:center;">'+Math.abs(item.qty)+'</td><td style="padding:10px 14px;text-align:center;">₹'+item.price+'</td><td style="padding:10px 14px;text-align:right;font-weight:600;">₹'+Math.abs(item.qty*item.price).toLocaleString('en-IN')+'</td></tr>'
+    tbody.innerHTML+='<tr>'+
+      '<td style="padding:10px 14px;color:#6b7280;">'+(i+1)+'</td>'+
+      '<td style="padding:10px 14px;">'+desc+detailSpan+'</td>'+
+      '<td style="padding:10px 14px;text-align:center;">'+Math.abs(item.qty)+'</td>'+
+      '<td style="padding:10px 14px;text-align:center;">₹'+item.price+'</td>'+
+      '<td style="padding:10px 14px;text-align:right;font-weight:600;">₹'+Math.abs(item.qty*item.price).toLocaleString('en-IN')+'</td>'+
+    '</tr>'
   })
   document.getElementById('printPurSubtotal').innerText  =Math.abs(subtotal).toLocaleString('en-IN')
   document.getElementById('printPurFinal').innerText     =Math.abs(final).toLocaleString('en-IN')
@@ -836,11 +996,12 @@ function fillPrintArea(opts){
   document.getElementById('purDiscountPayItem').style.display=(!isReturn&&disc>0)?'inline':'none'
   if(!isReturn&&disc>0)document.getElementById('printPurDiscountPay').innerText=disc.toLocaleString('en-IN')
   document.getElementById('printPurPayTitle').innerText=isReturn?'Return Breakdown':'Payment Breakdown'
+
+  // FIX 3: Render QR code for portal
+  renderQrCode(PORTAL_URL)
 }
 
-// ════════════════════════════════════════════════════════
-// FIX 1B: SAVE PURCHASE — uses selected date for bill_number + created_at
-// ════════════════════════════════════════════════════════
+// ── SAVE PURCHASE ──
 async function savePurchase(){
   if(window.isSavingPurchase)return
   window.isSavingPurchase=true
@@ -868,7 +1029,6 @@ async function savePurchase(){
       cred+=shortfall;document.getElementById('purCredit').value=cred
     }
 
-    // Get selected date
     var purDateStr = document.getElementById('purBillDate').value || new Date().toISOString().slice(0,10)
     var purTimestamp = purDateStr + 'T12:00:00'
 
@@ -886,14 +1046,14 @@ async function savePurchase(){
       for(var oi=0;oi<(oldR.data||[]).length;oi++){var ov=oldR.data[oi];if(ov.item_id)await supabase.rpc('decrement_inventory',{p_item_id:ov.item_id,p_qty:ov.quantity})}
       for(var ni=0;ni<purchaseItems.length;ni++){
         var nv=purchaseItems[ni]
-        if(nv.isNew){await supabase.from('inventory').insert([{item_name:nv.name,category:nv.category||null,quantity:nv.qty,purchase_price:nv.buyPrice,selling_price:nv.sellPrice||null,supplier:m.name,unit_type:nv.unitType||null}])}
+        if(nv.isNew){await supabase.from('inventory').insert([{item_name:nv.name,category:nv.category||null,brand:nv.brand||null,size:nv.size||null,quantity:nv.qty,purchase_price:nv.buyPrice,selling_price:nv.sellPrice||null,supplier:m.name,unit_type:nv.unitType||null}])}
         else if(nv.id){await supabase.rpc('increment_inventory',{p_item_id:nv.id,p_qty:nv.qty});await supabase.from('inventory').update({purchase_price:nv.buyPrice,supplier:m.name}).eq('id',nv.id)}
       }
       if(!window.isPrinting)alert('✅ Purchase Updated!\nBill: '+editingBillNumber)
       cancelEdit();window.isSavingPurchase=false;return
     }
 
-    // NEW BILL — use selected date for number AND created_at
+    // NEW BILL
     var billNo=await generatePurBillNo(purDateStr)
     currentPurBillNo=billNo
     var purRes=await supabase.from('purchases').insert([{
@@ -902,7 +1062,7 @@ async function savePurchase(){
       merchant_address:m.address||null,merchant_gstin:m.gstin||null,
       merchant_invoice_ref:m.invRef||null,bill_type:'purchase',
       bill_date:purDateStr,
-      created_at:purTimestamp    // ← override server timestamp
+      created_at:purTimestamp
     }]).select().single()
     
     if(purRes.error){alert('❌ Error saving purchase: '+purRes.error.message);window.isSavingPurchase=false;return}
@@ -911,7 +1071,17 @@ async function savePurchase(){
     for(var ki=0;ki<purchaseItems.length;ki++){
       var item=purchaseItems[ki];var itemId=item.id
       if(item.isNew){
-        var newProd=await supabase.from('inventory').insert([{item_name:item.name,category:item.category||null,quantity:item.qty,purchase_price:item.buyPrice,selling_price:item.sellPrice||null,supplier:m.name,unit_type:item.unitType||null}]).select().single()
+        var newProd=await supabase.from('inventory').insert([{
+          item_name:item.name,
+          category:item.category||null,
+          brand:item.brand||null,
+          size:item.size||null,
+          quantity:item.qty,
+          purchase_price:item.buyPrice,
+          selling_price:item.sellPrice||null,
+          supplier:m.name,
+          unit_type:item.unitType||null
+        }]).select().single()
         if(newProd.error){console.error('New product error:',newProd.error);allSaved=false;continue}
         itemId=newProd.data.id
       }else{
@@ -947,8 +1117,15 @@ async function printPurchaseBill(){
   var purDateStr = document.getElementById('purBillDate').value || new Date().toISOString().slice(0,10)
   await savePurchase();await new Promise(function(r){setTimeout(r,300)})
   var displayDate = new Date(purDateStr+'T12:00:00').toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric'})
-  fillPrintArea({isReturn:false,billNo:currentPurBillNo,date:displayDate,merchantName:m.name,merchantPhone:m.phone,merchantAddress:m.address,merchantGstin:m.gstin,merchantInvRef:m.invRef,originalRef:null,items:tempItems.map(function(i){return{name:i.name,qty:i.qty,price:i.buyPrice,category:i.category||'',unitType:i.unitType||''}}),subtotal:tempTotal,final:final,disc:disc,cash:cash,upi:upi,credit:cred,payMode:modes.join(' + ')||'—'})
+  fillPrintArea({
+    isReturn:false,billNo:currentPurBillNo,date:displayDate,
+    merchantName:m.name,merchantPhone:m.phone,merchantAddress:m.address,merchantGstin:m.gstin,merchantInvRef:m.invRef,originalRef:null,
+    items:tempItems.map(function(i){return{name:i.name,qty:i.qty,price:i.buyPrice,category:i.category||'',brand:i.brand||'',size:i.size||'',unitType:i.unitType||''}}),
+    subtotal:tempTotal,final:final,disc:disc,cash:cash,upi:upi,credit:cred,payMode:modes.join(' + ')||'—'
+  })
   document.getElementById('printArea').style.display='block'
+  // Wait for QR to load before printing
+  await new Promise(function(r){setTimeout(r,800)})
   var ot=document.title;document.title='Purchase-'+currentPurBillNo;window.print()
   setTimeout(function(){document.title=ot;document.getElementById('printArea').style.display='none';window.isPrinting=false},800)
 }
@@ -984,7 +1161,7 @@ window.cancelEdit=function(){
   renderPurchaseBill()
 }
 
-// ── HISTORY (both buttons) ──
+// ── HISTORY ──
 function openPurchaseHistoryModal(){document.getElementById('purchaseHistoryModal').style.display='block';historyPage=1;loadPurchaseHistory()}
 window.openPurchaseHistory=openPurchaseHistoryModal
 window.closePurchaseHistory=function(){document.getElementById('purchaseHistoryModal').style.display='none'}
@@ -1054,11 +1231,11 @@ window.viewPurchase=async function(billNo){
   var items=ir.data||[]
   var missingIds=items.filter(function(i){return !i.item_name&&i.item_id}).map(function(i){return i.item_id})
   var invNames={}
-  if(missingIds.length){var pr=await supabase.from('inventory').select('id,item_name,category,unit_type').in('id',missingIds);(pr.data||[]).forEach(function(p){invNames[p.id]=p})}
+  if(missingIds.length){var pr=await supabase.from('inventory').select('id,item_name,category,brand,size,unit_type').in('id',missingIds);(pr.data||[]).forEach(function(p){invNames[p.id]=p})}
   var modes=[];if(pur.cash>0)modes.push('Cash');if(pur.upi>0)modes.push('UPI');if(pur.credit>0)modes.push('Credit')
   var printItems=items.map(function(item){
     var inv=invNames[item.item_id]||{}
-    return{name:item.item_name||inv.item_name||('[Product #'+item.item_id+' (deleted)]'),qty:item.quantity,price:item.purchase_price,category:inv.category||'',unitType:inv.unit_type||''}
+    return{name:item.item_name||inv.item_name||('[Product #'+item.item_id+' (deleted)]'),qty:item.quantity,price:item.purchase_price,category:inv.category||'',brand:inv.brand||'',size:inv.size||'',unitType:inv.unit_type||''}
   })
   var subtotal=items.reduce(function(s,i){return s+(i.total||0)},0)
   var displayDateStr = pur.bill_date || pur.created_at
@@ -1069,13 +1246,12 @@ window.viewPurchase=async function(billNo){
 }
 
 window.reprintPurchase=async function(billNo){
-  await viewPurchase(billNo);await new Promise(function(r){setTimeout(r,300)})
+  await viewPurchase(billNo);await new Promise(function(r){setTimeout(r,800)})
   var ot=document.title;document.title='Purchase-'+billNo;window.print()
   setTimeout(function(){document.title=ot;document.getElementById('printArea').style.display='none'},800)
 }
 
 // ── EDIT BILL ──
-
 window.openEditBill=async function(billNo){
   var sr=await supabase.from('purchases').select('*').eq('bill_number',billNo).single()
   if(!sr.data){alert('Bill not found');return}
@@ -1084,244 +1260,266 @@ window.openEditBill=async function(billNo){
   var items=ir.data||[]
   var ids=items.filter(function(i){return i.item_id}).map(function(i){return i.item_id})
   var invMap={}
-  if(ids.length){var pr=await supabase.from('inventory').select('id,item_name,purchase_price,category,unit_type').in('id',ids);(pr.data||[]).forEach(function(p){invMap[p.id]=p})}
+  if(ids.length){var pr=await supabase.from('inventory').select('id,item_name,purchase_price,category,brand,size,unit_type').in('id',ids);(pr.data||[]).forEach(function(p){invMap[p.id]=p})}
   editingBillId=pur.id;editingBillNumber=pur.bill_number
-document.getElementById('editModeBar').style.display='block'
-document.getElementById('editModeBillNo').innerText='Bill: '+pur.bill_number+' — '+new Date(pur.created_at).toLocaleDateString('en-IN')
-document.getElementById('savePurchaseBtn').innerText='💾 Update Purchase'
-selectedMerchant={id:null,name:pur.merchant_name,phone:pur.merchant_phone||'',address:pur.merchant_address||'',gstin:pur.merchant_gstin||''}
-showSelectedMerchant()
-document.getElementById('merchantInvoiceRef').value=pur.merchant_invoice_ref||''
-document.getElementById('purCash').value=pur.cash||0
-document.getElementById('purUpi').value=pur.upi||0
-document.getElementById('purCredit').value=pur.credit||0
-purchaseItems=items.map(function(item){
-var inv=invMap[item.item_id]||{}
-var name=item.item_name||(inv.item_name||'[Product #'+item.item_id+']')
-return{id:item.item_id,name:name,buyPrice:item.purchase_price,qty:item.quantity,isNew:false,category:inv.category||'',unitType:inv.unit_type||''}
-})
-renderPurchaseBill()
-document.getElementById('purchaseHistoryModal').style.display='none'
-setMode('purchase')
-window.scrollTo({top:0,behavior:'smooth'})
+  document.getElementById('editModeBar').style.display='block'
+  document.getElementById('editModeBillNo').innerText='Bill: '+pur.bill_number+' — '+new Date(pur.created_at).toLocaleDateString('en-IN')
+  document.getElementById('savePurchaseBtn').innerText='💾 Update Purchase'
+  selectedMerchant={id:null,name:pur.merchant_name,phone:pur.merchant_phone||'',address:pur.merchant_address||'',gstin:pur.merchant_gstin||''}
+  showSelectedMerchant()
+  document.getElementById('merchantInvoiceRef').value=pur.merchant_invoice_ref||''
+  document.getElementById('purCash').value=pur.cash||0
+  document.getElementById('purUpi').value=pur.upi||0
+  document.getElementById('purCredit').value=pur.credit||0
+  purchaseItems=items.map(function(item){
+    var inv=invMap[item.item_id]||{}
+    var name=item.item_name||(inv.item_name||'[Product #'+item.item_id+']')
+    return{id:item.item_id,name:name,buyPrice:item.purchase_price,qty:item.quantity,isNew:false,category:inv.category||'',brand:inv.brand||'',size:inv.size||'',unitType:inv.unit_type||''}
+  })
+  renderPurchaseBill()
+  document.getElementById('purchaseHistoryModal').style.display='none'
+  setMode('purchase')
+  window.scrollTo({top:0,behavior:'smooth'})
 }
 
 // ── DELETE ──
-
 window.openDeleteModal=function(id,billNo){deletingBillId=id;deletingBillNo=billNo;document.getElementById('deleteModalBillNo').innerText=billNo;document.getElementById('deleteModal').style.display='flex'}
 window.closeDeleteModal=function(){document.getElementById('deleteModal').style.display='none';deletingBillId=null;deletingBillNo=null}
 window.confirmDeleteBill=async function(){
-if(!deletingBillId)return
-var ir=await supabase.from('purchase_items').select('*').eq('purchase_id',deletingBillId)
-for(var i=0;i<(ir.data||[]).length;i++){var item=ir.data[i];if(item.item_id&&item.quantity>0)await supabase.rpc('decrement_inventory',{p_item_id:item.item_id,p_qty:item.quantity})}
-await supabase.from('purchase_items').delete().eq('purchase_id',deletingBillId)
-await supabase.from('purchases').delete().eq('id',deletingBillId)
-closeDeleteModal()
-alert('✅ Purchase bill deleted & inventory reversed')
-loadPurchaseHistory()
+  if(!deletingBillId)return
+  var ir=await supabase.from('purchase_items').select('*').eq('purchase_id',deletingBillId)
+  for(var i=0;i<(ir.data||[]).length;i++){var item=ir.data[i];if(item.item_id&&item.quantity>0)await supabase.rpc('decrement_inventory',{p_item_id:item.item_id,p_qty:item.quantity})}
+  await supabase.from('purchase_items').delete().eq('purchase_id',deletingBillId)
+  await supabase.from('purchases').delete().eq('id',deletingBillId)
+  closeDeleteModal()
+  alert('✅ Purchase bill deleted & inventory reversed')
+  loadPurchaseHistory()
 }
 
 // ── PURCHASE RETURN ──
-
 window.searchReturnBill=async function(){
-var billNo=document.getElementById('returnBillSearch').value.trim()
-if(!billNo){alert('Enter a bill number');return}
-var sr=await supabase.from('purchases').select('*').eq('bill_number',billNo).single()
-if(!sr.data){alert('Bill not found');return}
-if(sr.data.bill_type==='return'){alert('This is already a return bill!');return}
-var pur=sr.data
-purAlreadyReturned={}
-var purExistingReturns=await supabase.from('purchases').select('id').eq('original_bill_ref',pur.bill_number).eq('bill_type','return')
-if(purExistingReturns.data&&purExistingReturns.data.length){
-var purRetIds=purExistingReturns.data.map(function(r){return r.id})
-var purRetItems=await supabase.from('purchase_items').select('item_id,quantity').in('purchase_id',purRetIds)
-;(purRetItems.data||[]).forEach(function(ri){if(!purAlreadyReturned[ri.item_id])purAlreadyReturned[ri.item_id]=0;purAlreadyReturned[ri.item_id]+=Math.abs(ri.quantity)})
+  var billNo=document.getElementById('returnBillSearch').value.trim()
+  if(!billNo){alert('Enter a bill number');return}
+  var sr=await supabase.from('purchases').select('*').eq('bill_number',billNo).single()
+  if(!sr.data){alert('Bill not found');return}
+  if(sr.data.bill_type==='return'){alert('This is already a return bill!');return}
+  var pur=sr.data
+  purAlreadyReturned={}
+  var purExistingReturns=await supabase.from('purchases').select('id').eq('original_bill_ref',pur.bill_number).eq('bill_type','return')
+  if(purExistingReturns.data&&purExistingReturns.data.length){
+    var purRetIds=purExistingReturns.data.map(function(r){return r.id})
+    var purRetItems=await supabase.from('purchase_items').select('item_id,quantity').in('purchase_id',purRetIds)
+    ;(purRetItems.data||[]).forEach(function(ri){if(!purAlreadyReturned[ri.item_id])purAlreadyReturned[ri.item_id]=0;purAlreadyReturned[ri.item_id]+=Math.abs(ri.quantity)})
+  }
+  var ir=await supabase.from('purchase_items').select('*').eq('purchase_id',pur.id)
+  var items=ir.data||[]
+  var missingIds=items.filter(function(i){return !i.item_name&&i.item_id}).map(function(i){return i.item_id})
+  var invNames={}
+  if(missingIds.length){var pr=await supabase.from('inventory').select('id,item_name').in('id',missingIds);(pr.data||[]).forEach(function(p){invNames[p.id]=p.item_name})}
+  returnOriginalBill=pur;returnBillItems=items
+  var purPayParts=[]
+  if((pur.cash||0)>0)purPayParts.push('<span style="color:#34d399;">Cash ₹'+Math.round(pur.cash).toLocaleString('en-IN')+'</span>')
+  if((pur.upi||0)>0)purPayParts.push('<span style="color:#60a5fa;">UPI ₹'+Math.round(pur.upi).toLocaleString('en-IN')+'</span>')
+  if((pur.credit||0)>0)purPayParts.push('<span style="color:#f87171;">Credit ₹'+Math.round(pur.credit).toLocaleString('en-IN')+'</span>')
+  if((pur.discount||0)>0)purPayParts.push('<span style="color:#34d399;">Discount ₹'+Math.round(pur.discount).toLocaleString('en-IN')+'</span>')
+  document.getElementById('returnMerchantInfo').innerHTML=
+    '<div><div style="font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Merchant</div><div style="font-size:15px;font-weight:600;color:white;">'+(pur.merchant_name||'—')+'</div></div>'+
+    '<div><div style="font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Original Bill</div><div style="font-size:13px;color:#fbbf24;font-weight:600;">'+pur.bill_number+'</div></div>'+
+    '<div><div style="font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Total</div><div style="font-size:13px;color:#a78bfa;font-weight:600;">₹'+Math.round(pur.total_amount).toLocaleString('en-IN')+'</div></div>'+
+    '<div><div style="font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Paid By</div><div style="font-size:13px;font-weight:600;">'+(purPayParts.join(' + ')||'—')+'</div></div>'+
+    '<div><div style="font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Date</div><div style="font-size:13px;color:rgba(255,255,255,0.6);">'+new Date(pur.created_at).toLocaleDateString('en-IN')+'</div></div>'
+  var tbody=document.getElementById('returnItemsBody');tbody.innerHTML=''
+  items.forEach(function(item,idx){
+    var name=item.item_name||invNames[item.item_id]||('[Product #'+item.item_id+']')
+    var purAlrQty=purAlreadyReturned[item.item_id]||0
+    var purAvailableQty=item.quantity-purAlrQty
+    var tr=document.createElement('tr');tr.style.borderBottom='1px solid rgba(255,255,255,0.05)'
+    if(purAvailableQty<=0){
+      tr.innerHTML='<td style="padding:10px;text-align:center;"><input type="checkbox" disabled style="width:18px;height:18px;opacity:0.3;cursor:not-allowed;"></td>'+
+        '<td style="padding:10px;color:rgba(255,255,255,0.35);text-decoration:line-through;">'+name+'</td>'+
+        '<td style="padding:10px;text-align:center;color:rgba(255,255,255,0.35);">'+item.quantity+'</td>'+
+        '<td style="padding:10px;text-align:center;"><span style="font-size:11px;color:#34d399;background:rgba(52,211,153,0.1);padding:3px 8px;border-radius:6px;">✓ Fully Returned</span></td>'+
+        '<td style="padding:10px;text-align:right;color:rgba(255,255,255,0.35);">₹'+item.purchase_price+'</td>'+
+        '<td style="padding:10px;text-align:right;color:rgba(255,255,255,0.35);">₹0</td>'
+    }else{
+      tr.innerHTML='<td style="padding:10px;text-align:center;"><input type="checkbox" class="returnChk" data-idx="'+idx+'" style="width:18px;height:18px;accent-color:#dc2626;cursor:pointer;" onchange="calcReturnTotal()"></td>'+
+        '<td style="padding:10px;color:white;">'+name+(purAlrQty>0?'<span style="font-size:10px;color:#fbbf24;margin-left:6px;">('+purAlrQty+' already returned)</span>':'')+'</td>'+
+        '<td style="padding:10px;text-align:center;color:rgba(255,255,255,0.7);">'+item.quantity+'</td>'+
+        '<td style="padding:10px;text-align:center;"><input type="number" class="returnQtyInput" data-idx="'+idx+'" value="'+purAvailableQty+'" min="1" max="'+purAvailableQty+'" data-max="'+purAvailableQty+'" style="width:70px;margin-bottom:0;text-align:center;" oninput="calcReturnTotal()"></td>'+
+        '<td style="padding:10px;text-align:right;color:rgba(255,255,255,0.7);">₹'+item.purchase_price+'</td>'+
+        '<td style="padding:10px;text-align:right;font-weight:600;color:#f87171;" id="rtotal'+idx+'">₹0</td>'
+    }
+    tbody.appendChild(tr)
+  })
+  calcReturnTotal()
+  document.getElementById('returnBillDetails').style.display='block'
 }
-var ir=await supabase.from('purchase_items').select('*').eq('purchase_id',pur.id)
-var items=ir.data||[]
-var missingIds=items.filter(function(i){return !i.item_name&&i.item_id}).map(function(i){return i.item_id})
-var invNames={}
-if(missingIds.length){var pr=await supabase.from('inventory').select('id,item_name').in('id',missingIds);(pr.data||[]).forEach(function(p){invNames[p.id]=p.item_name})}
-returnOriginalBill=pur;returnBillItems=items
-var purPayParts=[]
-if((pur.cash||0)>0)purPayParts.push('<span style="color:#34d399;">Cash ₹'+Math.round(pur.cash).toLocaleString('en-IN')+'</span>')
-if((pur.upi||0)>0)purPayParts.push('<span style="color:#60a5fa;">UPI ₹'+Math.round(pur.upi).toLocaleString('en-IN')+'</span>')
-if((pur.credit||0)>0)purPayParts.push('<span style="color:#f87171;">Credit ₹'+Math.round(pur.credit).toLocaleString('en-IN')+'</span>')
-if((pur.discount||0)>0)purPayParts.push('<span style="color:#34d399;">Discount ₹'+Math.round(pur.discount).toLocaleString('en-IN')+'</span>')
-document.getElementById('returnMerchantInfo').innerHTML=
-'<div><div style="font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Merchant</div><div style="font-size:15px;font-weight:600;color:white;">'+(pur.merchant_name||'—')+'</div></div>'+
-'<div><div style="font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Original Bill</div><div style="font-size:13px;color:#fbbf24;font-weight:600;">'+pur.bill_number+'</div></div>'+
-'<div><div style="font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Total</div><div style="font-size:13px;color:#a78bfa;font-weight:600;">₹'+Math.round(pur.total_amount).toLocaleString('en-IN')+'</div></div>'+
-'<div><div style="font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Paid By</div><div style="font-size:13px;font-weight:600;">'+(purPayParts.join(' + ')||'—')+'</div></div>'+
-'<div><div style="font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Date</div><div style="font-size:13px;color:rgba(255,255,255,0.6);">'+new Date(pur.created_at).toLocaleDateString('en-IN')+'</div></div>'
-var tbody=document.getElementById('returnItemsBody');tbody.innerHTML=''
-items.forEach(function(item,idx){
-var name=item.item_name||invNames[item.item_id]||('[Product #'+item.item_id+']')
-var purAlrQty=purAlreadyReturned[item.item_id]||0
-var purAvailableQty=item.quantity-purAlrQty
-var tr=document.createElement('tr');tr.style.borderBottom='1px solid rgba(255,255,255,0.05)'
-if(purAvailableQty<=0){
-tr.innerHTML='<td style="padding:10px;text-align:center;"><input type="checkbox" disabled style="width:18px;height:18px;opacity:0.3;cursor:not-allowed;"></td>'+
-'<td style="padding:10px;color:rgba(255,255,255,0.35);text-decoration:line-through;">'+name+'</td>'+
-'<td style="padding:10px;text-align:center;color:rgba(255,255,255,0.35);">'+item.quantity+'</td>'+
-'<td style="padding:10px;text-align:center;"><span style="font-size:11px;color:#34d399;background:rgba(52,211,153,0.1);padding:3px 8px;border-radius:6px;">✓ Fully Returned</span></td>'+
-'<td style="padding:10px;text-align:right;color:rgba(255,255,255,0.35);">₹'+item.purchase_price+'</td>'+
-'<td style="padding:10px;text-align:right;color:rgba(255,255,255,0.35);">₹0</td>'
-}else{
-tr.innerHTML='<td style="padding:10px;text-align:center;"><input type="checkbox" class="returnChk" data-idx="'+idx+'" style="width:18px;height:18px;accent-color:#dc2626;cursor:pointer;" onchange="calcReturnTotal()"></td>'+
-'<td style="padding:10px;color:white;">'+name+(purAlrQty>0?'<span style="font-size:10px;color:#fbbf24;margin-left:6px;">('+purAlrQty+' already returned)</span>':'')+'</td>'+
-'<td style="padding:10px;text-align:center;color:rgba(255,255,255,0.7);">'+item.quantity+'</td>'+
-'<td style="padding:10px;text-align:center;"><input type="number" class="returnQtyInput" data-idx="'+idx+'" value="'+purAvailableQty+'" min="1" max="'+purAvailableQty+'" data-max="'+purAvailableQty+'" style="width:70px;margin-bottom:0;text-align:center;" oninput="calcReturnTotal()"></td>'+
-'<td style="padding:10px;text-align:right;color:rgba(255,255,255,0.7);">₹'+item.purchase_price+'</td>'+
-'<td style="padding:10px;text-align:right;font-weight:600;color:#f87171;" id="rtotal'+idx+'">₹0</td>'
-}
-tbody.appendChild(tr)
-})
-calcReturnTotal()
-document.getElementById('returnBillDetails').style.display='block'
-}
+
 window.calcReturnTotal=function(){
-var t=0
-document.querySelectorAll('.returnChk').forEach(function(chk){
-var idx=+chk.dataset.idx;var qi=document.querySelector('.returnQtyInput[data-idx="'+idx+'"]')
-var qty=chk.checked?(parseInt(qi?qi.value:0)||0):0
-var price=(returnBillItems[idx]?returnBillItems[idx].purchase_price:0)||0;var sub=qty*price;t+=sub
-var el=document.getElementById('rtotal'+idx);if(el)el.innerText=chk.checked?'₹'+sub.toLocaleString('en-IN'):'₹0'
-})
-document.getElementById('returnTotalAmt').innerText=t.toLocaleString('en-IN')
-var cash =parseFloat(document.getElementById('purReturnCash')  ?document.getElementById('purReturnCash').value  :0)||0
-var upi  =parseFloat(document.getElementById('purReturnUpi')   ?document.getElementById('purReturnUpi').value   :0)||0
-var cred =parseFloat(document.getElementById('purReturnCredit')?document.getElementById('purReturnCredit').value:0)||0
-var paid=cash+upi+cred;var rem=t-paid
-var parts=[]
-if(cash>0)parts.push('<span style="color:#60a5fa;">Cash ₹'+cash.toLocaleString('en-IN')+'</span>')
-if(upi>0) parts.push('<span style="color:#a78bfa;">UPI ₹'+upi.toLocaleString('en-IN')+'</span>')
-if(cred>0)parts.push('<span style="color:#f87171;">Payable Adj. ₹'+cred.toLocaleString('en-IN')+'</span>')
-var sc='#34d399',st='✅ Fully Accounted'
-if(rem>0){sc='#fbbf24';st='⚠️ ₹'+rem.toLocaleString('en-IN')+' unaccounted (will adjust payable)'}
-if(rem<0){sc='#f87171';st='❌ Exceeds return total by ₹'+Math.abs(rem).toLocaleString('en-IN')}
-var sumEl=document.getElementById('purReturnPaySummary')
-if(sumEl)sumEl.innerHTML=(parts.length?parts.join(' + ')+' — ':'')+'<span style="color:'+sc+';">'+st+'</span>'
+  var t=0
+  document.querySelectorAll('.returnChk').forEach(function(chk){
+    var idx=+chk.dataset.idx;var qi=document.querySelector('.returnQtyInput[data-idx="'+idx+'"]')
+    var qty=chk.checked?(parseInt(qi?qi.value:0)||0):0
+    var price=(returnBillItems[idx]?returnBillItems[idx].purchase_price:0)||0;var sub=qty*price;t+=sub
+    var el=document.getElementById('rtotal'+idx);if(el)el.innerText=chk.checked?'₹'+sub.toLocaleString('en-IN'):'₹0'
+  })
+  document.getElementById('returnTotalAmt').innerText=t.toLocaleString('en-IN')
+  var cash =parseFloat(document.getElementById('purReturnCash')  ?document.getElementById('purReturnCash').value  :0)||0
+  var upi  =parseFloat(document.getElementById('purReturnUpi')   ?document.getElementById('purReturnUpi').value   :0)||0
+  var cred =parseFloat(document.getElementById('purReturnCredit')?document.getElementById('purReturnCredit').value:0)||0
+  var paid=cash+upi+cred;var rem=t-paid
+  var parts=[]
+  if(cash>0)parts.push('<span style="color:#60a5fa;">Cash ₹'+cash.toLocaleString('en-IN')+'</span>')
+  if(upi>0) parts.push('<span style="color:#a78bfa;">UPI ₹'+upi.toLocaleString('en-IN')+'</span>')
+  if(cred>0)parts.push('<span style="color:#f87171;">Payable Adj. ₹'+cred.toLocaleString('en-IN')+'</span>')
+  var sc='#34d399',st='✅ Fully Accounted'
+  if(rem>0){sc='#fbbf24';st='⚠️ ₹'+rem.toLocaleString('en-IN')+' unaccounted (will adjust payable)'}
+  if(rem<0){sc='#f87171';st='❌ Exceeds return total by ₹'+Math.abs(rem).toLocaleString('en-IN')}
+  var sumEl=document.getElementById('purReturnPaySummary')
+  if(sumEl)sumEl.innerHTML=(parts.length?parts.join(' + ')+' — ':'')+'<span style="color:'+sc+';">'+st+'</span>'
 }
+
 window.processReturn=async function(shouldPrint){
-var checkedItems=[],valid=true
-document.querySelectorAll('.returnChk').forEach(function(chk){
-if(!chk.checked)return
-var idx=+chk.dataset.idx;var qi=document.querySelector('.returnQtyInput[data-idx="'+idx+'"]')
-var qty=parseInt(qi?qi.value:0)||0;if(qty<=0)return
-var orig=returnBillItems[idx];if(!orig)return
-var purAlrQty=purAlreadyReturned[orig.item_id]||0
-var purMaxAllowed=orig.quantity-purAlrQty
-if(qty>purMaxAllowed){alert('Cannot return '+qty+' of "'+orig.item_name+'". Only '+purMaxAllowed+' available ('+purAlrQty+' already returned).');valid=false;return}
-checkedItems.push({item_id:orig.item_id,item_name:orig.item_name||('[Product #'+orig.item_id+']'),qty:qty,price:orig.purchase_price})
-})
-if(!valid)return
-if(!checkedItems.length){alert('Select at least one item');return}
-var returnTotal=checkedItems.reduce(function(s,i){return s+(i.qtyi.price)},0)
-var purRetCash  =parseFloat(document.getElementById('purReturnCash').value)||0
-var purRetUpi   =parseFloat(document.getElementById('purReturnUpi').value)||0
-var purRetCredit=parseFloat(document.getElementById('purReturnCredit').value)||0
-var purRetPaid  =purRetCash+purRetUpi+purRetCredit
-if(purRetPaid>returnTotal){alert('❌ Refund amount exceeds return total ₹'+returnTotal.toLocaleString('en-IN'));return}
-if(purRetPaid===0){purRetCredit=returnTotal}
-var todayStr=new Date().toISOString().slice(0,10)
-var returnNo=await generateReturnNo(todayStr);var pur=returnOriginalBill
-var rr=await supabase.from('purchases').insert([{bill_number:returnNo,merchant_name:pur.merchant_name,merchant_phone:pur.merchant_phone||null,merchant_address:pur.merchant_address||null,merchant_gstin:pur.merchant_gstin||null,total_amount:-returnTotal,cash:-purRetCash,upi:-purRetUpi,credit:-purRetCredit,discount:0,bill_type:'return',original_bill_ref:pur.bill_number}]).select().single()
-if(rr.error){alert('❌ Error creating return: '+rr.error.message);return}
-var retItems=checkedItems.map(function(i){return{purchase_id:rr.data.id,item_id:i.item_id,item_name:i.item_name,quantity:-i.qty,purchase_price:i.price,total:-(i.qtyi.price)}})
-var rir=await supabase.from('purchase_items').insert(retItems)
-if(rir.error){await supabase.from('purchases').delete().eq('id',rr.data.id);alert('❌ Return failed: '+rir.error.message);return}
-for(var i=0;i<checkedItems.length;i++){var ci=checkedItems[i];if(ci.item_id)await supabase.rpc('decrement_inventory',{p_item_id:ci.item_id,p_qty:ci.qty})}
-if(shouldPrint){
-var purRetModes=[];if(purRetCash>0)purRetModes.push('Cash');if(purRetUpi>0)purRetModes.push('UPI');if(purRetCredit>0)purRetModes.push('Payable Adj.')
-fillPrintArea({isReturn:true,billNo:returnNo,date:new Date().toLocaleString('en-IN'),merchantName:pur.merchant_name,merchantPhone:pur.merchant_phone||'',merchantAddress:pur.merchant_address||'',merchantGstin:pur.merchant_gstin||'',merchantInvRef:'',originalRef:pur.bill_number,items:checkedItems.map(function(i){return{name:i.item_name,qty:i.qty,price:i.price,category:'',unitType:''}}),subtotal:returnTotal,final:returnTotal,disc:0,cash:purRetCash,upi:purRetUpi,credit:purRetCredit,payMode:purRetModes.join(' + ')||'Payable Adjusted'})
-document.getElementById('printArea').style.display='block'
-var ot=document.title;document.title='Return-'+returnNo;window.print()
-setTimeout(function(){document.title=ot;document.getElementById('printArea').style.display='none'},800)
+  var checkedItems=[],valid=true
+  document.querySelectorAll('.returnChk').forEach(function(chk){
+    if(!chk.checked)return
+    var idx=+chk.dataset.idx;var qi=document.querySelector('.returnQtyInput[data-idx="'+idx+'"]')
+    var qty=parseInt(qi?qi.value:0)||0;if(qty<=0)return
+    var orig=returnBillItems[idx];if(!orig)return
+    var purAlrQty=purAlreadyReturned[orig.item_id]||0
+    var purMaxAllowed=orig.quantity-purAlrQty
+    if(qty>purMaxAllowed){alert('Cannot return '+qty+' of "'+orig.item_name+'". Only '+purMaxAllowed+' available ('+purAlrQty+' already returned).');valid=false;return}
+    checkedItems.push({item_id:orig.item_id,item_name:orig.item_name||('[Product #'+orig.item_id+']'),qty:qty,price:orig.purchase_price})
+  })
+  if(!valid)return
+  if(!checkedItems.length){alert('Select at least one item');return}
+  var returnTotal=checkedItems.reduce(function(s,i){return s+(i.qty*i.price)},0)
+  var purRetCash  =parseFloat(document.getElementById('purReturnCash').value)||0
+  var purRetUpi   =parseFloat(document.getElementById('purReturnUpi').value)||0
+  var purRetCredit=parseFloat(document.getElementById('purReturnCredit').value)||0
+  var purRetPaid  =purRetCash+purRetUpi+purRetCredit
+  if(purRetPaid>returnTotal){alert('❌ Refund amount exceeds return total ₹'+returnTotal.toLocaleString('en-IN'));return}
+  if(purRetPaid===0){purRetCredit=returnTotal}
+  var todayStr=new Date().toISOString().slice(0,10)
+  var returnNo=await generateReturnNo(todayStr);var pur=returnOriginalBill
+  var rr=await supabase.from('purchases').insert([{bill_number:returnNo,merchant_name:pur.merchant_name,merchant_phone:pur.merchant_phone||null,merchant_address:pur.merchant_address||null,merchant_gstin:pur.merchant_gstin||null,total_amount:-returnTotal,cash:-purRetCash,upi:-purRetUpi,credit:-purRetCredit,discount:0,bill_type:'return',original_bill_ref:pur.bill_number}]).select().single()
+  if(rr.error){alert('❌ Error creating return: '+rr.error.message);return}
+  var retItems=checkedItems.map(function(i){return{purchase_id:rr.data.id,item_id:i.item_id,item_name:i.item_name,quantity:-i.qty,purchase_price:i.price,total:-(i.qty*i.price)}})
+  var rir=await supabase.from('purchase_items').insert(retItems)
+  if(rir.error){await supabase.from('purchases').delete().eq('id',rr.data.id);alert('❌ Return failed: '+rir.error.message);return}
+  for(var i=0;i<checkedItems.length;i++){var ci=checkedItems[i];if(ci.item_id)await supabase.rpc('decrement_inventory',{p_item_id:ci.item_id,p_qty:ci.qty})}
+  if(shouldPrint){
+    var purRetModes=[];if(purRetCash>0)purRetModes.push('Cash');if(purRetUpi>0)purRetModes.push('UPI');if(purRetCredit>0)purRetModes.push('Payable Adj.')
+    fillPrintArea({isReturn:true,billNo:returnNo,date:new Date().toLocaleString('en-IN'),merchantName:pur.merchant_name,merchantPhone:pur.merchant_phone||'',merchantAddress:pur.merchant_address||'',merchantGstin:pur.merchant_gstin||'',merchantInvRef:'',originalRef:pur.bill_number,items:checkedItems.map(function(i){return{name:i.item_name,qty:i.qty,price:i.price,category:'',brand:'',size:'',unitType:''}}),subtotal:returnTotal,final:returnTotal,disc:0,cash:purRetCash,upi:purRetUpi,credit:purRetCredit,payMode:purRetModes.join(' + ')||'Payable Adjusted'})
+    document.getElementById('printArea').style.display='block'
+    await new Promise(function(r){setTimeout(r,800)})
+    var ot=document.title;document.title='Return-'+returnNo;window.print()
+    setTimeout(function(){document.title=ot;document.getElementById('printArea').style.display='none'},800)
+  }
+  var purRefundMsg=[]
+  if(purRetCash>0)purRefundMsg.push('Cash ₹'+purRetCash.toLocaleString('en-IN'))
+  if(purRetUpi>0)purRefundMsg.push('UPI ₹'+purRetUpi.toLocaleString('en-IN'))
+  if(purRetCredit>0)purRefundMsg.push('Payable Adj. ₹'+purRetCredit.toLocaleString('en-IN'))
+  alert('✅ Purchase Return processed!\nReturn No: '+returnNo+'\nInventory Deducted!\nRefund: '+purRefundMsg.join(' + '))
+  clearReturn()
 }
-var purRefundMsg=[]
-if(purRetCash>0)purRefundMsg.push('Cash ₹'+purRetCash.toLocaleString('en-IN'))
-if(purRetUpi>0)purRefundMsg.push('UPI ₹'+purRetUpi.toLocaleString('en-IN'))
-if(purRetCredit>0)purRefundMsg.push('Payable Adj. ₹'+purRetCredit.toLocaleString('en-IN'))
-alert('✅ Purchase Return processed!\nReturn No: '+returnNo+'\nInventory Deducted!\nRefund: '+purRefundMsg.join(' + '))
-clearReturn()
-}
+
 window.clearReturn=function(){
-returnOriginalBill=null;returnBillItems=[]
-document.getElementById('returnBillDetails').style.display='none'
-document.getElementById('returnBillSearch').value=''
-document.getElementById('returnReason').value=''
-;['purReturnCash','purReturnUpi','purReturnCredit'].forEach(function(id){var el=document.getElementById(id);if(el)el.value=''})
-var sumEl=document.getElementById('purReturnPaySummary');if(sumEl)sumEl.innerHTML='Enter how merchant refunds (blank = adjust payable)'
+  returnOriginalBill=null;returnBillItems=[]
+  document.getElementById('returnBillDetails').style.display='none'
+  document.getElementById('returnBillSearch').value=''
+  document.getElementById('returnReason').value=''
+  ;['purReturnCash','purReturnUpi','purReturnCredit'].forEach(function(id){var el=document.getElementById(id);if(el)el.value=''})
+  var sumEl=document.getElementById('purReturnPaySummary');if(sumEl)sumEl.innerHTML='Enter how merchant refunds (blank = adjust payable)'
 }
-  
-// ════════════════════════════════════════════════════════
-// FIX 5: WHATSAPP — direct wa.me link for purchase bills
-// ════════════════════════════════════════════════════════
 
+// ════════════════════════════════════════════════════════
+// FIX 6: WHATSAPP — direct wa.me text share (no PDF)
+// Works on macOS (web.whatsapp.com) and Android (wa.me)
+// ════════════════════════════════════════════════════════
 function cleanPhoneForWA(raw){
-var digits=(raw||'').replace(/\D/g,'')
-if(digits.length===10)return '91'+digits
-if(digits.length===12&&digits.startsWith('91'))return digits
-if(digits.length===11&&digits.startsWith('0'))return '91'+digits.slice(1)
-return null
+  var digits=(raw||'').replace(/\D/g,'')
+  if(digits.length===10)return '91'+digits
+  if(digits.length===12&&digits.startsWith('91'))return digits
+  if(digits.length===11&&digits.startsWith('0'))return '91'+digits.slice(1)
+  return null
 }
-function showWaToast(msg){
-var t=document.getElementById('waToast')
-document.getElementById('waToastMsg').innerText=msg
-t.classList.add('show')
-setTimeout(function(){t.classList.remove('show')},3000)
-}
-document.getElementById('waPurchaseBtn').addEventListener('click',function(){
-var m=getMerchantInfo()
-var rawPhone=document.getElementById('merchantPhone').value.trim()||m.phone||''
-var cp=cleanPhoneForWA(rawPhone)
-if(!rawPhone){alert('No phone number found.\n\nPlease enter the merchant phone number before sending via WhatsApp.');return}
-if(!cp){alert('Invalid phone number: "'+rawPhone+'"\n\nPlease use a valid 10-digit Indian mobile number.');return}
-var disc=calcPurDiscount()
-var final=totalAmount-disc
-var cash=parseFloat(document.getElementById('purCash').value)||0
-var upi =parseFloat(document.getElementById('purUpi').value)||0
-var cred=parseFloat(document.getElementById('purCredit').value)||0
-var purDateStr=document.getElementById('purBillDate').value||new Date().toISOString().slice(0,10)
-var itemLines=purchaseItems.map(function(item){
-return '  • '+item.name+(item.unitType?' ('+item.unitType+')':'')+' x'+item.qty+' @ ₹'+item.buyPrice+' = ₹'+(item.qty*item.buyPrice).toLocaleString('en-IN')
-}).join('\n')
-var payParts=[]
-if(cash>0)payParts.push('Cash ₹'+cash.toLocaleString('en-IN'))
-if(upi>0) payParts.push('UPI ₹'+upi.toLocaleString('en-IN'))
-if(cred>0)payParts.push('Credit ₹'+cred.toLocaleString('en-IN'))
-if(disc>0)payParts.push('Discount ₹'+disc.toLocaleString('en-IN'))
-var msg='Abhinandan Auto Mobiles — Purchase Order\n'
-+'Merchant: '+m.name+'\n'
-+'Date: '+purDateStr+'\n\n'
-+(itemLines?'Items:\n'+itemLines+'\n\n':'')
-+'Total: ₹'+Math.round(final).toLocaleString('en-IN')+''
-+(payParts.length?'\nPayment: '+payParts.join(' + '):'')
-+'\n\nAbhinandan Auto Mobiles\n+91 98700 37002'
-var isMobile=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
-var waUrl=isMobile
-?'https://wa.me/'+cp+'?text='+encodeURIComponent(msg)
-:'https://web.whatsapp.com/send?phone='+cp+'&text='+encodeURIComponent(msg)
-showWaToast('Opening WhatsApp for +91 '+rawPhone.replace(/\D/g,'').slice(-10))
-window.open(waUrl,'_blank')
-})
-  
-// ── INIT ──
 
-  document.getElementById('purBillDate').value=new Date().toISOString().slice(0,10)
+function showWaToast(msg){
+  var t=document.getElementById('waToast')
+  document.getElementById('waToastMsg').innerText=msg
+  t.classList.add('show')
+  setTimeout(function(){t.classList.remove('show')},3500)
+}
+
+document.getElementById('waPurchaseBtn').addEventListener('click',function(){
+  var m=getMerchantInfo()
+  var rawPhone=document.getElementById('merchantPhone').value.trim()||m.phone||''
+  var cp=cleanPhoneForWA(rawPhone)
+  if(!rawPhone){alert('No phone number found.\n\nPlease enter the merchant phone number before sending via WhatsApp.');return}
+  if(!cp){alert('Invalid phone number: "'+rawPhone+'"\n\nPlease use a valid 10-digit Indian mobile number.');return}
+
+  var disc=calcPurDiscount()
+  var final=totalAmount-disc
+  var cash=parseFloat(document.getElementById('purCash').value)||0
+  var upi =parseFloat(document.getElementById('purUpi').value)||0
+  var cred=parseFloat(document.getElementById('purCredit').value)||0
+  var purDateStr=document.getElementById('purBillDate').value||new Date().toISOString().slice(0,10)
+  var billRef=currentPurBillNo?('\nBill #: '+currentPurBillNo):''
+
+  var itemLines=purchaseItems.map(function(item){
+    var tags=[]
+    if(item.brand)tags.push(item.brand)
+    if(item.category)tags.push(item.category)
+    if(item.size)tags.push(item.size)
+    var detail=tags.length?' ('+tags.join('/')+')':(item.unitType?' ('+item.unitType+')':'')
+    return '  • '+item.name+detail+' x'+item.qty+' @ ₹'+item.buyPrice+' = ₹'+(item.qty*item.buyPrice).toLocaleString('en-IN')
+  }).join('\n')
+
+  var payParts=[]
+  if(cash>0)payParts.push('Cash ₹'+cash.toLocaleString('en-IN'))
+  if(upi>0) payParts.push('UPI ₹'+upi.toLocaleString('en-IN'))
+  if(cred>0)payParts.push('Credit ₹'+cred.toLocaleString('en-IN'))
+  if(disc>0)payParts.push('Discount ₹'+disc.toLocaleString('en-IN'))
+
+  var msg=
+    '🏪 *Abhinandan Auto Mobiles*\n'+
+    '*Purchase Order*'+billRef+'\n'+
+    '━━━━━━━━━━━━━━━━━━━━\n'+
+    'Merchant: '+m.name+'\n'+
+    'Date: '+purDateStr+'\n\n'+
+    (itemLines?'*Items:*\n'+itemLines+'\n\n':'')+
+    '━━━━━━━━━━━━━━━━━━━━\n'+
+    '*Total: ₹'+Math.round(final).toLocaleString('en-IN')+'*'+
+    (payParts.length?'\nPayment: '+payParts.join(' + '):'')+
+    '\n\nAbhinandan Auto Mobiles\n📞 +91 98700 37002'
+
+  // Detect platform: iOS/Android = wa.me, Desktop = web.whatsapp.com
+  var isAndroid = /Android/i.test(navigator.userAgent)
+  var isIOS     = /iPhone|iPad|iPod/i.test(navigator.userAgent)
+  var isMobile  = isAndroid || isIOS
+
+  var waUrl = isMobile
+    ? 'https://wa.me/'+cp+'?text='+encodeURIComponent(msg)
+    : 'https://web.whatsapp.com/send?phone='+cp+'&text='+encodeURIComponent(msg)
+
+  showWaToast('Opening WhatsApp for +91 '+rawPhone.replace(/\D/g,'').slice(-10))
+  window.open(waUrl,'_blank','noopener')
+})
+
+// ── INIT ──
+document.getElementById('purBillDate').value=new Date().toISOString().slice(0,10)
 var pf=localStorage.getItem('purchase_prefill_merchant')
 if(pf){
-localStorage.removeItem('purchase_prefill_merchant')
-supabase.from('merchants').select('*').ilike('name',pf).limit(1).then(function(res){
-if(res.data&&res.data.length){selectedMerchant=res.data[0]}
-else{selectedMerchant={id:null,name:pf,phone:'',address:'',gstin:''}}
-showSelectedMerchant()
-})
+  localStorage.removeItem('purchase_prefill_merchant')
+  supabase.from('merchants').select('*').ilike('name',pf).limit(1).then(function(res){
+    if(res.data&&res.data.length){selectedMerchant=res.data[0]}
+    else{selectedMerchant={id:null,name:pf,phone:'',address:'',gstin:''}}
+    showSelectedMerchant()
+  })
 }
+
 } // end initPurchase
 </script>
 </body>
 </html>
-
-  
