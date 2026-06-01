@@ -896,3 +896,19 @@
   else setTimeout(runUI, 0)
 
 })()
+// ── SIDEBAR TOGGLE (runs on every page) ──
+function toggleSidebar() {
+  document.body.classList.toggle('sidebar-open');
+}
+
+// Close sidebar when a nav link is clicked (good for mobile)
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.sidebar a').forEach(function(link) {
+    link.addEventListener('click', function() {
+      // Only auto-close on small screens
+      if (window.innerWidth < 1024) {
+        document.body.classList.remove('sidebar-open');
+      }
+    });
+  });
+});
