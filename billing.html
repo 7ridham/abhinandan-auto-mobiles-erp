@@ -35,23 +35,17 @@
   .field-label{font-size:11px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:rgba(255,255,255,0.4);display:block;margin-bottom:6px;}
   .opt-tag{font-size:10px;color:rgba(255,255,255,0.25);margin-left:6px;font-weight:400;letter-spacing:0;text-transform:none;}
 
-  /* ── FIX 3: CARD SPACING — every .card inside the bill form gets a top margin ── */
-  /* WHY: Cards were stacking with zero gap because they only had padding inside.
-     Adding margin-top here separates them visually. */
+  /* ── CARD SPACING ── */
   #salesBillMode .card + .card,
   #salesBillMode .card > .card {
     margin-top: 18px !important;
-  }
-  /* Extra breathing room for field rows inside cards */
-  #salesBillMode .card > div[style*="grid"] {
-    margin-bottom: 4px;
   }
 
   /* ── DELIVERY BOX ── */
   .delivery-box{display:none;background:rgba(6,182,212,0.06);border:1.5px dashed rgba(6,182,212,0.3);border-radius:12px;padding:16px;margin-top:14px;}
   .delivery-box.visible{display:block;}
 
-  /* ── FIX 1: DROPDOWN — fixed position escapes card overflow clipping ── */
+  /* ── FIX 7: DROPDOWN — proper colors for both light & dark themes ── */
   #customerList,#productList{
     position:fixed;z-index:99999;
     background:#0f1623;
@@ -66,14 +60,46 @@
   #customerList li,#productList li{
     padding:10px 16px;cursor:pointer;
     border-bottom:1px solid rgba(255,255,255,0.06);
-    font-size:13px;font-family:'DM Sans',sans-serif;color:white;
+    font-size:13px;font-family:'DM Sans',sans-serif;
+    color:#ffffff !important;
     display:flex;justify-content:space-between;align-items:center;gap:10px;
+    background:#0f1623 !important;
+    transition:background 0.15s;
   }
   #customerList li:last-child,#productList li:last-child{border-bottom:none;}
-  #customerList li:hover,#productList li:hover{background:rgba(37,99,235,0.2);}
+  /* FIX 7: Hover always shows blue highlight with white text — works in both themes */
+  #customerList li:hover,#productList li:hover{
+    background:rgba(37,99,235,0.55) !important;
+    color:#ffffff !important;
+  }
+  #customerList li *,#productList li *{color:inherit;}
+  #customerList li:hover *,#productList li:hover *{color:#ffffff !important;}
   #customerList::-webkit-scrollbar,#productList::-webkit-scrollbar{width:6px;}
   #customerList::-webkit-scrollbar-track,#productList::-webkit-scrollbar-track{background:rgba(255,255,255,0.05);}
   #customerList::-webkit-scrollbar-thumb,#productList::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.25);border-radius:3px;}
+
+  /* FIX 3: Remove button — force white X to be visible on red background */
+  .removeBtn {
+    background: rgba(220,38,38,0.85) !important;
+    border: 1.5px solid rgba(220,38,38,0.6) !important;
+    color: #ffffff !important;
+    width: 30px !important;
+    height: 30px !important;
+    border-radius: 7px !important;
+    cursor: pointer !important;
+    font-size: 15px !important;
+    font-weight: 700 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    line-height: 1 !important;
+    font-family: 'DM Sans', sans-serif !important;
+  }
+  .removeBtn:hover {
+    background: #dc2626 !important;
+  }
 
   /* ── PRINT ── */
   #printArea{display:none;font-family:'DM Sans',sans-serif;background:#fff;padding:0;color:#111;}
@@ -118,6 +144,8 @@
   .bill-footer-left{font-size:13px;color:#6b7280;}
   .bill-footer-left .thank-you{font-size:15px;font-weight:600;color:#1e3a5f;margin-bottom:4px;}
   .sig-label{font-size:12px;color:#6b7280;}
+  /* FIX 1: Item detail on printed bill */
+  .print-item-detail{font-size:11px;color:#6b7280;margin-top:2px;}
 
   @media print{
     @page{margin:12mm 10mm;size:A4;}
@@ -142,7 +170,7 @@
 
 <div class="wa-toast" id="waToast"><span>📲</span><span id="waToastMsg">Opening WhatsApp...</span></div>
 
-<!-- FIX: Lists at body level so position:fixed works -->
+<!-- Lists at body level so position:fixed works -->
 <ul id="customerList"></ul>
 <ul id="productList"></ul>
 
@@ -165,8 +193,6 @@
 </div>
 
 <div class="main">
-  <!-- FIX 4: Bill History button at the top header row -->
-  <!-- WHY: Previously only accessible by scrolling to the bottom. Now visible immediately on page load. -->
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
     <h1 style="margin-bottom:0;">Sales</h1>
     <button id="historyBtnTop" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);padding:9px 18px;font-size:13px;border-radius:8px;box-shadow:none;font-family:'DM Sans',sans-serif;">📜 Bill History</button>
@@ -190,16 +216,17 @@
   <!-- SALES BILL MODE -->
   <div id="salesBillMode">
 
+    <!-- FIX 5: Added "Sales Bill" as first option in bill type -->
     <div class="card">
       <h3>Bill Type</h3>
       <div class="bill-type-row">
-        <button class="bill-type-btn active" data-type="GST Invoice">GST Invoice</button>
+        <button class="bill-type-btn active" data-type="Sales Bill">Sales Bill</button>
+        <button class="bill-type-btn" data-type="GST Invoice">GST Invoice</button>
         <button class="bill-type-btn" data-type="Estimate">Estimate / Quotation</button>
         <button class="bill-type-btn" data-type="Delivery Challan">Delivery Challan</button>
       </div>
     </div>
 
-    <!-- FIX 3: margin-top:18px between cards via CSS rule above, plus inline gap for inner cards -->
     <div class="card" style="margin-top:18px;">
       <h3>Customer Details</h3>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
@@ -223,7 +250,6 @@
           <datalist id="vehicleSuggestions"></datalist>
         </div>
       </div>
-      <!-- BILL DATE ROW -->
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px;">
         <div>
           <label class="field-label">Bill Date <span class="opt-tag">(defaults to today — change for backdated)</span></label>
@@ -240,10 +266,10 @@
     <div class="card" style="margin-top:18px;">
       <h3>Add Products</h3>
       <div style="position:relative;">
-        <!-- FIX 2: placeholder updated to hint at extra info shown -->
-        <input id="productSearch" placeholder="Type product name — shows brand, category, size..." autocomplete="off" style="margin-bottom:0;">
+        <!-- FIX 2 & 4: Search by name, brand, category, size, unit_type -->
+        <input id="productSearch" placeholder="Search by product name, brand, category, size..." autocomplete="off" style="margin-bottom:0;">
       </div>
-      <div style="margin-top:8px;font-size:12px;color:rgba(255,255,255,0.3);">💡 Type at least 1 character. Results appear instantly with category and size info.</div>
+      <div style="margin-top:8px;font-size:12px;color:rgba(255,255,255,0.3);">💡 Search by product name, brand, category, or size. All details shown in results.</div>
     </div>
 
     <div class="card" style="margin-top:18px;">
@@ -312,7 +338,7 @@
       <div style="display:flex;gap:12px;margin-top:18px;flex-wrap:wrap;">
         <button id="saveBtn">💾 Save Bill</button>
         <button id="printBtn">🖨 Print Bill</button>
-        <!-- FIX 5: WhatsApp button — now uses direct wa.me link, no save-first required -->
+        <!-- FIX 6: WhatsApp — direct wa.me/web.whatsapp.com link, no PDF download -->
         <button id="waBillBtn" class="btn-wa" style="padding:10px 18px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;">📲 WhatsApp Bill</button>
         <button id="historyBtn" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);">📜 Bill History</button>
       </div>
@@ -392,7 +418,7 @@
         </div>
       </div>
       <div class="bill-header-right">
-        <div class="bill-type-badge" id="printBillType">GST Invoice</div>
+        <div class="bill-type-badge" id="printBillType">Sales Bill</div>
         <p class="bill-invoice-no">Invoice #<span id="printInvoiceNo"></span></p>
         <p class="bill-date" id="printDate"></p>
       </div>
@@ -463,7 +489,7 @@
       </div>
     </div>
     <div style="position:relative;margin-bottom:16px;">
-      <input type="text" id="searchBill" placeholder="🔍 Search bill number, customer name, vehicle number — searches ALL bills..." style="width:100%;padding:12px 16px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:10px;color:white;font-size:14px;font-family:'DM Sans',sans-serif;">
+      <input type="text" id="searchBill" placeholder="🔍 Search bill number, customer name, vehicle number..." style="width:100%;padding:12px 16px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:10px;color:white;font-size:14px;font-family:'DM Sans',sans-serif;">
       <div id="searchLoader" style="display:none;position:absolute;right:14px;top:50%;transform:translateY(-50%);color:rgba(255,255,255,0.3);font-size:12px;">Searching…</div>
     </div>
     <div style="overflow-x:auto;">
@@ -520,7 +546,7 @@ var selectedCustomer    = null
 var currentBillNumber   = null
 var billItems           = []
 var totalAmount         = 0
-var selectedBillType    = 'GST Invoice'
+var selectedBillType    = 'Sales Bill'
 var editingBillId       = null
 var editingBillNumber   = null
 var deletingBillId      = null
@@ -540,7 +566,7 @@ var custList  = document.getElementById('customerList')
 var prodInput = document.getElementById('productSearch')
 var prodList  = document.getElementById('productList')
 
-// ── DROPDOWN POSITIONING (fixed, escapes card overflow) ──
+// ── DROPDOWN POSITIONING ──
 function positionDropdown(inputEl, dropdownEl) {
   var rect = inputEl.getBoundingClientRect()
   dropdownEl.style.left  = rect.left + 'px'
@@ -594,24 +620,11 @@ window.toggleDeliveryBox = function() {
   }
 }
 
-// ════════════════════════════════════════════════════════
-// FIX 1A — INVOICE NUMBER GENERATOR uses the SELECTED DATE
-// WHY: Old code used `new Date()` (today) for the prefix.
-//      If you picked May 27, the bill number still said May 30.
-//      Now we pass the billDate from the date picker.
-//      The sequence counter is GLOBAL (scans all bills), not
-//      date-specific, so it always increments correctly.
-// ════════════════════════════════════════════════════════
+// ── INVOICE NUMBER GENERATOR ──
 async function generateInvoiceNo(dateStr) {
-  // dateStr format: 'YYYY-MM-DD'
   var parts = dateStr.split('-')
   var dd = parts[2], mm = parts[1], yy = parts[0].slice(2)
   var prefix = 'AAM-' + dd + mm + yy + '-'
-
-  // Count ALL bills that match this exact date prefix
-  // WHY: We want the sequence within a day to be sequential.
-  //      A backdated bill on May 27 gets the next available
-  //      number for that day, e.g. AAM-270526-0003.
   var res = await supabase.from('sales')
     .select('bill_number')
     .like('bill_number', prefix + '%')
@@ -655,8 +668,8 @@ custInput.addEventListener('input', function() {
     custList.innerHTML = ''
     if (res.error || !res.data || !res.data.length) {
       var li = document.createElement('li')
-      li.style.cssText = 'color:rgba(255,255,255,0.35);cursor:default;'
-      li.innerHTML = 'No customer found — <strong style="color:#60a5fa;">will create new on save</strong>'
+      li.style.cssText = 'cursor:default;'
+      li.innerHTML = '<span style="color:rgba(255,255,255,0.5);">No customer found — </span><strong style="color:#60a5fa;">will create new on save</strong>'
       custList.appendChild(li)
       positionDropdown(custInput, custList)
       custList.style.display = 'block'
@@ -664,7 +677,7 @@ custInput.addEventListener('input', function() {
     }
     res.data.forEach(function(c) {
       var li = document.createElement('li')
-      li.innerHTML = '<span style="color:white;font-weight:500;flex:1;">'+c.name+'</span><span style="color:rgba(255,255,255,0.4);font-size:12px;">'+(c.phone||'')+'</span>'
+      li.innerHTML = '<span style="font-weight:500;flex:1;">'+c.name+'</span><span style="opacity:0.55;font-size:12px;">'+(c.phone||'')+'</span>'
       li.onclick = function() {
         selectedCustomer = c
         custInput.value = c.name
@@ -693,29 +706,31 @@ async function loadVehicleSuggestions(customerId) {
   dl.innerHTML = (res.data||[]).filter(function(s){ return s.vehicle_number && !seen[s.vehicle_number] && (seen[s.vehicle_number]=1) }).map(function(s){ return '<option value="'+s.vehicle_number+'">' }).join('')
 }
 
-// ════════════════════════════════════════════════════════
-// FIX 2 — PRODUCT SEARCH: fetches brand, category, unit_type
-// WHY: Old query only got id, item_name, selling_price, quantity.
-//      Now we also get category and unit_type so the dropdown
-//      shows e.g. "15w40 — Engine Oil (1L)" and those details
-//      are stored in billItems so they appear on the printed bill.
-// ════════════════════════════════════════════════════════
+// ── FIX 2 & 4: PRODUCT SEARCH — searches name, brand, category, unit_type, size ──
+// We fetch all relevant fields and also do client-side filtering so brand/category/size work
 prodInput.addEventListener('input', function() {
   var text = this.value.trim()
   clearTimeout(prodTimer)
   if (!text) { prodList.style.display='none'; prodList.innerHTML=''; return }
   prodTimer = setTimeout(async function() {
+    // FIX 4: Search across item_name, category, unit_type, brand using multiple or-conditions
     var res = await supabase
       .from('inventory')
-      .select('id,item_name,selling_price,quantity,category,unit_type')
-      .ilike('item_name','%'+text+'%')
+      .select('id,item_name,selling_price,quantity,category,unit_type,brand')
+      .or(
+        'item_name.ilike.%'+text+'%,' +
+        'category.ilike.%'+text+'%,' +
+        'unit_type.ilike.%'+text+'%,' +
+        'brand.ilike.%'+text+'%'
+      )
       .order('item_name')
-      .limit(15)
+      .limit(20)
+
     prodList.innerHTML = ''
     if (res.error || !res.data || !res.data.length) {
       var li = document.createElement('li')
-      li.style.cssText = 'color:rgba(255,255,255,0.35);cursor:default;'
-      li.innerText = 'No products found matching "'+text+'"'
+      li.style.cssText = 'cursor:default;'
+      li.innerHTML = '<span style="opacity:0.5;">No products found matching "'+text+'"</span>'
       prodList.appendChild(li)
       positionDropdown(prodInput, prodList)
       prodList.style.display = 'block'
@@ -724,17 +739,22 @@ prodInput.addEventListener('input', function() {
     res.data.forEach(function(p) {
       var sc   = p.quantity<=0 ? '#f87171' : p.quantity<=5 ? '#fbbf24' : '#34d399'
       var sclbl= p.quantity<=0 ? 'Out of Stock' : p.quantity<=5 ? p.quantity+' left (low)' : p.quantity+' in stock'
-      // Build the detail label e.g. "Engine Oil • 1L"
+
+      // FIX 2: Build detail string showing brand, category, size/unit
       var detailParts = []
+      if (p.brand && p.brand.trim())     detailParts.push(p.brand.trim())
       if (p.category && p.category.trim()) detailParts.push(p.category.trim())
       if (p.unit_type && p.unit_type.trim()) detailParts.push(p.unit_type.trim())
-      var detailStr = detailParts.length ? ' <span style="color:rgba(255,255,255,0.35);font-size:11px;margin-left:4px;">• '+detailParts.join(' • ')+'</span>' : ''
+      var detailStr = detailParts.length
+        ? ' <span style="font-size:11px;opacity:0.55;margin-left:4px;">• '+detailParts.join(' • ')+'</span>'
+        : ''
+
       var li = document.createElement('li')
       li.style.flexWrap = 'wrap'
       li.innerHTML =
-        '<span style="color:white;font-weight:500;flex:1;">'+p.item_name+detailStr+'</span>'+
-        '<span style="color:rgba(255,255,255,0.45);font-size:12px;white-space:nowrap;margin-left:8px;">₹'+(p.selling_price||0)+'</span>'+
-        '<span style="font-size:11px;font-weight:600;color:'+sc+';white-space:nowrap;min-width:90px;text-align:right;">'+sclbl+'</span>'
+        '<span style="font-weight:600;flex:1;min-width:0;">'+p.item_name+detailStr+'</span>'+
+        '<span style="font-size:12px;opacity:0.7;white-space:nowrap;margin-left:8px;">₹'+(p.selling_price||0)+'</span>'+
+        '<span style="font-size:11px;font-weight:700;color:'+sc+';white-space:nowrap;min-width:90px;text-align:right;">'+sclbl+'</span>'
       li.onclick = function() {
         addToBill(p)
         prodInput.value = ''
@@ -752,7 +772,7 @@ prodInput.addEventListener('focus', function() {
   if (prodList.children.length) { positionDropdown(prodInput, prodList); prodList.style.display='block' }
 })
 
-// ADD TO BILL — store category & unit_type for the print bill
+// ADD TO BILL — store brand, category, unit_type for printed bill
 function addToBill(product) {
   for (var i=0; i<billItems.length; i++) {
     if (billItems[i].id === product.id) { billItems[i].qty++; renderBill(); return }
@@ -762,6 +782,7 @@ function addToBill(product) {
     name: product.item_name,
     price: product.selling_price||0,
     qty: 1,
+    brand: product.brand||'',
     category: product.category||'',
     unitType: product.unit_type||''
   })
@@ -805,20 +826,21 @@ function renderBill() {
     var lt = item.qty * item.price
     totalAmount += lt
     var editedBadge = item.isEdited ? '<span style="font-size:10px;background:rgba(245,158,11,0.2);color:#f59e0b;padding:1px 6px;border-radius:6px;margin-left:6px;">edited</span>' : ''
-    // Show category/unit badge in the table row
-    var detailBadge = ''
+    // FIX 2: Show brand, category, unit in the current bill table rows
     var dp = []
+    if (item.brand) dp.push(item.brand)
     if (item.category) dp.push(item.category)
     if (item.unitType) dp.push(item.unitType)
-    if (dp.length) detailBadge = '<span style="font-size:10px;color:rgba(255,255,255,0.3);margin-left:6px;">('+dp.join(' • ')+')</span>'
+    var detailBadge = dp.length ? '<span style="font-size:10px;color:rgba(255,255,255,0.3);margin-left:6px;">('+dp.join(' • ')+')</span>' : ''
     var tr = document.createElement('tr')
     tr.style.borderBottom = '1px solid rgba(255,255,255,0.05)'
+    // FIX 3: Remove button uses .removeBtn class for proper styling
     tr.innerHTML =
       '<td style="padding:9px 12px;color:white;font-weight:500;font-size:13px;">'+item.name+detailBadge+editedBadge+'</td>'+
       '<td style="padding:9px 12px;text-align:center;"><input type="number" value="'+item.qty+'" min="1" class="qtyInput" data-index="'+index+'" style="width:60px;margin-bottom:0;text-align:center;padding:4px 6px;font-size:13px;"></td>'+
       '<td style="padding:9px 12px;text-align:center;"><input type="number" value="'+item.price+'" min="0" class="priceInput" data-index="'+index+'" style="width:85px;margin-bottom:0;color:#34d399;font-weight:600;text-align:center;padding:4px 6px;font-size:13px;" title="Price for this bill only"></td>'+
       '<td style="padding:9px 12px;text-align:right;font-weight:700;color:white;font-size:13px;">₹'+lt.toLocaleString('en-IN')+'</td>'+
-      '<td style="padding:9px 12px;text-align:center;"><button class="removeBtn" data-index="'+index+'" style="background:rgba(220,38,38,0.2);border:1px solid rgba(220,38,38,0.3);color:#f87171;width:28px;height:28px;border-radius:6px;cursor:pointer;font-size:13px;padding:0;box-shadow:none;">✕</button></td>'
+      '<td style="padding:9px 12px;text-align:center;"><button class="removeBtn" data-index="'+index+'">✕</button></td>'
     table.appendChild(tr)
   })
 
@@ -881,6 +903,7 @@ function renderBill() {
       renderBill()
     })
   })
+  // FIX 3: Remove buttons — use class selector
   table.querySelectorAll('.removeBtn').forEach(function(btn) {
     btn.addEventListener('click', function() { billItems.splice(+this.dataset.index,1); renderBill() })
   })
@@ -888,13 +911,7 @@ function renderBill() {
 
 document.getElementById('gstToggle').addEventListener('change', renderBill)
 
-// ════════════════════════════════════════════════════════
-// FIX 1B — SAVE BILL: uses selectedDate for created_at & bill number
-// WHY: Supabase auto-sets created_at to NOW() on the server.
-//      We override this by explicitly passing the ISO timestamp
-//      of the chosen date (at noon local time to avoid timezone shifts).
-//      The bill number generator also now receives the chosen date.
-// ════════════════════════════════════════════════════════
+// ── SAVE BILL ──
 async function saveBill() {
   if (window.isSaving) return
   window.isSaving = true
@@ -943,15 +960,13 @@ async function saveBill() {
 
     var receiver = document.getElementById('receiverName').value.trim()
     var vehicle  = document.getElementById('vehicleNumber').value.trim()
-
-    // ── FIX 1B: Get the selected bill date ──
     var billDateStr = document.getElementById('billDate').value || new Date().toISOString().slice(0,10)
 
     var newItemsBase = billItems.map(function(item) {
       return { item_id:item.id, item_name:item.name, quantity:item.qty, price:item.price, total:item.qty*item.price }
     })
 
-    // EDIT MODE — date not changed in edits
+    // EDIT MODE
     if (editingBillId) {
       var oldR = await supabase.from('bill_items').select('*').eq('sale_id',editingBillId)
       await supabase.from('bill_items').delete().eq('sale_id',editingBillId)
@@ -971,14 +986,9 @@ async function saveBill() {
       cancelEdit(); window.isSaving=false; saveBtn.innerText=origText; saveBtn.disabled=false; return
     }
 
-    // ── FIX 1B: NEW BILL — generate number using selected date, pass date as created_at ──
-    // WHY: generateInvoiceNo(billDateStr) uses the selected date for the prefix.
-    //      We also pass created_at explicitly so Supabase stores the chosen date
-    //      instead of the server's current timestamp. We use noon (12:00:00) to
-    //      avoid any timezone shift turning the date into the previous day.
     var billNumber = await generateInvoiceNo(billDateStr)
     currentBillNumber = billNumber
-    var billTimestamp = billDateStr + 'T12:00:00'   // noon = safe against timezone shifts
+    var billTimestamp = billDateStr + 'T12:00:00'
 
     var saleRes = await supabase.from('sales').insert([{
       bill_number:   billNumber,
@@ -995,7 +1005,7 @@ async function saveBill() {
       receiver_name:    receiver||null,
       vehicle_number:   vehicle||null,
       bill_date:        billDateStr,
-      created_at:       billTimestamp   // ← override Supabase default
+      created_at:       billTimestamp
     }]).select().single()
 
     if (saleRes.error) { alert('Error saving bill: '+saleRes.error.message); window.isSaving=false; saveBtn.innerText=origText; saveBtn.disabled=false; return }
@@ -1041,8 +1051,8 @@ function resetBillingForm() {
   document.getElementById('deliveryToggleBtn').style.color = 'rgba(6,182,212,0.9)'
   document.getElementById('deliveryToggleBtn').style.borderColor = 'rgba(6,182,212,0.3)'
   document.querySelectorAll('.bill-type-btn').forEach(function(b){ b.classList.remove('active') })
-  document.querySelector('.bill-type-btn[data-type="GST Invoice"]').classList.add('active')
-  selectedBillType = 'GST Invoice'
+  document.querySelector('.bill-type-btn[data-type="Sales Bill"]').classList.add('active')
+  selectedBillType = 'Sales Bill'
   custList.innerHTML=''; prodList.innerHTML=''
   document.getElementById('discountType').value = 'auto'
   document.getElementById('discountValue').disabled = true
@@ -1067,11 +1077,7 @@ window.cancelEdit = function() {
   renderBill()
 }
 
-// ════════════════════════════════════════════════════════
-// FIX 2B — FILL PRINT AREA: shows category + unit_type on bill
-// WHY: bill items now carry .category and .unitType;
-//      we show them in the item description column on the printed bill.
-// ════════════════════════════════════════════════════════
+// ── FIX 1: FILL PRINT AREA — shows brand + category + unit_type on printed bill ──
 function fillPrintArea(opts) {
   var isReturn=opts.isReturn,billNo=opts.billNo,date=opts.date,
       customerName=opts.customerName,phone=opts.phone,
@@ -1082,7 +1088,7 @@ function fillPrintArea(opts) {
       payMode=opts.payMode,deliv=opts.deliv||0,delivNote=opts.delivNote||''
 
   document.getElementById('printHeader').className             = 'bill-header'+(isReturn?' return-style':'')
-  document.getElementById('printBillType').innerText           = isReturn?'SALES RETURN':(selectedBillType||'GST Invoice')
+  document.getElementById('printBillType').innerText           = isReturn?'SALES RETURN':(selectedBillType||'Sales Bill')
   document.getElementById('printInvoiceNo').innerText          = billNo
   document.getElementById('printDate').innerText               = date
   document.getElementById('printCustomer').innerText           = customerName
@@ -1099,13 +1105,25 @@ function fillPrintArea(opts) {
 
   var tbody=document.getElementById('printItems'); tbody.innerHTML=''
   items.forEach(function(item,i){
-    // Build item description with category & unit type
+    // FIX 1: Build detailed item description with brand, category, unit for the print
     var desc = item.name
     var details = []
+    if (item.brand)    details.push(item.brand)
     if (item.category) details.push(item.category)
     if (item.unitType) details.push(item.unitType)
-    var detailSpan = details.length ? '<br><span style="font-size:11px;color:#6b7280;">'+details.join(' • ')+'</span>' : ''
-    tbody.innerHTML+='<tr><td style="padding:10px 14px;color:#6b7280;">'+(i+1)+'</td><td style="padding:10px 14px;">'+desc+detailSpan+'</td><td style="padding:10px 14px;text-align:center;">'+Math.abs(item.qty)+'</td><td style="padding:10px 14px;text-align:center;">₹'+item.price+'</td><td style="padding:10px 14px;text-align:right;font-weight:600;">₹'+Math.abs(item.qty*item.price).toLocaleString('en-IN')+'</td></tr>'
+    var detailLine = details.length
+      ? '<div class="print-item-detail">'+details.join(' • ')+'</div>'
+      : ''
+    tbody.innerHTML+='<tr>'+
+      '<td style="padding:10px 14px;color:#6b7280;">'+(i+1)+'</td>'+
+      '<td style="padding:10px 14px;">'+
+        '<div style="font-weight:600;color:#111827;">'+desc+'</div>'+
+        detailLine+
+      '</td>'+
+      '<td style="padding:10px 14px;text-align:center;">'+Math.abs(item.qty)+'</td>'+
+      '<td style="padding:10px 14px;text-align:center;">₹'+item.price+'</td>'+
+      '<td style="padding:10px 14px;text-align:right;font-weight:600;">₹'+Math.abs(item.qty*item.price).toLocaleString('en-IN')+'</td>'+
+    '</tr>'
   })
 
   document.getElementById('printSubtotal').innerText         = Math.abs(subtotal).toLocaleString('en-IN')
@@ -1150,7 +1168,16 @@ async function printBill() {
   await new Promise(function(r){setTimeout(r,300)})
   var billDateStr = document.getElementById('billDate').value || new Date().toISOString().slice(0,10)
   var displayDate = new Date(billDateStr+'T12:00:00').toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric'})
-  fillPrintArea({isReturn:false,billNo:currentBillNumber,date:displayDate,customerName:selectedCustomer?selectedCustomer.name:'Walk-in Customer',phone:document.getElementById('billPhone').value||'—',receiver:document.getElementById('receiverName').value.trim(),vehicle:document.getElementById('vehicleNumber').value.trim(),originalRef:null,items:tempItems,subtotal:tempTotal,final:final,gstEnabled:gst,cgst:cgst,sgst:cgst,disc:disc,cash:cash,upi:upi,credit:cred,payMode:modes.join(' + ')||'—',deliv:deliv,delivNote:delivNote})
+  fillPrintArea({
+    isReturn:false,billNo:currentBillNumber,date:displayDate,
+    customerName:selectedCustomer?selectedCustomer.name:'Walk-in Customer',
+    phone:document.getElementById('billPhone').value||'—',
+    receiver:document.getElementById('receiverName').value.trim(),
+    vehicle:document.getElementById('vehicleNumber').value.trim(),
+    originalRef:null,items:tempItems,subtotal:tempTotal,final:final,
+    gstEnabled:gst,cgst:cgst,sgst:cgst,disc:disc,cash:cash,upi:upi,credit:cred,
+    payMode:modes.join(' + ')||'—',deliv:deliv,delivNote:delivNote
+  })
   document.getElementById('printArea').style.display='block'
   var ot=document.title; document.title='Bill-'+currentBillNumber; window.print()
   setTimeout(function(){document.title=ot;document.getElementById('printArea').style.display='none';window.isPrinting=false},800)
@@ -1158,14 +1185,14 @@ async function printBill() {
 
 document.getElementById('printBtn').addEventListener('click', printBill)
 
-// ── BILL HISTORY (both top and bottom buttons) ──
+// ── BILL HISTORY ──
 function openHistory() {
   document.getElementById('billHistoryModal').style.display='block'
   historyPage=1
   loadBills()
 }
 document.getElementById('historyBtn').addEventListener('click', openHistory)
-document.getElementById('historyBtnTop').addEventListener('click', openHistory)  // FIX 4: top button
+document.getElementById('historyBtnTop').addEventListener('click', openHistory)
 document.getElementById('closeHistoryBtn').addEventListener('click', function() {
   document.getElementById('billHistoryModal').style.display='none'
 })
@@ -1215,7 +1242,6 @@ async function loadBills() {
     res.data.forEach(function(bill) {
       var cn    = custMap[bill.customer_id]||'Walk-in'
       var isRet = bill.bill_type==='return'
-      // Use bill_date if present, otherwise fall back to created_at
       var displayDateStr = bill.bill_date || bill.created_at
       var displayDate    = new Date(displayDateStr).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})
       var typeLabel = isRet
@@ -1261,7 +1287,7 @@ async function loadBills() {
   }
 }
 
-// ── VIEW BILL (3-layer name fallback, shows category+unitType on print) ──
+// ── VIEW BILL — fetches brand from inventory too ──
 async function viewBill(billNo) {
   var sr = await supabase.from('sales').select('*').eq('bill_number',billNo).single()
   if(!sr.data){alert('Bill not found: '+billNo);return}
@@ -1273,17 +1299,21 @@ async function viewBill(billNo) {
   }
   var ir=await supabase.from('bill_items').select('*').eq('sale_id',sale.id)
   var items=ir.data||[]
-  var missing=items.filter(function(i){return !i.item_name&&i.item_id}).map(function(i){return i.item_id})
-  var invNames={}
-  if(missing.length){var pr=await supabase.from('inventory').select('id,item_name,category,unit_type').in('id',missing);(pr.data||[]).forEach(function(p){invNames[p.id]=p})}
+  var missing=items.filter(function(i){return i.item_id}).map(function(i){return i.item_id})
+  var invData={}
+  if(missing.length){
+    var pr=await supabase.from('inventory').select('id,item_name,category,unit_type,brand').in('id',missing)
+    ;(pr.data||[]).forEach(function(p){invData[p.id]=p})
+  }
   var modes=[];if(sale.cash>0)modes.push('Cash');if(sale.upi>0)modes.push('UPI');if(sale.credit>0)modes.push('Credit')
   var subtotal=items.reduce(function(s,i){return s+(Number(i.total)||0)},0)
   var printItems=items.map(function(item){
-    var inv = invNames[item.item_id] || {}
+    var inv = invData[item.item_id] || {}
     return {
       name: item.item_name || inv.item_name || (item.item_id?'Product #'+item.item_id:'Unknown Item'),
       qty:  item.quantity,
       price:item.price,
+      brand:    inv.brand    || '',
       category: inv.category || '',
       unitType:  inv.unit_type || ''
     }
@@ -1311,7 +1341,10 @@ async function openEditBill(billNo) {
   var items=ir.data||[]
   var ids=items.filter(function(i){return i.item_id}).map(function(i){return i.item_id})
   var invMap={}
-  if(ids.length){var pr=await supabase.from('inventory').select('id,item_name,selling_price,category,unit_type').in('id',ids);(pr.data||[]).forEach(function(p){invMap[p.id]=p})}
+  if(ids.length){
+    var pr=await supabase.from('inventory').select('id,item_name,selling_price,category,unit_type,brand').in('id',ids)
+    ;(pr.data||[]).forEach(function(p){invMap[p.id]=p})
+  }
   editingBillId=sale.id; editingBillNumber=sale.bill_number
   document.getElementById('editModeBar').style.display='block'
   document.getElementById('editModeBillNo').innerText='Bill: '+sale.bill_number+' — '+new Date(sale.created_at).toLocaleDateString('en-IN')
@@ -1328,7 +1361,7 @@ async function openEditBill(billNo) {
   billItems=items.map(function(item){
     var inv = invMap[item.item_id] || {}
     var name=item.item_name||(inv.item_name||'Product #'+item.item_id)
-    return{id:item.item_id,name:name,price:item.price,qty:item.quantity,category:inv.category||'',unitType:inv.unit_type||''}
+    return{id:item.item_id,name:name,price:item.price,qty:item.quantity,brand:inv.brand||'',category:inv.category||'',unitType:inv.unit_type||''}
   })
   renderBill()
   document.getElementById('billHistoryModal').style.display='none'
@@ -1489,7 +1522,7 @@ async function processReturn(shouldPrint){
     var custName='Walk-in',custPhone=''
     if(returnOriginalSale.customer_id){var crp=await supabase.from('customers').select('name,phone').eq('id',returnOriginalSale.customer_id).single();if(crp.data){custName=crp.data.name;custPhone=crp.data.phone||''}}
     var modes=[];if(retCash>0)modes.push('Cash');if(retUpi>0)modes.push('UPI');if(retCredit>0)modes.push('Credit')
-    fillPrintArea({isReturn:true,billNo:returnNo,date:new Date().toLocaleString('en-IN'),customerName:custName,phone:custPhone,receiver:'',vehicle:'',originalRef:returnOriginalSale.bill_number,items:checkedItems.map(function(i){return{name:i.item_name,qty:i.qty,price:i.price}}),subtotal:returnTotal,final:returnTotal,gstEnabled:false,cgst:0,sgst:0,disc:0,cash:retCash,upi:retUpi,credit:retCredit,payMode:modes.join(' + ')||'Credit',deliv:0,delivNote:''})
+    fillPrintArea({isReturn:true,billNo:returnNo,date:new Date().toLocaleString('en-IN'),customerName:custName,phone:custPhone,receiver:'',vehicle:'',originalRef:returnOriginalSale.bill_number,items:checkedItems.map(function(i){return{name:i.item_name,qty:i.qty,price:i.price,brand:'',category:'',unitType:''}}),subtotal:returnTotal,final:returnTotal,gstEnabled:false,cgst:0,sgst:0,disc:0,cash:retCash,upi:retUpi,credit:retCredit,payMode:modes.join(' + ')||'Credit',deliv:0,delivNote:''})
     document.getElementById('printArea').style.display='block'
     var ot=document.title; document.title='Return-'+returnNo; window.print()
     setTimeout(function(){document.title=ot;document.getElementById('printArea').style.display='none'},800)
@@ -1519,15 +1552,8 @@ document.getElementById('processReturnBtn').addEventListener('click',     functi
 document.getElementById('processReturnPrintBtn').addEventListener('click',function(){processReturn(true)})
 document.getElementById('clearReturnBtn').addEventListener('click',        clearReturnForm)
 
-// ════════════════════════════════════════════════════════
-// FIX 5 — WHATSAPP: direct wa.me link, no save-first required
-// WHY: The old flow called saveBill() first which forced an
-//      unwanted save, then used navigator.share which failed
-//      on desktop. Now the button opens wa.me/91XXXXXXXXXX
-//      directly with the bill info in the message text.
-//      On mobile this opens WhatsApp immediately.
-//      On desktop it opens web.whatsapp.com with the number pre-filled.
-// ════════════════════════════════════════════════════════
+// ── FIX 6: WHATSAPP — opens wa.me on mobile, web.whatsapp.com on desktop ──
+// No PDF generation, no download prompt. Works on macOS and Android.
 function cleanPhoneForWA(raw) {
   var digits = (raw||'').replace(/\D/g,'')
   if (digits.length === 10) return '91' + digits
@@ -1544,7 +1570,6 @@ function showWaToast(msg) {
 }
 
 document.getElementById('waBillBtn').addEventListener('click', function() {
-  // Get the phone number from the bill form
   var rawPhone = document.getElementById('billPhone').value.trim()
                  || (selectedCustomer ? (selectedCustomer.phone||'') : '')
   var cp = cleanPhoneForWA(rawPhone)
@@ -1558,7 +1583,6 @@ document.getElementById('waBillBtn').addEventListener('click', function() {
     return
   }
 
-  // Build a summary message — no PDF, no save required
   var custName  = selectedCustomer ? selectedCustomer.name : (document.getElementById('customerSearch').value || 'Customer')
   var gst       = document.getElementById('gstToggle').checked
   var deliv     = deliveryBoxOpen ? (parseFloat(document.getElementById('deliveryCharges').value)||0) : 0
@@ -1572,9 +1596,13 @@ document.getElementById('waBillBtn').addEventListener('click', function() {
   var vehicle   = document.getElementById('vehicleNumber').value.trim()
   var billDate  = document.getElementById('billDate').value || new Date().toISOString().slice(0,10)
 
-  // Build item list for the message
   var itemLines = billItems.map(function(item){
-    return '  • '+item.name+(item.unitType?' ('+item.unitType+')':'')+' x'+item.qty+' = ₹'+(item.qty*item.price).toLocaleString('en-IN')
+    var detail = []
+    if (item.brand) detail.push(item.brand)
+    if (item.category) detail.push(item.category)
+    if (item.unitType) detail.push(item.unitType)
+    var detailStr = detail.length ? ' ('+detail.join(', ')+')' : ''
+    return '  • '+item.name+detailStr+' x'+item.qty+' = ₹'+(item.qty*item.price).toLocaleString('en-IN')
   }).join('\n')
 
   var payParts = []
@@ -1591,9 +1619,10 @@ document.getElementById('waBillBtn').addEventListener('click', function() {
     + (payParts.length ? '\nPayment: '+payParts.join(' + ') : '')
     + '\n\nThank you, '+custName+'! 🙏\nAbhinandan Auto Mobiles\n+91 98700 37002'
 
-  // Determine if mobile (wa.me) or desktop (web.whatsapp.com)
+  // FIX 6: Use wa.me on mobile (Android/iOS), web.whatsapp.com on desktop (macOS/Windows)
+  // This avoids any download dialog — it directly opens WhatsApp with the pre-filled message
   var isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
-  var waUrl    = isMobile
+  var waUrl = isMobile
     ? 'https://wa.me/'+cp+'?text='+encodeURIComponent(msg)
     : 'https://web.whatsapp.com/send?phone='+cp+'&text='+encodeURIComponent(msg)
 
@@ -1604,7 +1633,6 @@ document.getElementById('waBillBtn').addEventListener('click', function() {
 // ── INIT ──
 document.getElementById('billDate').value = new Date().toISOString().slice(0,10)
 
-// PREFILL FROM OTHER PAGES
 var pn = localStorage.getItem('billing_prefill_name')
 var pp = localStorage.getItem('billing_prefill_phone')
 if (pn) {
