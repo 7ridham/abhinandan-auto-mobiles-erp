@@ -139,8 +139,8 @@ html.light-theme body::after { opacity: 0.012; }
   box-shadow: inset 1px 0 0 var(--shimmer-side), 4px 0 40px rgba(0,0,0,0.3);
   /* Hidden off-screen by default */
   transform: translateX(-100%);
-  transition: background 0.3s, border-color 0.3s;
-
+  transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+              background 0.3s, border-color 0.3s;
 /* Slide IN when body has .sidebar-open */
 body.sidebar-open .sidebar {
   transform: translateX(0);
@@ -281,39 +281,35 @@ html.light-theme .sidebar-toggle:hover {
 /* ══════════════════════════════════════════
    MAIN CONTENT — shifts when sidebar open
 ══════════════════════════════════════════ */
+/* ══════════════════════════════════════════
+   MAIN CONTENT — always full width
+══════════════════════════════════════════ */
+/* ══════════════════════════════════════════
+   MAIN CONTENT — shifts when sidebar open
+══════════════════════════════════════════ */
 .main {
   margin-left: 0;
   padding: 36px 32px 36px 64px;
   min-height: 100vh;
-  transition: none;
+  transition: margin-left 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+              padding-left 0.28s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* On desktop — sidebar pushes content right */
-@media (min-width: 901px) {
-  body.sidebar-open .main {
-    margin-left: var(--sidebar-w);
-    padding-left: 28px;
-  }
+/* When sidebar is open — push main content right */
+body.sidebar-open .main {
+  margin-left: var(--sidebar-w);
+  padding-left: 28px;
 }
 
-/* On mobile — sidebar overlays, content stays full width */
 @media (max-width: 900px) {
-  .main {
-    padding: 20px 14px 20px 54px;
+  /* On small screens — sidebar overlays instead of pushing */
+  body.sidebar-open .main {
+    margin-left: 0;
+    padding-left: 64px;
   }
   body.sidebar-open .sidebar-toggle {
     left: calc(var(--sidebar-w) + 10px);
   }
-}
-
-/* Enable smooth animation only AFTER page has loaded */
-body.sidebar-animated .sidebar {
-  transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1),
-              background 0.3s, border-color 0.3s;
-}
-body.sidebar-animated .main {
-  transition: margin-left 0.28s cubic-bezier(0.4, 0, 0.2, 1),
-              padding-left 0.28s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 
