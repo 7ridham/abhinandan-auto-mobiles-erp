@@ -901,6 +901,11 @@ function toggleSidebar() {
   document.body.classList.toggle('sidebar-open');
 }
 
+// Open sidebar by default on page load
+document.addEventListener('DOMContentLoaded', function() {
+  document.body.classList.add('sidebar-open');
+});
+
 // Close sidebar when a nav link is clicked (good for mobile)
 document.addEventListener('DOMContentLoaded', function() {
   document.querySelectorAll('.sidebar a').forEach(function(link) {
