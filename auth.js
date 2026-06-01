@@ -47,8 +47,6 @@
   }
 
   // ── 4. Auth.js owns its own Supabase instance ──
-  // This is stored separately as window._authSB so it never conflicts
-  // with the page's own supabase module import
   var _authSBReady = false
   var _authSBCallbacks = []
   var _authSB = null
@@ -57,9 +55,7 @@
     return _authSB
   }
 
-  // Load Supabase UMD script for auth.js's exclusive use
   function loadAuthSupabase() {
-    // If already loaded by the page (UMD style), reuse it
     if (window.supabase && window.supabase.createClient && !_authSB) {
       _authSB = window.supabase.createClient(SB_URL, SB_KEY)
       _authSBReady = true
@@ -67,16 +63,11 @@
       _authSBCallbacks = []
       return
     }
-
-    // If already initialized
     if (_authSB) return
-
-    // Load fresh UMD script
     var script = document.createElement('script')
     script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js'
     script.onload = function () {
       _authSB = window.supabase.createClient(SB_URL, SB_KEY)
-      // Also expose as window._supabase for billing pages that need it
       if (!window._supabase) window._supabase = _authSB
       _authSBReady = true
       _authSBCallbacks.forEach(function(cb){ try{ cb() }catch(e){} })
@@ -88,7 +79,6 @@
     document.head.appendChild(script)
   }
 
-  // Run a function once Supabase is ready
   function withSB(fn) {
     if (_authSBReady && _authSB) {
       fn(_authSB)
@@ -98,14 +88,11 @@
     }
   }
 
-  // Start loading immediately
   loadAuthSupabase()
 
   // ── 5. Notification helper ──
-  // Called from billing.html after a bill is saved
- window.AAMNotify = function (opts) {
+  window.AAMNotify = function (opts) {
     var s = getSession()
-    // Retry up to 5 times with 500ms gap if Supabase not ready
     var attempts = 0
     function tryInsert() {
       attempts++
@@ -422,7 +409,6 @@
           'Session expires in: <strong style="color:' + (daysLeft <= 7 ? '#fbbf24' : '#34d399') + ';">' + daysLeft + ' day(s)</strong>'
       }
 
-      // Populate business fields if owner
       if (s && s.role === 'owner') {
         var biz = {}
         try { biz = JSON.parse(localStorage.getItem(BIZ_CACHE_KEY) || '{}') } catch (e) {}
@@ -434,7 +420,6 @@
         f('aam_biz_gstin', biz.biz_gstin)
       }
 
-      // Mark current theme
       var t = localStorage.getItem(THEME_KEY) || 'dark'
       var dtEl = document.getElementById('theme_dark')
       var ltEl = document.getElementById('theme_light')
@@ -460,35 +445,23 @@
     savePassword : function () {
       var s = getSession()
       if (!s || s.role !== 'owner') return
-
       var showMsg = function (type, text) {
         var el = document.getElementById('smsg_account')
         if (!el) return
         el.className = 'aam-smsg ' + type; el.innerText = text; el.style.display = 'block'
         setTimeout(function () { el.style.display = 'none' }, 5000)
       }
-
       var curPw = (document.getElementById('aam_cur_pw') || {}).value || ''
       var newPw = (document.getElementById('aam_new_pw') || {}).value || ''
       var newP2 = (document.getElementById('aam_new_pw2') || {}).value || ''
-
       if (!curPw || !newPw || !newP2) return showMsg('err', 'Please fill all three password fields')
       if (newPw !== newP2) return showMsg('err', 'New passwords do not match')
       if (newPw.length < 6) return showMsg('err', 'New password must be at least 6 characters')
-
       withSB(function(sb) {
-        sb.from('users')
-          .select('id')
-          .eq('username', s.username)
-          .eq('password', curPw)
-          .eq('is_active', true)
-          .single()
+        sb.from('users').select('id').eq('username', s.username).eq('password', curPw).eq('is_active', true).single()
           .then(function(check) {
             if (check.error || !check.data) return showMsg('err', 'Current password is incorrect')
-            return sb.rpc('update_user_password', {
-              p_username: s.username,
-              p_new_password: newPw
-            })
+            return sb.rpc('update_user_password', { p_username: s.username, p_new_password: newPw })
           })
           .then(function(upd) {
             if (!upd) return
@@ -509,16 +482,13 @@
         el.className = 'aam-smsg ' + type; el.innerText = text; el.style.display = 'block'
         setTimeout(function () { el.style.display = 'none' }, 5000)
       }
-
       var g = function (id) { var el = document.getElementById(id); return el ? el.value.trim() : '' }
       var name  = g('aam_biz_name')
       var addr  = g('aam_biz_addr')
       var ph1   = g('aam_biz_ph1')
       var ph2   = g('aam_biz_ph2')
       var gstin = g('aam_biz_gstin').toUpperCase()
-
       if (!name) return showMsg('err', 'Business name cannot be empty')
-
       withSB(function(sb) {
         var rows = [
           { key: 'biz_name',    value: name  },
@@ -527,18 +497,15 @@
           { key: 'biz_phone2',  value: ph2   },
           { key: 'biz_gstin',   value: gstin }
         ]
-
-        // Save all rows sequentially
         var saveNext = function(i) {
           if (i >= rows.length) {
             var biz = { biz_name: name, biz_address: addr, biz_phone1: ph1, biz_phone2: ph2, biz_gstin: gstin }
             localStorage.setItem(BIZ_CACHE_KEY, JSON.stringify(biz))
             applyBusinessToDOM(biz)
-            showMsg('ok', 'Business details saved! All future bills will use these details.')
+            showMsg('ok', 'Business details saved!')
             return
           }
-          sb.from('settings')
-            .upsert({ key: rows[i].key, value: rows[i].value }, { onConflict: 'key' })
+          sb.from('settings').upsert({ key: rows[i].key, value: rows[i].value }, { onConflict: 'key' })
             .then(function(res) {
               if (res.error) { showMsg('err', 'Error saving: ' + res.error.message); return }
               saveNext(i + 1)
@@ -553,21 +520,14 @@
       var container = document.getElementById('aam_staff_list')
       if (!container) return
       container.innerHTML = '<div style="color:rgba(255,255,255,0.3);font-size:13px;">Loading staff...</div>'
-
       withSB(function(sb) {
-        sb.from('users')
-          .select('id,username,full_name,role,is_active')
-          .order('role')
-          .order('full_name')
+        sb.from('users').select('id,username,full_name,role,is_active').order('role').order('full_name')
           .then(function(res) {
             if (res.error || !res.data) {
-              container.innerHTML = '<div style="color:#f87171;font-size:13px;">Error: ' + (res.error ? res.error.message : 'No data') + '<br><small style="opacity:0.6;">If this says RLS error, run the SQL policy fix in Supabase dashboard</small></div>'
+              container.innerHTML = '<div style="color:#f87171;font-size:13px;">Error: ' + (res.error ? res.error.message : 'No data') + '</div>'
               return
             }
-
             var s = getSession()
-
-            // Populate reset dropdown
             var resetSelect = document.getElementById('aam_reset_staff_select')
             if (resetSelect) {
               resetSelect.innerHTML = '<option value="">-- Select staff member --</option>'
@@ -578,28 +538,19 @@
                 resetSelect.appendChild(opt)
               })
             }
-
-            if (!res.data.length) {
-              container.innerHTML = '<div style="color:rgba(255,255,255,0.3);font-size:13px;">No users found</div>'
-              return
-            }
-
+            if (!res.data.length) { container.innerHTML = '<div style="color:rgba(255,255,255,0.3);font-size:13px;">No users found</div>'; return }
             container.innerHTML = res.data.map(function (u) {
               var isMe = s && s.username === u.username
               return '<div class="aam-staff-card">' +
-                '<div style="flex:1;">' +
-                  '<div class="sc-name">' + (u.full_name || u.username) + (isMe ? ' <span style="font-size:11px;color:#60a5fa;">(you)</span>' : '') + '</div>' +
-                  '<div class="sc-user">@' + u.username + '  ·  ' + (u.is_active ? '<span style="color:#34d399;">Active</span>' : '<span style="color:#f87171;">Disabled</span>') + '</div>' +
-                '</div>' +
+                '<div style="flex:1;"><div class="sc-name">' + (u.full_name || u.username) + (isMe ? ' <span style="font-size:11px;color:#60a5fa;">(you)</span>' : '') + '</div>' +
+                '<div class="sc-user">@' + u.username + '  ·  ' + (u.is_active ? '<span style="color:#34d399;">Active</span>' : '<span style="color:#f87171;">Disabled</span>') + '</div></div>' +
                 '<span class="sc-role ' + u.role + '">' + (u.role === 'owner' ? 'Owner' : 'Staff') + '</span>' +
                 (!isMe ? '<button onclick="AAMAuth.toggleActive(\'' + u.id + '\',\'' + u.username + '\',' + u.is_active + ')" style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.65);padding:5px 12px;font-size:11px;border-radius:6px;box-shadow:none;font-family:\'DM Sans\',sans-serif;cursor:pointer;">' + (u.is_active ? 'Disable' : 'Enable') + '</button>' : '') +
                 (!isMe && u.role !== 'owner' ? '<button onclick="AAMAuth.deleteStaff(\'' + u.id + '\',\'' + (u.full_name || u.username).replace(/'/g,"") + '\')" style="background:rgba(220,38,38,0.15);border:1px solid rgba(220,38,38,0.25);color:#f87171;padding:5px 12px;font-size:11px;border-radius:6px;box-shadow:none;font-family:\'DM Sans\',sans-serif;cursor:pointer;">Remove</button>' : '') +
               '</div>'
             }).join('')
           })
-          .catch(function(e){
-            container.innerHTML = '<div style="color:#f87171;font-size:13px;">Connection error: ' + e.message + '</div>'
-          })
+          .catch(function(e){ container.innerHTML = '<div style="color:#f87171;font-size:13px;">Connection error: ' + e.message + '</div>' })
       })
     },
 
@@ -610,27 +561,23 @@
         el.className = 'aam-smsg ' + type; el.innerText = text; el.style.display = 'block'
         setTimeout(function () { el.style.display = 'none' }, 5000)
       }
-
       var name  = (document.getElementById('aam_new_name')  || {}).value || ''
       var uname = ((document.getElementById('aam_new_uname') || {}).value || '').toLowerCase().trim()
       var pw    = (document.getElementById('aam_new_upw')   || {}).value || ''
       var role  = (document.getElementById('aam_new_role')  || {}).value || 'staff'
-
       if (!name.trim())     return showMsg('err', 'Enter full name')
       if (!uname)           return showMsg('err', 'Enter a username')
       if (uname.length < 3) return showMsg('err', 'Username must be at least 3 characters')
       if (pw.length < 6)    return showMsg('err', 'Password must be at least 6 characters')
-
       withSB(function(sb) {
-        sb.from('users')
-          .insert([{ username: uname, password: pw, role: role, full_name: name.trim(), is_active: true }])
+        sb.from('users').insert([{ username: uname, password: pw, role: role, full_name: name.trim(), is_active: true }])
           .then(function(res) {
             if (res.error) {
               if (res.error.code === '23505' || res.error.message.indexOf('unique') !== -1)
                 return showMsg('err', 'Username "' + uname + '" already exists')
               return showMsg('err', 'Error: ' + res.error.message)
             }
-            showMsg('ok', 'User "' + name.trim() + '" created! They can login with: ' + uname)
+            showMsg('ok', 'User "' + name.trim() + '" created!')
             ;['aam_new_name','aam_new_uname','aam_new_upw'].forEach(function (id) {
               var el = document.getElementById(id); if (el) el.value = ''
             })
@@ -647,20 +594,14 @@
         el.className = 'aam-smsg ' + type; el.innerText = text; el.style.display = 'block'
         setTimeout(function () { el.style.display = 'none' }, 5000)
       }
-
       var staffId = (document.getElementById('aam_reset_staff_select') || {}).value || ''
       var newPw   = (document.getElementById('aam_reset_pw')  || {}).value || ''
       var newPw2  = (document.getElementById('aam_reset_pw2') || {}).value || ''
-
-      if (!staffId)      return showMsg('err', 'Select a staff member')
+      if (!staffId)         return showMsg('err', 'Select a staff member')
       if (newPw.length < 6) return showMsg('err', 'Password must be at least 6 characters')
       if (newPw !== newPw2) return showMsg('err', 'Passwords do not match')
-
       withSB(function(sb) {
-        sb.rpc('reset_staff_password_by_id', {
-            p_staff_id: staffId,
-            p_new_password: newPw
-          })
+        sb.rpc('reset_staff_password_by_id', { p_staff_id: staffId, p_new_password: newPw })
           .then(function(res) {
             if (res.error) return showMsg('err', 'Error: ' + res.error.message)
             showMsg('ok', 'Password reset successfully!')
@@ -676,9 +617,7 @@
 
     toggleActive : function (id, username, currentlyActive) {
       withSB(function(sb) {
-        sb.from('users')
-          .update({ is_active: !currentlyActive })
-          .eq('id', id)
+        sb.from('users').update({ is_active: !currentlyActive }).eq('id', id)
           .then(function() { window.AAMAuth.loadStaffList() })
       })
     },
@@ -686,9 +625,7 @@
     deleteStaff : function (id, name) {
       if (!confirm('Remove "' + name + '"? They will no longer be able to login.')) return
       withSB(function(sb) {
-        sb.from('users')
-          .delete()
-          .eq('id', id)
+        sb.from('users').delete().eq('id', id)
           .then(function() { window.AAMAuth.loadStaffList() })
       })
     },
@@ -697,11 +634,9 @@
       var container = document.getElementById('aam_health_body')
       if (!container) return
       container.innerHTML = '<div style="color:rgba(255,255,255,0.3);font-size:13px;padding:10px;text-align:center;">Running checks...</div>'
-
       function row(label, val, color) {
         return '<div class="aam-health-row"><span class="hl">' + label + '</span><span class="hv" style="color:' + (color || '#34d399') + ';">' + val + '</span></div>'
       }
-
       withSB(function(sb) {
         Promise.all([
           sb.from('inventory').select('id', {count:'exact', head:true}),
@@ -713,15 +648,9 @@
           sb.from('inventory').select('id', {count:'exact', head:true}).lte('quantity', 5),
           sb.from('users').select('id', {count:'exact', head:true}).eq('is_active', true)
         ]).then(function(results) {
-          var inv  = results[0].count || 0
-          var cust = results[1].count || 0
-          var mer  = results[2].count || 0
-          var sal  = results[3].count || 0
-          var pur  = results[4].count || 0
-          var unrd = results[5].count || 0
-          var low  = results[6].count || 0
-          var usrs = results[7].count || 0
-
+          var inv=results[0].count||0, cust=results[1].count||0, mer=results[2].count||0
+          var sal=results[3].count||0, pur=results[4].count||0, unrd=results[5].count||0
+          var low=results[6].count||0, usrs=results[7].count||0
           container.innerHTML =
             row('Database connection', 'Connected', '#34d399') +
             row('Total products', inv.toLocaleString('en-IN'), inv >= 100 ? '#34d399' : '#fbbf24') +
@@ -732,24 +661,17 @@
             row('Low stock items (≤5)', low > 0 ? low + ' items need restocking' : 'All good', low > 0 ? '#fbbf24' : '#34d399') +
             row('Unread notifications', unrd > 0 ? unrd + ' pending' : 'All clear', unrd > 10 ? '#f87171' : '#34d399') +
             row('Active users', usrs.toLocaleString('en-IN'), '#60a5fa') +
-            row('Capacity', inv + '/20,000 products', inv > 20000 ? '#f87171' : '#34d399') +
             row('Session', 'Valid', '#34d399')
-        }).catch(function(e){
-          container.innerHTML = row('Error', e.message, '#f87171')
-        })
+        }).catch(function(e){ container.innerHTML = row('Error', e.message, '#f87171') })
       })
     },
 
-    // Called on every page to build sidebar UI
     applyUI : function () {
       var s = getSession()
       if (!s) return
       var sidebar = document.querySelector('.sidebar')
       if (!sidebar) return
-
       injectSettingsCSS()
-
-      // Hide owner-only links from staff
       if (s.role === 'staff') {
         sidebar.querySelectorAll('.owner-only').forEach(function (el) { el.style.display = 'none' })
         var pLink = sidebar.querySelector('a[href="products.html"]')
@@ -759,8 +681,6 @@
           sidebar.insertBefore(lbl, pLink)
         }
       }
-
-      // Products page read-only for staff
       if (s.role === 'staff' && currentPage() === 'products.html') {
         var st = document.createElement('style')
         st.innerText = 'button.add-btn,button[onclick*="openEdit"],button[onclick*="deleteProduct"],.edit-btn,.delete-btn{display:none!important;}'
@@ -776,16 +696,11 @@
           }
         }, 400)
       }
-
-      // Remove any old settings button
       var oldBtn = document.getElementById('aam_settings_btn')
       if (oldBtn) oldBtn.remove()
-
-      // Build settings button
       var daysLeft  = Math.ceil((s.expiry - Date.now()) / (1000 * 60 * 60 * 24))
       var roleColor = s.role === 'owner' ? '#fbbf24' : '#60a5fa'
       var avatarBg  = s.role === 'owner' ? 'linear-gradient(135deg,#1e3a5f,#2563eb)' : 'linear-gradient(135deg,#1e293b,#475569)'
-
       var settingsBtn = document.createElement('div')
       settingsBtn.id = 'aam_settings_btn'
       settingsBtn.style.cssText = 'padding:8px 10px 0;'
@@ -808,19 +723,11 @@
           '</div>' +
           '<div style="font-size:15px;color:rgba(255,255,255,0.4);">&#9881;</div>' +
         '</button>'
-
-      // Insert BEFORE sidebar-bottom (between last nav link and version)
       var bottom = sidebar.querySelector('.sidebar-bottom')
       if (bottom) sidebar.insertBefore(settingsBtn, bottom)
       else sidebar.appendChild(settingsBtn)
-
-      // Build modal
       buildSettingsModal()
-
-      // Load business details for print
       setTimeout(loadAndApplyBusiness, 800)
-
-      // Session expiry warning
       if (daysLeft <= 5) {
         setTimeout(function () {
           var warn = document.createElement('div')
@@ -834,7 +741,6 @@
     }
   }
 
-  // Settings tab switcher
   function showSettingsTab(tabName) {
     document.querySelectorAll('#aamSettingsBox .stab').forEach(function (t) { t.classList.remove('active') })
     document.querySelectorAll('#aamSettingsBox .spanel').forEach(function (p) { p.classList.remove('active') })
@@ -847,7 +753,6 @@
     if (tabName === 'staff')  window.AAMAuth.loadStaffList()
   }
 
- // ── LIGHT THEME INLINE STYLE FIXER ──
   function applyLightThemePatch() {
     var t = localStorage.getItem(THEME_KEY) || 'dark'
     if (t !== 'light') return
@@ -898,25 +803,24 @@
 })()
 
 
-// ── SIDEBAR TOGGLE (runs on every page) ──
-
-
+// ── SIDEBAR TOGGLE ──
 function toggleSidebar() {
   document.body.classList.toggle('sidebar-open');
 }
 
-// Open sidebar by default on page load
-document.addEventListener('DOMContentLoaded', function() {
-  document.body.classList.add('sidebar-open');
+// Open sidebar INSTANTLY on load — no animation flash
+document.body.classList.add('sidebar-open');
+
+// Enable smooth animation only AFTER page fully loads
+window.addEventListener('load', function() {
+  document.body.classList.add('sidebar-animated');
 });
 
-
-// Close sidebar when a nav link is clicked (good for mobile)
+// Auto-close on mobile when nav link clicked
 document.addEventListener('DOMContentLoaded', function() {
   document.querySelectorAll('.sidebar a').forEach(function(link) {
     link.addEventListener('click', function() {
-      // Only auto-close on small screens
-      if (window.innerWidth < 1024) {
+      if (window.innerWidth < 901) {
         document.body.classList.remove('sidebar-open');
       }
     });
