@@ -21,7 +21,6 @@
   --radius-md:     14px;
   --radius-lg:     20px;
 
-  /* Dark theme tokens */
   --bg-body:       #080c14;
   --bg-card:       rgba(255,255,255,0.06);
   --bg-card2:      rgba(255,255,255,0.04);
@@ -94,7 +93,6 @@ body {
   transition: background 0.3s, color 0.3s;
 }
 
-/* Dark theme animated mesh */
 body::before {
   content: '';
   position: fixed; inset: 0; z-index: -2;
@@ -112,7 +110,6 @@ html.light-theme body::before {
     linear-gradient(160deg, #edf0f7 0%, #e4eaf4 100%);
 }
 
-/* Noise grain */
 body::after {
   content: ''; position: fixed; inset: 0; z-index: -1; opacity: 0.03;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
@@ -122,27 +119,43 @@ html.light-theme body::after { opacity: 0.012; }
 
 
 /* ══════════════════════════════════════════
-   SIDEBAR
+   SIDEBAR — Collapsible Slide-out Drawer
 ══════════════════════════════════════════ */
 .sidebar {
-  position: fixed; left: 0; top: 0;
-  width: var(--sidebar-w); height: 100vh;
+  position: fixed;
+  left: 0; top: 0;
+  width: var(--sidebar-w);
+  height: 100vh;
   z-index: 1000;
-  display: flex; flex-direction: column;
-  padding: 0; overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
   background: linear-gradient(180deg, var(--bg-sidebar) 0%, rgba(255,255,255,0.05) 50%, var(--bg-sidebar) 100%);
   backdrop-filter: blur(32px) saturate(180%);
   -webkit-backdrop-filter: blur(32px) saturate(180%);
   border-right: 1px solid var(--border);
   box-shadow: inset 1px 0 0 var(--shimmer-side), 4px 0 40px rgba(0,0,0,0.3);
-  transition: background 0.3s, border-color 0.3s;
+  /* Hidden off-screen by default */
+  transform: translateX(-100%);
+  transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+              background 0.3s, border-color 0.3s;
 }
+
+/* Slide IN when body has .sidebar-open */
+body.sidebar-open .sidebar {
+  transform: translateX(0);
+}
+
 .sidebar::before {
   content: ''; position: absolute; top: 0; left: 0; right: 0; height: 180px;
   background: linear-gradient(180deg, rgba(59,130,246,0.12) 0%, transparent 100%);
   pointer-events: none;
 }
-html.light-theme .sidebar::before { background: linear-gradient(180deg, rgba(59,130,246,0.06) 0%, transparent 100%); }
+html.light-theme .sidebar::before {
+  background: linear-gradient(180deg, rgba(59,130,246,0.06) 0%, transparent 100%);
+}
 
 .sidebar h2 {
   font-family: 'Playfair Display', serif;
@@ -165,7 +178,6 @@ html.light-theme .sidebar::before { background: linear-gradient(180deg, rgba(59,
   margin: 8px 16px 16px;
 }
 
-/* Nav links */
 .sidebar a {
   display: flex; align-items: center; gap: 10px;
   padding: 11px 18px; margin: 2px 10px;
@@ -202,14 +214,95 @@ html.light-theme .sidebar::before { background: linear-gradient(180deg, rgba(59,
   margin-top: auto; padding: 12px 10px;
   border-top: 1px solid var(--border);
 }
-.sidebar-version { font-size: 10px; color: var(--text-faint); text-align: center; letter-spacing: 0.5px; }
+.sidebar-version {
+  font-size: 10px; color: var(--text-faint); text-align: center; letter-spacing: 0.5px;
+}
 
 
 /* ══════════════════════════════════════════
-   MAIN CONTENT
+   SIDEBAR OVERLAY — dims page when sidebar open
 ══════════════════════════════════════════ */
-.main { margin-left: var(--sidebar-w); padding: 36px 32px; min-height: 100vh; }
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  z-index: 999;
+  cursor: pointer;
+}
+body.sidebar-open .sidebar-overlay {
+  display: block;
+}
 
+
+/* ══════════════════════════════════════════
+   HAMBURGER TOGGLE BUTTON
+══════════════════════════════════════════ */
+.sidebar-toggle {
+  position: fixed;
+  top: 14px;
+  left: 14px;
+  z-index: 1100;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: white;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: left 0.28s cubic-bezier(0.4, 0, 0.2, 1), background 0.2s;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+  padding: 0 !important;
+  line-height: 1;
+}
+.sidebar-toggle:hover {
+  background: rgba(255, 255, 255, 0.15) !important;
+  transform: none !important;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3) !important;
+}
+/* Move toggle button right when sidebar is open */
+body.sidebar-open .sidebar-toggle {
+  left: 250px;
+}
+
+html.light-theme .sidebar-toggle {
+  background: rgba(255, 255, 255, 0.9) !important;
+  border: 1px solid rgba(0, 0, 0, 0.15) !important;
+  color: #1e293b !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12) !important;
+}
+html.light-theme .sidebar-toggle:hover {
+  background: rgba(59, 130, 246, 0.1) !important;
+}
+
+
+/* ══════════════════════════════════════════
+   MAIN CONTENT — always full width
+══════════════════════════════════════════ */
+.main {
+  margin-left: 0;
+  padding: 36px 32px 36px 64px;
+  min-height: 100vh;
+  transition: none;
+}
+
+@media (max-width: 768px) {
+  .main {
+    padding: 20px 14px 20px 54px;
+  }
+  body.sidebar-open .sidebar-toggle {
+    left: calc(var(--sidebar-w) + 10px);
+  }
+}
+
+
+/* ══════════════════════════════════════════
+   HEADINGS
+══════════════════════════════════════════ */
 h1 {
   font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 700;
   color: var(--text-primary); margin-bottom: 24px; letter-spacing: -0.3px;
@@ -335,7 +428,7 @@ ul li:hover {
 
 
 /* ══════════════════════════════════════════
-   UTILITY
+   UTILITY CLASSES
 ══════════════════════════════════════════ */
 .text-muted    { color: var(--text-muted); }
 .text-success  { color: #34d399; }
@@ -347,6 +440,7 @@ ul li:hover {
 .badge-danger  { background: rgba(248,113,113,0.15); color: #f87171; }
 .badge-info    { background: rgba(96,165,250,0.15);  color: #60a5fa; }
 .badge-warning { background: rgba(251,191,36,0.15);  color: #fbbf24; }
+
 
 /* ══════════════════════════════════════════
    PRINT — A4 multi-page safe
@@ -362,6 +456,8 @@ ul li:hover {
     left: 0 !important; top: 0 !important; width: 100% !important;
     background: white !important; color: #111 !important;
   }
+  .sidebar, .sidebar-toggle, .sidebar-overlay { display: none !important; }
+  .main { margin-left: 0 !important; padding: 0 !important; }
   .bill-paper, .pur-paper { border: none !important; box-shadow: none !important; border-radius: 0 !important; page-break-inside: auto; }
   tr { page-break-inside: avoid; page-break-after: auto; }
   thead { display: table-header-group; }
@@ -371,15 +467,12 @@ ul li:hover {
   @page { margin: 15mm 10mm; size: A4; }
 }
 
-/* ══════════════════════════════════════════
-   LIGHT THEME — All elements visible with dark text
-   Applied OUTSIDE print block so it works on screen
-══════════════════════════════════════════ */
-html.light-theme body {
-  color: #0f172a;
-}
 
-/* Liquid glass effect — subtle dark backdrop so everything is readable */
+/* ══════════════════════════════════════════
+   LIGHT THEME — Full override section
+══════════════════════════════════════════ */
+html.light-theme body { color: #0f172a; }
+
 html.light-theme .card {
   background: rgba(255,255,255,0.82) !important;
   backdrop-filter: blur(20px) saturate(160%);
@@ -396,12 +489,9 @@ html.light-theme .ls-card {
   box-shadow: 0 2px 12px rgba(0,0,0,0.08) !important;
 }
 
-/* All text elements dark in light mode */
 html.light-theme h1,
 html.light-theme h2,
-html.light-theme h3 {
-  color: #0f172a !important;
-}
+html.light-theme h3 { color: #0f172a !important; }
 
 html.light-theme .stat-label,
 html.light-theme .stat-sub,
@@ -422,35 +512,14 @@ html.light-theme .pagination-info,
 html.light-theme .profit-sub,
 html.light-theme .field-label,
 html.light-theme .form-label,
-html.light-theme label {
-  color: #475569 !important;
-}
+html.light-theme label { color: #475569 !important; }
 
-html.light-theme .stat-value {
-  color: #0f172a !important;
-}
-
-html.light-theme .ls-value {
-  color: #0f172a !important;
-  font-weight: 700;
-}
-
-html.light-theme .rec-name {
-  color: #0f172a !important;
-  font-weight: 600;
-}
-
-html.light-theme td {
-  color: #1e293b !important;
-}
-
-html.light-theme th {
-  color: #475569 !important;
-}
-
-html.light-theme tr:hover td {
-  background: rgba(59,130,246,0.06) !important;
-}
+html.light-theme .stat-value { color: #0f172a !important; }
+html.light-theme .ls-value { color: #0f172a !important; font-weight: 700; }
+html.light-theme .rec-name { color: #0f172a !important; font-weight: 600; }
+html.light-theme td { color: #1e293b !important; }
+html.light-theme th { color: #475569 !important; }
+html.light-theme tr:hover td { background: rgba(59,130,246,0.06) !important; }
 
 html.light-theme input,
 html.light-theme select,
@@ -459,163 +528,58 @@ html.light-theme textarea {
   background: rgba(255,255,255,0.95) !important;
   border-color: rgba(0,0,0,0.14) !important;
 }
-
 html.light-theme input::placeholder,
-html.light-theme textarea::placeholder {
-  color: #94a3b8 !important;
-}
+html.light-theme textarea::placeholder { color: #94a3b8 !important; }
 
-/* Sidebar in light mode */
 html.light-theme .sidebar {
   background: linear-gradient(180deg, rgba(255,255,255,0.97) 0%, rgba(248,250,255,0.95) 100%) !important;
   border-right-color: rgba(0,0,0,0.10) !important;
 }
-
-html.light-theme .sidebar h2 {
-  color: #0f172a !important;
-}
-
-html.light-theme .sidebar h2::after {
-  color: #64748b !important;
-}
-
-html.light-theme .sidebar a {
-  color: #334155 !important;
-  font-weight: 500;
-}
-
-html.light-theme .sidebar a:hover {
-  color: #0f172a !important;
-  background: rgba(59,130,246,0.08) !important;
-}
-
+html.light-theme .sidebar h2 { color: #0f172a !important; }
+html.light-theme .sidebar h2::after { color: #64748b !important; }
+html.light-theme .sidebar a { color: #334155 !important; font-weight: 500; }
+html.light-theme .sidebar a:hover { color: #0f172a !important; background: rgba(59,130,246,0.08) !important; }
 html.light-theme .sidebar a.active {
   color: #1e3a5f !important;
   background: linear-gradient(90deg, rgba(37,99,235,0.12), rgba(139,92,246,0.08)) !important;
   border-color: rgba(37,99,235,0.35) !important;
   font-weight: 600;
 }
+html.light-theme .sidebar-label { color: #64748b !important; }
+html.light-theme .sidebar-version { color: #94a3b8 !important; }
+html.light-theme .sidebar-divider { background: linear-gradient(90deg, transparent, rgba(0,0,0,0.08), transparent) !important; }
+html.light-theme .sidebar-bottom { border-top-color: rgba(0,0,0,0.08) !important; }
 
-html.light-theme .sidebar-label {
-  color: #64748b !important;
-}
+html.light-theme ul li { background: white !important; border-color: rgba(0,0,0,0.08) !important; color: #1e293b !important; }
+html.light-theme ul li:hover { background: rgba(59,130,246,0.08) !important; color: #0f172a !important; }
 
-html.light-theme .sidebar-version {
-  color: #94a3b8 !important;
-}
+html.light-theme button { box-shadow: 0 2px 8px rgba(37,99,235,0.2) !important; }
 
-html.light-theme .sidebar-divider {
-  background: linear-gradient(90deg, transparent, rgba(0,0,0,0.08), transparent) !important;
-}
+html.light-theme #aam_settings_btn button { background: rgba(255,255,255,0.8) !important; border-color: rgba(0,0,0,0.12) !important; }
+html.light-theme #aam_settings_btn button:hover { background: rgba(59,130,246,0.08) !important; }
+html.light-theme #aam_settings_btn button div[style*="color:white"] { color: #0f172a !important; }
 
-html.light-theme .sidebar-bottom {
-  border-top-color: rgba(0,0,0,0.08) !important;
-}
+html.light-theme #clockLine { color: #334155 !important; }
+html.light-theme #dateLine { color: #64748b !important; }
 
-/* Dropdown lists */
-html.light-theme ul li {
-  background: white !important;
-  border-color: rgba(0,0,0,0.08) !important;
-  color: #1e293b !important;
-}
+html.light-theme .mini-tbl th { color: #64748b !important; border-bottom-color: rgba(0,0,0,0.08) !important; }
+html.light-theme .mini-tbl td { color: #1e293b !important; border-bottom-color: rgba(0,0,0,0.05) !important; }
 
-html.light-theme ul li:hover {
-  background: rgba(59,130,246,0.08) !important;
-  color: #0f172a !important;
-}
+html.light-theme .rec-row { border-bottom-color: rgba(0,0,0,0.06) !important; }
+html.light-theme .profit-bar { background: rgba(0,0,0,0.08) !important; }
+html.light-theme .loader { color: #94a3b8 !important; }
 
-/* Buttons in light mode keep their colors — only override the default blue */
-html.light-theme button {
-  box-shadow: 0 2px 8px rgba(37,99,235,0.2) !important;
-}
+html.light-theme .stock-pill.stock-low { background: rgba(217,119,6,0.12) !important; }
+html.light-theme .stock-pill.stock-zero { background: rgba(220,38,38,0.10) !important; }
 
-/* Settings button in sidebar for light mode */
-html.light-theme #aam_settings_btn button {
-  background: rgba(255,255,255,0.8) !important;
-  border-color: rgba(0,0,0,0.12) !important;
-}
+html.light-theme .q-btn { background: rgba(255,255,255,0.85) !important; border-color: rgba(0,0,0,0.10) !important; color: #1e293b !important; }
+html.light-theme .q-btn:hover { background: rgba(59,130,246,0.08) !important; color: #0f172a !important; }
 
-html.light-theme #aam_settings_btn button:hover {
-  background: rgba(59,130,246,0.08) !important;
-}
-
-html.light-theme #aam_settings_btn button div[style*="color:white"] {
-  color: #0f172a !important;
-}
-
-/* Clock and date on dashboard */
-html.light-theme #clockLine {
-  color: #334155 !important;
-}
-
-html.light-theme #dateLine {
-  color: #64748b !important;
-}
-
-/* Mini table in dashboard */
-html.light-theme .mini-tbl th {
-  color: #64748b !important;
-  border-bottom-color: rgba(0,0,0,0.08) !important;
-}
-
-html.light-theme .mini-tbl td {
-  color: #1e293b !important;
-  border-bottom-color: rgba(0,0,0,0.05) !important;
-}
-
-/* Recent transaction rows */
-html.light-theme .rec-row {
-  border-bottom-color: rgba(0,0,0,0.06) !important;
-}
-
-/* Profit display */
-html.light-theme .profit-bar {
-  background: rgba(0,0,0,0.08) !important;
-}
-
-/* Loader text */
-html.light-theme .loader {
-  color: #94a3b8 !important;
-}
-
-/* Low stock pills */
-html.light-theme .stock-pill.stock-low {
-  background: rgba(217,119,6,0.12) !important;
-}
-
-html.light-theme .stock-pill.stock-zero {
-  background: rgba(220,38,38,0.10) !important;
-}
-
-/* Quick action buttons */
-html.light-theme .q-btn {
-  background: rgba(255,255,255,0.85) !important;
-  border-color: rgba(0,0,0,0.10) !important;
-  color: #1e293b !important;
-}
-
-html.light-theme .q-btn:hover {
-  background: rgba(59,130,246,0.08) !important;
-  color: #0f172a !important;
-}
-
-/* Customer/merchant cards */
 html.light-theme .customer-card,
-html.light-theme .merchant-card {
-  background: rgba(255,255,255,0.85) !important;
-  border-color: rgba(0,0,0,0.08) !important;
-}
+html.light-theme .merchant-card { background: rgba(255,255,255,0.85) !important; border-color: rgba(0,0,0,0.08) !important; }
+html.light-theme .cc-name, html.light-theme .mc-name { color: #0f172a !important; }
+html.light-theme .cc-stat-value, html.light-theme .mc-stat-value { color: #0f172a !important; }
 
-html.light-theme .cc-name,
-html.light-theme .mc-name {
-  color: #0f172a !important;
-}
-
-html.light-theme .cc-stat-value,
-html.light-theme .mc-stat-value {
-  color: #0f172a !important;
-}
-/* ══ LIGHT THEME — MODAL / POPUP OVERLAYS ══ */
 html.light-theme .modal-overlay,
 html.light-theme #viewBillOverlay,
 html.light-theme #editBillOverlay,
@@ -624,11 +588,8 @@ html.light-theme #merchantDetailModal,
 html.light-theme #addCustomerModal,
 html.light-theme #editCustomerModal,
 html.light-theme #addMerchantModal,
-html.light-theme #editMerchantModal {
-  background: rgba(0,0,0,0.5) !important;
-}
+html.light-theme #editMerchantModal { background: rgba(0,0,0,0.5) !important; }
 
-/* Modal box inner panel — light background */
 html.light-theme .modal-box,
 html.light-theme .detail-modal,
 html.light-theme [id$="Box"],
@@ -639,536 +600,200 @@ html.light-theme [id$="Overlay"] > div {
   color: #0f172a !important;
 }
 
-/* All text inside any modal in light theme */
 html.light-theme [id$="Modal"] *,
-html.light-theme [id$="Overlay"] * {
-  color: inherit;
-}
+html.light-theme [id$="Overlay"] * { color: inherit; }
 
-/* Ledger popup / merchant detail popup header */
-html.light-theme [style*="background:linear-gradient(135deg,#0d1117"],
-html.light-theme [style*="background: linear-gradient(135deg, #0d1117"] {
-  background: linear-gradient(135deg, #1e3a5f, #2563eb) !important;
-}
-
-/* Stats bars inside popup */
 html.light-theme [style*="background:rgba(255,255,255,0.06)"],
-html.light-theme [style*="background: rgba(255,255,255,0.06)"] {
-  background: rgba(0,0,0,0.04) !important;
-}
+html.light-theme [style*="background: rgba(255,255,255,0.06)"] { background: rgba(0,0,0,0.04) !important; }
 html.light-theme [style*="background:rgba(255,255,255,0.04)"],
-html.light-theme [style*="background: rgba(255,255,255,0.04)"] {
-  background: rgba(0,0,0,0.03) !important;
-}
+html.light-theme [style*="background: rgba(255,255,255,0.04)"] { background: rgba(0,0,0,0.03) !important; }
 html.light-theme [style*="background:rgba(255,255,255,0.03)"],
-html.light-theme [style*="background: rgba(255,255,255,0.03)"] {
-  background: rgba(0,0,0,0.02) !important;
-}
+html.light-theme [style*="background: rgba(255,255,255,0.03)"] { background: rgba(0,0,0,0.02) !important; }
 
-/* Text that is white hardcoded — make dark in light theme */
 html.light-theme [style*="color:white"],
-html.light-theme [style*="color: white"] {
-  color: #0f172a !important;
-}
+html.light-theme [style*="color: white"] { color: #0f172a !important; }
 html.light-theme [style*="color:rgba(255,255,255,0.8)"],
 html.light-theme [style*="color:rgba(255,255,255,0.65)"],
 html.light-theme [style*="color:rgba(255,255,255,0.6)"],
 html.light-theme [style*="color:rgba(255,255,255,0.5)"],
-html.light-theme [style*="color:rgba(255,255,255,0.75)"] {
-  color: #334155 !important;
-}
+html.light-theme [style*="color:rgba(255,255,255,0.75)"] { color: #334155 !important; }
 html.light-theme [style*="color:rgba(255,255,255,0.4)"],
 html.light-theme [style*="color:rgba(255,255,255,0.35)"],
 html.light-theme [style*="color:rgba(255,255,255,0.3)"],
-html.light-theme [style*="color:rgba(255,255,255,0.25)"] {
-  color: #64748b !important;
-}
+html.light-theme [style*="color:rgba(255,255,255,0.25)"] { color: #64748b !important; }
 
-/* Borders that are rgba white — make dark */
 html.light-theme [style*="border:1px solid rgba(255,255,255,0.1)"],
 html.light-theme [style*="border: 1px solid rgba(255,255,255,0.1)"],
 html.light-theme [style*="border:1px solid rgba(255,255,255,0.08)"],
-html.light-theme [style*="border:1px solid rgba(255,255,255,0.06)"] {
-  border-color: rgba(0,0,0,0.09) !important;
-}
+html.light-theme [style*="border:1px solid rgba(255,255,255,0.06)"] { border-color: rgba(0,0,0,0.09) !important; }
 
-/* Table rows inside popups */
 html.light-theme [style*="border-bottom:1px solid rgba(255,255,255,0.05)"],
 html.light-theme [style*="border-bottom: 1px solid rgba(255,255,255,0.05)"],
-html.light-theme [style*="border-bottom:1px solid rgba(255,255,255,0.06)"] {
-  border-bottom-color: rgba(0,0,0,0.07) !important;
-}
+html.light-theme [style*="border-bottom:1px solid rgba(255,255,255,0.06)"] { border-bottom-color: rgba(0,0,0,0.07) !important; }
 
-/* Notification panel in light theme */
 html.light-theme #notificationsPanel,
-html.light-theme #notifList > div {
-  color: #0f172a !important;
-}
+html.light-theme #notifList > div { color: #0f172a !important; }
 
-/* Keep accent colors always visible */
-html.light-theme [style*="color:#34d399"],
-html.light-theme [style*="color:#f87171"],
-html.light-theme [style*="color:#60a5fa"],
-html.light-theme [style*="color:#fbbf24"],
-html.light-theme [style*="color:#a78bfa"] {
-  color: inherit !important;
-}
 html.light-theme [style*="color:#34d399"] { color: #059669 !important; }
 html.light-theme [style*="color:#f87171"] { color: #dc2626 !important; }
 html.light-theme [style*="color:#60a5fa"] { color: #2563eb !important; }
 html.light-theme [style*="color:#fbbf24"] { color: #b45309 !important; }
 html.light-theme [style*="color:#a78bfa"] { color: #7c3aed !important; }
 
-/* ── LIGHT THEME: Force readable colors for balance indicators ── */
 html.light-theme .cc-stat-value.red,
 html.light-theme [style*="color:#f87171"] { color: #dc2626 !important; }
-
 html.light-theme .cc-stat-value.green,
 html.light-theme [style*="color:#34d399"] { color: #059669 !important; }
-
 html.light-theme .mc-stat-value.red   { color: #dc2626 !important; }
 html.light-theme .mc-stat-value.green { color: #059669 !important; }
-
 html.light-theme .ls-value,
 html.light-theme .stat-value { color: #0f172a !important; }
 
-/* Force ALL select/filter dropdowns visible in light mode */
 html.light-theme .ledger-toolbar select,
-html.light-theme select {
-  background: white !important;
-  color: #0f172a !important;
-  border-color: rgba(0,0,0,0.15) !important;
-}
+html.light-theme select { background: white !important; color: #0f172a !important; border-color: rgba(0,0,0,0.15) !important; }
 
-/* Mode buttons (Sales Bill / Sales Return) */
-html.light-theme .mode-btn {
-  border-color: rgba(0,0,0,0.15) !important;
-  color: #334155 !important;
-  background: rgba(255,255,255,0.8) !important;
-}
-html.light-theme .mode-btn.active-sale {
-  background: #2563eb !important;
-  color: white !important;
-  border-color: #2563eb !important;
-}
-html.light-theme .mode-btn.active-return {
-  background: #dc2626 !important;
-  color: white !important;
-  border-color: #dc2626 !important;
-}
+html.light-theme .mode-btn { border-color: rgba(0,0,0,0.15) !important; color: #334155 !important; background: rgba(255,255,255,0.8) !important; }
+html.light-theme .mode-btn.active-sale { background: #2563eb !important; color: white !important; border-color: #2563eb !important; }
+html.light-theme .mode-btn.active-return { background: #dc2626 !important; color: white !important; border-color: #dc2626 !important; }
 
-/* Bill type buttons */
-html.light-theme .bill-type-btn {
-  border-color: rgba(0,0,0,0.15) !important;
-  color: #334155 !important;
-}
-html.light-theme .bill-type-btn.active {
-  background: #2563eb !important;
-  color: white !important;
-  border-color: #2563eb !important;
-}
+html.light-theme .bill-type-btn { border-color: rgba(0,0,0,0.15) !important; color: #334155 !important; }
+html.light-theme .bill-type-btn.active { background: #2563eb !important; color: white !important; border-color: #2563eb !important; }
 
-/* History and action buttons */
 html.light-theme #historyBtn,
-html.light-theme button[style*="rgba(255,255,255,0.1)"] {
-  background: rgba(0,0,0,0.06) !important;
-  color: #334155 !important;
-  border-color: rgba(0,0,0,0.12) !important;
-}
+html.light-theme button[style*="rgba(255,255,255,0.1)"] { background: rgba(0,0,0,0.06) !important; color: #334155 !important; border-color: rgba(0,0,0,0.12) !important; }
 
+html.light-theme .summary-card { background: rgba(255,255,255,0.9) !important; }
+html.light-theme .summary-card .s-label { color: #475569 !important; }
+html.light-theme .summary-card .s-value { color: #0f172a !important; }
+html.light-theme .summary-row { background: rgba(0,0,0,0.04) !important; }
+html.light-theme .modal-box { background: linear-gradient(135deg, #f0f4ff, #ffffff) !important; color: #0f172a !important; }
+html.light-theme .modal-header { color: white !important; }
+html.light-theme .modal-header * { color: white !important; }
+html.light-theme .balance-banner { border-bottom-color: rgba(0,0,0,0.06) !important; }
+html.light-theme .tx-table thead tr { background: rgba(0,0,0,0.04) !important; }
+html.light-theme .tx-table thead th { color: #475569 !important; }
+html.light-theme .tx-table tbody td { color: #1e293b !important; }
+html.light-theme .aging-bar-section { border-bottom-color: rgba(0,0,0,0.05) !important; }
 
-/* ── LEDGER MODAL SUMMARY CARDS ── */
-html.light-theme .summary-card {
-  background: rgba(255,255,255,0.9) !important;
-}
-html.light-theme .summary-card .s-label {
-  color: #475569 !important;
-}
-html.light-theme .summary-card .s-value {
-  color: #0f172a !important;
-}
-html.light-theme .summary-row {
-  background: rgba(0,0,0,0.04) !important;
-}
-html.light-theme .modal-box {
-  background: linear-gradient(135deg, #f0f4ff, #ffffff) !important;
-  color: #0f172a !important;
-}
-html.light-theme .modal-header {
-  color: white !important;
-}
-html.light-theme .modal-header * {
-  color: white !important;
-}
-html.light-theme .balance-banner {
-  border-bottom-color: rgba(0,0,0,0.06) !important;
-}
-html.light-theme .tx-table thead tr {
-  background: rgba(0,0,0,0.04) !important;
-}
-html.light-theme .tx-table thead th {
-  color: #475569 !important;
-}
-html.light-theme .tx-table tbody td {
-  color: #1e293b !important;
-}
-html.light-theme .aging-bar-section {
-  border-bottom-color: rgba(0,0,0,0.05) !important;
-}
-
-/* ══════════════════════════════════════════
-   LIGHT THEME — REMAINING FIXES
-══════════════════════════════════════════ */
-
-/* Image 1: Clear button in return forms */
 html.light-theme button[style*="rgba(255,255,255,0.07)"],
 html.light-theme button[style*="rgba(255,255,255,0.08)"],
-html.light-theme button[style*="rgba(255,255,255,0.1)"] {
-  background: rgba(0,0,0,0.07) !important;
-  color: #334155 !important;
-  border-color: rgba(0,0,0,0.15) !important;
-}
+html.light-theme button[style*="rgba(255,255,255,0.1)"] { background: rgba(0,0,0,0.07) !important; color: #334155 !important; border-color: rgba(0,0,0,0.15) !important; }
 
-/* Image 2: Products stat cards — liquid glass heading text */
-html.light-theme .stat-card {
-  background: rgba(255,255,255,0.90) !important;
-  border: 1px solid rgba(0,0,0,0.09) !important;
-}
+html.light-theme .stat-card { background: rgba(255,255,255,0.90) !important; border: 1px solid rgba(0,0,0,0.09) !important; }
 html.light-theme .stat-card .stat-label,
-html.light-theme .stat-card .stat-sub {
-  color: #475569 !important;
-}
-html.light-theme .stat-card .stat-value {
-  color: #0f172a !important;
-}
-html.light-theme .stat-card .stat-icon {
-  opacity: 1;
-}
+html.light-theme .stat-card .stat-sub { color: #475569 !important; }
+html.light-theme .stat-card .stat-value { color: #0f172a !important; }
 
-/* Image 3: Reports page general text visibility */
 html.light-theme .report-tab,
 html.light-theme [class*="tab-btn"],
-html.light-theme [class*="period-btn"] {
-  color: #334155 !important;
-  border-color: rgba(0,0,0,0.12) !important;
-  background: rgba(255,255,255,0.8) !important;
-}
+html.light-theme [class*="period-btn"] { color: #334155 !important; border-color: rgba(0,0,0,0.12) !important; background: rgba(255,255,255,0.8) !important; }
 html.light-theme [class*="tab-btn"].active,
-html.light-theme [class*="period-btn"].active {
-  background: #2563eb !important;
-  color: white !important;
-  border-color: #2563eb !important;
-}
+html.light-theme [class*="period-btn"].active { background: #2563eb !important; color: white !important; border-color: #2563eb !important; }
 html.light-theme .report-stat-label,
 html.light-theme .report-sub,
-html.light-theme [class*="stat-label"] {
-  color: #475569 !important;
-}
+html.light-theme [class*="stat-label"] { color: #475569 !important; }
 html.light-theme .report-stat-value,
-html.light-theme [class*="stat-value"] {
-  color: #0f172a !important;
-}
-html.light-theme canvas {
-  filter: invert(0) !important;
-}
+html.light-theme [class*="stat-value"] { color: #0f172a !important; }
 
-/* Image 4: Statement/Print button in ledger modal header */
 html.light-theme .modal-header .btn-white,
 html.light-theme .modal-header button[style*="white"],
-html.light-theme .btn-white {
-  background: white !important;
-  color: #1e3a5f !important;
-  border: 1px solid rgba(0,0,0,0.15) !important;
-}
-html.light-theme .btn-outline {
-  background: rgba(0,0,0,0.06) !important;
-  color: #334155 !important;
-  border-color: rgba(0,0,0,0.15) !important;
-}
-html.light-theme .modal-header-right button {
-  box-shadow: 0 1px 4px rgba(0,0,0,0.15) !important;
-}
+html.light-theme .btn-white { background: white !important; color: #1e3a5f !important; border: 1px solid rgba(0,0,0,0.15) !important; }
+html.light-theme .btn-outline { background: rgba(0,0,0,0.06) !important; color: #334155 !important; border-color: rgba(0,0,0,0.15) !important; }
 
-/* General: all buttons inside modal headers stay readable */
-html.light-theme .modal-header .btn {
-  box-shadow: 0 1px 6px rgba(0,0,0,0.2) !important;
-}
-
-/* Summary row inside modals */
-html.light-theme .summary-row {
-  background: rgba(0,0,0,0.03) !important;
-}
-html.light-theme .summary-card {
-  background: white !important;
-  border-right: 1px solid rgba(0,0,0,0.06) !important;
-}
-html.light-theme .summary-card .s-label {
-  color: #64748b !important;
-}
-html.light-theme .summary-card .s-value {
-  color: #0f172a !important;
-}
+html.light-theme .summary-card { background: white !important; border-right: 1px solid rgba(0,0,0,0.06) !important; }
+html.light-theme .summary-card .s-label { color: #64748b !important; }
+html.light-theme .summary-card .s-value { color: #0f172a !important; }
 html.light-theme .summary-card .s-value.blue   { color: #2563eb !important; }
 html.light-theme .summary-card .s-value.green  { color: #059669 !important; }
 html.light-theme .summary-card .s-value.red    { color: #dc2626 !important; }
 html.light-theme .summary-card .s-value.purple { color: #7c3aed !important; }
 
-/* Aging chips in merchant ledger modal */
 html.light-theme .aging-chip { border: 1px solid rgba(0,0,0,0.08) !important; }
-html.light-theme .aging-bar-section {
-  background: rgba(0,0,0,0.02) !important;
-  border-bottom: 1px solid rgba(0,0,0,0.06) !important;
-}
+html.light-theme .aging-bar-section { background: rgba(0,0,0,0.02) !important; border-bottom: 1px solid rgba(0,0,0,0.06) !important; }
 
-/* Transaction table inside modals */
-html.light-theme .tx-table thead tr {
-  background: rgba(0,0,0,0.04) !important;
-}
-html.light-theme .tx-table thead th {
-  color: #475569 !important;
-  border-bottom-color: rgba(0,0,0,0.08) !important;
-}
-html.light-theme .tx-table tbody td {
-  color: #1e293b !important;
-  border-bottom-color: rgba(0,0,0,0.05) !important;
-}
-html.light-theme .tx-table tbody tr:hover {
-  background: rgba(59,130,246,0.05) !important;
-}
+html.light-theme .tx-table thead tr { background: rgba(0,0,0,0.04) !important; }
+html.light-theme .tx-table thead th { color: #475569 !important; border-bottom-color: rgba(0,0,0,0.08) !important; }
+html.light-theme .tx-table tbody td { color: #1e293b !important; border-bottom-color: rgba(0,0,0,0.05) !important; }
+html.light-theme .tx-table tbody tr:hover { background: rgba(59,130,246,0.05) !important; }
 
-/* View bill box (white background invoice) in light mode stays white */
-html.light-theme .view-bill-box {
-  background: white !important;
-  box-shadow: 0 8px 40px rgba(0,0,0,0.15) !important;
-}
-html.light-theme .view-bill-actions {
-  background: #1e293b !important;
-}
-html.light-theme .view-bill-actions * {
-  color: white !important;
-}
+html.light-theme .view-bill-box { background: white !important; box-shadow: 0 8px 40px rgba(0,0,0,0.15) !important; }
+html.light-theme .view-bill-actions { background: #1e293b !important; }
+html.light-theme .view-bill-actions * { color: white !important; }
 
-/* ══════════════════════════════════════════
-   LIGHT THEME — REPORTS PAGE
-══════════════════════════════════════════ */
+html.light-theme .period-btn { background: rgba(255,255,255,0.8) !important; border-color: rgba(0,0,0,0.12) !important; color: #334155 !important; }
+html.light-theme .period-btn.active { background: linear-gradient(135deg,#2563eb,#7c3aed) !important; color: white !important; border-color: transparent !important; }
+html.light-theme .period-btn:hover { background: rgba(59,130,246,0.08) !important; color: #0f172a !important; }
 
-/* Period buttons */
-html.light-theme .period-btn {
-  background: rgba(255,255,255,0.8) !important;
-  border-color: rgba(0,0,0,0.12) !important;
-  color: #334155 !important;
-}
-html.light-theme .period-btn.active {
-  background: linear-gradient(135deg,#2563eb,#7c3aed) !important;
-  color: white !important;
-  border-color: transparent !important;
-}
-html.light-theme .period-btn:hover {
-  background: rgba(59,130,246,0.08) !important;
-  color: #0f172a !important;
-}
+html.light-theme .report-tabs { background: rgba(255,255,255,0.7) !important; border-color: rgba(0,0,0,0.08) !important; }
+html.light-theme .r-tab { color: #475569 !important; }
+html.light-theme .r-tab:hover { color: #0f172a !important; background: rgba(0,0,0,0.04) !important; }
+html.light-theme .r-tab.active { background: linear-gradient(135deg,rgba(37,99,235,0.12),rgba(124,58,237,0.12)) !important; color: #1e3a5f !important; border-color: rgba(37,99,235,0.3) !important; }
 
-/* Report tabs */
-html.light-theme .report-tabs {
-  background: rgba(255,255,255,0.7) !important;
-  border-color: rgba(0,0,0,0.08) !important;
-}
-html.light-theme .r-tab {
-  color: #475569 !important;
-}
-html.light-theme .r-tab:hover {
-  color: #0f172a !important;
-  background: rgba(0,0,0,0.04) !important;
-}
-html.light-theme .r-tab.active {
-  background: linear-gradient(135deg,rgba(37,99,235,0.12),rgba(124,58,237,0.12)) !important;
-  color: #1e3a5f !important;
-  border-color: rgba(37,99,235,0.3) !important;
-}
+html.light-theme .kpi-card { background: rgba(255,255,255,0.9) !important; border-color: rgba(0,0,0,0.08) !important; box-shadow: 0 2px 12px rgba(0,0,0,0.08) !important; }
+html.light-theme .kpi-label { color: #475569 !important; }
+html.light-theme .kpi-value { color: #0f172a !important; }
+html.light-theme .kpi-sub { color: #64748b !important; }
 
-/* KPI cards */
-html.light-theme .kpi-card {
-  background: rgba(255,255,255,0.9) !important;
-  border-color: rgba(0,0,0,0.08) !important;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.08) !important;
-}
-html.light-theme .kpi-label {
-  color: #475569 !important;
-}
-html.light-theme .kpi-value {
-  color: #0f172a !important;
-}
-html.light-theme .kpi-sub {
-  color: #64748b !important;
-}
+html.light-theme .report-card { background: rgba(255,255,255,0.88) !important; border-color: rgba(0,0,0,0.08) !important; box-shadow: 0 2px 12px rgba(0,0,0,0.08) !important; }
+html.light-theme .report-card-title { color: #475569 !important; }
+html.light-theme .report-card-header { border-bottom-color: rgba(0,0,0,0.07) !important; }
 
-/* Report cards */
-html.light-theme .report-card {
-  background: rgba(255,255,255,0.88) !important;
-  border-color: rgba(0,0,0,0.08) !important;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.08) !important;
-}
-html.light-theme .report-card-title {
-  color: #475569 !important;
-}
-html.light-theme .report-card-header {
-  border-bottom-color: rgba(0,0,0,0.07) !important;
-}
+html.light-theme .rtbl thead th { color: #475569 !important; border-bottom-color: rgba(0,0,0,0.08) !important; }
+html.light-theme .rtbl td { color: #1e293b !important; border-bottom-color: rgba(0,0,0,0.05) !important; }
+html.light-theme .rtbl tbody tr:hover td { background: rgba(59,130,246,0.04) !important; }
+html.light-theme .rtbl tfoot tr td { background: rgba(37,99,235,0.07) !important; color: #0f172a !important; border-top-color: rgba(37,99,235,0.2) !important; }
 
-/* Report tables */
-html.light-theme .rtbl thead th {
-  color: #475569 !important;
-  border-bottom-color: rgba(0,0,0,0.08) !important;
-}
-html.light-theme .rtbl td {
-  color: #1e293b !important;
-  border-bottom-color: rgba(0,0,0,0.05) !important;
-}
-html.light-theme .rtbl tbody tr:hover td {
-  background: rgba(59,130,246,0.04) !important;
-}
-html.light-theme .rtbl tfoot tr td {
-  background: rgba(37,99,235,0.07) !important;
-  color: #0f172a !important;
-  border-top-color: rgba(37,99,235,0.2) !important;
-}
+html.light-theme .pm-card { background: rgba(255,255,255,0.9) !important; border-color: rgba(0,0,0,0.08) !important; }
+html.light-theme .pm-label { color: #475569 !important; }
+html.light-theme .profit-bar-wrap { background: rgba(0,0,0,0.08) !important; }
+html.light-theme .bc-label { color: #64748b !important; }
+html.light-theme .bc-val { color: #475569 !important; }
+html.light-theme .pay-bar-num { color: #1e293b !important; }
+html.light-theme .pay-bar-pct { color: #64748b !important; }
+html.light-theme .tbl-bar { background: rgba(0,0,0,0.08) !important; }
+html.light-theme .rank-n { background: rgba(0,0,0,0.07) !important; color: #64748b !important; }
+html.light-theme .export-btn { background: rgba(5,150,105,0.1) !important; border-color: rgba(5,150,105,0.25) !important; color: #059669 !important; }
 
-/* Profit meter cards */
-html.light-theme .pm-card {
-  background: rgba(255,255,255,0.9) !important;
-  border-color: rgba(0,0,0,0.08) !important;
-}
-html.light-theme .pm-label {
-  color: #475569 !important;
-}
-
-/* Profit bar background */
-html.light-theme .profit-bar-wrap {
-  background: rgba(0,0,0,0.08) !important;
-}
-
-/* Bar chart labels */
-html.light-theme .bc-label {
-  color: #64748b !important;
-}
-html.light-theme .bc-val {
-  color: #475569 !important;
-}
-
-/* Payment row items */
-html.light-theme .pay-bar-num {
-  color: #1e293b !important;
-}
-html.light-theme .pay-bar-pct {
-  color: #64748b !important;
-}
-html.light-theme .tbl-bar {
-  background: rgba(0,0,0,0.08) !important;
-}
-
-/* Rank badges */
-html.light-theme .rank-n {
-  background: rgba(0,0,0,0.07) !important;
-  color: #64748b !important;
-}
-
-/* Export button */
-html.light-theme .export-btn {
-  background: rgba(5,150,105,0.1) !important;
-  border-color: rgba(5,150,105,0.25) !important;
-  color: #059669 !important;
-}
-
-/* Skeleton loading */
 html.light-theme .skel {
   background: linear-gradient(90deg,rgba(0,0,0,0.04) 25%,rgba(0,0,0,0.08) 50%,rgba(0,0,0,0.04) 75%) !important;
   background-size: 200% 100% !important;
 }
 
-/* Custom date inputs */
-html.light-theme .custom-range input[type="date"] {
-  background: white !important;
-  border-color: rgba(0,0,0,0.15) !important;
-  color: #0f172a !important;
-}
+html.light-theme .custom-range input[type="date"] { background: white !important; border-color: rgba(0,0,0,0.15) !important; color: #0f172a !important; }
+html.light-theme .empty-state { color: #94a3b8 !important; }
+html.light-theme .mode-pill { border-color: rgba(0,0,0,0.10) !important; }
 
-html.light-theme .custom-range input[type="date"]::-webkit-calendar-picker-indicator {
-  filter: none !important;
-}
+/* ── Dark theme: card names use theme variable ── */
+.cc-name, .mc-name { color: var(--text-primary) !important; }
 
-/* Empty state */
-html.light-theme .empty-state {
-  color: #94a3b8 !important;
-}
-
-/* Mode pills in reports */
-html.light-theme .mode-pill {
-  border-color: rgba(0,0,0,0.10) !important;
-}
-/* ── Dark theme: ensure card names use theme variable ── */
-.cc-name, .mc-name {
-  color: var(--text-primary) !important;
-}
-
-/* Dark theme: force white text in all inputs that may have inherited black */
+/* Dark theme: white text in inputs */
 html:not(.light-theme) input:not([type="checkbox"]),
 html:not(.light-theme) select,
-html:not(.light-theme) textarea {
-  color: rgba(255, 255, 255, 0.9) !important;
-}
+html:not(.light-theme) textarea { color: rgba(255,255,255,0.9) !important; }
 
-/* Light theme: ensure inputs stay dark */
 html.light-theme input:not([type="checkbox"]),
 html.light-theme select,
-html.light-theme textarea {
-  color: #0f172a !important;
-}
+html.light-theme textarea { color: #0f172a !important; }
 
-/* ─── LIGHT THEME: Pagination button text visibility ─── */
+/* Pagination */
 html.light-theme .page-btn,
-html.light-theme .pg-btn {
-  background: rgba(0,0,0,0.06) !important;
-  border: 1px solid rgba(0,0,0,0.15) !important;
-  color: #1e293b !important;
-}
+html.light-theme .pg-btn { background: rgba(0,0,0,0.06) !important; border: 1px solid rgba(0,0,0,0.15) !important; color: #1e293b !important; }
 html.light-theme .page-btn.active,
-html.light-theme .pg-btn.active {
-  background: rgba(109,40,217,0.18) !important;
-  color: #4c1d95 !important;
-  border-color: rgba(109,40,217,0.4) !important;
-}
+html.light-theme .pg-btn.active { background: rgba(109,40,217,0.18) !important; color: #4c1d95 !important; border-color: rgba(109,40,217,0.4) !important; }
 html.light-theme .page-btn:disabled,
-html.light-theme .pg-btn:disabled {
-  color: #94a3b8 !important;
-  opacity: 0.5 !important;
-}
+html.light-theme .pg-btn:disabled { color: #94a3b8 !important; opacity: 0.5 !important; }
 
-/* ─── LIGHT THEME: Product name text in dark bg tables ─── */
 html.light-theme table td,
-html.light-theme table th {
-  color: #1e293b;
-}
+html.light-theme table th { color: #1e293b; }
 html.light-theme .pagination-info,
-html.light-theme .pg-info {
-  color: #475569 !important;
-}
+html.light-theme .pg-info { color: #475569 !important; }
 
-
-/* ── Light theme: modal close/cancel buttons ── */
 html.light-theme .modal-close-btn,
 html.light-theme button[onclick*="closeAdd"],
 html.light-theme button[onclick*="closeEdit"],
 html.light-theme button[onclick*="closeModal"],
 html.light-theme .btn-outline,
-html.light-theme .inner-modal-box .btn-outline {
-  background: rgba(0,0,0,0.08) !important;
-  color: #1e293b !important;
-  border-color: rgba(0,0,0,0.2) !important;
-}
+html.light-theme .inner-modal-box .btn-outline { background: rgba(0,0,0,0.08) !important; color: #1e293b !important; border-color: rgba(0,0,0,0.2) !important; }
 html.light-theme .modal-overlay .btn-sm[onclick*="close"],
 html.light-theme .modal-overlay button[style*="rgba(255,255,255,0.15)"],
-html.light-theme .inner-modal-overlay button[onclick*="close"] {
-  background: rgba(0,0,0,0.08) !important;
-  color: #1e293b !important;
-  border: 1.5px solid rgba(0,0,0,0.25) !important;
-}
+html.light-theme .inner-modal-overlay button[onclick*="close"] { background: rgba(0,0,0,0.08) !important; color: #1e293b !important; border: 1.5px solid rgba(0,0,0,0.25) !important; }
