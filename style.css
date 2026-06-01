@@ -283,16 +283,28 @@ html.light-theme .sidebar-toggle:hover {
 /* ══════════════════════════════════════════
    MAIN CONTENT — always full width
 ══════════════════════════════════════════ */
+/* ══════════════════════════════════════════
+   MAIN CONTENT — shifts when sidebar open
+══════════════════════════════════════════ */
 .main {
   margin-left: 0;
   padding: 36px 32px 36px 64px;
   min-height: 100vh;
-  transition: none;
+  transition: margin-left 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+              padding-left 0.28s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-@media (max-width: 768px) {
-  .main {
-    padding: 20px 14px 20px 54px;
+/* When sidebar is open — push main content right */
+body.sidebar-open .main {
+  margin-left: var(--sidebar-w);
+  padding-left: 28px;
+}
+
+@media (max-width: 900px) {
+  /* On small screens — sidebar overlays instead of pushing */
+  body.sidebar-open .main {
+    margin-left: 0;
+    padding-left: 64px;
   }
   body.sidebar-open .sidebar-toggle {
     left: calc(var(--sidebar-w) + 10px);
