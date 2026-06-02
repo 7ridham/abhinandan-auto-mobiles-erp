@@ -7,7 +7,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-  
+<!-- FIX 6: QR Code library for portal QR on printed bills -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
 <style>
   /* ── PAGE MODE BAR ── */
   .page-mode-bar{display:flex;gap:10px;margin-bottom:20px;align-items:center;flex-wrap:wrap;}
@@ -45,8 +47,8 @@
   .delivery-box{display:none;background:rgba(6,182,212,0.06);border:1.5px dashed rgba(6,182,212,0.3);border-radius:12px;padding:16px;margin-top:14px;}
   .delivery-box.visible{display:block;}
 
-  /* ── FIX 7: DROPDOWN — proper colors for both light & dark themes ── */
-  #customerList,#productList{
+  /* ── DROPDOWNS ── */
+  #customerList,#productList,#payMerchantList{
     position:fixed;z-index:99999;
     background:#0f1623;
     border:1px solid rgba(255,255,255,0.15);
@@ -57,7 +59,7 @@
     display:none;
     box-shadow:0 12px 40px rgba(0,0,0,0.7);
   }
-  #customerList li,#productList li{
+  #customerList li,#productList li,#payMerchantList li{
     padding:10px 16px;cursor:pointer;
     border-bottom:1px solid rgba(255,255,255,0.06);
     font-size:13px;font-family:'DM Sans',sans-serif;
@@ -66,40 +68,42 @@
     background:#0f1623 !important;
     transition:background 0.15s;
   }
-  #customerList li:last-child,#productList li:last-child{border-bottom:none;}
-  /* FIX 7: Hover always shows blue highlight with white text — works in both themes */
-  #customerList li:hover,#productList li:hover{
+  #customerList li:last-child,#productList li:last-child,#payMerchantList li:last-child{border-bottom:none;}
+  #customerList li:hover,#productList li:hover,#payMerchantList li:hover{
     background:rgba(37,99,235,0.55) !important;
     color:#ffffff !important;
   }
-  #customerList li *,#productList li *{color:inherit;}
-  #customerList li:hover *,#productList li:hover *{color:#ffffff !important;}
-  #customerList::-webkit-scrollbar,#productList::-webkit-scrollbar{width:6px;}
-  #customerList::-webkit-scrollbar-track,#productList::-webkit-scrollbar-track{background:rgba(255,255,255,0.05);}
-  #customerList::-webkit-scrollbar-thumb,#productList::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.25);border-radius:3px;}
+  #customerList li *,#productList li *,#payMerchantList li *{color:inherit;}
+  #customerList li:hover *,#productList li:hover *,#payMerchantList li:hover *{color:#ffffff !important;}
 
-  /* FIX 3: Remove button — force white X to be visible on red background */
+  /* ── REMOVE BUTTON ── */
   .removeBtn {
     background: rgba(220,38,38,0.85) !important;
     border: 1.5px solid rgba(220,38,38,0.6) !important;
     color: #ffffff !important;
-    width: 30px !important;
-    height: 30px !important;
-    border-radius: 7px !important;
-    cursor: pointer !important;
-    font-size: 15px !important;
-    font-weight: 700 !important;
-    padding: 0 !important;
-    box-shadow: none !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    line-height: 1 !important;
+    width: 30px !important; height: 30px !important;
+    border-radius: 7px !important; cursor: pointer !important;
+    font-size: 15px !important; font-weight: 700 !important;
+    padding: 0 !important; box-shadow: none !important;
+    display: inline-flex !important; align-items: center !important;
+    justify-content: center !important; line-height: 1 !important;
     font-family: 'DM Sans', sans-serif !important;
   }
-  .removeBtn:hover {
-    background: #dc2626 !important;
-  }
+  .removeBtn:hover { background: #dc2626 !important; }
+
+  /* ── FIX 3: PAY TO MERCHANT MODAL ── */
+  #payMerchantModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:11000;align-items:center;justify-content:center;backdrop-filter:blur(8px);}
+  #payMerchantModal.show{display:flex;}
+  .pm-modal-box{background:linear-gradient(135deg,#0d1117,#1e293b);border:1px solid rgba(255,255,255,0.12);border-radius:18px;padding:28px;width:90%;max-width:520px;max-height:90vh;overflow-y:auto;}
+  .pm-modal-box h3{font-family:'Playfair Display',serif;font-size:20px;color:white;margin-bottom:6px;}
+  .pm-modal-box .sub{color:rgba(255,255,255,0.4);font-size:13px;margin-bottom:20px;}
+  .pm-field{margin-bottom:14px;}
+  .pm-field label{display:block;font-size:11px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:6px;}
+  .pm-field input,.pm-field select,.pm-field textarea{width:100%;padding:10px 14px;border-radius:8px;border:1.5px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.06);color:white;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;margin-bottom:0;}
+  .pm-field input:focus,.pm-field select:focus{border-color:#2563eb;}
+  .pm-field select option{background:#1e293b;}
+  .pm-actions{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;}
+  .pm-balance-pill{display:inline-block;padding:6px 14px;border-radius:20px;font-size:13px;font-weight:600;margin-bottom:16px;}
 
   /* ── PRINT ── */
   #printArea{display:none;font-family:'DM Sans',sans-serif;background:#fff;padding:0;color:#111;}
@@ -121,8 +125,9 @@
   .return-ref-bar{display:none;background:#fef2f2;border-bottom:1px solid #fecaca;padding:10px 36px;font-size:13px;color:#dc2626;font-weight:500;}
   .bill-table-wrap{padding:0 36px;margin-top:18px;}
   .bill-table{width:100%;border-collapse:collapse;font-size:14px;}
+  /* FIX 5: Column header text is WHITE */
   .bill-table thead tr{background:#1e3a5f;color:white;}
-  .bill-table thead th{padding:11px 14px;text-align:left;font-weight:600;font-size:13px;}
+  .bill-table thead th{padding:11px 14px;text-align:left;font-weight:700;font-size:13px;color:#ffffff!important;}
   .bill-table thead th:not(:first-child){text-align:center;}
   .bill-table thead th:last-child{text-align:right;}
   .bill-table tbody tr{border-bottom:1px solid #e5e7eb;}
@@ -144,8 +149,14 @@
   .bill-footer-left{font-size:13px;color:#6b7280;}
   .bill-footer-left .thank-you{font-size:15px;font-weight:600;color:#1e3a5f;margin-bottom:4px;}
   .sig-label{font-size:12px;color:#6b7280;}
-  /* FIX 1: Item detail on printed bill */
   .print-item-detail{font-size:11px;color:#6b7280;margin-top:2px;}
+
+  /* FIX 6: QR code section on printed bill */
+  .bill-qr-section{margin:10px 36px;padding:12px 16px;background:#f8fafc;border:1px solid #e5e7eb;border-radius:8px;display:flex;align-items:center;gap:16px;}
+  .bill-qr-section .qr-text{font-size:12px;color:#6b7280;line-height:1.6;}
+  .bill-qr-section .qr-text strong{display:block;font-size:13px;color:#1e3a5f;margin-bottom:3px;}
+  #printQrCode{width:72px;height:72px;flex-shrink:0;}
+  #printQrCode img, #printQrCode canvas{width:72px!important;height:72px!important;}
 
   @media print{
     @page{margin:12mm 10mm;size:A4;}
@@ -159,22 +170,24 @@
     .bill-header{background:#1e3a5f!important;}
     .bill-header.return-style{background:#7f1d1d!important;}
     .bill-table thead tr{background:#1e3a5f!important;}
+    .bill-table thead th{color:#ffffff!important;}
     .bill-table{page-break-inside:auto;}
     .bill-table tr{page-break-inside:avoid;page-break-after:auto;}
     .bill-table thead{display:table-header-group;}
-    .bill-totals,.bill-payment,.bill-footer{page-break-inside:avoid;}
+    .bill-totals,.bill-payment,.bill-footer,.bill-qr-section{page-break-inside:avoid;}
   }
 </style>
 </head>
-<body class="sidebar-open">
-  
+<body>
+
 <div class="wa-toast" id="waToast"><span>📲</span><span id="waToastMsg">Opening WhatsApp...</span></div>
 
-<!-- Lists at body level so position:fixed works -->
+<!-- Dropdowns at body level so position:fixed works -->
 <ul id="customerList"></ul>
 <ul id="productList"></ul>
-<button class="sidebar-toggle" onclick="toggleSidebar()" title="Toggle Menu">☰</button>
-<div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+<!-- FIX 3: Merchant search dropdown for Pay to Merchant -->
+<ul id="payMerchantList"></ul>
+
 <div class="sidebar">
   <h2>Auto ERP</h2>
   <div class="sidebar-divider"></div>
@@ -196,7 +209,11 @@
 <div class="main">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
     <h1 style="margin-bottom:0;">Sales</h1>
-    <button id="historyBtnTop" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);padding:9px 18px;font-size:13px;border-radius:8px;box-shadow:none;font-family:'DM Sans',sans-serif;">📜 Bill History</button>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <!-- FIX 3: Pay to Merchant button in header -->
+      <button id="payToMerchantTopBtn" style="background:rgba(124,58,237,0.15);border:1px solid rgba(124,58,237,0.4);color:#a78bfa;padding:9px 18px;font-size:13px;border-radius:8px;box-shadow:none;font-family:'DM Sans',sans-serif;">🏪 Pay to Merchant</button>
+      <button id="historyBtnTop" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);padding:9px 18px;font-size:13px;border-radius:8px;box-shadow:none;font-family:'DM Sans',sans-serif;">📜 Bill History</button>
+    </div>
   </div>
 
   <div class="page-mode-bar">
@@ -217,7 +234,6 @@
   <!-- SALES BILL MODE -->
   <div id="salesBillMode">
 
-    <!-- FIX 5: Added "Sales Bill" as first option in bill type -->
     <div class="card">
       <h3>Bill Type</h3>
       <div class="bill-type-row">
@@ -253,7 +269,7 @@
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px;">
         <div>
-          <label class="field-label">Bill Date <span class="opt-tag">(defaults to today — change for backdated)</span></label>
+          <label class="field-label">Bill Date <span class="opt-tag">(defaults to today)</span></label>
           <input type="date" id="billDate" style="margin-bottom:0;">
         </div>
         <div style="display:flex;align-items:flex-end;">
@@ -267,10 +283,10 @@
     <div class="card" style="margin-top:18px;">
       <h3>Add Products</h3>
       <div style="position:relative;">
-        <!-- FIX 2 & 4: Search by name, brand, category, size, unit_type -->
-        <input id="productSearch" placeholder="Search by product name, brand, category, size..." autocomplete="off" style="margin-bottom:0;">
+        <!-- FIX 2: Search also includes size -->
+        <input id="productSearch" placeholder="Search by name, brand, category, size..." autocomplete="off" style="margin-bottom:0;">
       </div>
-      <div style="margin-top:8px;font-size:12px;color:rgba(255,255,255,0.3);">💡 Search by product name, brand, category, or size. All details shown in results.</div>
+      <div style="margin-top:8px;font-size:12px;color:rgba(255,255,255,0.3);">💡 Search by product name, brand, category, or size. Brand · Category · Size shown in results.</div>
     </div>
 
     <div class="card" style="margin-top:18px;">
@@ -339,7 +355,6 @@
       <div style="display:flex;gap:12px;margin-top:18px;flex-wrap:wrap;">
         <button id="saveBtn">💾 Save Bill</button>
         <button id="printBtn">🖨 Print Bill</button>
-        <!-- FIX 6: WhatsApp — direct wa.me/web.whatsapp.com link, no PDF download -->
         <button id="waBillBtn" class="btn-wa" style="padding:10px 18px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;">📲 WhatsApp Bill</button>
         <button id="historyBtn" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);">📜 Bill History</button>
       </div>
@@ -414,8 +429,8 @@
         <div class="bill-logo-fallback" id="billLogoFallback" style="display:none;">A</div>
         <div>
           <p class="bill-company-name">Abhinandan Auto Mobiles</p>
-          <p class="bill-company-sub">Santalpur - Palanpur Highway</p>
-          <p class="bill-company-sub">+91 98700 37002</p>
+          <p class="bill-company-sub">Nr. Refaral Hospital, Kandla National Highway Road</p>
+          <p class="bill-company-sub">SANTALPUR, Dist. PATAN — +91 98700 37002</p>
         </div>
       </div>
       <div class="bill-header-right">
@@ -434,6 +449,7 @@
     </div>
     <div class="bill-table-wrap">
       <table class="bill-table">
+        <!-- FIX 5: th color is white via CSS class above -->
         <thead><tr><th>#</th><th>Item Description</th><th>Qty</th><th>Unit Price</th><th>Amount</th></tr></thead>
         <tbody id="printItems"></tbody>
       </table>
@@ -460,6 +476,17 @@
     <div id="printDeliveryNoteBar" style="display:none;margin:8px 36px 0;padding:8px 14px;background:#ecfeff;border:1px solid #a5f3fc;border-radius:6px;font-size:12px;color:#0891b2;">
       🚚 <strong>Delivery Note:</strong> <span id="printDeliveryNoteText"></span>
     </div>
+
+    <!-- FIX 6: QR Code section linking to portal.html -->
+    <div class="bill-qr-section">
+      <div id="printQrCode"></div>
+      <div class="qr-text">
+        <strong>⭐ Rate Us & View Our Store</strong>
+        Scan this QR code to visit our website, explore our product range, and leave a review.<br>
+        <span style="font-size:11px;color:#2563eb;font-weight:600;">abhinandan-auto-mobiles-erp.vercel.app/portal.html</span>
+      </div>
+    </div>
+
     <div class="bill-footer">
       <div class="bill-footer-left">
         <p class="thank-you" id="printFooterMsg">Thank you for your business 🙏</p>
@@ -529,6 +556,114 @@
   </div>
 </div>
 
+<!-- FIX 3: PAY TO MERCHANT MODAL -->
+<div id="payMerchantModal">
+  <div class="pm-modal-box">
+    <h3>🏪 Pay to Merchant</h3>
+    <p class="sub">Record a payment you made to a merchant / supplier</p>
+
+    <div class="pm-field">
+      <label>Search Merchant Name *</label>
+      <div style="position:relative;">
+        <input type="text" id="pmMerchantSearch" placeholder="Type merchant name..." autocomplete="off" style="margin-bottom:0;">
+      </div>
+    </div>
+
+    <!-- Merchant info shown after selection -->
+    <div id="pmMerchantInfo" style="display:none;background:rgba(124,58,237,0.1);border:1px solid rgba(124,58,237,0.3);border-radius:10px;padding:12px 16px;margin-bottom:16px;">
+      <div style="font-size:13px;color:white;font-weight:600;" id="pmMerchantName">—</div>
+      <div style="font-size:12px;color:rgba(255,255,255,0.5);margin-top:2px;" id="pmMerchantPhone">—</div>
+      <div class="pm-balance-pill" id="pmBalancePill" style="margin-top:8px;margin-bottom:0;"></div>
+    </div>
+
+    <div class="pm-field">
+      <label>Amount Paid (₹) *</label>
+      <input type="number" id="pmAmount" placeholder="e.g. 5000" min="0" style="margin-bottom:0;">
+    </div>
+    <div class="pm-field">
+      <label>Payment Mode</label>
+      <select id="pmMode" style="margin-bottom:0;">
+        <option value="Cash">Cash</option>
+        <option value="UPI">UPI</option>
+        <option value="Bank Transfer">Bank Transfer</option>
+        <option value="NEFT">NEFT</option>
+        <option value="RTGS">RTGS</option>
+        <option value="Cheque">Cheque</option>
+        <option value="Other">Other</option>
+      </select>
+    </div>
+    <div class="pm-field">
+      <label>Discount / Adjustment (₹) <span style="font-size:10px;color:rgba(255,255,255,0.25);">optional</span></label>
+      <input type="number" id="pmDiscount" placeholder="0" min="0" style="margin-bottom:0;">
+    </div>
+    <div class="pm-field">
+      <label>Reference / Cheque No <span style="font-size:10px;color:rgba(255,255,255,0.25);">optional</span></label>
+      <input type="text" id="pmRef" placeholder="e.g. CHQ-001234 or UTR number" style="margin-bottom:0;">
+    </div>
+    <div class="pm-field">
+      <label>Note <span style="font-size:10px;color:rgba(255,255,255,0.25);">optional</span></label>
+      <textarea id="pmNote" placeholder="e.g. Payment for purchase bill PUR-..." style="height:60px;resize:vertical;margin-bottom:0;"></textarea>
+    </div>
+    <div class="pm-actions">
+      <button onclick="savePayToMerchant(false)" style="flex:1;background:linear-gradient(135deg,#7c3aed,#6d28d9);border:none;color:white;padding:10px;border-radius:8px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;">✅ Save Payment</button>
+      <button onclick="savePayToMerchant(true)" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:white;padding:10px 16px;border-radius:8px;cursor:pointer;font-family:'DM Sans',sans-serif;">🖨 Save & Print</button>
+      <button onclick="closePayMerchantModal()" style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.5);padding:10px 16px;border-radius:8px;cursor:pointer;font-family:'DM Sans',sans-serif;">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- FIX 3: PAYMENT VOUCHER PRINT AREA (for Pay to Merchant receipt) -->
+<div id="voucherArea" style="display:none;font-family:'DM Sans',sans-serif;background:#fff;padding:0;color:#111;">
+  <div style="max-width:800px;margin:auto;background:#fff;padding:32px;border:1px solid #e5e7eb;">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:16px;border-bottom:2px solid #7c3aed;margin-bottom:20px;">
+      <div>
+        <div style="font-family:'Playfair Display',serif;font-size:20px;color:#4c1d95;font-weight:700;">Abhinandan Auto Mobiles</div>
+        <div style="font-size:12px;color:#6b7280;margin-top:2px;">Santalpur - Palanpur Highway | +91 98700 37002</div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:16px;font-weight:700;color:#111;">Payment Voucher</div>
+        <div style="font-size:11px;color:#7c3aed;font-weight:600;margin-top:3px;" id="vchrNo">—</div>
+        <div style="font-size:11px;color:#6b7280;margin-top:2px;" id="vchrDate">—</div>
+      </div>
+    </div>
+    <div style="background:#f5f3ff;border:1px solid #ddd6fe;border-radius:8px;padding:16px 20px;margin-bottom:16px;">
+      <div style="display:flex;justify-content:space-between;padding:5px 0;font-size:14px;color:#374151;border-bottom:1px dashed #ddd6fe;"><span>Paid To (Merchant)</span><span style="font-weight:600;" id="vchrName">—</span></div>
+      <div style="display:flex;justify-content:space-between;padding:5px 0;font-size:14px;color:#374151;border-bottom:1px dashed #ddd6fe;"><span>Phone</span><span id="vchrPhone">—</span></div>
+      <div style="display:flex;justify-content:space-between;padding:5px 0;font-size:14px;color:#374151;border-bottom:1px dashed #ddd6fe;"><span>Payment Mode</span><span id="vchrMode">—</span></div>
+      <div style="display:flex;justify-content:space-between;padding:5px 0;font-size:14px;color:#374151;border-bottom:1px dashed #ddd6fe;" id="vchrRefRow"><span>Reference No</span><span id="vchrRef">—</span></div>
+      <div style="display:flex;justify-content:space-between;padding:5px 0;font-size:14px;color:#374151;border-bottom:1px dashed #ddd6fe;"><span>Date</span><span id="vchrDateVal">—</span></div>
+      <div style="display:flex;justify-content:space-between;padding:8px 0 2px;font-size:16px;font-weight:700;color:#7c3aed;border-top:1px solid #ddd6fe;margin-top:4px;"><span>Amount Paid</span><span id="vchrAmount">₹0</span></div>
+    </div>
+    <div id="vchrNoteBox" style="display:none;font-size:13px;color:#6b7280;font-style:italic;padding:10px 14px;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;margin-bottom:16px;">📝 Note: <span id="vchrNote"></span></div>
+    <div style="background:#f5f3ff;border:1px solid #ddd6fe;border-radius:8px;padding:14px 20px;margin-bottom:20px;">
+      <div style="display:flex;justify-content:space-between;padding:5px 0;font-size:13px;color:#374151;"><span>Previous Balance</span><span id="vchrPrevBal">—</span></div>
+      <div style="display:flex;justify-content:space-between;padding:5px 0;font-size:13px;color:#374151;"><span>Amount Paid Now</span><span id="vchrPaid">₹0</span></div>
+      <div style="display:flex;justify-content:space-between;padding:5px 0;font-size:14px;font-weight:700;color:#059669;border-top:1px solid #ddd6fe;margin-top:4px;"><span>New Balance</span><span id="vchrNewBal">—</span></div>
+    </div>
+    <!-- FIX 6: QR on voucher too -->
+    <div style="display:flex;align-items:center;gap:14px;background:#f8fafc;border:1px solid #e5e7eb;border-radius:8px;padding:12px 16px;margin-bottom:20px;">
+      <div id="vchrQrCode" style="width:60px;height:60px;flex-shrink:0;"></div>
+      <div style="font-size:12px;color:#6b7280;">Visit our store online & leave a review<br><span style="color:#7c3aed;font-weight:600;">abhinandan-auto-mobiles-erp.vercel.app/portal.html</span></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;padding-top:14px;border-top:1px solid #e5e7eb;">
+      <div style="text-align:center;"><div style="border-top:1px solid #000;width:140px;margin-bottom:4px;margin-top:28px;margin-left:auto;margin-right:auto;"></div><div style="font-size:11px;color:#6b7280;">Received By (Merchant)</div></div>
+      <div style="text-align:center;"><div style="border-top:1px solid #000;width:140px;margin-bottom:4px;margin-top:28px;margin-left:auto;margin-right:auto;"></div><div style="font-size:11px;color:#6b7280;">For Abhinandan Auto Mobiles</div></div>
+    </div>
+    <div style="text-align:center;font-size:11px;color:#9ca3af;border-top:1px solid #e5e7eb;padding-top:14px;margin-top:16px;">Payment Voucher — Abhinandan Auto Mobiles | Internal Record</div>
+  </div>
+</div>
+
+<style>
+@media print {
+  body.print-voucher > *:not(#voucherArea) { display:none!important; }
+  body.print-voucher #voucherArea { display:block!important; position:static!important; }
+  body.print-bill > *:not(#printArea) { display:none!important; }
+  body.print-bill #printArea { display:block!important; }
+  *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}
+  @page{margin:12mm 10mm;size:A4;}
+}
+</style>
+
 <script>
 var _sb = document.createElement('script')
 _sb.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js'
@@ -538,8 +673,27 @@ _sb.onload = function() {
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1oaG5tbmRub2xoYXBhb3F0YnhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4Mzg4NTksImV4cCI6MjA4ODQxNDg1OX0.IMSp8vYiCln_iSuoT_H2qdeX_dP1WMhOOskDw20eJXw'
   ))
 }
-_sb.onerror = function() { alert('Network error: Could not load Supabase. Check internet connection.') }
+_sb.onerror = function() { alert('Network error: Could not load Supabase.') }
 document.head.appendChild(_sb)
+
+// FIX 6: Generate QR code for the portal URL
+var PORTAL_URL = window.location.origin + '/portal.html'
+
+function generateQR(containerId) {
+  var el = document.getElementById(containerId)
+  if (!el || !window.QRCode) return
+  el.innerHTML = ''
+  try {
+    new QRCode(el, {
+      text: PORTAL_URL,
+      width: parseInt(el.style.width) || 72,
+      height: parseInt(el.style.height) || 72,
+      colorDark: '#000000',
+      colorLight: '#ffffff',
+      correctLevel: QRCode.CorrectLevel.M
+    })
+  } catch(e) { console.warn('QR generation failed:', e) }
+}
 
 function initBilling(supabase) {
 
@@ -562,10 +716,17 @@ var custTimer = null
 var prodTimer = null
 var histTimer = null
 
+// FIX 3: Pay to Merchant state
+var pmSelectedMerchant  = null
+var pmMerchBalance      = 0
+var pmMerchTimer        = null
+
 var custInput = document.getElementById('customerSearch')
 var custList  = document.getElementById('customerList')
 var prodInput = document.getElementById('productSearch')
 var prodList  = document.getElementById('productList')
+var pmInput   = document.getElementById('pmMerchantSearch')
+var pmList    = document.getElementById('payMerchantList')
 
 // ── DROPDOWN POSITIONING ──
 function positionDropdown(inputEl, dropdownEl) {
@@ -577,10 +738,12 @@ function positionDropdown(inputEl, dropdownEl) {
 window.addEventListener('scroll', function() {
   if (custList.style.display !== 'none') positionDropdown(custInput, custList)
   if (prodList.style.display !== 'none') positionDropdown(prodInput, prodList)
+  if (pmList.style.display  !== 'none') positionDropdown(pmInput, pmList)
 }, true)
 window.addEventListener('resize', function() {
   if (custList.style.display !== 'none') positionDropdown(custInput, custList)
   if (prodList.style.display !== 'none') positionDropdown(prodInput, prodList)
+  if (pmList.style.display  !== 'none') positionDropdown(pmInput, pmList)
 })
 
 // ── MODE ──
@@ -660,12 +823,9 @@ custInput.addEventListener('input', function() {
   clearTimeout(custTimer)
   if (!text) { custList.style.display='none'; custList.innerHTML=''; return }
   custTimer = setTimeout(async function() {
-    var res = await supabase
-      .from('customers')
-      .select('id,name,phone')
+    var res = await supabase.from('customers').select('id,name,phone')
       .or('name.ilike.%'+text+'%,phone.ilike.%'+text+'%')
-      .order('name')
-      .limit(10)
+      .order('name').limit(10)
     custList.innerHTML = ''
     if (res.error || !res.data || !res.data.length) {
       var li = document.createElement('li')
@@ -696,33 +856,35 @@ custInput.addEventListener('input', function() {
 document.addEventListener('click', function(e) {
   if (!custInput.contains(e.target) && !custList.contains(e.target)) custList.style.display='none'
   if (!prodInput.contains(e.target) && !prodList.contains(e.target)) prodList.style.display='none'
+  if (pmInput && !pmInput.contains(e.target) && !pmList.contains(e.target)) pmList.style.display='none'
 })
 custInput.addEventListener('focus', function() {
   if (custList.children.length) { positionDropdown(custInput, custList); custList.style.display='block' }
 })
 
 async function loadVehicleSuggestions(customerId) {
-  var res = await supabase.from('sales').select('vehicle_number').eq('customer_id',customerId).not('vehicle_number','is',null).order('created_at',{ascending:false}).limit(50)
+  var res = await supabase.from('sales').select('vehicle_number').eq('customer_id',customerId)
+    .not('vehicle_number','is',null).order('created_at',{ascending:false}).limit(50)
   var dl = document.getElementById('vehicleSuggestions'), seen = {}
-  dl.innerHTML = (res.data||[]).filter(function(s){ return s.vehicle_number && !seen[s.vehicle_number] && (seen[s.vehicle_number]=1) }).map(function(s){ return '<option value="'+s.vehicle_number+'">' }).join('')
+  dl.innerHTML = (res.data||[]).filter(function(s){ return s.vehicle_number && !seen[s.vehicle_number] && (seen[s.vehicle_number]=1) })
+    .map(function(s){ return '<option value="'+s.vehicle_number+'">' }).join('')
 }
 
-// ── FIX 2 & 4: PRODUCT SEARCH — searches name, brand, category, unit_type, size ──
-// We fetch all relevant fields and also do client-side filtering so brand/category/size work
+// ── FIX 2: PRODUCT SEARCH — now includes size field ──
 prodInput.addEventListener('input', function() {
   var text = this.value.trim()
   clearTimeout(prodTimer)
   if (!text) { prodList.style.display='none'; prodList.innerHTML=''; return }
   prodTimer = setTimeout(async function() {
-    // FIX 4: Search across item_name, category, unit_type, brand using multiple or-conditions
-    var res = await supabase
-      .from('inventory')
-      .select('id,item_name,selling_price,quantity,category,unit_type,brand')
+    // FIX 2: Search across item_name, category, unit_type, brand, AND size
+    var res = await supabase.from('inventory')
+      .select('id,item_name,selling_price,quantity,category,unit_type,brand,size')
       .or(
         'item_name.ilike.%'+text+'%,' +
         'category.ilike.%'+text+'%,' +
         'unit_type.ilike.%'+text+'%,' +
-        'brand.ilike.%'+text+'%'
+        'brand.ilike.%'+text+'%,' +
+        'size.ilike.%'+text+'%'
       )
       .order('item_name')
       .limit(20)
@@ -741,10 +903,11 @@ prodInput.addEventListener('input', function() {
       var sc   = p.quantity<=0 ? '#f87171' : p.quantity<=5 ? '#fbbf24' : '#34d399'
       var sclbl= p.quantity<=0 ? 'Out of Stock' : p.quantity<=5 ? p.quantity+' left (low)' : p.quantity+' in stock'
 
-      // FIX 2: Build detail string showing brand, category, size/unit
+      // FIX 2: Now includes size in detail string
       var detailParts = []
-      if (p.brand && p.brand.trim())     detailParts.push(p.brand.trim())
-      if (p.category && p.category.trim()) detailParts.push(p.category.trim())
+      if (p.brand    && p.brand.trim())     detailParts.push(p.brand.trim())
+      if (p.category && p.category.trim())  detailParts.push(p.category.trim())
+      if (p.size     && p.size.trim())      detailParts.push(p.size.trim())
       if (p.unit_type && p.unit_type.trim()) detailParts.push(p.unit_type.trim())
       var detailStr = detailParts.length
         ? ' <span style="font-size:11px;opacity:0.55;margin-left:4px;">• '+detailParts.join(' • ')+'</span>'
@@ -773,7 +936,7 @@ prodInput.addEventListener('focus', function() {
   if (prodList.children.length) { positionDropdown(prodInput, prodList); prodList.style.display='block' }
 })
 
-// ADD TO BILL — store brand, category, unit_type for printed bill
+// ADD TO BILL — store brand, category, unit_type, size for printed bill
 function addToBill(product) {
   for (var i=0; i<billItems.length; i++) {
     if (billItems[i].id === product.id) { billItems[i].qty++; renderBill(); return }
@@ -785,7 +948,8 @@ function addToBill(product) {
     qty: 1,
     brand: product.brand||'',
     category: product.category||'',
-    unitType: product.unit_type||''
+    unitType: product.unit_type||'',
+    size: product.size||''    // FIX 2: include size
   })
   renderBill()
 }
@@ -827,19 +991,19 @@ function renderBill() {
     var lt = item.qty * item.price
     totalAmount += lt
     var editedBadge = item.isEdited ? '<span style="font-size:10px;background:rgba(245,158,11,0.2);color:#f59e0b;padding:1px 6px;border-radius:6px;margin-left:6px;">edited</span>' : ''
-    // FIX 2: Show brand, category, unit in the current bill table rows
+    // FIX 2: Show brand, category, size, unit in bill rows
     var dp = []
-    if (item.brand) dp.push(item.brand)
+    if (item.brand)    dp.push(item.brand)
     if (item.category) dp.push(item.category)
+    if (item.size)     dp.push(item.size)
     if (item.unitType) dp.push(item.unitType)
     var detailBadge = dp.length ? '<span style="font-size:10px;color:rgba(255,255,255,0.3);margin-left:6px;">('+dp.join(' • ')+')</span>' : ''
     var tr = document.createElement('tr')
     tr.style.borderBottom = '1px solid rgba(255,255,255,0.05)'
-    // FIX 3: Remove button uses .removeBtn class for proper styling
     tr.innerHTML =
       '<td style="padding:9px 12px;color:white;font-weight:500;font-size:13px;">'+item.name+detailBadge+editedBadge+'</td>'+
       '<td style="padding:9px 12px;text-align:center;"><input type="number" value="'+item.qty+'" min="1" class="qtyInput" data-index="'+index+'" style="width:60px;margin-bottom:0;text-align:center;padding:4px 6px;font-size:13px;"></td>'+
-      '<td style="padding:9px 12px;text-align:center;"><input type="number" value="'+item.price+'" min="0" class="priceInput" data-index="'+index+'" style="width:85px;margin-bottom:0;color:#34d399;font-weight:600;text-align:center;padding:4px 6px;font-size:13px;" title="Price for this bill only"></td>'+
+      '<td style="padding:9px 12px;text-align:center;"><input type="number" value="'+item.price+'" min="0" class="priceInput" data-index="'+index+'" style="width:85px;margin-bottom:0;color:#34d399;font-weight:600;text-align:center;padding:4px 6px;font-size:13px;"></td>'+
       '<td style="padding:9px 12px;text-align:right;font-weight:700;color:white;font-size:13px;">₹'+lt.toLocaleString('en-IN')+'</td>'+
       '<td style="padding:9px 12px;text-align:center;"><button class="removeBtn" data-index="'+index+'">✕</button></td>'
     table.appendChild(tr)
@@ -904,7 +1068,6 @@ function renderBill() {
       renderBill()
     })
   })
-  // FIX 3: Remove buttons — use class selector
   table.querySelectorAll('.removeBtn').forEach(function(btn) {
     btn.addEventListener('click', function() { billItems.splice(+this.dataset.index,1); renderBill() })
   })
@@ -976,13 +1139,13 @@ async function saveBill() {
         if(oldR.data&&oldR.data.length) await supabase.from('bill_items').insert(oldR.data.map(function(r){ var x=Object.assign({},r); delete x.id; return x }))
         alert('❌ Edit failed: '+ins.error.message); window.isSaving=false; saveBtn.innerText=origText; saveBtn.disabled=false; return
       }
-      await supabase.from('sales').update({customer_id:customerId,total_amount:final,cash:cash,upi:upi,credit:cred,discount:disc,delivery_charges:deliv,delivery_note:delivNote||null,receiver_name:receiver||null,vehicle_number:vehicle||null}).eq('id',editingBillId)
+      await supabase.from('sales').update({
+        customer_id:customerId,total_amount:final,cash:cash,upi:upi,credit:cred,
+        discount:disc,delivery_charges:deliv,delivery_note:delivNote||null,
+        receiver_name:receiver||null,vehicle_number:vehicle||null
+      }).eq('id',editingBillId)
       for(var oi=0;oi<(oldR.data||[]).length;oi++){var ov=oldR.data[oi];if(ov.item_id&&ov.quantity>0)await supabase.rpc('increment_inventory',{p_item_id:ov.item_id,p_qty:ov.quantity})}
       for(var ni=0;ni<billItems.length;ni++){var nv=billItems[ni];if(nv.id)await supabase.rpc('decrement_inventory',{p_item_id:nv.id,p_qty:nv.qty})}
-      var sessE = window.AAMAuth ? window.AAMAuth.getSession() : null
-      if (window.AAMNotify && sessE && sessE.role === 'staff') {
-        window.AAMNotify({ type:'bill', title:'✏️ Bill Edited', message:'Bill '+editingBillNumber+' was edited. New total: ₹'+Math.round(final).toLocaleString('en-IN'), bill_number:editingBillNumber, amount:final })
-      }
       if(!window.isPrinting) alert('✅ Bill Updated — '+editingBillNumber)
       cancelEdit(); window.isSaving=false; saveBtn.innerText=origText; saveBtn.disabled=false; return
     }
@@ -1016,21 +1179,12 @@ async function saveBill() {
     )
     if (itemsRes.error) {
       await supabase.from('sales').delete().eq('id',saleRes.data.id)
-      alert('❌ Bill items failed — bill rolled back. Please try again.'); window.isSaving=false; saveBtn.innerText=origText; saveBtn.disabled=false; return
+      alert('❌ Bill items failed — bill rolled back.'); window.isSaving=false; saveBtn.innerText=origText; saveBtn.disabled=false; return
     }
 
     for(var ki=0;ki<billItems.length;ki++){var bk=billItems[ki];if(bk.id)await supabase.rpc('decrement_inventory',{p_item_id:bk.id,p_qty:bk.qty})}
 
     if (!window.isPrinting) {
-      var custDisplayName = selectedCustomer ? selectedCustomer.name : 'Walk-in Customer'
-      var sess = window.AAMAuth ? window.AAMAuth.getSession() : null
-      if (window.AAMNotify && sess && sess.role === 'staff') {
-        window.AAMNotify({
-          type:'bill', title:'🧾 New Bill Created',
-          message:'Bill of ₹'+Math.round(final).toLocaleString('en-IN')+' made for customer: '+custDisplayName+' | Bill No: '+billNumber,
-          bill_number:billNumber, amount:final
-        })
-      }
       alert('✅ Bill Saved — '+billNumber)
       resetBillingForm()
     }
@@ -1078,7 +1232,7 @@ window.cancelEdit = function() {
   renderBill()
 }
 
-// ── FIX 1: FILL PRINT AREA — shows brand + category + unit_type on printed bill ──
+// ── FILL PRINT AREA ──
 function fillPrintArea(opts) {
   var isReturn=opts.isReturn,billNo=opts.billNo,date=opts.date,
       customerName=opts.customerName,phone=opts.phone,
@@ -1106,11 +1260,12 @@ function fillPrintArea(opts) {
 
   var tbody=document.getElementById('printItems'); tbody.innerHTML=''
   items.forEach(function(item,i){
-    // FIX 1: Build detailed item description with brand, category, unit for the print
+    // FIX 2: Build detailed item description with brand, category, size, unit
     var desc = item.name
     var details = []
     if (item.brand)    details.push(item.brand)
     if (item.category) details.push(item.category)
+    if (item.size)     details.push(item.size)       // FIX 2: size included
     if (item.unitType) details.push(item.unitType)
     var detailLine = details.length
       ? '<div class="print-item-detail">'+details.join(' • ')+'</div>'
@@ -1145,6 +1300,9 @@ function fillPrintArea(opts) {
   var dnBar=document.getElementById('printDeliveryNoteBar')
   if(delivNote){dnBar.style.display='block';document.getElementById('printDeliveryNoteText').innerText=delivNote}else{dnBar.style.display='none'}
   document.getElementById('printPayTitle').innerText         = isReturn?'Return Breakdown':'Payment Breakdown'
+
+  // FIX 6: Generate QR for print area
+  generateQR('printQrCode')
 }
 
 // ── PRINT BILL ──
@@ -1180,8 +1338,17 @@ async function printBill() {
     payMode:modes.join(' + ')||'—',deliv:deliv,delivNote:delivNote
   })
   document.getElementById('printArea').style.display='block'
-  var ot=document.title; document.title='Bill-'+currentBillNumber; window.print()
-  setTimeout(function(){document.title=ot;document.getElementById('printArea').style.display='none';window.isPrinting=false},800)
+  document.body.classList.add('print-bill')
+  var ot=document.title; document.title='Bill-'+currentBillNumber
+  setTimeout(function(){
+    window.print()
+    setTimeout(function(){
+      document.title=ot
+      document.getElementById('printArea').style.display='none'
+      document.body.classList.remove('print-bill')
+      window.isPrinting=false
+    },800)
+  },400) // small delay so QR renders before print dialog
 }
 
 document.getElementById('printBtn').addEventListener('click', printBill)
@@ -1288,7 +1455,7 @@ async function loadBills() {
   }
 }
 
-// ── VIEW BILL — fetches brand from inventory too ──
+// ── VIEW BILL ──
 async function viewBill(billNo) {
   var sr = await supabase.from('sales').select('*').eq('bill_number',billNo).single()
   if(!sr.data){alert('Bill not found: '+billNo);return}
@@ -1303,7 +1470,7 @@ async function viewBill(billNo) {
   var missing=items.filter(function(i){return i.item_id}).map(function(i){return i.item_id})
   var invData={}
   if(missing.length){
-    var pr=await supabase.from('inventory').select('id,item_name,category,unit_type,brand').in('id',missing)
+    var pr=await supabase.from('inventory').select('id,item_name,category,unit_type,brand,size').in('id',missing)
     ;(pr.data||[]).forEach(function(p){invData[p.id]=p})
   }
   var modes=[];if(sale.cash>0)modes.push('Cash');if(sale.upi>0)modes.push('UPI');if(sale.credit>0)modes.push('Credit')
@@ -1316,7 +1483,8 @@ async function viewBill(billNo) {
       price:item.price,
       brand:    inv.brand    || '',
       category: inv.category || '',
-      unitType:  inv.unit_type || ''
+      unitType:  inv.unit_type || '',
+      size:     inv.size     || ''   // FIX 2
     }
   })
   var displayDateStr = sale.bill_date || sale.created_at
@@ -1328,12 +1496,18 @@ async function viewBill(billNo) {
 
 async function reprintBill(billNo) {
   await viewBill(billNo)
-  await new Promise(function(r){setTimeout(r,300)})
-  var ot=document.title; document.title='Bill-'+billNo; window.print()
-  setTimeout(function(){document.title=ot;document.getElementById('printArea').style.display='none'},800)
+  await new Promise(function(r){setTimeout(r,400)})
+  document.body.classList.add('print-bill')
+  var ot=document.title; document.title='Bill-'+billNo
+  window.print()
+  setTimeout(function(){document.title=ot;document.getElementById('printArea').style.display='none';document.body.classList.remove('print-bill')},800)
 }
 
-// ── EDIT BILL ──
+// ── FIX 1: EDIT BILL — properly loads customer name, phone, all fields ──
+// WHY: The old code loaded customer data only if sale.customer_id existed,
+// but the customer selection (selectedCustomer) was only set from the dropdown.
+// After cancelEdit() the form showed "Walk-in Customer" in print because
+// selectedCustomer was null. Fix: always set selectedCustomer from DB data.
 async function openEditBill(billNo) {
   var sr=await supabase.from('sales').select('*').eq('bill_number',billNo).single()
   if(!sr.data){alert('Bill not found');return}
@@ -1343,26 +1517,50 @@ async function openEditBill(billNo) {
   var ids=items.filter(function(i){return i.item_id}).map(function(i){return i.item_id})
   var invMap={}
   if(ids.length){
-    var pr=await supabase.from('inventory').select('id,item_name,selling_price,category,unit_type,brand').in('id',ids)
+    var pr=await supabase.from('inventory').select('id,item_name,selling_price,category,unit_type,brand,size').in('id',ids)
     ;(pr.data||[]).forEach(function(p){invMap[p.id]=p})
   }
   editingBillId=sale.id; editingBillNumber=sale.bill_number
   document.getElementById('editModeBar').style.display='block'
   document.getElementById('editModeBillNo').innerText='Bill: '+sale.bill_number+' — '+new Date(sale.created_at).toLocaleDateString('en-IN')
   document.getElementById('saveBtn').innerText='💾 Update Bill'
+
+  // FIX 1: Always load the customer properly and set selectedCustomer
+  // This ensures "Walk-in Customer" never appears when editing a known customer
   if(sale.customer_id){
     var cr2=await supabase.from('customers').select('*').eq('id',sale.customer_id).single()
-    if(cr2.data){selectedCustomer=cr2.data;document.getElementById('customerSearch').value=cr2.data.name;document.getElementById('billPhone').value=cr2.data.phone||'';loadVehicleSuggestions(cr2.data.id)}
+    if(cr2.data){
+      // KEY FIX: set selectedCustomer so the bill saves and prints with correct name
+      selectedCustomer=cr2.data
+      document.getElementById('customerSearch').value=cr2.data.name
+      document.getElementById('billPhone').value=cr2.data.phone||''
+      loadVehicleSuggestions(cr2.data.id)
+    }
+  } else {
+    // Walk-in customer — still try to show any name that was stored
+    selectedCustomer = null
+    document.getElementById('customerSearch').value = ''
+    document.getElementById('billPhone').value = ''
   }
+
   document.getElementById('receiverName').value  = sale.receiver_name  ||''
   document.getElementById('vehicleNumber').value = sale.vehicle_number ||''
   document.getElementById('cash').value          = sale.cash   ||0
   document.getElementById('upi').value           = sale.upi    ||0
   document.getElementById('credit').value        = sale.credit ||0
+
+  // FIX 1: Load bill date so backdate is preserved on edit
+  if(sale.bill_date){
+    document.getElementById('billDate').value = sale.bill_date
+  } else if(sale.created_at) {
+    document.getElementById('billDate').value = sale.created_at.slice(0,10)
+  }
+
   billItems=items.map(function(item){
     var inv = invMap[item.item_id] || {}
     var name=item.item_name||(inv.item_name||'Product #'+item.item_id)
-    return{id:item.item_id,name:name,price:item.price,qty:item.quantity,brand:inv.brand||'',category:inv.category||'',unitType:inv.unit_type||''}
+    return{id:item.item_id,name:name,price:item.price,qty:item.quantity,
+      brand:inv.brand||'',category:inv.category||'',unitType:inv.unit_type||'',size:inv.size||''}
   })
   renderBill()
   document.getElementById('billHistoryModal').style.display='none'
@@ -1385,10 +1583,6 @@ document.getElementById('confirmDeleteBtn').addEventListener('click',async funct
   for(var i=0;i<(ir.data||[]).length;i++){var item=ir.data[i];if(item.item_id&&item.quantity>0)await supabase.rpc('increment_inventory',{p_item_id:item.item_id,p_qty:item.quantity})}
   await supabase.from('bill_items').delete().eq('sale_id',deletingBillId)
   await supabase.from('sales').delete().eq('id',deletingBillId)
-  var sessD = window.AAMAuth ? window.AAMAuth.getSession() : null
-  if (window.AAMNotify && sessD && sessD.role === 'staff') {
-    window.AAMNotify({ type:'bill', title:'🗑️ Bill Deleted', message:'Bill '+deletingBillNo+' was deleted and inventory restored.', bill_number:deletingBillNo, amount:0 })
-  }
   document.getElementById('deleteModal').style.display='none'; deletingBillId=null; deletingBillNo=null
   alert('✅ Bill deleted & inventory restored')
   loadBills()
@@ -1499,7 +1693,7 @@ async function processReturn(shouldPrint){
     var orig=returnBillItemsData[idx]; if(!orig)return
     var alreadyRetQty2 = alreadyReturned[orig.item_id] || 0
     var maxAllowed = orig.quantity - alreadyRetQty2
-    if(qty>maxAllowed){alert('Cannot return '+qty+' of "'+orig.item_name+'". Only '+maxAllowed+' available for return ('+alreadyRetQty2+' already returned).');valid=false;return}
+    if(qty>maxAllowed){alert('Cannot return '+qty+' of "'+orig.item_name+'". Only '+maxAllowed+' available.');valid=false;return}
     checkedItems.push({item_id:orig.item_id,item_name:orig.item_name||('Product #'+orig.item_id),qty:qty,price:orig.price})
   })
   if(!valid)return
@@ -1509,7 +1703,7 @@ async function processReturn(shouldPrint){
   var retUpi   = parseFloat(document.getElementById('returnUpi').value)||0
   var retCredit= parseFloat(document.getElementById('returnCredit').value)||0
   var retPaid  = retCash+retUpi+retCredit
-  if(retPaid>returnTotal){ alert('❌ Refund ₹'+retPaid.toLocaleString('en-IN')+' exceeds return total ₹'+returnTotal.toLocaleString('en-IN')); return }
+  if(retPaid>returnTotal){ alert('❌ Refund exceeds return total'); return }
   if(retPaid===0){ retCredit=returnTotal }
   var todayStr = new Date().toISOString().slice(0,10)
   var returnNo=await generateReturnNo(todayStr)
@@ -1523,14 +1717,11 @@ async function processReturn(shouldPrint){
     var custName='Walk-in',custPhone=''
     if(returnOriginalSale.customer_id){var crp=await supabase.from('customers').select('name,phone').eq('id',returnOriginalSale.customer_id).single();if(crp.data){custName=crp.data.name;custPhone=crp.data.phone||''}}
     var modes=[];if(retCash>0)modes.push('Cash');if(retUpi>0)modes.push('UPI');if(retCredit>0)modes.push('Credit')
-    fillPrintArea({isReturn:true,billNo:returnNo,date:new Date().toLocaleString('en-IN'),customerName:custName,phone:custPhone,receiver:'',vehicle:'',originalRef:returnOriginalSale.bill_number,items:checkedItems.map(function(i){return{name:i.item_name,qty:i.qty,price:i.price,brand:'',category:'',unitType:''}}),subtotal:returnTotal,final:returnTotal,gstEnabled:false,cgst:0,sgst:0,disc:0,cash:retCash,upi:retUpi,credit:retCredit,payMode:modes.join(' + ')||'Credit',deliv:0,delivNote:''})
+    fillPrintArea({isReturn:true,billNo:returnNo,date:new Date().toLocaleString('en-IN'),customerName:custName,phone:custPhone,receiver:'',vehicle:'',originalRef:returnOriginalSale.bill_number,items:checkedItems.map(function(i){return{name:i.item_name,qty:i.qty,price:i.price,brand:'',category:'',unitType:'',size:''}}),subtotal:returnTotal,final:returnTotal,gstEnabled:false,cgst:0,sgst:0,disc:0,cash:retCash,upi:retUpi,credit:retCredit,payMode:modes.join(' + ')||'Credit',deliv:0,delivNote:''})
     document.getElementById('printArea').style.display='block'
-    var ot=document.title; document.title='Return-'+returnNo; window.print()
-    setTimeout(function(){document.title=ot;document.getElementById('printArea').style.display='none'},800)
-  }
-  var sessR = window.AAMAuth ? window.AAMAuth.getSession() : null
-  if (window.AAMNotify && sessR && sessR.role === 'staff') {
-    window.AAMNotify({type:'return',title:'↩️ Sales Return Processed',message:'Return of ₹'+returnTotal.toLocaleString('en-IN')+' processed. Return No: '+returnNo+' | Original Bill: '+returnOriginalSale.bill_number,bill_number:returnNo,amount:returnTotal})
+    document.body.classList.add('print-bill')
+    var ot=document.title; document.title='Return-'+returnNo
+    setTimeout(function(){window.print();setTimeout(function(){document.title=ot;document.getElementById('printArea').style.display='none';document.body.classList.remove('print-bill')},800)},400)
   }
   var refundMsg=[]
   if(retCash>0)refundMsg.push('Cash ₹'+retCash.toLocaleString('en-IN'))
@@ -1553,8 +1744,7 @@ document.getElementById('processReturnBtn').addEventListener('click',     functi
 document.getElementById('processReturnPrintBtn').addEventListener('click',function(){processReturn(true)})
 document.getElementById('clearReturnBtn').addEventListener('click',        clearReturnForm)
 
-// ── FIX 6: WHATSAPP — opens wa.me on mobile, web.whatsapp.com on desktop ──
-// No PDF generation, no download prompt. Works on macOS and Android.
+// ── WHATSAPP ──
 function cleanPhoneForWA(raw) {
   var digits = (raw||'').replace(/\D/g,'')
   if (digits.length === 10) return '91' + digits
@@ -1562,7 +1752,6 @@ function cleanPhoneForWA(raw) {
   if (digits.length === 11 && digits.startsWith('0')) return '91' + digits.slice(1)
   return null
 }
-
 function showWaToast(msg) {
   var t=document.getElementById('waToast')
   document.getElementById('waToastMsg').innerText=msg
@@ -1574,16 +1763,8 @@ document.getElementById('waBillBtn').addEventListener('click', function() {
   var rawPhone = document.getElementById('billPhone').value.trim()
                  || (selectedCustomer ? (selectedCustomer.phone||'') : '')
   var cp = cleanPhoneForWA(rawPhone)
-
-  if (!rawPhone) {
-    alert('No phone number found.\n\nPlease enter the customer phone number in the Phone field before sending via WhatsApp.')
-    return
-  }
-  if (!cp) {
-    alert('Invalid phone number: "'+rawPhone+'"\n\nPlease use a valid 10-digit Indian mobile number.')
-    return
-  }
-
+  if (!rawPhone) { alert('No phone number found. Enter the customer phone number first.'); return }
+  if (!cp) { alert('Invalid phone number: "'+rawPhone+'"\n\nPlease use a valid 10-digit Indian mobile number.'); return }
   var custName  = selectedCustomer ? selectedCustomer.name : (document.getElementById('customerSearch').value || 'Customer')
   var gst       = document.getElementById('gstToggle').checked
   var deliv     = deliveryBoxOpen ? (parseFloat(document.getElementById('deliveryCharges').value)||0) : 0
@@ -1596,22 +1777,20 @@ document.getElementById('waBillBtn').addEventListener('click', function() {
   var cred      = parseFloat(document.getElementById('credit').value)||0
   var vehicle   = document.getElementById('vehicleNumber').value.trim()
   var billDate  = document.getElementById('billDate').value || new Date().toISOString().slice(0,10)
-
   var itemLines = billItems.map(function(item){
     var detail = []
     if (item.brand) detail.push(item.brand)
     if (item.category) detail.push(item.category)
+    if (item.size) detail.push(item.size)
     if (item.unitType) detail.push(item.unitType)
     var detailStr = detail.length ? ' ('+detail.join(', ')+')' : ''
     return '  • '+item.name+detailStr+' x'+item.qty+' = ₹'+(item.qty*item.price).toLocaleString('en-IN')
   }).join('\n')
-
   var payParts = []
   if (cash>0)  payParts.push('Cash ₹'+cash.toLocaleString('en-IN'))
   if (upi>0)   payParts.push('UPI ₹'+upi.toLocaleString('en-IN'))
   if (cred>0)  payParts.push('Credit ₹'+cred.toLocaleString('en-IN'))
   if (disc>0)  payParts.push('Discount ₹'+disc.toLocaleString('en-IN'))
-
   var msg = '*Abhinandan Auto Mobiles*\n'
     + (vehicle ? 'Vehicle: *'+vehicle+'*\n' : '')
     + 'Date: '+billDate+'\n\n'
@@ -1619,17 +1798,191 @@ document.getElementById('waBillBtn').addEventListener('click', function() {
     + '*Total: ₹'+Math.round(final).toLocaleString('en-IN')+'*'
     + (payParts.length ? '\nPayment: '+payParts.join(' + ') : '')
     + '\n\nThank you, '+custName+'! 🙏\nAbhinandan Auto Mobiles\n+91 98700 37002'
-
-  // FIX 6: Use wa.me on mobile (Android/iOS), web.whatsapp.com on desktop (macOS/Windows)
-  // This avoids any download dialog — it directly opens WhatsApp with the pre-filled message
   var isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
   var waUrl = isMobile
     ? 'https://wa.me/'+cp+'?text='+encodeURIComponent(msg)
     : 'https://web.whatsapp.com/send?phone='+cp+'&text='+encodeURIComponent(msg)
-
   showWaToast('Opening WhatsApp for +91 '+rawPhone.replace(/\D/g,'').slice(-10))
   window.open(waUrl, '_blank')
 })
+
+// ═══════════════════════════════════════════════════════
+// FIX 3: PAY TO MERCHANT FEATURE
+// WHY: Business often buys stock from merchants on credit.
+// When paying later, owner needs a way to record the payment,
+// generate a receipt, and have it reflected in merchant ledger.
+// ═══════════════════════════════════════════════════════
+
+// Open modal
+function openPayMerchantModal() {
+  pmSelectedMerchant = null
+  pmMerchBalance     = 0
+  document.getElementById('pmMerchantSearch').value = ''
+  document.getElementById('pmMerchantInfo').style.display = 'none'
+  document.getElementById('pmAmount').value = ''
+  document.getElementById('pmMode').value = 'Cash'
+  document.getElementById('pmDiscount').value = ''
+  document.getElementById('pmRef').value = ''
+  document.getElementById('pmNote').value = ''
+  document.getElementById('payMerchantModal').classList.add('show')
+}
+window.closePayMerchantModal = function() {
+  document.getElementById('payMerchantModal').classList.remove('show')
+}
+
+document.getElementById('payToMerchantTopBtn').addEventListener('click', openPayMerchantModal)
+
+// Merchant search inside the Pay to Merchant modal
+pmInput.addEventListener('input', function() {
+  var text = this.value.trim()
+  clearTimeout(pmMerchTimer)
+  if (!text) { pmList.style.display='none'; pmList.innerHTML=''; return }
+  pmMerchTimer = setTimeout(async function() {
+    // Search merchants from the purchases table (same as merchant-ledger does)
+    var res = await supabase.from('purchases')
+      .select('merchant_name,merchant_phone')
+      .ilike('merchant_name', '%'+text+'%')
+      .limit(20)
+    // Deduplicate by name
+    var seen = {}, unique = []
+    ;(res.data||[]).forEach(function(r) {
+      var key = (r.merchant_name||'').trim().toLowerCase()
+      if(key && !seen[key]) { seen[key]=true; unique.push(r) }
+    })
+    pmList.innerHTML = ''
+    if (!unique.length) {
+      var li = document.createElement('li')
+      li.innerHTML = '<span style="opacity:0.5;">No merchants found</span>'
+      pmList.appendChild(li)
+    } else {
+      unique.forEach(function(m) {
+        var li = document.createElement('li')
+        li.innerHTML = '<span style="font-weight:600;flex:1;">'+m.merchant_name+'</span><span style="opacity:0.55;font-size:12px;">'+(m.merchant_phone||'')+'</span>'
+        li.onclick = async function() {
+          pmSelectedMerchant = {name:m.merchant_name, phone:m.merchant_phone||''}
+          pmInput.value = m.merchant_name
+          pmList.style.display = 'none'
+          // Load balance for this merchant
+          await loadPmMerchantBalance(m.merchant_name)
+        }
+        pmList.appendChild(li)
+      })
+    }
+    positionDropdown(pmInput, pmList)
+    pmList.style.display = 'block'
+  }, 250)
+})
+pmInput.addEventListener('focus', function() {
+  if(pmList.children.length){positionDropdown(pmInput,pmList);pmList.style.display='block'}
+})
+
+async function loadPmMerchantBalance(merchantName) {
+  // Compute net balance: credit from purchases - payments made
+  var [purchRes, payRes] = await Promise.all([
+    supabase.from('purchases').select('credit,bill_type').ilike('merchant_name', merchantName),
+    supabase.from('merchant_payments').select('amount').ilike('merchant_name', merchantName)
+  ])
+  var purchBills = (purchRes.data||[]).filter(function(b){return b.bill_type!=='return'})
+  var retBills   = (purchRes.data||[]).filter(function(b){return b.bill_type==='return'})
+  var payable    = purchBills.reduce(function(s,b){return s+(b.credit||0)},0)
+  var retCredit  = retBills.reduce(function(s,b){return s+Math.abs(b.credit||0)},0)
+  var paid       = (payRes.data||[]).reduce(function(s,p){return s+(p.amount||0)},0)
+  pmMerchBalance = Math.round(payable - retCredit - paid)
+
+  // Show info
+  var infoEl    = document.getElementById('pmMerchantInfo')
+  var nameEl    = document.getElementById('pmMerchantName')
+  var phoneEl   = document.getElementById('pmMerchantPhone')
+  var pillEl    = document.getElementById('pmBalancePill')
+  nameEl.innerText  = merchantName
+  phoneEl.innerText = pmSelectedMerchant.phone || 'No phone'
+  var nb = pmMerchBalance
+  if(nb > 0) {
+    pillEl.innerText = '⚠️ You owe: ₹'+Math.abs(nb).toLocaleString('en-IN')
+    pillEl.style.background = 'rgba(248,113,113,0.15)'
+    pillEl.style.color = '#f87171'
+    document.getElementById('pmAmount').value = nb
+  } else if(nb < 0) {
+    pillEl.innerText = '✅ Overpaid: ₹'+Math.abs(nb).toLocaleString('en-IN')
+    pillEl.style.background = 'rgba(52,211,153,0.15)'
+    pillEl.style.color = '#34d399'
+  } else {
+    pillEl.innerText = '✓ Account Clear'
+    pillEl.style.background = 'rgba(52,211,153,0.1)'
+    pillEl.style.color = '#34d399'
+  }
+  infoEl.style.display = 'block'
+}
+
+async function generatePMVoucherNo(merchantName) {
+  var now=new Date()
+  var dd=String(now.getDate()).padStart(2,'0'),mm=String(now.getMonth()+1).padStart(2,'0'),yy=String(now.getFullYear()).slice(2)
+  var clean=merchantName.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,10)
+  var start=new Date();start.setHours(0,0,0,0)
+  var res=await supabase.from('merchant_payments').select('id').ilike('merchant_name',merchantName).gte('created_at',start.toISOString())
+  return 'AAM(MP)-'+clean+'-'+dd+mm+yy+'-'+String((res.data||[]).length+1).padStart(4,'0')
+}
+
+window.savePayToMerchant = async function(shouldPrint) {
+  if (!pmSelectedMerchant) { alert('Please search and select a merchant first'); return }
+  var amount   = parseFloat(document.getElementById('pmAmount').value)||0
+  var discount = parseFloat(document.getElementById('pmDiscount').value)||0
+  var mode     = document.getElementById('pmMode').value
+  var ref      = document.getElementById('pmRef').value.trim()
+  var note     = document.getElementById('pmNote').value.trim()
+  if (!amount) { alert('Enter payment amount'); return }
+
+  var voucherNo = await generatePMVoucherNo(pmSelectedMerchant.name)
+
+  // Save to merchant_payments table — same table merchant-ledger reads from
+  var ins = await supabase.from('merchant_payments').insert([{
+    merchant_name:  pmSelectedMerchant.name,
+    merchant_phone: pmSelectedMerchant.phone||null,
+    receipt_no:     voucherNo,
+    amount:         Math.round(amount),
+    mode:           mode,
+    reference_no:   ref||null,
+    note:           note||null
+  }])
+  if (ins.error) { alert('❌ Save failed: '+ins.error.message); return }
+
+  var newBalance = pmMerchBalance - amount
+  var fmtB = function(n){ return n>0?'-₹'+Math.abs(n).toLocaleString('en-IN')+' (Payable)':n<0?'+₹'+Math.abs(n).toLocaleString('en-IN')+' (Overpaid)':'₹0 Clear' }
+
+  if (shouldPrint) {
+    // Fill voucher print area
+    document.getElementById('vchrNo').innerText      = voucherNo
+    document.getElementById('vchrName').innerText    = pmSelectedMerchant.name
+    document.getElementById('vchrPhone').innerText   = pmSelectedMerchant.phone||'—'
+    document.getElementById('vchrMode').innerText    = mode
+    document.getElementById('vchrAmount').innerText  = '₹'+Math.round(amount).toLocaleString('en-IN')
+    document.getElementById('vchrPaid').innerText    = '₹'+Math.round(amount).toLocaleString('en-IN')
+    document.getElementById('vchrPrevBal').innerText = fmtB(pmMerchBalance)
+    document.getElementById('vchrNewBal').innerText  = fmtB(Math.round(newBalance))
+    document.getElementById('vchrDate').innerText    = new Date().toLocaleString('en-IN')
+    document.getElementById('vchrDateVal').innerText = new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'})
+    if(ref){document.getElementById('vchrRef').innerText=ref;document.getElementById('vchrRefRow').style.display='flex'}
+    else   {document.getElementById('vchrRefRow').style.display='none'}
+    if(note){document.getElementById('vchrNote').innerText=note;document.getElementById('vchrNoteBox').style.display='block'}
+    else    {document.getElementById('vchrNoteBox').style.display='none'}
+    // FIX 6: QR on voucher
+    generateQR('vchrQrCode')
+    document.getElementById('voucherArea').style.display='block'
+    document.body.classList.add('print-voucher')
+    var ot=document.title; document.title=voucherNo
+    setTimeout(function(){
+      window.print()
+      setTimeout(function(){
+        document.title=ot
+        document.getElementById('voucherArea').style.display='none'
+        document.body.classList.remove('print-voucher')
+      },800)
+    },400)
+  }
+
+  closePayMerchantModal()
+  alert('✅ Payment recorded!\nVoucher: '+voucherNo+'\n\nThis payment is now visible in Merchant Ledger → '+pmSelectedMerchant.name)
+}
 
 // ── INIT ──
 document.getElementById('billDate').value = new Date().toISOString().slice(0,10)
