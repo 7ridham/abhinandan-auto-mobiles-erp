@@ -808,9 +808,6 @@ function toggleSidebar() {
   document.body.classList.toggle('sidebar-open');
 }
 
-// Open sidebar INSTANTLY on load — no animation flash
-document.body.classList.add('sidebar-open');
-
 // Enable smooth animation only AFTER page fully loads
 window.addEventListener('load', function() {
   document.body.classList.add('sidebar-animated');
