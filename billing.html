@@ -30,29 +30,53 @@
   #salesBillMode .card + .card,#salesBillMode .card > .card{margin-top:18px!important;}
   .delivery-box{display:none;background:rgba(6,182,212,0.06);border:1.5px dashed rgba(6,182,212,0.3);border-radius:12px;padding:16px;margin-top:14px;}
   .delivery-box.visible{display:block;}
-  /* WHY: Dropdowns use position:fixed so they escape overflow:hidden containers */
+
+  /* WHY: Product dropdown uses liquid glass dark-blue style with white text */
   #customerList,#productList,#payMerchantList{
     position:fixed;z-index:99999;
-    background:#0f1623;
-    border:1px solid rgba(255,255,255,0.15);
-    border-top:none;border-radius:0 0 10px 10px;
+    background:rgba(10,15,40,0.92);
+    backdrop-filter:blur(18px);
+    -webkit-backdrop-filter:blur(18px);
+    border:1px solid rgba(96,165,250,0.25);
+    border-top:none;
+    border-radius:0 0 14px 14px;
     list-style:none;margin:0;padding:0;
-    max-height:320px;overflow-y:auto;
+    max-height:340px;overflow-y:auto;
     display:none;
-    box-shadow:0 12px 40px rgba(0,0,0,0.7);
+    box-shadow:0 16px 48px rgba(0,0,20,0.8), inset 0 1px 0 rgba(255,255,255,0.06);
   }
   #customerList li,#productList li,#payMerchantList li{
     padding:10px 16px;cursor:pointer;
-    border-bottom:1px solid rgba(255,255,255,0.06);
+    border-bottom:1px solid rgba(96,165,250,0.1);
     font-size:13px;font-family:'DM Sans',sans-serif;
-    color:#ffffff!important;
+    color:#ffffff !important;
     display:flex;justify-content:space-between;align-items:center;gap:10px;
-    background:#0f1623!important;transition:background 0.15s;
+    background:transparent !important;
+    transition:background 0.15s;
   }
   #customerList li:last-child,#productList li:last-child,#payMerchantList li:last-child{border-bottom:none;}
-  #customerList li:hover,#productList li:hover,#payMerchantList li:hover{background:rgba(37,99,235,0.55)!important;color:#ffffff!important;}
-  #customerList li *,#productList li *,#payMerchantList li *{color:inherit;}
-  #customerList li:hover *,#productList li:hover *,#payMerchantList li:hover *{color:#ffffff!important;}
+  #customerList li:hover,#productList li:hover,#payMerchantList li:hover{
+    background:rgba(37,99,235,0.45) !important;
+    color:#ffffff !important;
+  }
+  #customerList li *,#productList li *,#payMerchantList li *{color:#ffffff !important;}
+  #customerList li:hover *,#productList li:hover *,#payMerchantList li:hover *{color:#ffffff !important;}
+
+  /* WHY: Detail badge (brand · category · size) — white text, subtle liquid glass pill */
+  .prod-detail-badge{
+    font-size:11px !important;
+    color:rgba(255,255,255,0.75) !important;
+    background:rgba(96,165,250,0.18) !important;
+    border:1px solid rgba(96,165,250,0.25) !important;
+    border-radius:6px !important;
+    padding:1px 7px !important;
+    margin-left:6px !important;
+    font-weight:500 !important;
+    letter-spacing:0 !important;
+    display:inline !important;
+    white-space:nowrap !important;
+  }
+
   .removeBtn{background:rgba(220,38,38,0.85)!important;border:1.5px solid rgba(220,38,38,0.6)!important;color:#ffffff!important;width:30px!important;height:30px!important;border-radius:7px!important;cursor:pointer!important;font-size:15px!important;font-weight:700!important;padding:0!important;box-shadow:none!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;line-height:1!important;font-family:'DM Sans',sans-serif!important;}
   .removeBtn:hover{background:#dc2626!important;}
   #payMerchantModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:11000;align-items:center;justify-content:center;backdrop-filter:blur(8px);}
@@ -71,6 +95,7 @@
   .bill-paper{max-width:800px;margin:auto;background:#fff;border:1px solid #e5e7eb;}
   .bill-header{background:linear-gradient(135deg,#1e3a5f 0%,#2563eb 60%,#06b6d4 100%);color:white;padding:28px 36px 20px;display:flex;align-items:center;justify-content:space-between;gap:20px;}
   .bill-header.return-style{background:linear-gradient(135deg,#7f1d1d 0%,#dc2626 60%,#f87171 100%)!important;}
+  .bill-header.merchant-pay-style{background:linear-gradient(135deg,#1a0533 0%,#6d28d9 60%,#a78bfa 100%)!important;}
   .bill-header-left{display:flex;align-items:center;gap:18px;}
   .bill-logo{height:70px;width:70px;object-fit:contain;background:white;border-radius:10px;padding:6px;flex-shrink:0;}
   .bill-logo-fallback{height:70px;width:70px;background:white;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;color:#1e3a5f;flex-shrink:0;font-family:'Playfair Display',serif;}
@@ -84,9 +109,14 @@
   .bill-meta-block label{font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:#6b7280;display:block;margin-bottom:3px;}
   .bill-meta-block span{font-size:15px;font-weight:600;color:#111827;}
   .return-ref-bar{display:none;background:#fef2f2;border-bottom:1px solid #fecaca;padding:10px 36px;font-size:13px;color:#dc2626;font-weight:500;}
+  /* WHY: Merchant payment bar shown at bottom of bill when bill_type = 'pay_to_merchant' */
+  .merchant-pay-bar{display:none;margin:10px 36px 0;padding:14px 18px;background:#f5f3ff;border:1.5px solid #ddd6fe;border-radius:10px;font-size:13px;}
+  .merchant-pay-bar .mp-title{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#6d28d9;margin-bottom:10px;}
+  .merchant-pay-bar .mp-row{display:flex;gap:32px;flex-wrap:wrap;}
+  .merchant-pay-bar .mp-item label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:#6b7280;display:block;margin-bottom:2px;}
+  .merchant-pay-bar .mp-item span{font-size:14px;font-weight:700;color:#4c1d95;}
   .bill-table-wrap{padding:0 36px;margin-top:18px;}
   .bill-table{width:100%;border-collapse:collapse;font-size:14px;}
-  /* WHY: thead th needs explicit white color for print - some browsers reset it */
   .bill-table thead tr{background:#1e3a5f;color:white;}
   .bill-table thead th{padding:11px 14px;text-align:left;font-weight:700;font-size:13px;color:#ffffff!important;}
   .bill-table thead th:not(:first-child){text-align:center;}
@@ -111,7 +141,6 @@
   .bill-footer-left .thank-you{font-size:15px;font-weight:600;color:#1e3a5f;margin-bottom:4px;}
   .sig-label{font-size:12px;color:#6b7280;}
   .print-item-detail{font-size:11px;color:#6b7280;margin-top:2px;}
-  /* WHY: QR + thank you section uses flex row so both appear side by side horizontally */
   .bill-bottom-bar{margin:10px 36px 0;display:flex;align-items:center;justify-content:space-between;gap:20px;padding:12px 16px;background:#f8fafc;border:1px solid #e5e7eb;border-radius:8px;}
   .bill-bottom-bar .qr-side{display:flex;align-items:center;gap:12px;flex-shrink:0;}
   .bill-bottom-bar .qr-text{font-size:11px;color:#6b7280;line-height:1.5;}
@@ -130,6 +159,7 @@
     .bill-paper{border:none!important;box-shadow:none!important;border-radius:0!important;page-break-inside:auto;}
     .bill-header{background:#1e3a5f!important;}
     .bill-header.return-style{background:#7f1d1d!important;}
+    .bill-header.merchant-pay-style{background:#4c1d95!important;}
     .bill-table thead tr{background:#1e3a5f!important;}
     .bill-table thead th{color:#ffffff!important;}
     .bill-table{page-break-inside:auto;}
@@ -143,7 +173,6 @@
 
 <div class="wa-toast" id="waToast"><span>📲</span><span id="waToastMsg">Opening WhatsApp...</span></div>
 
-<!-- WHY: Dropdowns placed at body level so position:fixed works correctly -->
 <ul id="customerList"></ul>
 <ul id="productList"></ul>
 <ul id="payMerchantList"></ul>
@@ -235,7 +264,6 @@
           <div style="font-size:12px;color:rgba(255,255,255,0.35);padding-bottom:10px;">💡 Change only if making a bill for a previous date</div>
         </div>
       </div>
-      <!-- FIX: Notes field added here - prints on bill -->
       <div style="margin-top:14px;">
         <label class="field-label">Notes / Remarks <span class="opt-tag">(optional — prints on bill)</span></label>
         <textarea id="billNotes" placeholder="e.g. Customer promised payment in 3 days, special order, etc." style="width:100%;padding:10px 14px;border-radius:8px;border:1.5px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.06);color:white;font-size:13px;font-family:'DM Sans',sans-serif;resize:vertical;height:60px;margin-bottom:0;outline:none;"></textarea>
@@ -245,7 +273,6 @@
     <div class="card" style="margin-top:18px;">
       <h3>Add Products</h3>
       <div style="position:relative;">
-        <!-- FIX: Search includes brand, category, size -->
         <input id="productSearch" placeholder="Search by name, brand, category, size..." autocomplete="off" style="margin-bottom:0;">
       </div>
       <div style="margin-top:8px;font-size:12px;color:rgba(255,255,255,0.3);">💡 Search by product name, brand, category, or size. Brand · Category · Size shown in results.</div>
@@ -380,7 +407,7 @@
       </div>
     </div>
   </div>
-</div><!-- end .main -->
+</div>
 
 <!-- PRINT AREA -->
 <div id="printArea">
@@ -434,13 +461,22 @@
         <span class="bill-payment-item" id="printDiscountPayItem" style="display:none;"><span class="pm-label" style="color:#059669;">Discount</span><span class="pm-val" style="color:#059669;">₹<span id="printDiscountPay">0</span></span></span>
       </div>
     </div>
+    <!-- WHY: Merchant payment bar — shows at bottom for pay_to_merchant bill type -->
+    <div class="merchant-pay-bar" id="printMerchantPayBar">
+      <div class="mp-title">🏪 Paid to Merchant</div>
+      <div class="mp-row">
+        <div class="mp-item"><label>Merchant Name</label><span id="printMpMerchant">—</span></div>
+        <div class="mp-item"><label>Payment Mode</label><span id="printMpMode">—</span></div>
+        <div class="mp-item" id="printMpRefBlock" style="display:none;"><label>Reference / Transfer ID</label><span id="printMpRef">—</span></div>
+        <div class="mp-item"><label>Amount Paid to Merchant</label><span id="printMpAmount">₹0</span></div>
+      </div>
+    </div>
     <div id="printDeliveryNoteBar" style="display:none;margin:8px 36px 0;padding:8px 14px;background:#ecfeff;border:1px solid #a5f3fc;border-radius:6px;font-size:12px;color:#0891b2;">
       🚚 <strong>Delivery Note:</strong> <span id="printDeliveryNoteText"></span>
     </div>
     <div id="printNotesBar" style="display:none;margin:8px 36px 0;padding:10px 14px;background:#fffbeb;border:1px solid #fde68a;border-radius:6px;font-size:12px;color:#92400e;">
       📝 <strong>Notes:</strong> <span id="printNotesText"></span>
     </div>
-    <!-- FIX: QR code on LEFT + thank you message on RIGHT, side by side (horizontal) -->
     <div class="bill-bottom-bar">
       <div class="qr-side">
         <div id="printQrCode"></div>
@@ -475,6 +511,7 @@
           <option value="all">All Bills</option>
           <option value="sale">Sales Only</option>
           <option value="return">Returns Only</option>
+          <option value="pay_to_merchant">Paid to Merchant</option>
         </select>
         <button id="closeHistoryBtn" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);padding:8px 16px;font-size:13px;border-radius:8px;box-shadow:none;">✕ Close</button>
       </div>
@@ -523,18 +560,47 @@
 <div id="payMerchantModal">
   <div class="pm-modal-box">
     <h3>🏪 Pay to Merchant</h3>
-    <p class="sub">Record a payment you made to a merchant / supplier</p>
-    <div class="pm-field">
-      <label>Search Merchant Name *</label>
-      <input type="text" id="pmMerchantSearch" placeholder="Type merchant name..." autocomplete="off" style="margin-bottom:0;">
+    <p class="sub">Record a payment you made to a merchant / supplier. This will appear on the Sales Bill AND in Merchant Ledger.</p>
+
+    <!-- Customer section - whose bill is this linked to -->
+    <div style="background:rgba(37,99,235,0.08);border:1px solid rgba(37,99,235,0.2);border-radius:10px;padding:14px;margin-bottom:16px;">
+      <div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(96,165,250,0.8);margin-bottom:12px;">👤 Customer (Who Bought)</div>
+      <div class="pm-field">
+        <label>Customer Name *</label>
+        <input type="text" id="pmCustomerSearch" placeholder="Type customer name or phone..." autocomplete="off" style="margin-bottom:0;">
+      </div>
+      <div class="pm-field" style="margin-bottom:0;">
+        <label>Customer Phone <span style="font-size:10px;color:rgba(255,255,255,0.25);">auto-filled</span></label>
+        <input type="text" id="pmCustomerPhone" placeholder="Auto-filled" style="margin-bottom:0;">
+      </div>
     </div>
-    <div id="pmMerchantInfo" style="display:none;background:rgba(124,58,237,0.1);border:1px solid rgba(124,58,237,0.3);border-radius:10px;padding:12px 16px;margin-bottom:16px;">
-      <div style="font-size:13px;color:white;font-weight:600;" id="pmMerchantName">—</div>
-      <div style="font-size:12px;color:rgba(255,255,255,0.5);margin-top:2px;" id="pmMerchantPhone">—</div>
-      <div class="pm-balance-pill" id="pmBalancePill" style="margin-top:8px;margin-bottom:0;"></div>
+
+    <!-- Products section -->
+    <div style="background:rgba(37,99,235,0.08);border:1px solid rgba(37,99,235,0.2);border-radius:10px;padding:14px;margin-bottom:16px;">
+      <div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(96,165,250,0.8);margin-bottom:12px;">📦 Products Sold</div>
+      <div style="position:relative;">
+        <input type="text" id="pmProductSearch" placeholder="Search product name, brand, category..." autocomplete="off" style="margin-bottom:0;">
+      </div>
+      <div id="pmBillItems" style="margin-top:10px;"></div>
+      <div style="margin-top:8px;font-size:12px;color:rgba(255,255,255,0.35);">Total: ₹<span id="pmSubtotal">0</span></div>
     </div>
+
+    <!-- Merchant section -->
+    <div style="background:rgba(124,58,237,0.08);border:1px solid rgba(124,58,237,0.25);border-radius:10px;padding:14px;margin-bottom:16px;">
+      <div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(167,139,250,0.8);margin-bottom:12px;">🏪 Merchant (Who Gets Paid)</div>
+      <div class="pm-field">
+        <label>Search Merchant Name *</label>
+        <input type="text" id="pmMerchantSearch" placeholder="Type merchant name..." autocomplete="off" style="margin-bottom:0;">
+      </div>
+      <div id="pmMerchantInfo" style="display:none;background:rgba(124,58,237,0.1);border:1px solid rgba(124,58,237,0.3);border-radius:10px;padding:12px 16px;margin-top:10px;">
+        <div style="font-size:13px;color:white;font-weight:600;" id="pmMerchantName">—</div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.5);margin-top:2px;" id="pmMerchantPhone">—</div>
+        <div class="pm-balance-pill" id="pmBalancePill" style="margin-top:8px;margin-bottom:0;"></div>
+      </div>
+    </div>
+
     <div class="pm-field">
-      <label>Amount Paid (₹) *</label>
+      <label>Amount Paid to Merchant (₹) *</label>
       <input type="number" id="pmAmount" placeholder="e.g. 5000" min="0" style="margin-bottom:0;">
     </div>
     <div class="pm-field">
@@ -550,15 +616,15 @@
       </select>
     </div>
     <div class="pm-field">
-      <label>Reference / Cheque No <span style="font-size:10px;color:rgba(255,255,255,0.25);">optional</span></label>
-      <input type="text" id="pmRef" placeholder="e.g. CHQ-001234 or UTR number" style="margin-bottom:0;">
+      <label>Reference / Transfer ID / Cheque No <span style="font-size:10px;color:rgba(255,255,255,0.25);">optional</span></label>
+      <input type="text" id="pmRef" placeholder="e.g. CHQ-001234 or UTR/Transfer ID" style="margin-bottom:0;">
     </div>
     <div class="pm-field">
       <label>Note <span style="font-size:10px;color:rgba(255,255,255,0.25);">optional</span></label>
       <textarea id="pmNote" placeholder="e.g. Payment for purchase bill PUR-..." style="height:60px;resize:vertical;margin-bottom:0;"></textarea>
     </div>
     <div class="pm-actions">
-      <button onclick="savePayToMerchant(false)" style="flex:1;background:linear-gradient(135deg,#7c3aed,#6d28d9);border:none;color:white;padding:10px;border-radius:8px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;">✅ Save Payment</button>
+      <button onclick="savePayToMerchant(false)" style="flex:1;background:linear-gradient(135deg,#7c3aed,#6d28d9);border:none;color:white;padding:10px;border-radius:8px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;">✅ Save</button>
       <button onclick="savePayToMerchant(true)" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:white;padding:10px 16px;border-radius:8px;cursor:pointer;font-family:'DM Sans',sans-serif;">🖨 Save &amp; Print</button>
       <button onclick="closePayMerchantModal()" style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.5);padding:10px 16px;border-radius:8px;cursor:pointer;font-family:'DM Sans',sans-serif;">Cancel</button>
     </div>
@@ -575,8 +641,6 @@
 </style>
 
 <script>
-// WHY: Load Supabase dynamically then call initBilling with the client.
-// This ensures supabase is fully ready before any DB calls happen.
 var _sb = document.createElement('script')
 _sb.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js'
 _sb.onload = function() {
@@ -589,11 +653,8 @@ _sb.onload = function() {
 _sb.onerror = function() { alert('Network error: Could not load Supabase.') }
 document.head.appendChild(_sb)
 
-// WHY: Portal URL for QR code - dynamically uses whatever domain we're on
 var PORTAL_URL = window.location.origin + '/portal.html'
 
-// WHY: generateQR runs after print area is shown. It clears the container
-// first so duplicate QR codes don't stack up on reprint.
 function generateQR(containerId) {
   var el = document.getElementById(containerId)
   if (!el || !window.QRCode) return
@@ -610,7 +671,6 @@ function generateQR(containerId) {
 
 function initBilling(supabase) {
 
-// ── STATE VARIABLES ──
 var selectedCustomer   = null
 var currentBillNumber  = null
 var billItems          = []
@@ -630,17 +690,24 @@ var custTimer = null, prodTimer = null, histTimer = null
 var pmSelectedMerchant = null
 var pmMerchBalance     = 0
 var pmMerchTimer       = null
+var pmSelectedCustomer = null
+var pmBillItems        = []
+var pmProdTimer        = null
+var pmCustTimer        = null
 
-// ── DOM REFS ──
-var custInput = document.getElementById('customerSearch')
-var custList  = document.getElementById('customerList')
-var prodInput = document.getElementById('productSearch')
-var prodList  = document.getElementById('productList')
-var pmInput   = document.getElementById('pmMerchantSearch')
-var pmList    = document.getElementById('payMerchantList')
+var custInput    = document.getElementById('customerSearch')
+var custList     = document.getElementById('customerList')
+var prodInput    = document.getElementById('productSearch')
+var prodList     = document.getElementById('productList')
+var pmMerchInput = document.getElementById('pmMerchantSearch')
+var pmList       = document.getElementById('payMerchantList')
 
-// ── DROPDOWN POSITIONING ──
-// WHY: Dropdowns use position:fixed so scroll/resize needs to reposition them
+// WHY: Extra dropdowns for the new PM modal (customer search + product search)
+var pmCustInput  = document.getElementById('pmCustomerSearch')
+var pmProdInput  = document.getElementById('pmProductSearch')
+// These share the same payMerchantList dropdown
+var pmCustList   = document.getElementById('payMerchantList')
+
 function positionDropdown(inputEl, dropdownEl) {
   var rect = inputEl.getBoundingClientRect()
   dropdownEl.style.left  = rect.left + 'px'
@@ -648,17 +715,19 @@ function positionDropdown(inputEl, dropdownEl) {
   dropdownEl.style.width = rect.width + 'px'
 }
 window.addEventListener('scroll', function() {
-  if (custList.style.display !== 'none') positionDropdown(custInput, custList)
-  if (prodList.style.display !== 'none') positionDropdown(prodInput, prodList)
-  if (pmList.style.display   !== 'none') positionDropdown(pmInput,   pmList)
+  if (custList.style.display    !== 'none') positionDropdown(custInput,    custList)
+  if (prodList.style.display    !== 'none') positionDropdown(prodInput,    prodList)
+  if (pmList.style.display      !== 'none') {
+    if (document.activeElement === pmMerchInput)  positionDropdown(pmMerchInput, pmList)
+    else if (document.activeElement === pmCustInput)  positionDropdown(pmCustInput, pmCustList)
+    else if (document.activeElement === pmProdInput)  positionDropdown(pmProdInput, pmList)
+  }
 }, true)
 window.addEventListener('resize', function() {
   if (custList.style.display !== 'none') positionDropdown(custInput, custList)
   if (prodList.style.display !== 'none') positionDropdown(prodInput, prodList)
-  if (pmList.style.display   !== 'none') positionDropdown(pmInput,   pmList)
 })
 
-// ── MODE TOGGLE ──
 window.setMode = function(mode) {
   document.getElementById('salesBillMode').style.display   = mode==='sale'   ? 'block' : 'none'
   document.getElementById('salesReturnMode').style.display = mode==='return' ? 'block' : 'none'
@@ -666,7 +735,6 @@ window.setMode = function(mode) {
   document.getElementById('modeReturnBtn').className = 'mode-btn ' + (mode==='return'?'active-return':'')
 }
 
-// ── BILL TYPE BUTTONS ──
 document.querySelectorAll('.bill-type-btn').forEach(function(btn) {
   btn.addEventListener('click', function() {
     document.querySelectorAll('.bill-type-btn').forEach(function(b){ b.classList.remove('active') })
@@ -675,7 +743,6 @@ document.querySelectorAll('.bill-type-btn').forEach(function(btn) {
   })
 })
 
-// ── DELIVERY BOX ──
 window.toggleDeliveryBox = function() {
   deliveryBoxOpen = !deliveryBoxOpen
   var box = document.getElementById('deliveryBox')
@@ -696,8 +763,6 @@ window.toggleDeliveryBox = function() {
   }
 }
 
-// ── INVOICE NUMBER GENERATOR ──
-// WHY: Prefix uses ddmmyy of the bill date so editing date changes the number prefix
 async function generateInvoiceNo(dateStr) {
   var p = dateStr.split('-')
   var dd = p[2], mm = p[1], yy = p[0].slice(2)
@@ -728,7 +793,23 @@ async function generateReturnNo(dateStr) {
   return prefix + String(lastNo + 1).padStart(4, '0')
 }
 
-// ── CUSTOMER SEARCH ──
+// WHY: Generate voucher number for pay-to-merchant bills saved in `sales` table
+async function generatePTMBillNo(dateStr) {
+  var p = (dateStr || new Date().toISOString().slice(0,10)).split('-')
+  var dd = p[2], mm = p[1], yy = p[0].slice(2)
+  var prefix = 'PTM-AAM-' + dd + mm + yy + '-'
+  var res = await supabase.from('sales').select('bill_number')
+    .like('bill_number', prefix + '%')
+    .order('bill_number', {ascending:false}).limit(1)
+  var lastNo = 0
+  if (res.data && res.data.length) {
+    var parts = res.data[0].bill_number.split('-')
+    lastNo = parseInt(parts[parts.length-1]) || 0
+  }
+  return prefix + String(lastNo + 1).padStart(4, '0')
+}
+
+// ── CUSTOMER SEARCH (main billing) ──
 custInput.addEventListener('input', function() {
   var text = this.value.trim()
   clearTimeout(custTimer)
@@ -764,7 +845,9 @@ custInput.addEventListener('input', function() {
 document.addEventListener('click', function(e) {
   if (!custInput.contains(e.target) && !custList.contains(e.target)) custList.style.display='none'
   if (!prodInput.contains(e.target) && !prodList.contains(e.target)) prodList.style.display='none'
-  if (pmInput && !pmInput.contains(e.target) && !pmList.contains(e.target)) pmList.style.display='none'
+  if (pmMerchInput && !pmMerchInput.contains(e.target) && !pmList.contains(e.target) &&
+      pmCustInput && !pmCustInput.contains(e.target) &&
+      pmProdInput && !pmProdInput.contains(e.target)) pmList.style.display='none'
 })
 custInput.addEventListener('focus', function() {
   if (custList.children.length) { positionDropdown(custInput, custList); custList.style.display='block' }
@@ -779,10 +862,18 @@ async function loadVehicleSuggestions(customerId) {
     .map(function(s){ return '<option value="'+s.vehicle_number+'">' }).join('')
 }
 
-// ── PRODUCT SEARCH ──
-// WHY: We search brand, category, unit_type in the OR filter.
-// Size is selected separately and shown in results.
-// We fall back gracefully if the size column doesn't exist.
+// WHY: Product search builds a white-text detail badge (brand · category · size · unit)
+// using the .prod-detail-badge class defined in CSS for liquid glass styling
+function buildDetailBadge(p) {
+  var parts = []
+  if (p.brand    && p.brand.trim())    parts.push(p.brand.trim())
+  if (p.category && p.category.trim()) parts.push(p.category.trim())
+  if (p.size     && p.size.trim())     parts.push('Size: ' + p.size.trim())
+  if (p.unit_type&& p.unit_type.trim())parts.push(p.unit_type.trim())
+  return parts.length ? '<span class="prod-detail-badge">' + parts.join(' · ') + '</span>' : ''
+}
+
+// ── PRODUCT SEARCH (main billing) ──
 prodInput.addEventListener('input', function() {
   var text = this.value.trim()
   clearTimeout(prodTimer)
@@ -790,9 +881,8 @@ prodInput.addEventListener('input', function() {
   prodTimer = setTimeout(async function() {
     var res = await supabase.from('inventory')
       .select('id,item_name,selling_price,quantity,category,unit_type,brand,size')
-      .or('item_name.ilike.%'+text+'%,category.ilike.%'+text+'%,unit_type.ilike.%'+text+'%,brand.ilike.%'+text+'%')
+      .or('item_name.ilike.%'+text+'%,category.ilike.%'+text+'%,unit_type.ilike.%'+text+'%,brand.ilike.%'+text+'%,size.ilike.%'+text+'%')
       .order('item_name').limit(20)
-    // Fallback: if size column missing, retry without it
     if (res.error && res.error.code === '42703') {
       res = await supabase.from('inventory')
         .select('id,item_name,selling_price,quantity,category,unit_type,brand')
@@ -801,40 +891,26 @@ prodInput.addEventListener('input', function() {
     }
     prodList.innerHTML = ''
     if (res.error) {
-      var li = document.createElement('li')
-      li.style.cursor = 'default'
-      li.innerHTML = '<span style="opacity:0.5;color:#f87171;">Search error: '+res.error.message+'</span>'
+      var li = document.createElement('li'); li.style.cursor='default'
+      li.innerHTML = '<span style="color:#f87171;">Search error: '+res.error.message+'</span>'
       prodList.appendChild(li)
-      positionDropdown(prodInput, prodList)
-      prodList.style.display = 'block'
-      return
+      positionDropdown(prodInput, prodList); prodList.style.display='block'; return
     }
     if (!res.data || !res.data.length) {
-      var li = document.createElement('li')
-      li.style.cursor = 'default'
+      var li = document.createElement('li'); li.style.cursor='default'
       li.innerHTML = '<span style="opacity:0.5;">No products found for "'+text+'"</span>'
       prodList.appendChild(li)
-      positionDropdown(prodInput, prodList)
-      prodList.style.display = 'block'
-      return
+      positionDropdown(prodInput, prodList); prodList.style.display='block'; return
     }
     res.data.forEach(function(p) {
       var sc   = p.quantity<=0 ? '#f87171' : p.quantity<=5 ? '#fbbf24' : '#34d399'
       var sclbl= p.quantity<=0 ? 'Out of Stock' : p.quantity<=5 ? p.quantity+' left (low)' : p.quantity+' in stock'
-      // FIX: Build detail string showing Brand · Category · Size · Unit
-      var detailParts = []
-      if (p.brand    && p.brand.trim())     detailParts.push(p.brand.trim())
-      if (p.category && p.category.trim())  detailParts.push(p.category.trim())
-      if (p.size     && p.size.trim())      detailParts.push('Size: '+p.size.trim())
-      if (p.unit_type&& p.unit_type.trim()) detailParts.push(p.unit_type.trim())
-      var detailStr = detailParts.length
-        ? '<span style="font-size:11px;opacity:0.7;margin-left:4px;color:#60a5fa;">'+detailParts.join(' · ')+'</span>'
-        : ''
+      var badge = buildDetailBadge(p)
       var li = document.createElement('li')
       li.style.flexWrap = 'wrap'
       li.innerHTML =
-        '<span style="font-weight:600;flex:1;min-width:0;">'+p.item_name+detailStr+'</span>'+
-        '<span style="font-size:12px;opacity:0.7;white-space:nowrap;margin-left:8px;">₹'+(p.selling_price||0)+'</span>'+
+        '<span style="font-weight:600;flex:1;min-width:0;color:#fff;">'+p.item_name+badge+'</span>'+
+        '<span style="font-size:12px;white-space:nowrap;margin-left:8px;color:#fff;">₹'+(p.selling_price||0)+'</span>'+
         '<span style="font-size:11px;font-weight:700;color:'+sc+';white-space:nowrap;min-width:90px;text-align:right;">'+sclbl+'</span>'
       li.onclick = function() {
         addToBill(p)
@@ -853,8 +929,6 @@ prodInput.addEventListener('focus', function() {
   if (prodList.children.length) { positionDropdown(prodInput, prodList); prodList.style.display='block' }
 })
 
-// ── ADD TO BILL ──
-// WHY: We store brand/category/size/unitType so they print on the bill
 function addToBill(product) {
   for (var i=0; i<billItems.length; i++) {
     if (billItems[i].id === product.id) { billItems[i].qty++; renderBill(); return }
@@ -872,7 +946,6 @@ function addToBill(product) {
   renderBill()
 }
 
-// ── DISCOUNT HANDLING ──
 window.handleDiscountTypeChange = function() {
   var type = document.getElementById('discountType').value
   if (type === 'auto') {
@@ -902,7 +975,6 @@ function calcDiscount(afterTotal) {
   return Math.round(disc)
 }
 
-// ── RENDER BILL TABLE ──
 function renderBill() {
   var table = document.getElementById('billTable')
   table.innerHTML = ''
@@ -913,7 +985,6 @@ function renderBill() {
   billItems.forEach(function(item, index) {
     var lt = item.qty * item.price
     totalAmount += lt
-    // FIX: Show brand, category, size, unit in the bill editing row
     var dp = []
     if (item.brand)    dp.push(item.brand)
     if (item.category) dp.push(item.category)
@@ -979,7 +1050,6 @@ function renderBill() {
   html += '<div style="font-size:13px;font-weight:600;color:'+sc+';padding:6px 0 2px;">'+st+'</div>'
   document.getElementById('paymentSummary').innerHTML = html
 
-  // WHY: Attach event listeners after re-rendering so new rows respond
   table.querySelectorAll('.qtyInput').forEach(function(input) {
     input.addEventListener('change', function() { billItems[+this.dataset.index].qty=parseInt(this.value)||1; renderBill() })
   })
@@ -1002,7 +1072,6 @@ function renderBill() {
 
 document.getElementById('gstToggle').addEventListener('change', renderBill)
 
-// ── SAVE BILL ──
 async function saveBill() {
   if (window.isSaving) return
   window.isSaving = true
@@ -1053,7 +1122,6 @@ async function saveBill() {
       return { item_id:item.id, item_name:item.name, quantity:item.qty, price:item.price, total:item.qty*item.price }
     })
 
-    // ── EDIT MODE ──
     if (editingBillId) {
       var oldR = await supabase.from('bill_items').select('*').eq('sale_id', editingBillId)
       await supabase.from('bill_items').delete().eq('sale_id', editingBillId)
@@ -1066,14 +1134,11 @@ async function saveBill() {
         }
         alert('❌ Edit failed: '+ins.error.message); window.isSaving=false; saveBtn.innerText=origText; saveBtn.disabled=false; return
       }
-      // FIX: If date changed, generate a NEW bill number matching the new date
-      // WHY: Bill numbers encode the date (AAM-ddmmyy-NNNN). Changing date
-      // should give a new number so billing records stay chronologically accurate.
       var newBillNum = editingBillNumber
-      var oldParts   = editingBillNumber.split('-') // e.g. ['AAM','300526','0001']
-      var oldDateStr = oldParts[1] // e.g. '300526'
+      var oldParts   = editingBillNumber.split('-')
+      var oldDateStr = oldParts[1]
       var np = billDateStr.split('-')
-      var newDateStr = np[2] + np[1] + np[0].slice(2) // ddmmyy
+      var newDateStr = np[2] + np[1] + np[0].slice(2)
       if (oldDateStr !== newDateStr) {
         newBillNum = await generateInvoiceNo(billDateStr)
       }
@@ -1094,17 +1159,14 @@ async function saveBill() {
         bill_date:         billDateStr,
         notes:             notes     || null
       }).eq('id', editingBillId)
-      // Restore old inventory, decrement new inventory
       for (var oi=0;oi<(oldR.data||[]).length;oi++) { var ov=oldR.data[oi]; if(ov.item_id&&ov.quantity>0) await supabase.rpc('increment_inventory',{p_item_id:ov.item_id,p_qty:ov.quantity}) }
       for (var ni=0;ni<billItems.length;ni++) { var nv=billItems[ni]; if(nv.id) await supabase.rpc('decrement_inventory',{p_item_id:nv.id,p_qty:nv.qty}) }
       if (!window.isPrinting) alert('✅ Bill Updated — '+newBillNum)
       cancelEdit(); window.isSaving=false; saveBtn.innerText=origText; saveBtn.disabled=false; return
     }
 
-    // ── NEW BILL ──
     var billNumber    = await generateInvoiceNo(billDateStr)
     currentBillNumber = billNumber
-    // WHY: noon timestamp (T12:00:00) prevents timezone rollback from changing the date
     var billTimestamp = billDateStr + 'T12:00:00'
 
     var saleRes = await supabase.from('sales').insert([{
@@ -1144,7 +1206,6 @@ async function saveBill() {
 
 document.getElementById('saveBtn').addEventListener('click', saveBill)
 
-// ── RESET FORM ──
 function resetBillingForm() {
   selectedCustomer = null; billItems = []; totalAmount = 0; deliveryBoxOpen = false
   var clearIds = ['customerSearch','receiverName','vehicleNumber','billPhone','deliveryCharges','deliveryNote','cash','upi','credit','discountValue','billNotes']
@@ -1165,7 +1226,6 @@ function resetBillingForm() {
   renderBill()
 }
 
-// ── CANCEL EDIT ──
 window.cancelEdit = function() {
   editingBillId=null; editingBillNumber=null; selectedCustomer=null; billItems=[]; totalAmount=0; deliveryBoxOpen=false
   document.getElementById('editModeBar').style.display='none'
@@ -1182,8 +1242,8 @@ window.cancelEdit = function() {
   renderBill()
 }
 
-// ── FILL PRINT AREA ──
-// WHY: Centralised print fill so both Save+Print and Reprint use identical logic
+// WHY: fillPrintArea handles all bill types including pay_to_merchant.
+// merchantPayData = {merchantName, mode, ref, amount} or null
 function fillPrintArea(opts) {
   var isReturn=opts.isReturn, billNo=opts.billNo, date=opts.date
   var customerName=opts.customerName, phone=opts.phone
@@ -1193,16 +1253,26 @@ function fillPrintArea(opts) {
   var disc=opts.disc, cash=opts.cash, upi=opts.upi, credit=opts.credit
   var payMode=opts.payMode, deliv=opts.deliv||0, delivNote=opts.delivNote||''
   var notes=opts.notes||''
+  var merchantPayData = opts.merchantPayData || null
+  var isMerchantPay = !!merchantPayData
 
-  document.getElementById('printHeader').className             = 'bill-header'+(isReturn?' return-style':'')
-  document.getElementById('printBillType').innerText           = isReturn ? 'SALES RETURN' : (opts.billTypeLabel||selectedBillType||'Sales Bill')
+  var headerEl = document.getElementById('printHeader')
+  if (isMerchantPay) {
+    headerEl.className = 'bill-header merchant-pay-style'
+  } else if (isReturn) {
+    headerEl.className = 'bill-header return-style'
+  } else {
+    headerEl.className = 'bill-header'
+  }
+
+  document.getElementById('printBillType').innerText = isMerchantPay ? 'MERCHANT PAYMENT' : (isReturn ? 'SALES RETURN' : (opts.billTypeLabel||selectedBillType||'Sales Bill'))
   document.getElementById('printInvoiceNo').innerText          = billNo
   document.getElementById('printDate').innerText               = date
   document.getElementById('printCustomer').innerText           = customerName
   document.getElementById('printPhone').innerText              = phone || '—'
   document.getElementById('printPayMode').innerText            = payMode || '—'
   document.getElementById('printFinalLabel').innerText         = isReturn ? 'Return Total' : 'Grand Total'
-  document.getElementById('printFooterMsg').innerText          = isReturn ? 'Return processed. Thank you. 🙏' : 'Thank you for your business 🙏'
+  document.getElementById('printFooterMsg').innerText          = isMerchantPay ? 'Payment sent to merchant 🙏' : (isReturn ? 'Return processed. Thank you. 🙏' : 'Thank you for your business 🙏')
   document.getElementById('printCustSigLabel').innerText       = isReturn ? 'Returned By' : 'Customer Signature'
   document.getElementById('printReturnNoteLine').style.display = isReturn ? 'block' : 'none'
   document.getElementById('printReturnRefBar').style.display   = (isReturn && originalRef) ? 'block' : 'none'
@@ -1210,9 +1280,25 @@ function fillPrintArea(opts) {
   if (receiver) { document.getElementById('printReceiverBlock').style.display='block'; document.getElementById('printReceiver').innerText=receiver } else { document.getElementById('printReceiverBlock').style.display='none' }
   if (vehicle)  { document.getElementById('printVehicleBlock').style.display='block';  document.getElementById('printVehicle').innerText=vehicle  } else { document.getElementById('printVehicleBlock').style.display='none' }
 
+  // WHY: Merchant payment bar — show below payment breakdown for PTM bills
+  var mpBar = document.getElementById('printMerchantPayBar')
+  if (isMerchantPay && merchantPayData) {
+    mpBar.style.display = 'block'
+    document.getElementById('printMpMerchant').innerText = merchantPayData.merchantName || '—'
+    document.getElementById('printMpMode').innerText     = merchantPayData.mode || '—'
+    document.getElementById('printMpAmount').innerText   = '₹' + Math.round(merchantPayData.amount||0).toLocaleString('en-IN')
+    if (merchantPayData.ref) {
+      document.getElementById('printMpRefBlock').style.display = 'block'
+      document.getElementById('printMpRef').innerText = merchantPayData.ref
+    } else {
+      document.getElementById('printMpRefBlock').style.display = 'none'
+    }
+  } else {
+    mpBar.style.display = 'none'
+  }
+
   var tbody = document.getElementById('printItems'); tbody.innerHTML = ''
   items.forEach(function(item, i) {
-    // FIX: Build detail line with brand, category, size, unit for print
     var details = []
     if (item.brand)    details.push(item.brand)
     if (item.category) details.push(item.category)
@@ -1249,13 +1335,11 @@ function fillPrintArea(opts) {
   if (delivNote) { dnBar.style.display='block'; document.getElementById('printDeliveryNoteText').innerText=delivNote } else { dnBar.style.display='none' }
   var notesBar = document.getElementById('printNotesBar')
   if (notes) { notesBar.style.display='block'; document.getElementById('printNotesText').innerText=notes } else { notesBar.style.display='none' }
-  document.getElementById('printPayTitle').innerText = isReturn ? 'Return Breakdown' : 'Payment Breakdown'
+  document.getElementById('printPayTitle').innerText = isReturn ? 'Return Breakdown' : (isMerchantPay ? 'Payment' : 'Payment Breakdown')
 
-  // Generate QR code after DOM is ready
   setTimeout(function(){ generateQR('printQrCode') }, 50)
 }
 
-// ── PRINT BILL ──
 async function printBill() {
   if (!billItems.length) { alert('Add products first'); return }
   var cash  = parseFloat(document.getElementById('cash').value)||0
@@ -1272,7 +1356,6 @@ async function printBill() {
   if ((cash+upi+cred) > final) { alert('❌ Payment exceeds total. Please fix first.'); return }
 
   window.isPrinting = true
-  // Capture all values BEFORE saveBill clears the form
   var tempItems       = billItems.slice()
   var tempTotal       = totalAmount
   var tempCustomerName= selectedCustomer ? selectedCustomer.name : (document.getElementById('customerSearch').value || 'Walk-in Customer')
@@ -1290,7 +1373,6 @@ async function printBill() {
   await saveBill()
   await new Promise(function(r){ setTimeout(r, 400) })
 
-  // FIX: Use currentBillNumber (set by saveBill, may be new if date changed)
   var finalBillNo = currentBillNumber || tempEditingBillNo || 'UNKNOWN'
   var displayDate = new Date(tempBillDateStr+'T12:00:00').toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric'})
 
@@ -1309,7 +1391,6 @@ async function printBill() {
   document.getElementById('printArea').style.display = 'block'
   document.body.classList.add('print-bill')
   var ot = document.title
-  // FIX: Title uses the actual (possibly new) bill number so PDF downloads correctly
   document.title = 'Bill-' + finalBillNo
   setTimeout(function(){
     window.print()
@@ -1325,13 +1406,11 @@ async function printBill() {
 
 document.getElementById('printBtn').addEventListener('click', printBill)
 
-// ── BILL HISTORY ──
 function openHistory() {
   document.getElementById('billHistoryModal').style.display = 'block'
   historyPage = 1
   loadBills()
 }
-// WHY: Both the top button and the bottom button open history
 document.getElementById('historyBtn').addEventListener('click', openHistory)
 document.getElementById('historyBtnTop').addEventListener('click', openHistory)
 document.getElementById('closeHistoryBtn').addEventListener('click', function() {
@@ -1352,8 +1431,9 @@ async function loadBills() {
   tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:24px;color:rgba(255,255,255,0.3);font-family:\'DM Sans\',sans-serif;font-size:13px;">Loading bills…</td></tr>'
   try {
     var query = supabase.from('sales').select('*', {count:'exact'}).order('created_at',{ascending:false})
-    if (filter==='sale')   query = query.or('bill_type.eq.sale,bill_type.is.null')
-    if (filter==='return') query = query.eq('bill_type','return')
+    if (filter==='sale')            query = query.or('bill_type.eq.sale,bill_type.is.null')
+    if (filter==='return')          query = query.eq('bill_type','return')
+    if (filter==='pay_to_merchant') query = query.eq('bill_type','pay_to_merchant')
     if (search) query = query.or('bill_number.ilike.%'+search+'%,vehicle_number.ilike.%'+search+'%')
     var from = (historyPage-1)*HIST_SIZE
     query = query.range(from, from+HIST_SIZE-1)
@@ -1377,10 +1457,13 @@ async function loadBills() {
     res.data.forEach(function(bill) {
       var cn = custMap[bill.customer_id] || 'Walk-in'
       var isRet = bill.bill_type === 'return'
+      var isPTM = bill.bill_type === 'pay_to_merchant'
       var displayDateStr = bill.bill_date || bill.created_at
       var displayDate = new Date(displayDateStr).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})
       var typeLabel = isRet
         ? '<span style="background:rgba(220,38,38,0.15);color:#f87171;padding:3px 8px;border-radius:10px;font-size:11px;font-weight:600;">↩ Return</span>'
+        : isPTM
+        ? '<span style="background:rgba(124,58,237,0.2);color:#a78bfa;padding:3px 8px;border-radius:10px;font-size:11px;font-weight:600;">🏪 Merchant Pay</span>'
         : '<span style="background:rgba(37,99,235,0.15);color:#60a5fa;padding:3px 8px;border-radius:10px;font-size:11px;font-weight:600;">📄 Sale</span>'
       var tr = document.createElement('tr')
       tr.style.borderBottom = '1px solid rgba(255,255,255,0.05)'
@@ -1391,12 +1474,12 @@ async function loadBills() {
         '<td style="padding:11px 14px;color:rgba(255,255,255,0.7);white-space:nowrap;">'+displayDate+'</td>'+
         '<td style="padding:11px 14px;color:white;font-weight:500;">'+cn+'</td>'+
         '<td style="padding:11px 14px;color:rgba(255,255,255,0.45);font-size:12px;font-family:monospace;">'+(bill.vehicle_number||'—')+'</td>'+
-        '<td style="padding:11px 14px;color:'+(isRet?'#f87171':'#34d399')+';font-weight:700;white-space:nowrap;">'+(isRet?'-':'')+'₹'+Math.round(Math.abs(bill.total_amount)).toLocaleString('en-IN')+'</td>'+
+        '<td style="padding:11px 14px;color:'+(isRet?'#f87171':isPTM?'#a78bfa':'#34d399')+';font-weight:700;white-space:nowrap;">'+(isRet?'-':'')+'₹'+Math.round(Math.abs(bill.total_amount)).toLocaleString('en-IN')+'</td>'+
         '<td style="padding:11px 14px;">'+typeLabel+'</td>'+
         '<td style="padding:11px 14px;"><div style="display:flex;gap:5px;flex-wrap:wrap;">'+
           '<button data-billno="'+bill.bill_number+'" class="hViewBtn"  style="padding:5px 9px;font-size:11px;background:rgba(37,99,235,0.25);border:1px solid rgba(37,99,235,0.4);color:white;border-radius:6px;box-shadow:none;white-space:nowrap;cursor:pointer;font-family:\'DM Sans\',sans-serif;">👁 View</button>'+
           '<button data-billno="'+bill.bill_number+'" class="hPrintBtn" style="padding:5px 9px;font-size:11px;background:rgba(139,92,246,0.25);border:1px solid rgba(139,92,246,0.4);color:white;border-radius:6px;box-shadow:none;white-space:nowrap;cursor:pointer;font-family:\'DM Sans\',sans-serif;">🖨 Print</button>'+
-          (!isRet?'<button data-billno="'+bill.bill_number+'" class="hEditBtn" style="padding:5px 9px;font-size:11px;background:rgba(245,158,11,0.25);border:1px solid rgba(245,158,11,0.5);color:#fbbf24;font-weight:600;border-radius:6px;box-shadow:none;white-space:nowrap;cursor:pointer;font-family:\'DM Sans\',sans-serif;">✏️ Edit</button>':'')+
+          (!isRet&&!isPTM?'<button data-billno="'+bill.bill_number+'" class="hEditBtn" style="padding:5px 9px;font-size:11px;background:rgba(245,158,11,0.25);border:1px solid rgba(245,158,11,0.5);color:#fbbf24;font-weight:600;border-radius:6px;box-shadow:none;white-space:nowrap;cursor:pointer;font-family:\'DM Sans\',sans-serif;">✏️ Edit</button>':'')+
           '<button data-billid="'+bill.id+'" data-billno="'+bill.bill_number+'" class="hDelBtn" style="padding:5px 9px;font-size:11px;background:rgba(220,38,38,0.2);border:1px solid rgba(220,38,38,0.3);color:#f87171;border-radius:6px;box-shadow:none;cursor:pointer;font-family:\'DM Sans\',sans-serif;">🗑️</button>'+
         '</div></td>'
       tbody.appendChild(tr)
@@ -1425,7 +1508,6 @@ async function loadBills() {
   }
 }
 
-// ── VIEW BILL (from history) ──
 async function viewBill(billNo) {
   var sr = await supabase.from('sales').select('*').eq('bill_number',billNo).single()
   if (!sr.data) { alert('Bill not found: '+billNo); return }
@@ -1457,6 +1539,18 @@ async function viewBill(billNo) {
   })
   var displayDateStr = sale.bill_date || sale.created_at
   var displayDate    = new Date(displayDateStr).toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})
+
+  // WHY: For pay_to_merchant bills, load merchant data from sales.notes_json or merchant_payments
+  var merchantPayData = null
+  if (sale.bill_type === 'pay_to_merchant' && sale.merchant_name) {
+    merchantPayData = {
+      merchantName: sale.merchant_name,
+      mode:         sale.merchant_pay_mode || (sale.upi > 0 ? 'UPI' : sale.cash > 0 ? 'Cash' : '—'),
+      ref:          sale.merchant_pay_ref  || '',
+      amount:       Math.abs(sale.total_amount)
+    }
+  }
+
   fillPrintArea({
     isReturn:sale.bill_type==='return', billNo:sale.bill_number, date:displayDate,
     customerName:custName, phone:custPhone, receiver:sale.receiver_name, vehicle:sale.vehicle_number,
@@ -1464,7 +1558,7 @@ async function viewBill(billNo) {
     gstEnabled:false, cgst:0, sgst:0, disc:sale.discount||0,
     cash:sale.cash||0, upi:sale.upi||0, credit:sale.credit||0,
     payMode:modes.join(' + ')||'—', deliv:sale.delivery_charges||0, delivNote:sale.delivery_note||'',
-    notes:sale.notes||''
+    notes:sale.notes||'', merchantPayData: merchantPayData
   })
   document.getElementById('billHistoryModal').style.display = 'none'
   document.getElementById('printArea').style.display = 'block'
@@ -1479,9 +1573,6 @@ async function reprintBill(billNo) {
   setTimeout(function(){ document.title=ot; document.getElementById('printArea').style.display='none'; document.body.classList.remove('print-bill') },800)
 }
 
-// ── EDIT BILL ──
-// WHY: We load the full customer record and set selectedCustomer so the
-// edited bill saves/prints with the correct name, not "Walk-in Customer"
 async function openEditBill(billNo) {
   var sr = await supabase.from('sales').select('*').eq('bill_number',billNo).single()
   if (!sr.data) { alert('Bill not found'); return }
@@ -1507,10 +1598,6 @@ async function openEditBill(billNo) {
       document.getElementById('billPhone').value = cr2.data.phone || ''
       loadVehicleSuggestions(cr2.data.id)
     }
-  } else {
-    selectedCustomer = null
-    document.getElementById('customerSearch').value = ''
-    document.getElementById('billPhone').value = ''
   }
 
   document.getElementById('receiverName').value  = sale.receiver_name  || ''
@@ -1519,7 +1606,6 @@ async function openEditBill(billNo) {
   document.getElementById('upi').value           = sale.upi     || 0
   document.getElementById('credit').value        = sale.credit  || 0
   if (document.getElementById('billNotes')) document.getElementById('billNotes').value = sale.notes || ''
-  // Load bill date for editing
   if (sale.bill_date) {
     document.getElementById('billDate').value = sale.bill_date
   } else if (sale.created_at) {
@@ -1539,7 +1625,6 @@ async function openEditBill(billNo) {
   window.scrollTo({top:0, behavior:'smooth'})
 }
 
-// ── DELETE ──
 function openDeleteModal(id, billNo) {
   deletingBillId=id; deletingBillNo=billNo
   document.getElementById('deleteModalBillNo').innerText = billNo
@@ -1551,10 +1636,21 @@ document.getElementById('cancelDeleteBtn').addEventListener('click', function(){
 document.getElementById('confirmDeleteBtn').addEventListener('click', async function(){
   if (!deletingBillId) return
   var ir = await supabase.from('bill_items').select('*').eq('sale_id',deletingBillId)
+  var btype = null
+  var sr2 = await supabase.from('sales').select('bill_type,merchant_name').eq('id',deletingBillId).single()
+  if (sr2.data) btype = sr2.data.bill_type
   for (var i=0;i<(ir.data||[]).length;i++) {
     var item=ir.data[i]; if(item.item_id&&item.quantity>0) await supabase.rpc('increment_inventory',{p_item_id:item.item_id,p_qty:item.quantity})
   }
   await supabase.from('bill_items').delete().eq('sale_id',deletingBillId)
+  // WHY: If deleting a pay_to_merchant bill, also remove the linked merchant_payments entry
+  if (btype === 'pay_to_merchant' && sr2.data && sr2.data.merchant_name) {
+    // The merchant_payments entry receipt_no matches the bill_number
+    var bnR = await supabase.from('sales').select('bill_number').eq('id',deletingBillId).single()
+    if (bnR.data) {
+      await supabase.from('merchant_payments').delete().eq('receipt_no', bnR.data.bill_number)
+    }
+  }
   await supabase.from('sales').delete().eq('id',deletingBillId)
   document.getElementById('deleteModal').style.display='none'; deletingBillId=null; deletingBillNo=null
   alert('✅ Bill deleted & inventory restored')
@@ -1781,23 +1877,20 @@ document.getElementById('waBillBtn').addEventListener('click', function() {
   window.open(waUrl,'_blank')
 })
 
-// ── PAY TO MERCHANT ──
+// ── PAY TO MERCHANT MODAL ──
 function openPayMerchantModal() {
-  pmSelectedMerchant = null; pmMerchBalance = 0
+  pmSelectedMerchant = null; pmMerchBalance = 0; pmSelectedCustomer = null; pmBillItems = []
   document.getElementById('pmMerchantSearch').value = ''
   document.getElementById('pmMerchantInfo').style.display = 'none'
   document.getElementById('pmMode').value = 'Cash'
-  document.getElementById('pmDiscount') && (document.getElementById('pmDiscount').value='')
   document.getElementById('pmRef').value = ''
   document.getElementById('pmNote').value = ''
-  // Auto-fill current bill total
-  var gst       = document.getElementById('gstToggle').checked
-  var deliv     = deliveryBoxOpen ? (parseFloat(document.getElementById('deliveryCharges').value)||0) : 0
-  var afterGST  = gst ? Math.round(totalAmount*1.18) : totalAmount
-  var afterDeliv= afterGST + deliv
-  var disc      = calcDiscount(afterDeliv)
-  var billTotal = Math.round(afterDeliv - disc)
-  document.getElementById('pmAmount').value = billTotal > 0 ? billTotal : ''
+  document.getElementById('pmCustomerSearch').value = ''
+  document.getElementById('pmCustomerPhone').value = ''
+  document.getElementById('pmProductSearch').value = ''
+  document.getElementById('pmBillItems').innerHTML = ''
+  document.getElementById('pmSubtotal').innerText = '0'
+  document.getElementById('pmAmount').value = ''
   document.getElementById('payMerchantModal').classList.add('show')
 }
 window.closePayMerchantModal = function() {
@@ -1805,10 +1898,129 @@ window.closePayMerchantModal = function() {
 }
 document.getElementById('payToMerchantTopBtn').addEventListener('click', openPayMerchantModal)
 
-pmInput.addEventListener('input', function() {
+// PM Customer search
+pmCustInput.addEventListener('input', function() {
+  var text = this.value.trim()
+  clearTimeout(pmCustTimer)
+  pmCustList.innerHTML = ''
+  if (!text) { pmCustList.style.display='none'; return }
+  pmCustTimer = setTimeout(async function() {
+    var res = await supabase.from('customers').select('id,name,phone')
+      .or('name.ilike.%'+text+'%,phone.ilike.%'+text+'%')
+      .order('name').limit(8)
+    pmCustList.innerHTML = ''
+    if (!res.data || !res.data.length) {
+      var li = document.createElement('li'); li.style.cursor='default'
+      li.innerHTML = '<span style="opacity:0.5;">No customer found — type to create new</span>'
+      pmCustList.appendChild(li)
+    } else {
+      res.data.forEach(function(c) {
+        var li = document.createElement('li')
+        li.innerHTML = '<span style="font-weight:500;flex:1;">'+c.name+'</span><span style="opacity:0.55;font-size:12px;">'+(c.phone||'')+'</span>'
+        li.onclick = function() {
+          pmSelectedCustomer = c
+          pmCustInput.value = c.name
+          document.getElementById('pmCustomerPhone').value = c.phone || ''
+          pmCustList.style.display = 'none'
+        }
+        pmCustList.appendChild(li)
+      })
+    }
+    positionDropdown(pmCustInput, pmCustList)
+    pmCustList.style.display = 'block'
+  }, 250)
+})
+
+// PM Product search
+pmProdInput.addEventListener('input', function() {
+  var text = this.value.trim()
+  clearTimeout(pmProdTimer)
+  pmList.innerHTML = ''
+  if (!text) { pmList.style.display='none'; return }
+  pmProdTimer = setTimeout(async function() {
+    var res = await supabase.from('inventory')
+      .select('id,item_name,selling_price,quantity,category,unit_type,brand,size')
+      .or('item_name.ilike.%'+text+'%,category.ilike.%'+text+'%,brand.ilike.%'+text+'%')
+      .order('item_name').limit(12)
+    if (res.error && res.error.code === '42703') {
+      res = await supabase.from('inventory')
+        .select('id,item_name,selling_price,quantity,category,unit_type,brand')
+        .or('item_name.ilike.%'+text+'%,category.ilike.%'+text+'%,brand.ilike.%'+text+'%')
+        .order('item_name').limit(12)
+    }
+    pmList.innerHTML = ''
+    if (!res.data || !res.data.length) {
+      var li = document.createElement('li'); li.style.cursor='default'
+      li.innerHTML = '<span style="opacity:0.5;">No products found</span>'
+      pmList.appendChild(li)
+    } else {
+      res.data.forEach(function(p) {
+        var badge = buildDetailBadge(p)
+        var sc    = p.quantity<=0 ? '#f87171' : p.quantity<=5 ? '#fbbf24' : '#34d399'
+        var sclbl = p.quantity<=0 ? 'Out' : p.quantity+' left'
+        var li    = document.createElement('li')
+        li.innerHTML =
+          '<span style="flex:1;color:#fff;font-weight:600;">'+p.item_name+badge+'</span>'+
+          '<span style="font-size:12px;color:#fff;">₹'+(p.selling_price||0)+'</span>'+
+          '<span style="font-size:11px;font-weight:700;color:'+sc+';">'+sclbl+'</span>'
+        li.onclick = function() {
+          addToPmBill(p)
+          pmProdInput.value = ''
+          pmList.style.display = 'none'
+          pmList.innerHTML = ''
+        }
+        pmList.appendChild(li)
+      })
+    }
+    positionDropdown(pmProdInput, pmList)
+    pmList.style.display = 'block'
+  }, 200)
+})
+
+function addToPmBill(product) {
+  for (var i=0; i<pmBillItems.length; i++) {
+    if (pmBillItems[i].id === product.id) { pmBillItems[i].qty++; renderPmBill(); return }
+  }
+  pmBillItems.push({
+    id:product.id, name:product.item_name, price:product.selling_price||0, qty:1,
+    brand:product.brand||'', category:product.category||'', unitType:product.unit_type||'', size:product.size||''
+  })
+  renderPmBill()
+}
+
+function renderPmBill() {
+  var container = document.getElementById('pmBillItems')
+  var subtotal  = 0
+  container.innerHTML = pmBillItems.length === 0 ? '<div style="font-size:12px;color:rgba(255,255,255,0.3);padding:6px 0;">No items added yet</div>' :
+    pmBillItems.map(function(item, idx){
+      subtotal += item.qty * item.price
+      return '<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.06);">'+
+        '<span style="flex:1;font-size:13px;color:#fff;">'+item.name+'</span>'+
+        '<input type="number" value="'+item.qty+'" min="1" class="pmQtyIn" data-idx="'+idx+'" style="width:50px;padding:3px 6px;font-size:12px;margin-bottom:0;text-align:center;">'+
+        '<span style="font-size:12px;color:#34d399;font-weight:600;min-width:60px;text-align:right;">₹'+(item.qty*item.price).toLocaleString('en-IN')+'</span>'+
+        '<button class="removeBtn pmRm" data-idx="'+idx+'" style="width:24px!important;height:24px!important;font-size:12px!important;">✕</button>'+
+        '</div>'
+    }).join('')
+  document.getElementById('pmSubtotal').innerText = subtotal.toLocaleString('en-IN')
+  // Auto-fill amount if empty
+  if (!document.getElementById('pmAmount').value) {
+    document.getElementById('pmAmount').value = subtotal > 0 ? subtotal : ''
+  }
+  // Bind events
+  container.querySelectorAll('.pmQtyIn').forEach(function(inp){
+    inp.addEventListener('change', function(){ pmBillItems[+this.dataset.idx].qty=parseInt(this.value)||1; renderPmBill() })
+  })
+  container.querySelectorAll('.pmRm').forEach(function(btn){
+    btn.addEventListener('click', function(){ pmBillItems.splice(+this.dataset.idx,1); renderPmBill() })
+  })
+}
+
+// PM Merchant search
+pmMerchInput.addEventListener('input', function() {
   var text = this.value.trim()
   clearTimeout(pmMerchTimer)
-  if (!text) { pmList.style.display='none'; pmList.innerHTML=''; return }
+  pmList.innerHTML = ''
+  if (!text) { pmList.style.display='none'; return }
   pmMerchTimer = setTimeout(async function() {
     var res = await supabase.from('purchases').select('merchant_name,merchant_phone').ilike('merchant_name','%'+text+'%').limit(20)
     var seen={}, unique=[]
@@ -1819,20 +2031,17 @@ pmInput.addEventListener('input', function() {
     } else {
       unique.forEach(function(m){
         var li=document.createElement('li')
-        li.innerHTML='<span style="font-weight:600;flex:1;">'+m.merchant_name+'</span><span style="opacity:0.55;font-size:12px;">'+(m.merchant_phone||'')+'</span>'
+        li.innerHTML='<span style="font-weight:600;flex:1;color:#fff;">'+m.merchant_name+'</span><span style="opacity:0.55;font-size:12px;color:#fff;">'+(m.merchant_phone||'')+'</span>'
         li.onclick=async function(){
           pmSelectedMerchant={name:m.merchant_name,phone:m.merchant_phone||''}
-          pmInput.value=m.merchant_name; pmList.style.display='none'
+          pmMerchInput.value=m.merchant_name; pmList.style.display='none'
           await loadPmMerchantBalance(m.merchant_name)
         }
         pmList.appendChild(li)
       })
     }
-    positionDropdown(pmInput, pmList); pmList.style.display='block'
+    positionDropdown(pmMerchInput, pmList); pmList.style.display='block'
   }, 250)
-})
-pmInput.addEventListener('focus', function(){
-  if(pmList.children.length){positionDropdown(pmInput,pmList);pmList.style.display='block'}
 })
 
 async function loadPmMerchantBalance(merchantName) {
@@ -1848,13 +2057,13 @@ async function loadPmMerchantBalance(merchantName) {
   var phoneEl=document.getElementById('pmMerchantPhone'), pillEl=document.getElementById('pmBalancePill')
   nameEl.innerText=merchantName; phoneEl.innerText=pmSelectedMerchant.phone||'No phone'
   var nb=pmMerchBalance
-  if(nb>0){pillEl.innerText='⚠️ You owe: ₹'+Math.abs(nb).toLocaleString('en-IN');pillEl.style.background='rgba(248,113,113,0.15)';pillEl.style.color='#f87171';document.getElementById('pmAmount').value=nb}
+  if(nb>0){pillEl.innerText='⚠️ Payable: ₹'+Math.abs(nb).toLocaleString('en-IN');pillEl.style.background='rgba(248,113,113,0.15)';pillEl.style.color='#f87171';if(!document.getElementById('pmAmount').value)document.getElementById('pmAmount').value=nb}
   else if(nb<0){pillEl.innerText='✅ Overpaid: ₹'+Math.abs(nb).toLocaleString('en-IN');pillEl.style.background='rgba(52,211,153,0.15)';pillEl.style.color='#34d399'}
   else{pillEl.innerText='✓ Account Clear';pillEl.style.background='rgba(52,211,153,0.1)';pillEl.style.color='#34d399'}
   infoEl.style.display='block'
 }
 
-async function generatePMVoucherNo(merchantName) {
+async function generatePMVoucherNo(merchantName){
   var now=new Date(), dd=String(now.getDate()).padStart(2,'0'), mm=String(now.getMonth()+1).padStart(2,'0'), yy=String(now.getFullYear()).slice(2)
   var clean=merchantName.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,10)
   var start=new Date(); start.setHours(0,0,0,0)
@@ -1862,8 +2071,12 @@ async function generatePMVoucherNo(merchantName) {
   return 'AAM(MP)-'+clean+'-'+dd+mm+yy+'-'+String((res.data||[]).length+1).padStart(4,'0')
 }
 
-// WHY: savePayToMerchant stores in merchant_payments table (same one merchant-ledger reads)
-// The print uses the same fillPrintArea as sales bills so the format matches
+// WHY: savePayToMerchant now:
+// 1. Creates a proper sales bill (bill_type = 'pay_to_merchant') with customer + product items
+// 2. Saves a merchant_payments entry so merchant ledger shows it
+// 3. Saves merchant_name + pay mode + ref on the sales row for viewing later
+// The sales bill bill_number is used as the receipt_no in merchant_payments
+// so both are linked and deleting the sales bill also removes the merchant_payments entry
 window.savePayToMerchant = async function(shouldPrint) {
   if (!pmSelectedMerchant) { alert('Please search and select a merchant first'); return }
   var amount = parseFloat(document.getElementById('pmAmount').value)||0
@@ -1871,48 +2084,109 @@ window.savePayToMerchant = async function(shouldPrint) {
   var ref    = document.getElementById('pmRef').value.trim()
   var note   = document.getElementById('pmNote').value.trim()
   if (!amount) { alert('Enter payment amount'); return }
-  var voucherNo = await generatePMVoucherNo(pmSelectedMerchant.name)
-  var ins = await supabase.from('merchant_payments').insert([{
+  if (!pmBillItems.length) { alert('Please add at least one product to the bill'); return }
+
+  // Get or create customer
+  var customerId = null, custName = '', custPhone = ''
+  if (pmSelectedCustomer) {
+    customerId = pmSelectedCustomer.id
+    custName   = pmSelectedCustomer.name
+    custPhone  = pmSelectedCustomer.phone || ''
+  } else {
+    var pmCustName = document.getElementById('pmCustomerSearch').value.trim()
+    if (!pmCustName) { alert('Please enter a customer name'); return }
+    var pmCustPhoneVal = document.getElementById('pmCustomerPhone').value.trim()
+    var nc = await supabase.from('customers').insert([{name:pmCustName,phone:pmCustPhoneVal||null}]).select().single()
+    if (nc.error && nc.error.code !== '23505') { alert('Error creating customer: '+nc.error.message); return }
+    if (nc.data) { customerId = nc.data.id; custName = nc.data.name; custPhone = nc.data.phone||'' }
+    else {
+      var ex = await supabase.from('customers').select('id,name,phone').ilike('name',pmCustName).single()
+      if (ex.data) { customerId = ex.data.id; custName = ex.data.name; custPhone = ex.data.phone||'' }
+    }
+  }
+
+  var todayStr = new Date().toISOString().slice(0,10)
+  var billNo   = await generatePTMBillNo(todayStr)
+  var subtotal = pmBillItems.reduce(function(s,i){ return s+(i.qty*i.price) },0)
+
+  // WHY: Save to sales table as a proper bill with customer info
+  // merchant_name, merchant_pay_mode, merchant_pay_ref stored for viewing
+  var saleIns = await supabase.from('sales').insert([{
+    bill_number:      billNo,
+    customer_id:      customerId,
+    total_amount:     amount,
+    cash:             mode==='Cash' ? amount : 0,
+    upi:              mode==='UPI'  ? amount : 0,
+    credit:           0,
+    discount:         0,
+    advance:          0,
+    bill_type:        'pay_to_merchant',
+    merchant_name:    pmSelectedMerchant.name,
+    merchant_pay_mode: mode,
+    merchant_pay_ref:  ref || null,
+    notes:            note || null,
+    bill_date:        todayStr,
+    created_at:       todayStr + 'T12:00:00'
+  }]).select().single()
+
+  if (saleIns.error) {
+    // WHY: merchant_name column might not exist yet — add it via Supabase dashboard if this fails
+    alert('❌ Error saving bill: '+saleIns.error.message+'\n\nNote: You may need to add columns merchant_name, merchant_pay_mode, merchant_pay_ref to your sales table in Supabase.')
+    return
+  }
+
+  // Save bill items
+  if (saleIns.data) {
+    var itemRows = pmBillItems.map(function(item){
+      return { sale_id:saleIns.data.id, item_id:item.id, item_name:item.name, quantity:item.qty, price:item.price, total:item.qty*item.price }
+    })
+    await supabase.from('bill_items').insert(itemRows)
+    // Decrement inventory
+    for (var ki=0; ki<pmBillItems.length; ki++) {
+      var bk = pmBillItems[ki]
+      if (bk.id) await supabase.rpc('decrement_inventory',{p_item_id:bk.id, p_qty:bk.qty})
+    }
+  }
+
+  // WHY: Save to merchant_payments using the SAME bill_number as receipt_no
+  // This means the merchant ledger will show this as a payment
+  var mpIns = await supabase.from('merchant_payments').insert([{
     merchant_name:  pmSelectedMerchant.name,
     merchant_phone: pmSelectedMerchant.phone || null,
-    receipt_no:     voucherNo,
+    receipt_no:     billNo,
     amount:         Math.round(amount),
     mode:           mode,
     reference_no:   ref  || null,
-    note:           note || null
+    note:           note || ('Customer: '+custName+' | Bill: '+billNo)
   }])
-  if (ins.error) { alert('❌ Save failed: '+ins.error.message); return }
+  if (mpIns.error) { console.error('merchant_payments insert error:', mpIns.error) }
 
   if (shouldPrint) {
-    // FIX: Use same fillPrintArea as other bills for consistent print format
-    // WHY: Category field shows payment mode + ref so it prints in Item Description
+    var displayDate = new Date().toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric'})
+    var modeStr = mode + (ref ? ' | Ref: '+ref : '')
     fillPrintArea({
-      isReturn: false, billNo: voucherNo,
-      date: new Date().toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric'}),
-      customerName: pmSelectedMerchant.name,
-      phone: '', // WHY: Don't show merchant phone on payment voucher
+      isReturn: false, billNo: billNo, date: displayDate,
+      customerName: custName, phone: custPhone,
       receiver: '', vehicle: '', originalRef: null,
-      items: [{
-        name:     'Payment to Merchant: ' + pmSelectedMerchant.name,
-        qty:      1,
-        price:    Math.round(amount),
-        brand:    '',
-        category: 'Mode: '+mode + (ref ? ' | Ref: '+ref : ''),
-        size:     '',
-        unitType: ''
-      }],
-      subtotal: Math.round(amount), final: Math.round(amount),
+      items: pmBillItems.slice(),
+      subtotal: subtotal, final: amount,
       gstEnabled:false, cgst:0, sgst:0, disc:0,
-      cash:    mode==='Cash'    ? Math.round(amount) : 0,
-      upi:     mode==='UPI'     ? Math.round(amount) : 0,
-      credit:  0,
-      payMode: mode,
+      cash:   mode==='Cash' ? amount : 0,
+      upi:    mode==='UPI'  ? amount : 0,
+      credit: 0,
+      payMode: modeStr,
       deliv:0, delivNote:'',
-      notes: note || ('Payment to merchant: '+pmSelectedMerchant.name)
+      notes: note || '',
+      merchantPayData: {
+        merchantName: pmSelectedMerchant.name,
+        mode:         mode,
+        ref:          ref,
+        amount:       amount
+      }
     })
     document.getElementById('printArea').style.display = 'block'
     document.body.classList.add('print-bill')
-    var ot3=document.title; document.title='Payment-'+voucherNo
+    var ot3=document.title; document.title='Payment-'+billNo
     setTimeout(function(){
       window.print()
       setTimeout(function(){ document.title=ot3; document.getElementById('printArea').style.display='none'; document.body.classList.remove('print-bill') },800)
@@ -1920,7 +2194,7 @@ window.savePayToMerchant = async function(shouldPrint) {
   }
 
   closePayMerchantModal()
-  alert('✅ Payment recorded!\nVoucher: '+voucherNo+'\n\nVisible in Merchant Ledger → '+pmSelectedMerchant.name)
+  alert('✅ Saved!\nBill No: '+billNo+'\nCustomer: '+custName+'\nMerchant: '+pmSelectedMerchant.name+'\n\nVisible in Bill History AND Merchant Ledger → '+pmSelectedMerchant.name)
 }
 
 // ── INITIALISE ──
