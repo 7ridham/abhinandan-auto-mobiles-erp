@@ -149,6 +149,9 @@ html.light-theme .aging-bar-title { color:#7c3aed; }
 .view-bill-box { background:white; max-width:800px; margin:20px auto; border-radius:16px; overflow:hidden; box-shadow:0 24px 80px rgba(0,0,0,0.6); }
 .view-bill-actions { background:#1e293b; padding:14px 24px; display:flex; gap:8px; justify-content:flex-end; align-items:center; flex-wrap:wrap; }
 .view-bill-actions .bill-no-display { font-size:12px; color:rgba(255,255,255,0.4); margin-right:auto; font-family:monospace; }
+/* FIX: Light theme — make action buttons always visible */
+html.light-theme .view-bill-actions { background:#2d1b69; }
+html.light-theme .view-bill-actions .bill-no-display { color:rgba(255,255,255,0.7); }
 
 .pay-modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.88); z-index:11000; align-items:center; justify-content:center; backdrop-filter:blur(8px); }
 .pay-modal-box { background:linear-gradient(135deg,#0d1117,#1e293b); border:1px solid rgba(255,255,255,0.12); border-radius:18px; padding:28px; width:90%; max-width:460px; }
@@ -183,7 +186,7 @@ html.light-theme .aging-bar-title { color:#7c3aed; }
 .inv-table-wrap { padding:0 32px; margin-top:16px; }
 .inv-table { width:100%; border-collapse:collapse; font-size:13px; }
 .inv-table thead tr { background:#4c1d95; color:white; }
-.inv-table thead th { padding:9px 12px; text-align:left; font-weight:600; font-size:12px; }
+.inv-table thead th { padding:9px 12px; text-align:left; font-weight:600; font-size:12px; color:#ffffff !important; }
 .inv-table thead th:not(:first-child) { text-align:center; }
 .inv-table thead th:last-child { text-align:right; }
 .inv-table tbody tr { border-bottom:1px solid #e5e7eb; }
@@ -836,14 +839,19 @@ window.openLedger=async function(encodedName){
 
   const rows=allEvents.map(ev=>{
     if(ev._type==='payment'){
-      return `<tr class="row-payment">
+     return `<tr class="row-payment">
         <td style="font-size:11px;color:rgba(255,255,255,0.4);font-family:monospace;">${ev.receipt_no}</td>
         <td>${new Date(ev.created_at).toLocaleDateString('en-IN')}</td>
         <td><span class="badge badge-payment">💸 Payment</span></td>
         <td style="color:rgba(255,255,255,0.3);">—</td>
         <td style="color:#10b981;font-weight:600;">- ${fmt(ev.amount)} <span style="font-size:11px;color:rgba(255,255,255,0.3);">(${ev.mode})</span></td>
         <td>—</td>
-        <td><span style="font-size:11px;color:rgba(255,255,255,0.3);">${ev.note||ev.reference_no||'—'}</span></td>
+        <td>
+          <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+            <span style="font-size:11px;color:rgba(255,255,255,0.3);">${ev.note||ev.reference_no||'—'}</span>
+            <button class="btn btn-sm" style="background:rgba(16,185,129,0.2);border:1px solid rgba(16,185,129,0.4);color:#10b981;padding:3px 8px;font-size:10px;border-radius:5px;cursor:pointer;" onclick="viewPaymentVoucher('${ev.receipt_no}','${encodeURIComponent(merchantName)}',${ev.amount},'${ev.mode}','${ev.reference_no||''}','${ev.note||''}','${new Date(ev.created_at).toLocaleDateString('en-IN')}')">🖨 View</button>
+          </div>
+        </td>
       </tr>`
     }
     const isReturn=ev.bill_type==='return'
@@ -870,7 +878,44 @@ window.openLedger=async function(encodedName){
   document.getElementById('txBody').innerHTML=rows.length?rows.join(''):'<tr><td colspan="7" class="empty-state">No transactions yet</td></tr>'
   currentMerchData={merchantName,profile,purchases:purchases||[],payments:mpayments||[],totalPurchased,payableFromBills,payableFromReturns,totalPaid,netBalance,phone}
 }
+window.viewPaymentVoucher = function(receiptNo, encodedName, amount, mode, ref, note, date) {
+  var merchantName = decodeURIComponent(encodedName)
+  var nb = currentMerchData ? Math.round(currentMerchData.netBalance) : 0
+  var prevText = nb > 0 ? '-₹'+Math.abs(nb).toLocaleString('en-IN')+' (Payable)' : nb < 0 ? '+₹'+Math.abs(nb).toLocaleString('en-IN')+' (Overpaid)' : '₹0 Clear'
 
+  document.getElementById('vchrNo').innerText    = receiptNo
+  document.getElementById('vchrName').innerText  = merchantName
+  document.getElementById('vchrPhone').innerText = '—' // never show merchant phone on voucher
+  document.getElementById('vchrMode').innerText  = mode
+  document.getElementById('vchrAmount').innerText= '₹'+Math.round(amount).toLocaleString('en-IN')
+  document.getElementById('vchrPaid').innerText  = '₹'+Math.round(amount).toLocaleString('en-IN')
+  document.getElementById('vchrPrevBal').innerText = prevText
+  document.getElementById('vchrNewBal').innerText  = '—'
+  document.getElementById('vchrDate').innerText    = new Date().toLocaleString('en-IN')
+  document.getElementById('vchrDateVal').innerText = date
+
+  if(ref && ref.trim()) {
+    document.getElementById('vchrRef').innerText = ref
+    document.getElementById('vchrRefRow').style.display = 'flex'
+  } else {
+    document.getElementById('vchrRefRow').style.display = 'none'
+  }
+  if(note && note.trim()) {
+    document.getElementById('vchrNote').innerText = note
+    document.getElementById('vchrNoteBox').style.display = 'block'
+  } else {
+    document.getElementById('vchrNoteBox').style.display = 'none'
+  }
+
+  document.body.classList.add('print-voucher')
+  var ot = document.title
+  document.title = receiptNo
+  window.print()
+  setTimeout(function(){
+    document.body.classList.remove('print-voucher')
+    document.title = ot
+  }, 1000)
+}
 window.closeModal=()=>{document.getElementById('ledgerModal').style.display='none';currentMerchData=null}
 document.getElementById('ledgerModal').addEventListener('click',e=>{if(e.target===document.getElementById('ledgerModal'))closeModal()})
 
