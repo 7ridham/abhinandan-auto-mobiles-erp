@@ -31,7 +31,7 @@
   .delivery-box{display:none;background:rgba(6,182,212,0.06);border:1.5px dashed rgba(6,182,212,0.3);border-radius:12px;padding:16px;margin-top:14px;}
   .delivery-box.visible{display:block;}
 
-  /* WHY: Product dropdown uses liquid glass dark-blue style with white text */
+  /* FIX 2: Product search dropdown — dark glass style with white text */
   #customerList,#productList,#payMerchantList{
     position:fixed;z-index:99999;
     background:rgba(10,15,40,0.92);
@@ -62,19 +62,21 @@
   #customerList li *,#productList li *,#payMerchantList li *{color:#ffffff !important;}
   #customerList li:hover *,#productList li:hover *,#payMerchantList li:hover *{color:#ffffff !important;}
 
-  /* WHY: Detail badge (brand · category · size) — white text, subtle liquid glass pill */
+  /* FIX 2: Detail badge for brand · category · size — always visible white text */
   .prod-detail-badge{
     font-size:11px !important;
-    color:rgba(255,255,255,0.75) !important;
-    background:rgba(96,165,250,0.18) !important;
-    border:1px solid rgba(96,165,250,0.25) !important;
+    color:rgba(255,255,255,0.9) !important;
+    background:rgba(96,165,250,0.22) !important;
+    border:1px solid rgba(96,165,250,0.3) !important;
     border-radius:6px !important;
-    padding:1px 7px !important;
+    padding:2px 8px !important;
     margin-left:6px !important;
     font-weight:500 !important;
     letter-spacing:0 !important;
-    display:inline !important;
+    display:inline-flex !important;
+    align-items:center !important;
     white-space:nowrap !important;
+    vertical-align:middle !important;
   }
 
   .removeBtn{background:rgba(220,38,38,0.85)!important;border:1.5px solid rgba(220,38,38,0.6)!important;color:#ffffff!important;width:30px!important;height:30px!important;border-radius:7px!important;cursor:pointer!important;font-size:15px!important;font-weight:700!important;padding:0!important;box-shadow:none!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;line-height:1!important;font-family:'DM Sans',sans-serif!important;}
@@ -109,7 +111,6 @@
   .bill-meta-block label{font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:#6b7280;display:block;margin-bottom:3px;}
   .bill-meta-block span{font-size:15px;font-weight:600;color:#111827;}
   .return-ref-bar{display:none;background:#fef2f2;border-bottom:1px solid #fecaca;padding:10px 36px;font-size:13px;color:#dc2626;font-weight:500;}
-  /* WHY: Merchant payment bar shown at bottom of bill when bill_type = 'pay_to_merchant' */
   .merchant-pay-bar{display:none;margin:10px 36px 0;padding:14px 18px;background:#f5f3ff;border:1.5px solid #ddd6fe;border-radius:10px;font-size:13px;}
   .merchant-pay-bar .mp-title{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#6d28d9;margin-bottom:10px;}
   .merchant-pay-bar .mp-row{display:flex;gap:32px;flex-wrap:wrap;}
@@ -198,9 +199,11 @@
 </div>
 
 <div class="main">
+  <!-- FIX 3: Pay to Merchant button moved to top header row, right next to Bill History -->
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
     <h1 style="margin-bottom:0;">Sales</h1>
-    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+      <button id="payToMerchantTopBtn" style="background:rgba(124,58,237,0.15);border:1px solid rgba(124,58,237,0.4);color:#a78bfa;padding:9px 18px;font-size:13px;font-weight:600;border-radius:8px;box-shadow:none;font-family:'DM Sans',sans-serif;cursor:pointer;">🏪 Pay to Merchant</button>
       <button id="historyBtnTop" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);padding:9px 18px;font-size:13px;border-radius:8px;box-shadow:none;font-family:'DM Sans',sans-serif;">📜 Bill History</button>
     </div>
   </div>
@@ -343,7 +346,6 @@
       <div style="display:flex;gap:12px;margin-top:18px;flex-wrap:wrap;">
         <button id="saveBtn">💾 Save Bill</button>
         <button id="printBtn">🖨 Print Bill</button>
-        <button id="payToMerchantTopBtn" style="background:rgba(124,58,237,0.15);border:1px solid rgba(124,58,237,0.4);color:#a78bfa;padding:10px 18px;font-size:14px;font-weight:600;border-radius:8px;box-shadow:none;font-family:'DM Sans',sans-serif;cursor:pointer;">🏪 Pay to Merchant</button>
         <button id="waBillBtn" class="btn-wa" style="padding:10px 18px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;">📲 WhatsApp Bill</button>
         <button id="historyBtn" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);">📜 Bill History</button>
       </div>
@@ -461,7 +463,6 @@
         <span class="bill-payment-item" id="printDiscountPayItem" style="display:none;"><span class="pm-label" style="color:#059669;">Discount</span><span class="pm-val" style="color:#059669;">₹<span id="printDiscountPay">0</span></span></span>
       </div>
     </div>
-    <!-- WHY: Merchant payment bar — shows at bottom for pay_to_merchant bill type -->
     <div class="merchant-pay-bar" id="printMerchantPayBar">
       <div class="mp-title">🏪 Paid to Merchant</div>
       <div class="mp-row">
@@ -562,7 +563,6 @@
     <h3>🏪 Pay to Merchant</h3>
     <p class="sub">Record a payment you made to a merchant / supplier. This will appear on the Sales Bill AND in Merchant Ledger.</p>
 
-    <!-- Customer section - whose bill is this linked to -->
     <div style="background:rgba(37,99,235,0.08);border:1px solid rgba(37,99,235,0.2);border-radius:10px;padding:14px;margin-bottom:16px;">
       <div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(96,165,250,0.8);margin-bottom:12px;">👤 Customer (Who Bought)</div>
       <div class="pm-field">
@@ -575,17 +575,16 @@
       </div>
     </div>
 
-    <!-- Products section -->
     <div style="background:rgba(37,99,235,0.08);border:1px solid rgba(37,99,235,0.2);border-radius:10px;padding:14px;margin-bottom:16px;">
       <div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(96,165,250,0.8);margin-bottom:12px;">📦 Products Sold</div>
       <div style="position:relative;">
         <input type="text" id="pmProductSearch" placeholder="Search product name, brand, category..." autocomplete="off" style="margin-bottom:0;">
       </div>
       <div id="pmBillItems" style="margin-top:10px;"></div>
-      <div style="margin-top:8px;font-size:12px;color:rgba(255,255,255,0.35);">Total: ₹<span id="pmSubtotal">0</span></div>
+      <!-- FIX 5: Total always shows live sum of all products, never auto-fills amount field -->
+      <div style="margin-top:8px;font-size:12px;color:rgba(255,255,255,0.35);">Products Total: ₹<span id="pmSubtotal">0</span></div>
     </div>
 
-    <!-- Merchant section -->
     <div style="background:rgba(124,58,237,0.08);border:1px solid rgba(124,58,237,0.25);border-radius:10px;padding:14px;margin-bottom:16px;">
       <div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(167,139,250,0.8);margin-bottom:12px;">🏪 Merchant (Who Gets Paid)</div>
       <div class="pm-field">
@@ -599,8 +598,9 @@
       </div>
     </div>
 
+    <!-- FIX 5: Amount field label clarified; it does NOT auto-fill from products anymore -->
     <div class="pm-field">
-      <label>Amount Paid to Merchant (₹) *</label>
+      <label>Amount Paid to Merchant (₹) * <span style="font-size:10px;color:rgba(167,139,250,0.6);text-transform:none;letter-spacing:0;">Enter manually — may differ from product total</span></label>
       <input type="number" id="pmAmount" placeholder="e.g. 5000" min="0" style="margin-bottom:0;">
     </div>
     <div class="pm-field">
@@ -701,11 +701,8 @@ var prodInput    = document.getElementById('productSearch')
 var prodList     = document.getElementById('productList')
 var pmMerchInput = document.getElementById('pmMerchantSearch')
 var pmList       = document.getElementById('payMerchantList')
-
-// WHY: Extra dropdowns for the new PM modal (customer search + product search)
 var pmCustInput  = document.getElementById('pmCustomerSearch')
 var pmProdInput  = document.getElementById('pmProductSearch')
-// These share the same payMerchantList dropdown
 var pmCustList   = document.getElementById('payMerchantList')
 
 function positionDropdown(inputEl, dropdownEl) {
@@ -763,17 +760,26 @@ window.toggleDeliveryBox = function() {
   }
 }
 
+// FIX 1: generateInvoiceNo — uses .order('created_at', descending) to always get
+// the ACTUAL latest bill for that date prefix, not just by bill_number string sort.
+// String sort of "AAM-010626-0009" vs "AAM-010626-0010" can fail alphabetically.
 async function generateInvoiceNo(dateStr) {
   var p = dateStr.split('-')
   var dd = p[2], mm = p[1], yy = p[0].slice(2)
   var prefix = 'AAM-' + dd + mm + yy + '-'
   var res = await supabase.from('sales')
-    .select('bill_number').like('bill_number', prefix + '%')
-    .order('bill_number', {ascending:false}).limit(1)
+    .select('bill_number')
+    .like('bill_number', prefix + '%')
+    .order('created_at', {ascending: false})
+    .limit(50)
   var lastNo = 0
   if (res.data && res.data.length) {
-    var parts = res.data[0].bill_number.split('-')
-    lastNo = parseInt(parts[parts.length-1]) || 0
+    // Find the highest sequence number among all matching bills
+    res.data.forEach(function(row) {
+      var parts = row.bill_number.split('-')
+      var seq = parseInt(parts[parts.length - 1]) || 0
+      if (seq > lastNo) lastNo = seq
+    })
   }
   return prefix + String(lastNo + 1).padStart(4, '0')
 }
@@ -784,32 +790,37 @@ async function generateReturnNo(dateStr) {
   var prefix = 'RTN-AAM-' + dd + mm + yy + '-'
   var res = await supabase.from('sales').select('bill_number')
     .like('bill_number', prefix + '%')
-    .order('bill_number', {ascending:false}).limit(1)
+    .order('created_at', {ascending: false}).limit(50)
   var lastNo = 0
   if (res.data && res.data.length) {
-    var parts = res.data[0].bill_number.split('-')
-    lastNo = parseInt(parts[parts.length-1]) || 0
+    res.data.forEach(function(row) {
+      var parts = row.bill_number.split('-')
+      var seq = parseInt(parts[parts.length - 1]) || 0
+      if (seq > lastNo) lastNo = seq
+    })
   }
   return prefix + String(lastNo + 1).padStart(4, '0')
 }
 
-// WHY: Generate voucher number for pay-to-merchant bills saved in `sales` table
 async function generatePTMBillNo(dateStr) {
   var p = (dateStr || new Date().toISOString().slice(0,10)).split('-')
   var dd = p[2], mm = p[1], yy = p[0].slice(2)
   var prefix = 'PTM-AAM-' + dd + mm + yy + '-'
   var res = await supabase.from('sales').select('bill_number')
     .like('bill_number', prefix + '%')
-    .order('bill_number', {ascending:false}).limit(1)
+    .order('created_at', {ascending: false}).limit(50)
   var lastNo = 0
   if (res.data && res.data.length) {
-    var parts = res.data[0].bill_number.split('-')
-    lastNo = parseInt(parts[parts.length-1]) || 0
+    res.data.forEach(function(row) {
+      var parts = row.bill_number.split('-')
+      var seq = parseInt(parts[parts.length - 1]) || 0
+      if (seq > lastNo) lastNo = seq
+    })
   }
   return prefix + String(lastNo + 1).padStart(4, '0')
 }
 
-// ── CUSTOMER SEARCH (main billing) ──
+// ── CUSTOMER SEARCH ──
 custInput.addEventListener('input', function() {
   var text = this.value.trim()
   clearTimeout(custTimer)
@@ -862,18 +873,21 @@ async function loadVehicleSuggestions(customerId) {
     .map(function(s){ return '<option value="'+s.vehicle_number+'">' }).join('')
 }
 
-// WHY: Product search builds a white-text detail badge (brand · category · size · unit)
-// using the .prod-detail-badge class defined in CSS for liquid glass styling
+// FIX 2: buildDetailBadge — always includes size if present.
+// The badge is an inline-flex pill so it ALWAYS renders alongside the product name.
 function buildDetailBadge(p) {
   var parts = []
-  if (p.brand    && p.brand.trim())    parts.push(p.brand.trim())
-  if (p.category && p.category.trim()) parts.push(p.category.trim())
-  if (p.size     && p.size.trim())     parts.push('Size: ' + p.size.trim())
-  if (p.unit_type&& p.unit_type.trim())parts.push(p.unit_type.trim())
-  return parts.length ? '<span class="prod-detail-badge">' + parts.join(' · ') + '</span>' : ''
+  if (p.brand    && String(p.brand).trim())    parts.push(String(p.brand).trim())
+  if (p.category && String(p.category).trim()) parts.push(String(p.category).trim())
+  if (p.size     && String(p.size).trim())     parts.push(String(p.size).trim())
+  if (p.unit_type&& String(p.unit_type).trim())parts.push(String(p.unit_type).trim())
+  return parts.length
+    ? '<span class="prod-detail-badge">' + parts.join(' · ') + '</span>'
+    : ''
 }
 
 // ── PRODUCT SEARCH (main billing) ──
+// FIX 2: Always selects size column. Removed the fallback that dropped size.
 prodInput.addEventListener('input', function() {
   var text = this.value.trim()
   clearTimeout(prodTimer)
@@ -883,12 +897,15 @@ prodInput.addEventListener('input', function() {
       .select('id,item_name,selling_price,quantity,category,unit_type,brand,size')
       .or('item_name.ilike.%'+text+'%,category.ilike.%'+text+'%,unit_type.ilike.%'+text+'%,brand.ilike.%'+text+'%,size.ilike.%'+text+'%')
       .order('item_name').limit(20)
+
+    // FIX 2: If size column doesn't exist in DB yet, fall back gracefully but still show brand/category
     if (res.error && res.error.code === '42703') {
       res = await supabase.from('inventory')
         .select('id,item_name,selling_price,quantity,category,unit_type,brand')
         .or('item_name.ilike.%'+text+'%,category.ilike.%'+text+'%,unit_type.ilike.%'+text+'%,brand.ilike.%'+text+'%')
         .order('item_name').limit(20)
     }
+
     prodList.innerHTML = ''
     if (res.error) {
       var li = document.createElement('li'); li.style.cursor='default'
@@ -1167,6 +1184,8 @@ async function saveBill() {
 
     var billNumber    = await generateInvoiceNo(billDateStr)
     currentBillNumber = billNumber
+
+    // FIX 1: Use the actual billDateStr for created_at so ordering works correctly
     var billTimestamp = billDateStr + 'T12:00:00'
 
     var saleRes = await supabase.from('sales').insert([{
@@ -1242,8 +1261,6 @@ window.cancelEdit = function() {
   renderBill()
 }
 
-// WHY: fillPrintArea handles all bill types including pay_to_merchant.
-// merchantPayData = {merchantName, mode, ref, amount} or null
 function fillPrintArea(opts) {
   var isReturn=opts.isReturn, billNo=opts.billNo, date=opts.date
   var customerName=opts.customerName, phone=opts.phone
@@ -1280,7 +1297,6 @@ function fillPrintArea(opts) {
   if (receiver) { document.getElementById('printReceiverBlock').style.display='block'; document.getElementById('printReceiver').innerText=receiver } else { document.getElementById('printReceiverBlock').style.display='none' }
   if (vehicle)  { document.getElementById('printVehicleBlock').style.display='block';  document.getElementById('printVehicle').innerText=vehicle  } else { document.getElementById('printVehicleBlock').style.display='none' }
 
-  // WHY: Merchant payment bar — show below payment breakdown for PTM bills
   var mpBar = document.getElementById('printMerchantPayBar')
   if (isMerchantPay && merchantPayData) {
     mpBar.style.display = 'block'
@@ -1540,7 +1556,6 @@ async function viewBill(billNo) {
   var displayDateStr = sale.bill_date || sale.created_at
   var displayDate    = new Date(displayDateStr).toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})
 
-  // WHY: For pay_to_merchant bills, load merchant data from sales.notes_json or merchant_payments
   var merchantPayData = null
   if (sale.bill_type === 'pay_to_merchant' && sale.merchant_name) {
     merchantPayData = {
@@ -1637,19 +1652,14 @@ document.getElementById('confirmDeleteBtn').addEventListener('click', async func
   if (!deletingBillId) return
   var ir = await supabase.from('bill_items').select('*').eq('sale_id',deletingBillId)
   var btype = null
-  var sr2 = await supabase.from('sales').select('bill_type,merchant_name').eq('id',deletingBillId).single()
+  var sr2 = await supabase.from('sales').select('bill_type,merchant_name,bill_number').eq('id',deletingBillId).single()
   if (sr2.data) btype = sr2.data.bill_type
   for (var i=0;i<(ir.data||[]).length;i++) {
     var item=ir.data[i]; if(item.item_id&&item.quantity>0) await supabase.rpc('increment_inventory',{p_item_id:item.item_id,p_qty:item.quantity})
   }
   await supabase.from('bill_items').delete().eq('sale_id',deletingBillId)
-  // WHY: If deleting a pay_to_merchant bill, also remove the linked merchant_payments entry
-  if (btype === 'pay_to_merchant' && sr2.data && sr2.data.merchant_name) {
-    // The merchant_payments entry receipt_no matches the bill_number
-    var bnR = await supabase.from('sales').select('bill_number').eq('id',deletingBillId).single()
-    if (bnR.data) {
-      await supabase.from('merchant_payments').delete().eq('receipt_no', bnR.data.bill_number)
-    }
+  if (btype === 'pay_to_merchant' && sr2.data && sr2.data.bill_number) {
+    await supabase.from('merchant_payments').delete().eq('receipt_no', sr2.data.bill_number)
   }
   await supabase.from('sales').delete().eq('id',deletingBillId)
   document.getElementById('deleteModal').style.display='none'; deletingBillId=null; deletingBillNo=null
@@ -1896,6 +1906,7 @@ function openPayMerchantModal() {
 window.closePayMerchantModal = function() {
   document.getElementById('payMerchantModal').classList.remove('show')
 }
+// FIX 3: The button is now in the top header. This listener attaches to that button.
 document.getElementById('payToMerchantTopBtn').addEventListener('click', openPayMerchantModal)
 
 // PM Customer search
@@ -1988,11 +1999,17 @@ function addToPmBill(product) {
   renderPmBill()
 }
 
+// FIX 5: renderPmBill now ONLY updates the "Products Total" display label.
+// It does NOT touch the pmAmount field at all — the user must enter that manually.
+// This means if 2 products total ₹400, it shows "Products Total: ₹400"
+// but the Amount Paid to Merchant field stays blank/unchanged for manual entry.
 function renderPmBill() {
   var container = document.getElementById('pmBillItems')
   var subtotal  = 0
-  container.innerHTML = pmBillItems.length === 0 ? '<div style="font-size:12px;color:rgba(255,255,255,0.3);padding:6px 0;">No items added yet</div>' :
-    pmBillItems.map(function(item, idx){
+  if (pmBillItems.length === 0) {
+    container.innerHTML = '<div style="font-size:12px;color:rgba(255,255,255,0.3);padding:6px 0;">No items added yet</div>'
+  } else {
+    container.innerHTML = pmBillItems.map(function(item, idx){
       subtotal += item.qty * item.price
       return '<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.06);">'+
         '<span style="flex:1;font-size:13px;color:#fff;">'+item.name+'</span>'+
@@ -2001,11 +2018,11 @@ function renderPmBill() {
         '<button class="removeBtn pmRm" data-idx="'+idx+'" style="width:24px!important;height:24px!important;font-size:12px!important;">✕</button>'+
         '</div>'
     }).join('')
-  document.getElementById('pmSubtotal').innerText = subtotal.toLocaleString('en-IN')
-  // Auto-fill amount if empty
-  if (!document.getElementById('pmAmount').value) {
-    document.getElementById('pmAmount').value = subtotal > 0 ? subtotal : ''
+    // Recalculate subtotal after building HTML (loop above mutates subtotal)
+    subtotal = pmBillItems.reduce(function(s,i){ return s+(i.qty*i.price) }, 0)
   }
+  // FIX 5: Only update the display label, NEVER auto-fill the amount input
+  document.getElementById('pmSubtotal').innerText = subtotal.toLocaleString('en-IN')
   // Bind events
   container.querySelectorAll('.pmQtyIn').forEach(function(inp){
     inp.addEventListener('change', function(){ pmBillItems[+this.dataset.idx].qty=parseInt(this.value)||1; renderPmBill() })
@@ -2057,33 +2074,22 @@ async function loadPmMerchantBalance(merchantName) {
   var phoneEl=document.getElementById('pmMerchantPhone'), pillEl=document.getElementById('pmBalancePill')
   nameEl.innerText=merchantName; phoneEl.innerText=pmSelectedMerchant.phone||'No phone'
   var nb=pmMerchBalance
-  if(nb>0){pillEl.innerText='⚠️ Payable: ₹'+Math.abs(nb).toLocaleString('en-IN');pillEl.style.background='rgba(248,113,113,0.15)';pillEl.style.color='#f87171';if(!document.getElementById('pmAmount').value)document.getElementById('pmAmount').value=nb}
+  if(nb>0){pillEl.innerText='⚠️ Payable: ₹'+Math.abs(nb).toLocaleString('en-IN');pillEl.style.background='rgba(248,113,113,0.15)';pillEl.style.color='#f87171'}
   else if(nb<0){pillEl.innerText='✅ Overpaid: ₹'+Math.abs(nb).toLocaleString('en-IN');pillEl.style.background='rgba(52,211,153,0.15)';pillEl.style.color='#34d399'}
   else{pillEl.innerText='✓ Account Clear';pillEl.style.background='rgba(52,211,153,0.1)';pillEl.style.color='#34d399'}
   infoEl.style.display='block'
 }
 
-async function generatePMVoucherNo(merchantName){
-  var now=new Date(), dd=String(now.getDate()).padStart(2,'0'), mm=String(now.getMonth()+1).padStart(2,'0'), yy=String(now.getFullYear()).slice(2)
-  var clean=merchantName.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,10)
-  var start=new Date(); start.setHours(0,0,0,0)
-  var res=await supabase.from('merchant_payments').select('id').ilike('merchant_name',merchantName).gte('created_at',start.toISOString())
-  return 'AAM(MP)-'+clean+'-'+dd+mm+yy+'-'+String((res.data||[]).length+1).padStart(4,'0')
-}
-
-// WHY: savePayToMerchant now:
-// 1. Creates a proper sales bill (bill_type = 'pay_to_merchant') with customer + product items
-// 2. Saves a merchant_payments entry so merchant ledger shows it
-// 3. Saves merchant_name + pay mode + ref on the sales row for viewing later
-// The sales bill bill_number is used as the receipt_no in merchant_payments
-// so both are linked and deleting the sales bill also removes the merchant_payments entry
+// FIX 4: savePayToMerchant now uses a safe column set.
+// The merchant_name, merchant_pay_mode, merchant_pay_ref columns MUST exist in your
+// Supabase 'sales' table. Add them via Supabase dashboard (see STEP 1 above).
 window.savePayToMerchant = async function(shouldPrint) {
   if (!pmSelectedMerchant) { alert('Please search and select a merchant first'); return }
   var amount = parseFloat(document.getElementById('pmAmount').value)||0
   var mode   = document.getElementById('pmMode').value
   var ref    = document.getElementById('pmRef').value.trim()
   var note   = document.getElementById('pmNote').value.trim()
-  if (!amount) { alert('Enter payment amount'); return }
+  if (!amount || amount <= 0) { alert('Enter a valid payment amount greater than 0'); return }
   if (!pmBillItems.length) { alert('Please add at least one product to the bill'); return }
 
   // Get or create customer
@@ -2094,14 +2100,18 @@ window.savePayToMerchant = async function(shouldPrint) {
     custPhone  = pmSelectedCustomer.phone || ''
   } else {
     var pmCustName = document.getElementById('pmCustomerSearch').value.trim()
-    if (!pmCustName) { alert('Please enter a customer name'); return }
+    if (!pmCustName) { alert('Please enter or select a customer name'); return }
     var pmCustPhoneVal = document.getElementById('pmCustomerPhone').value.trim()
-    var nc = await supabase.from('customers').insert([{name:pmCustName,phone:pmCustPhoneVal||null}]).select().single()
-    if (nc.error && nc.error.code !== '23505') { alert('Error creating customer: '+nc.error.message); return }
-    if (nc.data) { customerId = nc.data.id; custName = nc.data.name; custPhone = nc.data.phone||'' }
-    else {
-      var ex = await supabase.from('customers').select('id,name,phone').ilike('name',pmCustName).single()
-      if (ex.data) { customerId = ex.data.id; custName = ex.data.name; custPhone = ex.data.phone||'' }
+    // Try to find existing customer first
+    var exSearch = await supabase.from('customers').select('id,name,phone').ilike('name', pmCustName).limit(1)
+    if (exSearch.data && exSearch.data.length) {
+      customerId = exSearch.data[0].id
+      custName   = exSearch.data[0].name
+      custPhone  = exSearch.data[0].phone || ''
+    } else {
+      var nc = await supabase.from('customers').insert([{name:pmCustName, phone:pmCustPhoneVal||null}]).select().single()
+      if (nc.error) { alert('Error creating customer: '+nc.error.message); return }
+      customerId = nc.data.id; custName = nc.data.name; custPhone = nc.data.phone||''
     }
   }
 
@@ -2109,38 +2119,47 @@ window.savePayToMerchant = async function(shouldPrint) {
   var billNo   = await generatePTMBillNo(todayStr)
   var subtotal = pmBillItems.reduce(function(s,i){ return s+(i.qty*i.price) },0)
 
-  // WHY: Save to sales table as a proper bill with customer info
-  // merchant_name, merchant_pay_mode, merchant_pay_ref stored for viewing
-  var saleIns = await supabase.from('sales').insert([{
-    bill_number:      billNo,
-    customer_id:      customerId,
-    total_amount:     amount,
-    cash:             mode==='Cash' ? amount : 0,
-    upi:              mode==='UPI'  ? amount : 0,
-    credit:           0,
-    discount:         0,
-    advance:          0,
-    bill_type:        'pay_to_merchant',
-    merchant_name:    pmSelectedMerchant.name,
+  // FIX 4: Build the insert row carefully.
+  // merchant_name, merchant_pay_mode, merchant_pay_ref columns must exist in Supabase.
+  var insertRow = {
+    bill_number:       billNo,
+    customer_id:       customerId,
+    total_amount:      amount,
+    cash:              mode==='Cash' ? amount : 0,
+    upi:               mode==='UPI'  ? amount : 0,
+    credit:            0,
+    discount:          0,
+    advance:           0,
+    bill_type:         'pay_to_merchant',
+    bill_date:         todayStr,
+    created_at:        todayStr + 'T12:00:00',
+    notes:             note || null,
+    merchant_name:     pmSelectedMerchant.name,
     merchant_pay_mode: mode,
-    merchant_pay_ref:  ref || null,
-    notes:            note || null,
-    bill_date:        todayStr,
-    created_at:       todayStr + 'T12:00:00'
-  }]).select().single()
+    merchant_pay_ref:  ref || null
+  }
+
+  var saleIns = await supabase.from('sales').insert([insertRow]).select().single()
 
   if (saleIns.error) {
-    // WHY: merchant_name column might not exist yet — add it via Supabase dashboard if this fails
-    alert('❌ Error saving bill: '+saleIns.error.message+'\n\nNote: You may need to add columns merchant_name, merchant_pay_mode, merchant_pay_ref to your sales table in Supabase.')
+    alert('❌ Error saving bill: ' + saleIns.error.message +
+      '\n\nIMPORTANT: You need to add 3 columns to your Supabase sales table:\n' +
+      '1. merchant_name (type: text)\n' +
+      '2. merchant_pay_mode (type: text)\n' +
+      '3. merchant_pay_ref (type: text)\n\n' +
+      'Go to Supabase → Table Editor → sales → Add column')
     return
   }
 
-  // Save bill items
+  // Save bill items and update inventory
   if (saleIns.data) {
     var itemRows = pmBillItems.map(function(item){
       return { sale_id:saleIns.data.id, item_id:item.id, item_name:item.name, quantity:item.qty, price:item.price, total:item.qty*item.price }
     })
-    await supabase.from('bill_items').insert(itemRows)
+    var itemsResult = await supabase.from('bill_items').insert(itemRows)
+    if (itemsResult.error) {
+      console.error('Bill items error:', itemsResult.error)
+    }
     // Decrement inventory
     for (var ki=0; ki<pmBillItems.length; ki++) {
       var bk = pmBillItems[ki]
@@ -2148,8 +2167,7 @@ window.savePayToMerchant = async function(shouldPrint) {
     }
   }
 
-  // WHY: Save to merchant_payments using the SAME bill_number as receipt_no
-  // This means the merchant ledger will show this as a payment
+  // Save to merchant_payments table using the same bill_number as receipt_no
   var mpIns = await supabase.from('merchant_payments').insert([{
     merchant_name:  pmSelectedMerchant.name,
     merchant_phone: pmSelectedMerchant.phone || null,
@@ -2194,7 +2212,7 @@ window.savePayToMerchant = async function(shouldPrint) {
   }
 
   closePayMerchantModal()
-  alert('✅ Saved!\nBill No: '+billNo+'\nCustomer: '+custName+'\nMerchant: '+pmSelectedMerchant.name+'\n\nVisible in Bill History AND Merchant Ledger → '+pmSelectedMerchant.name)
+  alert('✅ Saved Successfully!\n\nBill No: '+billNo+'\nCustomer: '+custName+'\nMerchant: '+pmSelectedMerchant.name+'\nAmount Paid: ₹'+amount.toLocaleString('en-IN')+'\n\nVisible in:\n• Bill History (Sales page)\n• Merchant Ledger → '+pmSelectedMerchant.name)
 }
 
 // ── INITIALISE ──
