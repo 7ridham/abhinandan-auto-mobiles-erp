@@ -269,7 +269,7 @@
           <datalist id="vehicleSuggestions"></datalist>
         </div>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px;">
+     <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px;">
         <div>
           <label class="field-label">Bill Date <span class="opt-tag">(defaults to today)</span></label>
           <input type="date" id="billDate" style="margin-bottom:0;">
@@ -279,6 +279,10 @@
             💡 Change only if making a bill for a previous date
           </div>
         </div>
+      </div>
+      <div style="margin-top:14px;">
+        <label class="field-label">Notes / Remarks <span class="opt-tag">(optional — prints on bill)</span></label>
+        <textarea id="billNotes" placeholder="e.g. Customer promised payment in 3 days, special order, etc." style="width:100%;padding:10px 14px;border-radius:8px;border:1.5px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.06);color:white;font-size:13px;font-family:'DM Sans',sans-serif;resize:vertical;height:60px;margin-bottom:0;outline:none;"></textarea>
       </div>
     </div>
 
@@ -479,25 +483,29 @@
     <div id="printDeliveryNoteBar" style="display:none;margin:8px 36px 0;padding:8px 14px;background:#ecfeff;border:1px solid #a5f3fc;border-radius:6px;font-size:12px;color:#0891b2;">
       🚚 <strong>Delivery Note:</strong> <span id="printDeliveryNoteText"></span>
     </div>
+    <div id="printNotesBar" style="display:none;margin:8px 36px 0;padding:10px 14px;background:#fffbeb;border:1px solid #fde68a;border-radius:6px;font-size:12px;color:#92400e;">
+      📝 <strong>Notes:</strong> <span id="printNotesText"></span>
+    </div>
 
-    <!-- FIX 6: QR Code section linking to portal.html -->
-    <div class="bill-qr-section">
-      <div id="printQrCode"></div>
-      <div class="qr-text">
-        <strong>⭐ Rate Us & View Our Store</strong>
-        Scan this QR code to visit our website, explore our product range, and leave a review.<br>
-        <span style="font-size:11px;color:#2563eb;font-weight:600;">abhinandan-auto-mobiles-erp.vercel.app/portal.html</span>
+   <!-- REDESIGNED FOOTER: QR left + Thank you right, then signatures below -->
+    <div style="margin:10px 36px 0;display:flex;align-items:center;justify-content:space-between;gap:20px;padding:12px 16px;background:#f8fafc;border:1px solid #e5e7eb;border-radius:8px;">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div id="printQrCode" style="width:64px;height:64px;flex-shrink:0;"></div>
+        <div style="font-size:12px;color:#6b7280;">
+          <strong style="display:block;font-size:13px;color:#1e3a5f;margin-bottom:2px;">⭐ Rate Us & Visit Our Store</strong>
+          <span style="font-size:10px;color:#2563eb;">abhinandan-auto-mobiles-erp.vercel.app/portal.html</span>
+        </div>
+      </div>
+      <div style="text-align:right;">
+        <p class="thank-you" id="printFooterMsg" style="font-size:15px;font-weight:700;color:#1e3a5f;margin-bottom:3px;">Thank you for your business 🙏</p>
+        <p id="printReturnNoteLine" style="display:none;color:#dc2626;font-weight:600;font-size:12px;margin-bottom:3px;">Return processed. Credit adjusted to account.</p>
+        <p style="font-size:11px;color:#6b7280;margin:1px 0;">All disputes subject to local jurisdiction.</p>
+        <p style="font-size:11px;color:#6b7280;margin:1px 0;">Goods once sold will not be taken back.</p>
       </div>
     </div>
 
-    <div class="bill-footer">
-      <div class="bill-footer-left">
-        <p class="thank-you" id="printFooterMsg">Thank you for your business 🙏</p>
-        <p id="printReturnNoteLine" style="display:none;color:#dc2626;font-weight:600;margin-bottom:4px;">Return processed. Credit adjusted to account.</p>
-        <p>All disputes subject to local jurisdiction.</p>
-        <p>Goods once sold will not be taken back.</p>
-      </div>
-      <div style="display:flex;gap:60px;">
+    <div class="bill-footer" style="padding-top:12px;">
+      <div style="display:flex;gap:60px;width:100%;justify-content:space-between;">
         <div style="text-align:center;"><div style="border-top:1px solid #000;width:150px;margin:auto;margin-top:28px;"></div><p class="sig-label" id="printCustSigLabel">Customer Signature</p></div>
         <div style="text-align:center;"><div style="border-top:1px solid #000;width:150px;margin:auto;margin-top:28px;"></div><p class="sig-label">For Abhinandan Auto Mobiles</p><p class="sig-label" style="margin-top:4px;">Authorised Signatory</p></div>
       </div>
@@ -930,15 +938,15 @@ prodInput.addEventListener('input', function() {
       var sclbl= p.quantity<=0 ? 'Out of Stock' : p.quantity<=5 ? p.quantity+' left (low)' : p.quantity+' in stock'
 
       // FIX 2: Now includes size in detail string
-      var detailParts = []
-      if (p.brand    && p.brand.trim())     detailParts.push(p.brand.trim())
-      if (p.category && p.category.trim())  detailParts.push(p.category.trim())
-      if (p.size     && p.size.trim())      detailParts.push(p.size.trim())
+    var detailParts = []
+      if (p.brand    && p.brand.trim())      detailParts.push(p.brand.trim())
+      if (p.category && p.category.trim())   detailParts.push(p.category.trim())
+      if (p.size     && p.size.trim())       detailParts.push('Size: '+p.size.trim())
       if (p.unit_type && p.unit_type.trim()) detailParts.push(p.unit_type.trim())
       var detailStr = detailParts.length
-        ? ' <span style="font-size:11px;opacity:0.55;margin-left:4px;">• '+detailParts.join(' • ')+'</span>'
+        ? ' <span style="font-size:11px;opacity:0.7;margin-left:4px;color:#60a5fa;">'+detailParts.join(' · ')+'</span>'
         : ''
-
+      
       var li = document.createElement('li')
       li.style.flexWrap = 'wrap'
       li.innerHTML =
@@ -1165,10 +1173,30 @@ async function saveBill() {
         if(oldR.data&&oldR.data.length) await supabase.from('bill_items').insert(oldR.data.map(function(r){ var x=Object.assign({},r); delete x.id; return x }))
         alert('❌ Edit failed: '+ins.error.message); window.isSaving=false; saveBtn.innerText=origText; saveBtn.disabled=false; return
       }
+      // If date changed, generate a new bill number for the new date
+      var newBillNum = editingBillNumber
+      var oldDatePrefix = editingBillNumber.split('-').slice(0,2).join('-') // e.g. "AAM-300526"
+      var parts = billDateStr.split('-')
+      var dd = parts[2], mm = parts[1], yy = parts[0].slice(2)
+      var newDatePrefix = 'AAM-' + dd + mm + yy
+      if (oldDatePrefix !== newDatePrefix) {
+        newBillNum = await generateInvoiceNo(billDateStr)
+      }
+      currentBillNumber = newBillNum
+
       await supabase.from('sales').update({
-        customer_id:customerId,total_amount:final,cash:cash,upi:upi,credit:cred,
-        discount:disc,delivery_charges:deliv,delivery_note:delivNote||null,
-        receiver_name:receiver||null,vehicle_number:vehicle||null
+        bill_number:   newBillNum,
+        customer_id:   customerId,
+        total_amount:  final,
+        cash:          cash,
+        upi:           upi,
+        credit:        cred,
+        discount:      disc,
+        delivery_charges: deliv,
+        delivery_note:    delivNote||null,
+        receiver_name:    receiver||null,
+        vehicle_number:   vehicle||null,
+        bill_date:        billDateStr
       }).eq('id',editingBillId)
       for(var oi=0;oi<(oldR.data||[]).length;oi++){var ov=oldR.data[oi];if(ov.item_id&&ov.quantity>0)await supabase.rpc('increment_inventory',{p_item_id:ov.item_id,p_qty:ov.quantity})}
       for(var ni=0;ni<billItems.length;ni++){var nv=billItems[ni];if(nv.id)await supabase.rpc('decrement_inventory',{p_item_id:nv.id,p_qty:nv.qty})}
@@ -1224,8 +1252,7 @@ document.getElementById('saveBtn').addEventListener('click', saveBill)
 // ── RESET ──
 function resetBillingForm() {
   selectedCustomer = null; billItems = []; totalAmount = 0; deliveryBoxOpen = false
-  ;['customerSearch','receiverName','vehicleNumber','billPhone','deliveryCharges','deliveryNote','cash','upi','credit','discountValue'].forEach(function(id){document.getElementById(id).value=''})
-  document.getElementById('billDate').value = new Date().toISOString().slice(0,10)
+;['customerSearch','receiverName','vehicleNumber','billPhone','deliveryCharges','deliveryNote','cash','upi','credit','discountValue','billNotes'].forEach(function(id){var el=document.getElementById(id);if(el)el.value=''})  document.getElementById('billDate').value = new Date().toISOString().slice(0,10)
   document.getElementById('gstToggle').checked = false
   document.getElementById('deliveryBox').classList.remove('visible')
   document.getElementById('deliveryToggleBtn').innerText = '+ Add Delivery / Extra Charges'
@@ -1325,7 +1352,10 @@ function fillPrintArea(opts) {
   if(!isReturn&&disc>0) document.getElementById('printDiscountPay').innerText=disc.toLocaleString('en-IN')
   var dnBar=document.getElementById('printDeliveryNoteBar')
   if(delivNote){dnBar.style.display='block';document.getElementById('printDeliveryNoteText').innerText=delivNote}else{dnBar.style.display='none'}
-  document.getElementById('printPayTitle').innerText         = isReturn?'Return Breakdown':'Payment Breakdown'
+  var notesBar=document.getElementById('printNotesBar')
+  var notesText=opts.notes||''
+  if(notesText){notesBar.style.display='block';document.getElementById('printNotesText').innerText=notesText}else{notesBar.style.display='none'}
+  document.getElementById('printPayTitle').innerText = isReturn?'Return Breakdown':'Payment Breakdown'
 
   // FIX 6: Generate QR for print area
   generateQR('printQrCode')
@@ -1345,50 +1375,62 @@ async function printBill() {
   var disc  = calcDiscount(afterDeliv)
   var final = afterDeliv-disc
   if((cash+upi+cred)>final){alert('❌ Payment exceeds total. Please fix first.');return}
-  window.isPrinting=true
-  var tempItems=billItems.slice(), tempTotal=totalAmount
 
   // CAPTURE everything BEFORE saveBill clears the form
-  var tempCustomerName = selectedCustomer ? selectedCustomer.name : (document.getElementById('customerSearch').value || 'Walk-in Customer')
-  var tempPhone        = document.getElementById('billPhone').value || '—'
-  var tempReceiver     = document.getElementById('receiverName').value.trim()
-  var tempVehicle      = document.getElementById('vehicleNumber').value.trim()
-  var tempBillDateStr  = document.getElementById('billDate').value || new Date().toISOString().slice(0,10)
-  var tempBillType     = selectedBillType
-  // If editing, capture the existing bill number now
+  window.isPrinting = true
+  var tempItems       = billItems.slice()
+  var tempTotal       = totalAmount
+  var tempCustomerName= selectedCustomer ? selectedCustomer.name : (document.getElementById('customerSearch').value || 'Walk-in Customer')
+  var tempPhone       = document.getElementById('billPhone').value || '—'
+  var tempReceiver    = document.getElementById('receiverName').value.trim()
+  var tempVehicle     = document.getElementById('vehicleNumber').value.trim()
+  var tempBillDateStr = document.getElementById('billDate').value || new Date().toISOString().slice(0,10)
+  var tempNotes       = document.getElementById('billNotes') ? document.getElementById('billNotes').value.trim() : ''
+  var tempBillType    = selectedBillType
   var tempEditingBillNo = editingBillId ? editingBillNumber : null
 
-  var cgst=gst?Math.round(tempTotal*0.09):0
-  var modes=[];if(cash>0)modes.push('Cash');if(upi>0)modes.push('UPI');if(cred>0)modes.push('Credit');if(disc>0)modes.push('Discount')
-  await saveBill()
-  await new Promise(function(r){setTimeout(r,300)})
+  var cgst  = gst ? Math.round(tempTotal*0.09) : 0
+  var modes = []
+  if(cash>0)  modes.push('Cash')
+  if(upi>0)   modes.push('UPI')
+  if(cred>0)  modes.push('Credit')
+  if(disc>0)  modes.push('Discount')
 
-  // Use captured bill number (editing = old number, new bill = generated number)
-  var finalBillNo = tempEditingBillNo || currentBillNumber
+  await saveBill()
+  await new Promise(function(r){setTimeout(r,400)})
+
+  // For edited bills: if date changed, currentBillNumber has the NEW number
+  // For new bills: currentBillNumber is freshly generated
+  var finalBillNo = currentBillNumber || tempEditingBillNo || 'UNKNOWN'
   var displayDate = new Date(tempBillDateStr+'T12:00:00').toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric'})
 
   fillPrintArea({
     isReturn:false, billNo:finalBillNo, date:displayDate,
     customerName:tempCustomerName,
-    phone:tempPhone,
-    receiver:tempReceiver,
-    vehicle:tempVehicle,
+    phone:tempPhone, receiver:tempReceiver, vehicle:tempVehicle,
     originalRef:null, items:tempItems, subtotal:tempTotal, final:final,
-    gstEnabled:gst, cgst:cgst, sgst:cgst, disc:disc, cash:cash, upi:upi, credit:cred,
-    payMode:modes.join(' + ')||'—', deliv:deliv, delivNote:delivNote
+    gstEnabled:gst, cgst:cgst, sgst:cgst, disc:disc,
+    cash:cash, upi:upi, credit:cred,
+    payMode:modes.join(' + ')||'—',
+    deliv:deliv, delivNote:delivNote, notes:tempNotes
   })
-  document.getElementById('printArea').style.display='block'
+
+  document.getElementById('printArea').style.display = 'block'
   document.body.classList.add('print-bill')
-  var ot=document.title; document.title='Bill-'+currentBillNumber
+  // Use finalBillNo for the PDF filename — never null
+  var ot = document.title
+  document.title = 'Bill-' + finalBillNo
+
   setTimeout(function(){
     window.print()
     setTimeout(function(){
-      document.title=ot
-      document.getElementById('printArea').style.display='none'
+      document.title = ot
+      document.getElementById('printArea').style.display = 'none'
       document.body.classList.remove('print-bill')
-      window.isPrinting=false
-    },800)
-  },400) // small delay so QR renders before print dialog
+      window.isPrinting = false
+      resetBillingForm()
+    }, 800)
+  }, 500)
 }
 
 document.getElementById('printBtn').addEventListener('click', printBill)
@@ -1998,35 +2040,59 @@ window.savePayToMerchant = async function(shouldPrint) {
   var newBalance = pmMerchBalance - amount
   var fmtB = function(n){ return n>0?'-₹'+Math.abs(n).toLocaleString('en-IN')+' (Payable)':n<0?'+₹'+Math.abs(n).toLocaleString('en-IN')+' (Overpaid)':'₹0 Clear' }
 
-  if (shouldPrint) {
-    // Fill voucher print area
-    document.getElementById('vchrNo').innerText      = voucherNo
-    document.getElementById('vchrName').innerText    = pmSelectedMerchant.name
-    document.getElementById('vchrPhone').innerText   = pmSelectedMerchant.phone||'—'
-    document.getElementById('vchrMode').innerText    = mode
-    document.getElementById('vchrAmount').innerText  = '₹'+Math.round(amount).toLocaleString('en-IN')
-    document.getElementById('vchrPaid').innerText    = '₹'+Math.round(amount).toLocaleString('en-IN')
-    document.getElementById('vchrPrevBal').innerText = fmtB(pmMerchBalance)
-    document.getElementById('vchrNewBal').innerText  = fmtB(Math.round(newBalance))
-    document.getElementById('vchrDate').innerText    = new Date().toLocaleString('en-IN')
-    document.getElementById('vchrDateVal').innerText = new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'})
-    if(ref){document.getElementById('vchrRef').innerText=ref;document.getElementById('vchrRefRow').style.display='flex'}
-    else   {document.getElementById('vchrRefRow').style.display='none'}
-    if(note){document.getElementById('vchrNote').innerText=note;document.getElementById('vchrNoteBox').style.display='block'}
-    else    {document.getElementById('vchrNoteBox').style.display='none'}
-    // FIX 6: QR on voucher
-    generateQR('vchrQrCode')
-    document.getElementById('voucherArea').style.display='block'
-    document.body.classList.add('print-voucher')
-    var ot=document.title; document.title=voucherNo
+ if (shouldPrint) {
+    // Build print content using the SAME bill layout as sales bills
+    var printItemsHtml = '<tr>'+
+      '<td style="padding:10px 14px;color:#6b7280;">1</td>'+
+      '<td style="padding:10px 14px;"><div style="font-weight:600;color:#111827;">Payment to Merchant</div>'+
+      '<div style="font-size:11px;color:#6b7280;margin-top:2px;">Merchant: '+pmSelectedMerchant.name+' | Mode: '+mode+(ref?' | Ref: '+ref:'')+'</div>'+
+      '</td>'+
+      '<td style="padding:10px 14px;text-align:center;">1</td>'+
+      '<td style="padding:10px 14px;text-align:center;">₹'+Math.round(amount).toLocaleString('en-IN')+'</td>'+
+      '<td style="padding:10px 14px;text-align:right;font-weight:600;">₹'+Math.round(amount).toLocaleString('en-IN')+'</td>'+
+      '</tr>'
+
+    fillPrintArea({
+      isReturn: false,
+      billNo: voucherNo,
+      date: new Date().toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric'}),
+      customerName: pmSelectedMerchant.name,
+      phone: '',   // do NOT show merchant phone
+      receiver: '',
+      vehicle: '',
+      originalRef: null,
+      items: [{
+        name: 'Payment to Merchant ('+pmSelectedMerchant.name+')',
+        qty: 1,
+        price: Math.round(amount),
+        brand: '',
+        category: mode + (ref?' · Ref: '+ref:''),
+        size: '',
+        unitType: ''
+      }],
+      subtotal: Math.round(amount),
+      final: Math.round(amount),
+      gstEnabled: false, cgst: 0, sgst: 0, disc: 0,
+      cash: mode==='Cash' ? Math.round(amount) : 0,
+      upi: mode==='UPI' ? Math.round(amount) : 0,
+      credit: 0,
+      payMode: mode,
+      deliv: 0, delivNote: '',
+      notes: note || ('Payment to merchant: '+pmSelectedMerchant.name)
+    })
+
+    document.getElementById('printArea').style.display = 'block'
+    document.body.classList.add('print-bill')
+    var ot = document.title
+    document.title = 'PaymentVoucher-' + voucherNo
     setTimeout(function(){
       window.print()
       setTimeout(function(){
-        document.title=ot
-        document.getElementById('voucherArea').style.display='none'
-        document.body.classList.remove('print-voucher')
-      },800)
-    },400)
+        document.title = ot
+        document.getElementById('printArea').style.display = 'none'
+        document.body.classList.remove('print-bill')
+      }, 800)
+    }, 400)
   }
 
   closePayMerchantModal()
