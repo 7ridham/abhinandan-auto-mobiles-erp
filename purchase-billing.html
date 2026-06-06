@@ -9,23 +9,69 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
 <style>
+  /* ── LIGHT THEME BASE FIXES ── */
+  html.light-theme body { color: #111827; }
+  html.light-theme input,
+  html.light-theme select,
+  html.light-theme textarea {
+    background: #ffffff !important;
+    color: #111827 !important;
+    border-color: rgba(0,0,0,0.2) !important;
+  }
+  html.light-theme input::placeholder { color: #9ca3af !important; }
+  html.light-theme .card { background: #ffffff !important; border-color: rgba(0,0,0,0.1) !important; color: #111827 !important; }
+  html.light-theme h3 { color: #111827 !important; }
+  html.light-theme table thead tr { background: rgba(0,0,0,0.07) !important; }
+  html.light-theme table thead th { color: #374151 !important; }
+  html.light-theme table tbody td { color: #111827 !important; }
+  html.light-theme table tbody tr { border-color: rgba(0,0,0,0.07) !important; }
+  html.light-theme .field-label { color: #374151 !important; }
+  html.light-theme .opt-tag { color: #6b7280 !important; }
+  html.light-theme #purPaymentSummary { background: rgba(0,0,0,0.04) !important; border-color: rgba(0,0,0,0.08) !important; }
+  html.light-theme #editModeBar { background: rgba(245,158,11,0.08) !important; border-color: rgba(245,158,11,0.3) !important; }
+  html.light-theme #editModeBar .em-text { color: #b45309 !important; }
+  html.light-theme #editModeBar .em-no { color: #d97706 !important; }
+  html.light-theme .bill-type-btn { border-color: rgba(0,0,0,0.18) !important; color: #374151 !important; }
+  html.light-theme .bill-type-btn.active { background: #d97706 !important; color: white !important; }
+  html.light-theme .new-product-box { background: rgba(245,158,11,0.06) !important; border-color: rgba(245,158,11,0.4) !important; }
+  html.light-theme .mode-btn { color: #374151 !important; background: rgba(0,0,0,0.05) !important; border-color: rgba(0,0,0,0.15) !important; }
+  html.light-theme .mode-btn.active-purchase { background: #d97706 !important; color: white !important; border-color: #d97706 !important; }
+  html.light-theme .mode-btn.active-return { background: #dc2626 !important; color: white !important; border-color: #dc2626 !important; }
+  html.light-theme #selectedMerchantBox { background: rgba(245,158,11,0.07) !important; border-color: rgba(245,158,11,0.3) !important; }
+  html.light-theme #selectedMerchantName { color: #111827 !important; }
+  html.light-theme #selectedMerchantSub { color: #6b7280 !important; }
+  html.light-theme .delivery-box { background: rgba(245,158,11,0.06) !important; border-color: rgba(245,158,11,0.35) !important; }
+  html.light-theme #returnMerchantInfo > div > div:first-child { color: #6b7280 !important; }
+  html.light-theme #returnMerchantInfo > div > div:last-child { color: #111827 !important; }
+
+  /* ── SELECT LIGHT THEME ── */
+  html.light-theme select option { background: #ffffff; color: #111827; }
+
   .page-mode-bar{display:flex;gap:10px;margin-bottom:20px;align-items:center;flex-wrap:wrap;}
   .mode-btn{padding:10px 22px;border-radius:10px;border:2px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.55);font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;}
   .mode-btn:hover{background:rgba(255,255,255,0.1);}
   .mode-btn.active-purchase{background:#d97706;border-color:#d97706;color:white;box-shadow:0 4px 14px rgba(217,119,6,0.4);}
   .mode-btn.active-return{background:#dc2626;border-color:#dc2626;color:white;box-shadow:0 4px 14px rgba(220,38,38,0.4);}
+
   .wa-toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#25D366;color:white;padding:12px 24px;border-radius:12px;font-size:14px;font-weight:600;font-family:'DM Sans',sans-serif;z-index:99999;box-shadow:0 8px 24px rgba(37,211,102,0.4);display:none;align-items:center;gap:10px;white-space:nowrap;}
   .wa-toast.show{display:flex;}
+
   #editModeBar{display:none;background:rgba(245,158,11,0.1);border:1.5px solid rgba(245,158,11,0.3);border-radius:10px;padding:12px 18px;margin-bottom:16px;}
   #editModeBar .em-inner{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;}
   #editModeBar .em-text{font-size:14px;color:#fbbf24;font-weight:600;}
   #editModeBar .em-no{font-size:13px;color:rgba(245,158,11,0.65);margin-top:3px;}
+
   .bill-type-row{display:flex;gap:12px;margin-bottom:10px;flex-wrap:wrap;}
   .bill-type-btn{padding:8px 18px;border-radius:20px;border:2px solid rgba(255,255,255,0.2);background:transparent;color:white;font-size:14px;cursor:pointer;transition:all 0.2s;}
   .bill-type-btn.active{background:#d97706;border-color:#d97706;}
+
   .field-label{font-size:11px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:rgba(255,255,255,0.4);display:block;margin-bottom:6px;}
   .opt-tag{font-size:10px;color:rgba(255,255,255,0.25);margin-left:6px;font-weight:400;letter-spacing:0;text-transform:none;}
   .new-product-box{background:rgba(245,158,11,0.07);border:1.5px dashed rgba(245,158,11,0.35);border-radius:10px;padding:16px;margin-top:10px;}
+
+  /* Delivery charges box */
+  .delivery-box{background:rgba(245,158,11,0.06);border:1.5px dashed rgba(245,158,11,0.3);border-radius:10px;padding:14px;margin-top:14px;}
+  .delivery-box-title{font-size:12px;font-weight:700;color:#f59e0b;letter-spacing:0.5px;margin-bottom:10px;}
 
   /* Dropdowns — fixed position */
   #merchantList,#productList{
@@ -61,6 +107,9 @@
   .prod-stock-ok{color:#34d399;font-weight:600;}
   .prod-stock-warn{color:#fbbf24;font-weight:600;}
   .prod-stock-bad{color:#f87171;font-weight:600;}
+
+  html.light-theme .prod-sub { color: #6b7280 !important; }
+  html.light-theme .prod-price { color: #374151 !important; }
 
   /* PRINT */
   #printArea{display:none;font-family:'DM Sans',sans-serif;background:#fff;padding:0;color:#111;}
@@ -132,9 +181,9 @@
 </style>
 </head>
 <body class="sidebar-open">
-  
+
 <div class="wa-toast" id="waToast"><span>📲</span><span id="waToastMsg">Opening WhatsApp...</span></div>
-  
+
 <button class="sidebar-toggle" onclick="toggleSidebar()" title="Toggle Menu">☰</button>
 <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
 <div class="sidebar">
@@ -240,7 +289,6 @@
       <div style="margin-top:14px;">
         <button id="toggleNewProduct" style="background:rgba(245,158,11,0.12);border:1.5px solid rgba(245,158,11,0.35);color:#f59e0b;padding:8px 18px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;font-family:'DM Sans',sans-serif;">+ New Product (not in system)</button>
       </div>
-      <!-- NEW PRODUCT FORM — matches products.html Add Product modal -->
       <div class="new-product-box" id="newProductBox" style="display:none;">
         <div style="font-size:13px;font-weight:600;color:#f59e0b;margin-bottom:12px;">📦 Add New Product to Inventory</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
@@ -285,6 +333,25 @@
       <div style="margin-top:14px;">
         <span style="font-size:16px;color:rgba(255,255,255,0.6);">Subtotal: </span>
         <span style="font-size:18px;font-weight:700;">₹<span id="purchaseTotalAmount">0</span></span>
+      </div>
+
+      <!-- DELIVERY CHARGES -->
+      <div class="delivery-box" id="deliveryChargesBox" style="display:none;">
+        <div class="delivery-box-title">🚚 DELIVERY / EXTRA CHARGES</div>
+        <div style="display:grid;grid-template-columns:180px 1fr;gap:12px;align-items:end;">
+          <div>
+            <label class="field-label">Charges (₹)</label>
+            <input type="number" id="purDeliveryCharges" placeholder="0" min="0" oninput="renderPurchaseBill()" style="margin-bottom:0;">
+          </div>
+          <div>
+            <label class="field-label">Delivery Note <span class="opt-tag">(optional)</span></label>
+            <input id="purDeliveryNote" placeholder="e.g. Transport charges, Freight..." style="margin-bottom:0;" oninput="renderPurchaseBill()">
+          </div>
+        </div>
+        <button onclick="removeDeliveryCharges()" style="margin-top:10px;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);color:#f87171;padding:5px 14px;border-radius:7px;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;box-shadow:none;">✕ Remove Delivery Charges</button>
+      </div>
+      <div style="margin-top:10px;" id="addDeliveryBtn">
+        <button onclick="showDeliveryCharges()" style="background:rgba(245,158,11,0.1);border:1.5px dashed rgba(245,158,11,0.3);color:#f59e0b;padding:7px 16px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;box-shadow:none;">+ Add Delivery / Extra Charges</button>
       </div>
 
       <div class="card" style="margin-top:18px;">
@@ -426,6 +493,7 @@
       <div class="pur-totals-table">
         <div class="pur-totals-row"><span class="t-label">Subtotal</span><span class="t-value">₹<span id="printPurSubtotal"></span></span></div>
         <div class="pur-totals-row" id="purDiscountRow" style="display:none;"><span class="t-label" style="color:#059669;">Discount</span><span class="t-value" style="color:#059669;">- ₹<span id="printPurDiscount"></span></span></div>
+        <div class="pur-totals-row" id="purDeliveryRow" style="display:none;"><span class="t-label" style="color:#d97706;">🚚 Delivery</span><span class="t-value" style="color:#d97706;">+ ₹<span id="printPurDelivery"></span></span></div>
         <div class="pur-totals-row"><span class="t-label" id="printPurFinalLabel">Grand Total</span><span class="t-value" style="color:#78350f;">₹<span id="printPurFinal"></span></span></div>
       </div>
     </div>
@@ -436,6 +504,7 @@
         <span class="pur-payment-item"><span class="pm-label">UPI</span><span class="pm-val">₹<span id="printPurUPI">0</span></span></span>
         <span class="pur-payment-item"><span class="pm-label" id="printPurCreditLabel">Credit</span><span class="pm-val">₹<span id="printPurCredit">0</span></span></span>
         <span class="pur-payment-item" id="purDiscountPayItem" style="display:none;"><span class="pm-label" style="color:#059669;">Discount</span><span class="pm-val" style="color:#059669;">₹<span id="printPurDiscountPay">0</span></span></span>
+        <span class="pur-payment-item" id="purDeliveryPayItem" style="display:none;"><span class="pm-label" style="color:#d97706;">🚚 Delivery</span><span class="pm-val" style="color:#d97706;">₹<span id="printPurDeliveryPay">0</span></span></span>
       </div>
     </div>
     <div class="pur-qr-row">
@@ -535,6 +604,20 @@ _sb.onload=function(){
   ))
 }
 document.head.appendChild(_sb)
+
+// ── DELIVERY CHARGES UI ──
+window.showDeliveryCharges = function(){
+  document.getElementById('deliveryChargesBox').style.display='block'
+  document.getElementById('addDeliveryBtn').style.display='none'
+  renderPurchaseBill()
+}
+window.removeDeliveryCharges = function(){
+  document.getElementById('deliveryChargesBox').style.display='none'
+  document.getElementById('addDeliveryBtn').style.display='block'
+  document.getElementById('purDeliveryCharges').value=''
+  document.getElementById('purDeliveryNote').value=''
+  renderPurchaseBill()
+}
 
 function initPurchase(supabase) {
 
@@ -654,20 +737,16 @@ document.getElementById('toggleNewProduct').addEventListener('click',function(){
   var box=document.getElementById('newProductBox');box.style.display=box.style.display==='none'?'block':'none'
 })
 
-// ══════════════════════════════════════════════════════
-// PRODUCT SEARCH — FIX: uses product_size (correct column name)
-// ══════════════════════════════════════════════════════
+// ── PRODUCT SEARCH ──
 var pInput=document.getElementById('productSearch'), pList=document.getElementById('productList')
 pInput.addEventListener('input',function(){
   var text=this.value.trim(); clearTimeout(productSearchTimer); pList.innerHTML=''
   if(!text){pList.style.display='none';return}
   productSearchTimer=setTimeout(async function(){
-    // KEY FIX: column is product_size NOT size
     var res=await supabase.from('inventory')
       .select('id,item_name,purchase_price,quantity,category,unit_type,brand,product_size,item_code')
       .or('item_name.ilike.%'+text+'%,brand.ilike.%'+text+'%,category.ilike.%'+text+'%,product_size.ilike.%'+text+'%')
       .order('item_name').limit(20)
-
     pList.innerHTML=''
     if(!res.data||!res.data.length){
       var li=document.createElement('li'); li.style.cursor='default'
@@ -698,7 +777,6 @@ pInput.addEventListener('input',function(){
 pInput.addEventListener('focus',function(){if(pList.children.length){positionDropdown(pInput,pList);pList.style.display='block'}})
 
 function addExistingToBill(product){
-  // FIX: use product_size, not size
   var tags=[]
   if(product.brand&&product.brand.trim())tags.push(product.brand.trim())
   if(product.category&&product.category.trim())tags.push(product.category.trim())
@@ -713,14 +791,13 @@ function addExistingToBill(product){
   purchaseItems.push({
     id:product.id, name:product.item_name, buyPrice:bp, qty:1, isNew:false,
     category:product.category||'', brand:product.brand||'',
-    size:product.product_size||'',  // store as 'size' internally for display
+    size:product.product_size||'',
     unitType:product.unit_type||''
   })
   renderPurchaseBill()
 }
 
 // ── ADD NEW PRODUCT ──
-// FIX: purchase price and selling price are now OPTIONAL (no error if blank)
 window.addNewProduct=function(){
   var name=document.getElementById('newProductName').value.trim()
   var qty=parseInt(document.getElementById('newProductQty').value)||0
@@ -751,6 +828,8 @@ window.handlePurDiscountTypeChange=function(){
 }
 
 // ── RENDER BILL ──
+// Why: The render function now calculates:
+// Grand Total = Subtotal - Discount + Delivery Charges
 function renderPurchaseBill(){
   var table=document.getElementById('purchaseTable'); table.innerHTML=''; totalAmount=0
   purchaseItems.forEach(function(item,idx){
@@ -770,17 +849,24 @@ function renderPurchaseBill(){
     table.appendChild(tr)
   })
   document.getElementById('purchaseTotalAmount').innerText=totalAmount.toLocaleString('en-IN')
+
+  var deliveryCharges=parseFloat(document.getElementById('purDeliveryCharges').value)||0
   var cash=parseFloat(document.getElementById('purCash').value)||0
   var upi=parseFloat(document.getElementById('purUpi').value)||0
   var cred=parseFloat(document.getElementById('purCredit').value)||0
   var paid=cash+upi+cred
   var dt=document.getElementById('purDiscountType').value, disc=0
-  if(dt==='auto'){disc=Math.max(totalAmount-paid,0);document.getElementById('purDiscount').value=disc;document.getElementById('purDiscount').disabled=true;document.getElementById('purAutoDiscountBadge').style.display='inline'}
+  if(dt==='auto'){disc=Math.max(totalAmount+deliveryCharges-paid,0);document.getElementById('purDiscount').value=disc;document.getElementById('purDiscount').disabled=true;document.getElementById('purAutoDiscountBadge').style.display='inline'}
   else{document.getElementById('purDiscount').disabled=false;document.getElementById('purAutoDiscountBadge').style.display='none';var dv=parseFloat(document.getElementById('purDiscount').value)||0;disc=dt==='percent'?Math.round(totalAmount*dv/100):dv;disc=Math.min(disc,totalAmount)}
-  var after=totalAmount-disc, rem=Math.round(after-paid)
+
+  // Grand Total includes delivery charges
+  var after=totalAmount-disc+deliveryCharges
+  var rem=Math.round(after-paid)
+
   function row(l,v,c){return '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.05);"><span style="color:'+(c||'rgba(255,255,255,0.5)')+';">'+l+'</span><span style="font-weight:600;color:'+(c||'white')+';">'+v+'</span></div>'}
   var html=row('Subtotal','₹'+totalAmount.toLocaleString('en-IN'))
   if(disc>0)html+=row('Merchant Discount','- ₹'+Math.round(disc).toLocaleString('en-IN'),'#34d399')
+  if(deliveryCharges>0)html+=row('🚚 Delivery Charges','+ ₹'+deliveryCharges.toLocaleString('en-IN'),'#f59e0b')
   html+='<div style="display:flex;justify-content:space-between;padding:10px 0 6px;margin-top:6px;border-top:2px solid rgba(255,255,255,0.12);"><span style="font-size:15px;font-weight:700;color:white;">Bill Total</span><span style="font-size:17px;font-weight:700;color:white;">₹'+Math.round(after).toLocaleString('en-IN')+'</span></div>'
   html+='<div style="font-size:12px;color:rgba(255,255,255,0.35);margin-bottom:8px;">Cash + UPI + Credit must equal ₹'+Math.round(after).toLocaleString('en-IN')+'</div>'
   if(cash>0)html+=row('Cash paid','₹'+cash.toLocaleString('en-IN'),'#60a5fa')
@@ -789,9 +875,10 @@ function renderPurchaseBill(){
   var sc='#34d399',st='✅ Fully Settled'
   if(rem>0){sc='#fbbf24';st='⚠️ Still Due: ₹'+rem.toLocaleString('en-IN')+' (add Cash/UPI/Credit)'}
   if(rem<0){sc='#f87171';st='❌ Over Paid ₹'+Math.abs(rem).toLocaleString('en-IN')+' — please correct!'}
-  if(dt==='auto'&&disc>0){sc='#34d399';st='✅ Auto Discount ₹'+disc.toLocaleString('en-IN')+' applied — Settled'}
+  if(dt==='auto'&&disc>0&&rem===0){sc='#34d399';st='✅ Auto Discount ₹'+disc.toLocaleString('en-IN')+' applied — Settled'}
   html+='<div style="font-size:13px;font-weight:600;color:'+sc+';padding:6px 0 2px;">'+st+'</div>'
   document.getElementById('purPaymentSummary').innerHTML=html
+
   table.querySelectorAll('.purQtyInput').forEach(function(i){
     i.addEventListener('change',function(){purchaseItems[+this.dataset.index].qty=parseInt(this.value)||1;renderPurchaseBill()})
   })
@@ -811,10 +898,18 @@ function calcPurDiscount(){
   var cash=parseFloat(document.getElementById('purCash').value)||0
   var upi=parseFloat(document.getElementById('purUpi').value)||0
   var cred=parseFloat(document.getElementById('purCredit').value)||0
+  var deliveryCharges=parseFloat(document.getElementById('purDeliveryCharges').value)||0
   var disc=0
-  if(dt==='auto'){disc=Math.max(totalAmount-(cash+upi+cred),0)}
+  if(dt==='auto'){disc=Math.max(totalAmount+deliveryCharges-(cash+upi+cred),0)}
   else{var dv=parseFloat(document.getElementById('purDiscount').value)||0;disc=dt==='percent'?Math.round(totalAmount*dv/100):dv;disc=Math.min(disc,totalAmount)}
   return Math.round(disc)
+}
+
+function getDeliveryCharges(){
+  return parseFloat(document.getElementById('purDeliveryCharges').value)||0
+}
+function getDeliveryNote(){
+  return document.getElementById('purDeliveryNote').value.trim()
 }
 
 function getMerchantInfo(){
@@ -833,6 +928,7 @@ function fillPrintArea(opts){
       mName=opts.merchantName,mPhone=opts.merchantPhone,mAddr=opts.merchantAddress||'',
       mGstin=opts.merchantGstin||'',mRef=opts.merchantInvRef||'',origRef=opts.originalRef,
       items=opts.items,subtotal=opts.subtotal,final=opts.final,disc=opts.disc,
+      deliveryCharges=opts.deliveryCharges||0,
       cash=opts.cash,upi=opts.upi,credit=opts.credit,payMode=opts.payMode
   document.getElementById('purPrintHeader').className='pur-header'+(isReturn?' return-style':'')
   document.getElementById('printPurType').innerText=isReturn?'PURCHASE RETURN':(selectedBillType||'Purchase Invoice')
@@ -870,12 +966,17 @@ function fillPrintArea(opts){
   document.getElementById('printPurFinal').innerText=Math.abs(final).toLocaleString('en-IN')
   document.getElementById('purDiscountRow').style.display=(!isReturn&&disc>0)?'flex':'none'
   if(!isReturn&&disc>0)document.getElementById('printPurDiscount').innerText=disc.toLocaleString('en-IN')
+  // Delivery charges row in print
+  document.getElementById('purDeliveryRow').style.display=(!isReturn&&deliveryCharges>0)?'flex':'none'
+  if(!isReturn&&deliveryCharges>0)document.getElementById('printPurDelivery').innerText=deliveryCharges.toLocaleString('en-IN')
   document.getElementById('printPurCash').innerText=Math.abs(cash||0)
   document.getElementById('printPurUPI').innerText=Math.abs(upi||0)
   document.getElementById('printPurCredit').innerText=Math.abs(credit||0)
   document.getElementById('printPurCreditLabel').innerText=isReturn?'Payable Reduced':'Credit'
   document.getElementById('purDiscountPayItem').style.display=(!isReturn&&disc>0)?'inline':'none'
   if(!isReturn&&disc>0)document.getElementById('printPurDiscountPay').innerText=disc.toLocaleString('en-IN')
+  document.getElementById('purDeliveryPayItem').style.display=(!isReturn&&deliveryCharges>0)?'inline':'none'
+  if(!isReturn&&deliveryCharges>0)document.getElementById('printPurDeliveryPay').innerText=deliveryCharges.toLocaleString('en-IN')
   document.getElementById('printPurPayTitle').innerText=isReturn?'Return Breakdown':'Payment Breakdown'
   renderQrCode(PORTAL_URL)
 }
@@ -888,14 +989,16 @@ async function savePurchase(){
     var m=getMerchantInfo()
     if(!m.name){alert('❌ Please enter or select a merchant name');window.isSavingPurchase=false;return}
     if(!purchaseItems.length){alert('❌ Add at least one product first');window.isSavingPurchase=false;return}
-    // FIX: only qty is required, price can be 0
     for(var vi=0;vi<purchaseItems.length;vi++){
       if(!purchaseItems[vi].qty||purchaseItems[vi].qty<=0){alert('❌ "'+purchaseItems[vi].name+'" has 0 quantity.');window.isSavingPurchase=false;return}
     }
     var cash=parseFloat(document.getElementById('purCash').value)||0
     var upi=parseFloat(document.getElementById('purUpi').value)||0
     var cred=parseFloat(document.getElementById('purCredit').value)||0
-    var paid=cash+upi+cred, disc=calcPurDiscount(), final=totalAmount-disc
+    var deliveryCharges=getDeliveryCharges()
+    var deliveryNote=getDeliveryNote()
+    var paid=cash+upi+cred, disc=calcPurDiscount()
+    var final=totalAmount-disc+deliveryCharges
     var dt=document.getElementById('purDiscountType').value
     if(paid>final){alert('❌ Payment (₹'+paid.toLocaleString('en-IN')+') exceeds total (₹'+final.toLocaleString('en-IN')+').');window.isSavingPurchase=false;return}
     if(paid<final&&cred===0&&dt!=='auto'){
@@ -913,7 +1016,7 @@ async function savePurchase(){
       var newItemsEdit=purchaseItems.map(function(item){return{purchase_id:editingBillId,item_id:item.id,item_name:item.name,quantity:item.qty,purchase_price:item.buyPrice,total:item.qty*item.buyPrice}})
       var insErr=await supabase.from('purchase_items').insert(newItemsEdit)
       if(insErr.error){if(oldR.data&&oldR.data.length)await supabase.from('purchase_items').insert(oldR.data.map(function(r){var x=Object.assign({},r);delete x.id;return x}));alert('❌ Edit failed: '+insErr.error.message);window.isSavingPurchase=false;return}
-      await supabase.from('purchases').update({merchant_name:m.name,merchant_phone:m.phone||null,total_amount:final,cash:cash,upi:upi,credit:cred,discount:disc,merchant_address:m.address||null,merchant_gstin:m.gstin||null,merchant_invoice_ref:m.invRef||null}).eq('id',editingBillId)
+      await supabase.from('purchases').update({merchant_name:m.name,merchant_phone:m.phone||null,total_amount:final,cash:cash,upi:upi,credit:cred,discount:disc,delivery_charges:deliveryCharges,delivery_note:deliveryNote||null,merchant_address:m.address||null,merchant_gstin:m.gstin||null,merchant_invoice_ref:m.invRef||null}).eq('id',editingBillId)
       for(var oi=0;oi<(oldR.data||[]).length;oi++){var ov=oldR.data[oi];if(ov.item_id)await supabase.rpc('decrement_inventory',{p_item_id:ov.item_id,p_qty:ov.quantity})}
       for(var ni=0;ni<purchaseItems.length;ni++){
         var nv=purchaseItems[ni]
@@ -930,6 +1033,7 @@ async function savePurchase(){
     var purRes=await supabase.from('purchases').insert([{
       bill_number:billNo,merchant_name:m.name,merchant_phone:m.phone||null,
       total_amount:final,cash:cash,upi:upi,credit:cred,discount:disc,
+      delivery_charges:deliveryCharges,delivery_note:deliveryNote||null,
       merchant_address:m.address||null,merchant_gstin:m.gstin||null,
       merchant_invoice_ref:m.invRef||null,bill_type:'purchase',
       bill_date:purDateStr,created_at:purTimestamp
@@ -964,24 +1068,48 @@ async function savePurchase(){
 document.getElementById('savePurchaseBtn').addEventListener('click',savePurchase)
 
 // ── PRINT ──
+// Fix: populate DOM completely, then use rAF + setTimeout before window.print()
 async function printPurchaseBill(){
   if(!purchaseItems.length){alert('Add products first ❌');return}
   var cash=parseFloat(document.getElementById('purCash').value)||0
   var upi=parseFloat(document.getElementById('purUpi').value)||0
   var cred=parseFloat(document.getElementById('purCredit').value)||0
-  var disc=calcPurDiscount(), final=totalAmount-disc
+  var deliveryCharges=getDeliveryCharges()
+  var deliveryNote=getDeliveryNote()
+  var disc=calcPurDiscount(), final=totalAmount-disc+deliveryCharges
   if((cash+upi+cred)>final){alert('❌ Payment exceeds total. Please correct.');return}
   window.isPrinting=true
   var tempItems=purchaseItems.slice(), tempTotal=totalAmount, m=getMerchantInfo()
-  var modes=[];if(cash>0)modes.push('Cash');if(upi>0)modes.push('UPI');if(cred>0)modes.push('Credit');if(disc>0)modes.push('Discount')
+  var modes=[];if(cash>0)modes.push('Cash');if(upi>0)modes.push('UPI');if(cred>0)modes.push('Credit');if(disc>0)modes.push('Discount');if(deliveryCharges>0)modes.push('Delivery ₹'+deliveryCharges)
   var purDateStr=document.getElementById('purBillDate').value||new Date().toISOString().slice(0,10)
-  await savePurchase(); await new Promise(function(r){setTimeout(r,300)})
+  await savePurchase()
+  await new Promise(function(r){setTimeout(r,300)})
   var displayDate=new Date(purDateStr+'T12:00:00').toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric'})
-  fillPrintArea({isReturn:false,billNo:currentPurBillNo,date:displayDate,merchantName:m.name,merchantPhone:m.phone,merchantAddress:m.address,merchantGstin:m.gstin,merchantInvRef:m.invRef,originalRef:null,items:tempItems.map(function(i){return{name:i.name,qty:i.qty,price:i.buyPrice,category:i.category||'',brand:i.brand||'',size:i.size||''}}),subtotal:tempTotal,final:final,disc:disc,cash:cash,upi:upi,credit:cred,payMode:modes.join(' + ')||'—'})
+  fillPrintArea({
+    isReturn:false,billNo:currentPurBillNo,date:displayDate,
+    merchantName:m.name,merchantPhone:m.phone,merchantAddress:m.address,merchantGstin:m.gstin,merchantInvRef:m.invRef,
+    originalRef:null,
+    items:tempItems.map(function(i){return{name:i.name,qty:i.qty,price:i.buyPrice,category:i.category||'',brand:i.brand||'',size:i.size||''}}),
+    subtotal:tempTotal,final:final,disc:disc,deliveryCharges:deliveryCharges,
+    cash:cash,upi:upi,credit:cred,payMode:modes.join(' + ')||'—'
+  })
   document.getElementById('printArea').style.display='block'
-  await new Promise(function(r){setTimeout(r,800)})
-  var ot=document.title; document.title='Purchase-'+currentPurBillNo; window.print()
-  setTimeout(function(){document.title=ot;document.getElementById('printArea').style.display='none';window.isPrinting=false},800)
+  var ot=document.title
+  document.title='Purchase-'+currentPurBillNo
+  // Double rAF ensures full paint before print
+  requestAnimationFrame(function(){
+    requestAnimationFrame(function(){
+      setTimeout(function(){
+        window.print()
+        setTimeout(function(){
+          document.title=ot
+          document.getElementById('printArea').style.display='none'
+          window.isPrinting=false
+          resetPurchaseForm()
+        },800)
+      },100)
+    })
+  })
 }
 document.getElementById('printPurchaseBtn').addEventListener('click',printPurchaseBill)
 
@@ -998,6 +1126,11 @@ function resetPurchaseForm(){
   document.getElementById('purDiscount').disabled=true
   document.getElementById('purAutoDiscountBadge').style.display='inline'
   document.getElementById('purBillDate').value=new Date().toISOString().slice(0,10)
+  // Reset delivery charges
+  document.getElementById('deliveryChargesBox').style.display='none'
+  document.getElementById('addDeliveryBtn').style.display='block'
+  document.getElementById('purDeliveryCharges').value=''
+  document.getElementById('purDeliveryNote').value=''
   renderPurchaseBill()
 }
 
@@ -1011,6 +1144,10 @@ window.cancelEdit=function(){
   document.getElementById('purDiscountType').value='auto'
   document.getElementById('purDiscount').disabled=true
   document.getElementById('purAutoDiscountBadge').style.display='inline'
+  document.getElementById('deliveryChargesBox').style.display='none'
+  document.getElementById('addDeliveryBtn').style.display='block'
+  document.getElementById('purDeliveryCharges').value=''
+  document.getElementById('purDeliveryNote').value=''
   renderPurchaseBill()
 }
 
@@ -1092,15 +1229,23 @@ window.viewPurchase=async function(billNo){
   var subtotal=items.reduce(function(s,i){return s+(i.total||0)},0)
   var displayDateStr=pur.bill_date||pur.created_at
   var displayDate=new Date(displayDateStr).toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric'})
-  fillPrintArea({isReturn:pur.bill_type==='return',billNo:pur.bill_number,date:displayDate,merchantName:pur.merchant_name,merchantPhone:pur.merchant_phone,merchantAddress:pur.merchant_address||'',merchantGstin:pur.merchant_gstin||'',merchantInvRef:pur.merchant_invoice_ref||'',originalRef:pur.original_bill_ref,items:printItems,subtotal:subtotal,final:pur.total_amount,disc:pur.discount||0,cash:pur.cash||0,upi:pur.upi||0,credit:pur.credit||0,payMode:modes.join(' + ')||'—'})
+  fillPrintArea({isReturn:pur.bill_type==='return',billNo:pur.bill_number,date:displayDate,merchantName:pur.merchant_name,merchantPhone:pur.merchant_phone,merchantAddress:pur.merchant_address||'',merchantGstin:pur.merchant_gstin||'',merchantInvRef:pur.merchant_invoice_ref||'',originalRef:pur.original_bill_ref,items:printItems,subtotal:subtotal,final:pur.total_amount,disc:pur.discount||0,deliveryCharges:pur.delivery_charges||0,cash:pur.cash||0,upi:pur.upi||0,credit:pur.credit||0,payMode:modes.join(' + ')||'—'})
   document.getElementById('purchaseHistoryModal').style.display='none'
   document.getElementById('printArea').style.display='block'
 }
 
 window.reprintPurchase=async function(billNo){
-  await viewPurchase(billNo); await new Promise(function(r){setTimeout(r,800)})
-  var ot=document.title; document.title='Purchase-'+billNo; window.print()
-  setTimeout(function(){document.title=ot;document.getElementById('printArea').style.display='none'},800)
+  await viewPurchase(billNo)
+  await new Promise(function(r){setTimeout(r,400)})
+  var ot=document.title; document.title='Purchase-'+billNo
+  requestAnimationFrame(function(){
+    requestAnimationFrame(function(){
+      setTimeout(function(){
+        window.print()
+        setTimeout(function(){document.title=ot;document.getElementById('printArea').style.display='none'},800)
+      },100)
+    })
+  })
 }
 
 window.openEditBill=async function(billNo){
@@ -1122,6 +1267,13 @@ window.openEditBill=async function(billNo){
   document.getElementById('purCash').value=pur.cash||0
   document.getElementById('purUpi').value=pur.upi||0
   document.getElementById('purCredit').value=pur.credit||0
+  // Load delivery charges if any
+  if(pur.delivery_charges>0){
+    document.getElementById('deliveryChargesBox').style.display='block'
+    document.getElementById('addDeliveryBtn').style.display='none'
+    document.getElementById('purDeliveryCharges').value=pur.delivery_charges||0
+    document.getElementById('purDeliveryNote').value=pur.delivery_note||''
+  }
   purchaseItems=items.map(function(item){
     var inv=invMap[item.item_id]||{}
     return{id:item.item_id,name:item.item_name||(inv.item_name||'[Product #'+item.item_id+']'),buyPrice:item.purchase_price,qty:item.quantity,isNew:false,category:inv.category||'',brand:inv.brand||'',size:inv.product_size||'',unitType:inv.unit_type||''}
@@ -1258,11 +1410,17 @@ window.processReturn=async function(shouldPrint){
   for(var i=0;i<checkedItems.length;i++){var ci=checkedItems[i];if(ci.item_id)await supabase.rpc('decrement_inventory',{p_item_id:ci.item_id,p_qty:ci.qty})}
   if(shouldPrint){
     var purRetModes=[];if(purRetCash>0)purRetModes.push('Cash');if(purRetUpi>0)purRetModes.push('UPI');if(purRetCredit>0)purRetModes.push('Payable Adj.')
-    fillPrintArea({isReturn:true,billNo:returnNo,date:new Date().toLocaleString('en-IN'),merchantName:pur.merchant_name,merchantPhone:pur.merchant_phone||'',merchantAddress:pur.merchant_address||'',merchantGstin:pur.merchant_gstin||'',merchantInvRef:'',originalRef:pur.bill_number,items:checkedItems.map(function(i){return{name:i.item_name,qty:i.qty,price:i.price,category:'',brand:'',size:''}}),subtotal:returnTotal,final:returnTotal,disc:0,cash:purRetCash,upi:purRetUpi,credit:purRetCredit,payMode:purRetModes.join(' + ')||'Payable Adjusted'})
+    fillPrintArea({isReturn:true,billNo:returnNo,date:new Date().toLocaleString('en-IN'),merchantName:pur.merchant_name,merchantPhone:pur.merchant_phone||'',merchantAddress:pur.merchant_address||'',merchantGstin:pur.merchant_gstin||'',merchantInvRef:'',originalRef:pur.bill_number,items:checkedItems.map(function(i){return{name:i.item_name,qty:i.qty,price:i.price,category:'',brand:'',size:''}}),subtotal:returnTotal,final:returnTotal,disc:0,deliveryCharges:0,cash:purRetCash,upi:purRetUpi,credit:purRetCredit,payMode:purRetModes.join(' + ')||'Payable Adjusted'})
     document.getElementById('printArea').style.display='block'
-    await new Promise(function(r){setTimeout(r,800)})
-    var ot=document.title; document.title='Return-'+returnNo; window.print()
-    setTimeout(function(){document.title=ot;document.getElementById('printArea').style.display='none'},800)
+    var ot=document.title; document.title='Return-'+returnNo
+    requestAnimationFrame(function(){
+      requestAnimationFrame(function(){
+        setTimeout(function(){
+          window.print()
+          setTimeout(function(){document.title=ot;document.getElementById('printArea').style.display='none'},800)
+        },100)
+      })
+    })
   }
   alert('✅ Purchase Return processed!\nReturn No: '+returnNo+'\nInventory Deducted!')
   clearReturn()
@@ -1294,7 +1452,9 @@ document.getElementById('waPurchaseBtn').addEventListener('click',function(){
   var cp=cleanPhoneForWA(rawPhone)
   if(!rawPhone){alert('No phone number found.\nPlease enter the merchant phone number before sending via WhatsApp.');return}
   if(!cp){alert('Invalid phone number: "'+rawPhone+'"');return}
-  var disc=calcPurDiscount(), final=totalAmount-disc
+  var disc=calcPurDiscount()
+  var deliveryCharges=getDeliveryCharges()
+  var final=totalAmount-disc+deliveryCharges
   var cash=parseFloat(document.getElementById('purCash').value)||0
   var upi=parseFloat(document.getElementById('purUpi').value)||0
   var cred=parseFloat(document.getElementById('purCredit').value)||0
@@ -1305,7 +1465,7 @@ document.getElementById('waPurchaseBtn').addEventListener('click',function(){
     var detail=tags.length?' ('+tags.join('/')+')':''
     return '  • '+item.name+detail+' x'+item.qty+' @ ₹'+item.buyPrice+' = ₹'+(item.qty*item.buyPrice).toLocaleString('en-IN')
   }).join('\n')
-  var payParts=[];if(cash>0)payParts.push('Cash ₹'+cash.toLocaleString('en-IN'));if(upi>0)payParts.push('UPI ₹'+upi.toLocaleString('en-IN'));if(cred>0)payParts.push('Credit ₹'+cred.toLocaleString('en-IN'));if(disc>0)payParts.push('Discount ₹'+disc.toLocaleString('en-IN'))
+  var payParts=[];if(cash>0)payParts.push('Cash ₹'+cash.toLocaleString('en-IN'));if(upi>0)payParts.push('UPI ₹'+upi.toLocaleString('en-IN'));if(cred>0)payParts.push('Credit ₹'+cred.toLocaleString('en-IN'));if(disc>0)payParts.push('Discount ₹'+disc.toLocaleString('en-IN'));if(deliveryCharges>0)payParts.push('Delivery ₹'+deliveryCharges.toLocaleString('en-IN'))
   var msg='🏪 *Abhinandan Auto Mobiles*\n*Purchase Order*'+billRef+'\n━━━━━━━━━━━━━━━━━━━━\nMerchant: '+m.name+'\nDate: '+purDateStr+'\n\n'+(itemLines?'*Items:*\n'+itemLines+'\n\n':'')+'━━━━━━━━━━━━━━━━━━━━\n*Total: ₹'+Math.round(final).toLocaleString('en-IN')+'*'+(payParts.length?'\nPayment: '+payParts.join(' + '):'')+'\n\nAbhinandan Auto Mobiles\n📞 +91 98700 37002'
   var isMobile=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
   var waUrl=isMobile?'https://wa.me/'+cp+'?text='+encodeURIComponent(msg):'https://web.whatsapp.com/send?phone='+cp+'&text='+encodeURIComponent(msg)
@@ -1324,6 +1484,7 @@ if(pf){
     showSelectedMerchant()
   })
 }
+renderPurchaseBill()
 
 } // end initPurchase
 </script>
