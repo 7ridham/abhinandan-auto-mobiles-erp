@@ -96,7 +96,6 @@
   .pill-cash{background:rgba(52,211,153,0.12);color:#34d399;border:1px solid rgba(52,211,153,0.2);}
   .pill-upi{background:rgba(96,165,250,0.12);color:#60a5fa;border:1px solid rgba(96,165,250,0.2);}
   .pill-credit{background:rgba(248,113,113,0.12);color:#f87171;border:1px solid rgba(248,113,113,0.2);}
-  .pill-journal{background:rgba(167,139,250,0.12);color:#a78bfa;border:1px solid rgba(167,139,250,0.2);}
   .light-theme .pill-cash{color:#059669;background:rgba(5,150,105,0.1);border-color:rgba(5,150,105,0.25);}
   .light-theme .pill-upi{color:#1d4ed8;background:rgba(29,78,216,0.1);border-color:rgba(29,78,216,0.25);}
   .light-theme .pill-credit{color:#dc2626;background:rgba(220,38,38,0.1);border-color:rgba(220,38,38,0.25);}
@@ -223,25 +222,84 @@
   .journal-tbl td{padding:10px 12px;border-bottom:1px solid var(--border2);color:var(--text-muted);}
   .journal-tbl tr:hover td{background:var(--tbl-hover);}
 
-  /* ═══ CASH BOOK ═══ */
+  /* ═══════════════════════════════════════
+     CASH BOOK — DOUBLE COLUMN FORMAT
+     WHY: Classic Indian accounting Cash Book has Dr (Receipts) on the
+     left side and Cr (Payments) on the right side. Both sides run in
+     parallel. Each side has: Date | Particulars | V.No. | Disc. | Cash | UPI | Bank
+     This is exactly how paper Cash Books are maintained in India.
+  ═══════════════════════════════════════ */
   .cb-filter-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:14px 20px;border-bottom:1px solid var(--border2);}
   .cb-filter-bar input[type="date"]{background:var(--cal-bg);border:1px solid var(--cal-border);border-radius:8px;color:var(--text-main);padding:6px 10px;font-family:'DM Sans',sans-serif;font-size:12px;outline:none;}
   .cb-filter-bar select{background:var(--cal-bg);border:1px solid var(--cal-border);border-radius:8px;color:var(--text-main);padding:6px 10px;font-family:'DM Sans',sans-serif;font-size:12px;outline:none;}
-  .cb-tbl{width:100%;border-collapse:collapse;font-family:'DM Sans',sans-serif;font-size:13px;}
-  .cb-tbl thead th{padding:10px 16px;font-size:10px;font-weight:600;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid var(--border2);text-align:left;white-space:nowrap;}
-  .cb-tbl td{padding:10px 16px;border-bottom:1px solid var(--border2);color:var(--text-muted);}
-  .light-theme .cb-tbl td{border-bottom:1px solid rgba(0,0,0,0.05);}
-  .cb-tbl tr:hover td{background:var(--tbl-hover);}
-  .cb-tbl tfoot td{background:var(--tbl-foot);font-weight:700;color:var(--text-main);border-top:2px solid var(--tbl-foot-border);}
-  .cb-in{color:#34d399!important;font-weight:600;}
-  .cb-out{color:#f87171!important;font-weight:600;}
-  .light-theme .cb-in{color:#059669!important;}
-  .light-theme .cb-out{color:#dc2626!important;}
-  .cb-balance{color:#60a5fa!important;font-weight:600;}
-  .light-theme .cb-balance{color:#1d4ed8!important;}
-  .cb-type-badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600;}
-  .cb-summary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px;}
-  @media(max-width:700px){.cb-summary-grid{grid-template-columns:1fr;}}
+
+  /* Summary KPI grid for cash book */
+  .cb-summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;}
+  @media(max-width:900px){.cb-summary-grid{grid-template-columns:repeat(2,1fr);}}
+  @media(max-width:500px){.cb-summary-grid{grid-template-columns:1fr 1fr;}}
+
+  /* The main double-column cash book table */
+  .cb-double-wrap{overflow-x:auto;padding:0;}
+  .cb-double-tbl{width:100%;border-collapse:collapse;font-family:'DM Sans',sans-serif;font-size:12px;min-width:900px;}
+
+  /* Title row spanning all columns */
+  .cb-title-row td{
+    text-align:center;font-family:'Playfair Display',serif;font-size:18px;font-weight:700;
+    padding:12px;background:linear-gradient(135deg,rgba(37,99,235,0.2),rgba(124,58,237,0.15));
+    color:var(--text-main);border:2px solid var(--pnl-border);letter-spacing:1px;
+  }
+
+  /* Dr / Cr side labels */
+  .cb-side-label-row td{
+    padding:6px 10px;font-size:11px;font-weight:700;letter-spacing:1.5px;
+    text-transform:uppercase;border:1px solid var(--pnl-border);
+    background:rgba(255,255,255,0.03);color:var(--text-dim);
+  }
+  .cb-side-label-row td.dr-label{color:#34d399;}
+  .cb-side-label-row td.cr-label{color:#f87171;}
+  .cb-side-label-row td.divider{background:var(--pnl-border);width:4px;padding:0;}
+
+  /* Column header row */
+  .cb-double-tbl thead.cb-col-head tr th{
+    padding:8px 6px;font-size:10px;font-weight:700;color:#fff;
+    text-align:center;white-space:nowrap;border:1px solid rgba(255,255,255,0.3);
+  }
+  .cb-double-tbl thead.cb-col-head tr th.dr-head{background:#1e3a2a;}
+  .cb-double-tbl thead.cb-col-head tr th.cr-head{background:#3a1e1e;}
+  .cb-double-tbl thead.cb-col-head tr th.divider-head{background:rgba(255,255,255,0.1);width:6px;padding:0;}
+
+  /* Data rows */
+  .cb-double-tbl tbody tr td{
+    padding:7px 6px;border:1px solid var(--border2);color:var(--text-muted);
+    vertical-align:top;font-size:12px;
+  }
+  .cb-double-tbl tbody tr:nth-child(even) td{background:var(--pnl-row-alt);}
+  .cb-double-tbl tbody tr:hover td{background:var(--tbl-hover);}
+  .cb-double-tbl tbody tr td.divider-cell{background:var(--border2);width:6px;padding:0;}
+
+  /* Amount columns */
+  .cb-amt{text-align:right;font-weight:500;color:var(--text-main);white-space:nowrap;}
+  .cb-amt-in{color:#34d399!important;font-weight:600;text-align:right;white-space:nowrap;}
+  .cb-amt-out{color:#f87171!important;font-weight:600;text-align:right;white-space:nowrap;}
+  .cb-amt-upi{color:#60a5fa!important;font-weight:600;text-align:right;white-space:nowrap;}
+  .light-theme .cb-amt-in{color:#059669!important;}
+  .light-theme .cb-amt-out{color:#dc2626!important;}
+  .light-theme .cb-amt-upi{color:#1d4ed8!important;}
+
+  /* Total / balance row */
+  .cb-double-tbl tfoot tr td{
+    padding:8px 6px;background:rgba(37,99,235,0.08);
+    font-weight:700;color:var(--text-main);
+    border:1.5px solid var(--pnl-border);font-size:12px;
+  }
+  .cb-double-tbl tfoot tr td.divider-cell{background:var(--pnl-border);}
+
+  /* Particulars column */
+  .cb-part{color:var(--text-main);font-weight:500;max-width:140px;}
+  .cb-part small{display:block;font-size:10px;color:var(--text-dim);font-weight:400;}
+  .cb-vno{font-family:monospace;font-size:10px;color:var(--text-dim);text-align:center;}
+  .cb-date-cell{white-space:nowrap;color:var(--text-muted);}
+  .cb-empty-cell{color:var(--text-faint);font-style:italic;font-size:11px;}
 
   /* ═══ ACCOUNT DETAIL MODAL ═══ */
   .acc-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);z-index:1000;display:none;align-items:center;justify-content:center;padding:20px;}
@@ -258,53 +316,76 @@
   .acc-modal-tbl td{padding:9px 12px;border-bottom:1px solid var(--border2);color:var(--text-muted);}
   .acc-modal-tbl tr:last-child td{border-bottom:none;}
 
-  /* ═══ PRINT CSS — COMPLETELY REBUILT ═══
-     STRATEGY: We render a completely separate hidden #print-area div.
-     When user clicks Print, we copy the target HTML into that div,
-     hide everything else, print, then restore. This is 100% reliable
-     across all browsers and avoids the gradient blob / blank page issue.
-  ═══ */
-  #print-area{display:none;}
+  /* ═══════════════════════════════════════
+     PRINT AREA — The only element that shows during printing.
+     
+     HOW THE FIX WORKS:
+     1. We have a hidden <div id="print-area"> on the page.
+     2. When user clicks Print, we:
+        a. Copy the rendered HTML into #print-area (with hardcoded colors, no CSS vars)
+        b. Change document.title to the report name (browser uses this as PDF filename)
+        c. Wait for 2 animation frames + 100ms (ensures browser has repainted)
+        d. Call window.print()
+        e. Restore document.title
+     3. @media print shows ONLY #print-area and hides everything else.
+     
+     WHY BLANK PDFs HAPPENED BEFORE:
+     The old code injected HTML then called window.print() immediately.
+     The browser hadn't repainted yet — it printed the old (empty) state.
+     requestAnimationFrame(()=>requestAnimationFrame(()=>setTimeout(...))) 
+     guarantees TWO full paint cycles have completed before print fires.
+  ═══════════════════════════════════════ */
+  #print-area { display:none; }
 
   @media print {
-    /* 1. Kill ALL decorative elements from the main page */
-    body > *:not(#print-area) { display:none!important; }
-    body::before, body::after { display:none!important; content:none!important; background:none!important; }
-    body { background:#fff!important; margin:0; padding:0; }
+    /* Kill ALL page decoration — the gradient blob, sidebar, everything */
+    body > *:not(#print-area) { display:none !important; }
+    body::before, body::after { display:none !important; content:none !important; background:none !important; }
+    body { background:#fff !important; margin:0; padding:0; }
 
-    /* 2. Show ONLY the print area */
+    /* Show ONLY our prepared print area */
     #print-area {
-      display:block!important;
-      background:#fff!important;
-      color:#000!important;
+      display:block !important;
+      background:#fff !important;
+      color:#000 !important;
       font-family:'DM Sans',sans-serif;
       padding:16px;
     }
 
-    /* 3. Force all table styles to print-friendly */
+    /* Force white backgrounds and black text on all table cells */
     #print-area table { border-collapse:collapse; width:100%; }
-    #print-area th { background:#dbeafe!important; color:#1e40af!important; border:1.5px solid #000!important; padding:8px 12px; }
-    #print-area td { border:1px solid #aaa!important; color:#000!important; background:#fff!important; padding:8px 12px; }
-    #print-area .pnl-amount, #print-area .bs-amount { text-align:right; color:#000!important; }
-    #print-area .pnl-total-row td, #print-area .bs-total-row td { background:#dcfce7!important; border-top:2px solid #000!important; }
-    #print-area .pnl-grand-total td { background:#e0e7ff!important; }
-    #print-area .pnl-amount.red { color:#dc2626!important; }
-    #print-area .pnl-amount.green { color:#059669!important; }
-    #print-area .bs-balanced { background:#dcfce7!important; color:#166534!important; border:1px solid #86efac!important; }
-    #print-area .bs-unbalanced { background:#fee2e2!important; color:#991b1b!important; }
-    #print-area .pnl-heading h2, #print-area .bs-heading h2 { color:#000!important; }
-    #print-area .pnl-heading p, #print-area .bs-heading p { color:#333!important; }
-    #print-area .pnl-section-label, #print-area .bs-section-label { color:#1e40af!important; background:#eff6ff!important; }
-    #print-area .pnl-indent, #print-area .bs-indent { padding-left:28px!important; }
-    #print-area .bs-subtotal-row td { background:#f1f5f9!important; }
-    #print-area .cb-tbl th { background:#dbeafe!important; color:#1e40af!important; }
-    #print-area .cb-tbl td { color:#000!important; background:#fff!important; }
-    #print-area .cb-tbl tfoot td { background:#f0fdf4!important; font-weight:700; }
+    #print-area th { background:#7b1a1a !important; color:#fff !important; border:1.5px solid #000 !important; padding:7px 8px; font-size:11px; }
+    #print-area .th-dr { background:#1a3a2a !important; color:#fff !important; }
+    #print-area .th-cr { background:#3a1a1a !important; color:#fff !important; }
+    #print-area .th-title { background:#1e2a3a !important; color:#fff !important; font-size:16px; text-align:center; }
+    #print-area td { border:1px solid #aaa !important; color:#000 !important; background:#fff !important; padding:6px 8px; font-size:11px; }
+    #print-area .td-in  { color:#059669 !important; font-weight:600; text-align:right; }
+    #print-area .td-out { color:#dc2626 !important; font-weight:600; text-align:right; }
+    #print-area .td-upi { color:#1d4ed8 !important; font-weight:600; text-align:right; }
+    #print-area .td-div { background:#888 !important; width:4px; padding:0; }
+    #print-area tfoot td { background:#f0fdf4 !important; font-weight:700; color:#000 !important; border-top:2px solid #000 !important; }
+    #print-area .pnl-table th, #print-area .bs-table th { background:#dbeafe !important; color:#1e40af !important; border:1.5px solid #000 !important; }
+    #print-area .pnl-table td, #print-area .bs-table td { border:1px solid #999 !important; color:#000 !important; background:#fff !important; }
+    #print-area .pnl-total-row td, #print-area .bs-total-row td { background:#dcfce7 !important; border-top:2px solid #000 !important; }
+    #print-area .pnl-grand-total td { background:#e0e7ff !important; }
+    #print-area .pnl-amount { text-align:right; color:#000 !important; }
+    #print-area .pnl-amount.red { color:#dc2626 !important; }
+    #print-area .pnl-amount.green { color:#059669 !important; }
+    #print-area .bs-amount { text-align:right; color:#000 !important; }
+    #print-area .bs-balanced { background:#dcfce7 !important; color:#166534 !important; border:1px solid #86efac !important; }
+    #print-area .bs-unbalanced { background:#fee2e2 !important; color:#991b1b !important; }
+    #print-area .pnl-heading h2, #print-area .bs-heading h2 { color:#000 !important; }
+    #print-area .pnl-heading p,  #print-area .bs-heading p  { color:#333 !important; }
+    #print-area .pnl-section-label { color:#1e40af !important; background:#eff6ff !important; }
+    #print-area .bs-section-label  { color:#1e40af !important; background:#eff6ff !important; }
+    #print-area .pnl-indent, #print-area .bs-indent { padding-left:28px !important; }
+    #print-area .bs-subtotal-row td { background:#f1f5f9 !important; color:#000 !important; }
+    #print-area .print-dr-label { color:#059669 !important; font-weight:700; }
+    #print-area .print-cr-label { color:#dc2626 !important; font-weight:700; }
 
-    /* Cash book print */
-    #print-area .cb-in { color:#059669!important; }
-    #print-area .cb-out { color:#dc2626!important; }
-
+    @page { margin:10mm 8mm; size:A4 landscape; }
+    /* P&L and BS print in portrait */
+    #print-area.portrait-print { }
     @page { margin:12mm 10mm; size:A4; }
   }
   </style>
@@ -507,24 +588,21 @@
     </div>
   </div>
 
-  <!-- ════ CASH BOOK ════
-       WHY: A Cash Book tracks every single rupee movement through Cash and Bank accounts.
-       It auto-reads from: sales bills, purchase bills, customer payments, merchant payments,
-       journal entries. Each row shows Date, Description, IN (receipt), OUT (payment),
-       and running Balance. This is a core accounting book in Indian business.
-  ════ -->
+  <!-- ════ CASH BOOK — DOUBLE COLUMN FORMAT ════ -->
   <div class="r-section" id="tab-cashbook">
+    <!-- 4-card summary: Cash IN, UPI IN, Cash OUT, Balance -->
     <div class="cb-summary-grid" id="cbSummary">
+      <div class="skel" style="height:90px;border-radius:14px;"></div>
       <div class="skel" style="height:90px;border-radius:14px;"></div>
       <div class="skel" style="height:90px;border-radius:14px;"></div>
       <div class="skel" style="height:90px;border-radius:14px;"></div>
     </div>
     <div class="report-card">
       <div class="report-card-header">
-        <div class="report-card-title">📒 Cash Book — All Transactions</div>
+        <div class="report-card-title">📒 Cash Book (Double Column — Dr &amp; Cr)</div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;">
           <button class="export-btn" onclick="exportCashBookCSV()" style="background:rgba(96,165,250,0.12);border-color:rgba(96,165,250,0.25);color:#60a5fa;">⬇ Export CSV</button>
-          <button class="export-btn" onclick="printCashBook()">🖨️ Print PDF</button>
+          <button class="export-btn" onclick="printCashBook()">🖨️ Print / PDF</button>
         </div>
       </div>
       <!-- Filter bar -->
@@ -533,27 +611,11 @@
         <input type="date" id="cbFrom" onchange="applyCashBookFilter()"/>
         <span style="color:var(--text-dim);font-size:12px;">→</span>
         <input type="date" id="cbTo" onchange="applyCashBookFilter()"/>
-        <select id="cbMode" onchange="applyCashBookFilter()" style="background:var(--cal-bg);border:1px solid var(--cal-border);border-radius:8px;color:var(--text-main);padding:6px 10px;font-family:'DM Sans',sans-serif;font-size:12px;outline:none;">
-          <option value="all">All (Cash + Bank)</option>
-          <option value="cash">Cash Only</option>
-          <option value="bank">Bank/UPI Only</option>
-        </select>
-        <button onclick="clearCashBookFilter()" style="padding:5px 12px;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;color:var(--text-muted);font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;">Clear</button>
+        <button onclick="clearCashBookFilter()" style="padding:5px 12px;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;color:var(--text-muted);font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;">Clear Filter</button>
       </div>
-      <div style="overflow-x:auto;">
-        <table class="cb-tbl">
-          <thead><tr>
-            <th>Date</th>
-            <th>Description</th>
-            <th>Category</th>
-            <th>Via</th>
-            <th style="text-align:right;">IN (₹)</th>
-            <th style="text-align:right;">OUT (₹)</th>
-            <th style="text-align:right;">Balance (₹)</th>
-          </tr></thead>
-          <tbody id="cbBody"><tr><td colspan="7"><div class="skel skel-row"></div></td></tr></tbody>
-          <tfoot id="cbFoot"></tfoot>
-        </table>
+      <!-- Double-column cash book table -->
+      <div class="cb-double-wrap" id="cbDoubleWrap">
+        <div class="skel skel-row" style="margin:20px;height:200px;"></div>
       </div>
     </div>
   </div>
@@ -571,15 +633,11 @@
       <div style="color:var(--text-dim);font-family:'DM Sans',sans-serif;font-size:14px;padding:40px;text-align:center;">Loading P&amp;L Account…</div>
     </div>
     <div class="report-card no-print" style="margin-top:20px;border-color:rgba(96,165,250,0.2);">
-      <div class="report-card-header">
-        <div class="report-card-title">💡 How to Add Expenses &amp; Other Income</div>
-      </div>
+      <div class="report-card-header"><div class="report-card-title">💡 How to Add Expenses &amp; Other Income</div></div>
       <div style="padding:16px 20px;font-size:13px;color:var(--text-muted);line-height:1.9;">
-        To add <strong style="color:var(--text-main);">expenses</strong> (rent, electricity, salary, etc.) or
-        <strong style="color:var(--text-main);">other income</strong> (commission, rent received, etc.) to this P&amp;L Account:<br>
+        To add <strong style="color:var(--text-main);">expenses</strong> or <strong style="color:var(--text-main);">other income</strong> to this P&amp;L Account:<br>
         Go to <strong style="color:var(--text-main);">📂 Accounts tab → Record a Transaction (Journal Entry)</strong><br>
-        Select <strong style="color:#f87171;">💸 Pay Expense</strong> or <strong style="color:#34d399;">💰 Receive Income</strong> —
-        those entries automatically appear in this P&amp;L account.
+        Select <strong style="color:#f87171;">💸 Pay Expense</strong> or <strong style="color:#34d399;">💰 Receive Income</strong>.
       </div>
     </div>
   </div>
@@ -596,7 +654,6 @@
     <div class="bs-wrapper" id="bsWrapper">
       <div style="color:var(--text-dim);font-family:'DM Sans',sans-serif;font-size:14px;padding:40px;text-align:center;">Loading Balance Sheet…</div>
     </div>
-    <!-- Balance Sheet entries management -->
     <div class="report-card no-print" style="margin-top:20px;">
       <div class="report-card-header"><div class="report-card-title">⚙️ Manage Opening Balances &amp; Fixed Entries</div></div>
       <div style="padding:16px 20px;">
@@ -624,12 +681,9 @@
   <!-- ════ ACCOUNTS TAB ════ -->
   <div class="r-section" id="tab-accounts">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px;">
-      <div style="font-size:13px;color:var(--text-muted);font-family:'DM Sans',sans-serif;">
-        Click any account card to see full transaction history
-      </div>
+      <div style="font-size:13px;color:var(--text-muted);font-family:'DM Sans',sans-serif;">Click any account card to see full transaction history</div>
       <button class="export-btn" onclick="loadAccounts()">🔄 Refresh</button>
     </div>
-
     <div class="acc-grid" id="accCards">
       <div class="acc-card acc-cash" onclick="openAccountModal('cash')">
         <div class="acc-name">💵 Cash in Hand</div>
@@ -668,8 +722,6 @@
         <div class="acc-click-hint">🔍 Click to view history</div>
       </div>
     </div>
-
-    <!-- Capital Account -->
     <div style="background:linear-gradient(135deg,rgba(37,99,235,0.08),rgba(124,58,237,0.05));border:1px solid rgba(37,99,235,0.2);border-radius:14px;padding:16px 20px;margin-bottom:20px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;cursor:pointer;" onclick="openAccountModal('capital')">
       <div style="font-size:20px;">🏦</div>
       <div style="flex:1;">
@@ -679,8 +731,6 @@
       </div>
       <div style="font-size:11px;color:var(--text-dim);">🔍 Click to view history</div>
     </div>
-
-    <!-- Closing Stock -->
     <div style="background:linear-gradient(135deg,rgba(167,139,250,0.1),rgba(139,92,246,0.05));border:1px solid rgba(167,139,250,0.2);border-radius:14px;padding:16px 20px;margin-bottom:20px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;">
       <div style="font-size:20px;">📦</div>
       <div style="flex:1;">
@@ -689,13 +739,9 @@
       </div>
       <a href="products.html" style="font-size:12px;color:#a78bfa;text-decoration:none;">Manage Products →</a>
     </div>
-
-    <!-- Journal Entry Form -->
     <div class="journal-section no-print">
       <div class="journal-title">📝 Record a Transaction (Journal Entry)</div>
-      <div style="font-size:12px;color:var(--text-dim);margin-bottom:16px;font-family:'DM Sans',sans-serif;">
-        Use this for non-billing transactions: buying assets, taking loans, expenses, income, etc.
-      </div>
+      <div style="font-size:12px;color:var(--text-dim);margin-bottom:16px;font-family:'DM Sans',sans-serif;">Use this for non-billing transactions: buying assets, taking loans, expenses, income, etc.</div>
       <div style="font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--text-dim);margin-bottom:10px;">Choose Transaction Type:</div>
       <div class="txn-type-grid" style="grid-template-columns:repeat(5,1fr);">
         <button class="txn-type-btn" onclick="selectTxnType('expense',this)" style="border-color:rgba(248,113,113,0.3);color:#f87171;">💸 Pay Expense</button>
@@ -716,8 +762,6 @@
         <button onclick="clearTxnForm()" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);color:var(--text-muted);padding:7px 16px;border-radius:8px;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;">Cancel</button>
       </div>
     </div>
-
-    <!-- Journal history -->
     <div class="report-card">
       <div class="report-card-header">
         <div class="report-card-title">📒 Journal Entry History</div>
@@ -736,9 +780,9 @@
       </div>
     </div>
   </div>
-</div><!-- end .main -->
+</div>
 
-<!-- ════ ACCOUNT DETAIL MODAL ════ -->
+<!-- ACCOUNT DETAIL MODAL -->
 <div class="acc-modal-overlay" id="accModalOverlay" onclick="closeAccountModal(event)">
   <div class="acc-modal">
     <div class="acc-modal-header">
@@ -765,7 +809,8 @@ let activeTab = 'sales'
 const cache = {}, exportStore = {}
 let _currentTxnType = ''
 let _pnlData = null, _bsData = null
-let _cashBookData = [] // global for filter/print
+let _cashBookAllRows = []   // master data, never filtered
+let _cashBookFilteredRows = [] // currently displayed data
 
 // ═══════════════════════════════════════
 // FY DROPDOWN
@@ -790,93 +835,86 @@ function buildFYDropdown() {
 }
 
 // ═══════════════════════════════════════
-// PRINT — RELIABLE STRATEGY
-// HOW IT WORKS:
-// 1. We clone the HTML of whatever we want to print
-// 2. Put it in the hidden #print-area div
-// 3. Use @media print CSS to show ONLY #print-area and hide everything else
-// 4. Call window.print()
-// 5. Clean up after print
-// WHY THIS IS BETTER: The old approach tried to hide elements with JS inline
-// styles, but body::before (the decorative blue blob from style.css) was
-// still rendering. Our new approach hides body > *:not(#print-area) entirely
-// in print CSS, so the blob never appears.
+// PRINT — FIXED (Dynamic Filename + No Blank PDF)
+//
+// THE FIX EXPLAINED:
+// ─────────────────
+// Problem 1 — BLANK PDF:
+//   Old code: inject HTML into #print-area → immediately call window.print()
+//   The browser prints BEFORE it has repainted the new HTML, so you get blank.
+//   Fix: Use requestAnimationFrame twice, then setTimeout 150ms.
+//   This ensures 2 full browser paint cycles complete before print fires.
+//   Chain: inject HTML → rAF → rAF → setTimeout(150) → window.print()
+//
+// Problem 2 — GENERIC FILENAME:
+//   Browsers use document.title as the default PDF filename in the Save dialog.
+//   Fix: Set document.title = 'Profit_and_Loss_Report' before window.print(),
+//   then restore original title after. Zero library needed.
 // ═══════════════════════════════════════
-function printReportSection(type) {
+function triggerPrint(htmlContent, reportTitle) {
+  // Step 1: inject content into the hidden #print-area
   const printArea = document.getElementById('print-area')
+  printArea.innerHTML = htmlContent
+
+  // Step 2: set dynamic filename via document.title
+  const originalTitle = document.title
+  document.title = reportTitle   // browser uses this as PDF filename
+
+  // Step 3: wait for TWO animation frames + extra settle time
+  // WHY rAF twice: first rAF = "about to paint", second rAF = "paint is done"
+  // WHY setTimeout 150: gives browser time to resolve CSS and layout
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        window.print()
+        // Step 4: restore title after print dialog appears
+        // (use a longer delay so the dialog has opened first)
+        setTimeout(() => {
+          document.title = originalTitle
+          printArea.innerHTML = ''
+        }, 2000)
+      }, 150)
+    })
+  })
+}
+
+function printReportSection(type) {
   let html = ''
+  let title = 'Report'
 
   if (type === 'pnl') {
     const wrapper = document.getElementById('pnlAccountWrapper')
-    if (!wrapper || wrapper.innerHTML.includes('Loading')) {
-      alert('Please wait for the P&L Account to load first.')
+    if (!wrapper || wrapper.innerHTML.includes('Loading') || wrapper.innerHTML.includes('Calculating')) {
+      alert('Please wait for the P&L Account to finish loading first, then click Print.')
       return
     }
+    const fy = document.getElementById('pnlFySelect').value || ''
+    title = 'Profit_and_Loss_Account_' + fy.replace('-','_')
     html = `
-      <div style="text-align:center;margin-bottom:8px;font-family:'DM Sans',sans-serif;">
+      <div style="text-align:center;margin-bottom:10px;font-family:'DM Sans',sans-serif;">
         <div style="font-size:16px;font-weight:700;color:#000;">Abhinandan Auto Mobiles</div>
-        <div style="font-size:11px;color:#666;">Genuine Auto Parts</div>
+        <div style="font-size:11px;color:#555;">Genuine Auto Parts — Santalpur</div>
       </div>
       ${wrapper.innerHTML}
     `
   } else if (type === 'bs') {
     const wrapper = document.getElementById('bsWrapper')
-    if (!wrapper || wrapper.innerHTML.includes('Loading')) {
-      alert('Please wait for the Balance Sheet to load first.')
+    if (!wrapper || wrapper.innerHTML.includes('Loading') || wrapper.innerHTML.includes('Calculating')) {
+      alert('Please wait for the Balance Sheet to finish loading first, then click Print.')
       return
     }
+    const asOn = document.getElementById('bsDateInput').value || new Date().toISOString().slice(0,10)
+    title = 'Balance_Sheet_' + asOn.replace(/-/g,'_')
     html = `
-      <div style="text-align:center;margin-bottom:8px;font-family:'DM Sans',sans-serif;">
+      <div style="text-align:center;margin-bottom:10px;font-family:'DM Sans',sans-serif;">
         <div style="font-size:16px;font-weight:700;color:#000;">Abhinandan Auto Mobiles</div>
-        <div style="font-size:11px;color:#666;">Genuine Auto Parts</div>
+        <div style="font-size:11px;color:#555;">Genuine Auto Parts — Santalpur</div>
       </div>
       ${wrapper.innerHTML}
     `
-  } else if (type === 'cashbook') {
-    const tbl = document.querySelector('#tab-cashbook .report-card')
-    if (!tbl) return
-    const title = document.getElementById('cbFrom').value && document.getElementById('cbTo').value
-      ? `Cash Book: ${document.getElementById('cbFrom').value} to ${document.getElementById('cbTo').value}`
-      : 'Cash Book — All Transactions'
-    html = `
-      <div style="text-align:center;margin-bottom:12px;font-family:'DM Sans',sans-serif;">
-        <div style="font-size:16px;font-weight:700;color:#000;">Abhinandan Auto Mobiles</div>
-        <div style="font-size:13px;color:#333;margin-top:4px;">${title}</div>
-        <div style="font-size:11px;color:#666;">Printed: ${new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'})}</div>
-      </div>
-      <table class="cb-tbl" style="width:100%;border-collapse:collapse;font-size:12px;">
-        <thead>
-          <tr>
-            <th style="border:1.5px solid #000;padding:8px;background:#dbeafe;color:#1e40af;">Date</th>
-            <th style="border:1.5px solid #000;padding:8px;background:#dbeafe;color:#1e40af;">Description</th>
-            <th style="border:1.5px solid #000;padding:8px;background:#dbeafe;color:#1e40af;">Category</th>
-            <th style="border:1.5px solid #000;padding:8px;background:#dbeafe;color:#1e40af;">Via</th>
-            <th style="border:1.5px solid #000;padding:8px;background:#dbeafe;color:#1e40af;text-align:right;">IN (₹)</th>
-            <th style="border:1.5px solid #000;padding:8px;background:#dbeafe;color:#1e40af;text-align:right;">OUT (₹)</th>
-            <th style="border:1.5px solid #000;padding:8px;background:#dbeafe;color:#1e40af;text-align:right;">Balance (₹)</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${_cashBookData.filter(r => r._visible !== false).map(r => `
-            <tr>
-              <td style="border:1px solid #aaa;padding:6px 8px;color:#000;">${r.date}</td>
-              <td style="border:1px solid #aaa;padding:6px 8px;color:#000;">${r.desc}</td>
-              <td style="border:1px solid #aaa;padding:6px 8px;color:#000;">${r.category}</td>
-              <td style="border:1px solid #aaa;padding:6px 8px;color:#000;">${r.mode}</td>
-              <td style="border:1px solid #aaa;padding:6px 8px;color:#059669;text-align:right;">${r.inAmt > 0 ? fmtAmt(r.inAmt) : ''}</td>
-              <td style="border:1px solid #aaa;padding:6px 8px;color:#dc2626;text-align:right;">${r.outAmt > 0 ? fmtAmt(r.outAmt) : ''}</td>
-              <td style="border:1px solid #aaa;padding:6px 8px;color:#000;text-align:right;font-weight:600;">${fmtAmt(r.balance)}</td>
-            </tr>
-          `).join('')}
-        </tbody>
-      </table>
-    `
   }
 
-  printArea.innerHTML = html
-  window.print()
-  // Clean up after print dialog closes
-  setTimeout(() => { printArea.innerHTML = '' }, 1000)
+  triggerPrint(html, title)
 }
 
 // ═══════════════════════════════════════
@@ -921,7 +959,10 @@ const fmtAmt  = n => '₹' + (Math.round(Number(n)||0)).toLocaleString('en-IN')
 const fmtNum  = n => (Number(n)||0).toLocaleString('en-IN')
 const fmtDate = s => { if(!s)return'—'; return new Date(s).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'2-digit'}) }
 const fmtDateFull = s => { if(!s)return'—'; return new Date(s).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}) }
+const fmtDateShort = s => { if(!s||s.startsWith('0000'))return'Op.Bal'; return new Date(s+'T00:00:00').toLocaleDateString('en-IN',{day:'2-digit',month:'short'}) }
 const shortAmt = n => { n=Math.round(Number(n)||0); if(n>=100000)return'₹'+(n/100000).toFixed(1)+'L'; if(n>=1000)return'₹'+(n/1000).toFixed(0)+'k'; return'₹'+n }
+const n2 = n => n > 0 ? Math.round(n).toLocaleString('en-IN') : ''
+
 function kpiCard(icon,label,value,sub,accent) {
   return `<div class="kpi-card"><div class="kpi-accent" style="background:${accent}"></div><div class="kpi-icon">${icon}</div><div class="kpi-label">${label}</div><div class="kpi-value">${value}</div><div class="kpi-sub">${sub}</div></div>`
 }
@@ -989,306 +1030,465 @@ function loadTab(tab) {
   if(tab==='customers') loadCustomers(range)
 }
 
-// ═══════════════════════════════════════
-// ═══════════════════════════════════════
-// CASH BOOK
-// ═══════════════════════════════════════
-// WHY: A Cash Book is a sequential log of every cash/bank movement.
-// It is different from the Accounts tab (which shows current balances).
-// It answers: "What did I receive/pay today, this week, this month?"
+// ═══════════════════════════════════════════════════════════
+// CASH BOOK — DOUBLE COLUMN FORMAT
 //
-// SOURCES OF DATA:
-// 1. sales table   → cash column = Cash IN, upi column = Bank IN
-// 2. purchases table → cash column = Cash OUT, upi column = Bank OUT
-// 3. payments table  → customer credit payments received (Cash IN or Bank IN)
-// 4. merchant_payments → merchant credit payments made (Cash OUT or Bank OUT)
-// 5. journal_entries → any manual entries that hit Cash or Bank/UPI
+// WHY DOUBLE COLUMN:
+//   In Indian accounting, a Cash Book has two sides running in parallel:
+//   LEFT (Dr) = Receipts — money that CAME IN (sales, customer payments, loans taken)
+//   RIGHT (Cr) = Payments — money that WENT OUT (purchases, merchant payments, expenses)
 //
-// RUNNING BALANCE: We sort everything by date and calculate a cumulative balance.
-// ═══════════════════════════════════════
+//   Each side has columns:
+//   Date | Particulars | V.No. (Voucher/Bill number) | Disc. | Cash Rs. | UPI Rs. | Bank Rs.
+//
+//   Disc. = discount given/received (useful for reconciliation)
+//   Cash  = amount received/paid in physical cash
+//   UPI   = amount received/paid via UPI/Phone Pay/GPay
+//   Bank  = amount received/paid via bank transfer/NEFT/RTGS/Cheque
+//
+// DATA SOURCES (same as before, restructured):
+//   Dr side: sales bills (cash/upi in), customer credit payments, journal Dr Cash/Bank
+//   Cr side: purchase bills (cash/upi out), merchant payments, journal Cr Cash/Bank
+//
+// RUNNING TOTALS: We show column totals at the bottom of each side.
+// ═══════════════════════════════════════════════════════════
 async function loadCashBook() {
-  document.getElementById('cbBody').innerHTML = '<tr><td colspan="7"><div class="skel skel-row"></div></td></tr>'
+  document.getElementById('cbDoubleWrap').innerHTML = '<div class="skel skel-row" style="margin:20px;height:200px;"></div>'
 
-  // Fetch all data without date filter (filter is done client-side for interactivity)
   const [sRes, pRes, payRes, mpRes, jRes, bsRes] = await Promise.all([
-    _supabase.from('sales').select('id,bill_number,created_at,cash,upi,bill_type,customer_id').order('created_at',{ascending:true}),
-    _supabase.from('purchases').select('id,bill_number,created_at,cash,upi,bill_type,merchant_name').order('created_at',{ascending:true}),
+    _supabase.from('sales').select('id,bill_number,created_at,cash,upi,discount,bill_type,customer_id').order('created_at',{ascending:true}),
+    _supabase.from('purchases').select('id,bill_number,created_at,cash,upi,discount,bill_type,merchant_name').order('created_at',{ascending:true}),
     _supabase.from('payments').select('receipt_no,created_at,amount,mode,customer_id,note').order('created_at',{ascending:true}),
-    _supabase.from('merchant_payments').select('created_at,amount,mode,note').order('created_at',{ascending:true}),
+    _supabase.from('merchant_payments').select('receipt_no,created_at,amount,mode,note,merchant_name').order('created_at',{ascending:true}),
     _supabase.from('journal_entries').select('*').order('entry_date',{ascending:true}),
     _supabase.from('balance_sheet_entries').select('*').eq('is_active',true)
   ])
 
-  const custMap = await getCustomerNames((sRes.data||[]).map(r=>r.customer_id).concat((payRes.data||[]).map(r=>r.customer_id)))
+  const custMap = await getCustomerNames(
+    (sRes.data||[]).map(r=>r.customer_id).concat((payRes.data||[]).map(r=>r.customer_id))
+  )
   const bsEntries = bsRes.data || []
   const journals  = jRes.data  || []
 
-  // Opening balance
-  const openingCashBS = bsEntries.filter(e=>e.account_type==='opening_cash').reduce((s,e)=>s+Number(e.amount||0),0)
-  const openingBankBS = bsEntries.filter(e=>e.account_type==='opening_bank').reduce((s,e)=>s+Number(e.amount||0),0)
-  const openingCashJ  = journals.filter(j=>j.transaction_type==='opening_balance'&&j.debit_account==='Cash').reduce((s,j)=>s+Number(j.amount||0),0)
-  const openingBankJ  = journals.filter(j=>j.transaction_type==='opening_balance'&&j.debit_account==='Bank/UPI').reduce((s,j)=>s+Number(j.amount||0),0)
-  const openingCash   = openingCashBS + openingCashJ
-  const openingBank   = openingBankBS + openingBankJ
+  // Opening balances
+  const openingCash = bsEntries.filter(e=>e.account_type==='opening_cash').reduce((s,e)=>s+Number(e.amount||0),0)
+    + journals.filter(j=>j.transaction_type==='opening_balance'&&j.debit_account==='Cash').reduce((s,j)=>s+Number(j.amount||0),0)
+  const openingUPI  = 0 // UPI opening goes into Bank
+  const openingBank = bsEntries.filter(e=>e.account_type==='opening_bank').reduce((s,e)=>s+Number(e.amount||0),0)
+    + journals.filter(j=>j.transaction_type==='opening_balance'&&j.debit_account==='Bank/UPI').reduce((s,j)=>s+Number(j.amount||0),0)
 
-  const rows = []
+  const BANK_MODES = ['Bank Transfer','Bank','NEFT','RTGS','Cheque','Online']
+  const UPI_MODES  = ['UPI','UPI Transfer','GPay','PhonePe','Paytm']
 
-  // Opening balance entries
-  if (openingCash > 0) {
-    rows.push({ dateRaw:'0000-00-00', date:'Opening Balance', desc:'Opening Cash in Hand', category:'Opening', mode:'Cash', inAmt:openingCash, outAmt:0, cashEffect:openingCash, bankEffect:0 })
-  }
-  if (openingBank > 0) {
-    rows.push({ dateRaw:'0000-00-01', date:'Opening Balance', desc:'Opening Bank / UPI Balance', category:'Opening', mode:'Bank/UPI', inAmt:openingBank, outAmt:0, cashEffect:0, bankEffect:openingBank })
-  }
+  // ── DR SIDE (Receipts — money coming IN) ──
+  const drRows = []
 
-  // 1. Sales — cash IN, upi IN
+  // Opening balances
+  if (openingCash > 0) drRows.push({ dateRaw:'0000-00-00', date:'Op.Bal', particulars:'Opening Balance', vno:'—', disc:0, cash:openingCash, upi:0, bank:0 })
+  if (openingBank > 0) drRows.push({ dateRaw:'0000-00-01', date:'Op.Bal', particulars:'Opening Balance (Bank)', vno:'—', disc:0, cash:0, upi:0, bank:openingBank })
+
+  // Sales bills — cash/upi received
   ;(sRes.data||[]).forEach(r => {
-    const dateStr = r.created_at.slice(0,10)
-    const custName = custMap[r.customer_id]?.name || 'Walk-in'
+    const ds = r.created_at.slice(0,10)
+    const name = custMap[r.customer_id]?.name || 'Walk-in'
     const isSale = r.bill_type === 'sale'
-    const sign = isSale ? 1 : -1 // returns go back out
-    if (Number(r.cash||0) > 0) {
-      rows.push({
-        dateRaw: dateStr, date: fmtDateFull(dateStr),
-        desc: `${isSale?'Sales Bill':'Sales Return'}: ${r.bill_number} (${custName})`,
-        category: isSale ? 'Sales' : 'Sales Return',
-        mode: 'Cash',
-        inAmt:  isSale ? Number(r.cash) : 0,
-        outAmt: isSale ? 0 : Number(r.cash),
-        cashEffect: sign * Number(r.cash), bankEffect: 0
-      })
-    }
-    if (Number(r.upi||0) > 0) {
-      rows.push({
-        dateRaw: dateStr, date: fmtDateFull(dateStr),
-        desc: `${isSale?'Sales Bill':'Sales Return'}: ${r.bill_number} (${custName})`,
-        category: isSale ? 'Sales' : 'Sales Return',
-        mode: 'Bank/UPI',
-        inAmt:  isSale ? Number(r.upi) : 0,
-        outAmt: isSale ? 0 : Number(r.upi),
-        cashEffect: 0, bankEffect: sign * Number(r.upi)
+    const sign = isSale ? 1 : -1
+    const c = Number(r.cash||0), u = Number(r.upi||0), disc = Number(r.discount||0)
+    if (c > 0 || u > 0) {
+      drRows.push({
+        dateRaw:ds, date:fmtDateShort(ds),
+        particulars: (isSale?'Sales: ':'Return: ') + name,
+        vno: r.bill_number,
+        disc: isSale ? disc : 0,
+        cash: sign * c, upi: sign * u, bank: 0
       })
     }
   })
 
-  // 2. Purchases — cash OUT, upi OUT
-  ;(pRes.data||[]).forEach(r => {
-    const dateStr = r.created_at.slice(0,10)
-    const isPurch = r.bill_type === 'purchase'
-    const sign = isPurch ? -1 : 1
-    if (Number(r.cash||0) > 0) {
-      rows.push({
-        dateRaw: dateStr, date: fmtDateFull(dateStr),
-        desc: `${isPurch?'Purchase':'Purchase Return'}: ${r.bill_number} (${r.merchant_name||'Merchant'})`,
-        category: isPurch ? 'Purchase' : 'Purchase Return',
-        mode: 'Cash',
-        inAmt:  isPurch ? 0 : Number(r.cash),
-        outAmt: isPurch ? Number(r.cash) : 0,
-        cashEffect: sign * Number(r.cash), bankEffect: 0
-      })
-    }
-    if (Number(r.upi||0) > 0) {
-      rows.push({
-        dateRaw: dateStr, date: fmtDateFull(dateStr),
-        desc: `${isPurch?'Purchase':'Purchase Return'}: ${r.bill_number} (${r.merchant_name||'Merchant'})`,
-        category: isPurch ? 'Purchase' : 'Purchase Return',
-        mode: 'Bank/UPI',
-        inAmt:  isPurch ? 0 : Number(r.upi),
-        outAmt: isPurch ? Number(r.upi) : 0,
-        cashEffect: 0, bankEffect: sign * Number(r.upi)
-      })
-    }
-  })
-
-  // 3. Customer payments received
-  const BANK_MODES = ['UPI','Bank Transfer','Bank','NEFT','RTGS','Cheque','Online']
+  // Customer credit payments received
   ;(payRes.data||[]).forEach(r => {
-    const dateStr = r.created_at.slice(0,10)
-    const custName = custMap[r.customer_id]?.name || 'Customer'
+    const ds = r.created_at.slice(0,10)
+    const name = custMap[r.customer_id]?.name || 'Customer'
+    const amt = Number(r.amount||0)
+    const isUPI  = UPI_MODES.includes(r.mode)
     const isBank = BANK_MODES.includes(r.mode)
-    rows.push({
-      dateRaw: dateStr, date: fmtDateFull(dateStr),
-      desc: `Credit Payment from ${custName}${r.note?' — '+r.note:''}`,
-      category: 'Customer Payment',
-      mode: r.mode || 'Cash',
-      inAmt: Number(r.amount||0), outAmt: 0,
-      cashEffect: isBank ? 0 : Number(r.amount||0),
-      bankEffect: isBank ? Number(r.amount||0) : 0
+    drRows.push({
+      dateRaw:ds, date:fmtDateShort(ds),
+      particulars: name + (r.note?' ('+r.note+')':''),
+      vno: r.receipt_no || '—',
+      disc: 0,
+      cash: (!isUPI&&!isBank) ? amt : 0,
+      upi:  isUPI ? amt : 0,
+      bank: isBank ? amt : 0
     })
   })
 
-  // 4. Merchant payments made
-  ;(mpRes.data||[]).forEach(r => {
-    const dateStr = r.created_at.slice(0,10)
-    const isBank = BANK_MODES.includes(r.mode)
-    rows.push({
-      dateRaw: dateStr, date: fmtDateFull(dateStr),
-      desc: `Merchant Payment${r.note?' — '+r.note:''}`,
-      category: 'Merchant Payment',
-      mode: r.mode || 'Cash',
-      inAmt: 0, outAmt: Number(r.amount||0),
-      cashEffect: isBank ? 0 : -Number(r.amount||0),
-      bankEffect: isBank ? -Number(r.amount||0) : 0
-    })
-  })
-
-  // 5. Journal entries that affect Cash or Bank
+  // Journal entries that DEBIT Cash or Bank (money IN)
   journals.forEach(j => {
-    if (j.transaction_type === 'opening_balance') return // handled above
-    const dateStr = j.entry_date.slice(0,10)
+    if (j.transaction_type === 'opening_balance') return
+    const ds = j.entry_date.slice(0,10)
     const amt = Number(j.amount||0)
     if (j.debit_account === 'Cash') {
-      rows.push({
-        dateRaw: dateStr, date: fmtDateFull(dateStr),
-        desc: j.narration + (j.party_name?' ('+j.party_name+')':''),
-        category: 'Journal',
-        mode: 'Cash',
-        inAmt: amt, outAmt: 0,
-        cashEffect: amt, bankEffect: 0
-      })
-    }
-    if (j.credit_account === 'Cash') {
-      rows.push({
-        dateRaw: dateStr, date: fmtDateFull(dateStr),
-        desc: j.narration + (j.party_name?' ('+j.party_name+')':''),
-        category: 'Journal',
-        mode: 'Cash',
-        inAmt: 0, outAmt: amt,
-        cashEffect: -amt, bankEffect: 0
-      })
+      drRows.push({ dateRaw:ds, date:fmtDateShort(ds), particulars: j.narration+(j.party_name?' — '+j.party_name:''), vno:'JNL', disc:0, cash:amt, upi:0, bank:0 })
     }
     if (j.debit_account === 'Bank/UPI') {
-      rows.push({
-        dateRaw: dateStr, date: fmtDateFull(dateStr),
-        desc: j.narration + (j.party_name?' ('+j.party_name+')':''),
-        category: 'Journal',
-        mode: 'Bank/UPI',
-        inAmt: amt, outAmt: 0,
-        cashEffect: 0, bankEffect: amt
+      drRows.push({ dateRaw:ds, date:fmtDateShort(ds), particulars: j.narration+(j.party_name?' — '+j.party_name:''), vno:'JNL', disc:0, cash:0, upi:0, bank:amt })
+    }
+  })
+
+  // ── CR SIDE (Payments — money going OUT) ──
+  const crRows = []
+
+  // Purchase bills — cash/upi paid out
+  ;(pRes.data||[]).forEach(r => {
+    const ds = r.created_at.slice(0,10)
+    const isPurch = r.bill_type === 'purchase'
+    const sign = isPurch ? 1 : -1
+    const c = Number(r.cash||0), u = Number(r.upi||0), disc = Number(r.discount||0)
+    if (c > 0 || u > 0) {
+      crRows.push({
+        dateRaw:ds, date:fmtDateShort(ds),
+        particulars: (isPurch?'Purchase: ':'Pur.Return: ') + (r.merchant_name||'Merchant'),
+        vno: r.bill_number,
+        disc: isPurch ? disc : 0,
+        cash: sign * c, upi: sign * u, bank: 0
       })
+    }
+  })
+
+  // Merchant payments made
+  ;(mpRes.data||[]).forEach(r => {
+    const ds = r.created_at.slice(0,10)
+    const amt = Number(r.amount||0)
+    const isUPI  = UPI_MODES.includes(r.mode)
+    const isBank = BANK_MODES.includes(r.mode)
+    crRows.push({
+      dateRaw:ds, date:fmtDateShort(ds),
+      particulars: (r.merchant_name||'Merchant') + (r.note?' ('+r.note+')':''),
+      vno: r.receipt_no || '—',
+      disc: 0,
+      cash: (!isUPI&&!isBank) ? amt : 0,
+      upi:  isUPI ? amt : 0,
+      bank: isBank ? amt : 0
+    })
+  })
+
+  // Journal entries that CREDIT Cash or Bank (money OUT)
+  journals.forEach(j => {
+    if (j.transaction_type === 'opening_balance') return
+    const ds = j.entry_date.slice(0,10)
+    const amt = Number(j.amount||0)
+    if (j.credit_account === 'Cash') {
+      crRows.push({ dateRaw:ds, date:fmtDateShort(ds), particulars: j.narration+(j.party_name?' — '+j.party_name:''), vno:'JNL', disc:0, cash:amt, upi:0, bank:0 })
     }
     if (j.credit_account === 'Bank/UPI') {
-      rows.push({
-        dateRaw: dateStr, date: fmtDateFull(dateStr),
-        desc: j.narration + (j.party_name?' ('+j.party_name+')':''),
-        category: 'Journal',
-        mode: 'Bank/UPI',
-        inAmt: 0, outAmt: amt,
-        cashEffect: 0, bankEffect: -amt
-      })
+      crRows.push({ dateRaw:ds, date:fmtDateShort(ds), particulars: j.narration+(j.party_name?' — '+j.party_name:''), vno:'JNL', disc:0, cash:0, upi:0, bank:amt })
     }
   })
 
-  // Sort by date
-  rows.sort((a,b) => a.dateRaw.localeCompare(b.dateRaw))
+  // Sort both sides by date
+  drRows.sort((a,b) => a.dateRaw.localeCompare(b.dateRaw))
+  crRows.sort((a,b) => a.dateRaw.localeCompare(b.dateRaw))
 
-  // Calculate running combined balance (cash + bank)
-  let runBalance = 0
-  rows.forEach(r => {
-    runBalance += r.cashEffect + r.bankEffect
-    r.balance = runBalance
-  })
+  // Store globally
+  _cashBookAllRows = { dr: drRows, cr: crRows }
+  _cashBookFilteredRows = { dr: [...drRows], cr: [...crRows] }
 
-  _cashBookData = rows
-  renderCashBook(rows)
+  renderDoubleColumnCashBook(drRows, crRows)
 }
 
-function renderCashBook(rows) {
-  // Totals
-  const totalIn  = rows.reduce((s,r)=>s+(r.inAmt||0),0)
-  const totalOut = rows.reduce((s,r)=>s+(r.outAmt||0),0)
-  const finalBal = rows.length ? rows[rows.length-1].balance : 0
+function renderDoubleColumnCashBook(drRows, crRows) {
+  // Calculate totals
+  const drCash = drRows.reduce((s,r)=>s+Math.max(0,r.cash||0),0)
+  const drUPI  = drRows.reduce((s,r)=>s+Math.max(0,r.upi||0),0)
+  const drBank = drRows.reduce((s,r)=>s+Math.max(0,r.bank||0),0)
+  const drDisc = drRows.reduce((s,r)=>s+Math.max(0,r.disc||0),0)
+  const crCash = crRows.reduce((s,r)=>s+Math.max(0,r.cash||0),0)
+  const crUPI  = crRows.reduce((s,r)=>s+Math.max(0,r.upi||0),0)
+  const crBank = crRows.reduce((s,r)=>s+Math.max(0,r.bank||0),0)
+  const crDisc = crRows.reduce((s,r)=>s+Math.max(0,r.disc||0),0)
 
-  // Summary cards
+  // Closing balance = Dr totals − Cr totals (shown on CR side to balance)
+  const closingCash = Math.max(0, drCash - crCash)
+  const closingUPI  = Math.max(0, drUPI  - crUPI)
+  const closingBank = Math.max(0, drBank - crBank)
+
+  // Total rows in grand total = DR side totals (including closing balance on CR)
+  const grandCash = Math.max(drCash, crCash + closingCash)
+  const grandUPI  = Math.max(drUPI,  crUPI  + closingUPI)
+  const grandBank = Math.max(drBank, crBank + closingBank)
+
+  // Update summary KPIs
+  const totalIn  = drCash + drUPI + drBank
+  const totalOut = crCash + crUPI + crBank
+  const netBal   = totalIn - totalOut
   document.getElementById('cbSummary').innerHTML =
-    kpiCard('💰','Total IN',fmtAmt(totalIn),'All receipts','linear-gradient(90deg,#059669,#34d399)') +
-    kpiCard('💸','Total OUT',fmtAmt(totalOut),'All payments','linear-gradient(90deg,#dc2626,#f97316)') +
-    kpiCard('🏦','Current Balance',fmtAmt(finalBal),'Cash + Bank combined','linear-gradient(90deg,#2563eb,#7c3aed)')
+    kpiCard('💵','Cash Receipts',fmtAmt(drCash),'Total cash received','linear-gradient(90deg,#059669,#34d399)') +
+    kpiCard('📱','UPI Receipts',fmtAmt(drUPI),'Total UPI received','linear-gradient(90deg,#1d4ed8,#60a5fa)') +
+    kpiCard('💸','Total Payments',fmtAmt(totalOut),'Cash + UPI + Bank paid out','linear-gradient(90deg,#dc2626,#f97316)') +
+    kpiCard('🏦','Net Balance',fmtAmt(netBal),'Receipts − Payments','linear-gradient(90deg,#7c3aed,#a855f7)')
 
-  if (!rows.length) {
-    document.getElementById('cbBody').innerHTML = '<tr><td colspan="7"><div class="empty-state">No transactions found.</div></td></tr>'
-    document.getElementById('cbFoot').innerHTML = ''
+  const maxRows = Math.max(drRows.length, crRows.length)
+  if (maxRows === 0) {
+    document.getElementById('cbDoubleWrap').innerHTML = '<div class="empty-state" style="padding:40px;">No transactions found. Add bills and journal entries to populate the Cash Book.</div>'
     return
   }
 
-  // Category badge color
-  const catColor = {
-    'Sales':'rgba(52,211,153,0.12)','Sales Return':'rgba(248,113,113,0.12)',
-    'Purchase':'rgba(251,191,36,0.12)','Purchase Return':'rgba(52,211,153,0.12)',
-    'Customer Payment':'rgba(96,165,250,0.12)','Merchant Payment':'rgba(248,113,113,0.12)',
-    'Journal':'rgba(167,139,250,0.12)','Opening':'rgba(255,255,255,0.08)'
-  }
-  const catTextColor = {
-    'Sales':'#34d399','Sales Return':'#f87171','Purchase':'#fbbf24','Purchase Return':'#34d399',
-    'Customer Payment':'#60a5fa','Merchant Payment':'#f87171','Journal':'#a78bfa','Opening':'var(--text-dim)'
-  }
+  // Build rows
+  let bodyHTML = ''
+  for (let i = 0; i < maxRows; i++) {
+    const dr = i < drRows.length ? drRows[i] : null
+    const cr = i < crRows.length ? crRows[i] : null
 
-  document.getElementById('cbBody').innerHTML = rows.map(r => {
-    const bg = catColor[r.category] || 'rgba(255,255,255,0.06)'
-    const tc = catTextColor[r.category] || 'var(--text-muted)'
-    const balColor = r.balance >= 0 ? 'class="cb-balance"' : 'style="color:#f87171;font-weight:600;"'
-    return `<tr>
-      <td style="white-space:nowrap;">${r.date}</td>
-      <td style="color:var(--text-main);">${r.desc}</td>
-      <td><span class="cb-type-badge" style="background:${bg};color:${tc};">${r.category}</span></td>
-      <td><span style="font-size:11px;color:var(--text-dim);">${r.mode}</span></td>
-      <td style="text-align:right;" class="${r.inAmt>0?'cb-in':''}">${r.inAmt>0?fmtAmt(r.inAmt):''}</td>
-      <td style="text-align:right;" class="${r.outAmt>0?'cb-out':''}">${r.outAmt>0?fmtAmt(r.outAmt):''}</td>
-      <td style="text-align:right;" ${balColor}>${fmtAmt(r.balance)}</td>
+    const drDate   = dr ? `<td class="cb-date-cell">${dr.date}</td>` : '<td></td>'
+    const drPart   = dr ? `<td class="cb-part">${dr.particulars}</td>` : '<td></td>'
+    const drVno    = dr ? `<td class="cb-vno">${dr.vno}</td>` : '<td></td>'
+    const drDisc   = dr && dr.disc > 0 ? `<td class="cb-amt" style="color:#fbbf24;">${n2(dr.disc)}</td>` : '<td class="cb-amt"></td>'
+    const drCashC  = dr && dr.cash > 0 ? `<td class="cb-amt-in">${n2(dr.cash)}</td>` : '<td class="cb-amt"></td>'
+    const drUPIc   = dr && dr.upi  > 0 ? `<td class="cb-amt-upi">${n2(dr.upi)}</td>` : '<td class="cb-amt"></td>'
+    const drBankC  = dr && dr.bank > 0 ? `<td class="cb-amt-in">${n2(dr.bank)}</td>` : '<td class="cb-amt"></td>'
+
+    const crDate   = cr ? `<td class="cb-date-cell">${cr.date}</td>` : '<td></td>'
+    const crPart   = cr ? `<td class="cb-part">${cr.particulars}</td>` : '<td></td>'
+    const crVno    = cr ? `<td class="cb-vno">${cr.vno}</td>` : '<td></td>'
+    const crDiscC  = cr && cr.disc > 0 ? `<td class="cb-amt" style="color:#fbbf24;">${n2(cr.disc)}</td>` : '<td class="cb-amt"></td>'
+    const crCashC  = cr && cr.cash > 0 ? `<td class="cb-amt-out">${n2(cr.cash)}</td>` : '<td class="cb-amt"></td>'
+    const crUPIc   = cr && cr.upi  > 0 ? `<td class="cb-amt-upi">${n2(cr.upi)}</td>` : '<td class="cb-amt"></td>'
+    const crBankC  = cr && cr.bank > 0 ? `<td class="cb-amt-out">${n2(cr.bank)}</td>` : '<td class="cb-amt"></td>'
+
+    bodyHTML += `<tr>
+      ${drDate}${drPart}${drVno}${drDisc}${drCashC}${drUPIc}${drBankC}
+      <td class="divider-cell"></td>
+      ${crDate}${crPart}${crVno}${crDiscC}${crCashC}${crUPIc}${crBankC}
     </tr>`
-  }).join('')
+  }
 
-  document.getElementById('cbFoot').innerHTML = `<tr>
-    <td colspan="4"><strong>TOTAL (${rows.length} entries)</strong></td>
-    <td style="text-align:right;"><strong class="cb-in">${fmtAmt(totalIn)}</strong></td>
-    <td style="text-align:right;"><strong class="cb-out">${fmtAmt(totalOut)}</strong></td>
-    <td style="text-align:right;"><strong>${fmtAmt(finalBal)}</strong></td>
-  </tr>`
+  // Closing balance row (shown on CR side — this is how traditional Cash Books work)
+  const closingRow = (closingCash > 0 || closingUPI > 0 || closingBank > 0) ? `<tr>
+    <td colspan="7" style="border:1px solid var(--border2);"></td>
+    <td class="divider-cell"></td>
+    <td class="cb-date-cell">c/d</td>
+    <td colspan="2" style="font-weight:700;color:var(--text-main);border:1px solid var(--border2);font-size:11px;">Closing Balance c/d</td>
+    <td class="cb-amt" style="color:#fbbf24;"></td>
+    <td class="cb-amt-in" style="color:#34d399 !important;">${closingCash>0?n2(closingCash):''}</td>
+    <td class="cb-amt-upi" style="color:#60a5fa !important;">${closingUPI>0?n2(closingUPI):''}</td>
+    <td class="cb-amt-in" style="color:#34d399 !important;">${closingBank>0?n2(closingBank):''}</td>
+  </tr>` : ''
+
+  const html = `
+    <div class="cb-double-wrap">
+    <table class="cb-double-tbl">
+      <tr class="cb-title-row"><td colspan="15">📒 &nbsp; CASH BOOK &nbsp; 📒</td></tr>
+      <tr class="cb-side-label-row">
+        <td colspan="7" class="dr-label" style="text-align:center;font-size:12px;border:1px solid var(--pnl-border);">Dr. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; RECEIPTS (Money IN)</td>
+        <td class="divider" style="background:var(--pnl-border);width:4px;padding:0;"></td>
+        <td colspan="7" class="cr-label" style="text-align:center;font-size:12px;border:1px solid var(--pnl-border);">PAYMENTS (Money OUT) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Cr.</td>
+      </tr>
+      <thead class="cb-col-head"><tr>
+        <th class="dr-head">Date</th>
+        <th class="dr-head">Particulars</th>
+        <th class="dr-head">V.No.</th>
+        <th class="dr-head">Disc.<br>Rs.</th>
+        <th class="dr-head">Cash<br>Rs.</th>
+        <th class="dr-head">UPI<br>Rs.</th>
+        <th class="dr-head">Bank<br>Rs.</th>
+        <th class="divider-head"></th>
+        <th class="cr-head">Date</th>
+        <th class="cr-head">Particulars</th>
+        <th class="cr-head">V.No.</th>
+        <th class="cr-head">Disc.<br>Rs.</th>
+        <th class="cr-head">Cash<br>Rs.</th>
+        <th class="cr-head">UPI<br>Rs.</th>
+        <th class="cr-head">Bank<br>Rs.</th>
+      </tr></thead>
+      <tbody>${bodyHTML}${closingRow}</tbody>
+      <tfoot><tr>
+        <td colspan="2" style="font-weight:700;color:var(--text-main);border:1px solid var(--pnl-border);">TOTAL</td>
+        <td style="border:1px solid var(--pnl-border);"></td>
+        <td class="cb-amt" style="color:#fbbf24;font-weight:700;">${drDisc>0?n2(drDisc):''}</td>
+        <td class="cb-amt-in" style="font-weight:700;">${n2(drCash + closingCash)}</td>
+        <td class="cb-amt-upi" style="font-weight:700;">${n2(drUPI + closingUPI)}</td>
+        <td class="cb-amt-in" style="font-weight:700;">${n2(drBank + closingBank)}</td>
+        <td class="divider-cell"></td>
+        <td colspan="2" style="font-weight:700;color:var(--text-main);border:1px solid var(--pnl-border);">TOTAL</td>
+        <td style="border:1px solid var(--pnl-border);"></td>
+        <td class="cb-amt" style="color:#fbbf24;font-weight:700;">${crDisc>0?n2(crDisc):''}</td>
+        <td class="cb-amt-out" style="font-weight:700;">${n2(crCash + closingCash)}</td>
+        <td class="cb-amt-upi" style="font-weight:700;">${n2(crUPI + closingUPI)}</td>
+        <td class="cb-amt-out" style="font-weight:700;">${n2(crBank + closingBank)}</td>
+      </tr></tfoot>
+    </table>
+    </div>
+  `
+  document.getElementById('cbDoubleWrap').innerHTML = html
 }
 
 window.applyCashBookFilter = function() {
   const from = document.getElementById('cbFrom').value
   const to   = document.getElementById('cbTo').value
-  const mode = document.getElementById('cbMode').value
+  if (!_cashBookAllRows.dr) return
 
-  let filtered = _cashBookData
-  if (from) filtered = filtered.filter(r => r.dateRaw >= from || r.dateRaw === '0000-00-00' || r.dateRaw === '0000-00-01')
-  if (to)   filtered = filtered.filter(r => r.dateRaw <= to   || r.dateRaw === '0000-00-00' || r.dateRaw === '0000-00-01')
-  if (mode === 'cash') filtered = filtered.filter(r => r.mode === 'Cash' || r.category === 'Opening')
-  if (mode === 'bank') filtered = filtered.filter(r => r.mode === 'Bank/UPI' || r.category === 'Opening')
-
-  // Mark filtered rows for print
-  _cashBookData.forEach(r => r._visible = false)
-  filtered.forEach(r => r._visible = true)
-
-  renderCashBook(filtered)
+  const filterRow = r => {
+    if (r.dateRaw.startsWith('0000')) return true // always show opening balance
+    if (from && r.dateRaw < from) return false
+    if (to   && r.dateRaw > to)   return false
+    return true
+  }
+  const dr = _cashBookAllRows.dr.filter(filterRow)
+  const cr = _cashBookAllRows.cr.filter(filterRow)
+  _cashBookFilteredRows = { dr, cr }
+  renderDoubleColumnCashBook(dr, cr)
 }
 
 window.clearCashBookFilter = function() {
   document.getElementById('cbFrom').value = ''
   document.getElementById('cbTo').value = ''
-  document.getElementById('cbMode').value = 'all'
-  _cashBookData.forEach(r => r._visible = true)
-  renderCashBook(_cashBookData)
+  if (_cashBookAllRows.dr) {
+    _cashBookFilteredRows = { dr:[..._cashBookAllRows.dr], cr:[..._cashBookAllRows.cr] }
+    renderDoubleColumnCashBook(_cashBookAllRows.dr, _cashBookAllRows.cr)
+  }
 }
 
 window.printCashBook = function() {
-  printReportSection('cashbook')
+  const dr = _cashBookFilteredRows.dr || _cashBookAllRows.dr || []
+  const cr = _cashBookFilteredRows.cr || _cashBookAllRows.cr || []
+  if (!dr.length && !cr.length) { alert('No cash book data to print. Load Cash Book first.'); return }
+
+  const drCash = dr.reduce((s,r)=>s+Math.max(0,r.cash||0),0)
+  const drUPI  = dr.reduce((s,r)=>s+Math.max(0,r.upi||0),0)
+  const drBank = dr.reduce((s,r)=>s+Math.max(0,r.bank||0),0)
+  const drDisc = dr.reduce((s,r)=>s+Math.max(0,r.disc||0),0)
+  const crCash = cr.reduce((s,r)=>s+Math.max(0,r.cash||0),0)
+  const crUPI  = cr.reduce((s,r)=>s+Math.max(0,r.upi||0),0)
+  const crBank = cr.reduce((s,r)=>s+Math.max(0,r.bank||0),0)
+  const crDisc = cr.reduce((s,r)=>s+Math.max(0,r.disc||0),0)
+  const closingCash = Math.max(0, drCash - crCash)
+  const closingUPI  = Math.max(0, drUPI  - crUPI)
+  const closingBank = Math.max(0, drBank - crBank)
+
+  const tStyle = 'border:1.5px solid #000;padding:6px 8px;font-size:10px;'
+  const thDr = `background:#1a3a2a;color:#fff;${tStyle}`
+  const thCr = `background:#3a1a1a;color:#fff;${tStyle}`
+  const tdS  = `${tStyle}color:#000;background:#fff;`
+  const amtIn = `${tdS}text-align:right;color:#059669;font-weight:600;`
+  const amtUP = `${tdS}text-align:right;color:#1d4ed8;font-weight:600;`
+  const amtOt = `${tdS}text-align:right;color:#dc2626;font-weight:600;`
+  const tdDiv = 'background:#555;width:4px;padding:0;'
+
+  const maxRows = Math.max(dr.length, cr.length)
+  let bodyRows = ''
+  for (let i = 0; i < maxRows; i++) {
+    const d = i < dr.length ? dr[i] : null
+    const c = i < cr.length ? cr[i] : null
+    bodyRows += `<tr>
+      <td style="${tdS}">${d?d.date:''}</td>
+      <td style="${tdS}font-weight:500;">${d?d.particulars:''}</td>
+      <td style="${tdS}text-align:center;font-size:9px;color:#666;">${d?d.vno:''}</td>
+      <td style="${tdS}text-align:right;color:#b45309;">${d&&d.disc>0?n2(d.disc):''}</td>
+      <td style="${amtIn}">${d&&d.cash>0?n2(d.cash):''}</td>
+      <td style="${amtUP}">${d&&d.upi>0?n2(d.upi):''}</td>
+      <td style="${amtIn}">${d&&d.bank>0?n2(d.bank):''}</td>
+      <td style="${tdDiv}"></td>
+      <td style="${tdS}">${c?c.date:''}</td>
+      <td style="${tdS}font-weight:500;">${c?c.particulars:''}</td>
+      <td style="${tdS}text-align:center;font-size:9px;color:#666;">${c?c.vno:''}</td>
+      <td style="${tdS}text-align:right;color:#b45309;">${c&&c.disc>0?n2(c.disc):''}</td>
+      <td style="${amtOt}">${c&&c.cash>0?n2(c.cash):''}</td>
+      <td style="${amtUP}">${c&&c.upi>0?n2(c.upi):''}</td>
+      <td style="${amtOt}">${c&&c.bank>0?n2(c.bank):''}</td>
+    </tr>`
+  }
+  // Closing balance row
+  if (closingCash > 0 || closingUPI > 0 || closingBank > 0) {
+    bodyRows += `<tr>
+      <td colspan="7" style="${tdS}"></td>
+      <td style="${tdDiv}"></td>
+      <td style="${tdS}font-size:9px;">c/d</td>
+      <td colspan="2" style="${tdS}font-weight:700;">Closing Balance c/d</td>
+      <td style="${amtIn}"></td>
+      <td style="${amtIn}">${closingCash>0?n2(closingCash):''}</td>
+      <td style="${amtUP}">${closingUPI>0?n2(closingUPI):''}</td>
+      <td style="${amtIn}">${closingBank>0?n2(closingBank):''}</td>
+    </tr>`
+  }
+
+  const fromDate = document.getElementById('cbFrom').value
+  const toDate   = document.getElementById('cbTo').value
+  const periodLabel = fromDate && toDate ? `${fromDate} to ${toDate}` : 'All Transactions'
+  const today = new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'})
+
+  const printHTML = `
+    <div style="text-align:center;margin-bottom:12px;font-family:'DM Sans',sans-serif;">
+      <div style="font-size:17px;font-weight:700;color:#000;">Abhinandan Auto Mobiles</div>
+      <div style="font-size:11px;color:#555;">Genuine Auto Parts — Santalpur, Gujarat</div>
+      <div style="font-size:13px;font-weight:600;margin-top:4px;color:#1e3a5f;">Cash Book — ${periodLabel}</div>
+      <div style="font-size:10px;color:#777;">Printed: ${today}</div>
+    </div>
+    <table style="width:100%;border-collapse:collapse;font-family:'DM Sans',sans-serif;font-size:10px;">
+      <thead>
+        <tr>
+          <th style="${thDr}" colspan="7" class="th-dr">Dr. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; RECEIPTS (Money IN)</th>
+          <th style="${tdDiv}"></th>
+          <th style="${thCr}" colspan="7" class="th-cr">PAYMENTS (Money OUT) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Cr.</th>
+        </tr>
+        <tr>
+          <th style="${thDr}">Date</th><th style="${thDr}">Particulars</th><th style="${thDr}">V.No.</th>
+          <th style="${thDr}">Disc.</th><th style="${thDr}">Cash Rs.</th><th style="${thDr}">UPI Rs.</th><th style="${thDr}">Bank Rs.</th>
+          <th style="${tdDiv}"></th>
+          <th style="${thCr}">Date</th><th style="${thCr}">Particulars</th><th style="${thCr}">V.No.</th>
+          <th style="${thCr}">Disc.</th><th style="${thCr}">Cash Rs.</th><th style="${thCr}">UPI Rs.</th><th style="${thCr}">Bank Rs.</th>
+        </tr>
+      </thead>
+      <tbody>${bodyRows}</tbody>
+      <tfoot>
+        <tr>
+          <td colspan="2" style="${tStyle}font-weight:700;background:#f0fdf4;color:#000;"><strong>TOTAL</strong></td>
+          <td style="${tStyle}background:#f0fdf4;"></td>
+          <td style="${tStyle}text-align:right;background:#f0fdf4;color:#b45309;font-weight:700;">${drDisc>0?n2(drDisc):''}</td>
+          <td style="${tStyle}text-align:right;background:#f0fdf4;color:#059669;font-weight:700;" class="td-in">${n2(drCash+closingCash)}</td>
+          <td style="${tStyle}text-align:right;background:#f0fdf4;color:#1d4ed8;font-weight:700;" class="td-upi">${n2(drUPI+closingUPI)}</td>
+          <td style="${tStyle}text-align:right;background:#f0fdf4;color:#059669;font-weight:700;" class="td-in">${n2(drBank+closingBank)}</td>
+          <td style="${tdDiv}"></td>
+          <td colspan="2" style="${tStyle}font-weight:700;background:#fef2f2;color:#000;"><strong>TOTAL</strong></td>
+          <td style="${tStyle}background:#fef2f2;"></td>
+          <td style="${tStyle}text-align:right;background:#fef2f2;color:#b45309;font-weight:700;">${crDisc>0?n2(crDisc):''}</td>
+          <td style="${tStyle}text-align:right;background:#fef2f2;color:#dc2626;font-weight:700;" class="td-out">${n2(crCash+closingCash)}</td>
+          <td style="${tStyle}text-align:right;background:#fef2f2;color:#1d4ed8;font-weight:700;" class="td-upi">${n2(crUPI+closingUPI)}</td>
+          <td style="${tStyle}text-align:right;background:#fef2f2;color:#dc2626;font-weight:700;" class="td-out">${n2(crBank+closingBank)}</td>
+        </tr>
+      </tfoot>
+    </table>
+  `
+
+  const title = 'Cash_Book_' + (fromDate||'All').replace(/-/g,'_') + (toDate?'_to_'+toDate.replace(/-/g,'_'):'')
+  triggerPrint(printHTML, title)
 }
 
 window.exportCashBookCSV = function() {
-  const rows = _cashBookData.filter(r => r._visible !== false)
-  if (!rows.length) { alert('No cash book data. Load Cash Book first.'); return }
-  const headers = ['Date','Description','Category','Via','IN (Rs)','OUT (Rs)','Balance (Rs)']
-  const csvRows = rows.map(r => [r.date, r.desc, r.category, r.mode, r.inAmt||0, r.outAmt||0, r.balance||0])
+  const dr = _cashBookFilteredRows.dr || _cashBookAllRows.dr || []
+  const cr = _cashBookFilteredRows.cr || _cashBookAllRows.cr || []
+  if (!dr.length && !cr.length) { alert('No cash book data. Load Cash Book tab first.'); return }
+
   const esc = v => `"${String(v==null?'':v).replace(/"/g,'""')}"`
   const lines = [
     '"Abhinandan Auto Mobiles — Cash Book"',
     `"Generated: ${new Date().toLocaleString('en-IN')}"`, '',
-    headers.map(esc).join(','),
-    ...csvRows.map(r=>r.map(esc).join(','))
+    '"DR SIDE (Receipts)","","","","","",""," ","CR SIDE (Payments)","","","","","",""',
+    '"Date","Particulars","V.No.","Disc Rs","Cash Rs","UPI Rs","Bank Rs"," ","Date","Particulars","V.No.","Disc Rs","Cash Rs","UPI Rs","Bank Rs"'
   ]
-  const blob = new Blob([lines.join('\n')],{type:'text/csv;charset=utf-8;'})
+  const maxRows = Math.max(dr.length, cr.length)
+  for (let i = 0; i < maxRows; i++) {
+    const d = i < dr.length ? dr[i] : null
+    const c = i < cr.length ? cr[i] : null
+    lines.push([
+      esc(d?d.date:''), esc(d?d.particulars:''), esc(d?d.vno:''),
+      esc(d?n2(d.disc):''), esc(d?n2(d.cash):''), esc(d?n2(d.upi):''), esc(d?n2(d.bank):''),
+      '" "',
+      esc(c?c.date:''), esc(c?c.particulars:''), esc(c?c.vno:''),
+      esc(c?n2(c.disc):''), esc(c?n2(c.cash):''), esc(c?n2(c.upi):''), esc(c?n2(c.bank):'')
+    ].join(','))
+  }
+  const blob = new Blob([lines.join('\n')], {type:'text/csv;charset=utf-8;'})
   const a = document.createElement('a')
   a.href = URL.createObjectURL(blob)
   a.download = 'AAM-CashBook.csv'
@@ -1298,10 +1498,6 @@ window.exportCashBookCSV = function() {
 
 // ═══════════════════════════════════════
 // ACCOUNT DETAIL MODAL
-// WHY: Clicking an account card opens a popup showing the full transaction
-// history for that account. This is like a mini-ledger per account.
-// For Capital: shows all owner investments, profits, drawings.
-// For Debtors: shows all credit customers with their outstanding amounts.
 // ═══════════════════════════════════════
 window.openAccountModal = async function(type) {
   const overlay = document.getElementById('accModalOverlay')
@@ -1309,196 +1505,99 @@ window.openAccountModal = async function(type) {
   const balanceEl = document.getElementById('accModalBalance')
   const subtitleEl = document.getElementById('accModalSubtitle')
   const contentEl = document.getElementById('accModalContent')
-
   overlay.classList.add('show')
   contentEl.innerHTML = '<div style="text-align:center;padding:30px;color:var(--text-dim);">Loading…</div>'
-
   const b = await computeBalances(null)
 
   if (type === 'cash') {
     titleEl.textContent = '💵 Cash in Hand — History'
-    balanceEl.textContent = fmtAmt(b.cashInHand)
-    balanceEl.style.color = '#34d399'
-    subtitleEl.textContent = 'All cash transactions from billing and journal entries'
-    const cashRows = _cashBookData.filter(r=>r.mode==='Cash'||r.category==='Opening')
-    if (!cashRows.length) {
-      contentEl.innerHTML = '<div class="empty-state">No cash transactions yet.</div>'
-      return
-    }
-    contentEl.innerHTML = `<table class="acc-modal-tbl">
-      <thead><tr><th>Date</th><th>Description</th><th>Category</th><th style="text-align:right;">IN</th><th style="text-align:right;">OUT</th></tr></thead>
-      <tbody>${cashRows.map(r=>`<tr>
-        <td style="white-space:nowrap;">${r.date}</td>
-        <td style="color:var(--text-main);">${r.desc}</td>
-        <td style="font-size:11px;color:var(--text-dim);">${r.category}</td>
-        <td style="text-align:right;" class="${r.inAmt>0?'cb-in':''}">${r.inAmt>0?fmtAmt(r.inAmt):''}</td>
-        <td style="text-align:right;" class="${r.outAmt>0?'cb-out':''}">${r.outAmt>0?fmtAmt(r.outAmt):''}</td>
-      </tr>`).join('')}</tbody>
-    </table>`
+    balanceEl.textContent = fmtAmt(b.cashInHand); balanceEl.style.color = '#34d399'
+    subtitleEl.textContent = 'All cash transactions'
+    const dr = (_cashBookAllRows.dr||[]).filter(r=>r.cash>0||r.upi>0||r.bank>0)
+    const cr = (_cashBookAllRows.cr||[]).filter(r=>r.cash>0||r.upi>0||r.bank>0)
+    if(!dr.length&&!cr.length){ contentEl.innerHTML='<div class="empty-state">No cash transactions yet. Load Cash Book tab first.</div>'; return }
+    contentEl.innerHTML = `<p style="font-size:12px;color:var(--text-dim);margin-bottom:12px;">Showing DR (receipts) side. Cash balance = ${fmtAmt(b.cashInHand)}</p>
+      <table class="acc-modal-tbl"><thead><tr><th>Date</th><th>Particulars</th><th style="text-align:right;">Cash In</th><th style="text-align:right;">UPI In</th></tr></thead>
+      <tbody>${dr.map(r=>`<tr><td>${r.date}</td><td style="color:var(--text-main);">${r.particulars}</td><td style="text-align:right;color:#34d399;">${r.cash>0?fmtAmt(r.cash):''}</td><td style="text-align:right;color:#60a5fa;">${r.upi>0?fmtAmt(r.upi):''}</td></tr>`).join('')}</tbody></table>`
 
   } else if (type === 'bank') {
     titleEl.textContent = '🏦 Bank / UPI — History'
-    balanceEl.textContent = fmtAmt(b.bankBalance)
-    balanceEl.style.color = '#60a5fa'
+    balanceEl.textContent = fmtAmt(b.bankBalance); balanceEl.style.color = '#60a5fa'
     subtitleEl.textContent = 'All bank/UPI transactions'
-    const bankRows = _cashBookData.filter(r=>r.mode==='Bank/UPI'||r.category==='Opening')
-    if (!bankRows.length) {
-      contentEl.innerHTML = '<div class="empty-state">No bank/UPI transactions yet.</div>'
-      return
-    }
-    contentEl.innerHTML = `<table class="acc-modal-tbl">
-      <thead><tr><th>Date</th><th>Description</th><th>Category</th><th style="text-align:right;">IN</th><th style="text-align:right;">OUT</th></tr></thead>
-      <tbody>${bankRows.map(r=>`<tr>
-        <td>${r.date}</td>
-        <td style="color:var(--text-main);">${r.desc}</td>
-        <td style="font-size:11px;">${r.category}</td>
-        <td style="text-align:right;" class="${r.inAmt>0?'cb-in':''}">${r.inAmt>0?fmtAmt(r.inAmt):''}</td>
-        <td style="text-align:right;" class="${r.outAmt>0?'cb-out':''}">${r.outAmt>0?fmtAmt(r.outAmt):''}</td>
-      </tr>`).join('')}</tbody>
-    </table>`
+    contentEl.innerHTML = `<div style="padding:14px;background:rgba(96,165,250,0.08);border:1px solid rgba(96,165,250,0.2);border-radius:10px;font-size:13px;color:var(--text-muted);">Bank Balance: <strong style="color:#60a5fa;">${fmtAmt(b.bankBalance)}</strong><br>Load Cash Book tab for full history.</div>`
 
   } else if (type === 'capital') {
     titleEl.textContent = '🏦 Capital Account — History'
     const totalCap = b.capitalEntries.reduce((s,e)=>s+Number(e.amount||0),0) + b.jCapitalIn
-    balanceEl.textContent = fmtAmt(totalCap)
-    balanceEl.style.color = '#60a5fa'
-    subtitleEl.textContent = 'Owner equity: opening capital + investments + net profit'
-
+    balanceEl.textContent = fmtAmt(totalCap); balanceEl.style.color = '#60a5fa'
+    subtitleEl.textContent = 'Owner equity: opening capital + investments'
     const jCapRows = b.journals.filter(j=>j.credit_account==='Capital')
     const bsCapRows = b.capitalEntries
-
-    let html = '<div style="margin-bottom:14px;">'
-    html += '<div style="font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--text-dim);margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border2);">Opening Balance Sheet Entries</div>'
+    let html = ''
     if (bsCapRows.length) {
-      html += `<table class="acc-modal-tbl"><thead><tr><th>Label</th><th style="text-align:right;">Amount</th><th>Note</th><th>Action</th></tr></thead><tbody>
-        ${bsCapRows.map(e=>`<tr>
-          <td style="color:var(--text-main);">${e.label}</td>
-          <td style="text-align:right;" class="cb-in">${fmtAmt(e.amount)}</td>
-          <td style="font-size:11px;color:var(--text-dim);">${e.note||e.notes||'—'}</td>
-          <td><button onclick="deleteCapitalEntry('bs','${e.id}')" style="background:rgba(220,38,38,0.1);border:1px solid rgba(220,38,38,0.2);color:#f87171;padding:2px 8px;border-radius:6px;font-size:11px;cursor:pointer;">✕</button></td>
-        </tr>`).join('')}
-      </tbody></table>`
-    } else {
-      html += '<div style="color:var(--text-dim);font-size:13px;padding:8px 0;">No opening capital entries.</div>'
+      html += `<div style="font-size:11px;font-weight:600;color:var(--text-dim);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;">Opening Balance Sheet Entries</div>
+        <table class="acc-modal-tbl"><thead><tr><th>Label</th><th style="text-align:right;">Amount</th><th>Note</th><th>Del</th></tr></thead>
+        <tbody>${bsCapRows.map(e=>`<tr><td style="color:var(--text-main);">${e.label}</td><td style="text-align:right;color:#34d399;">${fmtAmt(e.amount)}</td><td style="font-size:11px;color:var(--text-dim);">${e.note||e.notes||'—'}</td><td><button onclick="deleteCapitalEntry('bs','${e.id}')" style="background:rgba(220,38,38,0.1);border:1px solid rgba(220,38,38,0.2);color:#f87171;padding:2px 8px;border-radius:6px;font-size:11px;cursor:pointer;">✕</button></td></tr>`).join('')}</tbody></table>`
     }
-    html += '</div>'
-
     if (jCapRows.length) {
-      html += '<div style="margin-bottom:14px;">'
-      html += '<div style="font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--text-dim);margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border2);">Journal Investments (Owner Brought Capital)</div>'
-      html += `<table class="acc-modal-tbl"><thead><tr><th>Date</th><th>Narration</th><th style="text-align:right;">Amount</th><th>Action</th></tr></thead><tbody>
-        ${jCapRows.map(j=>`<tr>
-          <td style="white-space:nowrap;">${fmtDate(j.entry_date)}</td>
-          <td style="color:var(--text-main);">${j.narration}</td>
-          <td style="text-align:right;" class="cb-in">${fmtAmt(j.amount)}</td>
-          <td><button onclick="deleteCapitalEntry('journal','${j.id}')" style="background:rgba(220,38,38,0.1);border:1px solid rgba(220,38,38,0.2);color:#f87171;padding:2px 8px;border-radius:6px;font-size:11px;cursor:pointer;">✕</button></td>
-        </tr>`).join('')}
-      </tbody></table></div>`
+      html += `<div style="font-size:11px;font-weight:600;color:var(--text-dim);margin:16px 0 8px;text-transform:uppercase;letter-spacing:1px;">Journal Investments</div>
+        <table class="acc-modal-tbl"><thead><tr><th>Date</th><th>Narration</th><th style="text-align:right;">Amount</th><th>Del</th></tr></thead>
+        <tbody>${jCapRows.map(j=>`<tr><td>${fmtDate(j.entry_date)}</td><td style="color:var(--text-main);">${j.narration}</td><td style="text-align:right;color:#34d399;">${fmtAmt(j.amount)}</td><td><button onclick="deleteCapitalEntry('journal','${j.id}')" style="background:rgba(220,38,38,0.1);border:1px solid rgba(220,38,38,0.2);color:#f87171;padding:2px 8px;border-radius:6px;font-size:11px;cursor:pointer;">✕</button></td></tr>`).join('')}</tbody></table>`
     }
-
+    if (!html) html = '<div class="empty-state">No capital entries yet.</div>'
     contentEl.innerHTML = html
 
   } else if (type === 'debtors') {
     titleEl.textContent = '📤 Sundry Debtors — Outstanding'
-    balanceEl.textContent = fmtAmt(b.debtors)
-    balanceEl.style.color = '#fbbf24'
-    subtitleEl.textContent = 'Customers who owe you money (credit sales not yet paid)'
-
-    // Per-customer breakdown
+    balanceEl.textContent = fmtAmt(b.debtors); balanceEl.style.color = '#fbbf24'
+    subtitleEl.textContent = 'Customers who owe you money'
     const { data: creditSales } = await _supabase.from('sales').select('customer_id,total_amount,bill_number,created_at,credit').eq('bill_type','sale').gt('credit',0)
     const { data: custPays } = await _supabase.from('payments').select('customer_id,amount,receipt_no,created_at,mode')
     const allCustIds = [...new Set([...(creditSales||[]).map(r=>r.customer_id),...(custPays||[]).map(r=>r.customer_id)])]
     const custM = await getCustomerNames(allCustIds)
     const custNetMap = {}
-    ;(creditSales||[]).forEach(r=>{ const id=r.customer_id||'_w_'; if(!custNetMap[id])custNetMap[id]={name:custM[id]?.name||'Walk-in',bills:[],payments:[],net:0}; custNetMap[id].bills.push(r); custNetMap[id].net+=Number(r.credit||0) })
-    ;(custPays||[]).forEach(r=>{ const id=r.customer_id||'_w_'; if(!custNetMap[id])custNetMap[id]={name:custM[id]?.name||'Walk-in',bills:[],payments:[],net:0}; custNetMap[id].payments.push(r); custNetMap[id].net-=Number(r.amount||0) })
-    const debtors = Object.values(custNetMap).filter(c=>c.net>0).sort((a,b)=>b.net-a.net)
-    if (!debtors.length) {
-      contentEl.innerHTML = '<div class="empty-state">No outstanding debtors.</div>'
-      return
-    }
-    contentEl.innerHTML = `<table class="acc-modal-tbl">
-      <thead><tr><th>Customer</th><th style="text-align:right;">Credit Given</th><th style="text-align:right;">Paid</th><th style="text-align:right;">Outstanding</th></tr></thead>
-      <tbody>${debtors.map(c=>{
-        const given=c.bills.reduce((s,r)=>s+Number(r.credit||0),0)
-        const paid=c.payments.reduce((s,r)=>s+Number(r.amount||0),0)
-        return `<tr>
-          <td style="color:var(--text-main);font-weight:600;">${c.name}</td>
-          <td style="text-align:right;color:var(--text-muted);">${fmtAmt(given)}</td>
-          <td style="text-align:right;" class="cb-in">${fmtAmt(paid)}</td>
-          <td style="text-align:right;" class="amber">${fmtAmt(c.net)}</td>
-        </tr>`
-      }).join('')}</tbody>
-    </table>`
+    ;(creditSales||[]).forEach(r=>{ const id=r.customer_id||'_w_'; if(!custNetMap[id])custNetMap[id]={name:custM[id]?.name||'Walk-in',net:0}; custNetMap[id].net+=Number(r.credit||0) })
+    ;(custPays||[]).forEach(r=>{ const id=r.customer_id||'_w_'; if(!custNetMap[id])custNetMap[id]={name:custM[id]?.name||'Walk-in',net:0}; custNetMap[id].net-=Number(r.amount||0) })
+    const debtors = Object.entries(custNetMap).filter(([,c])=>c.net>0.01).sort((a,b)=>b[1].net-a[1].net)
+    if (!debtors.length) { contentEl.innerHTML = '<div class="empty-state">No outstanding debtors.</div>'; return }
+    contentEl.innerHTML = `<table class="acc-modal-tbl"><thead><tr><th>Customer</th><th style="text-align:right;">Outstanding</th></tr></thead>
+      <tbody>${debtors.map(([,c])=>`<tr><td style="color:var(--text-main);font-weight:600;">${c.name}</td><td style="text-align:right;color:#fbbf24;font-weight:600;">${fmtAmt(c.net)}</td></tr>`).join('')}</tbody></table>`
 
   } else if (type === 'creditors') {
     titleEl.textContent = '📥 Sundry Creditors — Outstanding'
-    balanceEl.textContent = fmtAmt(b.creditors)
-    balanceEl.style.color = '#f87171'
-    subtitleEl.textContent = 'Merchants you owe money to (credit purchases not yet paid)'
-    contentEl.innerHTML = `<div style="padding:16px;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.2);border-radius:10px;font-size:13px;color:var(--text-muted);">
-      Total outstanding to merchants: <strong style="color:#f87171;">${fmtAmt(b.creditors)}</strong><br>
-      <br>Go to <strong>Merchant Ledger</strong> for per-merchant breakdown.
-    </div>`
+    balanceEl.textContent = fmtAmt(b.creditors); balanceEl.style.color = '#f87171'
+    subtitleEl.textContent = 'Merchants you owe money to'
+    contentEl.innerHTML = `<div style="padding:14px;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.2);border-radius:10px;font-size:13px;color:var(--text-muted);">Total outstanding to merchants: <strong style="color:#f87171;">${fmtAmt(b.creditors)}</strong><br><br>Go to <strong>Merchant Ledger</strong> for per-merchant breakdown.</div>`
 
   } else if (type === 'assets') {
     titleEl.textContent = '🏗️ Fixed Assets — List'
     const totalAssets = b.manualAssets.reduce((s,e)=>s+Number(e.amount||0),0)
-    balanceEl.textContent = fmtAmt(totalAssets)
-    balanceEl.style.color = '#a78bfa'
-    subtitleEl.textContent = 'All fixed assets recorded in Balance Sheet entries'
-    if (!b.manualAssets.length) {
-      contentEl.innerHTML = '<div class="empty-state">No fixed assets recorded yet.</div>'
-      return
-    }
-    contentEl.innerHTML = `<table class="acc-modal-tbl">
-      <thead><tr><th>Asset</th><th style="text-align:right;">Value</th><th>Note</th><th>Action</th></tr></thead>
-      <tbody>${b.manualAssets.map(e=>`<tr>
-        <td style="color:var(--text-main);">${e.label}</td>
-        <td style="text-align:right;" class="purple">${fmtAmt(e.amount)}</td>
-        <td style="font-size:11px;color:var(--text-dim);">${e.note||e.notes||'—'}</td>
-        <td><button onclick="deleteCapitalEntry('bs','${e.id}')" style="background:rgba(220,38,38,0.1);border:1px solid rgba(220,38,38,0.2);color:#f87171;padding:2px 8px;border-radius:6px;font-size:11px;cursor:pointer;">✕</button></td>
-      </tr>`).join('')}</tbody>
-    </table>`
+    balanceEl.textContent = fmtAmt(totalAssets); balanceEl.style.color = '#a78bfa'
+    subtitleEl.textContent = 'All fixed assets recorded'
+    if (!b.manualAssets.length) { contentEl.innerHTML = '<div class="empty-state">No fixed assets recorded yet.</div>'; return }
+    contentEl.innerHTML = `<table class="acc-modal-tbl"><thead><tr><th>Asset</th><th style="text-align:right;">Value</th><th>Note</th><th>Del</th></tr></thead>
+      <tbody>${b.manualAssets.map(e=>`<tr><td style="color:var(--text-main);">${e.label}</td><td style="text-align:right;color:#a78bfa;">${fmtAmt(e.amount)}</td><td style="font-size:11px;color:var(--text-dim);">${e.note||e.notes||'—'}</td><td><button onclick="deleteCapitalEntry('bs','${e.id}')" style="background:rgba(220,38,38,0.1);border:1px solid rgba(220,38,38,0.2);color:#f87171;padding:2px 8px;border-radius:6px;font-size:11px;cursor:pointer;">✕</button></td></tr>`).join('')}</tbody></table>`
 
   } else if (type === 'loans') {
     titleEl.textContent = '🔴 Loans & Liabilities — List'
     const totalLoans = b.manualLiabilities.reduce((s,e)=>s+Number(e.amount||0),0)
-    balanceEl.textContent = fmtAmt(totalLoans)
-    balanceEl.style.color = '#fb923c'
+    balanceEl.textContent = fmtAmt(totalLoans); balanceEl.style.color = '#fb923c'
     subtitleEl.textContent = 'All loans and liabilities recorded'
-    if (!b.manualLiabilities.length) {
-      contentEl.innerHTML = '<div class="empty-state">No loans recorded yet.</div>'
-      return
-    }
-    contentEl.innerHTML = `<table class="acc-modal-tbl">
-      <thead><tr><th>Liability</th><th style="text-align:right;">Amount</th><th>Note</th><th>Action</th></tr></thead>
-      <tbody>${b.manualLiabilities.map(e=>`<tr>
-        <td style="color:var(--text-main);">${e.label}</td>
-        <td style="text-align:right;" class="red">${fmtAmt(e.amount)}</td>
-        <td style="font-size:11px;color:var(--text-dim);">${e.note||e.notes||'—'}</td>
-        <td><button onclick="deleteCapitalEntry('bs','${e.id}')" style="background:rgba(220,38,38,0.1);border:1px solid rgba(220,38,38,0.2);color:#f87171;padding:2px 8px;border-radius:6px;font-size:11px;cursor:pointer;">✕</button></td>
-      </tr>`).join('')}</tbody>
-    </table>`
+    if (!b.manualLiabilities.length) { contentEl.innerHTML = '<div class="empty-state">No loans recorded yet.</div>'; return }
+    contentEl.innerHTML = `<table class="acc-modal-tbl"><thead><tr><th>Liability</th><th style="text-align:right;">Amount</th><th>Note</th><th>Del</th></tr></thead>
+      <tbody>${b.manualLiabilities.map(e=>`<tr><td style="color:var(--text-main);">${e.label}</td><td style="text-align:right;color:#f87171;">${fmtAmt(e.amount)}</td><td style="font-size:11px;color:var(--text-dim);">${e.note||e.notes||'—'}</td><td><button onclick="deleteCapitalEntry('bs','${e.id}')" style="background:rgba(220,38,38,0.1);border:1px solid rgba(220,38,38,0.2);color:#f87171;padding:2px 8px;border-radius:6px;font-size:11px;cursor:pointer;">✕</button></td></tr>`).join('')}</tbody></table>`
   }
 }
 
 window.deleteCapitalEntry = async function(source, id) {
   if (!confirm('Delete this entry?')) return
-  if (source === 'journal') {
-    await _supabase.from('journal_entries').delete().eq('id', id)
-  } else {
-    await _supabase.from('balance_sheet_entries').update({is_active:false}).eq('id', id)
-  }
-  closeAccountModal(true)
-  loadAccounts()
-  loadBalanceSheet()
+  if (source === 'journal') await _supabase.from('journal_entries').delete().eq('id', id)
+  else await _supabase.from('balance_sheet_entries').update({is_active:false}).eq('id', id)
+  closeAccountModal(true); loadAccounts(); loadBalanceSheet()
 }
-
 window.closeAccountModal = function(force) {
-  if (force === true || (force && force.target === document.getElementById('accModalOverlay'))) {
+  if (force === true || (force && force.target === document.getElementById('accModalOverlay')))
     document.getElementById('accModalOverlay').classList.remove('show')
-  }
 }
 
 // ═══════════════════════════════════════
@@ -1515,10 +1614,7 @@ async function loadSales(range) {
   const totalSales=sales.reduce((s,r)=>s+Number(r.total_amount),0)
   const totalReturns=returns.reduce((s,r)=>s+Number(r.total_amount),0)
   const netSales=totalSales-totalReturns
-  const tCash=sales.reduce((s,r)=>s+Number(r.cash||0),0)
-  const tUpi=sales.reduce((s,r)=>s+Number(r.upi||0),0)
-  const tCredit=sales.reduce((s,r)=>s+Number(r.credit||0),0)
-  const tDisc=sales.reduce((s,r)=>s+Number(r.discount||0),0)
+  const tCash=sales.reduce((s,r)=>s+Number(r.cash||0),0), tUpi=sales.reduce((s,r)=>s+Number(r.upi||0),0), tCredit=sales.reduce((s,r)=>s+Number(r.credit||0),0), tDisc=sales.reduce((s,r)=>s+Number(r.discount||0),0)
   const avgBill=sales.length?totalSales/sales.length:0
   document.getElementById('salesKpis').innerHTML=
     kpiCard('💰','Net Sales',fmtAmt(netSales),`${sales.length} bills`,'linear-gradient(90deg,#2563eb,#06b6d4)')+
@@ -1529,25 +1625,13 @@ async function loadSales(range) {
   sales.forEach(s=>{const mo=s.created_at.slice(0,7);mMap[mo]=(mMap[mo]||0)+Number(s.total_amount)})
   const months=Object.keys(mMap).sort()
   const chartEl=document.getElementById('salesChart'); chartEl.innerHTML=''
-  if(months.length){
-    const maxV=Math.max(...Object.values(mMap),1)
-    months.forEach(mo=>{
-      const val=mMap[mo]
-      const barH=Math.max(Math.round((val/maxV)*90),val>0?5:0)
-      const lbl=new Date(mo+'-15').toLocaleDateString('en-IN',{month:'short',year:'2-digit'})
-      chartEl.innerHTML+=`<div class="bc-item"><div class="bc-val">${shortAmt(val)}</div><div class="bc-bar" style="height:${barH}px;background:linear-gradient(180deg,#2563eb,rgba(37,99,235,0.4));"></div><div class="bc-label">${lbl}</div></div>`
-    })
-  }else{chartEl.innerHTML='<div class="empty-state">No data for this period</div>'}
+  if(months.length){const maxV=Math.max(...Object.values(mMap),1);months.forEach(mo=>{const val=mMap[mo],barH=Math.max(Math.round((val/maxV)*90),val>0?5:0),lbl=new Date(mo+'-15').toLocaleDateString('en-IN',{month:'short',year:'2-digit'});chartEl.innerHTML+=`<div class="bc-item"><div class="bc-val">${shortAmt(val)}</div><div class="bc-bar" style="height:${barH}px;background:linear-gradient(180deg,#2563eb,rgba(37,99,235,0.4));"></div><div class="bc-label">${lbl}</div></div>`})}else{chartEl.innerHTML='<div class="empty-state">No data for this period</div>'}
   const sp=tCash+tUpi+tCredit||1
   document.getElementById('salesPaySplit').innerHTML=payBlock('💵','Cash','pill-cash',tCash,sp)+payBlock('📱','UPI','pill-upi',tUpi,sp)+payBlock('🔴','Credit','pill-credit',tCredit,sp)
-  const rows=sales.map(s=>{
-    const cust=custMap[s.customer_id]
-    const name=cust?cust.name:(s.customer_id?`ID:${s.customer_id}`:'Walk-in')
-    return `<tr><td style="font-family:monospace;font-size:12px;color:var(--text-dim);">${s.bill_number}</td><td>${fmtDate(s.created_at)}</td><td>${name}</td><td class="tr green">${fmtAmt(s.total_amount)}</td><td class="tr">${fmtAmt(s.cash)}</td><td class="tr blue">${fmtAmt(s.upi)}</td><td class="tr red">${fmtAmt(s.credit)}</td><td class="tr amber">${fmtAmt(s.discount)}</td></tr>`
-  }).join('')
+  const rows=sales.map(s=>{const cust=custMap[s.customer_id],name=cust?cust.name:(s.customer_id?`ID:${s.customer_id}`:'Walk-in');return`<tr><td style="font-family:monospace;font-size:12px;color:var(--text-dim);">${s.bill_number}</td><td>${fmtDate(s.created_at)}</td><td>${name}</td><td class="tr green">${fmtAmt(s.total_amount)}</td><td class="tr">${fmtAmt(s.cash)}</td><td class="tr blue">${fmtAmt(s.upi)}</td><td class="tr red">${fmtAmt(s.credit)}</td><td class="tr amber">${fmtAmt(s.discount)}</td></tr>`}).join('')
   document.getElementById('salesBody').innerHTML=rows||`<tr><td colspan="8"><div class="empty-state">No sales in this period</div></td></tr>`
   document.getElementById('salesFoot').innerHTML=sales.length?`<tr><td colspan="3"><strong>TOTAL (${sales.length} bills)</strong></td><td class="tr"><strong>${fmtAmt(totalSales)}</strong></td><td class="tr"><strong>${fmtAmt(tCash)}</strong></td><td class="tr"><strong>${fmtAmt(tUpi)}</strong></td><td class="tr"><strong>${fmtAmt(tCredit)}</strong></td><td class="tr"><strong>${fmtAmt(tDisc)}</strong></td></tr>`:''
-  exportStore.sales={headers:['Bill No','Date','Customer','Amount','Cash','UPI','Credit','Discount'],rows:sales.map(s=>{const n=custMap[s.customer_id]?.name||'Walk-in';return[s.bill_number,fmtDate(s.created_at),n,s.total_amount,s.cash||0,s.upi||0,s.credit||0,s.discount||0]})}
+  exportStore.sales={headers:['Bill No','Date','Customer','Amount','Cash','UPI','Credit','Discount'],rows:sales.map(s=>[s.bill_number,fmtDate(s.created_at),custMap[s.customer_id]?.name||'Walk-in',s.total_amount,s.cash||0,s.upi||0,s.credit||0,s.discount||0])}
   cache[k]=true
 }
 
@@ -1591,8 +1675,8 @@ async function loadPnL(range) {
   let gS=0,gP=0
   const rows=months.map(mo=>{const s=mS[mo]||0,p=mP[mo]||0,profit=s-p;gS+=s;gP+=p;const margin=s>0?((profit/s)*100).toFixed(1):'0.0',col=profit>=0?'green':'red',lbl=new Date(mo+'-15').toLocaleDateString('en-IN',{month:'long',year:'numeric'});return`<tr><td>${lbl}</td><td class="tr green">${fmtAmt(s)}</td><td class="tr amber">${fmtAmt(p)}</td><td class="tr ${col}"><strong>${fmtAmt(profit)}</strong></td><td class="tr ${col}">${margin}%</td></tr>`}).join('')
   const gProfit=gS-gP,gMargin=gS>0?((gProfit/gS)*100).toFixed(1):'0.0',profCol=gProfit>=0?'#34d399':'#f87171',pct=gS>0?Math.min((gProfit/gS)*100,100):0,barGrad=gProfit>=0?'linear-gradient(90deg,#059669,#34d399)':'linear-gradient(90deg,#dc2626,#f87171)'
-  document.getElementById('pnlMeter').innerHTML=`<div class="pm-card"><div class="pm-label">Total Revenue</div><div class="pm-value" style="color:#34d399;">${fmtAmt(gS)}</div><div style="font-size:11px;color:var(--text-dim);margin-top:6px;font-family:'DM Sans',sans-serif;">Net of returns</div></div><div class="pm-card"><div class="pm-label">Total Cost</div><div class="pm-value" style="color:#f87171;">${fmtAmt(gP)}</div><div style="font-size:11px;color:var(--text-dim);margin-top:6px;font-family:'DM Sans',sans-serif;">Net of returns</div></div><div class="pm-card"><div class="pm-label">Gross Profit</div><div class="pm-value" style="color:${profCol};">${fmtAmt(gProfit)}</div><div class="profit-bar-wrap"><div class="profit-bar-fill" style="width:${Math.max(pct,0)}%;background:${barGrad};"></div></div><div class="profit-split"><span>${gMargin}% margin</span><span>on ${fmtAmt(gS)}</span></div></div>`
-  document.getElementById('pnlBody').innerHTML=rows||`<tr><td colspan="5"><div class="empty-state">No data for this period</div></td></tr>`
+  document.getElementById('pnlMeter').innerHTML=`<div class="pm-card"><div class="pm-label">Total Revenue</div><div class="pm-value" style="color:#34d399;">${fmtAmt(gS)}</div></div><div class="pm-card"><div class="pm-label">Total Cost</div><div class="pm-value" style="color:#f87171;">${fmtAmt(gP)}</div></div><div class="pm-card"><div class="pm-label">Gross Profit</div><div class="pm-value" style="color:${profCol};">${fmtAmt(gProfit)}</div><div class="profit-bar-wrap"><div class="profit-bar-fill" style="width:${Math.max(pct,0)}%;background:${barGrad};"></div></div><div class="profit-split"><span>${gMargin}% margin</span><span>on ${fmtAmt(gS)}</span></div></div>`
+  document.getElementById('pnlBody').innerHTML=rows||`<tr><td colspan="5"><div class="empty-state">No data</div></td></tr>`
   document.getElementById('pnlFoot').innerHTML=months.length?`<tr><td><strong>TOTAL</strong></td><td class="tr"><strong>${fmtAmt(gS)}</strong></td><td class="tr"><strong>${fmtAmt(gP)}</strong></td><td class="tr ${gProfit>=0?'green':'red'}"><strong>${fmtAmt(gProfit)}</strong></td><td class="tr ${gProfit>=0?'green':'red'}"><strong>${gMargin}%</strong></td></tr>`:''
   exportStore.pnl={headers:['Month','Net Sales','Net Purchases','Gross Profit','Margin%'],rows:months.map(mo=>{const s=mS[mo]||0,p=mP[mo]||0;return[new Date(mo+'-15').toLocaleDateString('en-IN',{month:'long',year:'numeric'}),s,p,s-p,s>0?(((s-p)/s)*100).toFixed(1)+'%':'0%']})}
   cache[k]=true
@@ -1634,11 +1718,7 @@ async function loadProducts(range) {
   const k=cacheKey('products')
   const{data:salesInRange}=await _supabase.from('sales').select('id').eq('bill_type','sale').gte('created_at',range.from+'T00:00:00').lte('created_at',range.to+'T23:59:59')
   const saleIds=(salesInRange||[]).map(s=>s.id)
-  if(!saleIds.length){
-    document.getElementById('prodKpis').innerHTML=kpiCard('📦','Unique Products','0','no sales','linear-gradient(90deg,#7c3aed,#a855f7)')+kpiCard('🔢','Units Sold','0','pieces','linear-gradient(90deg,#2563eb,#06b6d4)')+kpiCard('🏆','Top Product','—','no data','linear-gradient(90deg,#d97706,#f59e0b)')
-    document.getElementById('prodBody').innerHTML=`<tr><td colspan="5"><div class="empty-state">No product sales in this period</div></td></tr>`
-    cache[k]=true;return
-  }
+  if(!saleIds.length){document.getElementById('prodKpis').innerHTML=kpiCard('📦','Unique Products','0','no sales','linear-gradient(90deg,#7c3aed,#a855f7)')+kpiCard('🔢','Units Sold','0','pieces','linear-gradient(90deg,#2563eb,#06b6d4)')+kpiCard('🏆','Top Product','—','no data','linear-gradient(90deg,#d97706,#f59e0b)');document.getElementById('prodBody').innerHTML=`<tr><td colspan="5"><div class="empty-state">No product sales in this period</div></td></tr>`;cache[k]=true;return}
   const{data:items}=await _supabase.from('bill_items').select('item_id,item_name,quantity,total').in('sale_id',saleIds)
   const prodMap={}
   ;(items||[]).forEach(row=>{const id=row.item_id||row.item_name;if(!prodMap[id])prodMap[id]={name:row.item_name||'Unknown',qty:0,revenue:0};prodMap[id].qty+=Number(row.quantity);prodMap[id].revenue+=Number(row.total)})
@@ -1674,11 +1754,11 @@ async function loadCustomers(range) {
 // P&L ACCOUNT
 // ═══════════════════════════════════════
 window.loadPnLAccount = async function() {
-  const fy = document.getElementById('pnlFySelect').value
-  const fyYear = parseInt(fy.split('-')[0])
-  const fyFrom = `${fyYear}-04-01`, fyTo = `${fyYear+1}-03-31`
-  const wrapper = document.getElementById('pnlAccountWrapper')
-  wrapper.innerHTML = '<div style="color:var(--text-dim);font-family:\'DM Sans\',sans-serif;font-size:14px;padding:40px;text-align:center;">Calculating P&L…</div>'
+  const fy=document.getElementById('pnlFySelect').value
+  const fyYear=parseInt(fy.split('-')[0])
+  const fyFrom=`${fyYear}-04-01`, fyTo=`${fyYear+1}-03-31`
+  const wrapper=document.getElementById('pnlAccountWrapper')
+  wrapper.innerHTML='<div style="color:var(--text-dim);font-family:\'DM Sans\',sans-serif;font-size:14px;padding:40px;text-align:center;">Calculating P&L…</div>'
   const[sRes,pRes,srRes,prRes,jTxnRes]=await Promise.all([
     _supabase.from('sales').select('total_amount,discount').eq('bill_type','sale').gte('created_at',fyFrom+'T00:00:00').lte('created_at',fyTo+'T23:59:59'),
     _supabase.from('purchases').select('total_amount,discount').eq('bill_type','purchase').gte('created_at',fyFrom+'T00:00:00').lte('created_at',fyTo+'T23:59:59'),
@@ -1686,45 +1766,22 @@ window.loadPnLAccount = async function() {
     _supabase.from('purchases').select('total_amount').eq('bill_type','return').gte('created_at',fyFrom+'T00:00:00').lte('created_at',fyTo+'T23:59:59'),
     _supabase.from('journal_entries').select('*').in('transaction_type',['expense','income']).gte('entry_date',fyFrom).lte('entry_date',fyTo)
   ])
-  const salesRows=sRes.data||[], purchRows=pRes.data||[], salesRets=srRes.data||[], purchRets=prRes.data||[]
-  const journalTxns = jTxnRes.data || []
-
-  const grossSales=salesRows.reduce((s,r)=>s+Number(r.total_amount),0)
-  const salesDiscount=salesRows.reduce((s,r)=>s+Number(r.discount||0),0)
-  const salesRetTotal=salesRets.reduce((s,r)=>s+Number(r.total_amount),0)
-  const netSales=grossSales-salesDiscount-salesRetTotal
-  const grossPurchases=purchRows.reduce((s,r)=>s+Number(r.total_amount),0)
-  const purchDiscount=purchRows.reduce((s,r)=>s+Number(r.discount||0),0)
-  const purchRetTotal=purchRets.reduce((s,r)=>s+Number(r.total_amount),0)
-  const netPurchases=grossPurchases-purchDiscount-purchRetTotal
+  const salesRows=sRes.data||[],purchRows=pRes.data||[],salesRets=srRes.data||[],purchRets=prRes.data||[],journalTxns=jTxnRes.data||[]
+  const grossSales=salesRows.reduce((s,r)=>s+Number(r.total_amount),0),salesDiscount=salesRows.reduce((s,r)=>s+Number(r.discount||0),0),salesRetTotal=salesRets.reduce((s,r)=>s+Number(r.total_amount),0),netSales=grossSales-salesDiscount-salesRetTotal
+  const grossPurchases=purchRows.reduce((s,r)=>s+Number(r.total_amount),0),purchDiscount=purchRows.reduce((s,r)=>s+Number(r.discount||0),0),purchRetTotal=purchRets.reduce((s,r)=>s+Number(r.total_amount),0),netPurchases=grossPurchases-purchDiscount-purchRetTotal
   const grossProfit=netSales-netPurchases
-
-  // Get expenses and incomes from journal_entries (transaction_type = 'expense' or 'income')
-  const expenseJournals = journalTxns.filter(j=>j.transaction_type==='expense')
-  const incomeJournals  = journalTxns.filter(j=>j.transaction_type==='income')
-
-  // Also check pnl_entries table (manual entries)
-  const { data: pnlEntries } = await _supabase.from('pnl_entries').select('*').eq('financial_year',fy).eq('is_active',true).order('entry_type').order('category')
-  const pnlExpenses   = (pnlEntries||[]).filter(e=>e.entry_type==='expense')
-  const pnlOtherIncome= (pnlEntries||[]).filter(e=>e.entry_type==='income')
-
-  // Combined
-  const allExpenses = [
-    ...expenseJournals.map(j=>({label: j.debit_account.replace('Expense: ',''), amount: Number(j.amount||0), note: j.narration})),
-    ...pnlExpenses.map(e=>({label:e.label, amount:Number(e.amount||0), note:e.note||''}))
+  const {data:pnlEntries}=await _supabase.from('pnl_entries').select('*').eq('financial_year',fy).eq('is_active',true).order('entry_type').order('category')
+  const allExpenses=[
+    ...journalTxns.filter(j=>j.transaction_type==='expense').map(j=>({label:j.debit_account.replace('Expense: ',''),amount:Number(j.amount||0),note:j.narration})),
+    ...(pnlEntries||[]).filter(e=>e.entry_type==='expense').map(e=>({label:e.label,amount:Number(e.amount||0),note:e.note||''}))
   ]
-  const allOtherIncome = [
-    ...incomeJournals.map(j=>({label: j.credit_account.replace('Income: ',''), amount: Number(j.amount||0), note: j.narration})),
-    ...pnlOtherIncome.map(e=>({label:e.label, amount:Number(e.amount||0), note:e.note||''}))
+  const allOtherIncome=[
+    ...journalTxns.filter(j=>j.transaction_type==='income').map(j=>({label:j.credit_account.replace('Income: ',''),amount:Number(j.amount||0),note:j.narration})),
+    ...(pnlEntries||[]).filter(e=>e.entry_type==='income').map(e=>({label:e.label,amount:Number(e.amount||0),note:e.note||''}))
   ]
-
-  const totalExpenses=allExpenses.reduce((s,e)=>s+Number(e.amount||0),0)
-  const totalOtherIncome=allOtherIncome.reduce((s,e)=>s+Number(e.amount||0),0)
-  const netProfit=grossProfit-totalExpenses+totalOtherIncome
-  const isLoss=netProfit<0
+  const totalExpenses=allExpenses.reduce((s,e)=>s+e.amount,0),totalOtherIncome=allOtherIncome.reduce((s,e)=>s+e.amount,0),netProfit=grossProfit-totalExpenses+totalOtherIncome,isLoss=netProfit<0
   _pnlData={fy,fyYear,grossSales,salesDiscount,salesRetTotal,netSales,grossPurchases,purchDiscount,purchRetTotal,netPurchases,grossProfit,expenses:allExpenses,otherIncome:allOtherIncome,totalExpenses,totalOtherIncome,netProfit,isLoss}
   const fyLabel=`For the Financial Year ${fy} (1st April ${fyYear} to 31st March ${fyYear+1})`
-
   wrapper.innerHTML=`
     <div class="pnl-heading"><h2>Profit and Loss Account</h2><p>${fyLabel}</p></div>
     <div style="overflow-x:auto;">
@@ -1745,18 +1802,9 @@ window.loadPnLAccount = async function() {
         </tr>
         ${purchRetTotal>0?`<tr><td class="pnl-indent">Less: Purchase Returns</td><td class="pnl-amount red">(${fmtAmt(purchRetTotal)})</td><td class="pnl-indent">Less: Sales Returns</td><td class="pnl-amount red">${salesRetTotal>0?'('+fmtAmt(salesRetTotal)+')':'—'}</td></tr>`:''}
         ${purchDiscount>0?`<tr><td class="pnl-indent">Less: Discount from Merchants</td><td class="pnl-amount red">(${fmtAmt(purchDiscount)})</td><td class="pnl-indent">Less: Discount to Customers</td><td class="pnl-amount red">${salesDiscount>0?'('+fmtAmt(salesDiscount)+')':'—'}</td></tr>`:''}
-        <tr>
-          <td class="pnl-indent"><strong>Net Purchases (COGS)</strong></td><td class="pnl-amount"><strong>${fmtAmt(netPurchases)}</strong></td>
-          <td class="pnl-indent"><strong>Net Sales</strong></td><td class="pnl-amount"><strong>${fmtAmt(netSales)}</strong></td>
-        </tr>
-        <tr class="pnl-total-row">
-          <td><strong>To Gross Profit c/d</strong></td><td class="pnl-amount"><strong>${fmtAmt(grossProfit>=0?grossProfit:0)}</strong></td>
-          <td><strong>${grossProfit<0?'By Gross Loss c/d':'By Gross Profit b/d'}</strong></td><td class="pnl-amount"><strong>${fmtAmt(Math.abs(grossProfit))}</strong></td>
-        </tr>
-        <tr class="pnl-grand-total">
-          <td><strong>Total</strong></td><td class="pnl-amount"><strong>${fmtAmt(netSales)}</strong></td>
-          <td><strong>Total</strong></td><td class="pnl-amount"><strong>${fmtAmt(netSales)}</strong></td>
-        </tr>
+        <tr><td class="pnl-indent"><strong>Net Purchases (COGS)</strong></td><td class="pnl-amount"><strong>${fmtAmt(netPurchases)}</strong></td><td class="pnl-indent"><strong>Net Sales</strong></td><td class="pnl-amount"><strong>${fmtAmt(netSales)}</strong></td></tr>
+        <tr class="pnl-total-row"><td><strong>To Gross Profit c/d</strong></td><td class="pnl-amount"><strong>${fmtAmt(grossProfit>=0?grossProfit:0)}</strong></td><td><strong>${grossProfit<0?'By Gross Loss c/d':'By Gross Profit b/d'}</strong></td><td class="pnl-amount"><strong>${fmtAmt(Math.abs(grossProfit))}</strong></td></tr>
+        <tr class="pnl-grand-total"><td><strong>Total</strong></td><td class="pnl-amount"><strong>${fmtAmt(netSales)}</strong></td><td><strong>Total</strong></td><td class="pnl-amount"><strong>${fmtAmt(netSales)}</strong></td></tr>
         <tr><td class="pnl-section-label" colspan="2">PROFIT &amp; LOSS ACCOUNT (Part 2)</td><td class="pnl-section-label" colspan="2">PROFIT &amp; LOSS ACCOUNT (Part 2)</td></tr>
         ${allExpenses.map((e,i)=>`<tr><td>To ${e.label}${e.note?`<br><small style="color:var(--text-dim);">${e.note}</small>`:''}</td><td class="pnl-amount">${fmtAmt(e.amount)}</td>${i===0?`<td>By Gross ${grossProfit<0?'Loss':'Profit'} b/d</td><td class="pnl-amount">${fmtAmt(Math.abs(grossProfit))}</td>`:'<td></td><td></td>'}</tr>`).join('')}
         ${allExpenses.length===0?`<tr><td style="color:var(--text-dim);font-style:italic;">No expenses — record in Accounts tab</td><td></td><td>By Gross ${grossProfit<0?'Loss':'Profit'} b/d</td><td class="pnl-amount">${fmtAmt(Math.abs(grossProfit))}</td></tr>`:''}
@@ -1767,38 +1815,22 @@ window.loadPnLAccount = async function() {
           <td><strong>${isLoss?'To Net Loss c/d':'By Net Profit b/d'}</strong></td>
           <td class="pnl-amount" style="color:${isLoss?'#f87171':'#34d399'};"><strong>${fmtAmt(Math.abs(netProfit))}</strong></td>
         </tr>
-        <tr class="pnl-grand-total">
-          <td><strong>Grand Total</strong></td><td class="pnl-amount"><strong>${fmtAmt(Math.max(grossProfit,0)+totalExpenses)}</strong></td>
-          <td><strong>Grand Total</strong></td><td class="pnl-amount"><strong>${fmtAmt(Math.max(grossProfit,0)+totalOtherIncome)}</strong></td>
-        </tr>
+        <tr class="pnl-grand-total"><td><strong>Grand Total</strong></td><td class="pnl-amount"><strong>${fmtAmt(Math.max(grossProfit,0)+totalExpenses)}</strong></td><td><strong>Grand Total</strong></td><td class="pnl-amount"><strong>${fmtAmt(Math.max(grossProfit,0)+totalOtherIncome)}</strong></td></tr>
       </tbody>
-    </table>
-    </div>
+    </table></div>
     <div style="display:flex;justify-content:space-between;margin-top:12px;flex-wrap:wrap;gap:10px;">
-      <div class="${isLoss?'bs-unbalanced':'bs-balanced'}" style="flex:1;min-width:200px;">
-        ${isLoss?'⚠️ Net Loss: '+fmtAmt(Math.abs(netProfit))+' — Reduces Capital in Balance Sheet':'✅ Net Profit: '+fmtAmt(netProfit)+' — Added to Capital in Balance Sheet'}
-      </div>
-      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:12px 18px;font-family:'DM Sans',sans-serif;font-size:12px;color:var(--text-dim);">
-        Gross Margin: <strong style="color:${grossProfit>=0?'#34d399':'#f87171'};">${netSales>0?((grossProfit/netSales)*100).toFixed(1):0}%</strong> &nbsp;|&nbsp;
-        Net Margin: <strong style="color:${netProfit>=0?'#34d399':'#f87171'};">${netSales>0?((netProfit/netSales)*100).toFixed(1):0}%</strong>
-      </div>
+      <div class="${isLoss?'bs-unbalanced':'bs-balanced'}" style="flex:1;min-width:200px;">${isLoss?'⚠️ Net Loss: '+fmtAmt(Math.abs(netProfit))+' — Reduces Capital in Balance Sheet':'✅ Net Profit: '+fmtAmt(netProfit)+' — Added to Capital in Balance Sheet'}</div>
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:12px 18px;font-family:'DM Sans',sans-serif;font-size:12px;color:var(--text-dim);">Gross Margin: <strong style="color:${grossProfit>=0?'#34d399':'#f87171'};">${netSales>0?((grossProfit/netSales)*100).toFixed(1):0}%</strong> &nbsp;|&nbsp; Net Margin: <strong style="color:${netProfit>=0?'#34d399':'#f87171'};">${netSales>0?((netProfit/netSales)*100).toFixed(1):0}%</strong></div>
     </div>`
 }
 
 window.exportPnLCSV = function() {
   if(!_pnlData){alert('Load P&L Account first');return}
   const d=_pnlData
-  const rows=[
-    ['Profit and Loss Account — '+d.fy],[''],
-    ['DR SIDE','Amount (Rs)','CR SIDE','Amount (Rs)'],
-    ['To Purchases',d.grossPurchases,'By Sales',d.grossSales],
-    ['Less: Purchase Returns',d.purchRetTotal,'Less: Sales Returns',d.salesRetTotal],
-    ['Net Purchases (COGS)',d.netPurchases,'Net Sales',d.netSales],
-    ['To Gross Profit c/d',d.grossProfit,'By Gross Profit b/d',d.grossProfit],[''],
-    ...d.expenses.map(e=>['To '+e.label,e.amount,'','']),
-    ...d.otherIncome.map(e=>['','','By '+e.label,e.amount]),
-    [d.isLoss?'To Net Loss':'To Net Profit',Math.abs(d.netProfit),d.isLoss?'By Net Loss':'By Net Profit',Math.abs(d.netProfit)]
-  ]
+  const rows=[['Profit and Loss Account — '+d.fy],[''],['DR SIDE','Amount (Rs)','CR SIDE','Amount (Rs)'],['To Purchases',d.grossPurchases,'By Sales',d.grossSales],['Less: Purchase Returns',d.purchRetTotal,'Less: Sales Returns',d.salesRetTotal],['Net Purchases (COGS)',d.netPurchases,'Net Sales',d.netSales],['To Gross Profit c/d',d.grossProfit,'By Gross Profit b/d',d.grossProfit],['']]
+  d.expenses.forEach(e=>rows.push(['To '+e.label,e.amount,'','']))
+  d.otherIncome.forEach(e=>rows.push(['','','By '+e.label,e.amount]))
+  rows.push([d.isLoss?'To Net Loss':'To Net Profit',Math.abs(d.netProfit),d.isLoss?'By Net Loss':'By Net Profit',Math.abs(d.netProfit)])
   const csv=rows.map(r=>r.map(v=>`"${String(v||'').replace(/"/g,'""')}"`).join(',')).join('\n')
   const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'})
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`AAM-PnL-${d.fy}.csv`;a.click()
@@ -1808,70 +1840,59 @@ window.exportPnLCSV = function() {
 // BALANCE SHEET
 // ═══════════════════════════════════════
 function bsCell(r) {
-  if (!r) return '<td style="border:1px solid var(--pnl-border);"></td><td style="border:1px solid var(--pnl-border);"></td>'
-  if (r.isSection) return `<td class="bs-section-label" colspan="2">${r.section}</td>`
-  if (r.isSubTotal) return `<td style="padding:9px 14px;font-weight:700;color:var(--text-main);border:1px solid var(--pnl-border);background:rgba(255,255,255,0.03);"><strong>${r.label}</strong></td><td class="bs-amount" style="border:1px solid var(--pnl-border);background:rgba(255,255,255,0.03);"><strong>${fmtAmt(r.amount)}</strong></td>`
-  const cs = r.color==='green'?'color:#34d399;':r.color==='red'?'color:#f87171;':''
-  return `<td class="bs-indent" style="border:1px solid var(--pnl-border);">${r.label}${r.note?`<br><small style="color:var(--text-dim);font-size:11px;">${r.note}</small>`:''}</td><td class="bs-amount" style="${cs}border:1px solid var(--pnl-border);">${fmtAmt(r.amount)}</td>`
+  if(!r)return'<td style="border:1px solid var(--pnl-border);"></td><td style="border:1px solid var(--pnl-border);"></td>'
+  if(r.isSection)return`<td class="bs-section-label" colspan="2">${r.section}</td>`
+  if(r.isSubTotal)return`<td style="padding:9px 14px;font-weight:700;color:var(--text-main);border:1px solid var(--pnl-border);background:rgba(255,255,255,0.03);"><strong>${r.label}</strong></td><td class="bs-amount" style="border:1px solid var(--pnl-border);background:rgba(255,255,255,0.03);"><strong>${fmtAmt(r.amount)}</strong></td>`
+  const cs=r.color==='green'?'color:#34d399;':r.color==='red'?'color:#f87171;':''
+  return`<td class="bs-indent" style="border:1px solid var(--pnl-border);">${r.label}${r.note?`<br><small style="color:var(--text-dim);font-size:11px;">${r.note}</small>`:''}</td><td class="bs-amount" style="${cs}border:1px solid var(--pnl-border);">${fmtAmt(r.amount)}</td>`
 }
-function buildBSRows(liabRows, assetRows) {
-  const maxLen = Math.max(liabRows.length, assetRows.length)
-  let html = ''
-  for (let i = 0; i < maxLen; i++) {
-    const l = i < liabRows.length ? liabRows[i] : null
-    const a = i < assetRows.length ? assetRows[i] : null
-    html += '<tr>' + bsCell(l) + bsCell(a) + '</tr>'
-  }
+function buildBSRows(liabRows,assetRows){
+  const maxLen=Math.max(liabRows.length,assetRows.length); let html=''
+  for(let i=0;i<maxLen;i++){const l=i<liabRows.length?liabRows[i]:null,a=i<assetRows.length?assetRows[i]:null;html+='<tr>'+bsCell(l)+bsCell(a)+'</tr>'}
   return html
 }
 
 window.loadBalanceSheet = async function() {
-  const asOnDate = document.getElementById('bsDateInput').value
-  const wrapper  = document.getElementById('bsWrapper')
-  wrapper.innerHTML = '<div style="color:var(--text-dim);font-family:\'DM Sans\',sans-serif;font-size:14px;padding:40px;text-align:center;">Calculating Balance Sheet…</div>'
-  const b = await computeBalances(asOnDate || null)
-  const dt      = asOnDate ? new Date(asOnDate) : new Date()
-  const fyYear  = dt.getMonth() >= 3 ? dt.getFullYear() : dt.getFullYear() - 1
-  const fyKey   = fyYear + '-' + (fyYear + 1).toString().slice(-2)
-  const { data: pnlItems } = await _supabase.from('pnl_entries').select('entry_type,amount').eq('financial_year', fyKey).eq('is_active', true)
-  const { data: jTxns } = await _supabase.from('journal_entries').select('amount,transaction_type').in('transaction_type',['expense','income']).gte('entry_date',`${fyYear}-04-01`).lte('entry_date', asOnDate || new Date().toISOString().slice(0,10))
-  const totalExp = (pnlItems||[]).filter(e=>e.entry_type==='expense').reduce((s,e)=>s+Number(e.amount||0),0) + (jTxns||[]).filter(j=>j.transaction_type==='expense').reduce((s,j)=>s+Number(j.amount||0),0)
-  const totalOtherInc = (pnlItems||[]).filter(e=>e.entry_type==='income').reduce((s,e)=>s+Number(e.amount||0),0) + (jTxns||[]).filter(j=>j.transaction_type==='income').reduce((s,j)=>s+Number(j.amount||0),0)
-  const netProfit = b.grossProfit - totalExp + totalOtherInc
-  const openingCapital = b.capitalEntries.reduce((s,e)=>s+Number(e.amount||0),0) + b.jCapitalIn
-  const closingCapital = openingCapital + netProfit
+  const asOnDate=document.getElementById('bsDateInput').value
+  const wrapper=document.getElementById('bsWrapper')
+  wrapper.innerHTML='<div style="color:var(--text-dim);font-family:\'DM Sans\',sans-serif;font-size:14px;padding:40px;text-align:center;">Calculating Balance Sheet…</div>'
+  const b=await computeBalances(asOnDate||null)
+  const dt=asOnDate?new Date(asOnDate):new Date()
+  const fyYear=dt.getMonth()>=3?dt.getFullYear():dt.getFullYear()-1
+  const fyKey=fyYear+'-'+(fyYear+1).toString().slice(-2)
+  const{data:pnlItems}=await _supabase.from('pnl_entries').select('entry_type,amount').eq('financial_year',fyKey).eq('is_active',true)
+  const{data:jTxns}=await _supabase.from('journal_entries').select('amount,transaction_type').in('transaction_type',['expense','income']).gte('entry_date',`${fyYear}-04-01`).lte('entry_date',asOnDate||new Date().toISOString().slice(0,10))
+  const totalExp=(pnlItems||[]).filter(e=>e.entry_type==='expense').reduce((s,e)=>s+Number(e.amount||0),0)+(jTxns||[]).filter(j=>j.transaction_type==='expense').reduce((s,j)=>s+Number(j.amount||0),0)
+  const totalOtherInc=(pnlItems||[]).filter(e=>e.entry_type==='income').reduce((s,e)=>s+Number(e.amount||0),0)+(jTxns||[]).filter(j=>j.transaction_type==='income').reduce((s,j)=>s+Number(j.amount||0),0)
+  const netProfit=b.grossProfit-totalExp+totalOtherInc
+  const openingCapital=b.capitalEntries.reduce((s,e)=>s+Number(e.amount||0),0)+b.jCapitalIn
+  const closingCapital=openingCapital+netProfit
 
-  const liabilitiesRows = []
-  liabilitiesRows.push({ section: 'CAPITAL ACCOUNT', isSection: true })
-  liabilitiesRows.push({ label: 'Opening Capital', amount: openingCapital })
-  liabilitiesRows.push({ label: netProfit >= 0 ? 'Add: Net Profit (from P&L)' : 'Less: Net Loss (from P&L)', amount: netProfit, color: netProfit >= 0 ? 'green' : 'red' })
-  liabilitiesRows.push({ label: 'Closing Capital', amount: closingCapital, isSubTotal: true })
-  if (b.manualLiabilities.length) {
-    liabilitiesRows.push({ section: 'CURRENT LIABILITIES', isSection: true })
-    b.manualLiabilities.forEach(e=>liabilitiesRows.push({ label: e.label, amount: Number(e.amount||0), note: e.note||e.notes||'' }))
-  }
-  liabilitiesRows.push({ section: 'CREDITORS (AUTO)', isSection: true })
-  liabilitiesRows.push({ label: 'Sundry Creditors (to Merchants)', amount: b.creditors, note: 'Credit purchases − merchant payments made' })
-  const totalLiabilities = closingCapital + b.manualLiabilities.reduce((s,e)=>s+Number(e.amount||0),0) + b.creditors
+  const liabilitiesRows=[]
+  liabilitiesRows.push({section:'CAPITAL ACCOUNT',isSection:true})
+  liabilitiesRows.push({label:'Opening Capital',amount:openingCapital})
+  liabilitiesRows.push({label:netProfit>=0?'Add: Net Profit (from P&L)':'Less: Net Loss (from P&L)',amount:netProfit,color:netProfit>=0?'green':'red'})
+  liabilitiesRows.push({label:'Closing Capital',amount:closingCapital,isSubTotal:true})
+  if(b.manualLiabilities.length){liabilitiesRows.push({section:'CURRENT LIABILITIES',isSection:true});b.manualLiabilities.forEach(e=>liabilitiesRows.push({label:e.label,amount:Number(e.amount||0),note:e.note||e.notes||''}))}
+  liabilitiesRows.push({section:'CREDITORS (AUTO)',isSection:true})
+  liabilitiesRows.push({label:'Sundry Creditors (to Merchants)',amount:b.creditors,note:'Credit purchases − merchant payments made'})
+  const totalLiabilities=closingCapital+b.manualLiabilities.reduce((s,e)=>s+Number(e.amount||0),0)+b.creditors
 
-  const assetsRows = []
-  if (b.manualAssets.length) {
-    assetsRows.push({ section: 'FIXED ASSETS', isSection: true })
-    b.manualAssets.forEach(e=>assetsRows.push({ label: e.label, amount: Number(e.amount||0), note: e.note||e.notes||'' }))
-  }
-  assetsRows.push({ section: 'CURRENT ASSETS', isSection: true })
-  assetsRows.push({ label: 'Closing Stock (Inventory)', amount: b.closingStock, note: 'Auto from inventory' })
-  assetsRows.push({ label: 'Sundry Debtors (Receivable)', amount: b.debtors, note: 'Credit sales − payments received' })
-  assetsRows.push({ label: 'Cash in Hand', amount: b.cashInHand, note: 'Opening + sales cash − purchase cash ± payments' })
-  assetsRows.push({ label: 'Bank Balance (UPI)', amount: b.bankBalance, note: 'Opening bank + UPI sales − UPI purchases' })
-  const totalAssets = b.manualAssets.reduce((s,e)=>s+Number(e.amount||0),0) + b.closingStock + b.debtors + b.cashInHand + b.bankBalance
+  const assetsRows=[]
+  if(b.manualAssets.length){assetsRows.push({section:'FIXED ASSETS',isSection:true});b.manualAssets.forEach(e=>assetsRows.push({label:e.label,amount:Number(e.amount||0),note:e.note||e.notes||''}))}
+  assetsRows.push({section:'CURRENT ASSETS',isSection:true})
+  assetsRows.push({label:'Closing Stock (Inventory)',amount:b.closingStock,note:'Auto from inventory'})
+  assetsRows.push({label:'Sundry Debtors (Receivable)',amount:b.debtors,note:'Credit sales − payments received'})
+  assetsRows.push({label:'Cash in Hand',amount:b.cashInHand,note:'Opening + sales cash − purchase cash ± payments'})
+  assetsRows.push({label:'Bank Balance (UPI)',amount:b.bankBalance,note:'Opening bank + UPI sales − UPI purchases'})
+  const totalAssets=b.manualAssets.reduce((s,e)=>s+Number(e.amount||0),0)+b.closingStock+b.debtors+b.cashInHand+b.bankBalance
 
-  _bsData = { asOnDate, liabilitiesRows, assetsRows, totalLiabilities, totalAssets, closingCapital, netProfit, creditors: b.creditors, closingStock: b.closingStock, debtors: b.debtors, cashInHand: b.cashInHand, bankBalance: b.bankBalance, manualAssets: b.manualAssets, manualLiabilities: b.manualLiabilities }
+  _bsData={asOnDate,liabilitiesRows,assetsRows,totalLiabilities,totalAssets,closingCapital,netProfit,creditors:b.creditors,closingStock:b.closingStock,debtors:b.debtors,cashInHand:b.cashInHand,bankBalance:b.bankBalance,manualAssets:b.manualAssets,manualLiabilities:b.manualLiabilities}
 
-  const diff = Math.abs(totalAssets - totalLiabilities), balanced = diff < 1
-  const dateLabel = asOnDate ? new Date(asOnDate).toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'}) : 'Today'
+  const diff=Math.abs(totalAssets-totalLiabilities),balanced=diff<1
+  const dateLabel=asOnDate?new Date(asOnDate).toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'}):'Today'
 
-  wrapper.innerHTML = `
+  wrapper.innerHTML=`
     <div class="bs-heading"><h2>Balance Sheet</h2><p>As on ${dateLabel}</p></div>
     <div style="overflow-x:auto;">
     <table class="bs-table">
@@ -1882,28 +1903,20 @@ window.loadBalanceSheet = async function() {
         <th style="width:10%;text-align:right;">Amount (₹)</th>
       </tr></thead>
       <tbody>
-        ${buildBSRows(liabilitiesRows, assetsRows)}
+        ${buildBSRows(liabilitiesRows,assetsRows)}
         <tr class="bs-total-row">
-          <td><strong>Total Liabilities</strong></td>
-          <td class="bs-amount"><strong>${fmtAmt(totalLiabilities)}</strong></td>
-          <td><strong>Total Assets</strong></td>
-          <td class="bs-amount"><strong>${fmtAmt(totalAssets)}</strong></td>
+          <td><strong>Total Liabilities</strong></td><td class="bs-amount"><strong>${fmtAmt(totalLiabilities)}</strong></td>
+          <td><strong>Total Assets</strong></td><td class="bs-amount"><strong>${fmtAmt(totalAssets)}</strong></td>
         </tr>
-        ${!balanced ? `<tr>
-          <td colspan="2" style="background:rgba(248,113,113,0.1);color:#f87171;padding:9px 14px;border:1px solid var(--pnl-border);">⚠️ Difference: ${fmtAmt(diff)}</td>
-          <td colspan="2" style="background:rgba(248,113,113,0.1);color:#f87171;padding:9px 14px;border:1px solid var(--pnl-border);">Add ${fmtAmt(diff)} to ${totalAssets > totalLiabilities ? 'Liabilities/Capital' : 'Assets'}</td>
-        </tr>` : ''}
+        ${!balanced?`<tr><td colspan="2" style="background:rgba(248,113,113,0.1);color:#f87171;padding:9px 14px;border:1px solid var(--pnl-border);">⚠️ Difference: ${fmtAmt(diff)}</td><td colspan="2" style="background:rgba(248,113,113,0.1);color:#f87171;padding:9px 14px;border:1px solid var(--pnl-border);">Add ${fmtAmt(diff)} to ${totalAssets>totalLiabilities?'Liabilities/Capital':'Assets'}</td></tr>`:''}
       </tbody>
-    </table>
-    </div>
-    <div class="${balanced?'bs-balanced':'bs-unbalanced'}" style="margin-top:12px;">
-      ${balanced ? '✅ Balance Sheet is Balanced! Both sides equal ' + fmtAmt(totalAssets) : '⚠️ Not balanced. Difference: ' + fmtAmt(diff) + '. Tip: Add opening capital in entries below.'}
-    </div>`
+    </table></div>
+    <div class="${balanced?'bs-balanced':'bs-unbalanced'}" style="margin-top:12px;">${balanced?'✅ Balance Sheet is Balanced! Both sides equal '+fmtAmt(totalAssets):'⚠️ Not balanced. Difference: '+fmtAmt(diff)+'. Tip: Add opening capital in entries below.'}</div>`
 
   renderBsEntries(b.bsEntries)
 }
 
-window.exportBSCSV = function() {
+window.exportBSCSV=function(){
   if(!_bsData){alert('Load Balance Sheet first');return}
   const d=_bsData
   const rows=[['Balance Sheet — As on '+(d.asOnDate||'Today')],[''],['LIABILITIES','Amount (Rs)','ASSETS','Amount (Rs)'],['Opening Capital',d.closingCapital-d.netProfit,'Closing Stock',d.closingStock],['Net Profit/Loss',d.netProfit,'Sundry Debtors',d.debtors],['Closing Capital',d.closingCapital,'Cash in Hand',d.cashInHand],['Sundry Creditors',d.creditors,'Bank Balance',d.bankBalance],...d.manualLiabilities.map((e,i)=>[e.label,e.amount,d.manualAssets[i]?.label||'',d.manualAssets[i]?.amount||'']),[''],['Total Liabilities',d.totalLiabilities,'Total Assets',d.totalAssets]]
@@ -1912,14 +1925,13 @@ window.exportBSCSV = function() {
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='AAM-BalanceSheet.csv';a.click()
 }
 
-function renderBsEntries(entries) {
-  if (!entries) return
+function renderBsEntries(entries){
+  if(!entries)return
   const assets=entries.filter(e=>e.entry_type==='asset'&&e.account_type==='manual')
   const liabilities=entries.filter(e=>e.entry_type==='liability'||e.entry_type==='capital')
-  const assetList = document.getElementById('assetEntriesList')
-  const liabList  = document.getElementById('liabilityEntriesList')
-  if (assetList) assetList.innerHTML=assets.length?assets.map(e=>entryRow(e,'bs','')).join(''):'<div style="color:var(--text-dim);font-family:\'DM Sans\',sans-serif;font-size:13px;padding:8px 0;">No fixed assets yet.</div>'
-  if (liabList)  liabList.innerHTML=liabilities.length?liabilities.map(e=>entryRow(e,'bs','')).join(''):'<div style="color:var(--text-dim);font-family:\'DM Sans\',sans-serif;font-size:13px;padding:8px 0;">No liabilities yet.</div>'
+  const assetList=document.getElementById('assetEntriesList'), liabList=document.getElementById('liabilityEntriesList')
+  if(assetList)assetList.innerHTML=assets.length?assets.map(e=>entryRow(e,'bs','')).join(''):'<div style="color:var(--text-dim);font-size:13px;padding:8px 0;">No fixed assets yet.</div>'
+  if(liabList)liabList.innerHTML=liabilities.length?liabilities.map(e=>entryRow(e,'bs','')).join(''):'<div style="color:var(--text-dim);font-size:13px;padding:8px 0;">No liabilities yet.</div>'
   setTimeout(()=>{
     document.querySelectorAll('.bs-save-btn').forEach(btn=>{
       btn.addEventListener('click',async function(){
@@ -1939,154 +1951,91 @@ function renderBsEntries(entries) {
   },100)
 }
 
-function entryRow(e,table,fy) {
-  return `<div class="entry-row">
-    <span class="entry-label">${e.label}${e.note?`<br><small style="color:var(--text-dim);font-size:11px;">${e.note}</small>`:''}</span>
-    <input type="number" id="${table}-input-${e.id}" class="entry-input" value="${e.amount||0}" min="0">
-    <button class="${table}-save-btn entry-save-btn" data-id="${e.id}">Save</button>
-    <button class="${table}-del-btn entry-del-btn" data-id="${e.id}">✕</button>
-  </div>`
+function entryRow(e,table,fy){
+  return`<div class="entry-row"><span class="entry-label">${e.label}${e.note?`<br><small style="color:var(--text-dim);font-size:11px;">${e.note}</small>`:''}</span><input type="number" id="${table}-input-${e.id}" class="entry-input" value="${e.amount||0}" min="0"><button class="${table}-save-btn entry-save-btn" data-id="${e.id}">Save</button><button class="${table}-del-btn entry-del-btn" data-id="${e.id}">✕</button></div>`
 }
 
-window.addBsEntry = async function() {
-  const type=document.getElementById('newBsType').value
-  const label=document.getElementById('newBsLabel').value.trim()
-  const amount=parseFloat(document.getElementById('newBsAmount').value)||0
-  const note=document.getElementById('newBsNote').value.trim()
+window.addBsEntry=async function(){
+  const type=document.getElementById('newBsType').value,label=document.getElementById('newBsLabel').value.trim(),amount=parseFloat(document.getElementById('newBsAmount').value)||0,note=document.getElementById('newBsNote').value.trim()
   if(!label){alert('Please enter a label');return}
   const{error}=await _supabase.from('balance_sheet_entries').insert({entry_type:type,category:'manual',label,amount,note,account_type:type==='capital'?'opening_capital':'manual',is_active:true,effective_date:new Date().toISOString().slice(0,10)})
   if(error){alert('Add failed: '+error.message);return}
-  document.getElementById('newBsLabel').value=''
-  document.getElementById('newBsAmount').value=''
-  document.getElementById('newBsNote').value=''
+  document.getElementById('newBsLabel').value='';document.getElementById('newBsAmount').value='';document.getElementById('newBsNote').value=''
   loadBalanceSheet()
 }
 
 // ═══════════════════════════════════════
 // COMPUTE BALANCES — SINGLE SOURCE OF TRUTH
 // ═══════════════════════════════════════
-async function computeBalances(asOnDate) {
-  let salesQ = _supabase.from('sales').select('cash,upi,credit,total_amount,bill_type,discount,customer_id')
-  let purchQ = _supabase.from('purchases').select('cash,upi,credit,total_amount,bill_type,discount')
-  let payQ   = _supabase.from('payments').select('amount,mode,customer_id')
-  let mpQ    = _supabase.from('merchant_payments').select('amount,mode')
-  let jQ     = _supabase.from('journal_entries').select('*').order('entry_date',{ascending:false})
-  if (asOnDate) {
-    const dtEnd = asOnDate + 'T23:59:59'
-    salesQ = salesQ.lte('created_at', dtEnd)
-    purchQ = purchQ.lte('created_at', dtEnd)
-    payQ   = payQ.lte('created_at', dtEnd)
-    mpQ    = mpQ.lte('created_at', dtEnd)
-    jQ     = jQ.lte('entry_date', asOnDate)
-  }
-  const [sRes, pRes, bsRes, payRes, mpRes, invRes, jRes] = await Promise.all([salesQ, purchQ, _supabase.from('balance_sheet_entries').select('*').eq('is_active',true), payQ, mpQ, _supabase.from('inventory').select('quantity,purchase_price'), jQ])
-
-  const allSales   = sRes.data  || []
-  const allPurch   = pRes.data  || []
-  const salesBills = allSales.filter(r=>r.bill_type==='sale')
-  const salesRets  = allSales.filter(r=>r.bill_type==='return')
-  const purchBills = allPurch.filter(r=>r.bill_type==='purchase')
-  const purchRets  = allPurch.filter(r=>r.bill_type==='return')
-  const bsEntries  = bsRes.data  || []
-  const payments   = payRes.data || []
-  const mpayments  = mpRes.data  || []
-  const invRows    = invRes.data || []
-  const journals   = jRes.data   || []
-
-  const openingCashBS = bsEntries.filter(e=>e.account_type==='opening_cash').reduce((s,e)=>s+Number(e.amount||0),0)
-  const openingBankBS = bsEntries.filter(e=>e.account_type==='opening_bank').reduce((s,e)=>s+Number(e.amount||0),0)
-  const openingCashJ  = journals.filter(j=>j.transaction_type==='opening_balance'&&j.debit_account==='Cash').reduce((s,j)=>s+Number(j.amount||0),0)
-  const openingBankJ  = journals.filter(j=>j.transaction_type==='opening_balance'&&j.debit_account==='Bank/UPI').reduce((s,j)=>s+Number(j.amount||0),0)
-  const openingCash = openingCashBS + openingCashJ
-  const openingBank = openingBankBS + openingBankJ
-
-  const salesCash = salesBills.reduce((s,r)=>s+Number(r.cash||0),0)
-  const salesUPI  = salesBills.reduce((s,r)=>s+Number(r.upi||0),0)
-  const purchCash = purchBills.reduce((s,r)=>s+Number(r.cash||0),0)
-  const purchUPI  = purchBills.reduce((s,r)=>s+Number(r.upi||0),0)
-
-  const BANK_MODES = ['UPI','Bank Transfer','Bank','NEFT','RTGS','Cheque','Online']
-  const custPaidCash  = payments.filter(r=>!BANK_MODES.includes(r.mode)).reduce((s,r)=>s+Number(r.amount||0),0)
-  const custPaidBank  = payments.filter(r=> BANK_MODES.includes(r.mode)).reduce((s,r)=>s+Number(r.amount||0),0)
-  const merchPaidCash = mpayments.filter(r=>!BANK_MODES.includes(r.mode)).reduce((s,r)=>s+Number(r.amount||0),0)
-  const merchPaidBank = mpayments.filter(r=> BANK_MODES.includes(r.mode)).reduce((s,r)=>s+Number(r.amount||0),0)
-  const custPaidTotal  = payments.reduce((s,r)=>s+Number(r.amount||0),0)
-  const merchPaidTotal = mpayments.reduce((s,r)=>s+Number(r.amount||0),0)
-
-  const jCashIn  = journals.filter(j=>j.debit_account==='Cash').reduce((s,j)=>s+Number(j.amount||0),0)
-  const jCashOut = journals.filter(j=>j.credit_account==='Cash').reduce((s,j)=>s+Number(j.amount||0),0)
-  const jBankIn  = journals.filter(j=>j.debit_account==='Bank/UPI').reduce((s,j)=>s+Number(j.amount||0),0)
-  const jBankOut = journals.filter(j=>j.credit_account==='Bank/UPI').reduce((s,j)=>s+Number(j.amount||0),0)
-
-  const cashInHand = Math.max(0, openingCash + salesCash - purchCash + custPaidCash - merchPaidCash + jCashIn - jCashOut)
-  const bankBalance = Math.max(0, openingBank + salesUPI - purchUPI + custPaidBank - merchPaidBank + jBankIn - jBankOut)
-
-  const custNetMap = {}
-  salesBills.forEach(r=>{const cid=r.customer_id||'_walkin_'; custNetMap[cid]=(custNetMap[cid]||0)+Number(r.credit||0)})
-  payments.forEach(r=>{const cid=r.customer_id||'_walkin_'; custNetMap[cid]=(custNetMap[cid]||0)-Number(r.amount||0)})
-  let debtors = 0
-  Object.values(custNetMap).forEach(net=>{ if(net>0.01)debtors+=net })
-
-  const totalCreditTaken   = purchBills.reduce((s,r)=>s+Number(r.credit||0),0)
-  const creditFromPurchRet = purchRets.reduce((s,r)=>s+Number(r.credit||0),0)
-  const creditors = Math.max(0, totalCreditTaken - creditFromPurchRet - merchPaidTotal)
-  const closingStock = invRows.reduce((s,r)=>s+Number(r.quantity||0)*Number(r.purchase_price||0),0)
-
-  const grossSales    = salesBills.reduce((s,r)=>s+Number(r.total_amount||0),0)
-  const salesDiscount = salesBills.reduce((s,r)=>s+Number(r.discount||0),0)
-  const salesRetTotal = salesRets.reduce((s,r)=>s+Number(r.total_amount||0),0)
-  const netSales      = grossSales - salesDiscount - salesRetTotal
-  const grossPurchases= purchBills.reduce((s,r)=>s+Number(r.total_amount||0),0)
-  const purchDiscount = purchBills.reduce((s,r)=>s+Number(r.discount||0),0)
-  const purchRetTotal = purchRets.reduce((s,r)=>s+Number(r.total_amount||0),0)
-  const netPurchases  = grossPurchases - purchDiscount - purchRetTotal
-  const grossProfit   = netSales - netPurchases
-
-  const manualAssets      = bsEntries.filter(e=>e.entry_type==='asset'&&e.account_type==='manual')
-  const manualLiabilities = bsEntries.filter(e=>e.entry_type==='liability'&&e.account_type!=='opening_capital')
-  const capitalEntries    = bsEntries.filter(e=>e.entry_type==='capital'||e.account_type==='opening_capital')
-  const jCapitalIn = journals.filter(j=>j.credit_account==='Capital').reduce((s,j)=>s+Number(j.amount||0),0)
-
-  return { cashInHand, bankBalance, debtors, creditors, closingStock, jCapitalIn, grossSales, salesDiscount, salesRetTotal, netSales, grossPurchases, purchDiscount, purchRetTotal, netPurchases, grossProfit, manualAssets, manualLiabilities, capitalEntries, openingCash, openingBank, journals, bsEntries, custPaidTotal, merchPaidTotal, salesCash, purchCash, salesUPI, purchUPI }
+async function computeBalances(asOnDate){
+  let salesQ=_supabase.from('sales').select('cash,upi,credit,total_amount,bill_type,discount,customer_id')
+  let purchQ=_supabase.from('purchases').select('cash,upi,credit,total_amount,bill_type,discount')
+  let payQ=_supabase.from('payments').select('amount,mode,customer_id')
+  let mpQ=_supabase.from('merchant_payments').select('amount,mode')
+  let jQ=_supabase.from('journal_entries').select('*').order('entry_date',{ascending:false})
+  if(asOnDate){const dtEnd=asOnDate+'T23:59:59';salesQ=salesQ.lte('created_at',dtEnd);purchQ=purchQ.lte('created_at',dtEnd);payQ=payQ.lte('created_at',dtEnd);mpQ=mpQ.lte('created_at',dtEnd);jQ=jQ.lte('entry_date',asOnDate)}
+  const[sRes,pRes,bsRes,payRes,mpRes,invRes,jRes]=await Promise.all([salesQ,purchQ,_supabase.from('balance_sheet_entries').select('*').eq('is_active',true),payQ,mpQ,_supabase.from('inventory').select('quantity,purchase_price'),jQ])
+  const allSales=sRes.data||[],allPurch=pRes.data||[],salesBills=allSales.filter(r=>r.bill_type==='sale'),salesRets=allSales.filter(r=>r.bill_type==='return'),purchBills=allPurch.filter(r=>r.bill_type==='purchase'),purchRets=allPurch.filter(r=>r.bill_type==='return')
+  const bsEntries=bsRes.data||[],payments=payRes.data||[],mpayments=mpRes.data||[],invRows=invRes.data||[],journals=jRes.data||[]
+  const openingCashBS=bsEntries.filter(e=>e.account_type==='opening_cash').reduce((s,e)=>s+Number(e.amount||0),0)
+  const openingBankBS=bsEntries.filter(e=>e.account_type==='opening_bank').reduce((s,e)=>s+Number(e.amount||0),0)
+  const openingCashJ=journals.filter(j=>j.transaction_type==='opening_balance'&&j.debit_account==='Cash').reduce((s,j)=>s+Number(j.amount||0),0)
+  const openingBankJ=journals.filter(j=>j.transaction_type==='opening_balance'&&j.debit_account==='Bank/UPI').reduce((s,j)=>s+Number(j.amount||0),0)
+  const openingCash=openingCashBS+openingCashJ, openingBank=openingBankBS+openingBankJ
+  const salesCash=salesBills.reduce((s,r)=>s+Number(r.cash||0),0),salesUPI=salesBills.reduce((s,r)=>s+Number(r.upi||0),0)
+  const purchCash=purchBills.reduce((s,r)=>s+Number(r.cash||0),0),purchUPI=purchBills.reduce((s,r)=>s+Number(r.upi||0),0)
+  const BANK_MODES=['UPI','Bank Transfer','Bank','NEFT','RTGS','Cheque','Online']
+  const custPaidCash=payments.filter(r=>!BANK_MODES.includes(r.mode)).reduce((s,r)=>s+Number(r.amount||0),0)
+  const custPaidBank=payments.filter(r=>BANK_MODES.includes(r.mode)).reduce((s,r)=>s+Number(r.amount||0),0)
+  const merchPaidCash=mpayments.filter(r=>!BANK_MODES.includes(r.mode)).reduce((s,r)=>s+Number(r.amount||0),0)
+  const merchPaidBank=mpayments.filter(r=>BANK_MODES.includes(r.mode)).reduce((s,r)=>s+Number(r.amount||0),0)
+  const custPaidTotal=payments.reduce((s,r)=>s+Number(r.amount||0),0), merchPaidTotal=mpayments.reduce((s,r)=>s+Number(r.amount||0),0)
+  const jCashIn=journals.filter(j=>j.debit_account==='Cash').reduce((s,j)=>s+Number(j.amount||0),0)
+  const jCashOut=journals.filter(j=>j.credit_account==='Cash').reduce((s,j)=>s+Number(j.amount||0),0)
+  const jBankIn=journals.filter(j=>j.debit_account==='Bank/UPI').reduce((s,j)=>s+Number(j.amount||0),0)
+  const jBankOut=journals.filter(j=>j.credit_account==='Bank/UPI').reduce((s,j)=>s+Number(j.amount||0),0)
+  const cashInHand=Math.max(0,openingCash+salesCash-purchCash+custPaidCash-merchPaidCash+jCashIn-jCashOut)
+  const bankBalance=Math.max(0,openingBank+salesUPI-purchUPI+custPaidBank-merchPaidBank+jBankIn-jBankOut)
+  const custNetMap={}
+  salesBills.forEach(r=>{const cid=r.customer_id||'_walkin_';custNetMap[cid]=(custNetMap[cid]||0)+Number(r.credit||0)})
+  payments.forEach(r=>{const cid=r.customer_id||'_walkin_';custNetMap[cid]=(custNetMap[cid]||0)-Number(r.amount||0)})
+  let debtors=0; Object.values(custNetMap).forEach(net=>{if(net>0.01)debtors+=net})
+  const totalCreditTaken=purchBills.reduce((s,r)=>s+Number(r.credit||0),0), creditFromPurchRet=purchRets.reduce((s,r)=>s+Number(r.credit||0),0)
+  const creditors=Math.max(0,totalCreditTaken-creditFromPurchRet-merchPaidTotal)
+  const closingStock=invRows.reduce((s,r)=>s+Number(r.quantity||0)*Number(r.purchase_price||0),0)
+  const grossSales=salesBills.reduce((s,r)=>s+Number(r.total_amount||0),0),salesDiscount=salesBills.reduce((s,r)=>s+Number(r.discount||0),0),salesRetTotal=salesRets.reduce((s,r)=>s+Number(r.total_amount||0),0)
+  const netSales=grossSales-salesDiscount-salesRetTotal
+  const grossPurchases=purchBills.reduce((s,r)=>s+Number(r.total_amount||0),0),purchDiscount=purchBills.reduce((s,r)=>s+Number(r.discount||0),0),purchRetTotal=purchRets.reduce((s,r)=>s+Number(r.total_amount||0),0)
+  const netPurchases=grossPurchases-purchDiscount-purchRetTotal, grossProfit=netSales-netPurchases
+  const manualAssets=bsEntries.filter(e=>e.entry_type==='asset'&&e.account_type==='manual')
+  const manualLiabilities=bsEntries.filter(e=>e.entry_type==='liability'&&e.account_type!=='opening_capital')
+  const capitalEntries=bsEntries.filter(e=>e.entry_type==='capital'||e.account_type==='opening_capital')
+  const jCapitalIn=journals.filter(j=>j.credit_account==='Capital').reduce((s,j)=>s+Number(j.amount||0),0)
+  return{cashInHand,bankBalance,debtors,creditors,closingStock,jCapitalIn,grossSales,salesDiscount,salesRetTotal,netSales,grossPurchases,purchDiscount,purchRetTotal,netPurchases,grossProfit,manualAssets,manualLiabilities,capitalEntries,openingCash,openingBank,journals,bsEntries,custPaidTotal,merchPaidTotal,salesCash,purchCash,salesUPI,purchUPI}
 }
 
 // ═══════════════════════════════════════
 // ACCOUNTS TAB
 // ═══════════════════════════════════════
-async function loadAccounts() {
-  const b = await computeBalances(null)
-  // Update cash book data silently for modal usage
-  if (!_cashBookData.length) loadCashBook()
-
-  document.getElementById('accCash').textContent     = fmtAmt(b.cashInHand)
-  document.getElementById('accBank').textContent     = fmtAmt(b.bankBalance)
-  document.getElementById('accDebtors').textContent  = fmtAmt(b.debtors)
-  document.getElementById('accCreditors').textContent= fmtAmt(b.creditors)
-  document.getElementById('accDebtorsNote').textContent  = `Total receivable from credit customers`
-  document.getElementById('accCreditorsNote').textContent= `Total payable to credit merchants`
-
-  const openingCapital = b.capitalEntries.reduce((s,e)=>s+Number(e.amount||0),0) + b.jCapitalIn
-  const accCapEl = document.getElementById('accCapital')
-  if (accCapEl) {
-    accCapEl.textContent = fmtAmt(openingCapital)
-    const note = document.getElementById('accCapitalNote')
-    if (note) note.textContent = `${b.capitalEntries.length} entr${b.capitalEntries.length===1?'y':'ies'} · Click to see history`
-  }
-
-  const totalFixedAssets = b.manualAssets.reduce((s,e)=>s+Number(e.amount||0),0)
-  const totalLoans = b.manualLiabilities.reduce((s,e)=>s+Number(e.amount||0),0)
-  document.getElementById('accAssets').textContent   = fmtAmt(totalFixedAssets)
-  document.getElementById('accAssetsNote').textContent = b.manualAssets.length + ' items recorded'
-  document.getElementById('accLoans').textContent    = fmtAmt(totalLoans)
-  document.getElementById('accLoansNote').textContent= b.manualLiabilities.length + ' loan entries'
-  document.getElementById('accStock').textContent    = fmtAmt(b.closingStock)
-
-  const journals = b.journals
-  if (!journals.length) {
-    document.getElementById('journalBody').innerHTML = '<tr><td colspan="7" style="text-align:center;padding:20px;color:var(--text-dim);">No journal entries yet. Use the form above to record transactions.</td></tr>'
-    return
-  }
-  document.getElementById('journalBody').innerHTML = journals.map(j => `<tr>
+async function loadAccounts(){
+  const b=await computeBalances(null)
+  if(!_cashBookAllRows.dr)loadCashBook()
+  document.getElementById('accCash').textContent=fmtAmt(b.cashInHand)
+  document.getElementById('accBank').textContent=fmtAmt(b.bankBalance)
+  document.getElementById('accDebtors').textContent=fmtAmt(b.debtors)
+  document.getElementById('accCreditors').textContent=fmtAmt(b.creditors)
+  document.getElementById('accDebtorsNote').textContent='Total receivable from credit customers'
+  document.getElementById('accCreditorsNote').textContent='Total payable to credit merchants'
+  const openingCapital=b.capitalEntries.reduce((s,e)=>s+Number(e.amount||0),0)+b.jCapitalIn
+  const accCapEl=document.getElementById('accCapital')
+  if(accCapEl){accCapEl.textContent=fmtAmt(openingCapital);const note=document.getElementById('accCapitalNote');if(note)note.textContent=`${b.capitalEntries.length} entr${b.capitalEntries.length===1?'y':'ies'} · Click to see history`}
+  const totalFixedAssets=b.manualAssets.reduce((s,e)=>s+Number(e.amount||0),0), totalLoans=b.manualLiabilities.reduce((s,e)=>s+Number(e.amount||0),0)
+  document.getElementById('accAssets').textContent=fmtAmt(totalFixedAssets);document.getElementById('accAssetsNote').textContent=b.manualAssets.length+' items recorded'
+  document.getElementById('accLoans').textContent=fmtAmt(totalLoans);document.getElementById('accLoansNote').textContent=b.manualLiabilities.length+' loan entries'
+  document.getElementById('accStock').textContent=fmtAmt(b.closingStock)
+  const journals=b.journals
+  if(!journals.length){document.getElementById('journalBody').innerHTML='<tr><td colspan="7" style="text-align:center;padding:20px;color:var(--text-dim);">No journal entries yet.</td></tr>';return}
+  document.getElementById('journalBody').innerHTML=journals.map(j=>`<tr>
     <td>${new Date(j.entry_date).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'2-digit'})}</td>
     <td style="color:var(--text-main);">${j.narration}</td>
     <td><span style="background:rgba(248,113,113,0.12);color:#f87171;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:600;">Dr ${j.debit_account}</span></td>
@@ -2095,202 +2044,86 @@ async function loadAccounts() {
     <td style="color:var(--text-dim);">${j.party_name||'—'}${j.interest_rate>0?` (${j.interest_rate}% p.a.)`:''}</td>
     <td><button onclick="deleteJournalEntry(${j.id})" style="background:rgba(220,38,38,0.15);border:1px solid rgba(220,38,38,0.25);color:#f87171;padding:3px 8px;font-size:11px;border-radius:6px;cursor:pointer;font-family:'DM Sans',sans-serif;">✕</button></td>
   </tr>`).join('')
-
-  exportStore.journal = { headers:['Date','Narration','Debit Account','Credit Account','Amount','Party'], rows: journals.map(j=>[j.entry_date,j.narration,j.debit_account,j.credit_account,j.amount,j.party_name||'']) }
+  exportStore.journal={headers:['Date','Narration','Debit Account','Credit Account','Amount','Party'],rows:journals.map(j=>[j.entry_date,j.narration,j.debit_account,j.credit_account,j.amount,j.party_name||''])}
 }
 
 // ═══════════════════════════════════════
 // JOURNAL ENTRY FORM
 // ═══════════════════════════════════════
-const TXN_TYPES = {
-  expense:{
-    title:'Record Expense',
-    fields:[
-      {id:'txn_expense_name',label:'Expense Name',type:'text',placeholder:'e.g. Electricity Bill, Rent'},
-      {id:'txn_amount',label:'Amount (₹)',type:'number',placeholder:'2000'},
-      {id:'txn_mode',label:'Paid Via',type:'select',options:['Cash','Bank/UPI','Cheque']},
-      {id:'txn_party',label:'Paid To (optional)',type:'text',placeholder:'e.g. DGVCL'},
-      {id:'txn_narration',label:'Note',type:'text',placeholder:'e.g. May 2026 electricity bill'},
-    ],
+const TXN_TYPES={
+  expense:{title:'Record Expense',fields:[{id:'txn_expense_name',label:'Expense Name',type:'text',placeholder:'e.g. Electricity Bill, Rent'},{id:'txn_amount',label:'Amount (₹)',type:'number',placeholder:'2000'},{id:'txn_mode',label:'Paid Via',type:'select',options:['Cash','Bank/UPI','Cheque']},{id:'txn_party',label:'Paid To (optional)',type:'text',placeholder:'e.g. DGVCL'},{id:'txn_narration',label:'Note',type:'text',placeholder:'e.g. May 2026 electricity bill'}],
     preview:d=>{const crAcc=(d.txn_mode==='Bank/UPI'||d.txn_mode==='Cheque')?'Bank/UPI':'Cash';return`Dr <strong>${d.txn_expense_name||'Expense'} A/c</strong> ₹${d.txn_amount||0} &nbsp;|&nbsp; Cr <strong>${crAcc}</strong> ₹${d.txn_amount||0}<br><small style="color:#f87171;">⬇ Reduces P&L Profit</small>`},
-    debit:d=>'Expense: '+(d.txn_expense_name||'General'),
-    credit:d=>(d.txn_mode==='Bank/UPI'||d.txn_mode==='Cheque'?'Bank/UPI':'Cash'),
-    type:'expense'
-  },
-  income:{
-    title:'Record Income',
-    fields:[
-      {id:'txn_income_name',label:'Income Source',type:'text',placeholder:'e.g. Commission, Rental'},
-      {id:'txn_amount',label:'Amount (₹)',type:'number',placeholder:'5000'},
-      {id:'txn_mode',label:'Received Via',type:'select',options:['Cash','Bank/UPI']},
-      {id:'txn_party',label:'From (optional)',type:'text',placeholder:'e.g. Vikram Traders'},
-      {id:'txn_narration',label:'Note',type:'text',placeholder:'e.g. Commission May 2026'},
-    ],
+    debit:d=>'Expense: '+(d.txn_expense_name||'General'),credit:d=>(d.txn_mode==='Bank/UPI'||d.txn_mode==='Cheque'?'Bank/UPI':'Cash'),type:'expense'},
+  income:{title:'Record Income',fields:[{id:'txn_income_name',label:'Income Source',type:'text',placeholder:'e.g. Commission, Rental'},{id:'txn_amount',label:'Amount (₹)',type:'number',placeholder:'5000'},{id:'txn_mode',label:'Received Via',type:'select',options:['Cash','Bank/UPI']},{id:'txn_party',label:'From (optional)',type:'text',placeholder:'e.g. Vikram Traders'},{id:'txn_narration',label:'Note',type:'text',placeholder:'e.g. Commission May 2026'}],
     preview:d=>{const drAcc=d.txn_mode==='Bank/UPI'?'Bank/UPI':'Cash';return`Dr <strong>${drAcc}</strong> ₹${d.txn_amount||0} &nbsp;|&nbsp; Cr <strong>${d.txn_income_name||'Income'}</strong> ₹${d.txn_amount||0}<br><small style="color:#34d399;">⬆ Increases P&L Profit</small>`},
-    debit:d=>(d.txn_mode==='Bank/UPI'?'Bank/UPI':'Cash'),
-    credit:d=>'Income: '+(d.txn_income_name||'General'),
-    type:'income'
-  },
-  owner_investment:{
-    title:'Owner Brings Capital',
-    fields:[
-      {id:'txn_amount',label:'Amount (₹)',type:'number',placeholder:'75000'},
-      {id:'txn_mode',label:'Via',type:'select',options:['Cash','Bank/UPI']},
-      {id:'txn_narration',label:'Note',type:'text',placeholder:'e.g. Owner brings capital'},
-    ],
-    // WHY: When owner brings capital, BOTH Cash/Bank and Capital increase.
-    // Dr Cash/Bank (asset increases) / Cr Capital (owner's equity increases)
-    preview:d=>`Dr <strong>${d.txn_mode==='Bank/UPI'?'Bank/UPI':'Cash'}</strong> ₹${d.txn_amount||0} &nbsp;|&nbsp; Cr <strong>Capital</strong> ₹${d.txn_amount||0}<br><small style="color:var(--text-dim);">Both Cash and Capital increase — proper double entry</small>`,
-    debit:d=>(d.txn_mode==='Bank/UPI'?'Bank/UPI':'Cash'),
-    credit:()=>'Capital',
-    type:'owner_investment'
-  },
-  opening_balance:{
-    title:'Set Opening Balance',
-    fields:[
-      {id:'txn_cash_opening',label:'Opening Cash in Hand (₹)',type:'number',placeholder:'e.g. 50000'},
-      {id:'txn_bank_opening',label:'Opening Bank / UPI (₹)',type:'number',placeholder:'e.g. 100000'},
-      {id:'txn_narration',label:'Note',type:'text',placeholder:'e.g. Opening balance 1 Apr 2025'},
-    ],
-    preview:d=>`Dr <strong>Cash</strong> ₹${d.txn_cash_opening||0} + Dr <strong>Bank/UPI</strong> ₹${d.txn_bank_opening||0}<br>Cr <strong>Capital</strong> ₹${(Number(d.txn_cash_opening||0)+Number(d.txn_bank_opening||0)).toLocaleString('en-IN')}<br><small style="color:var(--text-dim);">Sets your starting Cash and Bank balances</small>`,
-    debit:()=>'Cash', credit:()=>'Capital', type:'opening_balance'
-  },
-  buy_asset:{
-    title:'Buy Asset (Cash + Loan)',
-    fields:[
-      {id:'txn_asset_name',label:'Asset Name',type:'text',placeholder:'e.g. Office, Machinery'},
-      {id:'txn_amount',label:'Total Cost (₹)',type:'number',placeholder:'500000'},
-      {id:'txn_cash_portion',label:'Cash Paid (₹)',type:'number',placeholder:'250000'},
-      {id:'txn_loan_name',label:'Loan From',type:'text',placeholder:'e.g. SBI Bank'},
-      {id:'txn_interest',label:'Loan Interest Rate %',type:'number',placeholder:'10'},
-      {id:'txn_narration',label:'Note',type:'text',placeholder:'e.g. Bought shop'},
-    ],
+    debit:d=>(d.txn_mode==='Bank/UPI'?'Bank/UPI':'Cash'),credit:d=>'Income: '+(d.txn_income_name||'General'),type:'income'},
+  owner_investment:{title:'Owner Brings Capital',fields:[{id:'txn_amount',label:'Amount (₹)',type:'number',placeholder:'75000'},{id:'txn_mode',label:'Via',type:'select',options:['Cash','Bank/UPI']},{id:'txn_narration',label:'Note',type:'text',placeholder:'e.g. Owner brings capital'}],
+    preview:d=>`Dr <strong>${d.txn_mode==='Bank/UPI'?'Bank/UPI':'Cash'}</strong> ₹${d.txn_amount||0} &nbsp;|&nbsp; Cr <strong>Capital</strong> ₹${d.txn_amount||0}`,
+    debit:d=>(d.txn_mode==='Bank/UPI'?'Bank/UPI':'Cash'),credit:()=>'Capital',type:'owner_investment'},
+  opening_balance:{title:'Set Opening Balance',fields:[{id:'txn_cash_opening',label:'Opening Cash in Hand (₹)',type:'number',placeholder:'e.g. 50000'},{id:'txn_bank_opening',label:'Opening Bank / UPI (₹)',type:'number',placeholder:'e.g. 100000'},{id:'txn_narration',label:'Note',type:'text',placeholder:'e.g. Opening balance 1 Apr 2025'}],
+    preview:d=>`Dr <strong>Cash</strong> ₹${d.txn_cash_opening||0} + Dr <strong>Bank/UPI</strong> ₹${d.txn_bank_opening||0}<br>Cr <strong>Capital</strong> ₹${(Number(d.txn_cash_opening||0)+Number(d.txn_bank_opening||0)).toLocaleString('en-IN')}`,
+    debit:()=>'Cash',credit:()=>'Capital',type:'opening_balance'},
+  buy_asset:{title:'Buy Asset (Cash + Loan)',fields:[{id:'txn_asset_name',label:'Asset Name',type:'text',placeholder:'e.g. Office, Machinery'},{id:'txn_amount',label:'Total Cost (₹)',type:'number',placeholder:'500000'},{id:'txn_cash_portion',label:'Cash Paid (₹)',type:'number',placeholder:'250000'},{id:'txn_loan_name',label:'Loan From',type:'text',placeholder:'e.g. SBI Bank'},{id:'txn_interest',label:'Loan Interest Rate %',type:'number',placeholder:'10'},{id:'txn_narration',label:'Note',type:'text',placeholder:'e.g. Bought shop'}],
     preview:d=>{const loan=Number(d.txn_amount||0)-Number(d.txn_cash_portion||0);return`Dr <strong>${d.txn_asset_name||'Asset'}</strong> ₹${d.txn_amount||0}<br>Cr <strong>Cash</strong> ₹${d.txn_cash_portion||0}${loan>0?`<br>Cr <strong>${d.txn_loan_name||'Loan'}</strong> ₹${loan.toLocaleString('en-IN')}`:''}`},
-    debit:d=>d.txn_asset_name||'Asset',credit:()=>'Cash',type:'buy_asset'
-  },
-  take_loan:{
-    title:'Take Loan from Bank/Person',
-    fields:[
-      {id:'txn_party',label:'Lender Name',type:'text',placeholder:'e.g. SBI Bank'},
-      {id:'txn_amount',label:'Loan Amount (₹)',type:'number',placeholder:'100000'},
-      {id:'txn_interest',label:'Interest Rate % p.a.',type:'number',placeholder:'12'},
-      {id:'txn_narration',label:'Purpose',type:'text',placeholder:'e.g. Business expansion'},
-    ],
-    preview:d=>`Dr <strong>Cash</strong> ₹${d.txn_amount||0} &nbsp;|&nbsp; Cr <strong>${d.txn_party||'Lender'} Loan</strong> ₹${d.txn_amount||0}${d.txn_interest>0?`<br>📌 Monthly interest: ₹${Math.round((d.txn_amount||0)*(d.txn_interest||0)/1200).toLocaleString('en-IN')}`:''}`,
-    debit:()=>'Cash', credit:d=>(d.txn_party||'Lender')+' Loan', type:'take_loan'
-  },
-  pay_loan:{
-    title:'Pay Loan EMI',
-    fields:[
-      {id:'txn_party',label:'Lender Name',type:'text',placeholder:'e.g. SBI Bank'},
-      {id:'txn_amount',label:'Amount Paid (₹)',type:'number',placeholder:'10000'},
-      {id:'txn_interest_amt',label:'Interest Portion (₹)',type:'number',placeholder:'0'},
-      {id:'txn_narration',label:'Note',type:'text',placeholder:'e.g. EMI May 2026'},
-    ],
+    debit:d=>d.txn_asset_name||'Asset',credit:()=>'Cash',type:'buy_asset'},
+  take_loan:{title:'Take Loan from Bank/Person',fields:[{id:'txn_party',label:'Lender Name',type:'text',placeholder:'e.g. SBI Bank'},{id:'txn_amount',label:'Loan Amount (₹)',type:'number',placeholder:'100000'},{id:'txn_interest',label:'Interest Rate % p.a.',type:'number',placeholder:'12'},{id:'txn_narration',label:'Purpose',type:'text',placeholder:'e.g. Business expansion'}],
+    preview:d=>`Dr <strong>Cash</strong> ₹${d.txn_amount||0} &nbsp;|&nbsp; Cr <strong>${d.txn_party||'Lender'} Loan</strong> ₹${d.txn_amount||0}`,
+    debit:()=>'Cash',credit:d=>(d.txn_party||'Lender')+' Loan',type:'take_loan'},
+  pay_loan:{title:'Pay Loan EMI',fields:[{id:'txn_party',label:'Lender Name',type:'text',placeholder:'e.g. SBI Bank'},{id:'txn_amount',label:'Amount Paid (₹)',type:'number',placeholder:'10000'},{id:'txn_interest_amt',label:'Interest Portion (₹)',type:'number',placeholder:'0'},{id:'txn_narration',label:'Note',type:'text',placeholder:'e.g. EMI May 2026'}],
     preview:d=>`Dr <strong>${d.txn_party||'Lender'} Loan</strong> ₹${Math.max(0,Number(d.txn_amount||0)-Number(d.txn_interest_amt||0))}${d.txn_interest_amt>0?`<br>Dr <strong>Interest Expense</strong> ₹${d.txn_interest_amt||0}`:''}<br>Cr <strong>Cash</strong> ₹${d.txn_amount||0}`,
-    debit:d=>(d.txn_party||'Lender')+' Loan', credit:()=>'Cash', type:'pay_loan'
-  },
-  cash_out:{
-    title:'Give Cash / Pay Someone',
-    fields:[
-      {id:'txn_party',label:'Person Name',type:'text',placeholder:'e.g. Rajesh Kumar'},
-      {id:'txn_amount',label:'Amount (₹)',type:'number',placeholder:'5000'},
-      {id:'txn_narration',label:'Reason',type:'text',placeholder:'e.g. Transport charges'},
-    ],
+    debit:d=>(d.txn_party||'Lender')+' Loan',credit:()=>'Cash',type:'pay_loan'},
+  cash_out:{title:'Give Cash / Pay Someone',fields:[{id:'txn_party',label:'Person Name',type:'text',placeholder:'e.g. Rajesh Kumar'},{id:'txn_amount',label:'Amount (₹)',type:'number',placeholder:'5000'},{id:'txn_narration',label:'Reason',type:'text',placeholder:'e.g. Transport charges'}],
     preview:d=>`Dr <strong>${d.txn_party||'Party'}</strong> ₹${d.txn_amount||0} &nbsp;|&nbsp; Cr <strong>Cash</strong> ₹${d.txn_amount||0}`,
-    debit:d=>d.txn_party||'Party', credit:()=>'Cash', type:'cash_out'
-  },
-  cash_in:{
-    title:'Receive Cash from Someone',
-    fields:[
-      {id:'txn_party',label:'Person Name',type:'text',placeholder:'e.g. Rajesh Kumar'},
-      {id:'txn_amount',label:'Amount (₹)',type:'number',placeholder:'5000'},
-      {id:'txn_narration',label:'Reason',type:'text',placeholder:'e.g. Loan repayment'},
-    ],
+    debit:d=>d.txn_party||'Party',credit:()=>'Cash',type:'cash_out'},
+  cash_in:{title:'Receive Cash from Someone',fields:[{id:'txn_party',label:'Person Name',type:'text',placeholder:'e.g. Rajesh Kumar'},{id:'txn_amount',label:'Amount (₹)',type:'number',placeholder:'5000'},{id:'txn_narration',label:'Reason',type:'text',placeholder:'e.g. Loan repayment'}],
     preview:d=>`Dr <strong>Cash</strong> ₹${d.txn_amount||0} &nbsp;|&nbsp; Cr <strong>${d.txn_party||'Party'}</strong> ₹${d.txn_amount||0}`,
-    debit:()=>'Cash', credit:d=>d.txn_party||'Party', type:'cash_in'
-  },
-  other:{
-    title:'Manual Journal Entry',
-    fields:[
-      {id:'txn_debit_account',label:'Debit Account (Dr)',type:'text',placeholder:'e.g. Furniture A/c'},
-      {id:'txn_credit_account',label:'Credit Account (Cr)',type:'text',placeholder:'e.g. Cash A/c'},
-      {id:'txn_amount',label:'Amount (₹)',type:'number',placeholder:'5000'},
-      {id:'txn_party',label:'Party (optional)',type:'text',placeholder:'e.g. Suresh'},
-      {id:'txn_narration',label:'Narration',type:'text',placeholder:'e.g. Purchase of furniture'},
-    ],
+    debit:()=>'Cash',credit:d=>d.txn_party||'Party',type:'cash_in'},
+  other:{title:'Manual Journal Entry',fields:[{id:'txn_debit_account',label:'Debit Account (Dr)',type:'text',placeholder:'e.g. Furniture A/c'},{id:'txn_credit_account',label:'Credit Account (Cr)',type:'text',placeholder:'e.g. Cash A/c'},{id:'txn_amount',label:'Amount (₹)',type:'number',placeholder:'5000'},{id:'txn_party',label:'Party (optional)',type:'text',placeholder:'e.g. Suresh'},{id:'txn_narration',label:'Narration',type:'text',placeholder:'e.g. Purchase of furniture'}],
     preview:d=>`Dr <strong>${d.txn_debit_account||'Debit A/c'}</strong> ₹${d.txn_amount||0} &nbsp;|&nbsp; Cr <strong>${d.txn_credit_account||'Credit A/c'}</strong> ₹${d.txn_amount||0}`,
-    debit:d=>d.txn_debit_account||'Debit', credit:d=>d.txn_credit_account||'Credit', type:'other'
-  }
+    debit:d=>d.txn_debit_account||'Debit',credit:d=>d.txn_credit_account||'Credit',type:'other'}
 }
 
-window.selectTxnType = function(type, btn) {
-  _currentTxnType = type
-  document.querySelectorAll('.txn-type-btn').forEach(b=>b.classList.remove('active'))
-  btn.classList.add('active')
-  const cfg = TXN_TYPES[type]; if(!cfg) return
-  const fieldsEl = document.getElementById('txnFields')
-  fieldsEl.innerHTML = cfg.fields.map(f=>{
-    if(f.type==='select') return `<div class="txn-field"><label>${f.label}</label><select id="${f.id}" onchange="updateTxnPreview()">${(f.options||[]).map(o=>`<option>${o}</option>`).join('')}</select></div>`
-    return `<div class="txn-field"><label>${f.label}</label><input type="${f.type}" id="${f.id}" placeholder="${f.placeholder||''}" oninput="updateTxnPreview()"></div>`
-  }).join('')
-  fieldsEl.classList.add('show')
-  document.getElementById('txnPreview').classList.remove('show')
-  document.getElementById('txnSaveRow').style.display='block'
-  updateTxnPreview()
+window.selectTxnType=function(type,btn){
+  _currentTxnType=type
+  document.querySelectorAll('.txn-type-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active')
+  const cfg=TXN_TYPES[type]; if(!cfg)return
+  const fieldsEl=document.getElementById('txnFields')
+  fieldsEl.innerHTML=cfg.fields.map(f=>{if(f.type==='select')return`<div class="txn-field"><label>${f.label}</label><select id="${f.id}" onchange="updateTxnPreview()">${(f.options||[]).map(o=>`<option>${o}</option>`).join('')}</select></div>`;return`<div class="txn-field"><label>${f.label}</label><input type="${f.type}" id="${f.id}" placeholder="${f.placeholder||''}" oninput="updateTxnPreview()"></div>`}).join('')
+  fieldsEl.classList.add('show'); document.getElementById('txnPreview').classList.remove('show'); document.getElementById('txnSaveRow').style.display='block'; updateTxnPreview()
 }
-function getTxnData() {
-  const cfg=TXN_TYPES[_currentTxnType]; if(!cfg) return {}
-  const d={}; cfg.fields.forEach(f=>{const el=document.getElementById(f.id);if(el)d[f.id]=el.value}); return d
-}
-window.updateTxnPreview = function() {
-  const cfg=TXN_TYPES[_currentTxnType]; if(!cfg) return
-  const prev=document.getElementById('txnPreview')
-  prev.innerHTML=cfg.preview(getTxnData()); prev.classList.add('show')
-}
-window.saveJournalEntry = async function() {
-  const cfg=TXN_TYPES[_currentTxnType]; if(!cfg){alert('Select a transaction type first');return}
-  const d=getTxnData()
-  const amount=parseFloat(d.txn_amount)||0; if(!amount){alert('Please enter an amount');return}
+function getTxnData(){const cfg=TXN_TYPES[_currentTxnType];if(!cfg)return{};const d={};cfg.fields.forEach(f=>{const el=document.getElementById(f.id);if(el)d[f.id]=el.value});return d}
+window.updateTxnPreview=function(){const cfg=TXN_TYPES[_currentTxnType];if(!cfg)return;const prev=document.getElementById('txnPreview');prev.innerHTML=cfg.preview(getTxnData());prev.classList.add('show')}
+window.saveJournalEntry=async function(){
+  const cfg=TXN_TYPES[_currentTxnType];if(!cfg){alert('Select a transaction type first');return}
+  const d=getTxnData(); const amount=parseFloat(d.txn_amount)||0; if(!amount){alert('Please enter an amount');return}
   let debitAccount=cfg.debit(d), creditAccount=cfg.credit(d)
-  const narration=d.txn_narration||cfg.title
-  const partyName=d.txn_party||''
-  const interestRate=parseFloat(d.txn_interest||d.txn_interest_rate||0)||0
-
-  // Opening balance — creates separate entries for cash and bank
-  if (_currentTxnType === 'opening_balance') {
+  const narration=d.txn_narration||cfg.title, partyName=d.txn_party||'', interestRate=parseFloat(d.txn_interest||d.txn_interest_rate||0)||0
+  if(_currentTxnType==='opening_balance'){
     const cashAmt=parseFloat(d.txn_cash_opening)||0, bankAmt=parseFloat(d.txn_bank_opening)||0
     if(!cashAmt&&!bankAmt){alert('Enter at least one opening balance');return}
     const note=d.txn_narration||'Opening balance'
-    if(cashAmt>0) await _supabase.from('journal_entries').insert({narration:'Opening Cash: '+note,debit_account:'Cash',credit_account:'Capital',amount:cashAmt,party_name:null,interest_rate:0,notes:note,transaction_type:'opening_balance',entry_date:new Date().toISOString().slice(0,10)})
-    if(bankAmt>0) await _supabase.from('journal_entries').insert({narration:'Opening Bank: '+note,debit_account:'Bank/UPI',credit_account:'Capital',amount:bankAmt,party_name:null,interest_rate:0,notes:note,transaction_type:'opening_balance',entry_date:new Date().toISOString().slice(0,10)})
-    alert('✅ Opening balances saved! Cash and Capital both updated.')
-    clearTxnForm(); loadAccounts(); return
+    if(cashAmt>0)await _supabase.from('journal_entries').insert({narration:'Opening Cash: '+note,debit_account:'Cash',credit_account:'Capital',amount:cashAmt,party_name:null,interest_rate:0,notes:note,transaction_type:'opening_balance',entry_date:new Date().toISOString().slice(0,10)})
+    if(bankAmt>0)await _supabase.from('journal_entries').insert({narration:'Opening Bank: '+note,debit_account:'Bank/UPI',credit_account:'Capital',amount:bankAmt,party_name:null,interest_rate:0,notes:note,transaction_type:'opening_balance',entry_date:new Date().toISOString().slice(0,10)})
+    alert('✅ Opening balances saved!'); clearTxnForm(); loadAccounts(); return
   }
-
-  // Buy asset — also creates BS entries
-  if (_currentTxnType === 'buy_asset') {
+  if(_currentTxnType==='buy_asset'){
     const cashPortion=parseFloat(d.txn_cash_portion)||0
     if(cashPortion>amount){alert('Cash portion cannot exceed total cost');return}
     const loanAmount=amount-cashPortion, loanName=d.txn_loan_name||'Loan'
-    if(d.txn_asset_name) await _supabase.from('balance_sheet_entries').insert({entry_type:'asset',category:'manual',label:d.txn_asset_name,amount,note:narration,account_type:'manual',is_active:true,effective_date:new Date().toISOString().slice(0,10)})
-    if(loanAmount>0) await _supabase.from('balance_sheet_entries').insert({entry_type:'liability',category:'loan',label:loanName,amount:loanAmount,note:interestRate>0?interestRate+'% p.a.':'',account_type:'manual',is_active:true,effective_date:new Date().toISOString().slice(0,10)})
+    if(d.txn_asset_name)await _supabase.from('balance_sheet_entries').insert({entry_type:'asset',category:'manual',label:d.txn_asset_name,amount,note:narration,account_type:'manual',is_active:true,effective_date:new Date().toISOString().slice(0,10)})
+    if(loanAmount>0)await _supabase.from('balance_sheet_entries').insert({entry_type:'liability',category:'loan',label:loanName,amount:loanAmount,note:interestRate>0?interestRate+'% p.a.':'',account_type:'manual',is_active:true,effective_date:new Date().toISOString().slice(0,10)})
   }
-
   const{error}=await _supabase.from('journal_entries').insert({narration,debit_account:debitAccount,credit_account:creditAccount,amount,party_name:partyName||null,interest_rate:interestRate||0,notes:narration,transaction_type:_currentTxnType,entry_date:new Date().toISOString().slice(0,10)})
   if(error){alert('Save failed: '+error.message);return}
-  alert('✅ Entry saved!')
-  clearTxnForm(); loadAccounts()
+  alert('✅ Entry saved!'); clearTxnForm(); loadAccounts()
 }
-window.clearTxnForm = function() {
+window.clearTxnForm=function(){
   _currentTxnType=''
   document.querySelectorAll('.txn-type-btn').forEach(b=>b.classList.remove('active'))
-  document.getElementById('txnFields').classList.remove('show')
-  document.getElementById('txnFields').innerHTML=''
-  document.getElementById('txnPreview').classList.remove('show')
-  document.getElementById('txnSaveRow').style.display='none'
+  document.getElementById('txnFields').classList.remove('show'); document.getElementById('txnFields').innerHTML=''
+  document.getElementById('txnPreview').classList.remove('show'); document.getElementById('txnSaveRow').style.display='none'
 }
-window.deleteJournalEntry = async function(id) {
+window.deleteJournalEntry=async function(id){
   if(!confirm('Delete this journal entry?'))return
   const{error}=await _supabase.from('journal_entries').delete().eq('id',id)
   if(error){alert('Error: '+error.message);return}
@@ -2300,7 +2133,7 @@ window.deleteJournalEntry = async function(id) {
 // ═══════════════════════════════════════
 // CSV EXPORT
 // ═══════════════════════════════════════
-window.exportCSV = function(tab) {
+window.exportCSV=function(tab){
   const data=exportStore[tab]
   if(!data||!data.rows.length){alert('No data to export. Load the tab first.');return}
   const range=getRange()
@@ -2313,8 +2146,8 @@ window.exportCSV = function(tab) {
 // ═══════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════
-function init() {
-  document.getElementById('bsDateInput').value = new Date().toISOString().slice(0,10)
+function init(){
+  document.getElementById('bsDateInput').value=new Date().toISOString().slice(0,10)
   buildFYDropdown()
   loadTab('sales')
 }
