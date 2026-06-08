@@ -591,13 +591,18 @@
 <script>
 // ── QR CODE ── (local generation, no internet needed, works forever in saved PDFs)
 function renderQrCode(url) {
-  var container = document.getElementById('purQrCanvas');
-  if (!container) return;
-  // Clear previous QR
-  container.innerHTML = '';
-  // Generate QR locally using qrcode.js — no external request needed
+  // Find the parent of the QR container
+  var old = document.getElementById('purQrCanvas');
+  if (!old) return;
+  // Completely remove old div and create a fresh one — prevents double QR bug
+  var parent = old.parentNode;
+  var newContainer = document.createElement('div');
+  newContainer.id = 'purQrCanvas';
+  newContainer.style.cssText = 'width:80px;height:80px;';
+  parent.replaceChild(newContainer, old);
+  // Now generate fresh QR into the clean container
   try {
-    new QRCode(container, {
+    new QRCode(newContainer, {
       text: url,
       width: 80,
       height: 80,
@@ -606,7 +611,7 @@ function renderQrCode(url) {
       correctLevel: QRCode.CorrectLevel.M
     });
   } catch(e) {
-    container.innerHTML = '<div style="width:80px;height:80px;background:#f5f5f5;display:flex;align-items:center;justify-content:center;font-size:9px;color:#78350f;text-align:center;border:1px solid #e5e7eb;">Portal QR</div>';
+    newContainer.innerHTML = '<div style="width:80px;height:80px;background:#f5f5f5;display:flex;align-items:center;justify-content:center;font-size:9px;color:#78350f;text-align:center;border:1px solid #e5e7eb;">Portal QR</div>';
   }
 }
 
