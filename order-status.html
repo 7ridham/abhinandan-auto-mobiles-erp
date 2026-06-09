@@ -213,6 +213,72 @@ html.light-theme .age-overdue  { background: rgba(251,146,60,0.15) !important; c
 html.light-theme .age-critical { background: rgba(239,68,68,0.15) !important; color: #991b1b !important; }
 
 /* ═══════════════════════════════════════════════
+   LIGHT THEME — MISSING TEXT VISIBILITY FIXES
+   Why: These elements use rgba(255,255,255,X) inline styles which
+   are invisible on white backgrounds. We fix them with class overrides.
+═══════════════════════════════════════════════ */
+
+/* FIX 1: Templates modal subtitle text — "Click Load to start..." */
+html.light-theme #templatesModal .modal-box > div:nth-child(2) { color: #475569 !important; }
+
+/* FIX 2: "No templates yet." text in tplListBox */
+html.light-theme #tplListBox > div { color: #64748b !important; }
+
+/* FIX 3: Template card secondary info (merchant · items · date) */
+html.light-theme #tplListBox > div > div > div:last-child { color: #64748b !important; }
+
+/* FIX 4: rcv-done rows — restore full opacity, give dark text color
+   Why: opacity:0.45 on white background = near invisible gray blur */
+html.light-theme .rcv-done { opacity: 1 !important; }
+
+/* FIX 5: rcv-done — the strikethrough product name */
+html.light-theme .rcv-done-name { color: #9ca3af !important; }
+
+/* FIX 6: rcv-done — the "Done" green badge */
+html.light-theme .rcv-done-badge {
+  background: #dcfce7 !important;
+  color: #16a34a !important;
+  border: 1px solid #86efac !important;
+}
+
+/* FIX 7: rcv-done — the ordered qty number next to done items */
+html.light-theme .rcv-done-qty { color: #9ca3af !important; }
+
+/* FIX 8: "Discount" label text in receive modal pay split row */
+html.light-theme .discount-label { color: #475569 !important; }
+
+/* FIX 9: Discount hint text */
+html.light-theme #discHint { color: #64748b !important; }
+
+/* FIX 10: Pay sum row label spans (Items Total, Delivery, Discount labels) */
+html.light-theme .pay-sum-row > span:first-child { color: #475569 !important; }
+
+/* FIX 11: History table "No receive history yet" empty state */
+html.light-theme .hist-table td[colspan] { color: #64748b !important; }
+
+/* FIX 12: Items table "No items" empty state */
+html.light-theme .items-table td[colspan] { color: #64748b !important; }
+
+/* FIX 13: Advance payment labels inside advPayBox */
+html.light-theme #advPayBox .flbl { color: #374151 !important; }
+
+/* FIX 14: New product detected warning title in rcvNewProdSection */
+html.light-theme #rcvNewProdSection .new-prod-title { color: #b45309 !important; }
+
+/* FIX 15: rcv-head column labels (Ordered, Rcvd, etc.) */
+html.light-theme .rcv-head { color: #475569 !important; }
+html.light-theme .rcv-head > div { color: #475569 !important; }
+
+/* FIX 16: Order card subtitle text (items count, rcvd/ordered) */
+html.light-theme .order-meta > div > div[style*="color:rgba(255,255,255"] { color: #64748b !important; }
+
+/* FIX 17: Main page subtitle paragraph */
+html.light-theme .main > p { color: #475569 !important; }
+
+/* FIX 18: Order total display in new order modal */
+html.light-theme #newOrderModal > .modal-box > div[style*="background:rgba(255"] > span:first-child { color: #475569 !important; }
+
+/* ═══════════════════════════════════════════════
    ANIMATIONS
 ═══════════════════════════════════════════════ */
 @keyframes urgentPulse {
@@ -467,11 +533,18 @@ html.light-theme .age-critical { background: rgba(239,68,68,0.15) !important; co
 
 /* ═══════════════════════════════════════════════
    PRINT STYLES
-   Fix: Only show the correct print area and use
-   requestAnimationFrame to avoid blank pages.
+   FIX: Force white background so dark theme body colour
+   does NOT bleed into the PDF/print snapshot.
+   Without html,body background:white the entire page
+   prints as a black rectangle.
 ═══════════════════════════════════════════════ */
 #printReceiptArea, #printOrderArea { display:none; }
 @media print {
+  /* CRITICAL — white background override */
+  html, body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
   body > * { display:none !important; }
   body.print-receipt #printReceiptArea { display:block !important; padding:0; }
   body.print-order  #printOrderArea  { display:block !important; padding:0; }
@@ -719,7 +792,7 @@ html.light-theme .age-critical { background: rgba(239,68,68,0.15) !important; co
   <!-- New product fields -->
   <div id="rcvNewProdSection" style="display:none;">
     <div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);border-radius:10px;padding:14px;margin-bottom:12px;">
-      <div style="font-size:12px;font-weight:700;color:#fbbf24;margin-bottom:10px;">New Products Detected — Fill Details to Add to Inventory</div>
+      <div class="new-prod-title" style="font-size:12px;font-weight:700;color:#fbbf24;margin-bottom:10px;">New Products Detected — Fill Details to Add to Inventory</div>
       <div id="rcvNewProdFields"></div>
     </div>
   </div>
@@ -747,7 +820,7 @@ html.light-theme .age-critical { background: rgba(239,68,68,0.15) !important; co
   <div class="pay-split">
     <div class="pay-split-title">Payment for this Delivery</div>
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,.07);">
-      <span style="font-size:12px;font-weight:600;color:rgba(255,255,255,.55);min-width:70px;">Discount</span>
+      <span class="discount-label" style="font-size:12px;font-weight:600;color:rgba(255,255,255,.55);min-width:70px;">Discount</span>
       <div style="display:flex;gap:6px;">
         <button id="discTypePct"   class="disc-type-btn active" onclick="setDiscType('pct')">%</button>
         <button id="discTypeFixed" class="disc-type-btn"        onclick="setDiscType('fixed')">₹ Fixed</button>
@@ -818,7 +891,8 @@ html.light-theme .age-critical { background: rgba(239,68,68,0.15) !important; co
 <div class="modal-overlay" id="templatesModal">
  <div class="modal-box" style="max-width:600px;">
   <div class="modal-title">Order Templates</div>
-  <div style="font-size:13px;color:rgba(255,255,255,.5);margin-bottom:18px;">Click "Load" to start a new order with items pre-filled.</div>
+  <!-- FIX: Added class tpl-subtitle so light theme CSS can target it -->
+  <div class="tpl-subtitle" style="font-size:13px;color:rgba(255,255,255,.5);margin-bottom:18px;">Click "Load" to start a new order with items pre-filled.</div>
   <div id="tplListBox"><div style="text-align:center;padding:30px;color:rgba(255,255,255,.3);">No templates yet.</div></div>
   <div class="modal-foot">
     <button class="btn-can" onclick="document.getElementById('templatesModal').style.display='none'">Close</button>
@@ -829,9 +903,6 @@ html.light-theme .age-critical { background: rgba(239,68,68,0.15) !important; co
 
 <!-- ═══════════════════════════════════════════
      PRINT: GOODS RECEIPT
-     Why: This hidden div is populated BEFORE window.print() is called.
-     The browser needs the DOM to be fully painted before it
-     can snapshot it for print. See printBillPreview() for the fix.
 ═══════════════════════════════════════════ -->
 <div id="printReceiptArea">
  <div class="rpt-paper">
@@ -1259,8 +1330,6 @@ window.setDiscType = function (t) {
 
 // ─────────────────────────────────────────────
 //  RECEIVE PAYMENT CALC
-//  Now includes delivery charges in the payable amount.
-//  Formula: Payable = (Items Total + Delivery) - Discount
 // ─────────────────────────────────────────────
 window.calcRcvTotal = function () {
   var itemsTotal = 0
@@ -1700,15 +1769,17 @@ window.openReceive = function (id) {
     var pend = (it.ordered_qty || 0) - (it.received_qty || 0)
     var done  = pend <= 0
     var row   = document.createElement('div')
+    // FIX: Remove opacity class for done rows — we handle visibility with explicit CSS classes instead
     row.className = 'rcv-row' + (done ? ' rcv-done' : '')
     row.style.gridTemplateColumns = '34px 2fr 70px 70px 85px 100px 100px 75px 75px'
 
     if (done) {
+      // FIX: Added rcv-done-name and rcv-done-badge classes so light theme CSS can override colors
       row.innerHTML =
         '<div><input type="checkbox" disabled style="opacity:.3;width:16px;height:16px;"></div>' +
-        '<div><div style="font-weight:500;color:rgba(255,255,255,.4);text-decoration:line-through;">' + esc(it.item_name) + '</div></div>' +
-        '<div style="text-align:center;color:rgba(255,255,255,.3);">' + (it.ordered_qty || 0) + '</div>' +
-        '<div style="text-align:center;"><span style="font-size:11px;background:rgba(52,211,153,.1);color:#34d399;padding:2px 8px;border-radius:5px;">Done</span></div>' +
+        '<div><div class="rcv-done-name" style="font-weight:500;color:rgba(255,255,255,.4);text-decoration:line-through;">' + esc(it.item_name) + '</div></div>' +
+        '<div style="text-align:center;" class="rcv-done-qty"><span style="color:rgba(255,255,255,.3);">' + (it.ordered_qty || 0) + '</span></div>' +
+        '<div style="text-align:center;"><span class="rcv-done-badge" style="font-size:11px;background:rgba(52,211,153,.1);color:#34d399;padding:2px 8px;border-radius:5px;">Done</span></div>' +
         '<div></div><div></div><div></div><div></div><div></div>'
     } else {
       var defaultBuy  = it.purchase_price || 0
@@ -1758,7 +1829,7 @@ window.openReceive = function (id) {
     npSec.style.display = 'none'
   }
 
-  // Reset delivery charges for new receive session
+  // Reset delivery charges
   hideRcvDelivery()
   ;['rcvCash', 'rcvUpi', 'rcvBank', 'rcvCredit', 'rcvDiscount'].forEach(function (x) { document.getElementById(x).value = '' })
   discType = 'pct'
@@ -1773,8 +1844,6 @@ window.closeReceive = function () { document.getElementById('receiveModal').styl
 
 // ─────────────────────────────────────────────
 //  DO RECEIVE
-//  Payment validation is strict — balance must be 0.
-//  Delivery charges are included in the bill.
 // ─────────────────────────────────────────────
 window.doReceive = async function (showBill) {
   if (!receivingId) return
@@ -1833,7 +1902,6 @@ window.doReceive = async function (showBill) {
   try {
     var billNo = await genBillNo()
 
-    // 1. Create purchase bill — includes delivery_charges
     var purRes = await _sb.from('purchases').insert([{
       bill_number:      billNo,
       merchant_name:    order.merchant_name,
@@ -1849,7 +1917,6 @@ window.doReceive = async function (showBill) {
     }]).select().single()
     if (purRes.error) throw new Error('Purchase bill error: ' + purRes.error.message)
 
-    // 2. Process each received item
     for (var i = 0; i < rcvd.length; i++) {
       var it    = rcvd[i]
       var invId = it.inv_id
@@ -1910,7 +1977,6 @@ window.doReceive = async function (showBill) {
       await _sb.from('purchase_order_items').update(itemUpd).eq('id', it.id)
     }
 
-    // 3. Update order status
     var updItems = items.map(function (it) {
       var ri = rcvd.find(function (r) { return r.id === it.id })
       return ri ? Object.assign({}, it, { received_qty: (it.received_qty || 0) + ri.rcvQty }) : it
@@ -1918,7 +1984,6 @@ window.doReceive = async function (showBill) {
     var allDone = updItems.every(function (it) { return (it.received_qty || 0) >= (it.ordered_qty || 0) })
     await _sb.from('purchase_orders').update({ status: allDone ? 'received' : 'partial', linked_bill_number: billNo }).eq('id', order.id)
 
-    // 4. Save receive history
     var histItems = rcvd.map(function (r) { return { item_name: r.item_name, qty: r.rcvQty, damaged: r.rcvDmg, shortage: r.rcvShrt } })
     var histRes = await _sb.from('order_receive_history').insert([{
       order_id:    order.id,
@@ -1929,7 +1994,6 @@ window.doReceive = async function (showBill) {
     }])
     if (histRes.error) console.error('History save error (non-fatal):', histRes.error)
 
-    // 5. Log to merchant_ledger
     var ledger = []
     if (cash  > 0) ledger.push({ merchant_name: order.merchant_name, entry_type: 'payment', amount: cash,  payment_mode: 'cash',  reference_no: billNo, notes: 'Payment for bill ' + billNo })
     if (upi   > 0) ledger.push({ merchant_name: order.merchant_name, entry_type: 'payment', amount: upi,   payment_mode: 'upi',   reference_no: billNo, notes: 'Payment for bill ' + billNo })
@@ -1990,7 +2054,7 @@ function showBillPreview(d) {
       '</div>' +
     '</div>'
 
-  // ── FILL PRINT AREA — populated BEFORE window.print() ──
+  // Populate print area BEFORE window.print() is called
   document.getElementById('ptBillNo').innerText  = billNo
   document.getElementById('ptDate').innerText    = fmtDLong(new Date().toISOString().slice(0, 10))
   document.getElementById('ptMerch').innerText   = order.merchant_name || '—'
@@ -2003,7 +2067,6 @@ function showBillPreview(d) {
   document.getElementById('ptUpi').innerText     = '₹' + upi.toLocaleString('en-IN')
   document.getElementById('ptBank').innerText    = '₹' + bank.toLocaleString('en-IN')
   document.getElementById('ptCredit').innerText  = '₹' + cred.toLocaleString('en-IN')
-  // Delivery charges on print
   document.getElementById('ptDeliveryRow').style.display = deliveryCharges > 0 ? 'flex' : 'none'
   if (deliveryCharges > 0) document.getElementById('ptDelivery').innerText = '+ ₹' + deliveryCharges.toLocaleString('en-IN')
   document.getElementById('ptDeliveryPayItem').style.display = deliveryCharges > 0 ? 'inline' : 'none'
@@ -2028,13 +2091,11 @@ function showBillPreview(d) {
 window.closeBillPreview = function () { document.getElementById('billPreviewModal').style.display = 'none' }
 
 // ─────────────────────────────────────────────
-//  PRINT BILL — Fixed blank PDF bug
-//  How it works:
-//  1. The print area DOM is fully populated above (showBillPreview)
-//  2. We add body class to CSS @media print selector
-//  3. Double requestAnimationFrame ensures browser layout + paint
-//  4. setTimeout 100ms gives an extra guarantee before print dialog
-//  5. After print, we remove the class to restore normal view
+//  PRINT BILL
+//  FIX: double rAF + 150ms ensures DOM is fully painted
+//  before browser snapshots for PDF. The @media print CSS
+//  forces html,body background to white so it doesn't
+//  print as a black rectangle.
 // ─────────────────────────────────────────────
 window.printBillPreview = function () {
   if (!_lastBillData) return
@@ -2049,20 +2110,19 @@ window.printBillPreview = function () {
           document.body.classList.remove('print-receipt')
           document.title = ot
         }, 1000)
-      }, 100)
+      }, 150)
     })
   })
 }
 
 // ─────────────────────────────────────────────
-//  PRINT PURCHASE ORDER — same fix applied
+//  PRINT PURCHASE ORDER
 // ─────────────────────────────────────────────
 window.printOrder = function (id) {
   var o = allOrders.find(function (x) { return x.id === id }); if (!o) return
   var items = allItems[id] || []
   var total = items.reduce(function (s, it) { return s + (it.ordered_qty || 0) * (it.purchase_price || 0) }, 0)
 
-  // Populate FIRST, then print
   document.getElementById('poNo').innerText       = o.order_number || '—'
   document.getElementById('poDt').innerText       = fmtDLong(o.order_date)
   document.getElementById('poMerch').innerText    = o.merchant_name  || '—'
@@ -2097,7 +2157,7 @@ window.printOrder = function (id) {
           document.body.classList.remove('print-order')
           document.title = ot
         }, 1000)
-      }, 100)
+      }, 150)
     })
   })
 }
@@ -2206,15 +2266,23 @@ window.openTemplatesModal = function () { renderTplList(); document.getElementBy
 
 function renderTplList() {
   var box = document.getElementById('tplListBox')
-  if (!templates.length) { box.innerHTML = '<div style="text-align:center;padding:30px;color:rgba(255,255,255,.3);">No templates yet.</div>'; return }
+  if (!templates.length) {
+    // FIX: Added tpl-empty class for light theme targeting
+    box.innerHTML = '<div class="tpl-empty" style="text-align:center;padding:30px;color:rgba(255,255,255,.3);">No templates yet.</div>'
+    return
+  }
   box.innerHTML = templates.map(function (t) {
     return '<div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:14px 16px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">' +
-      '<div><div style="font-weight:700;color:white;font-size:14px;">' + esc(t.name) + '</div>' +
-      '<div style="font-size:12px;color:rgba(255,255,255,.4);margin-top:3px;">' + (t.merchant ? esc(t.merchant) + ' · ' : '') + t.items.length + ' item' + (t.items.length !== 1 ? 's' : '') + ' · ' + fmtD(t.createdAt.slice(0, 10)) + '</div></div>' +
+      '<div>' +
+        '<div style="font-weight:700;color:white;font-size:14px;">' + esc(t.name) + '</div>' +
+        // FIX: Added tpl-meta class for light theme secondary text
+        '<div class="tpl-meta" style="font-size:12px;color:rgba(255,255,255,.4);margin-top:3px;">' + (t.merchant ? esc(t.merchant) + ' · ' : '') + t.items.length + ' item' + (t.items.length !== 1 ? 's' : '') + ' · ' + fmtD(t.createdAt.slice(0, 10)) + '</div>' +
+      '</div>' +
       '<div style="display:flex;gap:8px;">' +
         '<button onclick="loadTemplate(' + t.id + ')" style="background:rgba(37,99,235,.2);border:1px solid rgba(37,99,235,.3);color:#60a5fa;padding:7px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;box-shadow:none;">Load</button>' +
         '<button onclick="deleteTpl(' + t.id + ')" style="background:rgba(220,38,38,.1);border:1px solid rgba(220,38,38,.2);color:#f87171;padding:7px 12px;border-radius:8px;font-size:13px;cursor:pointer;box-shadow:none;">Delete</button>' +
-      '</div></div>'
+      '</div>' +
+    '</div>'
   }).join('')
 }
 
@@ -2323,6 +2391,27 @@ document.getElementById('receiveModal').addEventListener('click',     function (
 document.getElementById('templatesModal').addEventListener('click',   function (e) { if (e.target === this) this.style.display = 'none' })
 document.getElementById('billPreviewModal').addEventListener('click', function (e) { if (e.target === this) closeBillPreview() })
 document.getElementById('addMerchModal').addEventListener('click',    function (e) { if (e.target === this) closeAddMerch() })
+
+// ─────────────────────────────────────────────
+//  LIGHT THEME — add CSS overrides for newly added classes
+// ─────────────────────────────────────────────
+;(function addLightThemeRules() {
+  var s = document.createElement('style')
+  s.textContent = [
+    'html.light-theme .tpl-subtitle { color: #475569 !important; }',
+    'html.light-theme .tpl-empty { color: #64748b !important; }',
+    'html.light-theme .tpl-meta { color: #64748b !important; }',
+    'html.light-theme #tplListBox > div > div > div:first-child { color: #0f172a !important; font-weight: 700; }',
+    'html.light-theme #tplListBox > div { background: #ffffff !important; border-color: rgba(0,0,0,0.08) !important; }',
+    'html.light-theme .rcv-done { opacity: 1 !important; }',
+    'html.light-theme .rcv-done-name { color: #9ca3af !important; }',
+    'html.light-theme .rcv-done-badge { background: #dcfce7 !important; color: #16a34a !important; border: 1px solid #86efac !important; }',
+    'html.light-theme .rcv-done-qty span { color: #9ca3af !important; }',
+    'html.light-theme .discount-label { color: #475569 !important; }',
+    'html.light-theme #discHint { color: #64748b !important; }',
+  ].join('\n')
+  document.head.appendChild(s)
+})()
 </script>
 </body>
 </html>
