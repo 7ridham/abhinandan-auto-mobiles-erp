@@ -851,36 +851,263 @@ function buildFYDropdown() {
 //   Fix: Set document.title = 'Profit_and_Loss_Report' before window.print(),
 //   then restore original title after. Zero library needed.
 // ═══════════════════════════════════════
+
+// ═══════════════════════════════════════
+// PRINT — POPUP WINDOW APPROACH (PERMANENT FIX)
+//
+// WHY THE OLD APPROACH FAILED:
+//   style.css contains: @media print { body > *:not(#print-area) { display:none!important } }
+//   This hides ALL page content including .main during print.
+//   Our in-page CSS cannot override style.css because style.css loads at document level
+//   with equal or higher specificity. No matter how many rAF or setTimeout delays we add,
+//   the browser still uses style.css rules when window.print() fires.
+//
+// WHY THIS FIX WORKS (same as billing.html):
+//   window.open() creates a BRAND NEW browser window with NO CSS loaded at all.
+//   We write a complete, self-contained HTML document into it with ALL styles inline.
+//   That popup has zero knowledge of style.css — nothing can hide our content.
+//   We call print() on THAT window, not the parent.
+//
+// DYNAMIC FILENAME:
+//   We set popup.document.title = reportTitle before printing.
+//   Browsers use document.title as the default "Save As" filename for PDFs.
+// ═══════════════════════════════════════
 function triggerPrint(htmlContent, reportTitle) {
-  // Step 1: inject content into the hidden #print-area
-  const printArea = document.getElementById('print-area')
-  printArea.innerHTML = htmlContent
+  const popup = window.open('', '_blank', 'width=900,height=700,scrollbars=yes,resizable=yes')
+  if (!popup) {
+    alert('Please allow popups for this site to use PDF printing.\n\nIn Chrome: click the popup blocker icon in the address bar → Allow.')
+    return
+  }
 
-  // Step 2: set dynamic filename via document.title
-  const originalTitle = document.title
-  document.title = reportTitle   // browser uses this as PDF filename
+  // Write a completely self-contained HTML document into the popup.
+  // ALL styles are inline — no link to style.css, no external dependencies.
+  popup.document.write(`<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>${reportTitle}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'DM Sans', Arial, sans-serif;
+      font-size: 13px;
+      color: #000;
+      background: #fff;
+      padding: 20px;
+    }
 
-  // Step 3: wait for TWO animation frames + extra settle time
-  // WHY rAF twice: first rAF = "about to paint", second rAF = "paint is done"
-  // WHY setTimeout 150: gives browser time to resolve CSS and layout
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      setTimeout(() => {
-        window.print()
-        // Step 4: restore title after print dialog appears
-        // (use a longer delay so the dialog has opened first)
-        setTimeout(() => {
-          document.title = originalTitle
-          printArea.innerHTML = ''
-        }, 2000)
-      }, 150)
-    })
-  })
+    /* ── Company Header ── */
+    .co-header {
+      text-align: center;
+      margin-bottom: 16px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #1e3a5f;
+    }
+    .co-header h1 {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: #000;
+    }
+    .co-header p { font-size: 11px; color: #555; margin-top: 2px; }
+    .co-header .rpt-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: #1e3a5f;
+      margin-top: 6px;
+    }
+    .co-header .rpt-date { font-size: 10px; color: #888; margin-top: 2px; }
+
+    /* ── Generic Table ── */
+    table { width: 100%; border-collapse: collapse; margin-bottom: 14px; }
+    th {
+      background: #dbeafe;
+      color: #1e40af;
+      border: 1.5px solid #333;
+      padding: 8px 10px;
+      font-size: 11px;
+      font-weight: 700;
+      text-align: left;
+    }
+    td {
+      border: 1px solid #aaa;
+      padding: 7px 10px;
+      color: #000;
+      background: #fff;
+      font-size: 12px;
+      vertical-align: top;
+    }
+    tr:nth-child(even) td { background: #f9fafb; }
+    tfoot td {
+      background: #f0fdf4;
+      font-weight: 700;
+      border-top: 2px solid #333;
+    }
+
+    /* ── P&L Table ── */
+    .pnl-heading, .bs-heading { text-align: center; margin-bottom: 10px; }
+    .pnl-heading h2, .bs-heading h2 {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: #000;
+      margin-bottom: 2px;
+    }
+    .pnl-heading p, .bs-heading p { font-size: 12px; color: #444; }
+
+    .pnl-table, .bs-table { border: 2px solid #333; }
+    .pnl-table th, .bs-table th {
+      background: #dbeafe;
+      color: #1e40af;
+      border: 1.5px solid #333;
+    }
+    .pnl-table td, .bs-table td { border: 1px solid #999; }
+    .pnl-table tbody tr:nth-child(even) td,
+    .bs-table  tbody tr:nth-child(even) td { background: #f8fafc; }
+
+    .pnl-section-label, .bs-section-label {
+      font-size: 10px !important;
+      font-weight: 700 !important;
+      letter-spacing: 1px !important;
+      text-transform: uppercase !important;
+      color: #1e40af !important;
+      background: #eff6ff !important;
+      padding: 5px 10px !important;
+      border-bottom: 1px solid #ccc !important;
+    }
+
+    .pnl-amount, .bs-amount {
+      text-align: right;
+      font-weight: 500;
+      color: #000;
+      white-space: nowrap;
+    }
+    .pnl-amount.red  { color: #dc2626; }
+    .pnl-amount.green{ color: #059669; }
+
+    .pnl-indent, .bs-indent { padding-left: 28px !important; }
+
+    .pnl-table .pnl-total-row td,
+    .bs-table  .bs-total-row td {
+      background: #dcfce7 !important;
+      font-weight: 700;
+      border-top: 2px solid #333 !important;
+    }
+    .pnl-table .pnl-grand-total td {
+      background: #e0e7ff !important;
+      font-weight: 700;
+      font-size: 13px;
+      border-top: 2px solid #4338ca !important;
+    }
+    .bs-table .bs-subtotal-row td {
+      background: #f1f5f9 !important;
+      font-weight: 700;
+      border-top: 1px solid #999 !important;
+    }
+
+    .bs-balanced {
+      text-align: center;
+      padding: 10px 14px;
+      background: #dcfce7;
+      border: 1px solid #86efac;
+      border-radius: 6px;
+      color: #166534;
+      font-weight: 600;
+      margin-top: 12px;
+      font-size: 13px;
+    }
+    .bs-unbalanced {
+      text-align: center;
+      padding: 10px 14px;
+      background: #fee2e2;
+      border: 1px solid #fca5a5;
+      border-radius: 6px;
+      color: #991b1b;
+      font-weight: 600;
+      margin-top: 12px;
+      font-size: 13px;
+    }
+
+    /* ── Cash Book Double-Column ── */
+    .cb-th-dr {
+      background: #1a3a2a !important;
+      color: #fff !important;
+      border: 1.5px solid #333 !important;
+      padding: 7px 8px;
+      font-size: 10px;
+      font-weight: 700;
+      text-align: center;
+    }
+    .cb-th-cr {
+      background: #3a1a1a !important;
+      color: #fff !important;
+      border: 1.5px solid #333 !important;
+      padding: 7px 8px;
+      font-size: 10px;
+      font-weight: 700;
+      text-align: center;
+    }
+    .cb-td-div {
+      background: #555 !important;
+      width: 4px !important;
+      padding: 0 !important;
+      border: none !important;
+    }
+    .cb-amt-in  { text-align: right; color: #059669 !important; font-weight: 600; }
+    .cb-amt-out { text-align: right; color: #dc2626 !important; font-weight: 600; }
+    .cb-amt-upi { text-align: right; color: #1d4ed8 !important; font-weight: 600; }
+    .cb-tfoot-dr td { background: #f0fdf4 !important; font-weight: 700; border-top: 2px solid #333 !important; }
+    .cb-tfoot-cr td { background: #fef2f2 !important; font-weight: 700; border-top: 2px solid #333 !important; }
+
+    /* margin strip between items */
+    .margin-box {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .margin-box > div {
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      padding: 10px 16px;
+      font-size: 12px;
+      color: #000;
+    }
+
+    @media print {
+      body { padding: 8px; }
+      @page { margin: 10mm 8mm; size: A4; }
+    }
+  </style>
+</head>
+<body>
+${htmlContent}
+<script>
+  window.onload = function() {
+    setTimeout(function() {
+      window.focus();
+      window.print();
+      setTimeout(function() { window.close(); }, 1500);
+    }, 500);
+  };
+<\/script>
+</body>
+</html>`)
+  popup.document.close()
 }
-
+  
 function printReportSection(type) {
   let html = ''
   let title = 'Report'
+  const companyHeader = `
+    <div class="co-header">
+      <h1>Abhinandan Auto Mobiles</h1>
+      <p>Genuine Auto Parts — Santalpur, Gujarat &nbsp;|&nbsp; +91 98700 37002</p>
+    </div>`
 
   if (type === 'pnl') {
     const wrapper = document.getElementById('pnlAccountWrapper')
@@ -890,13 +1117,8 @@ function printReportSection(type) {
     }
     const fy = document.getElementById('pnlFySelect').value || ''
     title = 'Profit_and_Loss_Account_' + fy.replace('-','_')
-    html = `
-      <div style="text-align:center;margin-bottom:10px;font-family:'DM Sans',sans-serif;">
-        <div style="font-size:16px;font-weight:700;color:#000;">Abhinandan Auto Mobiles</div>
-        <div style="font-size:11px;color:#555;">Genuine Auto Parts — Santalpur</div>
-      </div>
-      ${wrapper.innerHTML}
-    `
+    html = companyHeader + wrapper.innerHTML
+
   } else if (type === 'bs') {
     const wrapper = document.getElementById('bsWrapper')
     if (!wrapper || wrapper.innerHTML.includes('Loading') || wrapper.innerHTML.includes('Calculating')) {
@@ -905,13 +1127,7 @@ function printReportSection(type) {
     }
     const asOn = document.getElementById('bsDateInput').value || new Date().toISOString().slice(0,10)
     title = 'Balance_Sheet_' + asOn.replace(/-/g,'_')
-    html = `
-      <div style="text-align:center;margin-bottom:10px;font-family:'DM Sans',sans-serif;">
-        <div style="font-size:16px;font-weight:700;color:#000;">Abhinandan Auto Mobiles</div>
-        <div style="font-size:11px;color:#555;">Genuine Auto Parts — Santalpur</div>
-      </div>
-      ${wrapper.innerHTML}
-    `
+    html = companyHeader + wrapper.innerHTML
   }
 
   triggerPrint(html, title)
