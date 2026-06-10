@@ -533,23 +533,36 @@ html.light-theme #newOrderModal > .modal-box > div[style*="background:rgba(255"]
 
 /* ═══════════════════════════════════════════════
    PRINT STYLES
-   FIX: Force white background so dark theme body colour
-   does NOT bleed into the PDF/print snapshot.
-   Without html,body background:white the entire page
-   prints as a black rectangle.
+   WHY THIS WORKS:
+   billing.html uses the pattern below — it hides
+   everything EXCEPT the target print area using
+   :not() selector. The old approach used
+   body > * { display:none !important } and then
+   tried to re-show the print div, but !important
+   can't be overridden by a more specific rule at
+   the same level. The :not() pattern avoids this
+   entirely — we never hide the thing we want shown.
 ═══════════════════════════════════════════════ */
 #printReceiptArea, #printOrderArea { display:none; }
+
 @media print {
-  /* CRITICAL — white background override */
+  /* Force white background — stops dark theme bleeding into PDF */
   html, body {
     background: #ffffff !important;
     color: #000000 !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
   }
-  body > * { display:none !important; }
+  /* Hide everything EXCEPT the active print area */
+  body.print-receipt > *:not(#printReceiptArea) { display:none !important; }
+  body.print-order  > *:not(#printOrderArea)  { display:none !important; }
+  /* Show the correct print area */
   body.print-receipt #printReceiptArea { display:block !important; padding:0; }
   body.print-order  #printOrderArea  { display:block !important; padding:0; }
   * { -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
   .rpt-paper { width:100%; }
+  /* Ensure all nested elements inside print areas are visible */
+  #printReceiptArea *, #printOrderArea * { visibility:visible !important; }
 }
 
 /* ═══════════════════════════════════════════════
@@ -2101,6 +2114,12 @@ window.printBillPreview = function () {
   if (!_lastBillData) return
   var ot = document.title
   document.title = _lastBillData.billNo
+  // CRITICAL: Make the area visible BEFORE adding body class + print
+  // WHY: browser.print() snapshots the DOM at call time.
+  // If the element is display:none at that moment, nothing prints.
+  // We set it visible first, then let two animation frames + 300ms
+  // pass so layout + paint are fully complete before print() fires.
+  document.getElementById('printReceiptArea').style.display = 'block'
   document.body.classList.add('print-receipt')
   requestAnimationFrame(function () {
     requestAnimationFrame(function () {
@@ -2108,9 +2127,10 @@ window.printBillPreview = function () {
         window.print()
         setTimeout(function () {
           document.body.classList.remove('print-receipt')
+          document.getElementById('printReceiptArea').style.display = 'none'
           document.title = ot
         }, 1000)
-      }, 150)
+      }, 300)
     })
   })
 }
@@ -2148,6 +2168,8 @@ window.printOrder = function (id) {
 
   var ot = document.title
   document.title = o.order_number
+  // Same fix: visible BEFORE body class + print snapshot
+  document.getElementById('printOrderArea').style.display = 'block'
   document.body.classList.add('print-order')
   requestAnimationFrame(function () {
     requestAnimationFrame(function () {
@@ -2155,9 +2177,10 @@ window.printOrder = function (id) {
         window.print()
         setTimeout(function () {
           document.body.classList.remove('print-order')
+          document.getElementById('printOrderArea').style.display = 'none'
           document.title = ot
         }, 1000)
-      }, 150)
+      }, 300)
     })
   })
 }
