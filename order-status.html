@@ -1252,7 +1252,7 @@ window.renderViewOrder = function () {
   var totalAmt   = items.reduce(function (s, i) { return s + (i.ordered_qty || 0) * (i.purchase_price || 0) }, 0)
 
   // Build table header
-  var thead = '<th style="color:#fff;">#</th><th style="color:#fff;">Product</th><th style="color:#fff;">Brand</th><th style="color:#fff;">Category</th><th style="color:#fff;">Size</th><th style="color:#fff;text-align:center;">Qty</th>'
+var thead = '<th>#</th><th>Product</th><th>Brand</th><th>Category</th><th>Size</th><th style="text-align:center;">Qty</th>'
   if (showPrice) thead += '<th style="color:#fff;text-align:right;">Price ₹</th><th style="color:#fff;text-align:right;">Amount</th>'
 
   // Build table rows
@@ -1321,7 +1321,8 @@ window.renderViewOrder = function () {
 // Print from View Order modal — uses the printOrderArea but with current checkbox state
 window.printViewOrder = function () {
   if (!viewingId) return
-  printOrder(viewingId)
+  var showPrice = document.getElementById('voShowPrice').checked
+  printOrder(viewingId, showPrice)
 }
 
 // ─────────────────────────────────────────────
