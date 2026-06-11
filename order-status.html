@@ -372,7 +372,7 @@ html.light-theme .order-actions-row { border-top-color: rgba(0,0,0,0.06); }
 .bill-preview-hdr { background:linear-gradient(135deg,#78350f,#d97706); color:white; padding:18px 24px; border-radius:8px; display:flex; justify-content:space-between; align-items:center; margin-bottom:0; }
 .bill-preview table { width:100%; border-collapse:collapse; font-size:13px; margin-top:12px; }
 .bill-preview table thead tr { background:#78350f; color:white; }
-.bill-preview table th { padding:8px 10px; text-align:left; font-size:11px; }
+.bill-preview table th { padding:8px 10px; text-align:left; font-size:11px; color:#ffffff !important; }
 .bill-preview table td { padding:8px 10px; border-bottom:1px solid #e5e7eb; color:#374151; }
 
 /* ═══════════════════════════════════════════════
@@ -2100,8 +2100,7 @@ window.printOrder = function (id, showPriceOverride) {
   // - If called from the View modal's Print button, use the checkbox state
   // - If called from the card's Print button directly, show all columns
   var showPrice = (showPriceOverride !== undefined) ? showPriceOverride
-    : (viewingId === id ? document.getElementById('voShowPrice').checked : true)
-
+    : (viewingId === id ? document.getElementById('voShowPrice').checked : false)
   var total    = items.reduce(function (s, it) { return s + (it.ordered_qty || 0) * (it.purchase_price || 0) }, 0)
   var totalQty = items.reduce(function (s, it) { return s + (it.ordered_qty || 0) }, 0)
 
