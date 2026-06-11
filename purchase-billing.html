@@ -590,19 +590,18 @@
 
 <script>
 // ── QR CODE ── (local generation, no internet needed, works forever in saved PDFs)
+// WHY: The old approach replaced the div but QRCode.js sometimes renders twice
+// because it appends both a canvas AND an img element. We now destroy ALL children
+// first, then use a hidden flag to prevent double-render on reprint.
+var _qrRendered = false;
 function renderQrCode(url) {
-  // Find the parent of the QR container
-  var old = document.getElementById('purQrCanvas');
-  if (!old) return;
-  // Completely remove old div and create a fresh one — prevents double QR bug
-  var parent = old.parentNode;
-  var newContainer = document.createElement('div');
-  newContainer.id = 'purQrCanvas';
-  newContainer.style.cssText = 'width:80px;height:80px;';
-  parent.replaceChild(newContainer, old);
-  // Now generate fresh QR into the clean container
+  var container = document.getElementById('purQrCanvas');
+  if (!container) return;
+  // Wipe all children cleanly
+  while (container.firstChild) container.removeChild(container.firstChild);
+  _qrRendered = false;
   try {
-    new QRCode(newContainer, {
+    new QRCode(container, {
       text: url,
       width: 80,
       height: 80,
@@ -610,8 +609,16 @@ function renderQrCode(url) {
       colorLight: '#ffffff',
       correctLevel: QRCode.CorrectLevel.M
     });
+    // QRCode.js renders both <canvas> and <img> — hide the canvas, show only img
+    // This prevents the "two QR codes" visual bug on screen and in print
+    setTimeout(function() {
+      var canvas = container.querySelector('canvas');
+      var img    = container.querySelector('img');
+      if (canvas) canvas.style.display = 'none'; // hide canvas duplicate
+      if (img)    img.style.cssText = 'display:block!important;width:80px!important;height:80px!important;';
+    }, 100);
   } catch(e) {
-    newContainer.innerHTML = '<div style="width:80px;height:80px;background:#f5f5f5;display:flex;align-items:center;justify-content:center;font-size:9px;color:#78350f;text-align:center;border:1px solid #e5e7eb;">Portal QR</div>';
+    container.innerHTML = '<div style="width:80px;height:80px;background:#f5f5f5;display:flex;align-items:center;justify-content:center;font-size:9px;color:#78350f;text-align:center;border:1px solid #e5e7eb;border-radius:4px;">QR</div>';
   }
 }
 
@@ -1238,13 +1245,28 @@ window.viewPurchase=async function(billNo){
   var pur=sr.data
   var ir=await supabase.from('purchase_items').select('*').eq('purchase_id',pur.id)
   var items=ir.data||[]
-  var missingIds=items.filter(function(i){return !i.item_name&&i.item_id}).map(function(i){return i.item_id})
+ // WHY: We used to only look up inventory when item_name was missing.
+  // But brand/category/size are NEVER stored in purchase_items — they only
+  // live in inventory. So we must ALWAYS fetch inventory details for all items.
+  var allItemIds=items.filter(function(i){return i.item_id}).map(function(i){return i.item_id})
   var invNames={}
-  if(missingIds.length){var pr=await supabase.from('inventory').select('id,item_name,category,brand,product_size,unit_type').in('id',missingIds);(pr.data||[]).forEach(function(p){invNames[p.id]=p})}
+  if(allItemIds.length){
+    var pr=await supabase.from('inventory')
+      .select('id,item_name,category,brand,product_size,unit_type')
+      .in('id',allItemIds)
+    ;(pr.data||[]).forEach(function(p){invNames[p.id]=p})
+  }
   var modes=[];if(pur.cash>0)modes.push('Cash');if(pur.upi>0)modes.push('UPI');if(pur.credit>0)modes.push('Credit')
   var printItems=items.map(function(item){
     var inv=invNames[item.item_id]||{}
-    return{name:item.item_name||inv.item_name||('[Product #'+item.item_id+' (deleted)]'),qty:item.quantity,price:item.purchase_price,category:inv.category||'',brand:inv.brand||'',size:inv.product_size||''}
+    return{
+      name:item.item_name||inv.item_name||('[Product #'+item.item_id+' (deleted)]'),
+      qty:item.quantity,
+      price:item.purchase_price,
+      category:item.category||inv.category||'',
+      brand:item.brand||inv.brand||'',
+      size:item.product_size||inv.product_size||''
+    }
   })
   var subtotal=items.reduce(function(s,i){return s+(i.total||0)},0)
   var displayDateStr=pur.bill_date||pur.created_at
