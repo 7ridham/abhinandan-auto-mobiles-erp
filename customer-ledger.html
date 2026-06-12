@@ -120,6 +120,60 @@ body { font-family: 'DM Sans', sans-serif; }
 .view-bill-actions { background:#1e293b; padding:14px 24px; display:flex; gap:8px; justify-content:flex-end; align-items:center; flex-wrap:wrap; }
 .view-bill-actions .bill-no-display { font-size:12px; color:rgba(255,255,255,0.4); margin-right:auto; font-family:monospace; }
 
+/* ── FIX: Light theme — action bar always stays dark so buttons stay visible ── */
+/* WHY: The action bar has background:#1e293b (dark navy). In light theme,
+   global CSS overrides button colors to dark text, making them invisible
+   on the dark background. We force all buttons inside .view-bill-actions
+   to always use white text regardless of theme. */
+html.light-theme .view-bill-actions {
+  background: #1e293b !important;
+}
+html.light-theme .view-bill-actions .bill-no-display {
+  color: rgba(255,255,255,0.5) !important;
+}
+html.light-theme .view-bill-actions .btn {
+  color: white !important;
+}
+html.light-theme .view-bill-actions .btn-white {
+  background: white !important;
+  color: #1e3a5f !important;
+}
+html.light-theme .view-bill-actions .btn-wa {
+  background: #25D366 !important;
+  color: white !important;
+}
+html.light-theme .view-bill-actions .btn-outline {
+  background: rgba(255,255,255,0.15) !important;
+  color: white !important;
+  border-color: rgba(255,255,255,0.3) !important;
+}
+
+/* ── FIX: Invoice table header — always white text on dark blue background ── */
+/* WHY: .inv-table thead tr has background:#1e3a5f (dark blue).
+   Light theme global rules override th color to dark, making it invisible.
+   These rules force white text in the invoice header regardless of theme. */
+html.light-theme .inv-table thead th {
+  color: #ffffff !important;
+  background: #1e3a5f !important;
+}
+
+/* ── FIX: Invoice header bar text — company name and address stay white ── */
+/* WHY: .inv-header has a dark blue gradient background. In light theme,
+   child text elements get overridden to dark color. We force white. */
+html.light-theme .inv-header,
+html.light-theme .inv-header * {
+  color: white !important;
+}
+html.light-theme .inv-header.return-style,
+html.light-theme .inv-header.return-style * {
+  color: white !important;
+}
+
+/* ── FIX: inv-badge border stays visible on dark header ── */
+html.light-theme .inv-badge {
+  border-color: rgba(255,255,255,0.6) !important;
+  color: white !important;
+}
 .pay-modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.88); z-index:11000; align-items:center; justify-content:center; backdrop-filter:blur(8px); }
 .pay-modal-box { background:linear-gradient(135deg,#0d1117,#1e293b); border:1px solid rgba(255,255,255,0.12); border-radius:18px; padding:28px; width:90%; max-width:440px; }
 .pay-modal-box h3 { font-family:'Playfair Display',serif; font-size:20px; color:white; margin-bottom:6px; }
