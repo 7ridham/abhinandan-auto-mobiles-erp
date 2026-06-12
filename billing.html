@@ -1051,9 +1051,11 @@ prodInput.addEventListener('input', function(){
   if(!text){ prodList.style.display='none'; prodList.innerHTML=''; return }
   prodTimer = setTimeout(async function(){
     // Try with size column first; fallback if column doesn't exist
+   // WHY: Try to select 'size' column first. If your inventory uses 'product_size'
+    // instead, the 42703 error triggers the fallback which tries 'product_size'.
     var res = await supabase.from('inventory')
-      .select('id,item_name,selling_price,quantity,category,unit_type,brand,size')
-      .or('item_name.ilike.%'+text+'%,category.ilike.%'+text+'%,unit_type.ilike.%'+text+'%,brand.ilike.%'+text+'%,size.ilike.%'+text+'%')
+      .select('id,item_name,selling_price,quantity,category,unit_type,brand,size,product_size')
+      .or('item_name.ilike.%'+text+'%,category.ilike.%'+text+'%,unit_type.ilike.%'+text+'%,brand.ilike.%'+text+'%')
       .order('item_name').limit(20)
     if (res.error && res.error.code==='42703') {
       res = await supabase.from('inventory')
@@ -1102,10 +1104,12 @@ function addToBill(product){
   for(var i=0;i<billItems.length;i++){
     if(billItems[i].id===product.id){ billItems[i].qty++; renderBill(); return }
   }
+  // WHY: inventory table may use 'size' or 'product_size' — handle both
   billItems.push({
     id:product.id, name:product.item_name, price:product.selling_price||0, qty:1,
     brand:product.brand||'', category:product.category||'',
-    unitType:product.unit_type||'', size:product.size||''
+    unitType:product.unit_type||'',
+    size:product.size||product.product_size||''
   })
   renderBill()
 }
@@ -1716,7 +1720,7 @@ async function viewBill(billNo){
   var missing=items.filter(function(i){return i.item_id}).map(function(i){return i.item_id})
   var invData={}
   if(missing.length){
-    var pr=await supabase.from('inventory').select('id,item_name,category,unit_type,brand,size').in('id',missing)
+    var pr=await supabase.from('inventory').select('id,item_name,category,unit_type,brand,size,product_size').in('id',missing)
     ;(pr.data||[]).forEach(function(p){ invData[p.id]=p })
   }
   var modes=[]; if(sale.cash>0)modes.push('Cash'); if(sale.upi>0)modes.push('UPI'); if(sale.credit>0)modes.push('Credit')
@@ -1725,7 +1729,8 @@ async function viewBill(billNo){
     var inv=invData[item.item_id]||{}
     return {name:item.item_name||inv.item_name||(item.item_id?'Product #'+item.item_id:'Unknown Item'),
       qty:item.quantity, price:item.price,
-      brand:inv.brand||'', category:inv.category||'', unitType:inv.unit_type||'', size:inv.size||''}
+      brand:inv.brand||'', category:inv.category||'', unitType:inv.unit_type||'',
+      size:inv.size||inv.product_size||''}
   })
   var displayDateStr=sale.bill_date||sale.created_at
   var displayDate=new Date(displayDateStr).toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})
