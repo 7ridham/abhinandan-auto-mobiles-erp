@@ -1822,7 +1822,7 @@ window.closeAccountModal = function(force) {
 async function loadSales(range) {
   const k=cacheKey('sales')
   const[salesRes,retRes]=await Promise.all([
-    _supabase.from('sales').select('id,bill_number,created_at,total_amount,cash,upi,credit,discount,customer_id').eq('bill_type','sale').gte('created_at',range.from+'T00:00:00').lte('created_at',range.to+'T23:59:59').order('created_at',{ascending:false}),
+    _supabase.from('sales').select('id,bill_number,created_at,total_amount,cash,upi,credit,discount,customer_id').in('bill_type',['sale','pay_to_merchant']).gte('created_at',range.from+'T00:00:00').lte('created_at',range.to+'T23:59:59').order('created_at',{ascending:false}),
     _supabase.from('sales').select('total_amount').eq('bill_type','return').gte('created_at',range.from+'T00:00:00').lte('created_at',range.to+'T23:59:59')
   ])
   const sales=salesRes.data||[], returns=retRes.data||[]
