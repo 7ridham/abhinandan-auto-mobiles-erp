@@ -164,7 +164,8 @@
   .pur-qr-box{text-align:center;}
   .pur-qr-box canvas,.pur-qr-box img{width:80px;height:80px;border:3px solid #e5e7eb;border-radius:8px;display:block;}
   .pur-qr-label{font-size:10px;color:#6b7280;margin-top:4px;text-align:center;}
-
+  .print-item-detail{font-size:11px;color:#6b7280;margin-top:2px;}
+ 
   @media print{
     @page{margin:12mm 10mm;size:A4;}
     html,body{background:white!important;min-height:0!important;height:auto!important;overflow:hidden!important;}
@@ -595,11 +596,12 @@
 // first, then use a hidden flag to prevent double-render on reprint.
 var _qrRendered = false;
 function renderQrCode(url) {
+  // WHY: QRCode.js renders BOTH a <canvas> and an <img> element into the container.
+  // When we replaced the div, the library sometimes ran twice giving two QR codes.
+  // Fix: clear innerHTML cleanly, then hide the canvas duplicate after render.
   var container = document.getElementById('purQrCanvas');
   if (!container) return;
-  // Wipe all children cleanly
-  while (container.firstChild) container.removeChild(container.firstChild);
-  _qrRendered = false;
+  container.innerHTML = ''; // wipe old content
   try {
     new QRCode(container, {
       text: url,
@@ -609,19 +611,21 @@ function renderQrCode(url) {
       colorLight: '#ffffff',
       correctLevel: QRCode.CorrectLevel.M
     });
-    // QRCode.js renders both <canvas> and <img> — hide the canvas, show only img
-    // This prevents the "two QR codes" visual bug on screen and in print
+    // QRCode.js inserts both <canvas> and <img>. Hide canvas to show only img.
     setTimeout(function() {
       var canvas = container.querySelector('canvas');
       var img    = container.querySelector('img');
-      if (canvas) canvas.style.display = 'none'; // hide canvas duplicate
-      if (img)    img.style.cssText = 'display:block!important;width:80px!important;height:80px!important;';
-    }, 100);
+      if (canvas) canvas.style.display = 'none';
+      if (img) {
+        img.style.display  = 'block';
+        img.style.width    = '80px';
+        img.style.height   = '80px';
+      }
+    }, 80);
   } catch(e) {
     container.innerHTML = '<div style="width:80px;height:80px;background:#f5f5f5;display:flex;align-items:center;justify-content:center;font-size:9px;color:#78350f;text-align:center;border:1px solid #e5e7eb;border-radius:4px;">QR</div>';
   }
 }
-
 var _sb=document.createElement('script')
 _sb.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js'
 _sb.onload=function(){
@@ -981,7 +985,7 @@ function fillPrintArea(opts){
     if(item.brand&&item.brand.trim())dp.push(item.brand.trim())
     if(item.category&&item.category.trim())dp.push(item.category.trim())
     if(item.size&&item.size.trim())dp.push(item.size.trim())
-    var detailSpan=dp.length?'<br><span style="font-size:11px;color:#6b7280;">'+dp.join(' • ')+'</span>':''
+    var detailSpan=dp.length?'<div class="print-item-detail">'+dp.join(' • ')+'</div>':''
     tbody.innerHTML+='<tr>'+
       '<td style="padding:10px 14px;color:#6b7280;">'+(i+1)+'</td>'+
       '<td style="padding:10px 14px;">'+item.name+detailSpan+'</td>'+
@@ -1245,9 +1249,9 @@ window.viewPurchase=async function(billNo){
   var pur=sr.data
   var ir=await supabase.from('purchase_items').select('*').eq('purchase_id',pur.id)
   var items=ir.data||[]
- // WHY: We used to only look up inventory when item_name was missing.
-  // But brand/category/size are NEVER stored in purchase_items — they only
-  // live in inventory. So we must ALWAYS fetch inventory details for all items.
+ // WHY: Always fetch ALL item IDs from inventory — not just missing names.
+  // purchase_items does NOT store brand/category/size; only inventory does.
+  // Old code skipped lookup when item_name existed, so brand/size were always blank.
   var allItemIds=items.filter(function(i){return i.item_id}).map(function(i){return i.item_id})
   var invNames={}
   if(allItemIds.length){
@@ -1260,12 +1264,12 @@ window.viewPurchase=async function(billNo){
   var printItems=items.map(function(item){
     var inv=invNames[item.item_id]||{}
     return{
-      name:item.item_name||inv.item_name||('[Product #'+item.item_id+' (deleted)]'),
+      name:item.item_name||inv.item_name||('[Product #'+item.item_id+']'),
       qty:item.quantity,
       price:item.purchase_price,
-      category:item.category||inv.category||'',
-      brand:item.brand||inv.brand||'',
-      size:item.product_size||inv.product_size||''
+      category:inv.category||'',
+      brand:inv.brand||'',
+      size:inv.product_size||''
     }
   })
   var subtotal=items.reduce(function(s,i){return s+(i.total||0)},0)
