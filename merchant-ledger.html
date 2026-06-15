@@ -176,7 +176,8 @@ html.light-theme .view-bill-actions { background:#2d1b69 !important; }
 .pay-field select option { background:#1e293b; }
 .pay-actions { display:flex; gap:10px; margin-top:20px; flex-wrap:wrap; }
 
-.wa-toast { position:fixed; bottom:30px; left:50%; transform:translateX(-50%); background:#25D366; color:white; padding:12px 24px; border-radius:12px; font-size:14px; font-weight:600; font-family:'DM Sans',sans-serif; z-index:99999; box-shadow:0 8px 24px rgba(37,211,102,0.4); display:none; align-items:center; gap:10px; white-space:nowrap; }
+/* ── TOAST: no emojis, clean minimal style ── */
+.wa-toast { position:fixed; bottom:30px; left:50%; transform:translateX(-50%); background:#1e293b; color:rgba(255,255,255,0.9); padding:10px 22px; border-radius:10px; font-size:13px; font-weight:500; font-family:'DM Sans',sans-serif; z-index:99999; box-shadow:0 4px 16px rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.1); display:none; align-items:center; white-space:nowrap; }
 .wa-toast.show { display:flex; }
 
 /* INVOICE STYLES */
@@ -341,15 +342,45 @@ html.light-theme .mc-stat-value { color:#374151; }
 .confirm-box .confirm-bill-no { display:inline-block; background:rgba(248,113,113,0.1); border:1px solid rgba(248,113,113,0.3); color:#fca5a5; font-family:monospace; padding:4px 12px; border-radius:8px; margin-bottom:14px; font-size:13px; }
 .confirm-actions { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
 
-/* Action buttons group in table */
-.action-btns { display:flex; gap:5px; align-items:center; flex-wrap:wrap; }
+/* ── ACTION BUTTONS: stacked layout (View+Print on top, WhatsApp full-width below) ── */
+/* WHY: This matches the design in the reference image where View and Print are
+   small outlined buttons side by side, and WhatsApp is a bold full-width green
+   button below them — making it visually dominant and easy to tap. */
+.action-btns {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 180px;
+}
+.action-btns-top {
+  display: flex;
+  gap: 5px;
+}
+.action-btns-top .btn-sm {
+  flex: 1;
+}
+.action-btn-wa-full {
+  display: block;
+  width: 100%;
+  padding: 6px 0;
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: 7px;
+  border: none;
+  background: #25D366;
+  color: white;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  transition: background 0.2s;
+  text-align: center;
+}
+.action-btn-wa-full:hover { background: #128C7E; }
 </style>
 </head>
 <body class="sidebar-open">
 
 <div class="wa-toast" id="waToast">
-  <span>📲</span>
-  <span id="waToastMsg">Generating PDF...</span>
+  <span id="waToastMsg">Preparing...</span>
 </div>
 
 <button class="sidebar-toggle" onclick="toggleSidebar()" title="Toggle Menu">☰</button>
@@ -401,7 +432,7 @@ html.light-theme .mc-stat-value { color:#374151; }
   </div>
   <div class="card">
     <div class="ledger-toolbar">
-      <input id="searchInput" placeholder="🔍  Search by name or phone..." oninput="debounceSearch()">
+      <input id="searchInput" placeholder="Search by name or phone..." oninput="debounceSearch()">
       <select id="filterBalance" onchange="_mlReload()">
         <option value="all">All Merchants</option>
         <option value="payable">Payable Due</option>
@@ -434,10 +465,10 @@ html.light-theme .mc-stat-value { color:#374151; }
         <div class="modal-header-sub" id="modalSub">—</div>
       </div>
       <div class="modal-header-right">
-        <button class="btn btn-green btn-sm" onclick="openPaymentModal()">💸 Pay Merchant</button>
-        <button class="btn btn-white btn-sm" onclick="printStatement()" style="color:#2d1b69 !important;">🖨 Statement</button>
-        <button class="btn btn-wa    btn-sm" onclick="whatsappStatement()">📲 WhatsApp</button>
-        <button class="btn-close-modal" onclick="closeModal()">✕ Close</button>
+        <button class="btn btn-green btn-sm" onclick="openPaymentModal()">Pay Merchant</button>
+        <button class="btn btn-white btn-sm" onclick="printStatement()" style="color:#2d1b69 !important;">Statement</button>
+        <button class="btn btn-wa    btn-sm" onclick="whatsappStatement()">WhatsApp</button>
+        <button class="btn-close-modal" onclick="closeModal()">Close</button>
       </div>
     </div>
     <div class="summary-row">
@@ -447,10 +478,10 @@ html.light-theme .mc-stat-value { color:#374151; }
       <div class="summary-card"><div class="s-label" id="smBalLabel">Balance</div><div class="s-value" id="smBal">₹0</div></div>
     </div>
     <div class="balance-banner clear" id="balanceBanner">
-      <span id="balanceBannerText">Account is clear ✓</span>
+      <span id="balanceBannerText">Account is clear</span>
     </div>
     <div class="aging-bar-section">
-      <div class="aging-bar-title">📊 Outstanding Aging Analysis</div>
+      <div class="aging-bar-title">Outstanding Aging Analysis</div>
       <div class="aging-bar">
         <span class="aging-chip g" id="age0">0–30 days: ₹0</span>
         <span class="aging-chip y" id="age31">31–60 days: ₹0</span>
@@ -480,17 +511,17 @@ html.light-theme .mc-stat-value { color:#374151; }
   <div class="view-bill-box">
     <div class="view-bill-actions">
       <span class="bill-no-display" id="vBillNoDisplay">—</span>
-      <button class="btn btn-wa     btn-sm" onclick="whatsappPurchaseBill()">📲 WhatsApp</button>
-      <button class="btn btn-white  btn-sm" onclick="printViewedBill()">🖨 Print</button>
-      <button class="btn-red-outline" onclick="confirmDeleteBill()">🗑 Delete</button>
-      <button class="btn-outline-light" onclick="closeViewPurchase()">✕ Close</button>
+      <button class="btn btn-wa     btn-sm" onclick="whatsappPurchaseBill()">WhatsApp</button>
+      <button class="btn btn-white  btn-sm" onclick="printViewedBill()">Print</button>
+      <button class="btn-red-outline" onclick="confirmDeleteBill()">Delete</button>
+      <button class="btn-outline-light" onclick="closeViewPurchase()">Close</button>
     </div>
     <div id="viewPurchasePrintArea">
       <div class="inv-header" id="vPurchaseHeader">
         <div>
           <div class="inv-company">Abhinandan Auto Mobiles</div>
           <div class="inv-sub">Santalpur - Palanpur Highway</div>
-          <div class="inv-sub">📞 +91 98700 37002</div>
+          <div class="inv-sub">+91 98700 37002</div>
         </div>
         <div style="text-align:right;">
           <div class="inv-badge" id="vPurchaseType">Purchase Invoice</div>
@@ -499,7 +530,7 @@ html.light-theme .mc-stat-value { color:#374151; }
         </div>
       </div>
       <div id="vReturnBar" style="display:none;background:#fef2f2;border-bottom:1px solid #fecaca;padding:10px 32px;font-size:13px;color:#dc2626;font-weight:500;">
-        ↩️ <strong>Purchase Return</strong> — Original Bill: <span id="vReturnOrigRef">—</span>
+        Purchase Return — Original Bill: <span id="vReturnOrigRef">—</span>
       </div>
       <div class="inv-meta">
         <div class="inv-meta-block"><label id="vBillMetaLabel1">Merchant</label><span id="vMerchant">—</span></div>
@@ -515,7 +546,7 @@ html.light-theme .mc-stat-value { color:#374151; }
         </div>
       </div>
       <div class="inv-ptm-bar" id="vPtmBar" style="display:none;">
-        <div class="ptm-title">🏪 Paid to Merchant (Customer Payment)</div>
+        <div class="ptm-title">Paid to Merchant (Customer Payment)</div>
         <div class="ptm-row">
           <div class="ptm-item"><label>Merchant</label><span id="vPtmMerchant">—</span></div>
           <div class="ptm-item"><label>Payment Mode</label><span id="vPtmMode">—</span></div>
@@ -553,7 +584,7 @@ html.light-theme .mc-stat-value { color:#374151; }
         <div class="inv-balance-row" style="margin-top:6px;padding-top:6px;border-top:1px solid #e5e7eb;"><span class="inv-balance-label" style="font-weight:600;">Overall Balance</span><span class="inv-balance-val" id="vMBFinal">₹0</span></div>
       </div>
       <div class="inv-footer">
-        <div><div class="thank-you" id="vPurFooterMsg">Stock Received 🙏</div><div>Internal record.</div></div>
+        <div><div class="thank-you" id="vPurFooterMsg">Stock Received</div><div>Internal record.</div></div>
         <div style="text-align:right;"><div style="border-top:1px solid #374151;width:140px;margin:24px 0 4px auto;"></div><div style="font-size:11px;color:#6b7280;">Authorised Signatory</div></div>
       </div>
     </div>
@@ -582,8 +613,8 @@ html.light-theme .mc-stat-value { color:#374151; }
     <div class="pay-field"><label>Reference / Cheque No <span style="font-size:10px;color:rgba(255,255,255,0.25);">(optional)</span></label><input type="text" id="payRef" placeholder="e.g. CHQ-001234 or UTR"></div>
     <div class="pay-field"><label>Note <span style="font-size:10px;color:rgba(255,255,255,0.25);">(optional)</span></label><textarea id="payNote" placeholder="e.g. Payment for March purchases..."></textarea></div>
     <div class="pay-actions">
-      <button class="btn btn-purple" style="flex:1;" onclick="savePayment(false)">✅ Save</button>
-      <button class="btn btn-white"  style="color:#2d1b69;" onclick="savePayment(true)">🖨 Save & Print</button>
+      <button class="btn btn-purple" style="flex:1;" onclick="savePayment(false)">Save</button>
+      <button class="btn btn-white"  style="color:#2d1b69;" onclick="savePayment(true)">Save & Print</button>
       <button class="btn" onclick="closePaymentModal()" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:white;">Cancel</button>
     </div>
   </div>
@@ -592,11 +623,11 @@ html.light-theme .mc-stat-value { color:#374151; }
 <!-- DELETE CONFIRM MODAL -->
 <div class="confirm-overlay" id="confirmDeleteModal" style="display:none;align-items:center;justify-content:center;">
   <div class="confirm-box">
-    <h3>⚠️ Delete Bill?</h3>
+    <h3>Delete Bill?</h3>
     <p>This action is permanent. The bill and all its line items will be deleted from the database. This cannot be undone.</p>
     <div class="confirm-bill-no" id="confirmBillNoDisplay">—</div>
     <div class="confirm-actions">
-      <button class="btn btn-red" onclick="executeDeletion()">🗑 Yes, Delete</button>
+      <button class="btn btn-red" onclick="executeDeletion()">Yes, Delete</button>
       <button class="btn" onclick="closeConfirmDelete()" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:white;">Cancel</button>
     </div>
   </div>
@@ -621,19 +652,19 @@ html.light-theme .mc-stat-value { color:#374151; }
     <div><div class="lbl">Generated On</div><div class="val" id="stmtGenDate">—</div></div>
     <div><div class="lbl" id="stmtBalLabel">Balance</div><div class="val" id="stmtBalVal" style="font-size:18px;">—</div></div>
   </div>
-  <div class="stmt-section-head">📦 Purchase Bills</div>
+  <div class="stmt-section-head">Purchase Bills</div>
   <table class="stmt-tbl">
     <thead><tr>
       <th>Bill No</th><th>Date</th><th>Total</th><th>Cash</th><th>UPI</th><th>Bank Transfer</th><th>Payable</th>
     </tr></thead>
     <tbody id="stmtPurchaseBody"></tbody>
   </table>
-  <div class="stmt-section-head" id="stmtReturnHeading" style="display:none;">↩️ Purchase Returns</div>
+  <div class="stmt-section-head" id="stmtReturnHeading" style="display:none;">Purchase Returns</div>
   <table class="stmt-tbl" id="stmtReturnTable" style="display:none;">
     <thead><tr><th>Return No</th><th>Date</th><th>Original Bill</th><th>Amount</th></tr></thead>
     <tbody id="stmtReturnBody"></tbody>
   </table>
-  <div class="stmt-section-head" id="stmtPayHeading" style="display:none;">💸 Payments Made</div>
+  <div class="stmt-section-head" id="stmtPayHeading" style="display:none;">Payments Made</div>
   <table class="stmt-tbl" id="stmtPayTable" style="display:none;">
     <thead><tr><th>Voucher No</th><th>Date</th><th>Mode</th><th>Amount</th><th>Ref / Note</th></tr></thead>
     <tbody id="stmtPayBody"></tbody>
@@ -670,7 +701,7 @@ html.light-theme .mc-stat-value { color:#374151; }
     <div class="vchr-row"><span>Date</span><span id="vchrDateVal">—</span></div>
     <div class="vchr-row"><span>Amount Paid</span><span id="vchrAmount">₹0</span></div>
   </div>
-  <div class="vchr-note" id="vchrNoteBox" style="display:none;">📝 Note: <span id="vchrNote"></span></div>
+  <div class="vchr-note" id="vchrNoteBox" style="display:none;">Note: <span id="vchrNote"></span></div>
   <div class="vchr-body" style="margin-bottom:16px;">
     <div class="vchr-row"><span>Previous Balance</span><span id="vchrPrevBal">—</span></div>
     <div class="vchr-row"><span>Amount Paid Now</span><span id="vchrPaid">₹0</span></div>
@@ -698,9 +729,6 @@ let _currentViewedBillPhone = ''
 let _currentViewedBillIsPTM = false
 let _currentViewedBillId    = null
 let _currentViewedBillTable = null
-
-// WHY: We store the full payment record so we can print the voucher from
-// the view modal (not immediately on click like the old code did).
 let _currentPaymentRecord   = null
 
 const today   = new Date()
@@ -708,15 +736,14 @@ const fmt     = n => '₹' + (Math.round(Math.abs(n))||0).toLocaleString('en-IN'
 const daysSince = d => Math.floor((today - new Date(d)) / (1000*60*60*24))
 
 // ─────────────────────────────────────────────
-// WHATSAPP HELPERS
-// WHY: cleanPhone converts any Indian number format to international
-// format (91XXXXXXXXXX) which is what wa.me/ links require.
+// TOAST — no emojis, clean text only
+// WHY: User requested removal of all emojis from the notification toast.
 // ─────────────────────────────────────────────
 function showWaToast(msg) {
   const t = document.getElementById('waToast')
   document.getElementById('waToastMsg').innerText = msg
   t.classList.add('show')
-  setTimeout(() => t.classList.remove('show'), 3500)
+  setTimeout(() => t.classList.remove('show'), 3000)
 }
 
 function showWaDesktopModal(doc, filename, cp, message) {
@@ -729,7 +756,7 @@ function showWaDesktopModal(doc, filename, cp, message) {
   modal.innerHTML = `
     <div style="background:#0f172a;border:1px solid rgba(255,255,255,0.12);border-radius:20px;padding:32px;width:90%;max-width:460px;font-family:'DM Sans',sans-serif;">
       <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px;">
-        <div style="width:48px;height:48px;background:#25D366;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;">📲</div>
+        <div style="width:48px;height:48px;background:#25D366;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;color:white;font-weight:700;">W</div>
         <div>
           <div style="font-size:17px;font-weight:700;color:white;margin-bottom:3px;">Send via WhatsApp</div>
           <div style="font-size:12px;color:rgba(255,255,255,0.4);">${filename}</div>
@@ -738,13 +765,13 @@ function showWaDesktopModal(doc, filename, cp, message) {
       <div style="background:rgba(37,211,102,0.08);border:1px solid rgba(37,211,102,0.2);border-radius:12px;padding:14px;margin-bottom:20px;font-size:13px;color:rgba(255,255,255,0.65);line-height:1.7;">
         <strong style="color:#25D366;">Step 1:</strong> Click <strong style="color:white;">Download PDF</strong> below<br>
         <strong style="color:#25D366;">Step 2:</strong> Click <strong style="color:white;">Open WhatsApp</strong><br>
-        <strong style="color:#25D366;">Step 3:</strong> In WhatsApp click 📎 and attach the downloaded PDF
+        <strong style="color:#25D366;">Step 3:</strong> In WhatsApp click the attachment icon and attach the downloaded PDF
       </div>
       <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px;">
-        <a href="${blobUrl}" download="${filename}" style="display:flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(135deg,#1d4ed8,#2563eb);color:white;padding:13px;border-radius:10px;font-weight:700;font-size:15px;text-decoration:none;">⬇️ Download PDF</a>
-        <a href="https://wa.me/${cp}?text=${encodeURIComponent(message)}" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(135deg,#128C7E,#25D366);color:white;padding:13px;border-radius:10px;font-weight:700;font-size:15px;text-decoration:none;">💬 Open WhatsApp</a>
+        <a href="${blobUrl}" download="${filename}" style="display:flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(135deg,#1d4ed8,#2563eb);color:white;padding:13px;border-radius:10px;font-weight:700;font-size:15px;text-decoration:none;">Download PDF</a>
+        <a href="https://wa.me/${cp}?text=${encodeURIComponent(message)}" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(135deg,#128C7E,#25D366);color:white;padding:13px;border-radius:10px;font-weight:700;font-size:15px;text-decoration:none;">Open WhatsApp</a>
       </div>
-      <button onclick="document.getElementById('waDesktopModal').remove()" style="width:100%;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.5);padding:10px;border-radius:10px;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;">✕ Close</button>
+      <button onclick="document.getElementById('waDesktopModal').remove()" style="width:100%;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.5);padding:10px;border-radius:10px;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;">Close</button>
     </div>`
   document.body.appendChild(modal)
   modal.addEventListener('click', e => { if (e.target === modal) modal.remove() })
@@ -762,7 +789,7 @@ function cleanPhone(raw) {
 // LOAD MERCHANT GRID
 // ─────────────────────────────────────────────
 async function loadMerchants() {
-  document.getElementById('merchantGrid').innerHTML = '<div class="loading-row">⏳ Loading merchants...</div>'
+  document.getElementById('merchantGrid').innerHTML = '<div class="loading-row">Loading merchants...</div>'
   const search = document.getElementById('searchInput').value.trim()
   const filter = document.getElementById('filterBalance').value
   const sortBy = document.getElementById('sortBy').value
@@ -782,7 +809,7 @@ async function loadMerchants() {
     console.error('loadMerchants error:', err)
     document.getElementById('merchantGrid').innerHTML =
       `<div class="empty-state" style="color:#f87171;padding:30px;">
-        ❌ Data load failed: <strong>${err.message}</strong>
+        Data load failed: <strong>${err.message}</strong>
       </div>`
     return
   }
@@ -847,7 +874,7 @@ function renderGrid(list) {
   grid.innerHTML = list.map(m => {
     const nb = Math.round(m.netBalance), isOwed = nb > 0, isAdv = nb < 0, isZero = nb === 0
     let displayText, subText
-    if (isZero) { displayText = '✓ Clear';  subText = 'No dues' }
+    if (isZero) { displayText = 'Clear';  subText = 'No dues' }
     if (isOwed) { displayText = '-₹' + Math.abs(nb).toLocaleString('en-IN'); subText = 'You owe them' }
     if (isAdv)  { displayText = '+₹' + Math.abs(nb).toLocaleString('en-IN'); subText = 'They owe you' }
     const dotCls = isZero||isAdv ? 'g' : m.maxAge<=30 ? 'g' : m.maxAge<=60 ? 'y' : m.maxAge<=90 ? 'o' : 'r'
@@ -874,10 +901,10 @@ function renderPagination(total) {
   document.getElementById('pgInfo').innerText = `Showing ${(currentPage-1)*PAGE_SIZE+1}–${Math.min(currentPage*PAGE_SIZE,total)} of ${total}`
   const btns = document.getElementById('pgBtns'); btns.innerHTML = ''
   const mk = (l,d,fn,a) => { const b = document.createElement('button'); b.className='pg-btn'+(a?' active':''); b.innerText=l; b.disabled=d; b.onclick=fn; btns.appendChild(b) }
-  mk('← Prev', currentPage===1, () => { currentPage--; loadMerchants() })
+  mk('Prev', currentPage===1, () => { currentPage--; loadMerchants() })
   const s=Math.max(1,currentPage-2), e=Math.min(pages,s+4)
   for (let i=s; i<=e; i++) { const p=i; mk(String(i), false, () => { currentPage=p; loadMerchants() }, i===currentPage) }
-  mk('Next →', currentPage===pages, () => { currentPage++; loadMerchants() })
+  mk('Next', currentPage===pages, () => { currentPage++; loadMerchants() })
 }
 
 window.debounceSearch = () => { clearTimeout(searchTimer); searchTimer = setTimeout(() => { currentPage=1; loadMerchants() }, 350) }
@@ -923,13 +950,13 @@ window.openLedger = async function(encodedName) {
     const nb = Math.round(netBalance), isOwed = nb>0, isAdv = nb<0, isZero = nb===0
     document.getElementById('smBal').innerText      = isZero ? '₹0 Clear' : (isAdv?'+':'-') + fmt(nb)
     document.getElementById('smBal').style.color    = isOwed ? '#dc2626' : '#059669'
-    document.getElementById('smBalLabel').innerText = isOwed ? 'Payable Due ▼' : isAdv ? 'Overpaid ▲' : 'Balance'
+    document.getElementById('smBalLabel').innerText = isOwed ? 'Payable Due' : isAdv ? 'Overpaid' : 'Balance'
     const banner = document.getElementById('balanceBanner')
     banner.className = 'balance-banner ' + (isOwed?'owe':isAdv?'adv':'clear')
     document.getElementById('balanceBannerText').innerText = isZero
-      ? '✓ Account fully settled'
-      : isOwed ? `⚠️ You owe ₹${Math.abs(nb).toLocaleString('en-IN')} to this merchant`
-      : `✅ Merchant owes you ₹${Math.abs(nb).toLocaleString('en-IN')}`
+      ? 'Account fully settled'
+      : isOwed ? `You owe Rs ${Math.abs(nb).toLocaleString('en-IN')} to this merchant`
+      : `Merchant owes you Rs ${Math.abs(nb).toLocaleString('en-IN')}`
 
     let a0=0, a31=0, a61=0, a90=0
     purchBills.filter(b => (b.credit||0)>0).forEach(b => {
@@ -947,55 +974,66 @@ window.openLedger = async function(encodedName) {
       ...ptmBills.map(p => ({...p, _type:'ptm'}))
     ].sort((a,b) => new Date(b.created_at) - new Date(a.created_at))
 
-    // WHY: Store data first so currentMerchData is always populated
-    // before any button in the rows tries to use it.
     currentMerchData = { merchantName, profile, purchases, payments:mpayments, totalPurchased, payableFromBills, payableFromReturns, totalPaid, netBalance, phone }
 
+    // ─────────────────────────────────────────
+    // BUILD TABLE ROWS
+    // WHY for action button layout:
+    // We now use .action-btns (column flex), .action-btns-top (row flex)
+    // for View+Print side by side, and .action-btn-wa-full for the
+    // full-width WhatsApp button below. This matches the reference image.
+    // ─────────────────────────────────────────
     const rows = allEvents.map(ev => {
-      // ── PAYMENT ROW (from merchant_payments table) ──
-      // WHY: These are internal payment records (we paid the merchant).
-      // The "View" button now opens a proper view modal instead of printing
-      // a blank voucher immediately. We pass all data via a stored reference.
+
+      // ── PAYMENT ROW ──
+      // WHY: This is a row from merchant_payments (we paid the merchant).
+      // The Print button now calls printVoucherDirect() which prints the
+      // payment voucher — NOT the merchant statement. This was the core bug.
       if (ev._type === 'payment') {
         const safeRef  = (ev.reference_no||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'")
         const safeNote = (ev.note||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'")
         const safeNo   = (ev.receipt_no||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'")
+        const safeDate = new Date(ev.created_at).toLocaleDateString('en-IN')
         return `<tr>
           <td style="font-size:11px;color:rgba(255,255,255,0.4);font-family:monospace;">${ev.receipt_no}</td>
-          <td>${new Date(ev.created_at).toLocaleDateString('en-IN')}</td>
-          <td><span class="badge badge-payment">💸 Payment</span></td>
+          <td>${safeDate}</td>
+          <td><span class="badge badge-payment">Payment</span></td>
           <td style="color:rgba(255,255,255,0.3);">—</td>
           <td style="color:#10b981;font-weight:600;">- ${fmt(ev.amount)} <span style="font-size:11px;color:rgba(255,255,255,0.3);">(${ev.mode})</span></td>
           <td>—</td>
           <td>
             <div class="action-btns">
-              <button class="btn btn-sm" style="background:rgba(16,185,129,0.2);border:1px solid rgba(16,185,129,0.4);color:#10b981;"
-                onclick="viewVoucherModal('${safeNo}','${encodeURIComponent(merchantName)}',${ev.amount},'${ev.mode}','${safeRef}','${safeNote}','${new Date(ev.created_at).toLocaleDateString('en-IN')}')">👁 View</button>
-              <button class="btn btn-sm" style="background:rgba(16,185,129,0.2);border:1px solid rgba(16,185,129,0.4);color:#10b981;"
-                onclick="printVoucherDirect('${safeNo}','${encodeURIComponent(merchantName)}',${ev.amount},'${ev.mode}','${safeRef}','${safeNote}','${new Date(ev.created_at).toLocaleDateString('en-IN')}')">🖨 Print</button>
-              <button class="btn btn-wa btn-sm"
-                onclick="whatsappVoucher('${safeNo}','${encodeURIComponent(merchantName)}',${ev.amount},'${ev.mode}','${safeRef}','${safeNote}','${new Date(ev.created_at).toLocaleDateString('en-IN')}')">📲</button>
+              <div class="action-btns-top">
+                <button class="btn btn-sm" style="background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.35);color:#10b981;"
+                  onclick="viewVoucherModal('${safeNo}','${encodeURIComponent(merchantName)}',${ev.amount},'${ev.mode}','${safeRef}','${safeNote}','${safeDate}')">View</button>
+                <button class="btn btn-sm" style="background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.35);color:#10b981;"
+                  onclick="printVoucherDirect('${safeNo}','${encodeURIComponent(merchantName)}',${ev.amount},'${ev.mode}','${safeRef}','${safeNote}','${safeDate}')">Print</button>
+              </div>
+              <button class="action-btn-wa-full"
+                onclick="whatsappVoucher('${safeNo}','${encodeURIComponent(merchantName)}',${ev.amount},'${ev.mode}','${safeRef}','${safeNote}','${safeDate}')">WhatsApp</button>
             </div>
           </td>
         </tr>`
       }
 
-      // ── PTM ROW (Customer paid merchant directly) ──
+      // ── PTM ROW ──
       if (ev._type === 'ptm') {
         return `<tr>
           <td style="font-size:11px;color:rgba(255,255,255,0.4);font-family:monospace;">${ev.bill_number}</td>
           <td>${new Date(ev.created_at).toLocaleDateString('en-IN')}</td>
-          <td><span class="badge badge-ptm">🏪 Customer Paid</span></td>
+          <td><span class="badge badge-ptm">Customer Paid</span></td>
           <td style="color:#a78bfa;font-weight:600;">${fmt(ev.total_amount)}</td>
           <td style="color:#10b981;font-weight:600;">- ${fmt(ev.total_amount)} <span style="font-size:11px;color:rgba(255,255,255,0.3);">(Customer Direct)</span></td>
           <td>—</td>
           <td>
             <div class="action-btns">
-              <button class="btn btn-purple btn-sm" onclick="viewSalesBill('${ev.bill_number}','${encodeURIComponent(merchantName)}')">👁 View</button>
-              <button class="btn btn-sm" style="background:rgba(124,58,237,0.2);border:1px solid rgba(124,58,237,0.4);color:#a78bfa;"
-                onclick="printBillDirect('${ev.bill_number}','${encodeURIComponent(merchantName)}',true)">🖨 Print</button>
-              <button class="btn btn-wa btn-sm"
-                onclick="whatsappBillDirect('${ev.bill_number}','${encodeURIComponent(merchantName)}',true)">📲</button>
+              <div class="action-btns-top">
+                <button class="btn btn-purple btn-sm" onclick="viewSalesBill('${ev.bill_number}','${encodeURIComponent(merchantName)}')">View</button>
+                <button class="btn btn-sm" style="background:rgba(124,58,237,0.15);border:1px solid rgba(124,58,237,0.35);color:#a78bfa;"
+                  onclick="printBillDirect('${ev.bill_number}','${encodeURIComponent(merchantName)}',true)">Print</button>
+              </div>
+              <button class="action-btn-wa-full"
+                onclick="whatsappBillDirect('${ev.bill_number}','${encodeURIComponent(merchantName)}',true)">WhatsApp</button>
             </div>
           </td>
         </tr>`
@@ -1014,17 +1052,19 @@ window.openLedger = async function(encodedName) {
       return `<tr>
         <td style="font-size:11px;color:rgba(255,255,255,0.4);font-family:monospace;">${ev.bill_number}</td>
         <td>${new Date(ev.created_at).toLocaleDateString('en-IN')}</td>
-        <td><span class="badge ${isReturn?'badge-return':bc}">${isReturn?'↩ Return':bl}</span></td>
+        <td><span class="badge ${isReturn?'badge-return':bc}">${isReturn?'Return':bl}</span></td>
         <td style="color:${isReturn?'#f87171':'#a78bfa'};font-weight:600;">${isReturn?'-':''}${fmt(ev.total_amount)}</td>
         <td style="color:${ev.credit>0?'#f87171':'rgba(255,255,255,0.3)'};">${ev.credit!==0?(isReturn?'- ':'+ ')+fmt(ev.credit)+(isReturn?' reduced':' payable'):'—'}</td>
         <td>${ageLabel&&ageLabel!=='—'?`<span class="badge ${ageClass}">${ageLabel}</span>`:'—'}</td>
         <td>
           <div class="action-btns">
-            <button class="btn btn-purple btn-sm" onclick="viewPurchase('${ev.bill_number}','${encodeURIComponent(merchantName)}')">👁 View</button>
-            <button class="btn btn-sm" style="background:rgba(124,58,237,0.2);border:1px solid rgba(124,58,237,0.4);color:#a78bfa;"
-              onclick="printBillDirect('${ev.bill_number}','${encodeURIComponent(merchantName)}',false)">🖨 Print</button>
-            <button class="btn btn-wa btn-sm"
-              onclick="whatsappBillDirect('${ev.bill_number}','${encodeURIComponent(merchantName)}',false)">📲</button>
+            <div class="action-btns-top">
+              <button class="btn btn-purple btn-sm" onclick="viewPurchase('${ev.bill_number}','${encodeURIComponent(merchantName)}')">View</button>
+              <button class="btn btn-sm" style="background:rgba(124,58,237,0.15);border:1px solid rgba(124,58,237,0.35);color:#a78bfa;"
+                onclick="printBillDirect('${ev.bill_number}','${encodeURIComponent(merchantName)}',false)">Print</button>
+            </div>
+            <button class="action-btn-wa-full"
+              onclick="whatsappBillDirect('${ev.bill_number}','${encodeURIComponent(merchantName)}',false)">WhatsApp</button>
           </div>
         </td>
       </tr>`
@@ -1035,14 +1075,12 @@ window.openLedger = async function(encodedName) {
 
   } catch(err) {
     console.error('openLedger error:', err)
-    document.getElementById('txBody').innerHTML = `<tr><td colspan="7" style="color:#f87171;padding:20px;text-align:center;">❌ ${err.message}</td></tr>`
+    document.getElementById('txBody').innerHTML = `<tr><td colspan="7" style="color:#f87171;padding:20px;text-align:center;">${err.message}</td></tr>`
   }
 }
 
 // ─────────────────────────────────────────────
-// VOUCHER MODAL (View payment voucher without printing)
-// WHY: Old code printed immediately on click which caused blank PDFs
-// because currentMerchData wasn't ready. Now we show a proper view first.
+// VOUCHER VIEW MODAL
 // ─────────────────────────────────────────────
 window.viewVoucherModal = function(receiptNo, encodedName, amount, mode, ref, note, date) {
   const merchantName = decodeURIComponent(encodedName)
@@ -1051,7 +1089,6 @@ window.viewVoucherModal = function(receiptNo, encodedName, amount, mode, ref, no
   _currentPaymentRecord = { receiptNo, merchantName, amount, mode, ref, note, date, phone:mPhone, nb }
   const prevText = nb>0 ? '-₹'+Math.abs(nb).toLocaleString('en-IN')+' (Payable)' : nb<0 ? '+₹'+Math.abs(nb).toLocaleString('en-IN')+' (Overpaid)' : '₹0 Clear'
   _fillVoucherArea(receiptNo, merchantName, amount, mode, ref, note, date, mPhone, prevText, '—')
-  // Show the voucher in a small overlay instead of printing immediately
   const ex = document.getElementById('voucherViewOverlay')
   if (ex) ex.remove()
   const ov = document.createElement('div')
@@ -1061,9 +1098,9 @@ window.viewVoucherModal = function(receiptNo, encodedName, amount, mode, ref, no
     <div style="max-width:650px;margin:20px auto;background:white;border-radius:16px;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,0.6);">
       <div style="background:#2d1b69;padding:14px 24px;display:flex;gap:8px;justify-content:flex-end;align-items:center;">
         <span style="font-size:12px;color:rgba(255,255,255,0.7);margin-right:auto;font-family:monospace;">${receiptNo}</span>
-        <button class="btn btn-wa btn-sm" onclick="whatsappVoucherFromModal()">📲 WhatsApp</button>
-        <button class="btn btn-white btn-sm" style="color:#2d1b69!important;" onclick="printVoucherFromModal()">🖨 Print</button>
-        <button onclick="document.getElementById('voucherViewOverlay').remove()" style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.4);color:white;padding:5px 11px;font-size:11px;border-radius:7px;cursor:pointer;font-family:'DM Sans',sans-serif;">✕ Close</button>
+        <button class="btn btn-wa btn-sm" onclick="whatsappVoucherFromModal()">WhatsApp</button>
+        <button class="btn btn-white btn-sm" style="color:#2d1b69!important;" onclick="printVoucherFromModal()">Print</button>
+        <button onclick="document.getElementById('voucherViewOverlay').remove()" style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.4);color:white;padding:5px 11px;font-size:11px;border-radius:7px;cursor:pointer;font-family:'DM Sans',sans-serif;">Close</button>
       </div>
       <div style="padding:28px;">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:14px;border-bottom:2px solid #4c1d95;margin-bottom:18px;">
@@ -1078,7 +1115,7 @@ window.viewVoucherModal = function(receiptNo, encodedName, amount, mode, ref, no
           <div style="display:flex;justify-content:space-between;padding:5px 0;font-size:14px;color:#374151;border-bottom:1px dashed #ddd6fe;"><span>Date</span><span style="font-weight:600;">${date}</span></div>
           <div style="display:flex;justify-content:space-between;padding:10px 0 5px;font-size:16px;font-weight:700;color:#7c3aed;"><span>Amount Paid</span><span>₹${Math.round(amount).toLocaleString('en-IN')}</span></div>
         </div>
-        ${note?`<div style="font-size:13px;color:#6b7280;font-style:italic;padding:10px 14px;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;margin-bottom:16px;">📝 Note: ${note}</div>`:''}
+        ${note?`<div style="font-size:13px;color:#6b7280;font-style:italic;padding:10px 14px;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;margin-bottom:16px;">Note: ${note}</div>`:''}
         <div style="background:#f5f3ff;border:1px solid #ddd6fe;border-radius:8px;padding:16px 20px;margin-bottom:16px;">
           <div style="display:flex;justify-content:space-between;padding:5px 0;font-size:14px;color:#374151;border-bottom:1px dashed #ddd6fe;"><span>Balance at this time</span><span style="font-weight:600;">${prevText}</span></div>
           <div style="display:flex;justify-content:space-between;padding:5px 0;font-size:14px;color:#374151;border-bottom:1px dashed #ddd6fe;"><span>Amount Paid Now</span><span style="font-weight:600;">₹${Math.round(amount).toLocaleString('en-IN')}</span></div>
@@ -1120,8 +1157,10 @@ function _fillVoucherArea(receiptNo, merchantName, amount, mode, ref, note, date
   if (note && note.trim()) { document.getElementById('vchrNote').innerText=note; document.getElementById('vchrNoteBox').style.display='block' } else { document.getElementById('vchrNoteBox').style.display='none' }
 }
 
-// WHY: printVoucherDirect is called from the table's Print button directly
-// without opening the view modal first.
+// WHY: printVoucherDirect prints the PAYMENT VOUCHER (voucherArea) — not the
+// merchant statement. The bug was that clicking "Print" on a payment row was
+// somehow triggering the statement print path. Now it explicitly calls
+// body.classList.add('print-voucher') which shows #voucherArea in print CSS.
 window.printVoucherDirect = function(receiptNo, encodedName, amount, mode, ref, note, date) {
   const merchantName = decodeURIComponent(encodedName)
   const nb = currentMerchData ? Math.round(currentMerchData.netBalance) : 0
@@ -1133,8 +1172,6 @@ window.printVoucherDirect = function(receiptNo, encodedName, amount, mode, ref, 
   setTimeout(() => { document.body.classList.remove('print-voucher'); document.title = ot }, 1000)
 }
 
-// WHY: whatsappVoucher generates a PDF and sends it to the merchant's
-// WhatsApp number which we read from currentMerchData.phone.
 window.whatsappVoucher = async function(receiptNo, encodedName, amount, mode, ref, note, date) {
   const merchantName = decodeURIComponent(encodedName)
   const phone = currentMerchData?.phone || ''
@@ -1177,8 +1214,6 @@ async function _sendVoucherWhatsApp(receiptNo, merchantName, amount, mode, ref, 
 
 // ─────────────────────────────────────────────
 // DIRECT PRINT / WHATSAPP FROM TABLE ROWS
-// WHY: These functions load the bill data on demand and
-// trigger print or WhatsApp WITHOUT opening the view modal.
 // ─────────────────────────────────────────────
 window.printBillDirect = async function(billNo, encodedName, isPTM) {
   const merchantName = decodeURIComponent(encodedName)
@@ -1195,7 +1230,6 @@ window.printBillDirect = async function(billNo, encodedName, isPTM) {
     _currentViewedBillIsPTM = false; _currentViewedBillId = rec.id; _currentViewedBillTable = 'purchases'
   }
   await _fillViewBill(rec, merchantName, isPTM)
-  // Print without showing the modal
   document.body.classList.add('print-bill')
   const ot = document.title; document.title = billNo; window.print()
   setTimeout(() => { document.body.classList.remove('print-bill'); document.title = ot }, 800)
@@ -1213,7 +1247,6 @@ window.whatsappBillDirect = async function(billNo, encodedName, isPTM) {
     if (!r.data) { alert('Bill not found'); return }
     rec = r.data
   }
-  // Get merchant phone from the record or currentMerchData
   const phone = rec.merchant_phone || currentMerchData?.phone || ''
   if (!phone) { alert('No phone number for this merchant.'); return }
   _currentViewedBillPhone = phone
@@ -1274,7 +1307,7 @@ async function _fillViewBill(rec, merchantName, isSalesBill) {
   document.getElementById('vPurchaseDate').innerText   = new Date(rec.created_at).toLocaleString('en-IN')
   document.getElementById('vBillNoDisplay').innerText  = rec.bill_number
   document.getElementById('vPurTotalLabel').innerText  = isReturn?'Return Total':isPTM?'Amount Paid':'Grand Total'
-  document.getElementById('vPurFooterMsg').innerText   = isPTM?'Customer paid merchant directly 🙏':(isReturn?'Return Processed 🙏':'Stock Received 🙏')
+  document.getElementById('vPurFooterMsg').innerText   = isPTM?'Customer paid merchant directly':(isReturn?'Return Processed':'Stock Received')
   document.getElementById('vPurCreditLabel').innerText = isReturn?'Payable Reduced: ':isPTM?'Paid: ':'Payable (Credit): '
   document.getElementById('vPurPayTitle').innerText    = isReturn?'Return Breakdown':isPTM?'Payment':'Payment Breakdown'
   document.getElementById('vBillMetaLabel1').innerText = isPTM ? 'Customer' : 'Merchant'
@@ -1335,7 +1368,7 @@ async function _fillViewBill(rec, merchantName, isSalesBill) {
     balBox.className = 'inv-balance-box ' + (nb>0?'due':nb<0?'adv':'clear')
     document.getElementById('vMBOrigPayable').innerText = fmt(rec.credit||rec.total_amount||0)
     document.getElementById('vMBPaid').innerText        = fmt(currentMerchData.totalPaid)
-    const btext = nb===0 ? '₹0 — Settled ✓' : (nb<0?'+':'-')+fmt(nb)+(nb<0?' (Overpaid)':' (Payable Due)')
+    const btext = nb===0 ? '₹0 — Settled' : (nb<0?'+':'-')+fmt(nb)+(nb<0?' (Overpaid)':' (Payable Due)')
     const bel = document.getElementById('vMBFinal'); bel.innerText = btext; bel.style.color = nb>0?'#dc2626':'#059669'
   } else { document.getElementById('vMerchBalanceBox').style.display='none' }
 
@@ -1373,23 +1406,23 @@ window.closeConfirmDelete = function() {
 window.executeDeletion = async function() {
   if (!_currentViewedBillId || !_currentViewedBillTable) { alert('No bill to delete.'); return }
   const btn = document.querySelector('#confirmDeleteModal .btn-red')
-  btn.innerText = '⏳ Deleting...'
+  btn.innerText = 'Deleting...'
   btn.disabled = true
   try {
     const itemTable = _currentViewedBillTable === 'sales' ? 'bill_items' : 'purchase_items'
     const fkCol     = _currentViewedBillTable === 'sales' ? 'sale_id'    : 'purchase_id'
     const { error: itemErr } = await db.from(itemTable).delete().eq(fkCol, _currentViewedBillId)
-    if (itemErr) { alert('Error deleting items: ' + itemErr.message); btn.innerText='🗑 Yes, Delete'; btn.disabled=false; return }
+    if (itemErr) { alert('Error deleting items: ' + itemErr.message); btn.innerText='Yes, Delete'; btn.disabled=false; return }
     const { error: billErr } = await db.from(_currentViewedBillTable).delete().eq('id', _currentViewedBillId)
-    if (billErr) { alert('Error deleting bill: ' + billErr.message); btn.innerText='🗑 Yes, Delete'; btn.disabled=false; return }
+    if (billErr) { alert('Error deleting bill: ' + billErr.message); btn.innerText='Yes, Delete'; btn.disabled=false; return }
     closeConfirmDelete()
     closeViewPurchase()
-    alert('✅ Bill deleted successfully.')
+    alert('Bill deleted successfully.')
     if (currentMerchData) { await openLedger(encodeURIComponent(currentMerchData.merchantName)) }
     loadMerchants()
   } catch(err) {
     alert('Unexpected error: ' + err.message)
-    btn.innerText = '🗑 Yes, Delete'
+    btn.innerText = 'Yes, Delete'
     btn.disabled = false
   }
 }
@@ -1487,8 +1520,6 @@ window.printStatement = async function() {
 
 // ─────────────────────────────────────────────
 // WHATSAPP STATEMENT
-// WHY: Uses merchant's phone from currentMerchData which is populated
-// from the merchants table or the purchase bills.
 // ─────────────────────────────────────────────
 window.whatsappStatement = async function() {
   if (!currentMerchData) return
@@ -1580,38 +1611,32 @@ function buildMerchantStatementPDF(data) {
 }
 
 async function sendPDFToWhatsApp(doc, filename, phone, message) {
-  // WHY: cleanPhone ensures we always send to a proper international number.
-  // On mobile, navigator.share opens the native share sheet (includes WhatsApp).
-  // On desktop, we show a modal with a direct wa.me link.
   const cp = cleanPhone(phone)
   if (!phone||!phone.trim()) { alert('Please add the phone number first.'); return }
   if (!cp) { alert('Invalid phone: "'+phone+'"'); return }
-  showWaToast('📄 Preparing PDF...')
+  showWaToast('Preparing PDF...')
   try {
     const pdfBlob = doc.output('blob')
     const file = new File([pdfBlob], filename, {type:'application/pdf'})
     if (navigator.share && navigator.canShare && navigator.canShare({files:[file]})) {
-      showWaToast('📲 Opening share...')
+      showWaToast('Opening share sheet...')
       await navigator.share({ files:[file], text:message, title:filename })
-      showWaToast('✅ Done!')
+      showWaToast('Done')
     } else {
       showWaDesktopModal(doc, filename, cp, message)
     }
   } catch(err) {
     if (err.name==='AbortError') { showWaToast('Cancelled'); return }
-    showWaToast('❌ Error: '+err.message)
+    showWaToast('Error: '+err.message)
   }
 }
 
 // ─────────────────────────────────────────────
 // WHATSAPP PURCHASE BILL (from View modal)
-// WHY: Uses _currentViewedBillPhone set when the bill was loaded.
-// For merchants, that is merchant_phone from the purchase record.
 // ─────────────────────────────────────────────
 window.whatsappPurchaseBill = async function() {
   const billNo   = document.getElementById('vPurchaseNo').innerText
   const merchant = document.getElementById('vMerchant').innerText
-  // Prefer the merchant's phone from currentMerchData (fetched from merchants table)
   const phone = currentMerchData?.phone || _currentViewedBillPhone || ''
   let pur = null
 
@@ -1625,7 +1650,6 @@ window.whatsappPurchaseBill = async function() {
     pur = r.data
   }
 
-  // Use merchant_phone from the actual record as fallback
   const finalPhone = phone || pur.merchant_phone || ''
   if (!finalPhone) { alert('No phone number for this merchant.'); return }
 
@@ -1740,9 +1764,9 @@ window.openPaymentModal = function() {
   const { merchantName, netBalance } = currentMerchData, nb = Math.round(netBalance)
   document.getElementById('payModalSub').innerText = 'Merchant: ' + merchantName
   const pill = document.getElementById('payBalancePill')
-  if (nb>0)      { pill.innerText='⚠️ Payable: -'+fmt(nb); pill.style.background='rgba(248,113,113,0.15)'; pill.style.color='#f87171' }
-  else if (nb<0) { pill.innerText='✅ Overpaid: +'+fmt(Math.abs(nb)); pill.style.background='rgba(52,211,153,0.15)'; pill.style.color='#34d399' }
-  else           { pill.innerText='✓ Account is clear'; pill.style.background='rgba(52,211,153,0.1)'; pill.style.color='#34d399' }
+  if (nb>0)      { pill.innerText='Payable: -'+fmt(nb); pill.style.background='rgba(248,113,113,0.15)'; pill.style.color='#f87171' }
+  else if (nb<0) { pill.innerText='Overpaid: +'+fmt(Math.abs(nb)); pill.style.background='rgba(52,211,153,0.15)'; pill.style.color='#34d399' }
+  else           { pill.innerText='Account is clear'; pill.style.background='rgba(52,211,153,0.1)'; pill.style.color='#34d399' }
   document.getElementById('payAmount').value = nb>0 ? nb : ''
   document.getElementById('payMode').value   = 'Cash'
   document.getElementById('payRef').value    = ''
@@ -1793,7 +1817,7 @@ window.savePayment = async function(shouldPrint) {
     setTimeout(() => { document.body.classList.remove('print-voucher'); document.title=ot }, 1000)
   }
   closePaymentModal()
-  alert(`✅ Payment of ${fmt(amount)} recorded!\nVoucher: ${voucherNo}`)
+  alert(`Payment of ${fmt(amount)} recorded!\nVoucher: ${voucherNo}`)
   openLedger(encodeURIComponent(merchantName))
   loadMerchants()
 }
