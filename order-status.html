@@ -103,6 +103,8 @@ html.light-theme .pay-sum-row > span:first-child { color: #475569 !important; }
 html.light-theme .hist-table td[colspan] { color: #64748b !important; }
 html.light-theme .items-table td[colspan] { color: #64748b !important; }
 html.light-theme #advPayBox .flbl { color: #374151 !important; }
+html.light-theme .order-total-label { color: #374151 !important; }
+html.light-theme .order-total-bar { background: #f1f5f9 !important; border-color: rgba(0,0,0,0.08) !important; }
 html.light-theme #rcvNewProdSection .new-prod-title { color: #b45309 !important; }
 html.light-theme .rcv-head > div { color: #475569 !important; }
 html.light-theme .main > p { color: #475569 !important; }
@@ -623,8 +625,8 @@ html.light-theme .price-toggle-row { color: #374151; }
     <svg style="width:12px;height:12px;display:inline;margin-right:4px;vertical-align:-1px;" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
     Add Item
   </button>
-  <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:14px;margin-top:14px;display:flex;justify-content:space-between;align-items:center;">
-    <span style="font-size:14px;color:rgba(255,255,255,.6);">Order Total:</span>
+  <div class="order-total-bar" style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:14px;margin-top:14px;display:flex;justify-content:space-between;align-items:center;">
+    <span class="order-total-label" style="font-size:14px;color:rgba(255,255,255,.6);">Order Total:</span>
     <span style="font-size:20px;font-weight:700;color:#a78bfa;" id="oTotalDisplay">₹0</span>
   </div>
   <div class="modal-foot">
@@ -1252,7 +1254,7 @@ window.renderViewOrder = function () {
   var totalAmt   = items.reduce(function (s, i) { return s + (i.ordered_qty || 0) * (i.purchase_price || 0) }, 0)
 
   // Build table header
-var thead = '<th>#</th><th>Product</th><th>Brand</th><th>Category</th><th>Size</th><th style="text-align:center;">Qty</th>'
+var thead = '<th style="color:#fff;">#</th><th style="color:#fff;">Product</th><th style="color:#fff;">Brand</th><th style="color:#fff;">Category</th><th style="color:#fff;">Size</th><th style="color:#fff;text-align:center;">Qty</th>'
   if (showPrice) thead += '<th style="color:#fff;text-align:right;">Price ₹</th><th style="color:#fff;text-align:right;">Amount</th>'
 
   // Build table rows
@@ -2183,7 +2185,6 @@ window.sendWhatsApp = function (id) {
   var lines = ['📋 *PURCHASE ORDER*', 'From: Abhinandan Auto Mobiles', '━━━━━━━━━━━━━━━━━━',
     'Order No: ' + (o.order_number || '—'), 'Date: ' + fmtD(o.order_date),
     (o.expected_date ? 'Expected: ' + fmtD(o.expected_date) : ''), '', '*Items Ordered:*'].filter(Boolean)
-  var total = 0
   items.forEach(function (it, i) {
     var amt = (it.ordered_qty || 0) * (it.purchase_price || 0); total += amt
 lines.push((i + 1) + '. ' + it.item_name + (it.brand ? ' (' + it.brand + ')' : '') + (it.product_size ? ' — Size: ' + it.product_size : '') + ' — Qty: ' + it.ordered_qty)
@@ -2420,7 +2421,9 @@ document.getElementById('viewOrderModal').addEventListener('click',   function (
     'html.light-theme .rcv-done-qty span { color: #9ca3af !important; }',
     'html.light-theme .discount-label { color: #475569 !important; }',
     'html.light-theme #discHint { color: #64748b !important; }',
-    'html.light-theme .price-toggle-row { background: rgba(27,156,252,0.06) !important; border-bottom-color: rgba(27,156,252,0.12) !important; }',
+    'html.light-theme .price-toggle-row { background: rgba(27,156,252,0.06) !important; border-bottom-color: rgba(27,156,252,0.12) !important; color: #374151 !important; }',
+    'html.light-theme .price-toggle-row span { color: #64748b !important; }',
+    'html.light-theme .price-toggle-row label { color: #374151 !important; }',
     'html.light-theme .vo-hdr { background: linear-gradient(135deg,#0f4c75,#1b9cfc) !important; }',
     'html.light-theme .vo-meta { background: #e8f4fd !important; border-color: #bfdbfe !important; }',
     'html.light-theme .vo-mb span { color: #1e293b !important; }',
