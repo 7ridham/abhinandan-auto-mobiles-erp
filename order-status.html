@@ -110,6 +110,9 @@ html.light-theme .rcv-head > div { color: #475569 !important; }
 html.light-theme .main > p { color: #475569 !important; }
 /* View Order Modal light theme */
 html.light-theme #viewOrderModal .modal-box { background: #f8faff !important; }
+html.light-theme .vo-hdr * { color: #ffffff !important; }
+html.light-theme .vo-tbl thead th { color: #ffffff !important; }
+html.light-theme .rpt-tbl thead th { color: #ffffff !important; }
 html.light-theme .view-order-paper { background: #fff !important; color: #111 !important; }
 
 /* ═══════════════════════════════════════════════
@@ -1254,8 +1257,9 @@ window.renderViewOrder = function () {
   var totalAmt   = items.reduce(function (s, i) { return s + (i.ordered_qty || 0) * (i.purchase_price || 0) }, 0)
 
   // Build table header
-var thead = '<th style="color:#fff;">#</th><th style="color:#fff;">Product</th><th style="color:#fff;">Brand</th><th style="color:#fff;">Category</th><th style="color:#fff;">Size</th><th style="color:#fff;text-align:center;">Qty</th>'
-  if (showPrice) thead += '<th style="color:#fff;text-align:right;">Price ₹</th><th style="color:#fff;text-align:right;">Amount</th>'
+var thead = '<th style="color:#ffffff !important;">#</th><th style="color:#ffffff !important;">Product</th><th style="color:#ffffff !important;">Brand</th><th style="color:#ffffff !important;">Category</th><th style="color:#ffffff !important;">Size</th><th style="color:#ffffff !important;text-align:center;">Qty</th>'
+  if (showPrice) thead += '<th style="color:#ffffff !important;text-align:right;">Price ₹</th><th style="color:#ffffff !important;text-align:right;">Amount</th>'
+    if (showPrice) thead += '<th style="color:#fff;text-align:right;">Price ₹</th><th style="color:#fff;text-align:right;">Amount</th>'
 
   // Build table rows
   var trows = items.map(function (it, i) {
@@ -1282,8 +1286,8 @@ var thead = '<th style="color:#fff;">#</th><th style="color:#fff;">Product</th><
     '<div class="view-order-paper">' +
       '<div class="vo-hdr">' +
         '<div>' +
-          '<div class="vo-co">Abhinandan Auto Mobiles</div>' +
-          '<div class="vo-sub">Nr. Referral Hospital, Kandla National Highway Road, Santalpur · +91 98700 37002</div>' +
+          '<div class="vo-co" style="color:#ffffff !important;">Abhinandan Auto Mobiles</div>' +
+          '<div class="vo-sub" style="color:rgba(255,255,255,0.85) !important;">Nr. Referral Hospital, Kandla National Highway Road, Santalpur · +91 98700 37002</div>' +
         '</div>' +
         '<div style="text-align:right;">' +
           '<div class="vo-badge">PURCHASE ORDER</div>' +
@@ -2117,8 +2121,8 @@ window.printOrder = function (id, showPriceOverride) {
   else document.getElementById('poNoteBar').style.display = 'none'
 
   // Build table header dynamically based on showPrice
-  var thead = '<th style="color:#fff;">#</th><th style="color:#fff;">Product</th><th style="color:#fff;">Brand</th><th style="color:#fff;">Category</th><th style="color:#fff;">Size</th><th style="color:#fff;text-align:center;">Qty</th>'
-  if (showPrice) thead += '<th style="color:#fff;text-align:right;">Price ₹</th><th style="color:#fff;text-align:right;">Amount</th>'
+ var thead = '<th style="color:#ffffff !important;background:transparent;">#</th><th style="color:#ffffff !important;background:transparent;">Product</th><th style="color:#ffffff !important;background:transparent;">Brand</th><th style="color:#ffffff !important;background:transparent;">Category</th><th style="color:#ffffff !important;background:transparent;">Size</th><th style="color:#ffffff !important;background:transparent;text-align:center;">Qty</th>'
+  if (showPrice) thead += '<th style="color:#ffffff !important;background:transparent;text-align:right;">Price ₹</th><th style="color:#ffffff !important;background:transparent;text-align:right;">Amount</th>'
   document.getElementById('poTHead').innerHTML = thead
 
   document.getElementById('poItems').innerHTML = items.map(function (it, i) {
