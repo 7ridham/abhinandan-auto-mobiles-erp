@@ -2185,12 +2185,13 @@ window.sendWhatsApp = function (id) {
   var lines = ['📋 *PURCHASE ORDER*', 'From: Abhinandan Auto Mobiles', '━━━━━━━━━━━━━━━━━━',
     'Order No: ' + (o.order_number || '—'), 'Date: ' + fmtD(o.order_date),
     (o.expected_date ? 'Expected: ' + fmtD(o.expected_date) : ''), '', '*Items Ordered:*'].filter(Boolean)
+  var totalQty = 0
   items.forEach(function (it, i) {
-    var amt = (it.ordered_qty || 0) * (it.purchase_price || 0); total += amt
-lines.push((i + 1) + '. ' + it.item_name + (it.brand ? ' (' + it.brand + ')' : '') + (it.product_size ? ' — Size: ' + it.product_size : '') + ' — Qty: ' + it.ordered_qty)
+    totalQty += (it.ordered_qty || 0)
+    lines.push((i + 1) + '. ' + it.item_name + (it.brand ? ' (' + it.brand + ')' : '') + (it.product_size ? ' — Size: ' + it.product_size : '') + ' — Qty: ' + it.ordered_qty)
   })
   lines.push('━━━━━━━━━━━━━━━━━━')
-  lines.push('*Total: ₹' + Math.round(total).toLocaleString('en-IN') + '*')
+  lines.push('*Total Qty: ' + totalQty + ' items*')
   if (o.notes) lines.push('📝 Note: ' + o.notes)
   lines.push('', 'Please confirm availability & dispatch.', '— Abhinandan Auto Mobiles | +91 98700 37002')
   // Format phone: always add 91 country code if not present
