@@ -3,7 +3,7 @@
 <head>
   <script src="auth.js"></script>
 <title>Merchant Ledger — Abhinandan Auto Mobiles</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" href="style.css">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -164,16 +164,21 @@ html.light-theme .view-bill-actions { background:#2d1b69 !important; }
 .view-bill-actions .btn-red-outline:hover { background:rgba(239,68,68,0.3); color:white; }
 .view-bill-actions .btn-outline-light { background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.4); color:white; padding:5px 11px; font-size:11px; border-radius:7px; cursor:pointer; font-family:'DM Sans',sans-serif; transition:all 0.2s; }
 .view-bill-actions .btn-outline-light:hover { background:rgba(255,255,255,0.25); }
-/* WHY: Safari has a known bug where text inside elements sitting above a
-   backdrop-filter (or freshly-shown fixed overlay) doesn't get painted until
-   something forces a repaint (e.g. moving the cursor over it). Forcing each
-   button onto its own GPU compositing layer makes Safari paint it immediately
-   when the modal opens, fixing the "invisible Print button" issue. */
+/* WHY: Safari has a known bug where text/buttons inside elements sitting above a
+   backdrop-filter (or freshly-shown fixed overlay) don't get painted until
+   something forces a repaint (e.g. moving the cursor over it). We force every
+   button in this bar onto its own GPU compositing layer AND we now also
+   force a manual repaint nudge from JS every time the bill modal is
+   (re)opened — see _forceSafariRepaint() in the script below. Promoting the
+   layer via CSS alone isn't enough when the modal is reused for a *second*
+   bill without a full display:none -> display:block transition, which is
+   what was causing the "invisible Print button" issue on the 2nd bill. */
 .view-bill-actions button {
   transform: translateZ(0);
   -webkit-transform: translateZ(0);
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
+  will-change: transform;
 }
 
 .pay-modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.88); z-index:11000; align-items:center; justify-content:center; backdrop-filter:blur(8px); }
@@ -220,6 +225,7 @@ html.light-theme .view-bill-actions { background:#2d1b69 !important; }
 .inv-table tbody td { padding:9px 12px; color:#374151; }
 .inv-table tbody td:not(:first-child) { text-align:center; }
 .inv-table tbody td:last-child { text-align:right; font-weight:600; }
+.inv-table-empty { padding:18px 12px; text-align:center; color:#9ca3af; font-size:13px; font-style:italic; }
 .inv-totals { display:flex; justify-content:flex-end; padding:16px 32px 0; }
 .inv-totals-inner { min-width:220px; }
 .inv-total-row { display:flex; justify-content:space-between; padding:5px 0; font-size:13px; color:#374151; border-bottom:1px dashed #e5e7eb; }
@@ -297,6 +303,16 @@ html.light-theme .view-bill-actions { background:#2d1b69 !important; }
     height: auto !important;
     min-height: unset !important;
   }
+  /* HARD GUARANTEE: even if two print-* classes are ever present on body at
+     the same time, only the one intended for THIS print call is allowed to
+     render — every other print area is force-hidden. This is the second
+     line of defense behind _clearPrintClasses(); belt and suspenders. */
+  body.print-bill #statementArea,
+  body.print-bill #voucherArea { display: none !important; }
+  body.print-statement #viewPurchaseModal,
+  body.print-statement #voucherArea { display: none !important; }
+  body.print-voucher #statementArea,
+  body.print-voucher #viewPurchaseModal { display: none !important; }
   * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
   .stmt-tbl thead th { color: #ffffff !important; background:#4c1d95 !important; }
   .inv-table thead th { color: #ffffff !important; }
@@ -762,13 +778,50 @@ const today   = new Date()
 const fmt     = n => '₹' + (Math.round(Math.abs(n))||0).toLocaleString('en-IN')
 const daysSince = d => Math.floor((today - new Date(d)) / (1000*60*60*24))
 
-// WHY: every print* function below calls this FIRST, before adding its own
-// print-XXX class. This guarantees only ONE print area can ever be active at
-// a time, even if a previous print's cleanup setTimeout got interrupted
-// (e.g. the user closed a modal mid-print). This is what was letting the
-// Statement print area "leak through" when printing a bill or voucher.
+// ─────────────────────────────────────────────
+// FIX #2 (print-bill prints statement instead of bill):
+// _clearPrintClasses() was already written with a comment claiming "every
+// print* function below calls this FIRST" — but in the actual code only
+// printVoucherDirect / printVoucherFromModal / printBillDirect were calling
+// it. printStatement() and printViewedBill() (the "Print" button inside the
+// bill-view modal itself) did NOT call it. That meant if a statement print's
+// cleanup setTimeout got interrupted (e.g. you closed the ledger modal mid
+// print, or clicked fast), 'print-statement' stayed on <body>. The next time
+// you opened a bill and hit "Print", printViewedBill() only ADDED
+// 'print-bill' without removing 'print-statement' — so BOTH print areas
+// matched their print CSS and the browser rendered the statement (which sits
+// first in the DOM) instead of the bill you were looking at.
+//
+// Fix: every print* function now calls _clearPrintClasses() first, AND the
+// print CSS itself now has hard "only show mine" rules as a second safety
+// net (see the @media print block above).
+// ─────────────────────────────────────────────
 function _clearPrintClasses() {
   document.body.classList.remove('print-statement', 'print-voucher', 'print-bill')
+}
+
+// ─────────────────────────────────────────────
+// FIX #1 (Print button on a bill invisible until the cursor moves over it):
+// Safari sometimes fails to paint elements sitting inside a `position:fixed`
+// overlay that becomes visible WITHOUT a fresh `display:none -> display:block`
+// transition (e.g. you already had a bill open, then opened a second bill —
+// the modal's display was already 'block', so Safari's "first paint" never
+// re-fires for the action bar, leaving the Print button visually blank until
+// a mouse move forces a repaint).
+//
+// This helper force-nudges a real repaint every single time a bill is shown,
+// regardless of whether the modal was already open or not.
+// ─────────────────────────────────────────────
+function _forceSafariRepaint(el) {
+  if (!el) return
+  el.style.opacity = '0.999'
+  // double rAF: first frame applies the opacity nudge, second frame restores
+  // it — guaranteeing the browser paints a frame in between on every engine.
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      el.style.opacity = '1'
+    })
+  })
 }
 
 // ─────────────────────────────────────────────
@@ -1383,13 +1436,21 @@ async function _fillViewBill(rec, merchantName, isSalesBill) {
   document.getElementById('vPurBank').innerText = '₹' + bankAmt
 
   let subtotal = 0
-  document.getElementById('vPurchaseItems').innerHTML = (items||[]).map((item,i) => {
+  const itemsHtml = (items||[]).map((item,i) => {
     const name  = item.item_name || invNames[item.item_id] || `[Product #${item.item_id}]`
     const qty   = Math.abs(item.quantity)
     const price = item.purchase_price || item.price || 0
     const amt   = Math.abs(item.total || item.quantity * price || 0); subtotal += amt
     return `<tr><td style="color:#6b7280;">${i+1}</td><td>${name}</td><td>${qty}</td><td>₹${price}</td><td>₹${amt.toLocaleString('en-IN')}</td></tr>`
   }).join('')
+  // FIX: when a bill genuinely has no line items (e.g. some "Merchant
+  // Payment" / pay-to-merchant records, which are payments, not itemized
+  // sales), the table used to render with just an empty <tbody> — which is
+  // exactly what made those bills "look like just plain details, not a real
+  // bill". We now show an explicit, styled placeholder row instead of a
+  // blank table so the invoice still reads as a complete document.
+  document.getElementById('vPurchaseItems').innerHTML = itemsHtml ||
+    `<tr><td colspan="5" class="inv-table-empty">No line items for this record${isPTM?' — this is a direct payment to the merchant, not an itemized sale.':'.'}</td></tr>`
 
   const disc = rec.discount || 0
   document.getElementById('vPurSubtotal').innerText = subtotal.toLocaleString('en-IN')
@@ -1411,7 +1472,19 @@ async function _fillViewBill(rec, merchantName, isSalesBill) {
     const bel = document.getElementById('vMBFinal'); bel.innerText = btext; bel.style.color = nb>0?'#dc2626':'#059669'
   } else { document.getElementById('vMerchBalanceBox').style.display='none' }
 
-  document.getElementById('viewPurchaseModal').style.display = 'block'
+  // ─────────────────────────────────────────
+  // FIX (Problem 1): show the modal, then force a real repaint on the
+  // action bar EVERY time — whether this is the first bill opened or a
+  // second/third bill viewed while the modal was already open. Previously
+  // the modal was simply set to display:block, which only triggers a fresh
+  // Safari paint the FIRST time (display:none -> display:block). On a
+  // second bill the display was already 'block', so the action bar (with
+  // the Print/WhatsApp/Delete/Close buttons) silently failed to repaint and
+  // stayed visually blank until the cursor moved over it.
+  // ─────────────────────────────────────────
+  const modalEl = document.getElementById('viewPurchaseModal')
+  modalEl.style.display = 'block'
+  _forceSafariRepaint(document.querySelector('.view-bill-actions'))
 }
 
 window.closeViewPurchase = () => {
@@ -1422,6 +1495,10 @@ window.closeViewPurchase = () => {
 }
 
 window.printViewedBill = () => {
+  // FIX (Problem 2): must clear any leftover print-* classes first — see the
+  // _clearPrintClasses() comment above for why this was the root cause of
+  // "Print on a bill actually prints the statement".
+  _clearPrintClasses()
   document.body.classList.add('print-bill')
   const ot = document.title
   document.title = document.getElementById('vPurchaseNo').innerText || 'Bill'
@@ -1550,6 +1627,11 @@ async function buildStatementDOM() {
 window.printStatement = async function() {
   if (!currentMerchData) { alert('Please open a merchant ledger first.'); return }
   await buildStatementDOM()
+  // FIX (Problem 2): clear any leftover print-* classes first. This is the
+  // other half of the fix — printStatement() previously only ADDED
+  // 'print-statement' without removing a stale 'print-bill'/'print-voucher'
+  // class, which could leave two print areas active at once.
+  _clearPrintClasses()
   document.body.classList.add('print-statement')
   const ot = document.title
   document.title = document.getElementById('stmtNo').innerText
@@ -1749,20 +1831,29 @@ async function _buildAndSendBillPDF(pur, merchant, isPTMFlag, phone) {
   doc.text('#',mg,y+14); doc.text('Item',mg+24,y+14); doc.text('Qty',368,y+14,{align:'center'}); doc.text('Price',455,y+14,{align:'center'}); doc.text('Amount',W-mg,y+14,{align:'right'})
   y+=24; let sub=0
 
-  ;(items||[]).forEach((item,i) => {
-    if (y>745) { doc.addPage(); y=40 }
-    const name  = item.item_name||invNames[item.item_id]||'Unknown'
-    const price = item.purchase_price||item.price||0
-    const amt   = Math.abs((item.quantity||0)*price); sub+=amt
-    if (i%2===1) { doc.setFillColor(249,250,251); doc.rect(0,y-12,W,20,'F') }
-    doc.setFont('helvetica','normal'); doc.setFontSize(9.5); doc.setTextColor(156,163,175)
-    doc.text(String(i+1),mg,y); doc.setTextColor(55,65,81)
-    doc.text(name.length>55?name.slice(0,52)+'...':name,mg+24,y)
-    doc.text(String(Math.abs(item.quantity||0)),368,y,{align:'center'})
-    doc.text('Rs '+price.toLocaleString('en-IN'),455,y,{align:'center'})
-    doc.setFont('helvetica','bold'); doc.text('Rs '+amt.toLocaleString('en-IN'),W-mg,y,{align:'right'})
+  if ((items||[]).length) {
+    items.forEach((item,i) => {
+      if (y>745) { doc.addPage(); y=40 }
+      const name  = item.item_name||invNames[item.item_id]||'Unknown'
+      const price = item.purchase_price||item.price||0
+      const amt   = Math.abs((item.quantity||0)*price); sub+=amt
+      if (i%2===1) { doc.setFillColor(249,250,251); doc.rect(0,y-12,W,20,'F') }
+      doc.setFont('helvetica','normal'); doc.setFontSize(9.5); doc.setTextColor(156,163,175)
+      doc.text(String(i+1),mg,y); doc.setTextColor(55,65,81)
+      doc.text(name.length>55?name.slice(0,52)+'...':name,mg+24,y)
+      doc.text(String(Math.abs(item.quantity||0)),368,y,{align:'center'})
+      doc.text('Rs '+price.toLocaleString('en-IN'),455,y,{align:'center'})
+      doc.setFont('helvetica','bold'); doc.text('Rs '+amt.toLocaleString('en-IN'),W-mg,y,{align:'right'})
+      y+=21
+    })
+  } else {
+    // FIX: same "doesn't look like a real bill" issue as the on-screen view
+    // — a PTM/payment record with no item rows used to leave a blank gap in
+    // the PDF. Render an explicit placeholder line instead.
+    doc.setFont('helvetica','italic'); doc.setFontSize(9.5); doc.setTextColor(156,163,175)
+    doc.text(isPTM ? 'No line items — direct payment to merchant.' : 'No line items recorded for this bill.', mg+24, y)
     y+=21
-  })
+  }
 
   doc.setDrawColor(229,231,235); doc.line(0,y,W,y); y+=18
   doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(55,65,81)
@@ -1851,6 +1942,7 @@ window.savePayment = async function(shouldPrint) {
     _fillVoucherArea(voucherNo, merchantName, amount, mode, ref, note,
       new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'}),
       mPhone, prevText, newText)
+    _clearPrintClasses()
     document.body.classList.add('print-voucher')
     const ot=document.title; document.title=voucherNo; window.print()
     setTimeout(() => { document.body.classList.remove('print-voucher'); document.title=ot }, 1000)
