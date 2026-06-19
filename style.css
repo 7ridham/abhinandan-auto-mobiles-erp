@@ -206,6 +206,39 @@ html.light-theme .sidebar::before {
   body.sidebar-open .sidebar-overlay { display: block; }
 }
 
+/* ══════════════════════════════════════════
+   MOBILE HARDENING — phones & small tablets
+══════════════════════════════════════════ */
+@media (max-width: 900px) {
+  /* Sidebar becomes a full-height drawer, never squishes content */
+  .sidebar { width: min(82vw, 280px); }
+  body.sidebar-open .sidebar-toggle { left: calc(min(82vw, 280px) + 10px); }
+
+  /* Generic safety net: any 2/3/4-column inline grid collapses to 1 column
+     on phones. This catches dashboard cards, stat grids, report grids, etc.
+     even when their column count is set via inline style="" in the HTML,
+     because !important on a media-query-scoped rule still wins over a
+     plain (non-!important) inline style for this property. */
+  .main [style*="display:grid"],
+  .main [style*="display: grid"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Cards and tables shouldn't force horizontal scroll off-screen */
+  .main { padding: 16px 12px 16px 54px; }
+  .card { padding: 16px; }
+  table { font-size: 13px; }
+  th, td { padding: 9px 8px; }
+
+  /* Long headings / numbers wrap instead of overflowing */
+  h1 { font-size: 22px; }
+  .stat-value, .ls-value, .kpi-value { word-break: break-word; }
+}
+
+@media (max-width: 480px) {
+  .main { padding: 14px 10px 14px 50px; }
+  h1 { font-size: 19px; }
+}
 
 /* ══════════════════════════════════════════
    HAMBURGER TOGGLE BUTTON
