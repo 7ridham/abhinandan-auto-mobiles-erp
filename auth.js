@@ -12,9 +12,9 @@
   var SB_URL = 'https://mhhnmndnolhapaoqtbxo.supabase.co'
   var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1oaG5tbmRub2xoYXBhb3F0YnhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4Mzg4NTksImV4cCI6MjA4ODQxNDg1OX0.IMSp8vYiCln_iSuoT_H2qdeX_dP1WMhOOskDw20eJXw'
 
-  // ── 1. Apply theme BEFORE DOM renders ──
+    // ── 1. Apply theme BEFORE DOM renders ──
   ;(function () {
-    var t = localStorage.getItem(THEME_KEY) || 'dark'
+    var t = localStorage.getItem(THEME_KEY) || 'light'
     if (t === 'light') document.documentElement.classList.add('light-theme')
     else document.documentElement.classList.remove('light-theme')
   })()
@@ -793,6 +793,21 @@
     if (document.body) obs.observe(document.body, { childList: true, subtree: true })
   }
 
+ // WHY: every page hardcodes class="sidebar-open" in <body> for desktop convenience.
+  // On a phone that's wrong — the sidebar would overlay and hide the entire page on load.
+  // We correct it here, once, before paint-relevant work happens, instead of editing
+  // every HTML file's <body> tag by hand.
+  function enforceMobileSidebarDefault() {
+    if (window.innerWidth <= 900) {
+      document.body.classList.remove('sidebar-open')
+    }
+  }
+  enforceMobileSidebarDefault()
+  window.addEventListener('resize', function () {
+    // Only auto-correct on resize if user hasn't manually toggled this session
+    if (!window._sidebarUserToggled) enforceMobileSidebarDefault()
+  })
+
   function runUI() {
     if (window.AAMAuth) window.AAMAuth.applyUI()
     setTimeout(function(){ applyLightThemePatch() }, 300)
@@ -805,6 +820,7 @@
 
 // ── SIDEBAR TOGGLE ──
 function toggleSidebar() {
+  window._sidebarUserToggled = true;
   document.body.classList.toggle('sidebar-open');
 }
 
