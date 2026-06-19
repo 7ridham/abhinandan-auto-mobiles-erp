@@ -808,8 +808,24 @@
     if (!window._sidebarUserToggled) enforceMobileSidebarDefault()
   })
 
+ // WHY: on some mobile browsers, the sidebar markup can finish rendering a few
+  // milliseconds after DOMContentLoaded fires (slower paint, slower JS engine).
+  // If applyUI() runs before the .sidebar element fully exists in the DOM, it
+  // silently does nothing (see the `if (!sidebar) return` guard above) and the
+  // settings button never gets injected. We retry a few times with a short
+  // delay until the sidebar is confirmed present, instead of trying once.
   function runUI() {
-    if (window.AAMAuth) window.AAMAuth.applyUI()
+    var attempts = 0
+    function tryApply() {
+      attempts++
+      var sidebar = document.querySelector('.sidebar')
+      if (sidebar && window.AAMAuth) {
+        window.AAMAuth.applyUI()
+      } else if (attempts < 10) {
+        setTimeout(tryApply, 150)
+      }
+    }
+    tryApply()
     setTimeout(function(){ applyLightThemePatch() }, 300)
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', runUI)
