@@ -7,6 +7,7 @@
 <link rel="stylesheet" href="style.css">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
 * { box-sizing:border-box; margin:0; padding:0; }
 body { font-family:'DM Sans',sans-serif; }
@@ -56,14 +57,6 @@ html.light-theme .mc-last-date { color:#64748b !important; }
 .aging-dot.o { background:#fb923c; }
 .aging-dot.r { background:#f87171; box-shadow:0 0 8px #f87171; animation:pulse-red 1.5s infinite; }
 @keyframes pulse-red { 0%,100%{opacity:1}50%{opacity:0.4} }
-
-/* ── FORCED-REPAINT UTILITY ──
-   WHY: WebKit/Safari sometimes leaves freshly-shown elements (especially
-   <button> text) unpainted until something forces a fresh layout+paint
-   cycle. Toggling this class forces exactly that — a 1ms opacity keyframe
-   that's invisible to the eye but makes the browser repaint the element. */
-@keyframes _repaintNudge { from { opacity:0.999; } to { opacity:1; } }
-.force-repaint { animation:_repaintNudge 1ms linear; }
 
 .pagination { display:flex; justify-content:space-between; align-items:center; margin-top:20px; flex-wrap:wrap; gap:12px; }
 .pg-info { font-size:13px; color:rgba(255,255,255,0.35); }
@@ -199,11 +192,6 @@ html.light-theme .view-bill-actions { background:#2d1b69 !important; }
 .inv-header { background:linear-gradient(135deg,#2d1b69 0%,#7c3aed 60%,#a78bfa 100%); color:white; padding:24px 32px; display:flex; justify-content:space-between; align-items:center; gap:16px; }
 .inv-header.return-style { background:linear-gradient(135deg,#7f1d1d,#dc2626,#f87171) !important; }
 .inv-header.ptm-style { background:linear-gradient(135deg,#1a0533,#6d28d9,#a78bfa) !important; }
-/* WHY: distinct themes per bill type so a glance at the header tells you
-   what kind of document you're looking at — amber/brown matches the look
-   of purchase-billing.html exactly; teal is reserved for payment vouchers
-   (money the shop paid OUT to a merchant) so it's never confused with a
-   purchase invoice or a customer-direct payment (PTM, purple). */
 .inv-header.purchase-style { background:linear-gradient(135deg,#78350f 0%,#d97706 60%,#fcd34d 100%) !important; }
 .inv-header.voucher-style  { background:linear-gradient(135deg,#0f3d3a 0%,#0d9488 60%,#5eead4 100%) !important; }
 .inv-company { font-family:'Playfair Display',serif; font-size:20px; font-weight:700; color:white !important; margin-bottom:4px; }
@@ -307,8 +295,6 @@ html.light-theme .view-bill-actions { background:#2d1b69 !important; }
     height: auto !important;
     min-height: unset !important;
   }
-  /* Belt-and-suspenders: only the print area meant for THIS print call may
-     render, even if a stale class were ever left on body at the same time. */
   body.print-bill #statementArea { display: none !important; }
   body.print-statement #viewPurchaseModal { display: none !important; }
   * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
@@ -544,10 +530,18 @@ html.light-theme .mc-stat-value { color:#374151; }
     </div>
     <div id="viewPurchasePrintArea">
       <div class="inv-header" id="vPurchaseHeader">
-        <div>
-          <div class="inv-company">Abhinandan Auto Mobiles</div>
-          <div class="inv-sub">Santalpur - Palanpur Highway</div>
-          <div class="inv-sub">+91 98700 37002</div>
+        <div style="display:flex;align-items:center;gap:14px;">
+          <img src="./logo.png" id="vHeaderLogoImg" alt="Logo"
+            style="height:54px;width:54px;object-fit:contain;background:white;border-radius:10px;padding:5px;flex-shrink:0;"
+            onerror="this.style.display='none';document.getElementById('vHeaderLogoFallback').style.display='flex';">
+          <div id="vHeaderLogoFallback"
+            style="display:none;height:54px;width:54px;background:white;border-radius:10px;align-items:center;justify-content:center;font-size:22px;font-weight:700;font-family:'Playfair Display',serif;flex-shrink:0;">A</div>
+          <div>
+            <div class="inv-company">Abhinandan Auto Mobiles</div>
+            <div class="inv-sub">Nr. Refaral Hospital, Kandla National Highway Road,</div>
+            <div class="inv-sub">SANTALPUR, Dit. PATAN.</div>
+            <div class="inv-sub">+91 98700 37002</div>
+          </div>
         </div>
         <div style="text-align:right;">
           <div class="inv-badge" id="vPurchaseType">Purchase Invoice</div>
@@ -580,7 +574,7 @@ html.light-theme .mc-stat-value { color:#374151; }
           <div class="ptm-item"><label>Amount Paid</label><span id="vPtmAmount">—</span></div>
         </div>
       </div>
-      <div class="inv-table-wrap">
+      <div class="inv-table-wrap" id="vItemsTableWrap">
         <table class="inv-table">
           <thead><tr>
             <th>#</th><th>Item</th><th>Qty</th><th>Price</th><th>Amount</th>
@@ -590,7 +584,7 @@ html.light-theme .mc-stat-value { color:#374151; }
       </div>
       <div class="inv-totals">
         <div class="inv-totals-inner">
-          <div class="inv-total-row"><span style="color:#6b7280;">Subtotal</span><span>₹<span id="vPurSubtotal">0</span></span></div>
+          <div class="inv-total-row" id="vSubtotalRow"><span style="color:#6b7280;">Subtotal</span><span>₹<span id="vPurSubtotal">0</span></span></div>
           <div class="inv-total-row" id="vDiscRow" style="display:none;"><span style="color:#059669;">Discount</span><span style="color:#059669;">- ₹<span id="vDiscount">0</span></span></div>
           <div class="inv-total-row"><span style="color:#4c1d95;" id="vPurTotalLabel">Grand Total</span><span style="color:#4c1d95;font-weight:700;">₹<span id="vPurTotal">0</span></span></div>
         </div>
@@ -608,6 +602,16 @@ html.light-theme .mc-stat-value { color:#374151; }
         <div class="inv-balance-row"><span class="inv-balance-label" id="vMBOrigPayableLabel">Payable at billing</span><span class="inv-balance-val" id="vMBOrigPayable">₹0</span></div>
         <div class="inv-balance-row"><span class="inv-balance-label" id="vMBPaidLabel">Total payments made</span><span class="inv-balance-val" style="color:#059669;" id="vMBPaid">₹0</span></div>
         <div class="inv-balance-row" style="margin-top:6px;padding-top:6px;border-top:1px solid #e5e7eb;"><span class="inv-balance-label" style="font-weight:600;">Overall Balance</span><span class="inv-balance-val" id="vMBFinal">₹0</span></div>
+      </div>
+      <div class="inv-qr-row" id="vQrRow" style="display:none;justify-content:space-between;align-items:center;padding:14px 32px 0;">
+        <div style="font-size:12px;color:#6b7280;max-width:480px;">
+          <span style="font-weight:600;color:#374151;">Abhinandan Auto Mobiles</span> — Your trusted auto parts partner.<br>
+          This is an internal purchase record.
+        </div>
+        <div style="text-align:center;">
+          <div id="vQrCanvas" style="width:70px;height:70px;"></div>
+          <p style="font-size:10px;color:#6b7280;margin-top:4px;">Scan to Visit Our Portal</p>
+        </div>
       </div>
       <div class="inv-footer">
         <div><div class="thank-you" id="vPurFooterMsg">Stock Received</div><div>Internal record.</div></div>
@@ -734,53 +738,38 @@ let _currentVoucherViewData     = null
 const today   = new Date()
 const fmt     = n => '₹' + (Math.round(Math.abs(n))||0).toLocaleString('en-IN')
 const daysSince = d => Math.floor((today - new Date(d)) / (1000*60*60*24))
+const PORTAL_URL = window.location.origin + '/portal.html'
 
-// ─────────────────────────────────────────────
-// _clearPrintClasses(): strips every print-* class before a new print run
-// starts, so two print areas can never both be "active" at once.
-// ─────────────────────────────────────────────
 function _clearPrintClasses() {
   document.body.classList.remove('print-statement', 'print-bill')
 }
 
 // ─────────────────────────────────────────────
-// _forceSafariRepaint(el): WebKit/Safari sometimes fails to paint elements
-// inside a fixed-position overlay that becomes visible WITHOUT a fresh
-// display:none -> display:block transition (e.g. you already had a bill
-// open, then viewed a second one). This forces a real layout+paint cycle —
-// first by reading offsetHeight (forces a synchronous reflow), then by
-// toggling the .force-repaint keyframe class on the container AND on every
-// individual button inside it (some WebKit builds repaint the container but
-// leave a child <button>'s text layer stale).
+// _forceSafariRepaint(el): forces a genuine reflow+repaint cycle via a real
+// display toggle on every button — far more reliable than an opacity nudge
+// alone. Some browser engines fail to repaint freshly-updated button text
+// when a fixed-position overlay was already visible (display:block) before
+// its content changed; toggling display fully re-triggers layout AND paint.
+// Called twice (immediately, and again shortly after) to also catch any
+// text updates that settle a tick later.
 // ─────────────────────────────────────────────
 function _forceSafariRepaint(el) {
   if (!el) return
-  void el.offsetHeight
-  el.classList.add('force-repaint')
-  requestAnimationFrame(() => requestAnimationFrame(() => el.classList.remove('force-repaint')))
-  el.querySelectorAll('button').forEach(btn => {
-    void btn.offsetHeight
-    btn.classList.add('force-repaint')
-    requestAnimationFrame(() => requestAnimationFrame(() => btn.classList.remove('force-repaint')))
-  })
+  function reflow(node) {
+    const prevDisplay = node.style.display
+    node.style.display = 'none'
+    void node.offsetHeight
+    node.style.display = prevDisplay || ''
+  }
+  reflow(el)
+  el.querySelectorAll('button').forEach(reflow)
+}
+function _scheduleRepaint() {
+  const el = document.querySelector('.view-bill-actions')
+  _forceSafariRepaint(el)
+  setTimeout(() => _forceSafariRepaint(el), 50)
 }
 
-// ─────────────────────────────────────────────
-// _doPrint(printClass, titleText): the single, reliable print trigger used
-// everywhere in this file.
-//
-// WHY THIS FIXES THE "BLANK PDF" BUG: window.print() is NOT guaranteed to
-// block JS execution in every browser/print-to-PDF flow. The old code did
-// `window.print(); setTimeout(() => removeClass(), 800)` — if the actual
-// print rendering took longer than 800ms (very common when "saving as PDF"
-// through a virtual printer), the print CSS class got removed and the
-// content hidden again BEFORE the browser finished capturing the page,
-// producing a blank PDF. The fix: wait for the real `afterprint` event
-// (fired only once the print interaction is truly done) before cleaning up,
-// with a generous fallback timer only as a safety net for browsers that
-// don't fire afterprint reliably. A double rAF before calling print() also
-// guarantees the class has actually been applied and painted first.
-// ─────────────────────────────────────────────
 function _doPrint(printClass, titleText) {
   _clearPrintClasses()
   document.body.classList.add(printClass)
@@ -795,7 +784,7 @@ function _doPrint(printClass, titleText) {
     window.removeEventListener('afterprint', cleanup)
   }
   window.addEventListener('afterprint', cleanup)
-  setTimeout(cleanup, 5000) // safety net only — afterprint normally fires first
+  setTimeout(cleanup, 5000)
   requestAnimationFrame(() => requestAnimationFrame(() => window.print()))
 }
 
@@ -843,6 +832,31 @@ function cleanPhone(raw) {
   if (digits.length === 12 && digits.startsWith('91')) return digits
   if (digits.length === 11 && digits.startsWith('0')) return '91' + digits.slice(1)
   return null
+}
+
+// ─────────────────────────────────────────────
+// QR — same approach as purchase-billing.html: render via QRCode.js into a
+// hidden div, then hide the duplicate <canvas> it also inserts and show
+// only the <img> it produces.
+// ─────────────────────────────────────────────
+function _renderInvoiceQr() {
+  const container = document.getElementById('vQrCanvas')
+  if (!container || typeof QRCode === 'undefined') return
+  container.innerHTML = ''
+  try {
+    new QRCode(container, { text: PORTAL_URL, width:70, height:70, colorDark:'#374151', colorLight:'#ffffff', correctLevel: QRCode.CorrectLevel.M })
+    setTimeout(() => {
+      const canvas = container.querySelector('canvas')
+      const img    = container.querySelector('img')
+      if (canvas) canvas.style.display = 'none'
+      if (img) { img.style.display = 'block'; img.style.width = '70px'; img.style.height = '70px' }
+    }, 80)
+  } catch(e) { /* QR is decorative — fail silently */ }
+}
+
+function _setHeaderTheme(accentHex) {
+  const fb = document.getElementById('vHeaderLogoFallback')
+  if (fb) fb.style.setProperty('color', accentHex, 'important')
 }
 
 // ─────────────────────────────────────────────
@@ -1044,10 +1058,6 @@ window.openLedger = async function(encodedName) {
         const safeNote = (ev.note||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'")
         const safeNo   = (ev.receipt_no||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'")
         const safeDate = new Date(ev.created_at).toLocaleDateString('en-IN')
-        // WHY: if this payment's receipt number was auto-generated alongside
-        // a "customer paid merchant directly" bill, it shares that bill's
-        // PTM-... number — tag it so it's never mistaken for being the same
-        // document as the customer's bill above it.
         const isLinked = (ev.receipt_no||'').indexOf('PTM-') === 0
         const linkedTag = isLinked ? '<span class="linked-tag">linked entry</span>' : ''
         return `<tr>
@@ -1137,11 +1147,6 @@ window.openLedger = async function(encodedName) {
 
 // ─────────────────────────────────────────────
 // VOUCHER NUMBER DISPLAY
-// WHY: A payment voucher that was auto-linked to a customer-direct-payment
-// bill shares that bill's PTM-... number in the database. We never alter
-// that stored value (it's needed for traceability), but for DISPLAY and
-// printing we always show a clearly distinct "MPV-..." number so the two
-// documents can never be mistaken for one another.
 // ─────────────────────────────────────────────
 function _deriveVoucherDisplayNo(receiptNo) {
   if (!receiptNo) return 'MPV-' + Date.now()
@@ -1151,9 +1156,10 @@ function _deriveVoucherDisplayNo(receiptNo) {
 
 // ─────────────────────────────────────────────
 // _fillVoucherAsBill(): renders a merchant_payments record through the SAME
-// invoice template used for purchase/PTM bills (instead of a bespoke plain
-// overlay), themed teal, so a payment voucher genuinely "looks like a
-// bill" as requested.
+// invoice template used for purchase/PTM bills, themed teal. A voucher is
+// just "money paid against existing credit" — there is no item, qty, or
+// price involved, so the item table and Subtotal row are hidden entirely
+// and only the meta info + Amount Paid total are shown.
 // ─────────────────────────────────────────────
 function _fillVoucherAsBill(receiptNo, merchantName, amount, mode, ref, note, date, phone) {
   const displayNo = _deriveVoucherDisplayNo(receiptNo)
@@ -1167,6 +1173,9 @@ function _fillVoucherAsBill(receiptNo, merchantName, amount, mode, ref, note, da
 
   document.getElementById('vPurchaseHeader').className     = 'inv-header voucher-style'
   document.getElementById('viewPurchasePrintArea').className = 'theme-voucher'
+  _setHeaderTheme('#0f766e')
+  document.getElementById('vQrRow').style.display = 'none'
+
   document.getElementById('vPurchaseType').innerText  = 'PAYMENT VOUCHER'
   document.getElementById('vPurchaseNo').innerText    = displayNo
   document.getElementById('vPurchaseDate').innerText  = date
@@ -1188,11 +1197,13 @@ function _fillVoucherAsBill(receiptNo, merchantName, amount, mode, ref, note, da
   document.getElementById('vInvRefBlock').style.display = (ref && ref.trim()) ? 'block' : 'none'
   if (ref && ref.trim()) document.getElementById('vInvRef').innerText = ref
 
-  document.getElementById('vPurchaseItems').innerHTML =
-    `<tr><td>1</td><td>Payment to Merchant${note?(' — '+note):''}</td><td>1</td><td>₹${Math.round(amount).toLocaleString('en-IN')}</td><td>₹${Math.round(amount).toLocaleString('en-IN')}</td></tr>`
+  // No item / qty / price for a voucher — hide the entire item table and
+  // the Subtotal row, leaving only the final "Amount Paid" total.
+  document.getElementById('vItemsTableWrap').style.display = 'none'
+  document.getElementById('vSubtotalRow').style.display    = 'none'
+  document.getElementById('vPurchaseItems').innerHTML       = ''
 
-  document.getElementById('vPurSubtotal').innerText = Math.round(amount).toLocaleString('en-IN')
-  document.getElementById('vPurTotal').innerText    = Math.round(amount).toLocaleString('en-IN')
+  document.getElementById('vPurTotal').innerText = Math.round(amount).toLocaleString('en-IN')
   document.getElementById('vDiscRow').style.display = 'none'
 
   const cashAmt = mode === 'Cash' ? amount : 0
@@ -1204,6 +1215,11 @@ function _fillVoucherAsBill(receiptNo, merchantName, amount, mode, ref, note, da
   document.getElementById('vPurBankRow').style.display = bankAmt>0 ? 'block' : 'none'
   document.getElementById('vPurBank').innerText = '₹'+Math.round(bankAmt)
   document.getElementById('vPurCredit').innerText = '₹'+Math.round(otherAmt)
+  if (note && note.trim()) {
+    document.getElementById('vInvRefBlock').style.display = 'block'
+    document.getElementById('vInvRefLabel').innerText = ref && ref.trim() ? 'Reference No' : 'Note'
+    document.getElementById('vInvRef').innerText = ref && ref.trim() ? ref : note
+  }
 
   document.getElementById('vMBOrigPayableLabel').innerText = 'Balance before this payment'
   document.getElementById('vMBPaidLabel').innerText        = 'Amount paid now'
@@ -1215,13 +1231,11 @@ function _fillVoucherAsBill(receiptNo, merchantName, amount, mode, ref, note, da
   const btext = nb===0 ? '₹0 — Settled' : (nb<0?'+':'-')+fmt(nb)+(nb<0?' (Overpaid)':' (Payable Due)')
   const bel = document.getElementById('vMBFinal'); bel.innerText = btext; bel.style.color = nb>0?'#dc2626':'#059669'
 
-  // A voucher viewed this way isn't a row from purchases/sales — there is
-  // nothing to delete via the generic bill-delete flow, so hide it.
   document.querySelector('.btn-red-outline').style.display = 'none'
 
   const modalEl = document.getElementById('viewPurchaseModal')
   modalEl.style.display = 'block'
-  _forceSafariRepaint(document.querySelector('.view-bill-actions'))
+  _scheduleRepaint()
 }
 
 function _voucherAsPurObject(d) {
@@ -1256,8 +1270,7 @@ window.whatsappVoucher = async function(receiptNo, encodedName, amount, mode, re
   if (!phone) { alert('No phone number found for this merchant. Please add it in the Merchants section.'); return }
   const displayNo = _deriveVoucherDisplayNo(receiptNo)
   const pur = _voucherAsPurObject({ displayNo, merchantName, amount, mode, phone })
-  const items = [{ item_name:'Payment to Merchant'+(note?(' — '+note):''), quantity:1, purchase_price:amount, total:amount }]
-  await _buildAndSendBillPDF(pur, merchantName, false, phone, items)
+  await _buildAndSendBillPDF(pur, merchantName, false, phone, [])
 }
 
 // ─────────────────────────────────────────────
@@ -1330,11 +1343,15 @@ async function _fillViewBill(rec, merchantName, isSalesBill) {
   const itemTable = isSalesBill ? 'bill_items' : 'purchase_items'
   const fkCol     = isSalesBill ? 'sale_id'    : 'purchase_id'
   const { data:items } = await db.from(itemTable).select('*').eq(fkCol, rec.id)
-  const missingIds = (items||[]).filter(i => !i.item_name && i.item_id).map(i => i.item_id)
-  const invNames = {}
-  if (missingIds.length) {
-    const { data:prods } = await db.from('inventory').select('id,item_name').in('id', missingIds)
-    ;(prods||[]).forEach(p => { invNames[p.id] = p.item_name })
+
+  // WHY: fetch FULL inventory rows (not just names for missing ones) so we
+  // can show the same "Brand • Category • Size" subtitle under each item
+  // that the real purchase-billing.html invoice shows.
+  const allIds = (items||[]).filter(i => i.item_id).map(i => i.item_id)
+  const invMap = {}
+  if (allIds.length) {
+    const { data:prods } = await db.from('inventory').select('id,item_name,category,brand,product_size').in('id', allIds)
+    ;(prods||[]).forEach(p => { invMap[p.id] = p })
   }
 
   const isReturn = rec.bill_type === 'return'
@@ -1346,26 +1363,36 @@ async function _fillViewBill(rec, merchantName, isSalesBill) {
   if ((rec.credit||0)        > 0) modes.push(isReturn?'Payable Reduced':isPTM?'Paid':'Credit')
   _currentViewedBillPhone = rec.merchant_phone || rec.customer_phone || ''
 
-  // WHY: a separate theme class per bill type — amber/brown for genuine
-  // Purchase Invoices (matches purchase-billing.html exactly), purple for
-  // customer-direct merchant payments (PTM), red for returns.
+  // Restore item table / subtotal row in case the previous view was a voucher
+  document.getElementById('vItemsTableWrap').style.display = ''
+  document.getElementById('vSubtotalRow').style.display    = 'flex'
+  document.querySelector('.btn-red-outline').style.display = ''
+
   let headerClass = 'inv-header'
   let themeClass = ''
-  if (isReturn)    { headerClass += ' return-style';   themeClass = 'theme-return' }
-  else if (isPTM)  { headerClass += ' ptm-style' }
-  else             { headerClass += ' purchase-style'; themeClass = 'theme-purchase' }
+  let accentHex = '#4c1d95'
+  if (isReturn)    { headerClass += ' return-style';   themeClass = 'theme-return';   accentHex = '#7f1d1d' }
+  else if (isPTM)  { headerClass += ' ptm-style';                                      accentHex = '#4c1d95' }
+  else             { headerClass += ' purchase-style'; themeClass = 'theme-purchase'; accentHex = '#78350f' }
   document.getElementById('vPurchaseHeader').className = headerClass
   document.getElementById('viewPurchasePrintArea').className = themeClass
+  _setHeaderTheme(accentHex)
 
-  // Restore the Delete button — it's hidden when viewing a voucher.
-  document.querySelector('.btn-red-outline').style.display = ''
+  // QR code: only genuine purchase/return bills show it (matching the real
+  // printed invoice from purchase-billing.html). PTM/voucher don't have a
+  // QR in their source flows.
+  const qrRow = document.getElementById('vQrRow')
+  if (!isPTM) { qrRow.style.display = 'flex'; _renderInvoiceQr() } else { qrRow.style.display = 'none' }
+
   document.getElementById('vMBOrigPayableLabel').innerText = 'Payable at billing'
   document.getElementById('vMBPaidLabel').innerText        = 'Total payments made'
   document.getElementById('vInvRefLabel').innerText        = 'Merchant Invoice Ref'
 
   document.getElementById('vPurchaseType').innerText   = isPTM ? 'MERCHANT PAYMENT' : (isReturn ? 'PURCHASE RETURN' : 'Purchase Invoice')
   document.getElementById('vPurchaseNo').innerText     = rec.bill_number
-  document.getElementById('vPurchaseDate').innerText   = new Date(rec.created_at).toLocaleString('en-IN')
+  // WHY: matches purchase-billing.html's printed date format exactly
+  // ("15 Apr 2026") instead of a full locale date-time string.
+  document.getElementById('vPurchaseDate').innerText   = new Date(rec.created_at).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})
   document.getElementById('vBillNoDisplay').innerText  = rec.bill_number
   document.getElementById('vPurTotalLabel').innerText  = isReturn?'Return Total':isPTM?'Amount Paid':'Grand Total'
   document.getElementById('vPurFooterMsg').innerText   = isPTM?'Customer paid merchant directly':(isReturn?'Return Processed':'Stock Received')
@@ -1406,11 +1433,17 @@ async function _fillViewBill(rec, merchantName, isSalesBill) {
 
   let subtotal = 0
   const itemsHtml = (items||[]).map((item,i) => {
-    const name  = item.item_name || invNames[item.item_id] || `[Product #${item.item_id}]`
+    const inv   = invMap[item.item_id] || {}
+    const name  = item.item_name || inv.item_name || `[Product #${item.item_id}]`
     const qty   = Math.abs(item.quantity)
     const price = item.purchase_price || item.price || 0
     const amt   = Math.abs(item.total || item.quantity * price || 0); subtotal += amt
-    return `<tr><td style="color:#6b7280;">${i+1}</td><td>${name}</td><td>${qty}</td><td>₹${price}</td><td>₹${amt.toLocaleString('en-IN')}</td></tr>`
+    const dp = []
+    if (inv.brand) dp.push(inv.brand)
+    if (inv.category) dp.push(inv.category)
+    if (inv.product_size) dp.push(inv.product_size)
+    const detailLine = dp.length ? `<br><small style="color:#9ca3af;font-size:11px;">${dp.join(' • ')}</small>` : ''
+    return `<tr><td style="color:#6b7280;">${i+1}</td><td>${name}${detailLine}</td><td>${qty}</td><td>₹${price}</td><td>₹${amt.toLocaleString('en-IN')}</td></tr>`
   }).join('')
   document.getElementById('vPurchaseItems').innerHTML = itemsHtml ||
     `<tr><td colspan="5" class="inv-table-empty">No line items for this record${isPTM?' — this is a direct payment to the merchant, not an itemized sale.':'.'}</td></tr>`
@@ -1424,20 +1457,27 @@ async function _fillViewBill(rec, merchantName, isSalesBill) {
   document.getElementById('vPurUPI').innerText    = '₹' + Math.abs(rec.upi||0)
   document.getElementById('vPurCredit').innerText = '₹' + Math.abs(rec.credit||0)
 
-  if (currentMerchData) {
+  // WHY: the real purchase-billing.html invoice never shows a running
+  // ledger balance — that information only matters for direct customer
+  // payments (PTM) made against the merchant relationship. So we only show
+  // this box for PTM; genuine purchase and return bills hide it entirely
+  // to match the real document exactly.
+  const balBox = document.getElementById('vMerchBalanceBox')
+  if (isPTM && currentMerchData) {
     const nb = Math.round(currentMerchData.netBalance)
-    const balBox = document.getElementById('vMerchBalanceBox')
     balBox.style.display = 'block'
     balBox.className = 'inv-balance-box ' + (nb>0?'due':nb<0?'adv':'clear')
     document.getElementById('vMBOrigPayable').innerText = fmt(rec.credit||rec.total_amount||0)
     document.getElementById('vMBPaid').innerText        = fmt(currentMerchData.totalPaid)
     const btext = nb===0 ? '₹0 — Settled' : (nb<0?'+':'-')+fmt(nb)+(nb<0?' (Overpaid)':' (Payable Due)')
     const bel = document.getElementById('vMBFinal'); bel.innerText = btext; bel.style.color = nb>0?'#dc2626':'#059669'
-  } else { document.getElementById('vMerchBalanceBox').style.display='none' }
+  } else {
+    balBox.style.display = 'none'
+  }
 
   const modalEl = document.getElementById('viewPurchaseModal')
   modalEl.style.display = 'block'
-  _forceSafariRepaint(document.querySelector('.view-bill-actions'))
+  _scheduleRepaint()
 }
 
 window.closeViewPurchase = () => {
@@ -1700,8 +1740,7 @@ window.whatsappPurchaseBill = async function() {
     const finalPhone = d.phone || currentMerchData?.phone || ''
     if (!finalPhone) { alert('No phone number for this merchant.'); return }
     const pur = _voucherAsPurObject(d)
-    const items = [{ item_name:'Payment to Merchant'+(d.note?(' — '+d.note):''), quantity:1, purchase_price:d.amount, total:d.amount }]
-    await _buildAndSendBillPDF(pur, d.merchantName, false, finalPhone, items)
+    await _buildAndSendBillPDF(pur, d.merchantName, false, finalPhone, [])
     return
   }
 
@@ -1728,10 +1767,10 @@ window.whatsappPurchaseBill = async function() {
 
 // ─────────────────────────────────────────────
 // SHARED PDF BUILDER — purchase invoices, PTM (customer-direct) payments,
-// and now payment vouchers all flow through this ONE function so they look
-// consistent. `syntheticItems` lets a voucher (which has no real item rows
-// in the database) supply a single synthetic line instead of querying the
-// purchase_items/bill_items tables.
+// and payment vouchers all flow through this ONE function so they look
+// consistent. `syntheticItems` (an EMPTY array for vouchers) skips the
+// item-table rendering entirely — a voucher's PDF has no Qty/Price table,
+// only the payment breakdown, matching the on-screen view.
 // ─────────────────────────────────────────────
 async function _buildAndSendBillPDF(pur, merchant, isPTMFlag, phone, syntheticItems) {
   const isVoucher = pur.bill_type === 'voucher'
@@ -1739,7 +1778,7 @@ async function _buildAndSendBillPDF(pur, merchant, isPTMFlag, phone, syntheticIt
   const isPTM = isPTMFlag || pur.bill_type === 'pay_to_merchant'
   let items = syntheticItems
   const invNames = {}
-  if (!items) {
+  if (items === undefined) {
     const tableName = isPTM ? 'bill_items' : 'purchase_items'
     const fkCol     = isPTM ? 'sale_id'    : 'purchase_id'
     const { data } = await db.from(tableName).select('*').eq(fkCol,pur.id)
@@ -1755,9 +1794,6 @@ async function _buildAndSendBillPDF(pur, merchant, isPTMFlag, phone, syntheticIt
   const { jsPDF } = window.jspdf
   const doc = new jsPDF({ unit:'pt', format:'a4' })
   const W=595.28, mg=36; let y=0
-  // WHY: brown/amber for genuine Purchase Invoices (matches
-  // purchase-billing.html exactly), teal for payment vouchers, purple for
-  // PTM (customer-direct) payments, brick-red for returns.
   const hc = isReturn ? [127,29,29]
            : isVoucher ? [15,118,110]
            : isPTM ? [76,29,149]
@@ -1795,35 +1831,39 @@ async function _buildAndSendBillPDF(pur, merchant, isPTMFlag, phone, syntheticIt
   doc.text(modes.join(' + ')||'—',390,y+30)
   y+=62
 
-  doc.setFillColor(...hc); doc.rect(0,y,W,22,'F')
-  doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(9)
-  doc.text('#',mg,y+14); doc.text('Item',mg+24,y+14); doc.text('Qty',368,y+14,{align:'center'}); doc.text('Price',455,y+14,{align:'center'}); doc.text('Amount',W-mg,y+14,{align:'right'})
-  y+=24; let sub=0
+  let sub = 0
+  if (!isVoucher) {
+    doc.setFillColor(...hc); doc.rect(0,y,W,22,'F')
+    doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(9)
+    doc.text('#',mg,y+14); doc.text('Item',mg+24,y+14); doc.text('Qty',368,y+14,{align:'center'}); doc.text('Price',455,y+14,{align:'center'}); doc.text('Amount',W-mg,y+14,{align:'right'})
+    y+=24
 
-  if ((items||[]).length) {
-    items.forEach((item,i) => {
-      if (y>745) { doc.addPage(); y=40 }
-      const name  = item.item_name||invNames[item.item_id]||'Unknown'
-      const price = item.purchase_price||item.price||0
-      const amt   = item.total!=null ? Math.abs(item.total) : Math.abs((item.quantity||0)*price); sub+=amt
-      if (i%2===1) { doc.setFillColor(249,250,251); doc.rect(0,y-12,W,20,'F') }
-      doc.setFont('helvetica','normal'); doc.setFontSize(9.5); doc.setTextColor(156,163,175)
-      doc.text(String(i+1),mg,y); doc.setTextColor(55,65,81)
-      doc.text(name.length>55?name.slice(0,52)+'...':name,mg+24,y)
-      doc.text(String(Math.abs(item.quantity||0)),368,y,{align:'center'})
-      doc.text('Rs '+price.toLocaleString('en-IN'),455,y,{align:'center'})
-      doc.setFont('helvetica','bold'); doc.text('Rs '+amt.toLocaleString('en-IN'),W-mg,y,{align:'right'})
+    if ((items||[]).length) {
+      items.forEach((item,i) => {
+        if (y>745) { doc.addPage(); y=40 }
+        const name  = item.item_name||invNames[item.item_id]||'Unknown'
+        const price = item.purchase_price||item.price||0
+        const amt   = item.total!=null ? Math.abs(item.total) : Math.abs((item.quantity||0)*price); sub+=amt
+        if (i%2===1) { doc.setFillColor(249,250,251); doc.rect(0,y-12,W,20,'F') }
+        doc.setFont('helvetica','normal'); doc.setFontSize(9.5); doc.setTextColor(156,163,175)
+        doc.text(String(i+1),mg,y); doc.setTextColor(55,65,81)
+        doc.text(name.length>55?name.slice(0,52)+'...':name,mg+24,y)
+        doc.text(String(Math.abs(item.quantity||0)),368,y,{align:'center'})
+        doc.text('Rs '+price.toLocaleString('en-IN'),455,y,{align:'center'})
+        doc.setFont('helvetica','bold'); doc.text('Rs '+amt.toLocaleString('en-IN'),W-mg,y,{align:'right'})
+        y+=21
+      })
+    } else {
+      doc.setFont('helvetica','italic'); doc.setFontSize(9.5); doc.setTextColor(156,163,175)
+      doc.text(isPTM ? 'No line items — direct payment to merchant.' : 'No line items recorded for this bill.', mg+24, y)
       y+=21
-    })
-  } else {
-    doc.setFont('helvetica','italic'); doc.setFontSize(9.5); doc.setTextColor(156,163,175)
-    doc.text(isPTM ? 'No line items — direct payment to merchant.' : 'No line items recorded for this bill.', mg+24, y)
-    y+=21
+    }
+
+    doc.setDrawColor(229,231,235); doc.line(0,y,W,y); y+=18
+    doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(55,65,81)
+    doc.text('Subtotal',380,y); doc.text('Rs '+sub.toLocaleString('en-IN'),W-mg,y,{align:'right'}); y+=22
   }
 
-  doc.setDrawColor(229,231,235); doc.line(0,y,W,y); y+=18
-  doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(55,65,81)
-  doc.text('Subtotal',380,y); doc.text('Rs '+sub.toLocaleString('en-IN'),W-mg,y,{align:'right'}); y+=22
   doc.setFillColor(245,240,255); doc.rect(0,y-14,W,26,'F')
   doc.setFont('helvetica','bold'); doc.setFontSize(14); doc.setTextColor(...hc)
   doc.text(isVoucher?'Amount Paid':'Grand Total',380,y); doc.text('Rs '+Math.abs(pur.total_amount||0).toLocaleString('en-IN'),W-mg,y,{align:'right'})
