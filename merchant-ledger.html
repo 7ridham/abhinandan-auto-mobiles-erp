@@ -57,6 +57,14 @@ html.light-theme .mc-last-date { color:#64748b !important; }
 .aging-dot.r { background:#f87171; box-shadow:0 0 8px #f87171; animation:pulse-red 1.5s infinite; }
 @keyframes pulse-red { 0%,100%{opacity:1}50%{opacity:0.4} }
 
+/* ── FORCED-REPAINT UTILITY ──
+   WHY: WebKit/Safari sometimes leaves freshly-shown elements (especially
+   <button> text) unpainted until something forces a fresh layout+paint
+   cycle. Toggling this class forces exactly that — a 1ms opacity keyframe
+   that's invisible to the eye but makes the browser repaint the element. */
+@keyframes _repaintNudge { from { opacity:0.999; } to { opacity:1; } }
+.force-repaint { animation:_repaintNudge 1ms linear; }
+
 .pagination { display:flex; justify-content:space-between; align-items:center; margin-top:20px; flex-wrap:wrap; gap:12px; }
 .pg-info { font-size:13px; color:rgba(255,255,255,0.35); }
 .pg-btns { display:flex; gap:8px; }
@@ -144,7 +152,7 @@ html.light-theme .btn-close-modal { background:#4c1d95 !important; border-color:
 html.light-theme .btn-close-modal:hover { background:#6d28d9 !important; }
 .btn-sm { padding:5px 11px; font-size:11px; border-radius:7px; }
 
-/* FIX: Force white text in invoice header on purple background */
+/* FIX: Force white text in invoice header on colored background */
 .inv-header * { color: white !important; }
 .inv-header .inv-company { color:white !important; font-family:'Playfair Display',serif; font-size:20px; font-weight:700; margin-bottom:4px; }
 .inv-header .inv-sub { color:rgba(255,255,255,0.88) !important; font-size:12px; margin:2px 0; }
@@ -152,7 +160,7 @@ html.light-theme .btn-close-modal:hover { background:#6d28d9 !important; }
 .inv-header .inv-no { color:white !important; font-size:14px; font-weight:600; }
 .inv-header .inv-date { color:rgba(255,255,255,0.85) !important; font-size:12px; }
 
-/* VIEW PURCHASE MODAL */
+/* VIEW PURCHASE / SALES / VOUCHER MODAL */
 #viewPurchaseModal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.92); z-index:10000; overflow-y:auto; padding:20px; }
 .view-bill-box { background:white; max-width:800px; margin:20px auto; border-radius:16px; overflow:hidden; box-shadow:0 24px 80px rgba(0,0,0,0.6); }
 .view-bill-actions { background:#2d1b69; padding:14px 24px; display:flex; gap:8px; justify-content:flex-end; align-items:center; flex-wrap:wrap; }
@@ -164,15 +172,6 @@ html.light-theme .view-bill-actions { background:#2d1b69 !important; }
 .view-bill-actions .btn-red-outline:hover { background:rgba(239,68,68,0.3); color:white; }
 .view-bill-actions .btn-outline-light { background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.4); color:white; padding:5px 11px; font-size:11px; border-radius:7px; cursor:pointer; font-family:'DM Sans',sans-serif; transition:all 0.2s; }
 .view-bill-actions .btn-outline-light:hover { background:rgba(255,255,255,0.25); }
-/* WHY: Safari has a known bug where text/buttons inside elements sitting above a
-   backdrop-filter (or freshly-shown fixed overlay) don't get painted until
-   something forces a repaint (e.g. moving the cursor over it). We force every
-   button in this bar onto its own GPU compositing layer AND we now also
-   force a manual repaint nudge from JS every time the bill modal is
-   (re)opened — see _forceSafariRepaint() in the script below. Promoting the
-   layer via CSS alone isn't enough when the modal is reused for a *second*
-   bill without a full display:none -> display:block transition, which is
-   what was causing the "invisible Print button" issue on the 2nd bill. */
 .view-bill-actions button {
   transform: translateZ(0);
   -webkit-transform: translateZ(0);
@@ -193,7 +192,6 @@ html.light-theme .view-bill-actions { background:#2d1b69 !important; }
 .pay-field select option { background:#1e293b; }
 .pay-actions { display:flex; gap:10px; margin-top:20px; flex-wrap:wrap; }
 
-/* ── TOAST: no emojis, clean minimal style ── */
 .wa-toast { position:fixed; bottom:30px; left:50%; transform:translateX(-50%); background:#1e293b; color:rgba(255,255,255,0.9); padding:10px 22px; border-radius:10px; font-size:13px; font-weight:500; font-family:'DM Sans',sans-serif; z-index:99999; box-shadow:0 4px 16px rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.1); display:none; align-items:center; white-space:nowrap; }
 .wa-toast.show { display:flex; }
 
@@ -201,22 +199,38 @@ html.light-theme .view-bill-actions { background:#2d1b69 !important; }
 .inv-header { background:linear-gradient(135deg,#2d1b69 0%,#7c3aed 60%,#a78bfa 100%); color:white; padding:24px 32px; display:flex; justify-content:space-between; align-items:center; gap:16px; }
 .inv-header.return-style { background:linear-gradient(135deg,#7f1d1d,#dc2626,#f87171) !important; }
 .inv-header.ptm-style { background:linear-gradient(135deg,#1a0533,#6d28d9,#a78bfa) !important; }
+/* WHY: distinct themes per bill type so a glance at the header tells you
+   what kind of document you're looking at — amber/brown matches the look
+   of purchase-billing.html exactly; teal is reserved for payment vouchers
+   (money the shop paid OUT to a merchant) so it's never confused with a
+   purchase invoice or a customer-direct payment (PTM, purple). */
+.inv-header.purchase-style { background:linear-gradient(135deg,#78350f 0%,#d97706 60%,#fcd34d 100%) !important; }
+.inv-header.voucher-style  { background:linear-gradient(135deg,#0f3d3a 0%,#0d9488 60%,#5eead4 100%) !important; }
 .inv-company { font-family:'Playfair Display',serif; font-size:20px; font-weight:700; color:white !important; margin-bottom:4px; }
 .inv-sub  { font-size:12px; color:rgba(255,255,255,0.88) !important; margin:2px 0; }
 .inv-badge{ display:inline-block; background:rgba(255,255,255,0.18); border:1px solid rgba(255,255,255,0.4); font-size:11px; font-weight:600; letter-spacing:2px; text-transform:uppercase; padding:3px 12px; border-radius:20px; margin-bottom:6px; color:white !important; }
 .inv-no   { font-size:14px; font-weight:600; color:white !important; }
 .inv-date { font-size:12px; color:rgba(255,255,255,0.85) !important; }
-.inv-meta { display:flex; gap:30px; padding:14px 32px; background:#f5f3ff; border-bottom:1px solid #ddd6fe; flex-wrap:wrap; }
+
+/* WHY: CSS custom properties scoped to the print area let every accent
+   color (meta bar, table header, totals border, payment box) follow the
+   active bill type automatically, instead of being hardcoded purple. */
+#viewPurchasePrintArea { --acc:#4c1d95; --acc-light:#f5f3ff; --acc-light2:#ddd6fe; }
+#viewPurchasePrintArea.theme-purchase { --acc:#78350f; --acc-light:#fffbeb; --acc-light2:#fde68a; }
+#viewPurchasePrintArea.theme-voucher  { --acc:#0f766e; --acc-light:#f0fdfa; --acc-light2:#99f6e4; }
+#viewPurchasePrintArea.theme-return   { --acc:#7f1d1d; --acc-light:#fef2f2; --acc-light2:#fecaca; }
+
+.inv-meta { display:flex; gap:30px; padding:14px 32px; background:var(--acc-light,#f5f3ff); border-bottom:1px solid var(--acc-light2,#ddd6fe); flex-wrap:wrap; }
 .inv-meta-block label { font-size:10px; font-weight:600; letter-spacing:1px; text-transform:uppercase; color:#6b7280; display:block; margin-bottom:2px; }
 .inv-meta-block span  { font-size:14px; font-weight:600; color:#111; }
-.inv-merchant-box { margin:0 32px; padding:12px; background:#f5f3ff; border:1px solid #ddd6fe; border-radius:8px; margin-top:14px; }
+.inv-merchant-box { margin:0 32px; padding:12px; background:var(--acc-light,#f5f3ff); border:1px solid var(--acc-light2,#ddd6fe); border-radius:8px; margin-top:14px; }
 .inv-merchant-title { font-size:10px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:#6b7280; margin-bottom:8px; }
 .inv-merchant-row { display:flex; gap:40px; flex-wrap:wrap; }
 .inv-merchant-item label { font-size:10px; font-weight:600; letter-spacing:1px; text-transform:uppercase; color:#6b7280; display:block; margin-bottom:2px; }
 .inv-merchant-item span  { font-size:14px; font-weight:600; color:#111; }
 .inv-table-wrap { padding:0 32px; margin-top:16px; }
 .inv-table { width:100%; border-collapse:collapse; font-size:13px; }
-.inv-table thead tr { background:#4c1d95; }
+.inv-table thead tr { background:var(--acc,#4c1d95); }
 .inv-table thead th { padding:9px 12px; text-align:left; font-weight:600; font-size:12px; color:#ffffff !important; }
 .inv-table thead th:not(:first-child) { text-align:center; }
 .inv-table thead th:last-child { text-align:right; }
@@ -229,13 +243,13 @@ html.light-theme .view-bill-actions { background:#2d1b69 !important; }
 .inv-totals { display:flex; justify-content:flex-end; padding:16px 32px 0; }
 .inv-totals-inner { min-width:220px; }
 .inv-total-row { display:flex; justify-content:space-between; padding:5px 0; font-size:13px; color:#374151; border-bottom:1px dashed #e5e7eb; }
-.inv-total-row:last-child { border-bottom:none; border-top:2px solid #4c1d95; margin-top:6px; padding-top:10px; font-size:16px; font-weight:700; color:#111; }
-.inv-pay { margin:14px 32px; padding:12px; background:#f5f3ff; border:1px solid #ddd6fe; border-radius:8px; }
+.inv-total-row:last-child { border-bottom:none; border-top:2px solid var(--acc,#4c1d95); margin-top:6px; padding-top:10px; font-size:16px; font-weight:700; color:#111; }
+.inv-pay { margin:14px 32px; padding:12px; background:var(--acc-light,#f5f3ff); border:1px solid var(--acc-light2,#ddd6fe); border-radius:8px; }
 .inv-pay-title { font-size:10px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:#6b7280; margin-bottom:8px; }
 .inv-pay-row { display:flex; gap:24px; font-size:12px; flex-wrap:wrap; }
 .inv-pay-row span { color:#6b7280; }
 .inv-pay-row strong { color:#111; }
-.inv-ptm-bar { margin:10px 32px; padding:12px 16px; background:#f5f3ff; border:1.5px solid #ddd6fe; border-radius:8px; font-size:13px; }
+.inv-ptm-bar { margin:10px 32px; padding:12px 16px; background:var(--acc-light,#f5f3ff); border:1.5px solid var(--acc-light2,#ddd6fe); border-radius:8px; font-size:13px; }
 .inv-ptm-bar .ptm-title { font-size:10px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:#6d28d9; margin-bottom:8px; }
 .inv-ptm-bar .ptm-row { display:flex; gap:28px; flex-wrap:wrap; }
 .inv-ptm-bar .ptm-item label { font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; color:#6b7280; display:block; margin-bottom:2px; }
@@ -252,7 +266,6 @@ html.light-theme .view-bill-actions { background:#2d1b69 !important; }
 
 /* PRINT AREAS */
 #statementArea { display:none; }
-#voucherArea   { display:none; }
 
 @media print {
   html, body {
@@ -265,15 +278,6 @@ html.light-theme .view-bill-actions { background:#2d1b69 !important; }
   }
   body > * { display:none !important; }
   body.print-statement #statementArea {
-    display: block !important;
-    background: white !important;
-    color: #111 !important;
-    padding: 28px !important;
-    font-family: 'DM Sans', sans-serif !important;
-    height: auto !important;
-    min-height: unset !important;
-  }
-  body.print-voucher #voucherArea {
     display: block !important;
     background: white !important;
     color: #111 !important;
@@ -303,22 +307,18 @@ html.light-theme .view-bill-actions { background:#2d1b69 !important; }
     height: auto !important;
     min-height: unset !important;
   }
-  /* HARD GUARANTEE: even if two print-* classes are ever present on body at
-     the same time, only the one intended for THIS print call is allowed to
-     render — every other print area is force-hidden. This is the second
-     line of defense behind _clearPrintClasses(); belt and suspenders. */
-  body.print-bill #statementArea,
-  body.print-bill #voucherArea { display: none !important; }
-  body.print-statement #viewPurchaseModal,
-  body.print-statement #voucherArea { display: none !important; }
-  body.print-voucher #statementArea,
-  body.print-voucher #viewPurchaseModal { display: none !important; }
+  /* Belt-and-suspenders: only the print area meant for THIS print call may
+     render, even if a stale class were ever left on body at the same time. */
+  body.print-bill #statementArea { display: none !important; }
+  body.print-statement #viewPurchaseModal { display: none !important; }
   * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
   .stmt-tbl thead th { color: #ffffff !important; background:#4c1d95 !important; }
   .inv-table thead th { color: #ffffff !important; }
   .inv-header { background:linear-gradient(135deg,#2d1b69 0%,#7c3aed 60%,#a78bfa 100%) !important; }
   .inv-header.ptm-style { background:linear-gradient(135deg,#1a0533,#6d28d9,#a78bfa) !important; }
   .inv-header.return-style { background:linear-gradient(135deg,#7f1d1d,#dc2626,#f87171) !important; }
+  .inv-header.purchase-style { background:linear-gradient(135deg,#78350f 0%,#d97706 60%,#fcd34d 100%) !important; }
+  .inv-header.voucher-style  { background:linear-gradient(135deg,#0f3d3a 0%,#0d9488 60%,#5eead4 100%) !important; }
   .inv-company, .inv-sub, .inv-badge, .inv-no, .inv-date { color:white !important; }
   .modal-overlay, .pay-modal-overlay,
   .sidebar, .main, .wa-toast { display: none !important; }
@@ -351,22 +351,6 @@ html.light-theme .view-bill-actions { background:#2d1b69 !important; }
 .stmt-summary-row.balance-row-zero { font-weight:700; font-size:15px; color:#059669; background:#f0fdf4; border-bottom:none; }
 .stmt-footer { margin-top:24px; padding-top:14px; border-top:1px solid #e5e7eb; font-size:12px; color:#6b7280; text-align:center; }
 
-/* PAYMENT VOUCHER PRINT STYLES */
-.vchr-header { display:flex; justify-content:space-between; align-items:flex-start; padding-bottom:14px; border-bottom:2px solid #4c1d95; margin-bottom:18px; }
-.vchr-company{ font-family:'Playfair Display',serif; font-size:18px; color:#4c1d95; font-weight:700; }
-.vchr-sub    { font-size:11px; color:#6b7280; margin-top:2px; }
-.vchr-title  { font-size:16px; font-weight:700; color:#111; text-align:right; }
-.vchr-no     { font-size:11px; color:#7c3aed; font-weight:600; text-align:right; margin-top:3px; }
-.vchr-body   { background:#f5f3ff; border:1px solid #ddd6fe; border-radius:8px; padding:16px 20px; margin-bottom:16px; }
-.vchr-row    { display:flex; justify-content:space-between; padding:5px 0; font-size:14px; color:#374151; border-bottom:1px dashed #ddd6fe; }
-.vchr-row:last-child { border-bottom:none; font-weight:700; font-size:16px; color:#7c3aed; padding-top:10px; }
-.vchr-note   { font-size:13px; color:#6b7280; font-style:italic; padding:10px 14px; background:#fffbeb; border:1px solid #fde68a; border-radius:8px; margin-bottom:16px; }
-.vchr-sigs   { display:flex; justify-content:space-between; margin-top:24px; padding-top:14px; border-top:1px solid #e5e7eb; }
-.vchr-sig    { text-align:center; }
-.vchr-sig-line{ border-top:1px solid #000; width:140px; margin-bottom:4px; margin-top:28px; margin-left:auto; margin-right:auto; }
-.vchr-sig-lbl{ font-size:11px; color:#6b7280; }
-.vchr-footer { text-align:center; font-size:11px; color:#9ca3af; border-top:1px solid #e5e7eb; padding-top:14px; margin-top:16px; }
-
 .empty-state { text-align:center; padding:50px 20px; color:rgba(255,255,255,0.25); font-size:14px; }
 .loading-row { text-align:center; padding:30px; color:rgba(255,255,255,0.3); font-size:13px; }
 html.light-theme .empty-state { color:#94a3b8; }
@@ -385,10 +369,7 @@ html.light-theme .mc-stat-value { color:#374151; }
 .confirm-box .confirm-bill-no { display:inline-block; background:rgba(248,113,113,0.1); border:1px solid rgba(248,113,113,0.3); color:#fca5a5; font-family:monospace; padding:4px 12px; border-radius:8px; margin-bottom:14px; font-size:13px; }
 .confirm-actions { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
 
-/* ── ACTION BUTTONS: stacked layout (View+Print on top, WhatsApp full-width below) ── */
-/* WHY: This matches the design in the reference image where View and Print are
-   small outlined buttons side by side, and WhatsApp is a bold full-width green
-   button below them — making it visually dominant and easy to tap. */
+/* ── ACTION BUTTONS: stacked layout ── */
 .action-btns {
   display: flex;
   flex-direction: column;
@@ -418,6 +399,8 @@ html.light-theme .mc-stat-value { color:#374151; }
   text-align: center;
 }
 .action-btn-wa-full:hover { background: #128C7E; }
+
+.linked-tag { font-size:9px; color:#a78bfa; display:block; margin-top:1px; }
 </style>
 </head>
 <body class="sidebar-open">
@@ -549,7 +532,7 @@ html.light-theme .mc-stat-value { color:#374151; }
   </div>
 </div>
 
-<!-- VIEW PURCHASE / SALES MODAL -->
+<!-- VIEW PURCHASE / SALES / VOUCHER MODAL -->
 <div id="viewPurchaseModal">
   <div class="view-bill-box">
     <div class="view-bill-actions">
@@ -579,7 +562,7 @@ html.light-theme .mc-stat-value { color:#374151; }
         <div class="inv-meta-block"><label id="vBillMetaLabel1">Merchant</label><span id="vMerchant">—</span></div>
         <div class="inv-meta-block"><label>Phone</label><span id="vMerchPhone">—</span></div>
         <div class="inv-meta-block"><label>Payment Mode</label><span id="vPayMode">—</span></div>
-        <div class="inv-meta-block" id="vInvRefBlock" style="display:none;"><label>Merchant Invoice Ref</label><span id="vInvRef">—</span></div>
+        <div class="inv-meta-block" id="vInvRefBlock" style="display:none;"><label id="vInvRefLabel">Merchant Invoice Ref</label><span id="vInvRef">—</span></div>
       </div>
       <div class="inv-merchant-box" id="vMerchDetailBox" style="display:none;">
         <div class="inv-merchant-title">Supplier Details</div>
@@ -622,8 +605,8 @@ html.light-theme .mc-stat-value { color:#374151; }
         </div>
       </div>
       <div id="vMerchBalanceBox" class="inv-balance-box clear" style="display:none;">
-        <div class="inv-balance-row"><span class="inv-balance-label">Payable at billing</span><span class="inv-balance-val" id="vMBOrigPayable">₹0</span></div>
-        <div class="inv-balance-row"><span class="inv-balance-label">Total payments made</span><span class="inv-balance-val" style="color:#059669;" id="vMBPaid">₹0</span></div>
+        <div class="inv-balance-row"><span class="inv-balance-label" id="vMBOrigPayableLabel">Payable at billing</span><span class="inv-balance-val" id="vMBOrigPayable">₹0</span></div>
+        <div class="inv-balance-row"><span class="inv-balance-label" id="vMBPaidLabel">Total payments made</span><span class="inv-balance-val" style="color:#059669;" id="vMBPaid">₹0</span></div>
         <div class="inv-balance-row" style="margin-top:6px;padding-top:6px;border-top:1px solid #e5e7eb;"><span class="inv-balance-label" style="font-weight:600;">Overall Balance</span><span class="inv-balance-val" id="vMBFinal">₹0</span></div>
       </div>
       <div class="inv-footer">
@@ -730,33 +713,6 @@ html.light-theme .mc-stat-value { color:#374151; }
   <div class="stmt-footer">Computer-generated statement — Abhinandan Auto Mobiles</div>
 </div>
 
-<!-- PAYMENT VOUCHER PRINT AREA -->
-<div id="voucherArea">
-  <div class="vchr-header">
-    <div><div class="vchr-company">Abhinandan Auto Mobiles</div><div class="vchr-sub">Santalpur - Palanpur Highway &nbsp;|&nbsp; +91 98700 37002</div></div>
-    <div><div class="vchr-title">Payment Voucher</div><div class="vchr-no" id="vchrNo">—</div><div class="vchr-sub" id="vchrDate" style="text-align:right;margin-top:2px;"></div></div>
-  </div>
-  <div class="vchr-body">
-    <div class="vchr-row"><span>Paid To</span><span id="vchrName">—</span></div>
-    <div class="vchr-row"><span>Phone</span><span id="vchrPhone">—</span></div>
-    <div class="vchr-row"><span>Payment Mode</span><span id="vchrMode">—</span></div>
-    <div class="vchr-row" id="vchrRefRow" style="display:none;"><span>Reference No</span><span id="vchrRef">—</span></div>
-    <div class="vchr-row"><span>Date</span><span id="vchrDateVal">—</span></div>
-    <div class="vchr-row"><span>Amount Paid</span><span id="vchrAmount">₹0</span></div>
-  </div>
-  <div class="vchr-note" id="vchrNoteBox" style="display:none;">Note: <span id="vchrNote"></span></div>
-  <div class="vchr-body" style="margin-bottom:16px;">
-    <div class="vchr-row"><span>Previous Balance</span><span id="vchrPrevBal">—</span></div>
-    <div class="vchr-row"><span>Amount Paid Now</span><span id="vchrPaid">₹0</span></div>
-    <div class="vchr-row"><span>New Balance</span><span id="vchrNewBal">—</span></div>
-  </div>
-  <div class="vchr-sigs">
-    <div class="vchr-sig"><div class="vchr-sig-line"></div><div class="vchr-sig-lbl">Received By (Merchant)</div></div>
-    <div class="vchr-sig"><div class="vchr-sig-line"></div><div class="vchr-sig-lbl">For Abhinandan Auto Mobiles</div></div>
-  </div>
-  <div class="vchr-footer">Payment Voucher — Abhinandan Auto Mobiles | Internal Record</div>
-</div>
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script>
 const { createClient } = supabase
@@ -772,62 +728,77 @@ let _currentViewedBillPhone = ''
 let _currentViewedBillIsPTM = false
 let _currentViewedBillId    = null
 let _currentViewedBillTable = null
-let _currentPaymentRecord   = null
+let _currentViewedBillIsVoucher = false
+let _currentVoucherViewData     = null
 
 const today   = new Date()
 const fmt     = n => '₹' + (Math.round(Math.abs(n))||0).toLocaleString('en-IN')
 const daysSince = d => Math.floor((today - new Date(d)) / (1000*60*60*24))
 
 // ─────────────────────────────────────────────
-// FIX #2 (print-bill prints statement instead of bill):
-// _clearPrintClasses() was already written with a comment claiming "every
-// print* function below calls this FIRST" — but in the actual code only
-// printVoucherDirect / printVoucherFromModal / printBillDirect were calling
-// it. printStatement() and printViewedBill() (the "Print" button inside the
-// bill-view modal itself) did NOT call it. That meant if a statement print's
-// cleanup setTimeout got interrupted (e.g. you closed the ledger modal mid
-// print, or clicked fast), 'print-statement' stayed on <body>. The next time
-// you opened a bill and hit "Print", printViewedBill() only ADDED
-// 'print-bill' without removing 'print-statement' — so BOTH print areas
-// matched their print CSS and the browser rendered the statement (which sits
-// first in the DOM) instead of the bill you were looking at.
-//
-// Fix: every print* function now calls _clearPrintClasses() first, AND the
-// print CSS itself now has hard "only show mine" rules as a second safety
-// net (see the @media print block above).
+// _clearPrintClasses(): strips every print-* class before a new print run
+// starts, so two print areas can never both be "active" at once.
 // ─────────────────────────────────────────────
 function _clearPrintClasses() {
-  document.body.classList.remove('print-statement', 'print-voucher', 'print-bill')
+  document.body.classList.remove('print-statement', 'print-bill')
 }
 
 // ─────────────────────────────────────────────
-// FIX #1 (Print button on a bill invisible until the cursor moves over it):
-// Safari sometimes fails to paint elements sitting inside a `position:fixed`
-// overlay that becomes visible WITHOUT a fresh `display:none -> display:block`
-// transition (e.g. you already had a bill open, then opened a second bill —
-// the modal's display was already 'block', so Safari's "first paint" never
-// re-fires for the action bar, leaving the Print button visually blank until
-// a mouse move forces a repaint).
-//
-// This helper force-nudges a real repaint every single time a bill is shown,
-// regardless of whether the modal was already open or not.
+// _forceSafariRepaint(el): WebKit/Safari sometimes fails to paint elements
+// inside a fixed-position overlay that becomes visible WITHOUT a fresh
+// display:none -> display:block transition (e.g. you already had a bill
+// open, then viewed a second one). This forces a real layout+paint cycle —
+// first by reading offsetHeight (forces a synchronous reflow), then by
+// toggling the .force-repaint keyframe class on the container AND on every
+// individual button inside it (some WebKit builds repaint the container but
+// leave a child <button>'s text layer stale).
 // ─────────────────────────────────────────────
 function _forceSafariRepaint(el) {
   if (!el) return
-  el.style.opacity = '0.999'
-  // double rAF: first frame applies the opacity nudge, second frame restores
-  // it — guaranteeing the browser paints a frame in between on every engine.
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      el.style.opacity = '1'
-    })
+  void el.offsetHeight
+  el.classList.add('force-repaint')
+  requestAnimationFrame(() => requestAnimationFrame(() => el.classList.remove('force-repaint')))
+  el.querySelectorAll('button').forEach(btn => {
+    void btn.offsetHeight
+    btn.classList.add('force-repaint')
+    requestAnimationFrame(() => requestAnimationFrame(() => btn.classList.remove('force-repaint')))
   })
 }
 
 // ─────────────────────────────────────────────
-// TOAST — no emojis, clean text only
-// WHY: User requested removal of all emojis from the notification toast.
+// _doPrint(printClass, titleText): the single, reliable print trigger used
+// everywhere in this file.
+//
+// WHY THIS FIXES THE "BLANK PDF" BUG: window.print() is NOT guaranteed to
+// block JS execution in every browser/print-to-PDF flow. The old code did
+// `window.print(); setTimeout(() => removeClass(), 800)` — if the actual
+// print rendering took longer than 800ms (very common when "saving as PDF"
+// through a virtual printer), the print CSS class got removed and the
+// content hidden again BEFORE the browser finished capturing the page,
+// producing a blank PDF. The fix: wait for the real `afterprint` event
+// (fired only once the print interaction is truly done) before cleaning up,
+// with a generous fallback timer only as a safety net for browsers that
+// don't fire afterprint reliably. A double rAF before calling print() also
+// guarantees the class has actually been applied and painted first.
 // ─────────────────────────────────────────────
+function _doPrint(printClass, titleText) {
+  _clearPrintClasses()
+  document.body.classList.add(printClass)
+  const ot = document.title
+  if (titleText) document.title = titleText
+  let done = false
+  function cleanup() {
+    if (done) return
+    done = true
+    document.body.classList.remove(printClass)
+    document.title = ot
+    window.removeEventListener('afterprint', cleanup)
+  }
+  window.addEventListener('afterprint', cleanup)
+  setTimeout(cleanup, 5000) // safety net only — afterprint normally fires first
+  requestAnimationFrame(() => requestAnimationFrame(() => window.print()))
+}
+
 function showWaToast(msg) {
   const t = document.getElementById('waToast')
   document.getElementById('waToastMsg').innerText = msg
@@ -1065,26 +1036,22 @@ window.openLedger = async function(encodedName) {
 
     currentMerchData = { merchantName, profile, purchases, payments:mpayments, totalPurchased, payableFromBills, payableFromReturns, totalPaid, netBalance, phone }
 
-    // ─────────────────────────────────────────
-    // BUILD TABLE ROWS
-    // WHY for action button layout:
-    // We now use .action-btns (column flex), .action-btns-top (row flex)
-    // for View+Print side by side, and .action-btn-wa-full for the
-    // full-width WhatsApp button below. This matches the reference image.
-    // ─────────────────────────────────────────
     const rows = allEvents.map(ev => {
 
-      // ── PAYMENT ROW ──
-      // WHY: This is a row from merchant_payments (we paid the merchant).
-      // The Print button now calls printVoucherDirect() which prints the
-      // payment voucher — NOT the merchant statement. This was the core bug.
+      // ── PAYMENT ROW (shop paid merchant) ──
       if (ev._type === 'payment') {
         const safeRef  = (ev.reference_no||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'")
         const safeNote = (ev.note||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'")
         const safeNo   = (ev.receipt_no||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'")
         const safeDate = new Date(ev.created_at).toLocaleDateString('en-IN')
+        // WHY: if this payment's receipt number was auto-generated alongside
+        // a "customer paid merchant directly" bill, it shares that bill's
+        // PTM-... number — tag it so it's never mistaken for being the same
+        // document as the customer's bill above it.
+        const isLinked = (ev.receipt_no||'').indexOf('PTM-') === 0
+        const linkedTag = isLinked ? '<span class="linked-tag">linked entry</span>' : ''
         return `<tr>
-          <td style="font-size:11px;color:rgba(255,255,255,0.4);font-family:monospace;">${ev.receipt_no}</td>
+          <td style="font-size:11px;color:rgba(255,255,255,0.4);font-family:monospace;">${ev.receipt_no}${linkedTag}</td>
           <td>${safeDate}</td>
           <td><span class="badge badge-payment">Payment</span></td>
           <td style="color:rgba(255,255,255,0.3);">—</td>
@@ -1105,7 +1072,7 @@ window.openLedger = async function(encodedName) {
         </tr>`
       }
 
-      // ── PTM ROW ──
+      // ── PTM ROW (customer paid merchant directly) ──
       if (ev._type === 'ptm') {
         return `<tr>
           <td style="font-size:11px;color:rgba(255,255,255,0.4);font-family:monospace;">${ev.bill_number}</td>
@@ -1169,142 +1136,132 @@ window.openLedger = async function(encodedName) {
 }
 
 // ─────────────────────────────────────────────
-// VOUCHER VIEW MODAL
+// VOUCHER NUMBER DISPLAY
+// WHY: A payment voucher that was auto-linked to a customer-direct-payment
+// bill shares that bill's PTM-... number in the database. We never alter
+// that stored value (it's needed for traceability), but for DISPLAY and
+// printing we always show a clearly distinct "MPV-..." number so the two
+// documents can never be mistaken for one another.
 // ─────────────────────────────────────────────
+function _deriveVoucherDisplayNo(receiptNo) {
+  if (!receiptNo) return 'MPV-' + Date.now()
+  if (receiptNo.indexOf('PTM-') === 0) return 'MPV-' + receiptNo.slice(4)
+  return receiptNo
+}
+
+// ─────────────────────────────────────────────
+// _fillVoucherAsBill(): renders a merchant_payments record through the SAME
+// invoice template used for purchase/PTM bills (instead of a bespoke plain
+// overlay), themed teal, so a payment voucher genuinely "looks like a
+// bill" as requested.
+// ─────────────────────────────────────────────
+function _fillVoucherAsBill(receiptNo, merchantName, amount, mode, ref, note, date, phone) {
+  const displayNo = _deriveVoucherDisplayNo(receiptNo)
+  const nb = currentMerchData ? Math.round(currentMerchData.netBalance) : 0
+
+  _currentViewedBillIsVoucher = true
+  _currentViewedBillId    = null
+  _currentViewedBillTable = null
+  _currentViewedBillIsPTM = false
+  _currentVoucherViewData = { receiptNo, displayNo, merchantName, amount, mode, ref, note, date, phone }
+
+  document.getElementById('vPurchaseHeader').className     = 'inv-header voucher-style'
+  document.getElementById('viewPurchasePrintArea').className = 'theme-voucher'
+  document.getElementById('vPurchaseType').innerText  = 'PAYMENT VOUCHER'
+  document.getElementById('vPurchaseNo').innerText    = displayNo
+  document.getElementById('vPurchaseDate').innerText  = date
+  document.getElementById('vBillNoDisplay').innerText = displayNo
+  document.getElementById('vBillMetaLabel1').innerText= 'Paid To'
+  document.getElementById('vMerchant').innerText      = merchantName
+  document.getElementById('vMerchPhone').innerText    = phone || '—'
+  document.getElementById('vPayMode').innerText       = mode || '—'
+  document.getElementById('vPurTotalLabel').innerText = 'Amount Paid'
+  document.getElementById('vPurFooterMsg').innerText  = 'Payment Recorded'
+  document.getElementById('vPurCreditLabel').innerText= 'Other: '
+  document.getElementById('vPurPayTitle').innerText   = 'Payment Details'
+
+  document.getElementById('vReturnBar').style.display     = 'none'
+  document.getElementById('vPtmBar').style.display        = 'none'
+  document.getElementById('vMerchDetailBox').style.display= 'none'
+
+  document.getElementById('vInvRefLabel').innerText = 'Reference No'
+  document.getElementById('vInvRefBlock').style.display = (ref && ref.trim()) ? 'block' : 'none'
+  if (ref && ref.trim()) document.getElementById('vInvRef').innerText = ref
+
+  document.getElementById('vPurchaseItems').innerHTML =
+    `<tr><td>1</td><td>Payment to Merchant${note?(' — '+note):''}</td><td>1</td><td>₹${Math.round(amount).toLocaleString('en-IN')}</td><td>₹${Math.round(amount).toLocaleString('en-IN')}</td></tr>`
+
+  document.getElementById('vPurSubtotal').innerText = Math.round(amount).toLocaleString('en-IN')
+  document.getElementById('vPurTotal').innerText    = Math.round(amount).toLocaleString('en-IN')
+  document.getElementById('vDiscRow').style.display = 'none'
+
+  const cashAmt = mode === 'Cash' ? amount : 0
+  const upiAmt  = mode === 'UPI'  ? amount : 0
+  const bankAmt = (mode === 'Bank Transfer' || mode === 'NEFT' || mode === 'RTGS') ? amount : 0
+  const otherAmt= (!cashAmt && !upiAmt && !bankAmt) ? amount : 0
+  document.getElementById('vPurCash').innerText = '₹'+Math.round(cashAmt)
+  document.getElementById('vPurUPI').innerText  = '₹'+Math.round(upiAmt)
+  document.getElementById('vPurBankRow').style.display = bankAmt>0 ? 'block' : 'none'
+  document.getElementById('vPurBank').innerText = '₹'+Math.round(bankAmt)
+  document.getElementById('vPurCredit').innerText = '₹'+Math.round(otherAmt)
+
+  document.getElementById('vMBOrigPayableLabel').innerText = 'Balance before this payment'
+  document.getElementById('vMBPaidLabel').innerText        = 'Amount paid now'
+  const balBox = document.getElementById('vMerchBalanceBox')
+  balBox.style.display = 'block'
+  balBox.className = 'inv-balance-box ' + (nb>0?'due':nb<0?'adv':'clear')
+  document.getElementById('vMBOrigPayable').innerText = fmt(nb + amount)
+  document.getElementById('vMBPaid').innerText        = fmt(amount)
+  const btext = nb===0 ? '₹0 — Settled' : (nb<0?'+':'-')+fmt(nb)+(nb<0?' (Overpaid)':' (Payable Due)')
+  const bel = document.getElementById('vMBFinal'); bel.innerText = btext; bel.style.color = nb>0?'#dc2626':'#059669'
+
+  // A voucher viewed this way isn't a row from purchases/sales — there is
+  // nothing to delete via the generic bill-delete flow, so hide it.
+  document.querySelector('.btn-red-outline').style.display = 'none'
+
+  const modalEl = document.getElementById('viewPurchaseModal')
+  modalEl.style.display = 'block'
+  _forceSafariRepaint(document.querySelector('.view-bill-actions'))
+}
+
+function _voucherAsPurObject(d) {
+  const cashAmt = d.mode === 'Cash' ? d.amount : 0
+  const upiAmt  = d.mode === 'UPI'  ? d.amount : 0
+  const bankAmt = (d.mode === 'Bank Transfer' || d.mode === 'NEFT' || d.mode === 'RTGS') ? d.amount : 0
+  const creditAmt = (!cashAmt && !upiAmt && !bankAmt) ? d.amount : 0
+  return {
+    id: null, bill_number: d.displayNo, bill_type: 'voucher',
+    merchant_name: d.merchantName, merchant_phone: d.phone || '',
+    total_amount: d.amount, cash: cashAmt, upi: upiAmt, bank_transfer: bankAmt, credit: creditAmt,
+    discount: 0, created_at: new Date().toISOString()
+  }
+}
+
 window.viewVoucherModal = function(receiptNo, encodedName, amount, mode, ref, note, date) {
   const merchantName = decodeURIComponent(encodedName)
-  const nb = currentMerchData ? Math.round(currentMerchData.netBalance) : 0
-  const mPhone = currentMerchData?.phone || ''
-  _currentPaymentRecord = { receiptNo, merchantName, amount, mode, ref, note, date, phone:mPhone, nb }
-  const prevText = nb>0 ? '-₹'+Math.abs(nb).toLocaleString('en-IN')+' (Payable)' : nb<0 ? '+₹'+Math.abs(nb).toLocaleString('en-IN')+' (Overpaid)' : '₹0 Clear'
-  _fillVoucherArea(receiptNo, merchantName, amount, mode, ref, note, date, mPhone, prevText, '—')
-  const ex = document.getElementById('voucherViewOverlay')
-  if (ex) ex.remove()
-  const ov = document.createElement('div')
-  ov.id = 'voucherViewOverlay'
-  ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:15000;overflow-y:auto;padding:20px;backdrop-filter:blur(8px);'
-  ov.innerHTML = `
-    <div style="max-width:650px;margin:20px auto;background:white;border-radius:16px;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,0.6);">
-      <div style="background:#2d1b69;padding:14px 24px;display:flex;gap:8px;justify-content:flex-end;align-items:center;">
-        <span style="font-size:12px;color:rgba(255,255,255,0.7);margin-right:auto;font-family:monospace;">${receiptNo}</span>
-        <button class="btn btn-wa btn-sm" onclick="whatsappVoucherFromModal()">WhatsApp</button>
-        <button class="btn btn-white btn-sm" style="color:#2d1b69!important;" onclick="printVoucherFromModal()">Print</button>
-        <button onclick="document.getElementById('voucherViewOverlay').remove()" style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.4);color:white;padding:5px 11px;font-size:11px;border-radius:7px;cursor:pointer;font-family:'DM Sans',sans-serif;">Close</button>
-      </div>
-      <div style="padding:28px;">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:14px;border-bottom:2px solid #4c1d95;margin-bottom:18px;">
-          <div><div style="font-family:'Playfair Display',serif;font-size:18px;color:#4c1d95;font-weight:700;">Abhinandan Auto Mobiles</div><div style="font-size:11px;color:#6b7280;margin-top:2px;">Santalpur - Palanpur Highway | +91 98700 37002</div></div>
-          <div style="text-align:right;"><div style="font-size:16px;font-weight:700;color:#111;">Payment Voucher</div><div style="font-size:11px;color:#7c3aed;font-weight:600;margin-top:3px;">${receiptNo}</div><div style="font-size:11px;color:#6b7280;margin-top:2px;">${date}</div></div>
-        </div>
-        <div style="background:#f5f3ff;border:1px solid #ddd6fe;border-radius:8px;padding:16px 20px;margin-bottom:16px;">
-          <div style="display:flex;justify-content:space-between;padding:5px 0;font-size:14px;color:#374151;border-bottom:1px dashed #ddd6fe;"><span>Paid To</span><span style="font-weight:600;">${merchantName}</span></div>
-          <div style="display:flex;justify-content:space-between;padding:5px 0;font-size:14px;color:#374151;border-bottom:1px dashed #ddd6fe;"><span>Phone</span><span style="font-weight:600;">${mPhone||'—'}</span></div>
-          <div style="display:flex;justify-content:space-between;padding:5px 0;font-size:14px;color:#374151;border-bottom:1px dashed #ddd6fe;"><span>Payment Mode</span><span style="font-weight:600;">${mode}</span></div>
-          ${ref?`<div style="display:flex;justify-content:space-between;padding:5px 0;font-size:14px;color:#374151;border-bottom:1px dashed #ddd6fe;"><span>Reference No</span><span style="font-weight:600;">${ref}</span></div>`:''}
-          <div style="display:flex;justify-content:space-between;padding:5px 0;font-size:14px;color:#374151;border-bottom:1px dashed #ddd6fe;"><span>Date</span><span style="font-weight:600;">${date}</span></div>
-          <div style="display:flex;justify-content:space-between;padding:10px 0 5px;font-size:16px;font-weight:700;color:#7c3aed;"><span>Amount Paid</span><span>₹${Math.round(amount).toLocaleString('en-IN')}</span></div>
-        </div>
-        ${note?`<div style="font-size:13px;color:#6b7280;font-style:italic;padding:10px 14px;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;margin-bottom:16px;">Note: ${note}</div>`:''}
-        <div style="background:#f5f3ff;border:1px solid #ddd6fe;border-radius:8px;padding:16px 20px;margin-bottom:16px;">
-          <div style="display:flex;justify-content:space-between;padding:5px 0;font-size:14px;color:#374151;border-bottom:1px dashed #ddd6fe;"><span>Balance at this time</span><span style="font-weight:600;">${prevText}</span></div>
-          <div style="display:flex;justify-content:space-between;padding:5px 0;font-size:14px;color:#374151;border-bottom:1px dashed #ddd6fe;"><span>Amount Paid Now</span><span style="font-weight:600;">₹${Math.round(amount).toLocaleString('en-IN')}</span></div>
-        </div>
-      </div>
-    </div>`
-  document.body.appendChild(ov)
-  ov.addEventListener('click', e => { if (e.target === ov) ov.remove() })
+  const phone = currentMerchData?.phone || ''
+  _fillVoucherAsBill(receiptNo, merchantName, amount, mode, ref, note, date, phone)
 }
 
-window.printVoucherFromModal = function() {
-  if (!_currentPaymentRecord) return
-  const { receiptNo, merchantName, amount, mode, ref, note, date, phone, nb } = _currentPaymentRecord
-  const prevText = nb>0 ? '-₹'+Math.abs(nb).toLocaleString('en-IN')+' (Payable)' : nb<0 ? '+₹'+Math.abs(nb).toLocaleString('en-IN')+' (Overpaid)' : '₹0 Clear'
-  _fillVoucherArea(receiptNo, merchantName, amount, mode, ref, note, date, phone, prevText, '—')
-  _clearPrintClasses()
-  document.body.classList.add('print-voucher')
-  const ot = document.title; document.title = receiptNo; window.print()
-  setTimeout(() => { document.body.classList.remove('print-voucher'); document.title = ot }, 1000)
-}
-
-window.whatsappVoucherFromModal = async function() {
-  if (!_currentPaymentRecord) return
-  const { receiptNo, merchantName, amount, mode, ref, date, phone } = _currentPaymentRecord
-  await _sendVoucherWhatsApp(receiptNo, merchantName, amount, mode, ref, date, phone)
-}
-
-function _fillVoucherArea(receiptNo, merchantName, amount, mode, ref, note, date, phone, prevText, newText) {
-  document.getElementById('vchrNo').innerText      = receiptNo
-  document.getElementById('vchrName').innerText    = merchantName
-  document.getElementById('vchrPhone').innerText   = phone||'—'
-  document.getElementById('vchrMode').innerText    = mode
-  document.getElementById('vchrAmount').innerText  = '₹'+Math.round(amount).toLocaleString('en-IN')
-  document.getElementById('vchrPaid').innerText    = '₹'+Math.round(amount).toLocaleString('en-IN')
-  document.getElementById('vchrPrevBal').innerText = prevText
-  document.getElementById('vchrNewBal').innerText  = newText
-  document.getElementById('vchrDate').innerText    = new Date().toLocaleString('en-IN')
-  document.getElementById('vchrDateVal').innerText = date
-  if (ref && ref.trim()) { document.getElementById('vchrRef').innerText=ref; document.getElementById('vchrRefRow').style.display='flex' } else { document.getElementById('vchrRefRow').style.display='none' }
-  if (note && note.trim()) { document.getElementById('vchrNote').innerText=note; document.getElementById('vchrNoteBox').style.display='block' } else { document.getElementById('vchrNoteBox').style.display='none' }
-}
-
-// WHY: printVoucherDirect prints the PAYMENT VOUCHER (voucherArea) — not the
-// merchant statement. The bug was that clicking "Print" on a payment row was
-// somehow triggering the statement print path. Now it explicitly calls
-// body.classList.add('print-voucher') which shows #voucherArea in print CSS.
 window.printVoucherDirect = function(receiptNo, encodedName, amount, mode, ref, note, date) {
   const merchantName = decodeURIComponent(encodedName)
-  const nb = currentMerchData ? Math.round(currentMerchData.netBalance) : 0
-  const mPhone = currentMerchData?.phone || ''
-  const prevText = nb>0 ? '-₹'+Math.abs(nb).toLocaleString('en-IN')+' (Payable)' : nb<0 ? '+₹'+Math.abs(nb).toLocaleString('en-IN')+' (Overpaid)' : '₹0 Clear'
-  _fillVoucherArea(receiptNo, merchantName, amount, mode, ref, note, date, mPhone, prevText, '—')
-  _clearPrintClasses()
-  document.body.classList.add('print-voucher')
-  const ot = document.title; document.title = receiptNo; window.print()
-  setTimeout(() => { document.body.classList.remove('print-voucher'); document.title = ot }, 1000)
+  const phone = currentMerchData?.phone || ''
+  _fillVoucherAsBill(receiptNo, merchantName, amount, mode, ref, note, date, phone)
+  _doPrint('print-bill', _deriveVoucherDisplayNo(receiptNo))
 }
 
 window.whatsappVoucher = async function(receiptNo, encodedName, amount, mode, ref, note, date) {
   const merchantName = decodeURIComponent(encodedName)
   const phone = currentMerchData?.phone || ''
-  await _sendVoucherWhatsApp(receiptNo, merchantName, amount, mode, ref, date, phone)
-}
-
-async function _sendVoucherWhatsApp(receiptNo, merchantName, amount, mode, ref, date, phone) {
   if (!phone) { alert('No phone number found for this merchant. Please add it in the Merchants section.'); return }
-  const { jsPDF } = window.jspdf
-  const doc = new jsPDF({ unit:'pt', format:'a4' })
-  const W=595.28, mg=36; let y=36
-  doc.setFillColor(44,27,105); doc.rect(0,0,W,70,'F')
-  doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(16)
-  doc.text('Abhinandan Auto Mobiles',mg,26)
-  doc.setFont('helvetica','normal'); doc.setFontSize(9)
-  doc.text('Santalpur - Palanpur Highway  |  +91 98700 37002',mg,42)
-  doc.setFont('helvetica','bold'); doc.setFontSize(13)
-  doc.text('PAYMENT VOUCHER',W-mg,26,{align:'right'})
-  doc.setFont('helvetica','normal'); doc.setFontSize(9)
-  doc.text(receiptNo,W-mg,42,{align:'right'})
-  y=90
-  doc.setFillColor(245,243,255); doc.rect(mg,y,W-2*mg,130,'F')
-  doc.setDrawColor(221,214,254); doc.rect(mg,y,W-2*mg,130)
-  y+=18; const rows2=[['Paid To',merchantName],['Phone',phone||'—'],['Payment Mode',mode],['Date',date],['Amount Paid','Rs '+Math.round(amount).toLocaleString('en-IN')]]
-  if (ref) rows2.splice(3,0,['Reference No',ref])
-  rows2.forEach(([l,v],i) => {
-    doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(107,114,128); doc.text(l,mg+10,y)
-    doc.setFont('helvetica','bold'); doc.setTextColor(17,24,39); doc.text(v||'—',W-mg-10,y,{align:'right'})
-    if(i<rows2.length-1){doc.setDrawColor(221,214,254);doc.line(mg+10,y+5,W-mg-10,y+5)}
-    y+=i===rows2.length-1?0:18
-  })
-  doc.setFontSize(14); doc.setTextColor(76,29,149)
-  y+=10; doc.text('Rs '+Math.round(amount).toLocaleString('en-IN'),W-mg-10,y,{align:'right'})
-  y+=40; doc.setDrawColor(229,231,235); doc.line(mg,y,W-mg,y); y+=14
-  doc.setFont('helvetica','normal'); doc.setFontSize(8.5); doc.setTextColor(156,163,175)
-  doc.text('Payment Voucher — Abhinandan Auto Mobiles | Internal Record',W/2,y,{align:'center'})
-  const msg = `*Abhinandan Auto Mobiles*\nPayment Voucher: *${receiptNo}*\nAmount: *Rs ${Math.round(amount).toLocaleString('en-IN')}* via ${mode}\nDate: ${date}\n\nPlease find the payment voucher attached.\n+91 98700 37002`
-  await sendPDFToWhatsApp(doc, 'Voucher-'+receiptNo+'.pdf', phone, msg)
+  const displayNo = _deriveVoucherDisplayNo(receiptNo)
+  const pur = _voucherAsPurObject({ displayNo, merchantName, amount, mode, phone })
+  const items = [{ item_name:'Payment to Merchant'+(note?(' — '+note):''), quantity:1, purchase_price:amount, total:amount }]
+  await _buildAndSendBillPDF(pur, merchantName, false, phone, items)
 }
 
 // ─────────────────────────────────────────────
-// DIRECT PRINT / WHATSAPP FROM TABLE ROWS
+// DIRECT PRINT / WHATSAPP FROM TABLE ROWS (purchase / PTM bills)
 // ─────────────────────────────────────────────
 window.printBillDirect = async function(billNo, encodedName, isPTM) {
   const merchantName = decodeURIComponent(encodedName)
@@ -1320,11 +1277,9 @@ window.printBillDirect = async function(billNo, encodedName, isPTM) {
     rec = r.data
     _currentViewedBillIsPTM = false; _currentViewedBillId = rec.id; _currentViewedBillTable = 'purchases'
   }
+  _currentViewedBillIsVoucher = false; _currentVoucherViewData = null
   await _fillViewBill(rec, merchantName, isPTM)
-  _clearPrintClasses()
-  document.body.classList.add('print-bill')
-  const ot = document.title; document.title = billNo; window.print()
-  setTimeout(() => { document.body.classList.remove('print-bill'); document.title = ot }, 800)
+  _doPrint('print-bill', billNo)
 }
 
 window.whatsappBillDirect = async function(billNo, encodedName, isPTM) {
@@ -1356,6 +1311,7 @@ window.viewPurchase = async function(billNo, encodedName) {
   _currentViewedBillIsPTM  = false
   _currentViewedBillId     = pur.id
   _currentViewedBillTable  = 'purchases'
+  _currentViewedBillIsVoucher = false; _currentVoucherViewData = null
   await _fillViewBill(pur, merchantName, false)
 }
 
@@ -1366,6 +1322,7 @@ window.viewSalesBill = async function(billNo, encodedName) {
   _currentViewedBillIsPTM  = true
   _currentViewedBillId     = sale.id
   _currentViewedBillTable  = 'sales'
+  _currentViewedBillIsVoucher = false; _currentVoucherViewData = null
   await _fillViewBill(sale, merchantName, true)
 }
 
@@ -1389,10 +1346,22 @@ async function _fillViewBill(rec, merchantName, isSalesBill) {
   if ((rec.credit||0)        > 0) modes.push(isReturn?'Payable Reduced':isPTM?'Paid':'Credit')
   _currentViewedBillPhone = rec.merchant_phone || rec.customer_phone || ''
 
+  // WHY: a separate theme class per bill type — amber/brown for genuine
+  // Purchase Invoices (matches purchase-billing.html exactly), purple for
+  // customer-direct merchant payments (PTM), red for returns.
   let headerClass = 'inv-header'
-  if (isReturn) headerClass += ' return-style'
-  else if (isPTM) headerClass += ' ptm-style'
+  let themeClass = ''
+  if (isReturn)    { headerClass += ' return-style';   themeClass = 'theme-return' }
+  else if (isPTM)  { headerClass += ' ptm-style' }
+  else             { headerClass += ' purchase-style'; themeClass = 'theme-purchase' }
   document.getElementById('vPurchaseHeader').className = headerClass
+  document.getElementById('viewPurchasePrintArea').className = themeClass
+
+  // Restore the Delete button — it's hidden when viewing a voucher.
+  document.querySelector('.btn-red-outline').style.display = ''
+  document.getElementById('vMBOrigPayableLabel').innerText = 'Payable at billing'
+  document.getElementById('vMBPaidLabel').innerText        = 'Total payments made'
+  document.getElementById('vInvRefLabel').innerText        = 'Merchant Invoice Ref'
 
   document.getElementById('vPurchaseType').innerText   = isPTM ? 'MERCHANT PAYMENT' : (isReturn ? 'PURCHASE RETURN' : 'Purchase Invoice')
   document.getElementById('vPurchaseNo').innerText     = rec.bill_number
@@ -1443,12 +1412,6 @@ async function _fillViewBill(rec, merchantName, isSalesBill) {
     const amt   = Math.abs(item.total || item.quantity * price || 0); subtotal += amt
     return `<tr><td style="color:#6b7280;">${i+1}</td><td>${name}</td><td>${qty}</td><td>₹${price}</td><td>₹${amt.toLocaleString('en-IN')}</td></tr>`
   }).join('')
-  // FIX: when a bill genuinely has no line items (e.g. some "Merchant
-  // Payment" / pay-to-merchant records, which are payments, not itemized
-  // sales), the table used to render with just an empty <tbody> — which is
-  // exactly what made those bills "look like just plain details, not a real
-  // bill". We now show an explicit, styled placeholder row instead of a
-  // blank table so the invoice still reads as a complete document.
   document.getElementById('vPurchaseItems').innerHTML = itemsHtml ||
     `<tr><td colspan="5" class="inv-table-empty">No line items for this record${isPTM?' — this is a direct payment to the merchant, not an itemized sale.':'.'}</td></tr>`
 
@@ -1472,16 +1435,6 @@ async function _fillViewBill(rec, merchantName, isSalesBill) {
     const bel = document.getElementById('vMBFinal'); bel.innerText = btext; bel.style.color = nb>0?'#dc2626':'#059669'
   } else { document.getElementById('vMerchBalanceBox').style.display='none' }
 
-  // ─────────────────────────────────────────
-  // FIX (Problem 1): show the modal, then force a real repaint on the
-  // action bar EVERY time — whether this is the first bill opened or a
-  // second/third bill viewed while the modal was already open. Previously
-  // the modal was simply set to display:block, which only triggers a fresh
-  // Safari paint the FIRST time (display:none -> display:block). On a
-  // second bill the display was already 'block', so the action bar (with
-  // the Print/WhatsApp/Delete/Close buttons) silently failed to repaint and
-  // stayed visually blank until the cursor moved over it.
-  // ─────────────────────────────────────────
   const modalEl = document.getElementById('viewPurchaseModal')
   modalEl.style.display = 'block'
   _forceSafariRepaint(document.querySelector('.view-bill-actions'))
@@ -1492,25 +1445,20 @@ window.closeViewPurchase = () => {
   _currentViewedBillIsPTM = false
   _currentViewedBillId = null
   _currentViewedBillTable = null
+  _currentViewedBillIsVoucher = false
+  _currentVoucherViewData = null
 }
 
 window.printViewedBill = () => {
-  // FIX (Problem 2): must clear any leftover print-* classes first — see the
-  // _clearPrintClasses() comment above for why this was the root cause of
-  // "Print on a bill actually prints the statement".
-  _clearPrintClasses()
-  document.body.classList.add('print-bill')
-  const ot = document.title
-  document.title = document.getElementById('vPurchaseNo').innerText || 'Bill'
-  window.print()
-  setTimeout(() => { document.body.classList.remove('print-bill'); document.title = ot }, 800)
+  const title = document.getElementById('vPurchaseNo').innerText || 'Bill'
+  _doPrint('print-bill', title)
 }
 
 // ─────────────────────────────────────────────
 // DELETE BILL
 // ─────────────────────────────────────────────
 window.confirmDeleteBill = function() {
-  if (!_currentViewedBillId) { alert('No bill loaded.'); return }
+  if (!_currentViewedBillId) { alert('Nothing to delete for this record.'); return }
   document.getElementById('confirmBillNoDisplay').innerText = document.getElementById('vPurchaseNo').innerText
   document.getElementById('confirmDeleteModal').style.display = 'flex'
 }
@@ -1627,16 +1575,7 @@ async function buildStatementDOM() {
 window.printStatement = async function() {
   if (!currentMerchData) { alert('Please open a merchant ledger first.'); return }
   await buildStatementDOM()
-  // FIX (Problem 2): clear any leftover print-* classes first. This is the
-  // other half of the fix — printStatement() previously only ADDED
-  // 'print-statement' without removing a stale 'print-bill'/'print-voucher'
-  // class, which could leave two print areas active at once.
-  _clearPrintClasses()
-  document.body.classList.add('print-statement')
-  const ot = document.title
-  document.title = document.getElementById('stmtNo').innerText
-  window.print()
-  setTimeout(() => { document.body.classList.remove('print-statement'); document.title = ot }, 1000)
+  _doPrint('print-statement', document.getElementById('stmtNo').innerText)
 }
 
 // ─────────────────────────────────────────────
@@ -1753,9 +1692,19 @@ async function sendPDFToWhatsApp(doc, filename, phone, message) {
 }
 
 // ─────────────────────────────────────────────
-// WHATSAPP PURCHASE BILL (from View modal)
+// WHATSAPP FROM VIEW MODAL (purchase / PTM / voucher)
 // ─────────────────────────────────────────────
 window.whatsappPurchaseBill = async function() {
+  if (_currentViewedBillIsVoucher && _currentVoucherViewData) {
+    const d = _currentVoucherViewData
+    const finalPhone = d.phone || currentMerchData?.phone || ''
+    if (!finalPhone) { alert('No phone number for this merchant.'); return }
+    const pur = _voucherAsPurObject(d)
+    const items = [{ item_name:'Payment to Merchant'+(d.note?(' — '+d.note):''), quantity:1, purchase_price:d.amount, total:d.amount }]
+    await _buildAndSendBillPDF(pur, d.merchantName, false, finalPhone, items)
+    return
+  }
+
   const billNo   = document.getElementById('vPurchaseNo').innerText
   const merchant = document.getElementById('vMerchant').innerText
   const phone = currentMerchData?.phone || _currentViewedBillPhone || ''
@@ -1777,23 +1726,42 @@ window.whatsappPurchaseBill = async function() {
   await _buildAndSendBillPDF(pur, merchant, _currentViewedBillIsPTM, finalPhone)
 }
 
-async function _buildAndSendBillPDF(pur, merchant, isPTMFlag, phone) {
+// ─────────────────────────────────────────────
+// SHARED PDF BUILDER — purchase invoices, PTM (customer-direct) payments,
+// and now payment vouchers all flow through this ONE function so they look
+// consistent. `syntheticItems` lets a voucher (which has no real item rows
+// in the database) supply a single synthetic line instead of querying the
+// purchase_items/bill_items tables.
+// ─────────────────────────────────────────────
+async function _buildAndSendBillPDF(pur, merchant, isPTMFlag, phone, syntheticItems) {
+  const isVoucher = pur.bill_type === 'voucher'
+  const isReturn   = pur.bill_type === 'return'
   const isPTM = isPTMFlag || pur.bill_type === 'pay_to_merchant'
-  const tableName = isPTM ? 'bill_items' : 'purchase_items'
-  const fkCol     = isPTM ? 'sale_id'    : 'purchase_id'
-  const { data:items } = await db.from(tableName).select('*').eq(fkCol,pur.id)
-  const missingIds = (items||[]).filter(i => !i.item_name && i.item_id).map(i => i.item_id)
+  let items = syntheticItems
   const invNames = {}
-  if (missingIds.length) {
-    const { data:prods } = await db.from('inventory').select('id,item_name').in('id',missingIds)
-    ;(prods||[]).forEach(p => { invNames[p.id]=p.item_name })
+  if (!items) {
+    const tableName = isPTM ? 'bill_items' : 'purchase_items'
+    const fkCol     = isPTM ? 'sale_id'    : 'purchase_id'
+    const { data } = await db.from(tableName).select('*').eq(fkCol,pur.id)
+    items = data || []
+    const missingIds = items.filter(i => !i.item_name && i.item_id).map(i => i.item_id)
+    if (missingIds.length) {
+      const { data:prods } = await db.from('inventory').select('id,item_name').in('id',missingIds)
+      ;(prods||[]).forEach(p => { invNames[p.id]=p.item_name })
+    }
   }
 
   const modes = [pur.cash>0?'Cash':'', pur.upi>0?'UPI':'', (pur.bank_transfer||0)>0?'Bank Transfer':'', pur.credit>0?'Credit':''].filter(Boolean)
   const { jsPDF } = window.jspdf
   const doc = new jsPDF({ unit:'pt', format:'a4' })
   const W=595.28, mg=36; let y=0
-  const hc = pur.bill_type==='return'?[127,29,29]:isPTM?[76,29,149]:[76,29,149]
+  // WHY: brown/amber for genuine Purchase Invoices (matches
+  // purchase-billing.html exactly), teal for payment vouchers, purple for
+  // PTM (customer-direct) payments, brick-red for returns.
+  const hc = isReturn ? [127,29,29]
+           : isVoucher ? [15,118,110]
+           : isPTM ? [76,29,149]
+           : [120,53,15]
 
   doc.setFillColor(...hc); doc.rect(0,0,W,88,'F')
   doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(18)
@@ -1801,7 +1769,7 @@ async function _buildAndSendBillPDF(pur, merchant, isPTMFlag, phone) {
   doc.setFont('helvetica','normal'); doc.setFontSize(9)
   doc.text('Santalpur - Palanpur Highway  |  +91 98700 37002',mg,44)
   doc.setFont('helvetica','bold'); doc.setFontSize(11)
-  doc.text(isPTM?'MERCHANT PAYMENT':(pur.bill_type==='return'?'PURCHASE RETURN':'PURCHASE INVOICE'),W-mg,27,{align:'right'})
+  doc.text(isVoucher?'PAYMENT VOUCHER':isPTM?'MERCHANT PAYMENT':(isReturn?'PURCHASE RETURN':'PURCHASE INVOICE'),W-mg,27,{align:'right'})
   doc.setFont('helvetica','normal'); doc.setFontSize(9)
   doc.text('Bill # '+pur.bill_number,W-mg,43,{align:'right'})
   doc.text(new Date(pur.created_at).toLocaleString('en-IN'),W-mg,57,{align:'right'})
@@ -1810,7 +1778,8 @@ async function _buildAndSendBillPDF(pur, merchant, isPTMFlag, phone) {
   doc.setFillColor(245,240,255); doc.rect(0,y,W,50,'F')
   doc.setDrawColor(221,214,254); doc.line(0,y+50,W,y+50)
   doc.setFont('helvetica','bold'); doc.setFontSize(7.5); doc.setTextColor(107,114,128)
-  const label1=isPTM?'CUSTOMER':'MERCHANT', name1=isPTM?merchant:(pur.merchant_name||'—')
+  const label1 = isVoucher?'PAID TO':isPTM?'CUSTOMER':'MERCHANT'
+  const name1  = isPTM?merchant:(pur.merchant_name||'—')
   doc.text(label1,mg,y+13); doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor(17,24,39)
   doc.text(name1,mg,y+30)
   doc.setFont('helvetica','bold'); doc.setFontSize(7.5); doc.setTextColor(107,114,128)
@@ -1836,7 +1805,7 @@ async function _buildAndSendBillPDF(pur, merchant, isPTMFlag, phone) {
       if (y>745) { doc.addPage(); y=40 }
       const name  = item.item_name||invNames[item.item_id]||'Unknown'
       const price = item.purchase_price||item.price||0
-      const amt   = Math.abs((item.quantity||0)*price); sub+=amt
+      const amt   = item.total!=null ? Math.abs(item.total) : Math.abs((item.quantity||0)*price); sub+=amt
       if (i%2===1) { doc.setFillColor(249,250,251); doc.rect(0,y-12,W,20,'F') }
       doc.setFont('helvetica','normal'); doc.setFontSize(9.5); doc.setTextColor(156,163,175)
       doc.text(String(i+1),mg,y); doc.setTextColor(55,65,81)
@@ -1847,9 +1816,6 @@ async function _buildAndSendBillPDF(pur, merchant, isPTMFlag, phone) {
       y+=21
     })
   } else {
-    // FIX: same "doesn't look like a real bill" issue as the on-screen view
-    // — a PTM/payment record with no item rows used to leave a blank gap in
-    // the PDF. Render an explicit placeholder line instead.
     doc.setFont('helvetica','italic'); doc.setFontSize(9.5); doc.setTextColor(156,163,175)
     doc.text(isPTM ? 'No line items — direct payment to merchant.' : 'No line items recorded for this bill.', mg+24, y)
     y+=21
@@ -1860,7 +1826,7 @@ async function _buildAndSendBillPDF(pur, merchant, isPTMFlag, phone) {
   doc.text('Subtotal',380,y); doc.text('Rs '+sub.toLocaleString('en-IN'),W-mg,y,{align:'right'}); y+=22
   doc.setFillColor(245,240,255); doc.rect(0,y-14,W,26,'F')
   doc.setFont('helvetica','bold'); doc.setFontSize(14); doc.setTextColor(...hc)
-  doc.text('Grand Total',380,y); doc.text('Rs '+Math.abs(pur.total_amount||0).toLocaleString('en-IN'),W-mg,y,{align:'right'})
+  doc.text(isVoucher?'Amount Paid':'Grand Total',380,y); doc.text('Rs '+Math.abs(pur.total_amount||0).toLocaleString('en-IN'),W-mg,y,{align:'right'})
   y+=32
 
   doc.setFillColor(245,240,255); doc.rect(mg,y,W-2*mg,60,'F')
@@ -1871,7 +1837,7 @@ async function _buildAndSendBillPDF(pur, merchant, isPTMFlag, phone) {
   doc.text('Cash: Rs '+Math.abs(pur.cash||0).toLocaleString('en-IN'),mg+10,y)
   doc.text('UPI: Rs '+Math.abs(pur.upi||0).toLocaleString('en-IN'),mg+140,y)
   doc.text('Bank: Rs '+Math.abs(pur.bank_transfer||0).toLocaleString('en-IN'),mg+270,y)
-  doc.text((isPTM?'Paid':'Credit')+': Rs '+Math.abs(pur.credit||0).toLocaleString('en-IN'),mg+380,y)
+  doc.text((isVoucher?'Other':isPTM?'Paid':'Credit')+': Rs '+Math.abs(pur.credit||0).toLocaleString('en-IN'),mg+380,y)
 
   if (isPTM && pur.merchant_name) {
     y+=18; doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setTextColor(76,29,149)
@@ -1879,11 +1845,13 @@ async function _buildAndSendBillPDF(pur, merchant, isPTMFlag, phone) {
   }
   y+=40; doc.setDrawColor(229,231,235); doc.line(mg,y,W-mg,y); y+=14
   doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor(...hc)
-  doc.text(isPTM?'Customer paid merchant directly.':(pur.bill_type==='return'?'Return Processed.':'Stock Received.'),mg,y)
+  doc.text(isVoucher?'Payment recorded.':isPTM?'Customer paid merchant directly.':(isReturn?'Return Processed.':'Stock Received.'),mg,y)
 
   const billNo = pur.bill_number
-  const msg = `*Abhinandan Auto Mobiles*\nBill *${billNo}* — Rs ${Math.round(Math.abs(pur.total_amount)).toLocaleString('en-IN')}\n${isPTM?'Customer: *'+merchant+'*\nPaid To Merchant: *'+pur.merchant_name+'*':'Merchant: *'+merchant+'*'}\n\nPlease find the attached bill PDF.\n+91 98700 37002`
-  await sendPDFToWhatsApp(doc, 'Bill-'+billNo+'.pdf', phone, msg)
+  const msg = isVoucher
+    ? `*Abhinandan Auto Mobiles*\nPayment Voucher *${billNo}* — Rs ${Math.round(Math.abs(pur.total_amount)).toLocaleString('en-IN')}\nPaid To: *${merchant}*\n\nPlease find the attached voucher PDF.\n+91 98700 37002`
+    : `*Abhinandan Auto Mobiles*\nBill *${billNo}* — Rs ${Math.round(Math.abs(pur.total_amount)).toLocaleString('en-IN')}\n${isPTM?'Customer: *'+merchant+'*\nPaid To Merchant: *'+pur.merchant_name+'*':'Merchant: *'+merchant+'*'}\n\nPlease find the attached bill PDF.\n+91 98700 37002`
+  await sendPDFToWhatsApp(doc, (isVoucher?'Voucher-':'Bill-')+billNo+'.pdf', phone, msg)
 }
 
 // ─────────────────────────────────────────────
@@ -1934,18 +1902,10 @@ window.savePayment = async function(shouldPrint) {
     note: note||null
   }])
   if (error) { console.error(error); alert('Error saving payment: '+error.message); return }
-  const newBalance = netBalance - amount
   if (shouldPrint) {
-    const nb=Math.round(netBalance), newNb=Math.round(newBalance)
-    const prevText=nb>0?'-'+fmt(nb)+' (Payable)':nb<0?'+'+fmt(Math.abs(nb))+' (Overpaid)':'₹0 Clear'
-    const newText=newNb>0?'-'+fmt(newNb)+' (Payable)':newNb<0?'+'+fmt(Math.abs(newNb))+' (Overpaid)':'₹0 Clear'
-    _fillVoucherArea(voucherNo, merchantName, amount, mode, ref, note,
-      new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'}),
-      mPhone, prevText, newText)
-    _clearPrintClasses()
-    document.body.classList.add('print-voucher')
-    const ot=document.title; document.title=voucherNo; window.print()
-    setTimeout(() => { document.body.classList.remove('print-voucher'); document.title=ot }, 1000)
+    _fillVoucherAsBill(voucherNo, merchantName, amount, mode, ref, note,
+      new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'}), mPhone)
+    _doPrint('print-bill', voucherNo)
   }
   closePaymentModal()
   alert(`Payment of ${fmt(amount)} recorded!\nVoucher: ${voucherNo}`)
