@@ -115,6 +115,11 @@ html.light-theme .modal-body { background:white; }
 html.light-theme .aging-bar-section { background:rgba(124,58,237,0.04); border-bottom-color:rgba(0,0,0,0.06); }
 html.light-theme .aging-bar-title { color:#7c3aed; }
 
+#txTypeFilter { padding:6px 10px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.08);color:white;font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer; }
+#txTypeFilter option { background:#1e293b; }
+html.light-theme #txTypeFilter { background:white; color:#0f172a; border-color:rgba(0,0,0,0.15); }
+html.light-theme #txTypeFilter option { background:white; }
+
 .badge { display:inline-block; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:600; }
 .badge-cash    { background:rgba(52,211,153,0.12); color:#34d399; }
 .badge-upi     { background:rgba(96,165,250,0.12);  color:#60a5fa; }
@@ -122,7 +127,8 @@ html.light-theme .aging-bar-title { color:#7c3aed; }
 .badge-mixed   { background:rgba(251,191,36,0.12);  color:#fbbf24; }
 .badge-payment { background:rgba(16,185,129,0.15);  color:#10b981; }
 .badge-return  { background:rgba(220,38,38,0.15);   color:#f87171; }
-.badge-ptm     { background:rgba(124,58,237,0.15);  color:#a78bfa; }
+.badge-ptm     { background:rgba(96,165,250,0.15);  color:#60a5fa; }
+.badge-purchase-type { background:rgba(248,113,113,0.12); color:#f87171; }
 .badge-age-g   { background:rgba(52,211,153,0.1);   color:#34d399; font-size:10px; }
 .badge-age-y   { background:rgba(251,191,36,0.1);   color:#fbbf24; font-size:10px; }
 .badge-age-o   { background:rgba(251,146,60,0.1);   color:#fb923c; font-size:10px; }
@@ -145,7 +151,6 @@ html.light-theme .btn-close-modal { background:#4c1d95 !important; border-color:
 html.light-theme .btn-close-modal:hover { background:#6d28d9 !important; }
 .btn-sm { padding:5px 11px; font-size:11px; border-radius:7px; }
 
-/* FIX: Force white text in invoice header on colored background */
 .inv-header * { color: white !important; }
 .inv-header .inv-company { color:white !important; font-family:'Playfair Display',serif; font-size:20px; font-weight:700; margin-bottom:4px; }
 .inv-header .inv-sub { color:rgba(255,255,255,0.88) !important; font-size:12px; margin:2px 0; }
@@ -153,7 +158,6 @@ html.light-theme .btn-close-modal:hover { background:#6d28d9 !important; }
 .inv-header .inv-no { color:white !important; font-size:14px; font-weight:600; }
 .inv-header .inv-date { color:rgba(255,255,255,0.85) !important; font-size:12px; }
 
-/* VIEW PURCHASE / SALES / VOUCHER MODAL */
 #viewPurchaseModal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.92); z-index:10000; overflow-y:auto; padding:20px; }
 .view-bill-box { background:white; max-width:800px; margin:20px auto; border-radius:16px; overflow:hidden; box-shadow:0 24px 80px rgba(0,0,0,0.6); }
 .view-bill-actions { background:#2d1b69; padding:14px 24px; display:flex; gap:8px; justify-content:flex-end; align-items:center; flex-wrap:wrap; }
@@ -165,13 +169,6 @@ html.light-theme .view-bill-actions { background:#2d1b69 !important; }
 .view-bill-actions .btn-red-outline:hover { background:rgba(239,68,68,0.3); color:white; }
 .view-bill-actions .btn-outline-light { background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.4); color:white; padding:5px 11px; font-size:11px; border-radius:7px; cursor:pointer; font-family:'DM Sans',sans-serif; transition:all 0.2s; }
 .view-bill-actions .btn-outline-light:hover { background:rgba(255,255,255,0.25); }
-.view-bill-actions button {
-  transform: translateZ(0);
-  -webkit-transform: translateZ(0);
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-  will-change: transform;
-}
 
 .pay-modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.88); z-index:11000; align-items:center; justify-content:center; backdrop-filter:blur(8px); }
 .pay-modal-box { background:linear-gradient(135deg,#0d1117,#1e293b); border:1px solid rgba(255,255,255,0.12); border-radius:18px; padding:28px; width:90%; max-width:460px; }
@@ -188,7 +185,6 @@ html.light-theme .view-bill-actions { background:#2d1b69 !important; }
 .wa-toast { position:fixed; bottom:30px; left:50%; transform:translateX(-50%); background:#1e293b; color:rgba(255,255,255,0.9); padding:10px 22px; border-radius:10px; font-size:13px; font-weight:500; font-family:'DM Sans',sans-serif; z-index:99999; box-shadow:0 4px 16px rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.1); display:none; align-items:center; white-space:nowrap; }
 .wa-toast.show { display:flex; }
 
-/* INVOICE STYLES */
 .inv-header { background:linear-gradient(135deg,#2d1b69 0%,#7c3aed 60%,#a78bfa 100%); color:white; padding:24px 32px; display:flex; justify-content:space-between; align-items:center; gap:16px; }
 .inv-header.return-style { background:linear-gradient(135deg,#7f1d1d,#dc2626,#f87171) !important; }
 .inv-header.ptm-style { background:linear-gradient(135deg,#1a0533,#6d28d9,#a78bfa) !important; }
@@ -200,9 +196,6 @@ html.light-theme .view-bill-actions { background:#2d1b69 !important; }
 .inv-no   { font-size:14px; font-weight:600; color:white !important; }
 .inv-date { font-size:12px; color:rgba(255,255,255,0.85) !important; }
 
-/* WHY: CSS custom properties scoped to the print area let every accent
-   color (meta bar, table header, totals border, payment box) follow the
-   active bill type automatically, instead of being hardcoded purple. */
 #viewPurchasePrintArea { --acc:#4c1d95; --acc-light:#f5f3ff; --acc-light2:#ddd6fe; }
 #viewPurchasePrintArea.theme-purchase { --acc:#78350f; --acc-light:#fffbeb; --acc-light2:#fde68a; }
 #viewPurchasePrintArea.theme-voucher  { --acc:#0f766e; --acc-light:#f0fdfa; --acc-light2:#99f6e4; }
@@ -252,7 +245,6 @@ html.light-theme .view-bill-actions { background:#2d1b69 !important; }
 .inv-footer { margin:16px 32px 24px; display:flex; justify-content:space-between; align-items:flex-end; padding-top:14px; border-top:1px solid #e5e7eb; font-size:12px; color:#6b7280; }
 .inv-footer .thank-you { font-size:14px; font-weight:600; color:#4c1d95; margin-bottom:3px; }
 
-/* PRINT AREAS */
 #statementArea { display:none; }
 
 @media print {
@@ -310,7 +302,6 @@ html.light-theme .view-bill-actions { background:#2d1b69 !important; }
   .sidebar, .main, .wa-toast { display: none !important; }
 }
 
-/* STATEMENT PRINT STYLES */
 .stmt-header { display:flex; justify-content:space-between; align-items:flex-start; padding-bottom:16px; border-bottom:2px solid #4c1d95; margin-bottom:20px; }
 .stmt-company { font-family:'Playfair Display',serif; font-size:20px; color:#4c1d95; font-weight:700; }
 .stmt-sub  { font-size:12px; color:#6b7280; margin-top:2px; }
@@ -355,34 +346,13 @@ html.light-theme .mc-stat-value { color:#374151; }
 .confirm-box .confirm-bill-no { display:inline-block; background:rgba(248,113,113,0.1); border:1px solid rgba(248,113,113,0.3); color:#fca5a5; font-family:monospace; padding:4px 12px; border-radius:8px; margin-bottom:14px; font-size:13px; }
 .confirm-actions { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
 
-/* ── ACTION BUTTONS: stacked layout ── */
-.action-btns {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  min-width: 180px;
-}
-.action-btns-top {
-  display: flex;
-  gap: 5px;
-}
-.action-btns-top .btn-sm {
-  flex: 1;
-}
+.action-btns { display: flex; flex-direction: column; gap: 5px; min-width: 180px; }
+.action-btns-top { display: flex; gap: 5px; }
+.action-btns-top .btn-sm { flex: 1; }
 .action-btn-wa-full {
-  display: block;
-  width: 100%;
-  padding: 6px 0;
-  font-size: 12px;
-  font-weight: 700;
-  border-radius: 7px;
-  border: none;
-  background: #25D366;
-  color: white;
-  cursor: pointer;
-  font-family: 'DM Sans', sans-serif;
-  transition: background 0.2s;
-  text-align: center;
+  display: block; width: 100%; padding: 6px 0; font-size: 12px; font-weight: 700;
+  border-radius: 7px; border: none; background: #25D366; color: white; cursor: pointer;
+  font-family: 'DM Sans', sans-serif; transition: background 0.2s; text-align: center;
 }
 .action-btn-wa-full:hover { background: #128C7E; }
 
@@ -504,7 +474,16 @@ html.light-theme .mc-stat-value { color:#374151; }
     <div class="modal-body">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
         <div class="section-title" style="margin-bottom:0;">Transaction History</div>
-        <div style="font-size:12px;color:rgba(255,255,255,0.3);" id="txCount">—</div>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+          <select id="txTypeFilter" onchange="applyTxFilter()">
+            <option value="all">All Transactions</option>
+            <option value="purchase">Purchase / Credit Bills</option>
+            <option value="return">Purchase Returns</option>
+            <option value="business_paid">Paid by Business (Vouchers)</option>
+            <option value="customer_paid">Paid by Customer (PTM)</option>
+          </select>
+          <div style="font-size:12px;color:rgba(255,255,255,0.3);" id="txCount">—</div>
+        </div>
       </div>
       <div style="overflow-x:auto;">
         <table class="tx-table">
@@ -653,8 +632,8 @@ html.light-theme .mc-stat-value { color:#374151; }
 <!-- DELETE CONFIRM MODAL -->
 <div class="confirm-overlay" id="confirmDeleteModal" style="display:none;align-items:center;justify-content:center;">
   <div class="confirm-box">
-    <h3>Delete Bill?</h3>
-    <p>This action is permanent. The bill and all its line items will be deleted from the database. This cannot be undone.</p>
+    <h3>Delete Record?</h3>
+    <p>This action is permanent. The record and any linked line items will be deleted from the database. This cannot be undone.</p>
     <div class="confirm-bill-no" id="confirmBillNoDisplay">—</div>
     <div class="confirm-actions">
       <button class="btn btn-red" onclick="executeDeletion()">Yes, Delete</button>
@@ -735,6 +714,18 @@ let _currentViewedBillTable = null
 let _currentViewedBillIsVoucher = false
 let _currentVoucherViewData     = null
 
+// NEW: holds the merged & sorted transaction list for the currently open
+// merchant, so the type filter dropdown can re-render instantly without
+// hitting the database again. Each row's action buttons reference an
+// index into this array instead of embedding raw text in onclick="" --
+// this is what fixes the "note breaks the row" class of bug for good.
+let _ledgerEvents = []
+let _ledgerMerchantName = ''
+
+// NEW: generic delete-confirmation state, shared by every transaction type
+let _pendingDeleteTable = null
+let _pendingDeleteId    = null
+
 const today   = new Date()
 const fmt     = n => '₹' + (Math.round(Math.abs(n))||0).toLocaleString('en-IN')
 const daysSince = d => Math.floor((today - new Date(d)) / (1000*60*60*24))
@@ -744,15 +735,6 @@ function _clearPrintClasses() {
   document.body.classList.remove('print-statement', 'print-bill')
 }
 
-// ─────────────────────────────────────────────
-// _forceSafariRepaint(el): forces a genuine reflow+repaint cycle via a real
-// display toggle on every button — far more reliable than an opacity nudge
-// alone. Some browser engines fail to repaint freshly-updated button text
-// when a fixed-position overlay was already visible (display:block) before
-// its content changed; toggling display fully re-triggers layout AND paint.
-// Called twice (immediately, and again shortly after) to also catch any
-// text updates that settle a tick later.
-// ─────────────────────────────────────────────
 function _forceSafariRepaint(el) {
   if (!el) return
   function reflow(node) {
@@ -770,6 +752,21 @@ function _scheduleRepaint() {
   setTimeout(() => _forceSafariRepaint(el), 50)
 }
 
+// ─────────────────────────────────────────────
+// _doPrint(): FIXED blank-PDF bug
+//
+// WHY: Safari can take its print "snapshot" of the page before it has
+// finished recalculating layout for the @media print rules we just turned
+// on (e.g. switching the modal from position:fixed to position:static).
+// When that happens, Safari hands back a blank page even though the HTML
+// underneath is completely correct.
+//
+// Reading `offsetHeight` forces the browser to do that pending layout
+// work RIGHT NOW, synchronously, instead of lazily whenever it feels like
+// it. We do this once immediately, and again inside the double
+// requestAnimationFrame right before print() fires, so even a
+// last-millisecond DOM change (like a QR code rendering in) is captured.
+// ─────────────────────────────────────────────
 function _doPrint(printClass, titleText) {
   _clearPrintClasses()
   document.body.classList.add(printClass)
@@ -785,7 +782,16 @@ function _doPrint(printClass, titleText) {
   }
   window.addEventListener('afterprint', cleanup)
   setTimeout(cleanup, 5000)
-  requestAnimationFrame(() => requestAnimationFrame(() => window.print()))
+
+  const printTarget = document.getElementById('viewPurchasePrintArea') || document.getElementById('statementArea')
+  if (printTarget) void printTarget.offsetHeight
+
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      if (printTarget) void printTarget.offsetHeight
+      window.print()
+    })
+  })
 }
 
 function showWaToast(msg) {
@@ -834,11 +840,6 @@ function cleanPhone(raw) {
   return null
 }
 
-// ─────────────────────────────────────────────
-// QR — same approach as purchase-billing.html: render via QRCode.js into a
-// hidden div, then hide the duplicate <canvas> it also inserts and show
-// only the <img> it produces.
-// ─────────────────────────────────────────────
 function _renderInvoiceQr() {
   const container = document.getElementById('vQrCanvas')
   if (!container || typeof QRCode === 'undefined') return
@@ -1048,96 +1049,17 @@ window.openLedger = async function(encodedName) {
       ...ptmBills.map(p => ({...p, _type:'ptm'}))
     ].sort((a,b) => new Date(b.created_at) - new Date(a.created_at))
 
+    // NEW: store the merged list + merchant name globally so the filter
+    // dropdown and the delete/print/whatsapp buttons can all reference it
+    // without re-querying Supabase.
+    _ledgerEvents = allEvents
+    _ledgerMerchantName = merchantName
+
     currentMerchData = { merchantName, profile, purchases, payments:mpayments, totalPurchased, payableFromBills, payableFromReturns, totalPaid, netBalance, phone }
 
-    const rows = allEvents.map(ev => {
-
-      // ── PAYMENT ROW (shop paid merchant) ──
-      if (ev._type === 'payment') {
-        const safeRef  = (ev.reference_no||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'")
-        const safeNote = (ev.note||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'")
-        const safeNo   = (ev.receipt_no||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'")
-        const safeDate = new Date(ev.created_at).toLocaleDateString('en-IN')
-        const isLinked = (ev.receipt_no||'').indexOf('PTM-') === 0
-        const linkedTag = isLinked ? '<span class="linked-tag">linked entry</span>' : ''
-        return `<tr>
-          <td style="font-size:11px;color:rgba(255,255,255,0.4);font-family:monospace;">${ev.receipt_no}${linkedTag}</td>
-          <td>${safeDate}</td>
-          <td><span class="badge badge-payment">Payment</span></td>
-          <td style="color:rgba(255,255,255,0.3);">—</td>
-          <td style="color:#10b981;font-weight:600;">- ${fmt(ev.amount)} <span style="font-size:11px;color:rgba(255,255,255,0.3);">(${ev.mode})</span></td>
-          <td>—</td>
-          <td>
-            <div class="action-btns">
-              <div class="action-btns-top">
-                <button class="btn btn-sm" style="background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.35);color:#10b981;"
-                  onclick="viewVoucherModal('${safeNo}','${encodeURIComponent(merchantName)}',${ev.amount},'${ev.mode}','${safeRef}','${safeNote}','${safeDate}')">View</button>
-                <button class="btn btn-sm" style="background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.35);color:#10b981;"
-                  onclick="printVoucherDirect('${safeNo}','${encodeURIComponent(merchantName)}',${ev.amount},'${ev.mode}','${safeRef}','${safeNote}','${safeDate}')">Print</button>
-              </div>
-              <button class="action-btn-wa-full"
-                onclick="whatsappVoucher('${safeNo}','${encodeURIComponent(merchantName)}',${ev.amount},'${ev.mode}','${safeRef}','${safeNote}','${safeDate}')">WhatsApp</button>
-            </div>
-          </td>
-        </tr>`
-      }
-
-      // ── PTM ROW (customer paid merchant directly) ──
-      if (ev._type === 'ptm') {
-        return `<tr>
-          <td style="font-size:11px;color:rgba(255,255,255,0.4);font-family:monospace;">${ev.bill_number}</td>
-          <td>${new Date(ev.created_at).toLocaleDateString('en-IN')}</td>
-          <td><span class="badge badge-ptm">Customer Paid</span></td>
-          <td style="color:#a78bfa;font-weight:600;">${fmt(ev.total_amount)}</td>
-          <td style="color:#10b981;font-weight:600;">- ${fmt(ev.total_amount)} <span style="font-size:11px;color:rgba(255,255,255,0.3);">(Customer Direct)</span></td>
-          <td>—</td>
-          <td>
-            <div class="action-btns">
-              <div class="action-btns-top">
-                <button class="btn btn-purple btn-sm" onclick="viewSalesBill('${ev.bill_number}','${encodeURIComponent(merchantName)}')">View</button>
-                <button class="btn btn-sm" style="background:rgba(124,58,237,0.15);border:1px solid rgba(124,58,237,0.35);color:#a78bfa;"
-                  onclick="printBillDirect('${ev.bill_number}','${encodeURIComponent(merchantName)}',true)">Print</button>
-              </div>
-              <button class="action-btn-wa-full"
-                onclick="whatsappBillDirect('${ev.bill_number}','${encodeURIComponent(merchantName)}',true)">WhatsApp</button>
-            </div>
-          </td>
-        </tr>`
-      }
-
-      // ── PURCHASE / RETURN BILL ROW ──
-      const isReturn = ev.bill_type === 'return'
-      const modes = [ev.cash>0?'cash':'', ev.upi>0?'upi':'', ev.credit>0?'credit':''].filter(Boolean).join('+')
-      let bc='badge-mixed', bl='Mixed'
-      if (modes==='cash')   { bc='badge-cash';   bl='Cash' }
-      if (modes==='upi')    { bc='badge-upi';    bl='UPI' }
-      if (modes==='credit') { bc='badge-credit'; bl='Credit' }
-      const d = daysSince(ev.created_at)
-      const ageClass = isReturn?'':ev.credit>0?(d<=30?'badge-age-g':d<=60?'badge-age-y':d<=90?'badge-age-o':'badge-age-r'):''
-      const ageLabel = isReturn?'—':ev.credit>0?d+'d':'—'
-      return `<tr>
-        <td style="font-size:11px;color:rgba(255,255,255,0.4);font-family:monospace;">${ev.bill_number}</td>
-        <td>${new Date(ev.created_at).toLocaleDateString('en-IN')}</td>
-        <td><span class="badge ${isReturn?'badge-return':bc}">${isReturn?'Return':bl}</span></td>
-        <td style="color:${isReturn?'#f87171':'#a78bfa'};font-weight:600;">${isReturn?'-':''}${fmt(ev.total_amount)}</td>
-        <td style="color:${ev.credit>0?'#f87171':'rgba(255,255,255,0.3)'};">${ev.credit!==0?(isReturn?'- ':'+ ')+fmt(ev.credit)+(isReturn?' reduced':' payable'):'—'}</td>
-        <td>${ageLabel&&ageLabel!=='—'?`<span class="badge ${ageClass}">${ageLabel}</span>`:'—'}</td>
-        <td>
-          <div class="action-btns">
-            <div class="action-btns-top">
-              <button class="btn btn-purple btn-sm" onclick="viewPurchase('${ev.bill_number}','${encodeURIComponent(merchantName)}')">View</button>
-              <button class="btn btn-sm" style="background:rgba(124,58,237,0.15);border:1px solid rgba(124,58,237,0.35);color:#a78bfa;"
-                onclick="printBillDirect('${ev.bill_number}','${encodeURIComponent(merchantName)}',false)">Print</button>
-            </div>
-            <button class="action-btn-wa-full"
-              onclick="whatsappBillDirect('${ev.bill_number}','${encodeURIComponent(merchantName)}',false)">WhatsApp</button>
-          </div>
-        </td>
-      </tr>`
-    })
-
+    document.getElementById('txTypeFilter').value = 'all'
+    renderTxTable()
     document.getElementById('txCount').innerText = `${purchBills.length} bills, ${mpayments.length} payments, ${retBills.length} returns, ${ptmBills.length} customer-paid`
-    document.getElementById('txBody').innerHTML = rows.length ? rows.join('') : '<tr><td colspan="7" class="empty-state">No transactions yet</td></tr>'
 
   } catch(err) {
     console.error('openLedger error:', err)
@@ -1146,8 +1068,136 @@ window.openLedger = async function(encodedName) {
 }
 
 // ─────────────────────────────────────────────
-// VOUCHER NUMBER DISPLAY
+// TRANSACTION TABLE — filterable, delete-enabled
+//
+// WHY a separate render function: this is called both right after
+// openLedger fetches data, AND every time the filter dropdown changes.
+// Splitting it out means filtering is instant (pure client-side array
+// filter on data we already have) -- no extra database round-trip.
 // ─────────────────────────────────────────────
+function renderTxTable() {
+  const filter = document.getElementById('txTypeFilter').value
+  let events = _ledgerEvents || []
+
+  if (filter === 'purchase')      events = events.filter(ev => ev._type==='bill' && ev.bill_type!=='return')
+  if (filter === 'return')        events = events.filter(ev => ev._type==='bill' && ev.bill_type==='return')
+  if (filter === 'business_paid') events = events.filter(ev => ev._type==='payment')
+  if (filter === 'customer_paid') events = events.filter(ev => ev._type==='ptm')
+
+  if (!events.length) {
+    document.getElementById('txBody').innerHTML = '<tr><td colspan="7" class="empty-state">No transactions match this filter</td></tr>'
+    return
+  }
+
+  const rows = events.map(ev => _buildTxRowHtml(ev, _ledgerEvents.indexOf(ev)))
+  document.getElementById('txBody').innerHTML = rows.join('')
+}
+window.applyTxFilter = renderTxTable
+
+// _buildTxRowHtml: builds ONE <tr>. Every action button carries
+// data-act + data-idx ONLY (no raw note/reference text in the HTML at
+// all) -- the click handler below looks the full record back up from
+// _ledgerEvents using that index. This is what makes notes containing
+// quotes, apostrophes, or anything else 100% safe to display.
+function _buildTxRowHtml(ev, idx) {
+  // ── Paid by Business (a payment voucher you issued) ──
+  if (ev._type === 'payment') {
+    const isLinked = (ev.receipt_no||'').indexOf('PTM-') === 0
+    const linkedTag = isLinked ? '<span class="linked-tag">linked entry</span>' : ''
+    return `<tr>
+      <td style="font-size:11px;color:rgba(255,255,255,0.4);font-family:monospace;">${ev.receipt_no}${linkedTag}</td>
+      <td>${new Date(ev.created_at).toLocaleDateString('en-IN')}</td>
+      <td><span class="badge badge-payment">Paid by Business</span></td>
+      <td style="color:rgba(255,255,255,0.3);">—</td>
+      <td style="color:#10b981;font-weight:600;">- ${fmt(ev.amount)} <span style="font-size:11px;color:rgba(255,255,255,0.3);">(${ev.mode})</span></td>
+      <td>—</td>
+      <td>
+        <div class="action-btns">
+          <div class="action-btns-top">
+            <button class="btn btn-sm" style="background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.35);color:#10b981;" data-act="view-voucher" data-idx="${idx}">View</button>
+            <button class="btn btn-sm" style="background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.35);color:#10b981;" data-act="print-voucher" data-idx="${idx}">Print</button>
+            <button class="btn-red-outline" data-act="delete-row" data-idx="${idx}">Del</button>
+          </div>
+          <button class="action-btn-wa-full" data-act="wa-voucher" data-idx="${idx}">WhatsApp</button>
+        </div>
+      </td>
+    </tr>`
+  }
+
+  // ── Paid by Customer (PTM — customer paid the merchant directly) ──
+  if (ev._type === 'ptm') {
+    return `<tr>
+      <td style="font-size:11px;color:rgba(255,255,255,0.4);font-family:monospace;">${ev.bill_number}</td>
+      <td>${new Date(ev.created_at).toLocaleDateString('en-IN')}</td>
+      <td><span class="badge badge-ptm">Paid by Customer</span></td>
+      <td style="color:#a78bfa;font-weight:600;">${fmt(ev.total_amount)}</td>
+      <td style="color:#10b981;font-weight:600;">- ${fmt(ev.total_amount)} <span style="font-size:11px;color:rgba(255,255,255,0.3);">(Customer Direct)</span></td>
+      <td>—</td>
+      <td>
+        <div class="action-btns">
+          <div class="action-btns-top">
+            <button class="btn btn-purple btn-sm" data-act="view-sales" data-idx="${idx}">View</button>
+            <button class="btn btn-sm" style="background:rgba(124,58,237,0.15);border:1px solid rgba(124,58,237,0.35);color:#a78bfa;" data-act="print-bill" data-idx="${idx}">Print</button>
+            <button class="btn-red-outline" data-act="delete-row" data-idx="${idx}">Del</button>
+          </div>
+          <button class="action-btn-wa-full" data-act="wa-bill" data-idx="${idx}">WhatsApp</button>
+        </div>
+      </td>
+    </tr>`
+  }
+
+  // ── Purchase bill or Return (red badge as requested) ──
+  const isReturn = ev.bill_type === 'return'
+  const d = daysSince(ev.created_at)
+  const ageClass = isReturn?'':ev.credit>0?(d<=30?'badge-age-g':d<=60?'badge-age-y':d<=90?'badge-age-o':'badge-age-r'):''
+  const ageLabel = isReturn?'—':ev.credit>0?d+'d':'—'
+  return `<tr>
+    <td style="font-size:11px;color:rgba(255,255,255,0.4);font-family:monospace;">${ev.bill_number}</td>
+    <td>${new Date(ev.created_at).toLocaleDateString('en-IN')}</td>
+    <td><span class="badge ${isReturn?'badge-return':'badge-purchase-type'}">${isReturn?'Return':'Purchase Bill'}</span></td>
+    <td style="color:${isReturn?'#f87171':'#a78bfa'};font-weight:600;">${isReturn?'-':''}${fmt(ev.total_amount)}</td>
+    <td style="color:${ev.credit>0?'#f87171':'rgba(255,255,255,0.3)'};">${ev.credit!==0?(isReturn?'- ':'+ ')+fmt(ev.credit)+(isReturn?' reduced':' payable'):'—'}</td>
+    <td>${ageLabel&&ageLabel!=='—'?`<span class="badge ${ageClass}">${ageLabel}</span>`:'—'}</td>
+    <td>
+      <div class="action-btns">
+        <div class="action-btns-top">
+          <button class="btn btn-purple btn-sm" data-act="view-purchase" data-idx="${idx}">View</button>
+          <button class="btn btn-sm" style="background:rgba(124,58,237,0.15);border:1px solid rgba(124,58,237,0.35);color:#a78bfa;" data-act="print-bill" data-idx="${idx}">Print</button>
+          <button class="btn-red-outline" data-act="delete-row" data-idx="${idx}">Del</button>
+        </div>
+        <button class="action-btn-wa-full" data-act="wa-bill" data-idx="${idx}">WhatsApp</button>
+      </div>
+    </td>
+  </tr>`
+}
+
+// Single delegated click listener for the whole table -- attached ONCE.
+// WHY delegation: rows get re-created constantly (every filter change,
+// every reopen). Attaching one listener to the permanent #txBody parent,
+// instead of one listener per button, means we never have to worry about
+// "did I forget to re-attach this handler after re-rendering?"
+document.getElementById('txBody').addEventListener('click', function(e) {
+  const btn = e.target.closest('button[data-act]')
+  if (!btn) return
+  const idx = parseInt(btn.dataset.idx, 10)
+  const ev = _ledgerEvents[idx]
+  if (!ev) return
+  const act = btn.dataset.act
+  const encName = encodeURIComponent(_ledgerMerchantName)
+
+  if (act === 'view-voucher')   viewVoucherModal(ev)
+  if (act === 'print-voucher')  printVoucherDirect(ev)
+  if (act === 'wa-voucher')     whatsappVoucher(ev)
+  if (act === 'view-sales')     viewSalesBill(ev.bill_number, encName)
+  if (act === 'view-purchase')  viewPurchase(ev.bill_number, encName)
+  if (act === 'print-bill')     printBillDirect(ev.bill_number, encName, ev._type==='ptm')
+  if (act === 'wa-bill')        whatsappBillDirect(ev.bill_number, encName, ev._type==='ptm')
+  if (act === 'delete-row') {
+    const table = ev._type==='payment' ? 'merchant_payments' : ev._type==='ptm' ? 'sales' : 'purchases'
+    requestDeleteRow(table, ev.id, ev.receipt_no || ev.bill_number)
+  }
+})
+
 function _deriveVoucherDisplayNo(receiptNo) {
   if (!receiptNo) return 'MPV-' + Date.now()
   if (receiptNo.indexOf('PTM-') === 0) return 'MPV-' + receiptNo.slice(4)
@@ -1155,21 +1205,27 @@ function _deriveVoucherDisplayNo(receiptNo) {
 }
 
 // ─────────────────────────────────────────────
-// _fillVoucherAsBill(): renders a merchant_payments record through the SAME
-// invoice template used for purchase/PTM bills, themed teal. A voucher is
-// just "money paid against existing credit" — there is no item, qty, or
-// price involved, so the item table and Subtotal row are hidden entirely
-// and only the meta info + Amount Paid total are shown.
+// _fillVoucherAsBill(ev, phone): renders a merchant_payments row through
+// the SAME invoice template used for purchase/PTM bills, themed teal.
+// Takes the FULL database row (ev) now, instead of 8 separate string
+// arguments -- this both fixes the quote-escaping risk and means we
+// always have ev.id on hand, so Delete works for vouchers too.
 // ─────────────────────────────────────────────
-function _fillVoucherAsBill(receiptNo, merchantName, amount, mode, ref, note, date, phone) {
-  const displayNo = _deriveVoucherDisplayNo(receiptNo)
+function _fillVoucherAsBill(ev, phone) {
+  const displayNo = _deriveVoucherDisplayNo(ev.receipt_no)
   const nb = currentMerchData ? Math.round(currentMerchData.netBalance) : 0
+  const amount = ev.amount
+  const mode   = ev.mode
+  const ref    = ev.reference_no || ''
+  const note   = ev.note || ''
+  const dateStr = new Date(ev.created_at).toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'})
+  const merchantName = _ledgerMerchantName || currentMerchData?.merchantName || ev.merchant_name || '—'
 
   _currentViewedBillIsVoucher = true
-  _currentViewedBillId    = null
-  _currentViewedBillTable = null
+  _currentViewedBillId    = ev.id || null
+  _currentViewedBillTable = 'merchant_payments'
   _currentViewedBillIsPTM = false
-  _currentVoucherViewData = { receiptNo, displayNo, merchantName, amount, mode, ref, note, date, phone }
+  _currentVoucherViewData = { ev, displayNo, merchantName, phone }
 
   document.getElementById('vPurchaseHeader').className     = 'inv-header voucher-style'
   document.getElementById('viewPurchasePrintArea').className = 'theme-voucher'
@@ -1178,7 +1234,7 @@ function _fillVoucherAsBill(receiptNo, merchantName, amount, mode, ref, note, da
 
   document.getElementById('vPurchaseType').innerText  = 'PAYMENT VOUCHER'
   document.getElementById('vPurchaseNo').innerText    = displayNo
-  document.getElementById('vPurchaseDate').innerText  = date
+  document.getElementById('vPurchaseDate').innerText  = dateStr
   document.getElementById('vBillNoDisplay').innerText = displayNo
   document.getElementById('vBillMetaLabel1').innerText= 'Paid To'
   document.getElementById('vMerchant').innerText      = merchantName
@@ -1186,19 +1242,18 @@ function _fillVoucherAsBill(receiptNo, merchantName, amount, mode, ref, note, da
   document.getElementById('vPayMode').innerText       = mode || '—'
   document.getElementById('vPurTotalLabel').innerText = 'Amount Paid'
   document.getElementById('vPurFooterMsg').innerText  = 'Payment Recorded'
-  document.getElementById('vPurCreditLabel').innerText= 'Other: '
   document.getElementById('vPurPayTitle').innerText   = 'Payment Details'
 
-  document.getElementById('vReturnBar').style.display     = 'none'
-  document.getElementById('vPtmBar').style.display        = 'none'
-  document.getElementById('vMerchDetailBox').style.display= 'none'
+  document.getElementById('vReturnBar').style.display      = 'none'
+  document.getElementById('vPtmBar').style.display         = 'none'
+  document.getElementById('vMerchDetailBox').style.display = 'none'
 
   document.getElementById('vInvRefLabel').innerText = 'Reference No'
   document.getElementById('vInvRefBlock').style.display = (ref && ref.trim()) ? 'block' : 'none'
   if (ref && ref.trim()) document.getElementById('vInvRef').innerText = ref
 
-  // No item / qty / price for a voucher — hide the entire item table and
-  // the Subtotal row, leaving only the final "Amount Paid" total.
+  // No item / qty / price for a voucher -- hide the item table & Subtotal,
+  // leaving only the final "Amount Paid" total.
   document.getElementById('vItemsTableWrap').style.display = 'none'
   document.getElementById('vSubtotalRow').style.display    = 'none'
   document.getElementById('vPurchaseItems').innerHTML       = ''
@@ -1206,19 +1261,27 @@ function _fillVoucherAsBill(receiptNo, merchantName, amount, mode, ref, note, da
   document.getElementById('vPurTotal').innerText = Math.round(amount).toLocaleString('en-IN')
   document.getElementById('vDiscRow').style.display = 'none'
 
-  const cashAmt = mode === 'Cash' ? amount : 0
-  const upiAmt  = mode === 'UPI'  ? amount : 0
-  const bankAmt = (mode === 'Bank Transfer' || mode === 'NEFT' || mode === 'RTGS') ? amount : 0
-  const otherAmt= (!cashAmt && !upiAmt && !bankAmt) ? amount : 0
+  const cashAmt  = mode === 'Cash' ? amount : 0
+  const upiAmt   = mode === 'UPI'  ? amount : 0
+  const bankAmt  = (mode === 'Bank Transfer' || mode === 'NEFT' || mode === 'RTGS') ? amount : 0
+  const otherAmt = (!cashAmt && !upiAmt && !bankAmt) ? amount : 0
   document.getElementById('vPurCash').innerText = '₹'+Math.round(cashAmt)
   document.getElementById('vPurUPI').innerText  = '₹'+Math.round(upiAmt)
   document.getElementById('vPurBankRow').style.display = bankAmt>0 ? 'block' : 'none'
   document.getElementById('vPurBank').innerText = '₹'+Math.round(bankAmt)
   document.getElementById('vPurCredit').innerText = '₹'+Math.round(otherAmt)
+  // WHY: previously this always said "Other:" even when the mode was
+  // something specific like Cheque. Now it shows the actual mode name
+  // (e.g. "Cheque:") whenever the amount didn't land in Cash/UPI/Bank.
+  document.getElementById('vPurCreditLabel').innerText = otherAmt > 0 ? (mode || 'Other') + ': ' : 'Other: '
+
+  // Show the note (or reference) -- this line was ALREADY correct logic-
+  // wise; it only ever failed to appear because the entire print was
+  // blank from the Safari timing bug fixed in _doPrint() above.
   if (note && note.trim()) {
     document.getElementById('vInvRefBlock').style.display = 'block'
-    document.getElementById('vInvRefLabel').innerText = ref && ref.trim() ? 'Reference No' : 'Note'
-    document.getElementById('vInvRef').innerText = ref && ref.trim() ? ref : note
+    document.getElementById('vInvRefLabel').innerText = (ref && ref.trim()) ? 'Reference No' : 'Note'
+    document.getElementById('vInvRef').innerText = (ref && ref.trim()) ? ref : note
   }
 
   document.getElementById('vMBOrigPayableLabel').innerText = 'Balance before this payment'
@@ -1231,10 +1294,12 @@ function _fillVoucherAsBill(receiptNo, merchantName, amount, mode, ref, note, da
   const btext = nb===0 ? '₹0 — Settled' : (nb<0?'+':'-')+fmt(nb)+(nb<0?' (Overpaid)':' (Payable Due)')
   const bel = document.getElementById('vMBFinal'); bel.innerText = btext; bel.style.color = nb>0?'#dc2626':'#059669'
 
-  document.querySelector('.btn-red-outline').style.display = 'none'
+  // CHANGED: Delete is now available for vouchers too, since we have a
+  // real database id (ev.id). It's only hidden for the brand-new "preview
+  // before save" path where no id exists yet.
+  document.querySelector('.btn-red-outline').style.display = ev.id ? '' : 'none'
 
-  const modalEl = document.getElementById('viewPurchaseModal')
-  modalEl.style.display = 'block'
+  document.getElementById('viewPurchaseModal').style.display = 'block'
   _scheduleRepaint()
 }
 
@@ -1251,30 +1316,29 @@ function _voucherAsPurObject(d) {
   }
 }
 
-window.viewVoucherModal = function(receiptNo, encodedName, amount, mode, ref, note, date) {
-  const merchantName = decodeURIComponent(encodedName)
-  const phone = currentMerchData?.phone || ''
-  _fillVoucherAsBill(receiptNo, merchantName, amount, mode, ref, note, date, phone)
+window.viewVoucherModal = function(ev) {
+  const phone = currentMerchData?.phone || ev.merchant_phone || ''
+  _fillVoucherAsBill(ev, phone)
 }
 
-window.printVoucherDirect = function(receiptNo, encodedName, amount, mode, ref, note, date) {
-  const merchantName = decodeURIComponent(encodedName)
-  const phone = currentMerchData?.phone || ''
-  _fillVoucherAsBill(receiptNo, merchantName, amount, mode, ref, note, date, phone)
-  _doPrint('print-bill', _deriveVoucherDisplayNo(receiptNo))
+window.printVoucherDirect = function(ev) {
+  const phone = currentMerchData?.phone || ev.merchant_phone || ''
+  _fillVoucherAsBill(ev, phone)
+  _doPrint('print-bill', _deriveVoucherDisplayNo(ev.receipt_no))
 }
 
-window.whatsappVoucher = async function(receiptNo, encodedName, amount, mode, ref, note, date) {
-  const merchantName = decodeURIComponent(encodedName)
-  const phone = currentMerchData?.phone || ''
+window.whatsappVoucher = async function(ev) {
+  const merchantName = _ledgerMerchantName || currentMerchData?.merchantName || ''
+  const phone = currentMerchData?.phone || ev.merchant_phone || ''
   if (!phone) { alert('No phone number found for this merchant. Please add it in the Merchants section.'); return }
-  const displayNo = _deriveVoucherDisplayNo(receiptNo)
-  const pur = _voucherAsPurObject({ displayNo, merchantName, amount, mode, phone })
+  const displayNo = _deriveVoucherDisplayNo(ev.receipt_no)
+  const pur = _voucherAsPurObject({ displayNo, merchantName, amount: ev.amount, mode: ev.mode, phone })
   await _buildAndSendBillPDF(pur, merchantName, false, phone, [])
 }
 
 // ─────────────────────────────────────────────
 // DIRECT PRINT / WHATSAPP FROM TABLE ROWS (purchase / PTM bills)
+// (unchanged -- these were already async-safe)
 // ─────────────────────────────────────────────
 window.printBillDirect = async function(billNo, encodedName, isPTM) {
   const merchantName = decodeURIComponent(encodedName)
@@ -1315,7 +1379,7 @@ window.whatsappBillDirect = async function(billNo, encodedName, isPTM) {
 }
 
 // ─────────────────────────────────────────────
-// VIEW PURCHASE / SALES BILLS
+// VIEW PURCHASE / SALES BILLS (unchanged)
 // ─────────────────────────────────────────────
 window.viewPurchase = async function(billNo, encodedName) {
   const merchantName = decodeURIComponent(encodedName)
@@ -1344,9 +1408,6 @@ async function _fillViewBill(rec, merchantName, isSalesBill) {
   const fkCol     = isSalesBill ? 'sale_id'    : 'purchase_id'
   const { data:items } = await db.from(itemTable).select('*').eq(fkCol, rec.id)
 
-  // WHY: fetch FULL inventory rows (not just names for missing ones) so we
-  // can show the same "Brand • Category • Size" subtitle under each item
-  // that the real purchase-billing.html invoice shows.
   const allIds = (items||[]).filter(i => i.item_id).map(i => i.item_id)
   const invMap = {}
   if (allIds.length) {
@@ -1363,10 +1424,8 @@ async function _fillViewBill(rec, merchantName, isSalesBill) {
   if ((rec.credit||0)        > 0) modes.push(isReturn?'Payable Reduced':isPTM?'Paid':'Credit')
   _currentViewedBillPhone = rec.merchant_phone || rec.customer_phone || ''
 
-  // Restore item table / subtotal row in case the previous view was a voucher
   document.getElementById('vItemsTableWrap').style.display = ''
   document.getElementById('vSubtotalRow').style.display    = 'flex'
-  document.querySelector('.btn-red-outline').style.display = ''
 
   let headerClass = 'inv-header'
   let themeClass = ''
@@ -1378,9 +1437,6 @@ async function _fillViewBill(rec, merchantName, isSalesBill) {
   document.getElementById('viewPurchasePrintArea').className = themeClass
   _setHeaderTheme(accentHex)
 
-  // QR code: only genuine purchase/return bills show it (matching the real
-  // printed invoice from purchase-billing.html). PTM/voucher don't have a
-  // QR in their source flows.
   const qrRow = document.getElementById('vQrRow')
   if (!isPTM) { qrRow.style.display = 'flex'; _renderInvoiceQr() } else { qrRow.style.display = 'none' }
 
@@ -1390,8 +1446,6 @@ async function _fillViewBill(rec, merchantName, isSalesBill) {
 
   document.getElementById('vPurchaseType').innerText   = isPTM ? 'MERCHANT PAYMENT' : (isReturn ? 'PURCHASE RETURN' : 'Purchase Invoice')
   document.getElementById('vPurchaseNo').innerText     = rec.bill_number
-  // WHY: matches purchase-billing.html's printed date format exactly
-  // ("15 Apr 2026") instead of a full locale date-time string.
   document.getElementById('vPurchaseDate').innerText   = new Date(rec.created_at).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})
   document.getElementById('vBillNoDisplay').innerText  = rec.bill_number
   document.getElementById('vPurTotalLabel').innerText  = isReturn?'Return Total':isPTM?'Amount Paid':'Grand Total'
@@ -1457,11 +1511,6 @@ async function _fillViewBill(rec, merchantName, isSalesBill) {
   document.getElementById('vPurUPI').innerText    = '₹' + Math.abs(rec.upi||0)
   document.getElementById('vPurCredit').innerText = '₹' + Math.abs(rec.credit||0)
 
-  // WHY: the real purchase-billing.html invoice never shows a running
-  // ledger balance — that information only matters for direct customer
-  // payments (PTM) made against the merchant relationship. So we only show
-  // this box for PTM; genuine purchase and return bills hide it entirely
-  // to match the real document exactly.
   const balBox = document.getElementById('vMerchBalanceBox')
   if (isPTM && currentMerchData) {
     const nb = Math.round(currentMerchData.netBalance)
@@ -1475,8 +1524,11 @@ async function _fillViewBill(rec, merchantName, isSalesBill) {
     balBox.style.display = 'none'
   }
 
-  const modalEl = document.getElementById('viewPurchaseModal')
-  modalEl.style.display = 'block'
+  // Genuine purchase/return/PTM bills always have a real id+table, so
+  // Delete is always available here.
+  document.querySelector('.btn-red-outline').style.display = ''
+
+  document.getElementById('viewPurchaseModal').style.display = 'block'
   _scheduleRepaint()
 }
 
@@ -1495,12 +1547,25 @@ window.printViewedBill = () => {
 }
 
 // ─────────────────────────────────────────────
-// DELETE BILL
+// DELETE — now fully generic across purchases / sales / merchant_payments
+//
+// WHY one shared flow: before this fix, only genuine purchase/PTM bills
+// could be deleted (and only from inside the View modal). Payment
+// vouchers had NO delete path at all. requestDeleteRow() is the single
+// entry point every row's "Del" button AND the View modal's "Delete"
+// button now both funnel through.
 // ─────────────────────────────────────────────
-window.confirmDeleteBill = function() {
-  if (!_currentViewedBillId) { alert('Nothing to delete for this record.'); return }
-  document.getElementById('confirmBillNoDisplay').innerText = document.getElementById('vPurchaseNo').innerText
+function requestDeleteRow(table, id, label) {
+  if (!id) { alert('Nothing to delete for this record.'); return }
+  _pendingDeleteTable = table
+  _pendingDeleteId = id
+  document.getElementById('confirmBillNoDisplay').innerText = label || '—'
   document.getElementById('confirmDeleteModal').style.display = 'flex'
+}
+
+window.confirmDeleteBill = function() {
+  if (!_currentViewedBillId || !_currentViewedBillTable) { alert('Nothing to delete for this record.'); return }
+  requestDeleteRow(_currentViewedBillTable, _currentViewedBillId, document.getElementById('vPurchaseNo').innerText)
 }
 
 window.closeConfirmDelete = function() {
@@ -1508,34 +1573,43 @@ window.closeConfirmDelete = function() {
 }
 
 window.executeDeletion = async function() {
-  if (!_currentViewedBillId || !_currentViewedBillTable) { alert('No bill to delete.'); return }
+  if (!_pendingDeleteId || !_pendingDeleteTable) { alert('No record to delete.'); return }
   const btn = document.querySelector('#confirmDeleteModal .btn-red')
   btn.innerText = 'Deleting...'
   btn.disabled = true
   try {
-    const itemTable = _currentViewedBillTable === 'sales' ? 'bill_items' : 'purchase_items'
-    const fkCol     = _currentViewedBillTable === 'sales' ? 'sale_id'    : 'purchase_id'
-    const { error: itemErr } = await db.from(itemTable).delete().eq(fkCol, _currentViewedBillId)
-    if (itemErr) { alert('Error deleting items: ' + itemErr.message); btn.innerText='Yes, Delete'; btn.disabled=false; return }
-    const { error: billErr } = await db.from(_currentViewedBillTable).delete().eq('id', _currentViewedBillId)
-    if (billErr) { alert('Error deleting bill: ' + billErr.message); btn.innerText='Yes, Delete'; btn.disabled=false; return }
+    if (_pendingDeleteTable === 'purchases') {
+      await db.from('purchase_items').delete().eq('purchase_id', _pendingDeleteId)
+      const { error } = await db.from('purchases').delete().eq('id', _pendingDeleteId)
+      if (error) throw error
+    } else if (_pendingDeleteTable === 'sales') {
+      await db.from('bill_items').delete().eq('sale_id', _pendingDeleteId)
+      const { error } = await db.from('sales').delete().eq('id', _pendingDeleteId)
+      if (error) throw error
+    } else if (_pendingDeleteTable === 'merchant_payments') {
+      const { error } = await db.from('merchant_payments').delete().eq('id', _pendingDeleteId)
+      if (error) throw error
+    }
     closeConfirmDelete()
-    closeViewPurchase()
-    alert('Bill deleted successfully.')
-    if (currentMerchData) { await openLedger(encodeURIComponent(currentMerchData.merchantName)) }
+    if (document.getElementById('viewPurchaseModal').style.display === 'block') closeViewPurchase()
+    alert('Deleted successfully.')
+    const merchantToReload = currentMerchData?.merchantName
+    if (merchantToReload) await openLedger(encodeURIComponent(merchantToReload))
     loadMerchants()
   } catch(err) {
-    alert('Unexpected error: ' + err.message)
-    btn.innerText = 'Yes, Delete'
-    btn.disabled = false
+    alert('Error deleting: ' + err.message)
   }
+  btn.innerText = 'Yes, Delete'
+  btn.disabled = false
+  _pendingDeleteTable = null
+  _pendingDeleteId = null
 }
 
 window.closeModal = () => { document.getElementById('ledgerModal').style.display='none'; currentMerchData=null }
 document.getElementById('ledgerModal').addEventListener('click', e => { if (e.target===document.getElementById('ledgerModal')) closeModal() })
 
 // ─────────────────────────────────────────────
-// STATEMENT PRINT
+// STATEMENT PRINT (unchanged)
 // ─────────────────────────────────────────────
 async function buildStatementDOM() {
   if (!currentMerchData) return
@@ -1618,9 +1692,6 @@ window.printStatement = async function() {
   _doPrint('print-statement', document.getElementById('stmtNo').innerText)
 }
 
-// ─────────────────────────────────────────────
-// WHATSAPP STATEMENT
-// ─────────────────────────────────────────────
 window.whatsappStatement = async function() {
   if (!currentMerchData) return
   const { merchantName, netBalance, phone } = currentMerchData
@@ -1739,7 +1810,7 @@ window.whatsappPurchaseBill = async function() {
     const d = _currentVoucherViewData
     const finalPhone = d.phone || currentMerchData?.phone || ''
     if (!finalPhone) { alert('No phone number for this merchant.'); return }
-    const pur = _voucherAsPurObject(d)
+    const pur = _voucherAsPurObject({ displayNo: d.displayNo, merchantName: d.merchantName, amount: d.ev.amount, mode: d.ev.mode, phone: finalPhone })
     await _buildAndSendBillPDF(pur, d.merchantName, false, finalPhone, [])
     return
   }
@@ -1766,11 +1837,7 @@ window.whatsappPurchaseBill = async function() {
 }
 
 // ─────────────────────────────────────────────
-// SHARED PDF BUILDER — purchase invoices, PTM (customer-direct) payments,
-// and payment vouchers all flow through this ONE function so they look
-// consistent. `syntheticItems` (an EMPTY array for vouchers) skips the
-// item-table rendering entirely — a voucher's PDF has no Qty/Price table,
-// only the payment breakdown, matching the on-screen view.
+// SHARED PDF BUILDER (unchanged)
 // ─────────────────────────────────────────────
 async function _buildAndSendBillPDF(pur, merchant, isPTMFlag, phone, syntheticItems) {
   const isVoucher = pur.bill_type === 'voucher'
@@ -1929,10 +1996,14 @@ window.savePayment = async function(shouldPrint) {
   const note   = document.getElementById('payNote').value.trim()
   if (!amount) { alert('Enter payment amount'); return }
   if (!currentMerchData) return
-  const { merchantName, netBalance, phone } = currentMerchData
+  const { merchantName, phone } = currentMerchData
   const voucherNo = await generateVoucherNo(merchantName)
   const mPhone = phone || currentMerchData.purchases[0]?.merchant_phone || ''
-  const { error } = await db.from('merchant_payments').insert([{
+
+  // .select().single() asks Supabase to hand back the row it just
+  // created -- including its real id -- so the print preview below can
+  // immediately support Delete, with no need to close/reopen the ledger.
+  const { data: inserted, error } = await db.from('merchant_payments').insert([{
     merchant_name: merchantName,
     merchant_phone: mPhone||null,
     receipt_no: voucherNo,
@@ -1940,11 +2011,12 @@ window.savePayment = async function(shouldPrint) {
     mode,
     reference_no: ref||null,
     note: note||null
-  }])
+  }]).select().single()
+
   if (error) { console.error(error); alert('Error saving payment: '+error.message); return }
-  if (shouldPrint) {
-    _fillVoucherAsBill(voucherNo, merchantName, amount, mode, ref, note,
-      new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'}), mPhone)
+
+  if (shouldPrint && inserted) {
+    _fillVoucherAsBill(inserted, mPhone)
     _doPrint('print-bill', voucherNo)
   }
   closePaymentModal()
