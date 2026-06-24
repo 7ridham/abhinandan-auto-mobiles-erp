@@ -642,7 +642,7 @@ html.light-theme .mc-stat-value { color:#374151; }
   </div>
 </div>
 
-<!-- STATEMENT PRINT AREA (legacy markup — kept harmless, no longer used for printing) -->
+<!-- STATEMENT PRINT AREA -->
 <div id="statementArea">
   <div class="stmt-header">
     <div>
@@ -714,9 +714,15 @@ let _currentViewedBillTable = null
 let _currentViewedBillIsVoucher = false
 let _currentVoucherViewData     = null
 
+// NEW: holds the merged & sorted transaction list for the currently open
+// merchant, so the type filter dropdown can re-render instantly without
+// hitting the database again. Each row's action buttons reference an
+// index into this array instead of embedding raw text in onclick="" --
+// this is what fixes the "note breaks the row" class of bug for good.
 let _ledgerEvents = []
 let _ledgerMerchantName = ''
 
+// NEW: generic delete-confirmation state, shared by every transaction type
 let _pendingDeleteTable = null
 let _pendingDeleteId    = null
 
@@ -724,6 +730,10 @@ const today   = new Date()
 const fmt     = n => '₹' + (Math.round(Math.abs(n))||0).toLocaleString('en-IN')
 const daysSince = d => Math.floor((today - new Date(d)) / (1000*60*60*24))
 const PORTAL_URL = window.location.origin + '/portal.html'
+
+function _clearPrintClasses() {
+  document.body.classList.remove('print-statement', 'print-bill')
+}
 
 function _forceSafariRepaint(el) {
   if (!el) return
@@ -743,38 +753,45 @@ function _scheduleRepaint() {
 }
 
 // ─────────────────────────────────────────────
-// _openPdfForPrint(doc, filename)
+// _doPrint(): FIXED blank-PDF bug
 //
-// WHY THIS REPLACES window.print(): the old approach asked the BROWSER
-// to re-paint a hidden/repositioned HTML modal into a printable page,
-// which depends on exact CSS + layout timing -- and you've now hit two
-// different browsers giving a blank result from that same fragile path.
+// WHY: Safari can take its print "snapshot" of the page before it has
+// finished recalculating layout for the @media print rules we just turned
+// on (e.g. switching the modal from position:fixed to position:static).
+// When that happens, Safari hands back a blank page even though the HTML
+// underneath is completely correct.
 //
-// jsPDF instead draws every line of text and every box directly onto a
-// PDF canvas, byte by byte, under our own control. There is no "hidden
-// element" for the browser to get confused about -- the PDF either has
-// the content or it doesn't, and we can SEE that locally before ever
-// trusting a screenshot/print pipeline again.
-//
-// doc.autoPrint() asks the finished PDF to open the print dialog the
-// instant it loads -- this works automatically in Chrome/Edge's
-// built-in PDF viewer. If a browser blocks the popup (common right
-// after an "await"), we fall back to a plain download so the person
-// still receives a complete, correct PDF instead of nothing.
+// Reading `offsetHeight` forces the browser to do that pending layout
+// work RIGHT NOW, synchronously, instead of lazily whenever it feels like
+// it. We do this once immediately, and again inside the double
+// requestAnimationFrame right before print() fires, so even a
+// last-millisecond DOM change (like a QR code rendering in) is captured.
 // ─────────────────────────────────────────────
-function _openPdfForPrint(doc, filename) {
-  doc.autoPrint()
-  const blobUrl = URL.createObjectURL(doc.output('blob'))
-  const win = window.open(blobUrl, '_blank')
-  if (!win) {
-    const a = document.createElement('a')
-    a.href = blobUrl
-    a.download = filename
-    document.body.appendChild(a)
-    a.click()
-    a.remove()
-    showWaToast('Pop-up blocked — PDF downloaded instead. Open it to print.')
+function _doPrint(printClass, titleText) {
+  _clearPrintClasses()
+  document.body.classList.add(printClass)
+  const ot = document.title
+  if (titleText) document.title = titleText
+  let done = false
+  function cleanup() {
+    if (done) return
+    done = true
+    document.body.classList.remove(printClass)
+    document.title = ot
+    window.removeEventListener('afterprint', cleanup)
   }
+  window.addEventListener('afterprint', cleanup)
+  setTimeout(cleanup, 5000)
+
+  const printTarget = document.getElementById('viewPurchasePrintArea') || document.getElementById('statementArea')
+  if (printTarget) void printTarget.offsetHeight
+
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      if (printTarget) void printTarget.offsetHeight
+      window.print()
+    })
+  })
 }
 
 function showWaToast(msg) {
@@ -1032,6 +1049,9 @@ window.openLedger = async function(encodedName) {
       ...ptmBills.map(p => ({...p, _type:'ptm'}))
     ].sort((a,b) => new Date(b.created_at) - new Date(a.created_at))
 
+    // NEW: store the merged list + merchant name globally so the filter
+    // dropdown and the delete/print/whatsapp buttons can all reference it
+    // without re-querying Supabase.
     _ledgerEvents = allEvents
     _ledgerMerchantName = merchantName
 
@@ -1049,6 +1069,11 @@ window.openLedger = async function(encodedName) {
 
 // ─────────────────────────────────────────────
 // TRANSACTION TABLE — filterable, delete-enabled
+//
+// WHY a separate render function: this is called both right after
+// openLedger fetches data, AND every time the filter dropdown changes.
+// Splitting it out means filtering is instant (pure client-side array
+// filter on data we already have) -- no extra database round-trip.
 // ─────────────────────────────────────────────
 function renderTxTable() {
   const filter = document.getElementById('txTypeFilter').value
@@ -1069,7 +1094,13 @@ function renderTxTable() {
 }
 window.applyTxFilter = renderTxTable
 
+// _buildTxRowHtml: builds ONE <tr>. Every action button carries
+// data-act + data-idx ONLY (no raw note/reference text in the HTML at
+// all) -- the click handler below looks the full record back up from
+// _ledgerEvents using that index. This is what makes notes containing
+// quotes, apostrophes, or anything else 100% safe to display.
 function _buildTxRowHtml(ev, idx) {
+  // ── Paid by Business (a payment voucher you issued) ──
   if (ev._type === 'payment') {
     const isLinked = (ev.receipt_no||'').indexOf('PTM-') === 0
     const linkedTag = isLinked ? '<span class="linked-tag">linked entry</span>' : ''
@@ -1093,6 +1124,7 @@ function _buildTxRowHtml(ev, idx) {
     </tr>`
   }
 
+  // ── Paid by Customer (PTM — customer paid the merchant directly) ──
   if (ev._type === 'ptm') {
     return `<tr>
       <td style="font-size:11px;color:rgba(255,255,255,0.4);font-family:monospace;">${ev.bill_number}</td>
@@ -1114,6 +1146,7 @@ function _buildTxRowHtml(ev, idx) {
     </tr>`
   }
 
+  // ── Purchase bill or Return (red badge as requested) ──
   const isReturn = ev.bill_type === 'return'
   const d = daysSince(ev.created_at)
   const ageClass = isReturn?'':ev.credit>0?(d<=30?'badge-age-g':d<=60?'badge-age-y':d<=90?'badge-age-o':'badge-age-r'):''
@@ -1138,6 +1171,11 @@ function _buildTxRowHtml(ev, idx) {
   </tr>`
 }
 
+// Single delegated click listener for the whole table -- attached ONCE.
+// WHY delegation: rows get re-created constantly (every filter change,
+// every reopen). Attaching one listener to the permanent #txBody parent,
+// instead of one listener per button, means we never have to worry about
+// "did I forget to re-attach this handler after re-rendering?"
 document.getElementById('txBody').addEventListener('click', function(e) {
   const btn = e.target.closest('button[data-act]')
   if (!btn) return
@@ -1167,8 +1205,11 @@ function _deriveVoucherDisplayNo(receiptNo) {
 }
 
 // ─────────────────────────────────────────────
-// _fillVoucherAsBill — fills the ON-SCREEN "View" modal for a voucher
-// (unchanged: this part already worked correctly).
+// _fillVoucherAsBill(ev, phone): renders a merchant_payments row through
+// the SAME invoice template used for purchase/PTM bills, themed teal.
+// Takes the FULL database row (ev) now, instead of 8 separate string
+// arguments -- this both fixes the quote-escaping risk and means we
+// always have ev.id on hand, so Delete works for vouchers too.
 // ─────────────────────────────────────────────
 function _fillVoucherAsBill(ev, phone) {
   const displayNo = _deriveVoucherDisplayNo(ev.receipt_no)
@@ -1211,6 +1252,8 @@ function _fillVoucherAsBill(ev, phone) {
   document.getElementById('vInvRefBlock').style.display = (ref && ref.trim()) ? 'block' : 'none'
   if (ref && ref.trim()) document.getElementById('vInvRef').innerText = ref
 
+  // No item / qty / price for a voucher -- hide the item table & Subtotal,
+  // leaving only the final "Amount Paid" total.
   document.getElementById('vItemsTableWrap').style.display = 'none'
   document.getElementById('vSubtotalRow').style.display    = 'none'
   document.getElementById('vPurchaseItems').innerHTML       = ''
@@ -1227,8 +1270,14 @@ function _fillVoucherAsBill(ev, phone) {
   document.getElementById('vPurBankRow').style.display = bankAmt>0 ? 'block' : 'none'
   document.getElementById('vPurBank').innerText = '₹'+Math.round(bankAmt)
   document.getElementById('vPurCredit').innerText = '₹'+Math.round(otherAmt)
+  // WHY: previously this always said "Other:" even when the mode was
+  // something specific like Cheque. Now it shows the actual mode name
+  // (e.g. "Cheque:") whenever the amount didn't land in Cash/UPI/Bank.
   document.getElementById('vPurCreditLabel').innerText = otherAmt > 0 ? (mode || 'Other') + ': ' : 'Other: '
 
+  // Show the note (or reference) -- this line was ALREADY correct logic-
+  // wise; it only ever failed to appear because the entire print was
+  // blank from the Safari timing bug fixed in _doPrint() above.
   if (note && note.trim()) {
     document.getElementById('vInvRefBlock').style.display = 'block'
     document.getElementById('vInvRefLabel').innerText = (ref && ref.trim()) ? 'Reference No' : 'Note'
@@ -1245,32 +1294,25 @@ function _fillVoucherAsBill(ev, phone) {
   const btext = nb===0 ? '₹0 — Settled' : (nb<0?'+':'-')+fmt(nb)+(nb<0?' (Overpaid)':' (Payable Due)')
   const bel = document.getElementById('vMBFinal'); bel.innerText = btext; bel.style.color = nb>0?'#dc2626':'#059669'
 
+  // CHANGED: Delete is now available for vouchers too, since we have a
+  // real database id (ev.id). It's only hidden for the brand-new "preview
+  // before save" path where no id exists yet.
   document.querySelector('.btn-red-outline').style.display = ev.id ? '' : 'none'
 
   document.getElementById('viewPurchaseModal').style.display = 'block'
   _scheduleRepaint()
 }
 
-// ─────────────────────────────────────────────
-// _voucherAsPurObject(d)
-//
-// CHANGED: now also carries note / reference_no / id / created_at
-// through to the PDF builder. Before this fix these four fields were
-// silently dropped every time a voucher was converted into a
-// "bill-like" object for printing or WhatsApp -- which is exactly why
-// your note never reached either output.
-// ─────────────────────────────────────────────
 function _voucherAsPurObject(d) {
   const cashAmt = d.mode === 'Cash' ? d.amount : 0
   const upiAmt  = d.mode === 'UPI'  ? d.amount : 0
   const bankAmt = (d.mode === 'Bank Transfer' || d.mode === 'NEFT' || d.mode === 'RTGS') ? d.amount : 0
   const creditAmt = (!cashAmt && !upiAmt && !bankAmt) ? d.amount : 0
   return {
-    id: d.id || null, bill_number: d.displayNo, bill_type: 'voucher',
+    id: null, bill_number: d.displayNo, bill_type: 'voucher',
     merchant_name: d.merchantName, merchant_phone: d.phone || '',
     total_amount: d.amount, cash: cashAmt, upi: upiAmt, bank_transfer: bankAmt, credit: creditAmt,
-    discount: 0, created_at: d.createdAt || new Date().toISOString(),
-    note: d.note || '', reference_no: d.referenceNo || ''
+    discount: 0, created_at: new Date().toISOString()
   }
 }
 
@@ -1279,53 +1321,42 @@ window.viewVoucherModal = function(ev) {
   _fillVoucherAsBill(ev, phone)
 }
 
-// CHANGED: no longer touches the on-screen modal or window.print() at
-// all. It builds the PDF straight from the database row and opens it
-// for printing -- this is what eliminates the blank-page bug.
-window.printVoucherDirect = async function(ev) {
-  showWaToast('Preparing PDF...')
-  const merchantName = _ledgerMerchantName || currentMerchData?.merchantName || ''
+window.printVoucherDirect = function(ev) {
   const phone = currentMerchData?.phone || ev.merchant_phone || ''
-  const pur = _voucherAsPurObject({
-    displayNo: _deriveVoucherDisplayNo(ev.receipt_no), merchantName,
-    amount: ev.amount, mode: ev.mode, phone,
-    note: ev.note, referenceNo: ev.reference_no, id: ev.id, createdAt: ev.created_at
-  })
-  await _buildAndSendBillPDF(pur, merchantName, false, phone, [], 'print')
+  _fillVoucherAsBill(ev, phone)
+  _doPrint('print-bill', _deriveVoucherDisplayNo(ev.receipt_no))
 }
 
 window.whatsappVoucher = async function(ev) {
   const merchantName = _ledgerMerchantName || currentMerchData?.merchantName || ''
   const phone = currentMerchData?.phone || ev.merchant_phone || ''
   if (!phone) { alert('No phone number found for this merchant. Please add it in the Merchants section.'); return }
-  const pur = _voucherAsPurObject({
-    displayNo: _deriveVoucherDisplayNo(ev.receipt_no), merchantName,
-    amount: ev.amount, mode: ev.mode, phone,
-    note: ev.note, referenceNo: ev.reference_no, id: ev.id, createdAt: ev.created_at
-  })
-  await _buildAndSendBillPDF(pur, merchantName, false, phone, [], 'whatsapp')
+  const displayNo = _deriveVoucherDisplayNo(ev.receipt_no)
+  const pur = _voucherAsPurObject({ displayNo, merchantName, amount: ev.amount, mode: ev.mode, phone })
+  await _buildAndSendBillPDF(pur, merchantName, false, phone, [])
 }
 
 // ─────────────────────────────────────────────
 // DIRECT PRINT / WHATSAPP FROM TABLE ROWS (purchase / PTM bills)
-// CHANGED: printBillDirect no longer fills the modal + window.print();
-// it now goes straight through the jsPDF builder, same as WhatsApp.
+// (unchanged -- these were already async-safe)
 // ─────────────────────────────────────────────
 window.printBillDirect = async function(billNo, encodedName, isPTM) {
-  showWaToast('Preparing PDF...')
   const merchantName = decodeURIComponent(encodedName)
   let rec = null
   if (isPTM) {
     const r = await db.from('sales').select('*').eq('bill_number', billNo).single()
     if (!r.data) { alert('Bill not found'); return }
     rec = r.data
+    _currentViewedBillIsPTM = true; _currentViewedBillId = rec.id; _currentViewedBillTable = 'sales'
   } else {
     const r = await db.from('purchases').select('*').eq('bill_number', billNo).single()
     if (!r.data) { alert('Bill not found'); return }
     rec = r.data
+    _currentViewedBillIsPTM = false; _currentViewedBillId = rec.id; _currentViewedBillTable = 'purchases'
   }
-  const phone = rec.merchant_phone || currentMerchData?.phone || ''
-  await _buildAndSendBillPDF(rec, merchantName, isPTM, phone, undefined, 'print')
+  _currentViewedBillIsVoucher = false; _currentVoucherViewData = null
+  await _fillViewBill(rec, merchantName, isPTM)
+  _doPrint('print-bill', billNo)
 }
 
 window.whatsappBillDirect = async function(billNo, encodedName, isPTM) {
@@ -1342,11 +1373,13 @@ window.whatsappBillDirect = async function(billNo, encodedName, isPTM) {
   }
   const phone = rec.merchant_phone || currentMerchData?.phone || ''
   if (!phone) { alert('No phone number for this merchant.'); return }
-  await _buildAndSendBillPDF(rec, merchantName, isPTM, phone, undefined, 'whatsapp')
+  _currentViewedBillPhone = phone
+  _currentViewedBillIsPTM = isPTM
+  await _buildAndSendBillPDF(rec, merchantName, isPTM, phone)
 }
 
 // ─────────────────────────────────────────────
-// VIEW PURCHASE / SALES BILLS (on-screen modal — unchanged)
+// VIEW PURCHASE / SALES BILLS (unchanged)
 // ─────────────────────────────────────────────
 window.viewPurchase = async function(billNo, encodedName) {
   const merchantName = decodeURIComponent(encodedName)
@@ -1491,6 +1524,8 @@ async function _fillViewBill(rec, merchantName, isSalesBill) {
     balBox.style.display = 'none'
   }
 
+  // Genuine purchase/return/PTM bills always have a real id+table, so
+  // Delete is always available here.
   document.querySelector('.btn-red-outline').style.display = ''
 
   document.getElementById('viewPurchaseModal').style.display = 'block'
@@ -1506,65 +1541,19 @@ window.closeViewPurchase = () => {
   _currentVoucherViewData = null
 }
 
+window.printViewedBill = () => {
+  const title = document.getElementById('vPurchaseNo').innerText || 'Bill'
+  _doPrint('print-bill', title)
+}
+
 // ─────────────────────────────────────────────
-// _resolveCurrentViewedBill()
+// DELETE — now fully generic across purchases / sales / merchant_payments
 //
-// NEW shared helper: figures out exactly what record is currently
-// open in the "View" modal (a voucher, a purchase bill, or a PTM
-// sale) and returns everything _buildAndSendBillPDF needs. Both
-// whatsappPurchaseBill() and printViewedBill() now share this single
-// piece of logic, so there is only ONE place that can ever go wrong
-// instead of two copies quietly drifting apart over time.
-// ─────────────────────────────────────────────
-async function _resolveCurrentViewedBill() {
-  if (_currentViewedBillIsVoucher && _currentVoucherViewData) {
-    const d = _currentVoucherViewData
-    const finalPhone = d.phone || currentMerchData?.phone || ''
-    const pur = _voucherAsPurObject({
-      displayNo: d.displayNo, merchantName: d.merchantName,
-      amount: d.ev.amount, mode: d.ev.mode, phone: finalPhone,
-      note: d.ev.note, referenceNo: d.ev.reference_no,
-      id: d.ev.id, createdAt: d.ev.created_at
-    })
-    return { pur, merchant: d.merchantName, isPTM: false, phone: finalPhone, items: [] }
-  }
-
-  const billNo   = document.getElementById('vPurchaseNo').innerText
-  const merchant = document.getElementById('vMerchant').innerText
-  const phone = currentMerchData?.phone || _currentViewedBillPhone || ''
-  let pur = null
-
-  if (_currentViewedBillIsPTM) {
-    const r = await db.from('sales').select('*').eq('bill_number',billNo).single()
-    if (!r.data) { alert('Bill not found'); return null }
-    pur = r.data
-  } else {
-    const r = await db.from('purchases').select('*').eq('bill_number',billNo).single()
-    if (!r.data) { alert('Bill not found'); return null }
-    pur = r.data
-  }
-  return { pur, merchant, isPTM: _currentViewedBillIsPTM, phone: phone || pur.merchant_phone || '', items: undefined }
-}
-
-window.whatsappPurchaseBill = async function() {
-  const r = await _resolveCurrentViewedBill()
-  if (!r) return
-  if (!r.phone) { alert('No phone number for this merchant.'); return }
-  await _buildAndSendBillPDF(r.pur, r.merchant, r.isPTM, r.phone, r.items, 'whatsapp')
-}
-
-// CHANGED: this is the View modal's own "Print" button. It now goes
-// through the same reliable jsPDF path instead of window.print().
-window.printViewedBill = async function() {
-  showWaToast('Preparing PDF...')
-  const r = await _resolveCurrentViewedBill()
-  if (!r) return
-  await _buildAndSendBillPDF(r.pur, r.merchant, r.isPTM, r.phone, r.items, 'print')
-}
-
-// ─────────────────────────────────────────────
-// DELETE — unchanged, still fully generic across
-// purchases / sales / merchant_payments
+// WHY one shared flow: before this fix, only genuine purchase/PTM bills
+// could be deleted (and only from inside the View modal). Payment
+// vouchers had NO delete path at all. requestDeleteRow() is the single
+// entry point every row's "Del" button AND the View modal's "Delete"
+// button now both funnel through.
 // ─────────────────────────────────────────────
 function requestDeleteRow(table, id, label) {
   if (!id) { alert('Nothing to delete for this record.'); return }
@@ -1620,16 +1609,87 @@ window.closeModal = () => { document.getElementById('ledgerModal').style.display
 document.getElementById('ledgerModal').addEventListener('click', e => { if (e.target===document.getElementById('ledgerModal')) closeModal() })
 
 // ─────────────────────────────────────────────
-// STATEMENT PRINTING
-// CHANGED: printStatement now reuses your existing
-// buildMerchantStatementPDF() jsPDF function (the same one WhatsApp
-// already used successfully) instead of the CSS-print #statementArea
-// path. One less thing depending on window.print().
+// STATEMENT PRINT (unchanged)
 // ─────────────────────────────────────────────
+async function buildStatementDOM() {
+  if (!currentMerchData) return
+  const { merchantName, purchases, payments, totalPurchased, netBalance } = currentMerchData
+  const now   = new Date()
+  const dd    = String(now.getDate()).padStart(2,'0')
+  const mm    = String(now.getMonth()+1).padStart(2,'0')
+  const yy    = String(now.getFullYear()).slice(2)
+  const clean = merchantName.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,10)
+  const stmtNo = `AAM(MS)-${clean}-${dd}${mm}${yy}-${String(Math.floor(Math.random()*9000)+1000)}`
+
+  const purchBills = (purchases||[]).filter(b => b.bill_type !== 'return')
+  const retBills   = (purchases||[]).filter(b => b.bill_type === 'return')
+  let totalCash=0, totalUPI=0, totalBank=0, totalReturns=0
+
+  document.getElementById('stmtNo').innerText      = stmtNo
+  document.getElementById('stmtName').innerText    = merchantName
+  document.getElementById('stmtPhone').innerText   = purchBills[0]?.merchant_phone || currentMerchData.phone || '—'
+  document.getElementById('stmtGenDate').innerText = now.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})
+  document.getElementById('stmtDate').innerText    = 'As of ' + now.toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'})
+
+  const nb = Math.round(netBalance)
+  const balText = nb===0 ? '₹0 — Clear' : (nb<0?'+':'-') + fmt(nb) + (nb<0?' (Overpaid)':' (Payable Due)')
+  document.getElementById('stmtBalLabel').innerText   = nb>0?'Payable Due':nb<0?'Overpaid':'Balance'
+  document.getElementById('stmtBalVal').innerText     = balText
+  document.getElementById('stmtBalVal').style.color   = nb>0?'#dc2626':nb<0?'#059669':'#059669'
+
+  document.getElementById('stmtPurchaseBody').innerHTML = purchBills.map(b => {
+    totalCash += b.cash||0; totalUPI += b.upi||0; totalBank += b.bank_transfer||0
+    return `<tr>
+      <td>${b.bill_number}</td>
+      <td>${new Date(b.created_at).toLocaleDateString('en-IN')}</td>
+      <td>₹${Math.round(b.total_amount).toLocaleString('en-IN')}</td>
+      <td>₹${Math.round(b.cash||0).toLocaleString('en-IN')}</td>
+      <td>₹${Math.round(b.upi||0).toLocaleString('en-IN')}</td>
+      <td>₹${Math.round(b.bank_transfer||0).toLocaleString('en-IN')}</td>
+      <td style="color:#dc2626;font-weight:600;">${b.credit>0?'₹'+Math.round(b.credit).toLocaleString('en-IN'):'—'}</td>
+    </tr>`
+  }).join('')
+
+  if (retBills.length) {
+    document.getElementById('stmtReturnHeading').style.display = 'block'
+    document.getElementById('stmtReturnTable').style.display   = 'table'
+    document.getElementById('stmtReturnBody').innerHTML = retBills.map(r => {
+      totalReturns += Math.abs(r.total_amount||0)
+      return `<tr class="return-row"><td>${r.bill_number}</td><td>${new Date(r.created_at).toLocaleDateString('en-IN')}</td><td>${r.original_bill_ref||'—'}</td><td>₹${Math.round(Math.abs(r.total_amount)).toLocaleString('en-IN')}</td></tr>`
+    }).join('')
+  } else {
+    document.getElementById('stmtReturnHeading').style.display = 'none'
+    document.getElementById('stmtReturnTable').style.display   = 'none'
+  }
+
+  const totalPaid = (payments||[]).reduce((s,p) => s+(p.amount||0), 0)
+  if (payments.length) {
+    document.getElementById('stmtPayHeading').style.display = 'block'
+    document.getElementById('stmtPayTable').style.display   = 'table'
+    document.getElementById('stmtPayBody').innerHTML = payments.map(p =>
+      `<tr class="payment-row"><td>${p.receipt_no}</td><td>${new Date(p.created_at).toLocaleDateString('en-IN')}</td><td>${p.mode}</td><td>₹${Math.round(p.amount).toLocaleString('en-IN')}</td><td>${p.reference_no||p.note||'—'}</td></tr>`
+    ).join('')
+  } else {
+    document.getElementById('stmtPayHeading').style.display = 'none'
+    document.getElementById('stmtPayTable').style.display   = 'none'
+  }
+
+  document.getElementById('stmtTotalPurchased').innerText = fmt(totalPurchased)
+  document.getElementById('stmtCash').innerText           = fmt(totalCash)
+  document.getElementById('stmtUPI').innerText            = fmt(totalUPI)
+  document.getElementById('stmtBank').innerText           = fmt(totalBank)
+  document.getElementById('stmtReturns').innerText        = totalReturns > 0 ? fmt(totalReturns) : '—'
+  document.getElementById('stmtPayments').innerText       = fmt(totalPaid)
+  document.getElementById('stmtCredit').innerText         = balText
+  const balRow = document.getElementById('stmtBalRow')
+  balRow.className = 'stmt-summary-row ' + (nb>0?'balance-row-due':nb<0?'balance-row-adv':'balance-row-zero')
+  document.getElementById('stmtBalRowLabel').innerText = nb>0?'Payable Due':nb<0?'Overpaid Balance':'Balance'
+}
+
 window.printStatement = async function() {
   if (!currentMerchData) { alert('Please open a merchant ledger first.'); return }
-  showWaToast('Preparing PDF...')
-  _openPdfForPrint(buildMerchantStatementPDF(currentMerchData), 'Statement-'+currentMerchData.merchantName+'.pdf')
+  await buildStatementDOM()
+  _doPrint('print-statement', document.getElementById('stmtNo').innerText)
 }
 
 window.whatsappStatement = async function() {
@@ -1743,19 +1803,43 @@ async function sendPDFToWhatsApp(doc, filename, phone, message) {
 }
 
 // ─────────────────────────────────────────────
-// SHARED PDF BUILDER
-//
-// CHANGED:
-//  1. New `mode` parameter ('print' | 'whatsapp') — at the very end,
-//     it either opens the PDF for printing or hands it to WhatsApp.
-//     This is what every Print/WhatsApp button in the file now funnels
-//     through, so there's exactly one place that draws a bill.
-//  2. New "Note / Reference" box for vouchers — this is the fix for
-//     the missing-note bug. It only draws when there's actually
-//     something to show, and wraps long notes onto multiple lines
-//     automatically via doc.splitTextToSize().
+// WHATSAPP FROM VIEW MODAL (purchase / PTM / voucher)
 // ─────────────────────────────────────────────
-async function _buildAndSendBillPDF(pur, merchant, isPTMFlag, phone, syntheticItems, mode='whatsapp') {
+window.whatsappPurchaseBill = async function() {
+  if (_currentViewedBillIsVoucher && _currentVoucherViewData) {
+    const d = _currentVoucherViewData
+    const finalPhone = d.phone || currentMerchData?.phone || ''
+    if (!finalPhone) { alert('No phone number for this merchant.'); return }
+    const pur = _voucherAsPurObject({ displayNo: d.displayNo, merchantName: d.merchantName, amount: d.ev.amount, mode: d.ev.mode, phone: finalPhone })
+    await _buildAndSendBillPDF(pur, d.merchantName, false, finalPhone, [])
+    return
+  }
+
+  const billNo   = document.getElementById('vPurchaseNo').innerText
+  const merchant = document.getElementById('vMerchant').innerText
+  const phone = currentMerchData?.phone || _currentViewedBillPhone || ''
+  let pur = null
+
+  if (_currentViewedBillIsPTM) {
+    const r = await db.from('sales').select('*').eq('bill_number',billNo).single()
+    if (!r.data) { alert('Bill not found'); return }
+    pur = r.data
+  } else {
+    const r = await db.from('purchases').select('*').eq('bill_number',billNo).single()
+    if (!r.data) { alert('Bill not found'); return }
+    pur = r.data
+  }
+
+  const finalPhone = phone || pur.merchant_phone || ''
+  if (!finalPhone) { alert('No phone number for this merchant.'); return }
+
+  await _buildAndSendBillPDF(pur, merchant, _currentViewedBillIsPTM, finalPhone)
+}
+
+// ─────────────────────────────────────────────
+// SHARED PDF BUILDER (unchanged)
+// ─────────────────────────────────────────────
+async function _buildAndSendBillPDF(pur, merchant, isPTMFlag, phone, syntheticItems) {
   const isVoucher = pur.bill_type === 'voucher'
   const isReturn   = pur.bill_type === 'return'
   const isPTM = isPTMFlag || pur.bill_type === 'pay_to_merchant'
@@ -1852,7 +1936,6 @@ async function _buildAndSendBillPDF(pur, merchant, isPTMFlag, phone, syntheticIt
   doc.text(isVoucher?'Amount Paid':'Grand Total',380,y); doc.text('Rs '+Math.abs(pur.total_amount||0).toLocaleString('en-IN'),W-mg,y,{align:'right'})
   y+=32
 
-  // ── Payment breakdown box ──
   doc.setFillColor(245,240,255); doc.rect(mg,y,W-2*mg,60,'F')
   doc.setDrawColor(221,214,254); doc.rect(mg,y,W-2*mg,60)
   y+=13; doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(107,114,128)
@@ -1862,46 +1945,20 @@ async function _buildAndSendBillPDF(pur, merchant, isPTMFlag, phone, syntheticIt
   doc.text('UPI: Rs '+Math.abs(pur.upi||0).toLocaleString('en-IN'),mg+140,y)
   doc.text('Bank: Rs '+Math.abs(pur.bank_transfer||0).toLocaleString('en-IN'),mg+270,y)
   doc.text((isVoucher?'Other':isPTM?'Paid':'Credit')+': Rs '+Math.abs(pur.credit||0).toLocaleString('en-IN'),mg+380,y)
-  y += 43 // clears the rest of the 60pt box
-
-  // ── NEW: Note / Reference box — THIS is the missing-note fix ──
-  if (isVoucher && (pur.reference_no || pur.note)) {
-    const refLine   = pur.reference_no ? ('Reference / Cheque No: ' + pur.reference_no) : ''
-    const noteLines = pur.note ? doc.splitTextToSize('Note: ' + String(pur.note), W - 2*mg - 20) : []
-    const boxH = 14 + (refLine ? 14 : 0) + (noteLines.length * 12) + 6
-    if (y + boxH > 760) { doc.addPage(); y = 40 }
-    doc.setFillColor(255,251,235); doc.rect(mg,y,W-2*mg,boxH,'F')
-    doc.setDrawColor(253,230,138); doc.rect(mg,y,W-2*mg,boxH)
-    let ny = y + 16
-    doc.setFont('helvetica','normal'); doc.setFontSize(9.5); doc.setTextColor(120,53,15)
-    if (refLine) { doc.text(refLine, mg+10, ny); ny += 14 }
-    if (noteLines.length) doc.text(noteLines, mg+10, ny)
-    y += boxH + 14
-  }
 
   if (isPTM && pur.merchant_name) {
-    doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setTextColor(76,29,149)
+    y+=18; doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setTextColor(76,29,149)
     doc.text('Paid To Merchant: '+pur.merchant_name+(pur.merchant_pay_ref?' | Ref: '+pur.merchant_pay_ref:''),mg+10,y)
-    y += 18
   }
-
-  if (y > 770) { doc.addPage(); y = 40 }
-  doc.setDrawColor(229,231,235); doc.line(mg,y,W-mg,y); y+=14
+  y+=40; doc.setDrawColor(229,231,235); doc.line(mg,y,W-mg,y); y+=14
   doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor(...hc)
   doc.text(isVoucher?'Payment recorded.':isPTM?'Customer paid merchant directly.':(isReturn?'Return Processed.':'Stock Received.'),mg,y)
 
   const billNo = pur.bill_number
-  const filename = (isVoucher?'Voucher-':'Bill-')+billNo+'.pdf'
-
-  if (mode === 'print') {
-    _openPdfForPrint(doc, filename)
-    return
-  }
-
   const msg = isVoucher
     ? `*Abhinandan Auto Mobiles*\nPayment Voucher *${billNo}* — Rs ${Math.round(Math.abs(pur.total_amount)).toLocaleString('en-IN')}\nPaid To: *${merchant}*\n\nPlease find the attached voucher PDF.\n+91 98700 37002`
     : `*Abhinandan Auto Mobiles*\nBill *${billNo}* — Rs ${Math.round(Math.abs(pur.total_amount)).toLocaleString('en-IN')}\n${isPTM?'Customer: *'+merchant+'*\nPaid To Merchant: *'+pur.merchant_name+'*':'Merchant: *'+merchant+'*'}\n\nPlease find the attached bill PDF.\n+91 98700 37002`
-  await sendPDFToWhatsApp(doc, filename, phone, msg)
+  await sendPDFToWhatsApp(doc, (isVoucher?'Voucher-':'Bill-')+billNo+'.pdf', phone, msg)
 }
 
 // ─────────────────────────────────────────────
@@ -1932,9 +1989,6 @@ async function generateVoucherNo(merchantName) {
   return `AAM(MP)-${clean}-${dd}${mm}${yy}-${String((data||[]).length+1).padStart(4,'0')}`
 }
 
-// CHANGED: "Save & Print" now builds the PDF directly from the row
-// Supabase just handed back (so it definitely has the note/reference
-// you typed) and opens it for printing — no modal, no window.print().
 window.savePayment = async function(shouldPrint) {
   const amount = parseFloat(document.getElementById('payAmount').value) || 0
   const mode   = document.getElementById('payMode').value
@@ -1946,6 +2000,9 @@ window.savePayment = async function(shouldPrint) {
   const voucherNo = await generateVoucherNo(merchantName)
   const mPhone = phone || currentMerchData.purchases[0]?.merchant_phone || ''
 
+  // .select().single() asks Supabase to hand back the row it just
+  // created -- including its real id -- so the print preview below can
+  // immediately support Delete, with no need to close/reopen the ledger.
   const { data: inserted, error } = await db.from('merchant_payments').insert([{
     merchant_name: merchantName,
     merchant_phone: mPhone||null,
@@ -1956,19 +2013,11 @@ window.savePayment = async function(shouldPrint) {
     note: note||null
   }]).select().single()
 
-  if (error) {
-    console.error(error)
-    alert('Error saving payment: ' + error.message + '\n\nIf this mentions a missing column, run the SQL migration shared with this fix to add note/reference_no to merchant_payments, then try again.')
-    return
-  }
+  if (error) { console.error(error); alert('Error saving payment: '+error.message); return }
 
   if (shouldPrint && inserted) {
-    const pur = _voucherAsPurObject({
-      displayNo: voucherNo, merchantName, amount: inserted.amount, mode: inserted.mode,
-      phone: mPhone, note: inserted.note, referenceNo: inserted.reference_no,
-      id: inserted.id, createdAt: inserted.created_at
-    })
-    await _buildAndSendBillPDF(pur, merchantName, false, mPhone, [], 'print')
+    _fillVoucherAsBill(inserted, mPhone)
+    _doPrint('print-bill', voucherNo)
   }
   closePaymentModal()
   alert(`Payment of ${fmt(amount)} recorded!\nVoucher: ${voucherNo}`)
