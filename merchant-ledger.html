@@ -115,6 +115,17 @@ html.light-theme .modal-body { background:white; }
 html.light-theme .aging-bar-section { background:rgba(124,58,237,0.04); border-bottom-color:rgba(0,0,0,0.06); }
 html.light-theme .aging-bar-title { color:#7c3aed; }
 
+/* ── ROW COLOR CODING (Screenshot request) ──
+   PTM = blue tint, Payment (business paid) = green tint, Purchase/Credit = red tint */
+.tx-table tbody tr.row-ptm     { background:rgba(96,165,250,0.06); }
+.tx-table tbody tr.row-payment { background:rgba(16,185,129,0.06); }
+.tx-table tbody tr.row-purchase{ background:rgba(248,113,113,0.05); }
+.tx-table tbody tr.row-return  { background:rgba(248,113,113,0.08); }
+html.light-theme .tx-table tbody tr.row-ptm     { background:rgba(96,165,250,0.08); }
+html.light-theme .tx-table tbody tr.row-payment { background:rgba(16,185,129,0.08); }
+html.light-theme .tx-table tbody tr.row-purchase{ background:rgba(248,113,113,0.06); }
+html.light-theme .tx-table tbody tr.row-return  { background:rgba(248,113,113,0.1); }
+
 #txTypeFilter { padding:6px 10px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.08);color:white;font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer; }
 #txTypeFilter option { background:#1e293b; }
 html.light-theme #txTypeFilter { background:white; color:#0f172a; border-color:rgba(0,0,0,0.15); }
@@ -230,6 +241,12 @@ html.light-theme .view-bill-actions { background:#2d1b69 !important; }
 .inv-pay-row { display:flex; gap:24px; font-size:12px; flex-wrap:wrap; }
 .inv-pay-row span { color:#6b7280; }
 .inv-pay-row strong { color:#111; }
+
+/* NEW: dedicated note/remark box on voucher bills */
+.inv-note-box { margin:0 32px 12px; padding:10px 14px; background:#f0fdfa; border:1px solid #99f6e4; border-radius:8px; font-size:13px; }
+.inv-note-box .inv-note-label { font-size:10px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:#0f766e; margin-bottom:4px; }
+.inv-note-box .inv-note-text { color:#134e4a; font-weight:500; }
+
 .inv-ptm-bar { margin:10px 32px; padding:12px 16px; background:var(--acc-light,#f5f3ff); border:1.5px solid var(--acc-light2,#ddd6fe); border-radius:8px; font-size:13px; }
 .inv-ptm-bar .ptm-title { font-size:10px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:#6d28d9; margin-bottom:8px; }
 .inv-ptm-bar .ptm-row { display:flex; gap:28px; flex-wrap:wrap; }
@@ -300,6 +317,7 @@ html.light-theme .view-bill-actions { background:#2d1b69 !important; }
   .inv-company, .inv-sub, .inv-badge, .inv-no, .inv-date { color:white !important; }
   .modal-overlay, .pay-modal-overlay,
   .sidebar, .main, .wa-toast { display: none !important; }
+  .inv-note-box { background:#f0fdfa !important; border:1px solid #99f6e4 !important; }
 }
 
 .stmt-header { display:flex; justify-content:space-between; align-items:flex-start; padding-bottom:16px; border-bottom:2px solid #4c1d95; margin-bottom:20px; }
@@ -544,6 +562,13 @@ html.light-theme .mc-stat-value { color:#374151; }
           <div class="inv-merchant-item" id="vGstinBlock" style="display:none;"><label>GSTIN</label><span id="vMerchGstin" style="font-family:monospace;">—</span></div>
         </div>
       </div>
+
+      <!-- NEW: Dedicated Note Box — shows payment remarks/notes on vouchers -->
+      <div class="inv-note-box" id="vNoteBox" style="display:none;">
+        <div class="inv-note-label" id="vNoteLabel">Note / Remarks</div>
+        <div class="inv-note-text" id="vNoteText">—</div>
+      </div>
+
       <div class="inv-ptm-bar" id="vPtmBar" style="display:none;">
         <div class="ptm-title">Paid to Merchant (Customer Payment)</div>
         <div class="ptm-row">
@@ -620,7 +645,7 @@ html.light-theme .mc-stat-value { color:#374151; }
       </select>
     </div>
     <div class="pay-field"><label>Reference / Cheque No <span style="font-size:10px;color:rgba(255,255,255,0.25);">(optional)</span></label><input type="text" id="payRef" placeholder="e.g. CHQ-001234 or UTR"></div>
-    <div class="pay-field"><label>Note <span style="font-size:10px;color:rgba(255,255,255,0.25);">(optional)</span></label><textarea id="payNote" placeholder="e.g. Payment for March purchases..."></textarea></div>
+    <div class="pay-field"><label>Note / Remarks <span style="font-size:10px;color:rgba(255,255,255,0.25);">(optional)</span></label><textarea id="payNote" placeholder="e.g. Payment for March purchases..."></textarea></div>
     <div class="pay-actions">
       <button class="btn btn-purple" style="flex:1;" onclick="savePayment(false)">Save</button>
       <button class="btn btn-white"  style="color:#2d1b69;" onclick="savePayment(true)">Save & Print</button>
@@ -713,16 +738,8 @@ let _currentViewedBillId    = null
 let _currentViewedBillTable = null
 let _currentViewedBillIsVoucher = false
 let _currentVoucherViewData     = null
-
-// NEW: holds the merged & sorted transaction list for the currently open
-// merchant, so the type filter dropdown can re-render instantly without
-// hitting the database again. Each row's action buttons reference an
-// index into this array instead of embedding raw text in onclick="" --
-// this is what fixes the "note breaks the row" class of bug for good.
 let _ledgerEvents = []
 let _ledgerMerchantName = ''
-
-// NEW: generic delete-confirmation state, shared by every transaction type
 let _pendingDeleteTable = null
 let _pendingDeleteId    = null
 
@@ -753,25 +770,27 @@ function _scheduleRepaint() {
 }
 
 // ─────────────────────────────────────────────
-// _doPrint(): FIXED blank-PDF bug
+// _doPrint() — FIXED blank PDF bug
 //
-// WHY: Safari can take its print "snapshot" of the page before it has
-// finished recalculating layout for the @media print rules we just turned
-// on (e.g. switching the modal from position:fixed to position:static).
-// When that happens, Safari hands back a blank page even though the HTML
-// underneath is completely correct.
-//
-// Reading `offsetHeight` forces the browser to do that pending layout
-// work RIGHT NOW, synchronously, instead of lazily whenever it feels like
-// it. We do this once immediately, and again inside the double
-// requestAnimationFrame right before print() fires, so even a
-// last-millisecond DOM change (like a QR code rendering in) is captured.
+// ROOT CAUSE of blank PDF: When print() is called, the browser takes a
+// snapshot of the page. If the CSS class that switches #viewPurchaseModal
+// from position:fixed to position:static (via @media print rules) has not
+// yet been applied to the layout engine, the browser captures an empty
+// page. Reading offsetHeight on the print target forces a SYNCHRONOUS
+// layout flush — the browser must finish all pending CSS recalculations
+// RIGHT NOW before returning from that property read. We do this TWICE:
+// once immediately after adding the print class, and once more inside the
+// double-rAF just before window.print() fires, to catch any last-moment
+// changes (e.g. QR code rendering in asynchronously).
 // ─────────────────────────────────────────────
 function _doPrint(printClass, titleText) {
   _clearPrintClasses()
+
+  // 1. Apply the class that @media print rules depend on
   document.body.classList.add(printClass)
   const ot = document.title
   if (titleText) document.title = titleText
+
   let done = false
   function cleanup() {
     if (done) return
@@ -783,11 +802,18 @@ function _doPrint(printClass, titleText) {
   window.addEventListener('afterprint', cleanup)
   setTimeout(cleanup, 5000)
 
+  // 2. Force layout flush immediately after class is applied
   const printTarget = document.getElementById('viewPurchasePrintArea') || document.getElementById('statementArea')
-  if (printTarget) void printTarget.offsetHeight
+  if (printTarget) {
+    void printTarget.offsetHeight        // first flush
+    void printTarget.scrollHeight        // second flush for good measure
+  }
 
+  // 3. Wait for two animation frames — this guarantees the browser has
+  //    painted at least once with the new class before print() fires.
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
+      // 4. Final flush right before print dialog opens
       if (printTarget) void printTarget.offsetHeight
       window.print()
     })
@@ -852,7 +878,7 @@ function _renderInvoiceQr() {
       if (canvas) canvas.style.display = 'none'
       if (img) { img.style.display = 'block'; img.style.width = '70px'; img.style.height = '70px' }
     }, 80)
-  } catch(e) { /* QR is decorative — fail silently */ }
+  } catch(e) {}
 }
 
 function _setHeaderTheme(accentHex) {
@@ -1049,9 +1075,6 @@ window.openLedger = async function(encodedName) {
       ...ptmBills.map(p => ({...p, _type:'ptm'}))
     ].sort((a,b) => new Date(b.created_at) - new Date(a.created_at))
 
-    // NEW: store the merged list + merchant name globally so the filter
-    // dropdown and the delete/print/whatsapp buttons can all reference it
-    // without re-querying Supabase.
     _ledgerEvents = allEvents
     _ledgerMerchantName = merchantName
 
@@ -1068,12 +1091,8 @@ window.openLedger = async function(encodedName) {
 }
 
 // ─────────────────────────────────────────────
-// TRANSACTION TABLE — filterable, delete-enabled
-//
-// WHY a separate render function: this is called both right after
-// openLedger fetches data, AND every time the filter dropdown changes.
-// Splitting it out means filtering is instant (pure client-side array
-// filter on data we already have) -- no extra database round-trip.
+// TRANSACTION TABLE — with row color coding
+// PTM = blue, Payment (business) = green, Purchase/Credit = red
 // ─────────────────────────────────────────────
 function renderTxTable() {
   const filter = document.getElementById('txTypeFilter').value
@@ -1094,22 +1113,19 @@ function renderTxTable() {
 }
 window.applyTxFilter = renderTxTable
 
-// _buildTxRowHtml: builds ONE <tr>. Every action button carries
-// data-act + data-idx ONLY (no raw note/reference text in the HTML at
-// all) -- the click handler below looks the full record back up from
-// _ledgerEvents using that index. This is what makes notes containing
-// quotes, apostrophes, or anything else 100% safe to display.
 function _buildTxRowHtml(ev, idx) {
-  // ── Paid by Business (a payment voucher you issued) ──
+  // ── Paid by Business (payment voucher) — GREEN row ──
   if (ev._type === 'payment') {
     const isLinked = (ev.receipt_no||'').indexOf('PTM-') === 0
     const linkedTag = isLinked ? '<span class="linked-tag">linked entry</span>' : ''
-    return `<tr>
+    // Show note or reference in the table row for quick visibility
+    const notePreview = ev.note ? `<div style="font-size:10px;color:rgba(255,255,255,0.35);margin-top:2px;">${ev.note}</div>` : ''
+    return `<tr class="row-payment">
       <td style="font-size:11px;color:rgba(255,255,255,0.4);font-family:monospace;">${ev.receipt_no}${linkedTag}</td>
       <td>${new Date(ev.created_at).toLocaleDateString('en-IN')}</td>
       <td><span class="badge badge-payment">Paid by Business</span></td>
       <td style="color:rgba(255,255,255,0.3);">—</td>
-      <td style="color:#10b981;font-weight:600;">- ${fmt(ev.amount)} <span style="font-size:11px;color:rgba(255,255,255,0.3);">(${ev.mode})</span></td>
+      <td style="color:#10b981;font-weight:600;">- ${fmt(ev.amount)} <span style="font-size:11px;color:rgba(255,255,255,0.3);">(${ev.mode})</span>${notePreview}</td>
       <td>—</td>
       <td>
         <div class="action-btns">
@@ -1124,9 +1140,9 @@ function _buildTxRowHtml(ev, idx) {
     </tr>`
   }
 
-  // ── Paid by Customer (PTM — customer paid the merchant directly) ──
+  // ── Paid by Customer (PTM) — BLUE row ──
   if (ev._type === 'ptm') {
-    return `<tr>
+    return `<tr class="row-ptm">
       <td style="font-size:11px;color:rgba(255,255,255,0.4);font-family:monospace;">${ev.bill_number}</td>
       <td>${new Date(ev.created_at).toLocaleDateString('en-IN')}</td>
       <td><span class="badge badge-ptm">Paid by Customer</span></td>
@@ -1146,12 +1162,13 @@ function _buildTxRowHtml(ev, idx) {
     </tr>`
   }
 
-  // ── Purchase bill or Return (red badge as requested) ──
+  // ── Purchase bill or Return — RED row ──
   const isReturn = ev.bill_type === 'return'
   const d = daysSince(ev.created_at)
   const ageClass = isReturn?'':ev.credit>0?(d<=30?'badge-age-g':d<=60?'badge-age-y':d<=90?'badge-age-o':'badge-age-r'):''
   const ageLabel = isReturn?'—':ev.credit>0?d+'d':'—'
-  return `<tr>
+  const rowClass = isReturn ? 'row-return' : 'row-purchase'
+  return `<tr class="${rowClass}">
     <td style="font-size:11px;color:rgba(255,255,255,0.4);font-family:monospace;">${ev.bill_number}</td>
     <td>${new Date(ev.created_at).toLocaleDateString('en-IN')}</td>
     <td><span class="badge ${isReturn?'badge-return':'badge-purchase-type'}">${isReturn?'Return':'Purchase Bill'}</span></td>
@@ -1171,11 +1188,6 @@ function _buildTxRowHtml(ev, idx) {
   </tr>`
 }
 
-// Single delegated click listener for the whole table -- attached ONCE.
-// WHY delegation: rows get re-created constantly (every filter change,
-// every reopen). Attaching one listener to the permanent #txBody parent,
-// instead of one listener per button, means we never have to worry about
-// "did I forget to re-attach this handler after re-rendering?"
 document.getElementById('txBody').addEventListener('click', function(e) {
   const btn = e.target.closest('button[data-act]')
   if (!btn) return
@@ -1205,19 +1217,25 @@ function _deriveVoucherDisplayNo(receiptNo) {
 }
 
 // ─────────────────────────────────────────────
-// _fillVoucherAsBill(ev, phone): renders a merchant_payments row through
-// the SAME invoice template used for purchase/PTM bills, themed teal.
-// Takes the FULL database row (ev) now, instead of 8 separate string
-// arguments -- this both fixes the quote-escaping risk and means we
-// always have ev.id on hand, so Delete works for vouchers too.
+// _fillVoucherAsBill — FIXED note display
+//
+// ROOT CAUSE of missing note: The old code tried to show note using the
+// same #vInvRefBlock element as the reference number. When both ref AND
+// note existed, ref would win and note was lost. When only note existed,
+// the label/value update sometimes got skipped by a short-circuit.
+//
+// FIX: We now have a DEDICATED #vNoteBox element in the HTML (see above).
+// Reference number goes in #vInvRefBlock as before.
+// Note/Remarks goes in #vNoteBox always — completely separate, never
+// competing. Both can appear at the same time.
 // ─────────────────────────────────────────────
 function _fillVoucherAsBill(ev, phone) {
   const displayNo = _deriveVoucherDisplayNo(ev.receipt_no)
   const nb = currentMerchData ? Math.round(currentMerchData.netBalance) : 0
   const amount = ev.amount
   const mode   = ev.mode
-  const ref    = ev.reference_no || ''
-  const note   = ev.note || ''
+  const ref    = (ev.reference_no || '').trim()
+  const note   = (ev.note || '').trim()       // ← this is the field that was broken
   const dateStr = new Date(ev.created_at).toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'})
   const merchantName = _ledgerMerchantName || currentMerchData?.merchantName || ev.merchant_name || '—'
 
@@ -1248,12 +1266,26 @@ function _fillVoucherAsBill(ev, phone) {
   document.getElementById('vPtmBar').style.display         = 'none'
   document.getElementById('vMerchDetailBox').style.display = 'none'
 
-  document.getElementById('vInvRefLabel').innerText = 'Reference No'
-  document.getElementById('vInvRefBlock').style.display = (ref && ref.trim()) ? 'block' : 'none'
-  if (ref && ref.trim()) document.getElementById('vInvRef').innerText = ref
+  // Reference number — in its own block
+  if (ref) {
+    document.getElementById('vInvRefLabel').innerText = 'Reference No'
+    document.getElementById('vInvRef').innerText = ref
+    document.getElementById('vInvRefBlock').style.display = 'block'
+  } else {
+    document.getElementById('vInvRefBlock').style.display = 'none'
+  }
 
-  // No item / qty / price for a voucher -- hide the item table & Subtotal,
-  // leaving only the final "Amount Paid" total.
+  // ── FIXED: Note/Remarks — in its own DEDICATED block, never overwritten ──
+  const noteBox = document.getElementById('vNoteBox')
+  if (note) {
+    document.getElementById('vNoteLabel').innerText = 'Note / Remarks'
+    document.getElementById('vNoteText').innerText  = note
+    noteBox.style.display = 'block'
+  } else {
+    noteBox.style.display = 'none'
+  }
+
+  // Hide item table for vouchers — no line items
   document.getElementById('vItemsTableWrap').style.display = 'none'
   document.getElementById('vSubtotalRow').style.display    = 'none'
   document.getElementById('vPurchaseItems').innerHTML       = ''
@@ -1270,19 +1302,7 @@ function _fillVoucherAsBill(ev, phone) {
   document.getElementById('vPurBankRow').style.display = bankAmt>0 ? 'block' : 'none'
   document.getElementById('vPurBank').innerText = '₹'+Math.round(bankAmt)
   document.getElementById('vPurCredit').innerText = '₹'+Math.round(otherAmt)
-  // WHY: previously this always said "Other:" even when the mode was
-  // something specific like Cheque. Now it shows the actual mode name
-  // (e.g. "Cheque:") whenever the amount didn't land in Cash/UPI/Bank.
   document.getElementById('vPurCreditLabel').innerText = otherAmt > 0 ? (mode || 'Other') + ': ' : 'Other: '
-
-  // Show the note (or reference) -- this line was ALREADY correct logic-
-  // wise; it only ever failed to appear because the entire print was
-  // blank from the Safari timing bug fixed in _doPrint() above.
-  if (note && note.trim()) {
-    document.getElementById('vInvRefBlock').style.display = 'block'
-    document.getElementById('vInvRefLabel').innerText = (ref && ref.trim()) ? 'Reference No' : 'Note'
-    document.getElementById('vInvRef').innerText = (ref && ref.trim()) ? ref : note
-  }
 
   document.getElementById('vMBOrigPayableLabel').innerText = 'Balance before this payment'
   document.getElementById('vMBPaidLabel').innerText        = 'Amount paid now'
@@ -1294,9 +1314,6 @@ function _fillVoucherAsBill(ev, phone) {
   const btext = nb===0 ? '₹0 — Settled' : (nb<0?'+':'-')+fmt(nb)+(nb<0?' (Overpaid)':' (Payable Due)')
   const bel = document.getElementById('vMBFinal'); bel.innerText = btext; bel.style.color = nb>0?'#dc2626':'#059669'
 
-  // CHANGED: Delete is now available for vouchers too, since we have a
-  // real database id (ev.id). It's only hidden for the brand-new "preview
-  // before save" path where no id exists yet.
   document.querySelector('.btn-red-outline').style.display = ev.id ? '' : 'none'
 
   document.getElementById('viewPurchaseModal').style.display = 'block'
@@ -1336,10 +1353,6 @@ window.whatsappVoucher = async function(ev) {
   await _buildAndSendBillPDF(pur, merchantName, false, phone, [])
 }
 
-// ─────────────────────────────────────────────
-// DIRECT PRINT / WHATSAPP FROM TABLE ROWS (purchase / PTM bills)
-// (unchanged -- these were already async-safe)
-// ─────────────────────────────────────────────
 window.printBillDirect = async function(billNo, encodedName, isPTM) {
   const merchantName = decodeURIComponent(encodedName)
   let rec = null
@@ -1378,9 +1391,6 @@ window.whatsappBillDirect = async function(billNo, encodedName, isPTM) {
   await _buildAndSendBillPDF(rec, merchantName, isPTM, phone)
 }
 
-// ─────────────────────────────────────────────
-// VIEW PURCHASE / SALES BILLS (unchanged)
-// ─────────────────────────────────────────────
 window.viewPurchase = async function(billNo, encodedName) {
   const merchantName = decodeURIComponent(encodedName)
   const { data:pur, error } = await db.from('purchases').select('*').eq('bill_number', billNo).single()
@@ -1426,6 +1436,9 @@ async function _fillViewBill(rec, merchantName, isSalesBill) {
 
   document.getElementById('vItemsTableWrap').style.display = ''
   document.getElementById('vSubtotalRow').style.display    = 'flex'
+
+  // Hide note box for regular bills (it's voucher-only)
+  document.getElementById('vNoteBox').style.display = 'none'
 
   let headerClass = 'inv-header'
   let themeClass = ''
@@ -1524,10 +1537,7 @@ async function _fillViewBill(rec, merchantName, isSalesBill) {
     balBox.style.display = 'none'
   }
 
-  // Genuine purchase/return/PTM bills always have a real id+table, so
-  // Delete is always available here.
   document.querySelector('.btn-red-outline').style.display = ''
-
   document.getElementById('viewPurchaseModal').style.display = 'block'
   _scheduleRepaint()
 }
@@ -1546,15 +1556,6 @@ window.printViewedBill = () => {
   _doPrint('print-bill', title)
 }
 
-// ─────────────────────────────────────────────
-// DELETE — now fully generic across purchases / sales / merchant_payments
-//
-// WHY one shared flow: before this fix, only genuine purchase/PTM bills
-// could be deleted (and only from inside the View modal). Payment
-// vouchers had NO delete path at all. requestDeleteRow() is the single
-// entry point every row's "Del" button AND the View modal's "Delete"
-// button now both funnel through.
-// ─────────────────────────────────────────────
 function requestDeleteRow(table, id, label) {
   if (!id) { alert('Nothing to delete for this record.'); return }
   _pendingDeleteTable = table
@@ -1609,7 +1610,7 @@ window.closeModal = () => { document.getElementById('ledgerModal').style.display
 document.getElementById('ledgerModal').addEventListener('click', e => { if (e.target===document.getElementById('ledgerModal')) closeModal() })
 
 // ─────────────────────────────────────────────
-// STATEMENT PRINT (unchanged)
+// STATEMENT PRINT
 // ─────────────────────────────────────────────
 async function buildStatementDOM() {
   if (!currentMerchData) return
@@ -1802,9 +1803,6 @@ async function sendPDFToWhatsApp(doc, filename, phone, message) {
   }
 }
 
-// ─────────────────────────────────────────────
-// WHATSAPP FROM VIEW MODAL (purchase / PTM / voucher)
-// ─────────────────────────────────────────────
 window.whatsappPurchaseBill = async function() {
   if (_currentViewedBillIsVoucher && _currentVoucherViewData) {
     const d = _currentVoucherViewData
@@ -1836,9 +1834,6 @@ window.whatsappPurchaseBill = async function() {
   await _buildAndSendBillPDF(pur, merchant, _currentViewedBillIsPTM, finalPhone)
 }
 
-// ─────────────────────────────────────────────
-// SHARED PDF BUILDER (unchanged)
-// ─────────────────────────────────────────────
 async function _buildAndSendBillPDF(pur, merchant, isPTMFlag, phone, syntheticItems) {
   const isVoucher = pur.bill_type === 'voucher'
   const isReturn   = pur.bill_type === 'return'
@@ -1950,13 +1945,27 @@ async function _buildAndSendBillPDF(pur, merchant, isPTMFlag, phone, syntheticIt
     y+=18; doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setTextColor(76,29,149)
     doc.text('Paid To Merchant: '+pur.merchant_name+(pur.merchant_pay_ref?' | Ref: '+pur.merchant_pay_ref:''),mg+10,y)
   }
+
+  // ── FIXED: Include note in jsPDF voucher output ──
+  if (isVoucher && pur.note) {
+    y+=20
+    doc.setFillColor(240,253,250); doc.rect(mg,y-10,W-2*mg,24,'F')
+    doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(15,118,110)
+    doc.text('NOTE / REMARKS',mg+10,y)
+    y+=14
+    doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(19,78,74)
+    doc.text(String(pur.note).slice(0,120), mg+10, y)
+    y+=10
+  }
+
   y+=40; doc.setDrawColor(229,231,235); doc.line(mg,y,W-mg,y); y+=14
   doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor(...hc)
   doc.text(isVoucher?'Payment recorded.':isPTM?'Customer paid merchant directly.':(isReturn?'Return Processed.':'Stock Received.'),mg,y)
 
   const billNo = pur.bill_number
+  const noteForMsg = pur.note ? `\nNote: ${pur.note}` : ''
   const msg = isVoucher
-    ? `*Abhinandan Auto Mobiles*\nPayment Voucher *${billNo}* — Rs ${Math.round(Math.abs(pur.total_amount)).toLocaleString('en-IN')}\nPaid To: *${merchant}*\n\nPlease find the attached voucher PDF.\n+91 98700 37002`
+    ? `*Abhinandan Auto Mobiles*\nPayment Voucher *${billNo}* — Rs ${Math.round(Math.abs(pur.total_amount)).toLocaleString('en-IN')}\nPaid To: *${merchant}*${noteForMsg}\n\nPlease find the attached voucher PDF.\n+91 98700 37002`
     : `*Abhinandan Auto Mobiles*\nBill *${billNo}* — Rs ${Math.round(Math.abs(pur.total_amount)).toLocaleString('en-IN')}\n${isPTM?'Customer: *'+merchant+'*\nPaid To Merchant: *'+pur.merchant_name+'*':'Merchant: *'+merchant+'*'}\n\nPlease find the attached bill PDF.\n+91 98700 37002`
   await sendPDFToWhatsApp(doc, (isVoucher?'Voucher-':'Bill-')+billNo+'.pdf', phone, msg)
 }
@@ -2000,9 +2009,6 @@ window.savePayment = async function(shouldPrint) {
   const voucherNo = await generateVoucherNo(merchantName)
   const mPhone = phone || currentMerchData.purchases[0]?.merchant_phone || ''
 
-  // .select().single() asks Supabase to hand back the row it just
-  // created -- including its real id -- so the print preview below can
-  // immediately support Delete, with no need to close/reopen the ledger.
   const { data: inserted, error } = await db.from('merchant_payments').insert([{
     merchant_name: merchantName,
     merchant_phone: mPhone||null,
@@ -2010,10 +2016,19 @@ window.savePayment = async function(shouldPrint) {
     amount: Math.round(amount),
     mode,
     reference_no: ref||null,
-    note: note||null
+    note: note||null          // ← this saves fine once the column exists in Supabase
   }]).select().single()
 
-  if (error) { console.error(error); alert('Error saving payment: '+error.message); return }
+  if (error) {
+    console.error(error)
+    // ── IMPROVED error message: tells you exactly what to do if note column is missing ──
+    if (error.message && error.message.includes('note')) {
+      alert('Database error: The "note" column is missing from your merchant_payments table in Supabase.\n\nPlease go to Supabase → Table Editor → merchant_payments → Add Column:\n  Name: note\n  Type: text\n  Nullable: yes\n\nThen try again.')
+    } else {
+      alert('Error saving payment: '+error.message)
+    }
+    return
+  }
 
   if (shouldPrint && inserted) {
     _fillVoucherAsBill(inserted, mPhone)
