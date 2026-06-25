@@ -3,12 +3,13 @@
 <head>
   <script src="auth.js"></script>
 <title>Customer Ledger — Abhinandan Auto Mobiles</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" href="style.css">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <!-- PDF Generation Libraries -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<!-- QRCode.js — generates the QR code shown on the real sales bill (issue #6) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: 'DM Sans', sans-serif; }
@@ -54,7 +55,7 @@ body { font-family: 'DM Sans', sans-serif; }
 .pg-btn:disabled { opacity:0.3; cursor:not-allowed; }
 
 .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:9000; overflow-y:auto; padding:20px; backdrop-filter:blur(6px); }
-.modal-box { background:linear-gradient(135deg,#0d1117,#0f172a); border:1px solid rgba(255,255,255,0.1); border-radius:20px; max-width:960px; margin:20px auto; overflow:hidden; box-shadow:0 24px 80px rgba(0,0,0,0.6); }
+.modal-box { background:linear-gradient(135deg,#0d1117,#0f172a); border:1px solid rgba(255,255,255,0.1); border-radius:20px; max-width:980px; margin:20px auto; overflow:hidden; box-shadow:0 24px 80px rgba(0,0,0,0.6); }
 .modal-header { background:linear-gradient(135deg,#1e3a5f 0%,#2563eb 100%); padding:24px 28px; display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap; }
 .modal-header h2 { font-family:'Playfair Display',serif; font-size:22px; color:white; margin-bottom:4px; }
 .modal-header-sub { font-size:13px; color:rgba(255,255,255,0.65); }
@@ -72,6 +73,10 @@ body { font-family: 'DM Sans', sans-serif; }
 .balance-banner.owe   { background:rgba(248,113,113,0.08); color:#f87171; }
 .balance-banner.adv   { background:rgba(52,211,153,0.08);  color:#34d399; }
 .balance-banner.clear { background:rgba(52,211,153,0.05);  color:#34d399; }
+
+/* ── New: toolbar for the Vehicle / Transaction Type filters inside the ledger modal (issues #3 and #4) ── */
+.tx-toolbar { display:flex; gap:10px; margin-bottom:14px; flex-wrap:wrap; }
+.tx-toolbar select { width:auto; min-width:180px; margin-bottom:0; padding:8px 12px; font-size:12px; }
 
 .modal-body { padding:24px 28px; }
 .section-title { font-size:11px; font-weight:600; color:rgba(255,255,255,0.4); text-transform:uppercase; letter-spacing:1.5px; margin-bottom:14px; }
@@ -91,6 +96,7 @@ body { font-family: 'DM Sans', sans-serif; }
 .badge-mixed   { background:rgba(251,191,36,0.12);  color:#fbbf24; }
 .badge-payment { background:rgba(16,185,129,0.15);  color:#10b981; }
 .badge-return  { background:rgba(220,38,38,0.15);   color:#f87171; }
+.badge-ptm     { background:rgba(167,139,250,0.15); color:#a78bfa; }
 
 .btn { padding:8px 16px; border-radius:8px; border:none; font-size:13px; font-weight:600; cursor:pointer; font-family:'DM Sans',sans-serif; transition:all 0.2s; }
 .btn-blue    { background:#2563eb; color:white; }
@@ -103,6 +109,8 @@ body { font-family: 'DM Sans', sans-serif; }
 .btn-wa:hover{ background:#128C7E; }
 .btn-outline { background:rgba(255,255,255,0.1); color:white; border:1px solid rgba(255,255,255,0.2); }
 .btn-outline:hover { background:rgba(255,255,255,0.18); }
+.btn-danger  { background:#dc2626; color:white; }
+.btn-danger:hover { background:#b91c1c; }
 .btn-sm { padding:5px 11px; font-size:11px; border-radius:7px; }
 
 .inner-modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.88); z-index:10000; align-items:center; justify-content:center; backdrop-filter:blur(8px); }
@@ -121,60 +129,6 @@ body { font-family: 'DM Sans', sans-serif; }
 .view-bill-actions { background:#1e293b; padding:14px 24px; display:flex; gap:8px; justify-content:flex-end; align-items:center; flex-wrap:wrap; }
 .view-bill-actions .bill-no-display { font-size:12px; color:rgba(255,255,255,0.4); margin-right:auto; font-family:monospace; }
 
-/* ── FIX: Light theme — action bar always stays dark so buttons stay visible ── */
-/* WHY: The action bar has background:#1e293b (dark navy). In light theme,
-   global CSS overrides button colors to dark text, making them invisible
-   on the dark background. We force all buttons inside .view-bill-actions
-   to always use white text regardless of theme. */
-html.light-theme .view-bill-actions {
-  background: #1e293b !important;
-}
-html.light-theme .view-bill-actions .bill-no-display {
-  color: rgba(255,255,255,0.5) !important;
-}
-html.light-theme .view-bill-actions .btn {
-  color: white !important;
-}
-html.light-theme .view-bill-actions .btn-white {
-  background: white !important;
-  color: #1e3a5f !important;
-}
-html.light-theme .view-bill-actions .btn-wa {
-  background: #25D366 !important;
-  color: white !important;
-}
-html.light-theme .view-bill-actions .btn-outline {
-  background: rgba(255,255,255,0.15) !important;
-  color: white !important;
-  border-color: rgba(255,255,255,0.3) !important;
-}
-
-/* ── FIX: Invoice table header — always white text on dark blue background ── */
-/* WHY: .inv-table thead tr has background:#1e3a5f (dark blue).
-   Light theme global rules override th color to dark, making it invisible.
-   These rules force white text in the invoice header regardless of theme. */
-html.light-theme .inv-table thead th {
-  color: #ffffff !important;
-  background: #1e3a5f !important;
-}
-
-/* ── FIX: Invoice header bar text — company name and address stay white ── */
-/* WHY: .inv-header has a dark blue gradient background. In light theme,
-   child text elements get overridden to dark color. We force white. */
-html.light-theme .inv-header,
-html.light-theme .inv-header * {
-  color: white !important;
-}
-html.light-theme .inv-header.return-style,
-html.light-theme .inv-header.return-style * {
-  color: white !important;
-}
-
-/* ── FIX: inv-badge border stays visible on dark header ── */
-html.light-theme .inv-badge {
-  border-color: rgba(255,255,255,0.6) !important;
-  color: white !important;
-}
 .pay-modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.88); z-index:11000; align-items:center; justify-content:center; backdrop-filter:blur(8px); }
 .pay-modal-box { background:linear-gradient(135deg,#0d1117,#1e293b); border:1px solid rgba(255,255,255,0.12); border-radius:18px; padding:28px; width:90%; max-width:440px; }
 .pay-modal-box h3 { font-family:'Playfair Display',serif; font-size:20px; color:white; margin-bottom:6px; }
@@ -194,6 +148,7 @@ html.light-theme .inv-badge {
 /* INVOICE STYLES (for view bill) */
 .inv-header { background:linear-gradient(135deg,#1e3a5f 0%,#2563eb 60%,#06b6d4 100%); color:white; padding:24px 32px; display:flex; justify-content:space-between; align-items:center; gap:16px; }
 .inv-header.return-style { background:linear-gradient(135deg,#7f1d1d,#dc2626,#f87171) !important; }
+.inv-avatar { width:48px;height:48px;border-radius:10px;background:rgba(255,255,255,0.95);color:#1e3a5f;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-weight:700;font-size:20px;flex-shrink:0; }
 .inv-company { font-family:'Playfair Display',serif; font-size:20px; font-weight:700; margin-bottom:4px; }
 .inv-sub { font-size:12px; opacity:0.85; margin:2px 0; }
 .inv-badge { display:inline-block; background:rgba(255,255,255,0.18); border:1px solid rgba(255,255,255,0.4); font-size:11px; font-weight:600; letter-spacing:2px; text-transform:uppercase; padding:3px 12px; border-radius:20px; margin-bottom:6px; }
@@ -213,6 +168,7 @@ html.light-theme .inv-badge {
 .inv-table tbody td { padding:9px 12px; color:#374151; }
 .inv-table tbody td:not(:first-child) { text-align:center; }
 .inv-table tbody td:last-child { text-align:right; font-weight:600; }
+.inv-item-sub { font-size:10.5px; color:#6b7280; margin-top:2px; font-weight:400; text-align:left; }
 .inv-totals { display:flex; justify-content:flex-end; padding:16px 32px 0; }
 .inv-totals-inner { min-width:220px; }
 .inv-total-row { display:flex; justify-content:space-between; padding:5px 0; font-size:13px; color:#374151; border-bottom:1px dashed #e5e7eb; }
@@ -229,6 +185,7 @@ html.light-theme .inv-badge {
 .inv-balance-row { display:flex; justify-content:space-between; padding:3px 0; }
 .inv-balance-label { color:#6b7280; }
 .inv-balance-val { font-weight:700; }
+.inv-qr-box { display:flex; align-items:center; gap:14px; margin:14px 32px; padding:12px; background:#f8fafc; border:1px solid #e5e7eb; border-radius:8px; }
 .inv-footer { margin:16px 32px 24px; display:flex; justify-content:space-between; align-items:flex-end; padding-top:14px; border-top:1px solid #e5e7eb; font-size:12px; color:#6b7280; }
 .inv-footer .thank-you { font-size:14px; font-weight:600; color:#1e3a5f; margin-bottom:3px; }
 
@@ -292,7 +249,6 @@ html.light-theme .customer-card { background:rgba(255,255,255,0.88); border-colo
 html.light-theme .cc-name  { color:#0f172a !important; }
 html.light-theme .cc-phone { color:#64748b !important; }
 html.light-theme .cc-stat-label { color:#475569 !important; }
-/* WHY: No !important here — lets inline style="color:#dc2626" (red/green balance) override */
 html.light-theme .cc-stat-value { color:#1e293b; }
 
 /* ─── LIGHT THEME: Pagination button text ─── */
@@ -324,34 +280,31 @@ html.light-theme .cc-stat-label { color:#475569 !important; }
 html.light-theme .cc-stat-value { color:#374151; }
 html.light-theme .cc-name  { color:#0f172a !important; }
 html.light-theme .cc-phone { color:#64748b !important; }
-  
+
 </style>
 </head>
-<body class="sidebar-open">
-  
+<body>
+
 <!-- WhatsApp Toast -->
 <div class="wa-toast" id="waToast">
-  <span>📲</span>
+  <span>Notice:</span>
   <span id="waToastMsg">Generating PDF...</span>
 </div>
 
-<button class="sidebar-toggle" onclick="toggleSidebar()" title="Toggle Menu">☰</button>
-<div class="sidebar-overlay" onclick="toggleSidebar()"></div>
 <div class="sidebar">
   <h2>Auto ERP</h2>
   <div class="sidebar-divider"></div>
   <div class="sidebar-label">Main</div>
-  <a href="dashboard.html" class="owner-only">🏠 Dashboard</a>
+  <a href="dashboard.html">🏠 Dashboard</a>
   <a href="billing.html">🧾 Sales Billing</a>
-  <a href="purchase-billing.html" class="owner-only">📦 Purchase Billing</a>
-  <a href="order-status.html" class="owner-only">📋 Order Status</a>
-  <div class="sidebar-label owner-only">Records</div>
-  <a href="products.html" class="owner-only">🔧 Products</a>
-  <a href="customers.html" class="owner-only">👥 Customers</a>
-  <a href="customer-ledger.html" class="active owner-only">📒 Customer Ledger</a>
-  <a href="merchants.html" class="owner-only">🏭 Merchants</a>
-  <a href="merchant-ledger.html" class="owner-only">🏪 Merchant Ledger</a>
-  <a href="reports.html" class="owner-only">📊 Reports</a>
+  <a href="purchase-billing.html">📦 Purchase Billing</a>
+  <div class="sidebar-label">Records</div>
+  <a href="products.html">🔧 Products</a>
+  <a href="customers.html">👥 Customers</a>
+  <a href="customer-ledger.html" class="active">📒 Customer Ledger</a>
+  <a href="merchants.html">🏭 Merchants</a>
+  <a href="merchant-ledger.html">🏪 Merchant Ledger</a>
+  <a href="reports.html">📊 Reports</a>
   <div class="sidebar-bottom"><div class="sidebar-version">Auto ERP v1.0</div></div>
 </div>
 
@@ -419,10 +372,25 @@ html.light-theme .cc-phone { color:#64748b !important; }
       <span id="balanceBannerText">Account is clear ✓</span>
     </div>
     <div class="modal-body">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px;">
         <div class="section-title" style="margin-bottom:0;">Transaction History</div>
         <div style="font-size:12px;color:rgba(255,255,255,0.3);" id="txCount">—</div>
       </div>
+
+      <!-- ── Issue #3 + #4: Vehicle filter (scoped to this customer's own bills) and Transaction Type filter ── -->
+      <div class="tx-toolbar">
+        <select id="txTypeFilter" onchange="applyTxFilters()">
+          <option value="all">All Transactions</option>
+          <option value="sale">Sales Bills</option>
+          <option value="return">Returns</option>
+          <option value="payment">Payments Received</option>
+          <option value="ptm">Pay to Merchant</option>
+        </select>
+        <select id="txVehicleFilter" onchange="applyTxFilters()">
+          <option value="all">All Vehicles</option>
+        </select>
+      </div>
+
       <div style="overflow-x:auto;">
         <table class="tx-table">
           <thead>
@@ -430,6 +398,7 @@ html.light-theme .cc-phone { color:#64748b !important; }
               <th>No / Receipt</th>
               <th>Date</th>
               <th>Type</th>
+              <th>Vehicle</th>
               <th>Bill Amount</th>
               <th>Credit / Received</th>
               <th>Actions</th>
@@ -465,24 +434,27 @@ html.light-theme .cc-phone { color:#64748b !important; }
 </div>
 
 
-<!-- VIEW BILL MODAL -->
+<!-- VIEW BILL MODAL — rebuilt to match the real sales bill (issue #6): avatar, live business info, brand/category/size/unit per item, QR code -->
 <div id="viewBillModal">
   <div class="view-bill-box">
     <div class="view-bill-actions">
       <span class="bill-no-display" id="vBillNoDisplay">—</span>
-      <button class="btn btn-wa btn-sm"     onclick="whatsappBill()">📲 WhatsApp</button>
-      <button class="btn btn-white btn-sm"  onclick="printViewedBill()">🖨 Print</button>
-      <button class="btn btn-outline btn-sm" onclick="closeViewBill()">✕ Close</button>
+      <button class="btn btn-wa btn-sm"     onclick="whatsappBill()">WhatsApp</button>
+      <button class="btn btn-white btn-sm"  onclick="printViewedBill()">Print</button>
+      <button class="btn btn-outline btn-sm" onclick="closeViewBill()">Close</button>
     </div>
     <div id="viewBillPrintArea">
       <div class="inv-header" id="vHeader">
-        <div>
-          <div class="inv-company">Abhinandan Auto Mobiles</div>
-          <div class="inv-sub">Santalpur - Palanpur Highway</div>
-          <div class="inv-sub">📞 +91 98700 37002</div>
+        <div style="display:flex;align-items:center;gap:14px;">
+          <div class="inv-avatar" id="vAvatar">A</div>
+          <div>
+            <div class="inv-company" id="vBizName">Abhinandan Auto Mobiles</div>
+            <div class="inv-sub" id="vBizAddress">Santalpur - Palanpur Highway</div>
+            <div class="inv-sub" id="vBizPhone">+91 98700 37002</div>
+          </div>
         </div>
         <div style="text-align:right;">
-          <div class="inv-badge" id="vBillType">GST Invoice</div>
+          <div class="inv-badge" id="vBillType">SALES BILL</div>
           <div class="inv-no">Invoice # <span id="vInvoiceNo">—</span></div>
           <div class="inv-date" id="vDate">—</div>
         </div>
@@ -520,6 +492,13 @@ html.light-theme .cc-phone { color:#64748b !important; }
         <div class="inv-balance-row"><span class="inv-balance-label">Total payments received</span><span class="inv-balance-val" style="color:#059669;" id="vBalPaid">₹0</span></div>
         <div class="inv-balance-row" style="margin-top:6px;padding-top:6px;border-top:1px solid #e5e7eb;"><span class="inv-balance-label" style="font-weight:600;">Overall Balance</span><span class="inv-balance-val" id="vBalFinal">₹0</span></div>
       </div>
+      <div class="inv-qr-box">
+        <div id="vQRCodeCanvas"></div>
+        <div>
+          <div style="font-weight:700;color:#111;font-size:13px;">Rate Us &amp; Visit Our Store</div>
+          <div style="font-size:11px;color:#2563eb;word-break:break-all;" id="vPortalUrl">—</div>
+        </div>
+      </div>
       <div class="inv-footer">
         <div>
           <div class="thank-you" id="vFooterMsg">Thank you for your business 🙏</div>
@@ -531,6 +510,19 @@ html.light-theme .cc-phone { color:#64748b !important; }
         </div>
       </div>
     </div>
+  </div>
+</div>
+
+
+<!-- GENERIC "SIMPLE VIEW" MODAL — used for Payment Receipts and Pay-to-Merchant records, so we don't need two separate near-identical modals -->
+<div id="simpleViewModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:10500;align-items:center;justify-content:center;backdrop-filter:blur(8px);">
+  <div style="background:white;border-radius:16px;max-width:460px;width:90%;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,0.6);">
+    <div style="background:#1e293b;padding:14px 20px;display:flex;justify-content:space-between;align-items:center;">
+      <span id="svTitle" style="color:white;font-weight:700;font-family:'Playfair Display',serif;font-size:16px;">Details</span>
+      <button class="btn btn-outline btn-sm" onclick="closeSimpleView()">Close</button>
+    </div>
+    <div id="svBody" style="padding:24px;color:#111;font-family:'DM Sans',sans-serif;"></div>
+    <div id="svActions" style="padding:14px 20px;background:#f8fafc;display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;"></div>
   </div>
 </div>
 
@@ -636,7 +628,6 @@ html.light-theme .cc-phone { color:#64748b !important; }
 
 <script type="module">
 
-  
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
 const supabaseUrl = "https://mhhnmndnolhapaoqtbxo.supabase.co"
@@ -649,8 +640,67 @@ let totalCount  = 0
 let currentCustomerData = null
 let editingSaleId       = null
 let searchTimer         = null
+let _ledgerEvents       = []   // full, unfiltered, latest-first list for the currently open customer (issue #1, #3, #4)
 
 const fmt = n => '₹' + (Math.round(Math.abs(n))||0).toLocaleString('en-IN')
+
+// ── ISSUE #6: live business info instead of hardcoded text ──
+// WHY: billing.html reads name/address/phone from the `settings` table, so the
+// real bill always shows your current details. The old ledger hardcoded text,
+// so it could silently go stale. We fetch once on page load and fall back to
+// sensible defaults if the fetch fails (e.g. offline).
+let _biz = { name:'Abhinandan Auto Mobiles', address:'Santalpur - Palanpur Highway', phone:'+91 98700 37002' }
+async function loadBizSettings(){
+  try{
+    const{data}=await supabase.from('settings').select('key,value')
+    if(data){
+      const map={}; data.forEach(r=>map[r.key]=r.value)
+      if(map.biz_name)    _biz.name=map.biz_name
+      if(map.biz_address) _biz.address=map.biz_address
+      if(map.biz_phone1)  _biz.phone=map.biz_phone1
+    }
+  }catch(e){ /* keep defaults */ }
+}
+loadBizSettings()
+
+// The portal URL encoded in the QR code on the real bill (image 3). Change this
+// constant if your store URL ever changes.
+const PORTAL_URL = 'https://abhinandan-auto-mobiles-erp.vercel.app/portal.html'
+
+// WHY: QRCode.js (davidshimjs) draws into a hidden DOM node as a <canvas>.
+// We grab that canvas and convert it to a PNG data-URL so jsPDF can embed it
+// as an image inside the generated bill PDF.
+function generateQRDataURL(text, size){
+  return new Promise(resolve=>{
+    try{
+      const holder=document.createElement('div')
+      holder.style.position='fixed'; holder.style.left='-9999px'
+      document.body.appendChild(holder)
+      new QRCode(holder,{text:text, width:size||90, height:size||90, correctLevel:QRCode.CorrectLevel.M})
+      setTimeout(()=>{
+        const canvas=holder.querySelector('canvas')
+        const url=canvas?canvas.toDataURL('image/png'):null
+        document.body.removeChild(holder)
+        resolve(url)
+      },60)
+    }catch(e){ resolve(null) }
+  })
+}
+
+// WHY: your own dev notes flagged window.print() + CSS class toggling as
+// unreliable across browsers. The durable pattern (already used elsewhere in
+// this project) is to build the document with jsPDF and open it for printing
+// via autoPrint() in a new tab, with a download fallback if popups are blocked.
+function _openPDFForPrint(doc){
+  try{
+    doc.autoPrint()
+    const url=doc.output('bloburl')
+    const w=window.open(url,'_blank')
+    if(!w) doc.save('document.pdf')
+  }catch(e){
+    try{ doc.save('document.pdf') }catch(e2){ alert('Could not generate the PDF.') }
+  }
+}
 
 // ── WHATSAPP PDF HELPER ──
 // Validates Indian phone, generates PDF from a DOM element, downloads it, opens WhatsApp
@@ -690,8 +740,7 @@ function showWaDesktopModal(doc, filename, cp, message) {
 
       <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px;">
         <a href="${blobUrl}" download="${filename}"
-           style="display:flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(135deg,#1d4ed8,#2563eb);color:white;padding:13px;border-radius:10px;font-weight:700;font-size:15px;text-decoration:none;cursor:pointer;"
-           onclick="document.getElementById('waStep1').style.color='#34d399'">
+           style="display:flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(135deg,#1d4ed8,#2563eb);color:white;padding:13px;border-radius:10px;font-weight:700;font-size:15px;text-decoration:none;cursor:pointer;">
           ⬇️ Download PDF
         </a>
         <a href="https://web.whatsapp.com/send?phone=${cp}&text=${encodeURIComponent(message)}" target="_blank"
@@ -709,11 +758,9 @@ function showWaDesktopModal(doc, filename, cp, message) {
   document.body.appendChild(modal)
   modal.addEventListener('click', function(e){ if(e.target===modal) modal.remove() })
 }
-  
+
 function cleanPhone(raw) {
-  // Remove all non-digits
   const digits = (raw||'').replace(/\D/g,'')
-  // Accept 10-digit Indian number or 12-digit with 91 prefix
   if (digits.length===10) return '91'+digits
   if (digits.length===12 && digits.startsWith('91')) return digits
   if (digits.length===11 && digits.startsWith('0')) return '91'+digits.slice(1)
@@ -735,9 +782,9 @@ function buildStatementPDF(data) {
   doc.setFillColor(30,58,95); doc.rect(0,0,W,80,'F')
   doc.setTextColor(255,255,255)
   doc.setFont('helvetica','bold'); doc.setFontSize(18)
-  doc.text('Abhinandan Auto Mobiles', mg, 28)
+  doc.text(_biz.name, mg, 28)
   doc.setFont('helvetica','normal'); doc.setFontSize(9)
-  doc.text('Santalpur - Palanpur Highway  |  +91 98700 37002', mg, 44)
+  doc.text(_biz.address+'  |  '+_biz.phone, mg, 44)
   doc.setFont('helvetica','bold'); doc.setFontSize(14)
   doc.text('CUSTOMER STATEMENT', W-mg, 27, {align:'right'})
   doc.setFont('helvetica','normal'); doc.setFontSize(9)
@@ -833,26 +880,28 @@ function buildStatementPDF(data) {
   sr2(nc>0?'Credit Due':nc<0?'Advance':'Balance', balStr, true, nc>0?[220,38,38]:[5,150,105])
   y+=130
   doc.setFont('helvetica','normal'); doc.setFontSize(8.5); doc.setTextColor(156,163,175)
-  doc.text('Computer-generated statement — Abhinandan Auto Mobiles', mg, y)
+  doc.text('Computer-generated statement — '+_biz.name, mg, y)
   return doc
 }
 
-function buildSingleBillPDF(opts) {
+// ── ISSUE #6: bill PDF now includes brand/category/size/unit subtitle per
+//    item and a QR code, matching the real sales bill. It's async because
+//    drawing the QR code into the PDF needs to wait for the canvas to render. ──
+async function buildSingleBillPDF(opts) {
   const { jsPDF } = window.jspdf
   const doc = new jsPDF({ unit:'pt', format:'a4' })
   const W = 595.28, mg = 36
   let y = 0
   const hc = opts.isReturn ? [127,29,29] : opts.isPurchase ? [120,53,15] : [30,58,95]
 
-  // ─ Header ─
   doc.setFillColor(...hc); doc.rect(0,0,W,88,'F')
   doc.setTextColor(255,255,255)
   doc.setFont('helvetica','bold'); doc.setFontSize(18)
-  doc.text('Abhinandan Auto Mobiles', mg, 28)
+  doc.text(_biz.name, mg, 28)
   doc.setFont('helvetica','normal'); doc.setFontSize(9)
-  doc.text('Santalpur - Palanpur Highway', mg, 44)
-  doc.text('+91 98700 37002', mg, 57)
-  const btype = opts.isReturn ? 'SALES RETURN' : (opts.billType||'GST INVOICE').toUpperCase()
+  doc.text(_biz.address, mg, 44)
+  doc.text(_biz.phone, mg, 57)
+  const btype = opts.isReturn ? 'SALES RETURN' : (opts.billType||'SALES BILL').toUpperCase()
   doc.setFont('helvetica','bold'); doc.setFontSize(11)
   doc.text(btype, W-mg, 27, {align:'right'})
   doc.setFont('helvetica','normal'); doc.setFontSize(9)
@@ -860,7 +909,6 @@ function buildSingleBillPDF(opts) {
   doc.text(opts.date||'', W-mg, 57, {align:'right'})
   y = 88
 
-  // ─ Meta row ─
   doc.setFillColor(248,250,252); doc.rect(0,y,W,50,'F')
   doc.setDrawColor(229,231,235); doc.line(0,y+50,W,y+50)
   function mcol(lbl,val,x){
@@ -875,8 +923,6 @@ function buildSingleBillPDF(opts) {
   mcol('PAYMENT MODE', opts.payMode||'—', opts.vehicle ? 465 : 355)
   y += 62
 
-  // ─ Table header — fixed column positions ─
-  // Col positions: # at 44, Item 70–320, Qty right@340, Price right@440, Amount right@W-mg
   doc.setFillColor(...hc); doc.rect(0,y,W,22,'F')
   doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(8.5)
   doc.text('#',      44,    y+14, {align:'center'})
@@ -886,33 +932,32 @@ function buildSingleBillPDF(opts) {
   doc.text('AMOUNT', W-mg,  y+14, {align:'right'})
   y += 24
 
-  // ─ Item rows ─
   let sub = 0
   ;(opts.items||[]).forEach(function(item, i){
-    if(y > 745){ doc.addPage(); y = 40 }
+    if(y > 720){ doc.addPage(); y = 40 }
     var qty = Math.abs(item.qty||0)
     var price = item.price||0
     var amt = Math.abs(qty * price); sub += amt
-    if(i%2===1){ doc.setFillColor(249,250,251); doc.rect(0,y-12,W,20,'F') }
-    // Row number
+    var rowH = item.sub ? 28 : 21
+    if(i%2===1){ doc.setFillColor(249,250,251); doc.rect(0,y-12,W,rowH,'F') }
     doc.setFont('helvetica','normal'); doc.setFontSize(9.5)
     doc.setTextColor(156,163,175)
     doc.text(String(i+1), 44, y, {align:'center'})
-    // Item name — hard cap at 36 chars so it never reaches Qty column
     doc.setTextColor(55,65,81)
     var nm = (item.name||'').length > 36 ? (item.name||'').slice(0,33)+'...' : (item.name||'')
     doc.text(nm, 70, y)
-    // Qty — right-aligned at 340
+    if(item.sub){
+      doc.setFontSize(7.5); doc.setTextColor(120,120,120)
+      doc.text(item.sub, 70, y+10)
+      doc.setFontSize(9.5); doc.setTextColor(55,65,81)
+    }
     doc.text(String(qty), 340, y, {align:'right'})
-    // Price — right-aligned at 440
     doc.text('Rs '+price.toLocaleString('en-IN'), 440, y, {align:'right'})
-    // Amount — right-aligned at W-mg, bold
     doc.setFont('helvetica','bold')
     doc.text('Rs '+amt.toLocaleString('en-IN'), W-mg, y, {align:'right'})
-    y += 21
+    y += rowH
   })
 
-  // ─ Totals ─
   doc.setDrawColor(229,231,235); doc.line(0,y,W,y); y += 18
   function trow(lbl,val,bold,rgb){
     if(y>760){ doc.addPage(); y=40 }
@@ -938,14 +983,12 @@ function buildSingleBillPDF(opts) {
   doc.text('Rs '+Math.abs(opts.final||0).toLocaleString('en-IN'), W-mg, y, {align:'right'})
   y += 32
 
-  // ─ Payment breakdown box ─
   doc.setFillColor(248,250,252); doc.rect(mg,y,W-2*mg,52,'F')
   doc.setDrawColor(229,231,235); doc.rect(mg,y,W-2*mg,52)
   y += 13
   doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(107,114,128)
   doc.text('PAYMENT BREAKDOWN', mg+10, y); y += 14
   doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(17,24,39)
-  // Three evenly spaced payment columns
   var col1 = mg+10
   var col2 = mg+10 + (W-2*mg-20)/3
   var col3 = mg+10 + (W-2*mg-20)*2/3
@@ -954,7 +997,22 @@ function buildSingleBillPDF(opts) {
   doc.text((opts.isReturn?'Credit Adj':'Credit')+': Rs '+Math.abs(opts.credit||0).toLocaleString('en-IN'), col3, y)
   y += 38
 
-  // ─ Footer ─
+  // QR + Rate Us row — issue #6, this is what was missing from the PDF
+  if(y>700){ doc.addPage(); y=40 }
+  try{
+    const qrData = await generateQRDataURL(PORTAL_URL, 90)
+    if(qrData){
+      doc.setFillColor(248,250,252); doc.rect(mg,y,W-2*mg,60,'F')
+      doc.setDrawColor(229,231,235); doc.rect(mg,y,W-2*mg,60)
+      doc.addImage(qrData,'PNG',mg+10,y+8,44,44)
+      doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setTextColor(17,24,39)
+      doc.text('Rate Us & Visit Our Store', mg+64, y+26)
+      doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(37,99,235)
+      doc.text(PORTAL_URL, mg+64, y+40)
+      y += 72
+    }
+  }catch(e){ /* QR is a nice-to-have — never block the bill if it fails */ }
+
   doc.setDrawColor(229,231,235); doc.line(mg,y,W-mg,y); y += 14
   doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor(...hc)
   doc.text(opts.isReturn ? 'Return processed. Thank you.' : 'Thank you for your business!', mg, y); y += 12
@@ -965,7 +1023,104 @@ function buildSingleBillPDF(opts) {
   y += 10
   doc.setFontSize(9)
   doc.text(opts.isReturn ? 'Returned By' : 'Customer Signature', mg, y)
-  doc.text('For Abhinandan Auto Mobiles', W-mg, y, {align:'right'})
+  doc.text('For '+_biz.name, W-mg, y, {align:'right'})
+  return doc
+}
+
+// WHY: fetches the sale + its items + inventory brand/category/size/unit in
+// one place, so View, Print, and WhatsApp for a bill all produce identical,
+// fully-detailed output without duplicating the fetch logic three times.
+async function buildBillPDFFromSale(sale, custName, custPhone){
+  const{data:items}=await supabase.from('bill_items').select('*').eq('sale_id',sale.id)
+  const itemIds=(items||[]).filter(i=>i.item_id).map(i=>i.item_id)
+  const invMap={}
+  if(itemIds.length){
+    const{data:prods}=await supabase.from('inventory').select('id,item_name,brand,category,product_size,unit_type').in('id',itemIds)
+    ;(prods||[]).forEach(p=>{invMap[p.id]=p})
+  }
+  const modes=[sale.cash>0?'Cash':'',sale.upi>0?'UPI':'',sale.credit>0?'Credit':''].filter(Boolean)
+  const subtotal=(items||[]).reduce((s,i)=>s+(Math.abs(i.total)||0),0)
+  const opts={
+    isReturn: sale.bill_type==='return', isPurchase:false,
+    billType:'SALES BILL', billNo:sale.bill_number,
+    date:new Date(sale.created_at).toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}),
+    partyName:custName, partyPhone:custPhone, vehicle: sale.vehicle_number||'',
+    items:(items||[]).map(item=>{
+      const inv=invMap[item.item_id]
+      const subParts=[inv?.brand,inv?.category,inv?.product_size,inv?.unit_type].filter(Boolean)
+      return { name:item.item_name||inv?.item_name||'Unknown Item', sub: subParts.join(' • '), qty:Math.abs(item.quantity||0), price:item.price||0 }
+    }),
+    subtotal, final:sale.total_amount, gstEnabled:false,
+    discount: sale.discount||0, delivery: sale.delivery_charges||0,
+    cash:sale.cash||0, upi:sale.upi||0, credit:sale.credit||0,
+    payMode: modes.join(' + ')||'—'
+  }
+  return await buildSingleBillPDF(opts)
+}
+
+// ── Payment receipt PDF (no equivalent existed before — needed for the new row-level Print/WhatsApp actions) ──
+function buildPaymentReceiptPDF(p, custName, custPhone){
+  const { jsPDF } = window.jspdf
+  const doc = new jsPDF({unit:'pt',format:'a4'})
+  const W=595.28, mg=40
+  doc.setFillColor(30,58,95); doc.rect(0,0,W,70,'F')
+  doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(16)
+  doc.text(_biz.name, mg, 28)
+  doc.setFont('helvetica','normal'); doc.setFontSize(9)
+  doc.text(_biz.address+'  |  '+_biz.phone, mg, 44)
+  doc.setFont('helvetica','bold'); doc.setFontSize(13)
+  doc.text('PAYMENT RECEIPT', W-mg, 28, {align:'right'})
+  doc.setFont('helvetica','normal'); doc.setFontSize(9)
+  doc.text(p.receipt_no||'', W-mg, 44, {align:'right'})
+  let y=100
+  const row=(l,v,bold)=>{
+    doc.setFont('helvetica',bold?'bold':'normal'); doc.setFontSize(bold?13:11); doc.setTextColor(17,24,39)
+    doc.text(l, mg, y); doc.text(String(v), W-mg, y, {align:'right'})
+    y+=22
+  }
+  row('Received From', custName||'—')
+  row('Phone', custPhone||'—')
+  row('Date', new Date(p.created_at).toLocaleDateString('en-IN'))
+  row('Payment Mode', p.mode||'—')
+  row('Amount Received', fmt(p.amount), true)
+  if(p.note){ y+=6; doc.setFont('helvetica','italic'); doc.setFontSize(10); doc.setTextColor(80,80,80); doc.text('Note: '+p.note, mg, y); y+=20 }
+  y+=30
+  doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(100,100,100)
+  doc.text('Thank you for your payment — '+_biz.name, mg, y)
+  return doc
+}
+
+// ── Pay to Merchant (PTM) receipt PDF — also new, same reasoning as above ──
+function buildPTMReceiptPDF(ptm, custName, custPhone){
+  const { jsPDF } = window.jspdf
+  const doc = new jsPDF({unit:'pt',format:'a4'})
+  const W=595.28, mg=40
+  doc.setFillColor(76,29,149); doc.rect(0,0,W,70,'F')
+  doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(16)
+  doc.text(_biz.name, mg, 28)
+  doc.setFont('helvetica','normal'); doc.setFontSize(9)
+  doc.text(_biz.address+'  |  '+_biz.phone, mg, 44)
+  doc.setFont('helvetica','bold'); doc.setFontSize(13)
+  doc.text('PAY TO MERCHANT', W-mg, 28, {align:'right'})
+  doc.setFont('helvetica','normal'); doc.setFontSize(9)
+  doc.text(ptm.bill_number||'', W-mg, 44, {align:'right'})
+  let y=100
+  const row=(l,v,bold)=>{
+    doc.setFont('helvetica',bold?'bold':'normal'); doc.setFontSize(bold?13:11); doc.setTextColor(17,24,39)
+    doc.text(l, mg, y); doc.text(String(v), W-mg, y, {align:'right'})
+    y+=22
+  }
+  row('On Behalf Of (Customer)', custName||'—')
+  row('Phone', custPhone||'—')
+  row('Paid To (Merchant)', ptm.merchant_name||'—')
+  row('Date', new Date(ptm.created_at).toLocaleDateString('en-IN'))
+  row('Payment Mode', ptm.merchant_pay_mode||'—')
+  row('Reference', ptm.merchant_pay_ref||'—')
+  row('Amount Paid', fmt(ptm.total_amount), true)
+  if(ptm.notes){ y+=6; doc.setFont('helvetica','italic'); doc.setFontSize(10); doc.setTextColor(80,80,80); doc.text(ptm.notes, mg, y); y+=20 }
+  y+=30
+  doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(100,100,100)
+  doc.text(_biz.name+' — Internal Record', mg, y)
   return doc
 }
 
@@ -990,7 +1145,7 @@ async function sendPDFToWhatsApp(doc, filename, phone, message) {
     showWaToast('❌ Error: '+err.message)
   }
 }
-  
+
   // ── LOAD CUSTOMERS (paginated, fast for 7000+ customers) ──
  async function loadCustomers() {
   document.getElementById('customerGrid').innerHTML = '<div class="loading-row">⏳ Loading...</div>'
@@ -1074,13 +1229,13 @@ async function sendPDFToWhatsApp(doc, filename, phone, message) {
   renderPagination()
   updateGlobalStats(enriched)
 }
-  
+
 
 function updateGlobalStats(list) {
   let withDue=0, totalDue=0, totalAdv=0
-  list.forEach(c=>{ 
-    if(c.netCredit>0.01){withDue++;totalDue+=c.netCredit} 
-    if(c.netCredit<-0.01)totalAdv+=Math.abs(c.netCredit) 
+  list.forEach(c=>{
+    if(c.netCredit>0.01){withDue++;totalDue+=c.netCredit}
+    if(c.netCredit<-0.01)totalAdv+=Math.abs(c.netCredit)
   })
   document.getElementById('gsTotal').innerText    = totalCount
   document.getElementById('gsTotal').style.color  = '#60a5fa'
@@ -1099,23 +1254,18 @@ function renderGrid(list) {
   grid.innerHTML = list.map(c=>{
     const nc=Math.round(c.netCredit), isOwed=nc>0, isAdv=nc<0, isZero=nc===0
 
-    // ── FIXED COLORS ──
-    let displayText, displayColor, subText
-    if (isZero)  { displayText = '✓ Clear';  displayColor = '#059669'; subText = 'No dues' }
-    if (isOwed)  { displayText = '-₹'+Math.abs(nc).toLocaleString('en-IN'); displayColor = '#dc2626'; subText = 'Credit Due' }
-    if (isAdv)   { displayText = '+₹'+Math.abs(nc).toLocaleString('en-IN'); displayColor = '#059669'; subText = 'Advance' }
+    let displayText, subText
+    if (isZero)  { displayText = '✓ Clear';  subText = 'No dues' }
+    if (isOwed)  { displayText = '-₹'+Math.abs(nc).toLocaleString('en-IN'); subText = 'Credit Due' }
+    if (isAdv)   { displayText = '+₹'+Math.abs(nc).toLocaleString('en-IN'); subText = 'Advance' }
 
     const ini=(c.name||'?')[0].toUpperCase()
-    // WHY: rgba borders at 0.35 opacity disappear in light theme (white bg + light color = invisible).
-// A solid 4px left border is visible in BOTH dark and light themes.
-// WHY: border-left gets overridden by light-theme border-color CSS.
-// box-shadow inset is immune to border cascade and works in both themes.
-const cardBorder = isOwed
-  ? 'box-shadow:inset 5px 0 0 #dc2626, 0 2px 12px rgba(220,38,38,0.18);'
-  : isAdv
-  ? 'box-shadow:inset 5px 0 0 #059669, 0 2px 12px rgba(5,150,105,0.18);'
-  : ''
-    
+    const cardBorder = isOwed
+      ? 'box-shadow:inset 5px 0 0 #dc2626, 0 2px 12px rgba(220,38,38,0.18);'
+      : isAdv
+      ? 'box-shadow:inset 5px 0 0 #059669, 0 2px 12px rgba(5,150,105,0.18);'
+      : ''
+
     return `<div class="customer-card ${isOwed?'has-due':isAdv?'has-advance':''}" onclick="openLedger('${c.id}')" style="${cardBorder}">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
         <div class="cc-avatar">${ini}</div>
@@ -1149,6 +1299,119 @@ window.debounceSearch = function() {
   searchTimer=setTimeout(()=>{currentPage=1;loadCustomers()},350)
 }
 
+// ── ISSUE #3: build the Vehicle filter from ONLY this customer's own bills ──
+// WHY: scanning _ledgerEvents (already scoped to the one open customer) means
+// Ridham's dropdown can never show Amit's vehicle numbers, by construction —
+// there's no cross-customer leakage possible here.
+function buildVehicleFilterOptions(events){
+  const sel=document.getElementById('txVehicleFilter')
+  const vehicles=new Set()
+  let hasNoVehicle=false
+  events.forEach(ev=>{
+    if(ev._type==='bill' && ev.bill_type!=='pay_to_merchant'){
+      const vn=(ev.vehicle_number||'').trim()
+      if(vn) vehicles.add(vn)
+      else hasNoVehicle=true
+    }
+  })
+  const sorted=[...vehicles].sort()
+  let html='<option value="all">All Vehicles</option>'
+  sorted.forEach(v=>{ html+=`<option value="${v}">${v}</option>` })
+  if(hasNoVehicle) html+='<option value="__none__">No Vehicle</option>'
+  sel.innerHTML=html
+  sel.value='all'
+}
+
+// ── ISSUE #4: filter the already-loaded list client-side (no extra DB calls) ──
+window.applyTxFilters = function(){
+  const vFilter=document.getElementById('txVehicleFilter').value
+  const tFilter=document.getElementById('txTypeFilter').value
+  const filtered=_ledgerEvents.filter(ev=>{
+    if(tFilter==='sale'   && !(ev._type==='bill' && ev.bill_type!=='return' && ev.bill_type!=='pay_to_merchant')) return false
+    if(tFilter==='return' && !(ev._type==='bill' && ev.bill_type==='return')) return false
+    if(tFilter==='payment'&& ev._type!=='payment') return false
+    if(tFilter==='ptm'    && !(ev._type==='bill' && ev.bill_type==='pay_to_merchant')) return false
+    if(vFilter!=='all'){
+      if(ev._type!=='bill' || ev.bill_type==='pay_to_merchant') return false
+      const vn=(ev.vehicle_number||'').trim()
+      if(vFilter==='__none__'){ if(vn) return false }
+      else if(vn!==vFilter) return false
+    }
+    return true
+  })
+  renderTxRows(filtered, currentCustomerData?.cust)
+  document.getElementById('txCount').innerText = `Showing ${filtered.length} of ${_ledgerEvents.length} transactions`
+}
+
+// ── Builds the <tbody> rows. Pulled out into its own function so both the
+//    initial load and every filter change can reuse the exact same logic
+//    (issue #2 vehicle column, issue #5 row actions). ──
+function renderTxRows(events, cust){
+  const tbody=document.getElementById('txBody')
+  if(!events.length){
+    const msg = _ledgerEvents.length ? 'No transactions match this filter' : 'No transactions yet'
+    tbody.innerHTML = `<tr><td colspan="7" class="empty-state">${msg}</td></tr>`
+    return
+  }
+  const custNameEsc  = ((cust&&cust.name)||'').replace(/'/g,"\\'")
+  const custPhoneEsc = ((cust&&cust.phone)||'').replace(/'/g,"\\'")
+
+  const rows = events.map(ev=>{
+    if(ev._type==='payment'){
+      return `<tr class="row-payment">
+        <td style="font-size:11px;color:rgba(255,255,255,0.4);font-family:monospace;">${ev.receipt_no}</td>
+        <td>${new Date(ev.created_at).toLocaleDateString('en-IN')}</td>
+        <td><span class="badge badge-payment">Payment</span></td>
+        <td style="color:rgba(255,255,255,0.3);">—</td>
+        <td style="color:rgba(255,255,255,0.3);">—</td>
+        <td style="color:#10b981;font-weight:600;">+ ${fmt(ev.amount)} <span style="font-size:11px;color:rgba(255,255,255,0.3);">(${ev.mode})</span></td>
+        <td>
+          <div style="display:flex;gap:4px;flex-wrap:wrap;">
+            <button class="btn btn-blue btn-sm" onclick="viewPaymentTx(${ev.id})">View</button>
+            <button class="btn btn-outline btn-sm" onclick="printPaymentTx(${ev.id})">Print</button>
+            <button class="btn btn-wa btn-sm" onclick="whatsappPaymentTx(${ev.id})">WhatsApp</button>
+            <button class="btn btn-danger btn-sm" onclick="deletePaymentTx(${ev.id})">Delete</button>
+          </div>
+        </td>
+      </tr>`
+    }
+
+    const isReturn=ev.bill_type==='return'
+    const isPTM=ev.bill_type==='pay_to_merchant'
+    const modes=[ev.cash>0?'cash':'',ev.upi>0?'upi':'',ev.credit>0?'credit':''].filter(Boolean)
+    const modeStr=modes.join('+')
+    let bc='badge-mixed', bl='Mixed'
+    if(modeStr==='cash'){bc='badge-cash';bl='Cash'}
+    if(modeStr==='upi'){bc='badge-upi';bl='UPI'}
+    if(modeStr==='credit'){bc='badge-credit';bl='Credit'}
+    if(isPTM){bc='badge-ptm'; bl='Pay to Merchant'}
+
+    const vehicleCell = isPTM ? '—' : (ev.vehicle_number || '—')
+
+    const actionsCell = isPTM
+      ? `<button class="btn btn-blue btn-sm" onclick="viewPTMTx(${ev.id})">View</button>
+         <button class="btn btn-outline btn-sm" onclick="printPTMTx(${ev.id})">Print</button>
+         <button class="btn btn-wa btn-sm" onclick="whatsappPTMTx(${ev.id})">WhatsApp</button>
+         <button class="btn btn-danger btn-sm" onclick="deletePTMTx(${ev.id})">Delete</button>`
+      : `<button class="btn btn-blue btn-sm" onclick="viewBill('${ev.bill_number}','${custNameEsc}','${custPhoneEsc}')">View</button>
+         <button class="btn btn-outline btn-sm" onclick="printBillTx('${ev.bill_number}')">Print</button>
+         <button class="btn btn-wa btn-sm" onclick="whatsappBillByNumber('${ev.bill_number}','${custNameEsc}','${custPhoneEsc}')">WhatsApp</button>
+         <button class="btn btn-danger btn-sm" onclick="deleteBillTx(${ev.id},'${ev.bill_number}')">Delete</button>
+         ${!isReturn?`<button class="btn btn-outline btn-sm" onclick="openEditModal('${ev.id}','${ev.bill_number}',${ev.total_amount},${ev.cash||0},${ev.upi||0},${ev.credit||0})">Edit</button>`:''}`
+
+    return `<tr class="${isReturn?'row-return':''}">
+      <td style="font-size:11px;color:rgba(255,255,255,0.4);font-family:monospace;">${ev.bill_number}</td>
+      <td>${new Date(ev.created_at).toLocaleDateString('en-IN')}</td>
+      <td><span class="badge ${isReturn?'badge-return':bc}">${isReturn?'Return':bl}</span></td>
+      <td style="font-size:12px;">${vehicleCell}</td>
+      <td style="color:${isReturn?'#f87171':'#60a5fa'};font-weight:600;">${isReturn?'-':''}${fmt(ev.total_amount)}</td>
+      <td style="color:${ev.credit>0?'#f87171':'rgba(255,255,255,0.3)'};">${ev.credit!==0?(isReturn?'+ ':'')+fmt(ev.credit)+(isReturn?' returned':' credit'):'—'}</td>
+      <td><div style="display:flex;gap:4px;flex-wrap:wrap;">${actionsCell}</div></td>
+    </tr>`
+  })
+  tbody.innerHTML = rows.join('')
+}
+
 // ── OPEN LEDGER MODAL ──
 window.openLedger = async function(customerId) {
   const{data:cust}=await supabase.from('customers').select('*').eq('id',customerId).single()
@@ -1156,13 +1419,16 @@ window.openLedger = async function(customerId) {
   document.getElementById('modalName').innerText=cust.name
   document.getElementById('modalPhone').innerText=[cust.phone||'',cust.email||'',cust.address||''].filter(Boolean).join('  |  ')||'No contact info'
   document.getElementById('ledgerModal').style.display='block'
-  document.getElementById('txBody').innerHTML='<tr><td colspan="6" class="loading-row">Loading...</td></tr>'
+  document.getElementById('txBody').innerHTML='<tr><td colspan="7" class="loading-row">Loading...</td></tr>'
 
   const[{data:sales},{data:payments}]=await Promise.all([
     supabase.from('sales').select('*').eq('customer_id',customerId).order('created_at',{ascending:true}),
     supabase.from('payments').select('*').eq('customer_id',customerId).order('created_at',{ascending:true})
   ])
 
+  // NOTE: saleBills/totalPurchased/creditFromBills below are left exactly as
+  // before on purpose — they drive the balance math on the summary cards and
+  // we don't want the new filters to change those numbers.
   const saleBills=(sales||[]).filter(s=>s.bill_type!=='return')
   const retBills=(sales||[]).filter(s=>s.bill_type==='return')
   const creditFromBills=saleBills.reduce((s,b)=>s+(b.credit||0),0)
@@ -1170,6 +1436,10 @@ window.openLedger = async function(customerId) {
   const totalPaid=(payments||[]).reduce((s,p)=>s+(p.amount||0),0)
   const totalPurchased=saleBills.reduce((s,b)=>s+(b.total_amount||0),0)
   const netCredit=creditFromBills-creditFromReturns-totalPaid
+
+  // Display-only breakdown for the transaction count text (additive, doesn't touch the math above)
+  const pureSaleBills=saleBills.filter(s=>s.bill_type!=='pay_to_merchant')
+  const ptmBills=saleBills.filter(s=>s.bill_type==='pay_to_merchant')
 
   document.getElementById('smBills').innerText=saleBills.length
   document.getElementById('smTotal').innerText=fmt(totalPurchased)
@@ -1183,52 +1453,29 @@ window.openLedger = async function(customerId) {
   banner.className='balance-banner '+(isOwed?'owe':isAdv?'adv':'clear')
   document.getElementById('balanceBannerText').innerText=isZero?'✓ Account is fully settled':isOwed?`⚠️ Customer owes ₹${Math.abs(nc).toLocaleString('en-IN')}`:`✅ Customer has advance of ₹${Math.abs(nc).toLocaleString('en-IN')}`
 
+  // ── ISSUE #1: sort newest first instead of oldest first ──
   const allEvents=[
     ...(sales||[]).map(s=>({...s,_type:'bill'})),
     ...(payments||[]).map(p=>({...p,_type:'payment'}))
-  ].sort((a,b)=>new Date(a.created_at)-new Date(b.created_at))
+  ].sort((a,b)=>new Date(b.created_at)-new Date(a.created_at))
 
-  const rows=allEvents.map(ev=>{
-    if(ev._type==='payment'){
-      return `<tr class="row-payment">
-        <td style="font-size:11px;color:rgba(255,255,255,0.4);font-family:monospace;">${ev.receipt_no}</td>
-        <td>${new Date(ev.created_at).toLocaleDateString('en-IN')}</td>
-        <td><span class="badge badge-payment">💸 Payment</span></td>
-        <td style="color:rgba(255,255,255,0.3);">—</td>
-        <td style="color:#10b981;font-weight:600;">+ ${fmt(ev.amount)} <span style="font-size:11px;color:rgba(255,255,255,0.3);">(${ev.mode})</span></td>
-        <td><span style="font-size:11px;color:rgba(255,255,255,0.3);">${ev.note||'—'}</span></td>
-      </tr>`
-    }
-    const isReturn=ev.bill_type==='return'
-    const modes=[ev.cash>0?'cash':'',ev.upi>0?'upi':'',ev.credit>0?'credit':''].filter(Boolean)
-    const modeStr=modes.join('+')
-    let bc='badge-mixed',bl='Mixed'
-    if(modeStr==='cash'){bc='badge-cash';bl='Cash'}
-    if(modeStr==='upi'){bc='badge-upi';bl='UPI'}
-    if(modeStr==='credit'){bc='badge-credit';bl='Credit'}
-    return `<tr class="${isReturn?'row-return':''}">
-      <td style="font-size:11px;color:rgba(255,255,255,0.4);font-family:monospace;">${ev.bill_number}</td>
-      <td>${new Date(ev.created_at).toLocaleDateString('en-IN')}</td>
-      <td><span class="badge ${isReturn?'badge-return':bc}">${isReturn?'↩ Return':bl}</span></td>
-      <td style="color:${isReturn?'#f87171':'#60a5fa'};font-weight:600;">${isReturn?'-':''}${fmt(ev.total_amount)}</td>
-      <td style="color:${ev.credit>0?'#f87171':'rgba(255,255,255,0.3)'};">${ev.credit!==0?(isReturn?'+ ':'')+fmt(ev.credit)+(isReturn?' returned':' credit'):'—'}</td>
-      <td>
-        <button class="btn btn-blue btn-sm" onclick="viewBill('${ev.bill_number}','${(cust.name||'').replace(/'/g,"\\'")}','${(cust.phone||'').replace(/'/g,"\\'")}')">👁 View</button>
-        ${!isReturn?`<button class="btn btn-outline btn-sm" style="margin-left:5px;" onclick="openEditModal('${ev.id}','${ev.bill_number}',${ev.total_amount},${ev.cash||0},${ev.upi||0},${ev.credit||0})">✏️</button>`:''}
-      </td>
-    </tr>`
-  })
-
-  document.getElementById('txCount').innerText=`${saleBills.length} bills, ${(payments||[]).length} payments, ${retBills.length} returns`
-  document.getElementById('txBody').innerHTML=rows.length?rows.join(''):'<tr><td colspan="6" class="empty-state">No transactions yet</td></tr>'
   currentCustomerData={cust,sales:sales||[],payments:payments||[],totalPurchased,creditFromBills,creditFromReturns,totalPaid,netCredit}
+
+  _ledgerEvents = allEvents
+  buildVehicleFilterOptions(allEvents)
+  document.getElementById('txTypeFilter').value='all'
+
+  document.getElementById('txCount').innerText=`${pureSaleBills.length} bills, ${(payments||[]).length} payments, ${ptmBills.length} pay-to-merchant, ${retBills.length} returns`
+  renderTxRows(allEvents, cust)
 }
 
 window.closeModal=function(){document.getElementById('ledgerModal').style.display='none';currentCustomerData=null}
 document.getElementById('ledgerModal').addEventListener('click',e=>{if(e.target===document.getElementById('ledgerModal'))closeModal()})
 
+window.closeSimpleView=()=>{document.getElementById('simpleViewModal').style.display='none'}
+document.getElementById('simpleViewModal').addEventListener('click',e=>{if(e.target===document.getElementById('simpleViewModal'))closeSimpleView()})
+
 // ── WHATSAPP STATEMENT ──
-  
 window.whatsappStatement = async function() {
   if(!currentCustomerData) return
   const { cust, netCredit } = currentCustomerData
@@ -1238,36 +1485,50 @@ window.whatsappStatement = async function() {
   if(!cp){alert('Invalid phone: '+phone+'\n\nPlease update it.');return}
   const nc = Math.round(netCredit)
   const balText = nc===0?'Clear':nc>0?('Due: Rs '+Math.abs(nc).toLocaleString('en-IN')):('Advance: Rs '+Math.abs(nc).toLocaleString('en-IN'))
-  const msg = `*Abhinandan Auto Mobiles*\nStatement for: *${cust.name}*\nBalance: *${balText}*\n\nPlease find the attached statement PDF.\n+91 98700 37002`
+  const msg = `*${_biz.name}*\nStatement for: *${cust.name}*\nBalance: *${balText}*\n\nPlease find the attached statement PDF.\n${_biz.phone}`
   await sendPDFToWhatsApp(buildStatementPDF(currentCustomerData), 'Statement-'+cust.name+'.pdf', phone, msg)
 }
 
-// ── VIEW BILL ──
+// ── VIEW BILL — issue #6: now matches the real sales bill ──
 window.viewBill = async function(billNo, customerName, customerPhone) {
   const{data:sale}=await supabase.from('sales').select('*').eq('bill_number',billNo).single()
   if(!sale){alert('Bill not found');return}
   const{data:items}=await supabase.from('bill_items').select('*').eq('sale_id',sale.id)
-  const missingIds=(items||[]).filter(i=>!i.item_name&&i.item_id).map(i=>i.item_id)
-  const invNames={}
-  if(missingIds.length){const{data:prods}=await supabase.from('inventory').select('id,item_name').in('id',missingIds);(prods||[]).forEach(p=>{invNames[p.id]=p.item_name})}
+  const itemIds=(items||[]).filter(i=>i.item_id).map(i=>i.item_id)
+  const invMap={}
+  if(itemIds.length){
+    const{data:prods}=await supabase.from('inventory').select('id,item_name,brand,category,product_size,unit_type').in('id',itemIds)
+    ;(prods||[]).forEach(p=>{invMap[p.id]=p})
+  }
   const modes=[sale.cash>0?'Cash':'',sale.upi>0?'UPI':'',sale.credit>0?'Credit':''].filter(Boolean)
   const isReturn=sale.bill_type==='return'
+
+  document.getElementById('vBizName').innerText=_biz.name
+  document.getElementById('vBizAddress').innerText=_biz.address
+  document.getElementById('vBizPhone').innerText=_biz.phone
+  document.getElementById('vAvatar').innerText=(_biz.name||'A').trim().charAt(0).toUpperCase()
+
   document.getElementById('vHeader').className='inv-header'+(isReturn?' return-style':'')
-  document.getElementById('vBillType').innerText=isReturn?'Sales Return':'GST Invoice'
+  document.getElementById('vBillType').innerText=isReturn?'SALES RETURN':'SALES BILL'
   document.getElementById('vInvoiceNo').innerText=sale.bill_number
-  document.getElementById('vDate').innerText=new Date(sale.created_at).toLocaleString('en-IN')
+  document.getElementById('vDate').innerText=new Date(sale.created_at).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})+' at '+new Date(sale.created_at).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})
   document.getElementById('vCustomer').innerText=customerName
   document.getElementById('vPhone').innerText=customerPhone||'—'
   document.getElementById('vPayMode').innerText=modes.join(' + ')||'—'
   document.getElementById('vFooterMsg').innerText=isReturn?'Return processed. Thank you. 🙏':'Thank you for your business 🙏'
   document.getElementById('vBillNoDisplay').innerText=sale.bill_number
   if(sale.vehicle_number){document.getElementById('vVehicleBlock').style.display='block';document.getElementById('vVehicle').innerText=sale.vehicle_number}else{document.getElementById('vVehicleBlock').style.display='none'}
+
   let subtotal=0
   document.getElementById('vItems').innerHTML=(items||[]).map((item,i)=>{
-    const name=item.item_name||invNames[item.item_id]||`[Deleted Product — was #${item.item_id}]`
+    const inv=invMap[item.item_id]
+    const name=item.item_name||inv?.item_name||`[Deleted Product — was #${item.item_id}]`
+    const subParts=[inv?.brand,inv?.category,inv?.product_size,inv?.unit_type].filter(Boolean)
+    const subLine=subParts.length?`<div class="inv-item-sub">${subParts.join(' • ')}</div>`:''
     const qty=Math.abs(item.quantity), amt=Math.abs(item.total||0); subtotal+=amt
-    return `<tr><td style="color:#6b7280;">${i+1}</td><td>${name}</td><td>${qty}</td><td>₹${item.price}</td><td>₹${amt.toLocaleString('en-IN')}</td></tr>`
+    return `<tr><td style="color:#6b7280;">${i+1}</td><td>${name}${subLine}</td><td>${qty}</td><td>₹${item.price}</td><td>₹${amt.toLocaleString('en-IN')}</td></tr>`
   }).join('')
+
   const disc=sale.discount||0
   document.getElementById('vSubtotal').innerText=subtotal.toLocaleString('en-IN')
   document.getElementById('vTotal').innerText=Math.round(Math.abs(sale.total_amount)).toLocaleString('en-IN')
@@ -1278,6 +1539,7 @@ window.viewBill = async function(billNo, customerName, customerPhone) {
   document.getElementById('vCredit').innerText='₹'+Math.abs(sale.credit||0)
   document.getElementById('vDiscPayDiv').style.display=disc>0?'block':'none'
   if(disc>0)document.getElementById('vDiscPay').innerText='₹'+disc
+
   if(currentCustomerData){
     const{netCredit}=currentCustomerData, nc=Math.round(netCredit)
     const balBox=document.getElementById('vBalanceBox')
@@ -1288,37 +1550,48 @@ window.viewBill = async function(billNo, customerName, customerPhone) {
     const balText=nc===0?'₹0 — Settled ✓':(nc<0?'+':'-')+fmt(nc)+(nc<0?' (Advance)':' (Credit Due)')
     const el=document.getElementById('vBalFinal'); el.innerText=balText; el.style.color=nc>0?'#dc2626':'#059669'
   }else document.getElementById('vBalanceBox').style.display='none'
+
+  document.getElementById('vPortalUrl').innerText=PORTAL_URL
+  const qrHolder=document.getElementById('vQRCodeCanvas')
+  qrHolder.innerHTML=''
+  try{ new QRCode(qrHolder,{text:PORTAL_URL,width:64,height:64,correctLevel:QRCode.CorrectLevel.M}) }catch(e){}
+
   document.getElementById('viewBillModal').style.display='block'
 }
 
-// Store current viewed bill phone for WhatsApp
 window.whatsappBill = async function() {
   if(!currentCustomerData) return
   const billNo = document.getElementById('vInvoiceNo').innerText
   const custName = document.getElementById('vCustomer').innerText
   const phone = document.getElementById('vPhone').innerText === '—' ? '' : document.getElementById('vPhone').innerText
-  const { data: sale } = await supabase.from('sales').select('*').eq('bill_number', billNo).single()
-  if(!sale){alert('Bill data not found');return}
-  const { data: items } = await supabase.from('bill_items').select('*').eq('sale_id', sale.id)
-  const missingIds = (items||[]).filter(i=>!i.item_name&&i.item_id).map(i=>i.item_id)
-  const invNames = {}
-  if(missingIds.length){const{data:prods}=await supabase.from('inventory').select('id,item_name').in('id',missingIds);(prods||[]).forEach(p=>{invNames[p.id]=p.item_name})}
-  const modes = [sale.cash>0?'Cash':'',sale.upi>0?'UPI':'',sale.credit>0?'Credit':''].filter(Boolean)
-  const subtotal = (items||[]).reduce((s,i)=>s+(Math.abs(i.total)||0),0)
-  const opts = {
-    isReturn: sale.bill_type==='return', isPurchase: false,
-    billType: 'GST Invoice', billNo: sale.bill_number,
-    date: new Date(sale.created_at).toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}),
-    partyName: custName, partyPhone: document.getElementById('vPhone').innerText,
-    vehicle: sale.vehicle_number||'',
-    items: (items||[]).map(item=>({name:item.item_name||invNames[item.item_id]||'Unknown Item',qty:Math.abs(item.quantity||0),price:item.price||0})),
-    subtotal: subtotal, final: sale.total_amount, gstEnabled: false,
-    discount: sale.discount||0, delivery: sale.delivery_charges||0,
-    cash: sale.cash||0, upi: sale.upi||0, credit: sale.credit||0,
-    payMode: modes.join(' + ')||'—'
-  }
-  const msg = `*Abhinandan Auto Mobiles*\nBill *${billNo}* for Rs ${Math.round(Math.abs(sale.total_amount)).toLocaleString('en-IN')}\nCustomer: *${custName}*\n\nPlease find the attached bill PDF.\n+91 98700 37002`
-  await sendPDFToWhatsApp(buildSingleBillPDF(opts), 'Bill-'+billNo+'.pdf', phone, msg)
+  await whatsappBillByNumber(billNo, custName, phone)
+}
+
+// ── Row-level actions for bills (issue #5) — work independently of whether the View modal is open ──
+window.printBillTx = async function(billNo){
+  const{data:sale}=await supabase.from('sales').select('*').eq('bill_number',billNo).single()
+  if(!sale){alert('Bill not found');return}
+  let custName='Walk-in', custPhone=''
+  if(currentCustomerData){ custName=currentCustomerData.cust.name; custPhone=currentCustomerData.cust.phone||'' }
+  const doc = await buildBillPDFFromSale(sale, custName, custPhone)
+  _openPDFForPrint(doc)
+}
+
+window.whatsappBillByNumber = async function(billNo, custName, custPhone){
+  const{data:sale}=await supabase.from('sales').select('*').eq('bill_number',billNo).single()
+  if(!sale){alert('Bill not found');return}
+  const doc = await buildBillPDFFromSale(sale, custName, custPhone)
+  const msg = `*${_biz.name}*\nBill *${billNo}* for Rs ${Math.round(Math.abs(sale.total_amount)).toLocaleString('en-IN')}\nCustomer: *${custName}*\n\nPlease find the attached bill PDF.\n${_biz.phone}`
+  await sendPDFToWhatsApp(doc, 'Bill-'+billNo+'.pdf', custPhone, msg)
+}
+
+window.deleteBillTx = async function(saleId, billNo){
+  if(!confirm('Delete bill '+billNo+' permanently?\n\nThis removes the bill and its line items and cannot be undone.'))return
+  await supabase.from('bill_items').delete().eq('sale_id', saleId)
+  const{error}=await supabase.from('sales').delete().eq('id', saleId)
+  if(error){alert('Delete failed: '+error.message);return}
+  if(currentCustomerData) openLedger(currentCustomerData.cust.id)
+  loadCustomers()
 }
 
 window.closeViewBill=()=>{document.getElementById('viewBillModal').style.display='none'}
@@ -1326,6 +1599,107 @@ window.printViewedBill=()=>{
   document.body.classList.add('print-bill')
   const ot=document.title; document.title=document.getElementById('vInvoiceNo').innerText||'Invoice'; window.print()
   setTimeout(()=>{document.body.classList.remove('print-bill');document.title=ot},800)
+}
+
+// ── Row-level actions for Payment receipts (issue #5) ──
+window.viewPaymentTx = async function(id){
+  const{data:p}=await supabase.from('payments').select('*').eq('id',id).single()
+  if(!p){alert('Payment not found');return}
+  const cust=currentCustomerData?.cust||{}
+  document.getElementById('svTitle').innerText='Payment Receipt'
+  document.getElementById('svBody').innerHTML=`
+    <div style="margin-bottom:14px;"><div style="font-size:11px;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px;">Receipt No</div><div style="font-weight:700;font-size:15px;">${p.receipt_no}</div></div>
+    <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed #e5e7eb;"><span style="color:#6b7280;">Received From</span><strong>${cust.name||'—'}</strong></div>
+    <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed #e5e7eb;"><span style="color:#6b7280;">Date</span><strong>${new Date(p.created_at).toLocaleDateString('en-IN')}</strong></div>
+    <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed #e5e7eb;"><span style="color:#6b7280;">Mode</span><strong>${p.mode}</strong></div>
+    <div style="display:flex;justify-content:space-between;padding:8px 0;"><span style="color:#6b7280;">Amount Received</span><strong style="color:#059669;font-size:17px;">${fmt(p.amount)}</strong></div>
+    ${p.note?`<div style="margin-top:10px;padding:10px;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;font-size:13px;color:#92400e;">Note: ${p.note}</div>`:''}
+  `
+  document.getElementById('svActions').innerHTML=`
+    <button class="btn btn-outline btn-sm" onclick="printPaymentTx(${p.id})">Print</button>
+    <button class="btn btn-wa btn-sm" onclick="whatsappPaymentTx(${p.id})">WhatsApp</button>
+    <button class="btn btn-danger btn-sm" onclick="deletePaymentTx(${p.id})">Delete</button>
+  `
+  document.getElementById('simpleViewModal').style.display='flex'
+}
+
+window.printPaymentTx = async function(id){
+  const{data:p}=await supabase.from('payments').select('*').eq('id',id).single()
+  if(!p){alert('Not found');return}
+  const cust=currentCustomerData?.cust||{}
+  const doc=buildPaymentReceiptPDF(p, cust.name||'—', cust.phone||'')
+  _openPDFForPrint(doc)
+}
+
+window.whatsappPaymentTx = async function(id){
+  const{data:p}=await supabase.from('payments').select('*').eq('id',id).single()
+  if(!p){alert('Not found');return}
+  const cust=currentCustomerData?.cust
+  if(!cust){alert('Open the customer ledger first');return}
+  const doc=buildPaymentReceiptPDF(p, cust.name, cust.phone)
+  const msg=`*${_biz.name}*\nPayment Receipt ${p.receipt_no}\nAmount: Rs ${Math.round(p.amount).toLocaleString('en-IN')}\nThank you for your payment.\n${_biz.phone}`
+  await sendPDFToWhatsApp(doc, 'Receipt-'+p.receipt_no+'.pdf', cust.phone, msg)
+}
+
+window.deletePaymentTx = async function(id){
+  if(!confirm('Delete this payment permanently?\n\nThis cannot be undone.'))return
+  const{error}=await supabase.from('payments').delete().eq('id',id)
+  if(error){alert('Delete failed: '+error.message);return}
+  closeSimpleView()
+  if(currentCustomerData) openLedger(currentCustomerData.cust.id)
+  loadCustomers()
+}
+
+// ── Row-level actions for Pay to Merchant records (issue #5) ──
+window.viewPTMTx = async function(id){
+  const{data:ptm}=await supabase.from('sales').select('*').eq('id',id).eq('bill_type','pay_to_merchant').single()
+  if(!ptm){alert('Record not found');return}
+  const cust=currentCustomerData?.cust||{}
+  document.getElementById('svTitle').innerText='Pay to Merchant'
+  document.getElementById('svBody').innerHTML=`
+    <div style="margin-bottom:14px;"><div style="font-size:11px;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px;">Reference No</div><div style="font-weight:700;font-size:15px;">${ptm.bill_number}</div></div>
+    <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed #e5e7eb;"><span style="color:#6b7280;">On Behalf Of</span><strong>${cust.name||'—'}</strong></div>
+    <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed #e5e7eb;"><span style="color:#6b7280;">Paid To (Merchant)</span><strong>${ptm.merchant_name||'—'}</strong></div>
+    <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed #e5e7eb;"><span style="color:#6b7280;">Date</span><strong>${new Date(ptm.created_at).toLocaleDateString('en-IN')}</strong></div>
+    <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed #e5e7eb;"><span style="color:#6b7280;">Mode</span><strong>${ptm.merchant_pay_mode||'—'}</strong></div>
+    <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed #e5e7eb;"><span style="color:#6b7280;">Reference</span><strong>${ptm.merchant_pay_ref||'—'}</strong></div>
+    <div style="display:flex;justify-content:space-between;padding:8px 0;"><span style="color:#6b7280;">Amount Paid</span><strong style="color:#7c3aed;font-size:17px;">${fmt(ptm.total_amount)}</strong></div>
+    ${ptm.notes?`<div style="margin-top:10px;padding:10px;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;font-size:13px;color:#92400e;">${ptm.notes}</div>`:''}
+  `
+  document.getElementById('svActions').innerHTML=`
+    <button class="btn btn-outline btn-sm" onclick="printPTMTx(${ptm.id})">Print</button>
+    <button class="btn btn-wa btn-sm" onclick="whatsappPTMTx(${ptm.id})">WhatsApp</button>
+    <button class="btn btn-danger btn-sm" onclick="deletePTMTx(${ptm.id})">Delete</button>
+  `
+  document.getElementById('simpleViewModal').style.display='flex'
+}
+
+window.printPTMTx = async function(id){
+  const{data:ptm}=await supabase.from('sales').select('*').eq('id',id).eq('bill_type','pay_to_merchant').single()
+  if(!ptm){alert('Not found');return}
+  const cust=currentCustomerData?.cust||{}
+  const doc=buildPTMReceiptPDF(ptm, cust.name||'—', cust.phone||'')
+  _openPDFForPrint(doc)
+}
+
+window.whatsappPTMTx = async function(id){
+  const{data:ptm}=await supabase.from('sales').select('*').eq('id',id).eq('bill_type','pay_to_merchant').single()
+  if(!ptm){alert('Not found');return}
+  const cust=currentCustomerData?.cust
+  if(!cust){alert('Open the customer ledger first');return}
+  const doc=buildPTMReceiptPDF(ptm, cust.name, cust.phone)
+  const msg=`*${_biz.name}*\nPaid Rs ${Math.round(ptm.total_amount).toLocaleString('en-IN')} to ${ptm.merchant_name} on your behalf.\nRef: ${ptm.bill_number}\n${_biz.phone}`
+  await sendPDFToWhatsApp(doc, 'PTM-'+ptm.bill_number+'.pdf', cust.phone, msg)
+}
+
+window.deletePTMTx = async function(id){
+  if(!confirm('Delete this Pay to Merchant record permanently?\n\nThis cannot be undone.'))return
+  await supabase.from('bill_items').delete().eq('sale_id', id)
+  const{error}=await supabase.from('sales').delete().eq('id', id).eq('bill_type','pay_to_merchant')
+  if(error){alert('Delete failed: '+error.message);return}
+  closeSimpleView()
+  if(currentCustomerData) openLedger(currentCustomerData.cust.id)
+  loadCustomers()
 }
 
 // ── EDIT PAYMENT SPLIT ──
