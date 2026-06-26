@@ -174,12 +174,14 @@ html.light-theme .view-bill-actions .btn-white { background:white !important; co
 /* INVOICE STYLES */
 .inv-header { background:linear-gradient(135deg,#1e3a5f 0%,#2563eb 60%,#06b6d4 100%); color:white; padding:20px 28px; display:flex; justify-content:space-between; align-items:center; gap:16px; }
 .inv-header.return-style { background:linear-gradient(135deg,#7f1d1d,#dc2626,#f87171) !important; }
-/* FIX: Force white text in all inv-header children for both themes */
-.inv-header *, .inv-header { color:white !important; }
-.inv-header.return-style * { color:white !important; }
-/* FIX: Logo box letter must stay dark against white background */
+/* FIX (logo visibility bug): the old rule was ".inv-header *" which ALSO matched
+   .inv-logo-box and forced it white-on-white. We exclude the logo box from the
+   white-text rule and give the logo box its own dedicated, non-conflicting rule
+   so there's no specificity fight (and no need for inline-style hacks). */
+.inv-header *:not(.inv-logo-box), .inv-header { color:white !important; }
+.inv-header.return-style *:not(.inv-logo-box) { color:white !important; }
 .inv-logo-box { width:52px; height:52px; background:white; border-radius:10px; display:flex; align-items:center; justify-content:center; font-family:'Playfair Display',serif; font-size:24px; font-weight:700; color:#1e3a5f !important; flex-shrink:0; }
-.inv-logo-box.return-logo { color:#7f1d1d !important; }
+.inv-header.return-style .inv-logo-box { color:#7f1d1d !important; }
 .inv-logo-area { display:flex; align-items:center; gap:14px; }
 .inv-company { font-family:'Playfair Display',serif; font-size:19px; font-weight:700; margin-bottom:2px; }
 .inv-sub { font-size:11px; opacity:0.85; margin:1px 0; }
@@ -496,10 +498,9 @@ html.light-theme .bal-green { color:#059669 !important; }
       <button class="btn btn-outline btn-sm" onclick="closeViewBill()" style="color:white;">X Close</button>
     </div>
     <div id="viewBillPrintArea">
-      <!-- FIX: Logo box uses inline style to guarantee color not overridden -->
       <div class="inv-header" id="vHeader">
         <div class="inv-logo-area">
-          <div class="inv-logo-box" id="vLogoBox" style="color:#1e3a5f !important;">A</div>
+          <div class="inv-logo-box" id="vLogoBox">A</div>
           <div>
             <div class="inv-company">Abhinandan Auto Mobiles</div>
             <div class="inv-sub">Nr. Refaral Hospital, Kandla National Highway Road</div>
@@ -519,7 +520,6 @@ html.light-theme .bal-green { color:#059669 !important; }
         <div class="inv-meta-block"><label>Payment Mode</label><span id="vPayMode">—</span></div>
       </div>
       <div class="inv-table-wrap">
-        <!-- FIX: 5 columns: # / Item Description (with subtitle) / Qty / Unit Price / Amount -->
         <table class="inv-table">
           <thead>
             <tr>
@@ -575,9 +575,7 @@ html.light-theme .bal-green { color:#059669 !important; }
 </div>
 
 
-<!-- VIEW PAYMENT RECEIPT MODAL (NEW) -->
-<!-- WHY: Payment rows now have a full View button. This modal shows a proper
-     formatted receipt that can be viewed, printed, and WhatsApped. -->
+<!-- VIEW PAYMENT RECEIPT MODAL -->
 <div id="viewPaymentModal">
   <div class="view-pay-box">
     <div class="view-pay-actions">
@@ -807,11 +805,23 @@ let currentCustomerData = null
 let allTxEvents = []
 let editingSaleId = null
 let searchTimer   = null
-// Holds the payment object currently loaded in viewPaymentModal
 let currentViewedPayment = null
 
 const fmt = n => '₹' + (Math.round(Math.abs(n))||0).toLocaleString('en-IN')
 const PORTAL_URL = 'https://abhinandan-auto-mobiles-erp.vercel.app/portal.html'
+
+// ─── PRINT CLASS ISOLATION HELPER ────────────
+// WHY: Every print function adds a body class (print-bill, print-statement, etc.)
+// which the @media print CSS uses to decide which hidden area to reveal. If a
+// previous print was interrupted (dialog cancelled, fast double-clicking) its
+// class can still be sitting on <body>. With TWO classes active at once, BOTH
+// print areas become visible at print time, and the browser/PDF driver renders
+// whichever comes first in DOM order — this is exactly what produced a blank
+// "Customer Statement" PDF when trying to print a Bill. We strip every print
+// class before adding the one we actually want, every single time.
+function _clearPrintClasses(){
+  document.body.classList.remove('print-statement','print-receipt','print-bill','print-pay-receipt')
+}
 
 // ─── WHATSAPP HELPERS ───────────────────────
 function showWaToast(msg) {
@@ -1112,27 +1122,22 @@ function buildSingleBillPDF(opts) {
   return doc
 }
 
-// NEW: Build a PDF for a payment receipt
 function buildPaymentReceiptPDF(pay, cust, prevBal, newBal) {
   const { jsPDF } = window.jspdf
   const doc = new jsPDF({ unit:'pt', format:'a4' })
   const W = 595.28, mg = 36
   let y = 0
 
-  // Green header
   doc.setFillColor(5,150,105); doc.rect(0,0,W,92,'F')
-  // Logo box
   doc.setFillColor(255,255,255); doc.roundedRect(mg,20,48,48,6,6,'F')
   doc.setFont('helvetica','bold'); doc.setFontSize(24); doc.setTextColor(5,150,105)
   doc.text('A', mg+24, 51, {align:'center'})
-  // Company name
   doc.setTextColor(255,255,255)
   doc.setFont('helvetica','bold'); doc.setFontSize(17)
   doc.text('Abhinandan Auto Mobiles', mg+58, 32)
   doc.setFont('helvetica','normal'); doc.setFontSize(8.5)
   doc.text('Nr. Refaral Hospital, Kandla National Highway Road, SANTALPUR, Dit. PATAN.', mg+58, 46)
   doc.text('+91 98700 37002', mg+58, 58)
-  // Right side
   doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setTextColor(255,255,255)
   doc.text('PAYMENT RECEIPT', W-mg, 26, {align:'right'})
   doc.setFontSize(13)
@@ -1141,7 +1146,6 @@ function buildPaymentReceiptPDF(pay, cust, prevBal, newBal) {
   doc.text(new Date(pay.created_at).toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric'}), W-mg, 58, {align:'right'})
   y = 92
 
-  // Meta strip
   doc.setFillColor(248,250,252); doc.rect(0,y,W,50,'F')
   doc.setDrawColor(229,231,235); doc.line(0,y+50,W,y+50)
   const mc = (lbl,val,x) => {
@@ -1156,7 +1160,6 @@ function buildPaymentReceiptPDF(pay, cust, prevBal, newBal) {
   mc('DATE', new Date(pay.created_at).toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'}), 460)
   y += 62
 
-  // Table header
   doc.setFillColor(5,150,105); doc.rect(0,y,W,22,'F')
   doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(9)
   doc.text('#', mg+6, y+14, {align:'center'})
@@ -1164,7 +1167,6 @@ function buildPaymentReceiptPDF(pay, cust, prevBal, newBal) {
   doc.text('AMOUNT', W-mg, y+14, {align:'right'})
   y += 24
 
-  // Single row
   doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(55,65,81)
   doc.text('1', mg+6, y, {align:'center'})
   doc.text('Payment received against outstanding credit balance', mg+18, y)
@@ -1173,7 +1175,6 @@ function buildPaymentReceiptPDF(pay, cust, prevBal, newBal) {
   doc.setDrawColor(229,231,235); doc.line(0,y+6,W,y+6)
   y += 24
 
-  // Note if exists
   if(pay.note){
     y += 8
     doc.setFillColor(255,251,235); doc.rect(mg,y,W-2*mg,28,'F')
@@ -1185,7 +1186,6 @@ function buildPaymentReceiptPDF(pay, cust, prevBal, newBal) {
     y += 36
   }
 
-  // Total box
   y += 8
   doc.setFillColor(240,253,244); doc.rect(W-mg-200,y,200,32,'F')
   doc.setDrawColor(134,239,172); doc.rect(W-mg-200,y,200,32)
@@ -1195,7 +1195,6 @@ function buildPaymentReceiptPDF(pay, cust, prevBal, newBal) {
   doc.text('Rs '+Math.round(pay.amount).toLocaleString('en-IN'), W-mg-5, y+20, {align:'right'})
   y += 48
 
-  // Balance summary
   doc.setFillColor(248,250,252); doc.rect(mg,y,W-2*mg,72,'F')
   doc.setDrawColor(229,231,235); doc.rect(mg,y,W-2*mg,72)
   y += 14
@@ -1213,7 +1212,6 @@ function buildPaymentReceiptPDF(pay, cust, prevBal, newBal) {
   brow('New Balance', newBal, true, [55,65,81])
   y += 20
 
-  // Signature row
   doc.setDrawColor(55,65,81)
   doc.line(mg, y+24, mg+130, y+24)
   doc.line(W-mg-130, y+24, W-mg, y+24)
@@ -1381,31 +1379,32 @@ window.openLedger = async function(customerId) {
   renderTxRows(allTxEvents)
 }
 
-// ─── VEHICLE FILTER FIX ──────────────────────
-// WHY: The original code had `e._type==='payment' || e.vehicle_number===vehicle`
-// which passed ALL payments through when a vehicle was selected.
-// Fix: when a specific vehicle is chosen, bills are strictly filtered by that
-// vehicle. Payments are ALWAYS shown because they are account-level, not vehicle-level.
-// When "__none__" is chosen, only bills with no vehicle are shown (plus all payments).
+// ─── VEHICLE FILTER ──────────────────────────
+// WHY: Bills are filtered STRICTLY by the chosen vehicle number — a bill that
+// doesn't carry that exact vehicle number must never appear. Payments are
+// account-level (not tied to any single vehicle), so they always pass through
+// regardless of which vehicle is selected. We normalize (trim + uppercase)
+// before comparing so a hand-typed "gj24ac5124 " still matches "GJ24AC5124" —
+// without normalization, identical vehicles that differ only by stray spaces
+// or casing would wrongly look unrelated.
+function _normVehicle(v){ return (v||'').toString().trim().toUpperCase() }
+
 window.applyTxFilters = function(){
   const type    = document.getElementById('txTypeFilter').value
   const vehicle = document.getElementById('txVehicleFilter').value
 
   let filtered = allTxEvents
 
-  // Step 1: Filter by transaction type
   if(type==='sales')   filtered = filtered.filter(e => e._type==='bill' && e.bill_type!=='return')
   if(type==='payment') filtered = filtered.filter(e => e._type==='payment')
   if(type==='return')  filtered = filtered.filter(e => e._type==='bill' && e.bill_type==='return')
 
-  // Step 2: Filter by vehicle
-  // Payments have no vehicle, so they always pass vehicle filter (they are account-level).
-  // Bills are strictly filtered by the selected vehicle number.
   if(vehicle !== 'all') {
+    const wantedVehicle = _normVehicle(vehicle)
     filtered = filtered.filter(e => {
-      if(e._type === 'payment') return true // payments always shown regardless of vehicle filter
-      if(vehicle === '__none__') return !e.vehicle_number // bills with no vehicle
-      return e.vehicle_number === vehicle   // bills with exactly this vehicle
+      if(e._type === 'payment') return true
+      if(vehicle === '__none__') return !e.vehicle_number
+      return _normVehicle(e.vehicle_number) === wantedVehicle
     })
   }
 
@@ -1483,21 +1482,28 @@ window.deleteBill = async function(saleId, billNo){
 }
 
 // ─── FETCH BILL ITEMS WITH PRODUCT DETAILS ───
-// WHY: We ALWAYS look up brand/category/size/unit from inventory
-// because bill_items may not store these fields at time of billing.
+// WHY: bill_items rows may not have brand/category/size/unit stored directly,
+// so we backfill them from the inventory table via item_id. FIX: the previous
+// version compared item_id straight from Supabase against inventory.id without
+// normalizing type — if one comes back as a number and the other as a string
+// (very common with Postgres uuid/int columns vs JS), the `.in()` filter or the
+// lookup map can silently miss every match, leaving brand/category/size/unit
+// undefined with NO error shown anywhere. We now key the lookup map by
+// String(id) on both sides so type differences can't cause a silent miss, and
+// we log a console.warn if the inventory query itself fails.
 async function fetchBillItemsFull(saleId){
   const{data:items}=await supabase.from('bill_items').select('*').eq('sale_id',saleId)
   if(!items||!items.length) return []
-  // Always look up product details from inventory for ALL items that have item_id
-  const itemsWithId = items.filter(i => i.item_id)
+  const itemsWithId = items.filter(i => i.item_id !== null && i.item_id !== undefined && i.item_id !== '')
   if(itemsWithId.length){
-    const ids = itemsWithId.map(i => i.item_id)
-    const{data:prods}=await supabase.from('inventory').select('id,item_name,brand,category,size,unit').in('id',ids)
-    const prodMap={}; (prods||[]).forEach(p=>prodMap[p.id]=p)
+    const ids = [...new Set(itemsWithId.map(i => i.item_id))]
+    const{data:prods, error}=await supabase.from('inventory').select('id,item_name,brand,category,size,unit').in('id',ids)
+    if(error) console.warn('Product detail lookup failed (brand/category/size/unit will be blank):', error)
+    const prodMap={}
+    ;(prods||[]).forEach(p=>{ prodMap[String(p.id)]=p })
     items.forEach(item=>{
-      if(item.item_id && prodMap[item.item_id]){
-        const p=prodMap[item.item_id]
-        // Fill in any missing fields from inventory (don't overwrite if already stored on bill_item)
+      const p = (item.item_id!==null && item.item_id!==undefined) ? prodMap[String(item.item_id)] : null
+      if(p){
         if(!item.item_name) item.item_name=p.item_name
         if(!item.brand)    item.brand=p.brand
         if(!item.category) item.category=p.category
@@ -1515,6 +1521,44 @@ function buildSubtitle(item){
   return parts.join(' • ')
 }
 
+// ─── ACCURATE RUNNING BALANCE AROUND A PAYMENT ───────
+// WHY: A receipt is a historical document — it must freeze the balance as it
+// stood at THAT moment, not whatever the customer's balance happens to be
+// today. We replay every bill/return/payment in chronological (oldest-first)
+// order and capture the running balance right before and right after the
+// target payment was applied. This is also a good proactive practice for any
+// billing system: always be able to reconstruct "what did the books look like
+// on date X", not just "what do they look like now".
+function computeBalanceAroundPayment(paymentId){
+  if(!currentCustomerData) return {prevBal:0,newBal:0}
+  const {sales,payments}=currentCustomerData
+  const events=[
+    ...sales.map(s=>({...s,_type:'bill',_ts:new Date(s.created_at).getTime()})),
+    ...payments.map(p=>({...p,_type:'payment',_ts:new Date(p.created_at).getTime()}))
+  ].sort((a,b)=>a._ts-b._ts)
+  let running=0, prevBal=0, newBal=0
+  for(const ev of events){
+    if(ev._type==='bill'){
+      running += ev.bill_type==='return' ? -Math.abs(ev.credit||0) : (ev.credit||0)
+    } else {
+      if(ev.id===paymentId) prevBal=running
+      running -= (ev.amount||0)
+      if(ev.id===paymentId) newBal=running
+    }
+  }
+  return {prevBal,newBal}
+}
+function balanceLabel(n){
+  const r=Math.round(n)
+  if(r===0) return '₹0 Clear'
+  return r>0 ? `-${fmt(r)} (Credit Due)` : `+${fmt(Math.abs(r))} (Advance)`
+}
+function balanceLabelPDF(n){
+  const r=Math.round(n)
+  if(r===0) return 'Clear'
+  return r>0 ? ('Due: Rs '+Math.abs(r).toLocaleString('en-IN')) : ('Advance: Rs '+Math.abs(r).toLocaleString('en-IN'))
+}
+
 // ─── VIEW BILL MODAL ─────────────────────────
 window.viewBill = async function(billNo, customerName, customerPhone){
   const{data:sale}=await supabase.from('sales').select('*').eq('bill_number',billNo).single()
@@ -1523,11 +1567,12 @@ window.viewBill = async function(billNo, customerName, customerPhone){
   const modes=[sale.cash>0?'Cash':'',sale.upi>0?'UPI':'',sale.credit>0?'Credit':''].filter(Boolean)
   const isReturn=sale.bill_type==='return'
 
-  // FIX: Logo color set explicitly so it stays dark on white background
   const vHeader=document.getElementById('vHeader')
   vHeader.className='inv-header'+(isReturn?' return-style':'')
-  const logoBox=document.getElementById('vLogoBox')
-  logoBox.style.cssText=`color:${isReturn?'#7f1d1d':'#1e3a5f'} !important;`
+  // Logo color is handled purely by CSS now (.inv-logo-box / .return-style .inv-logo-box).
+  // We don't fight it with inline styles anymore — that conflict was the root
+  // cause of the invisible logo bug.
+  document.getElementById('vLogoBox').removeAttribute('style')
   document.getElementById('vBillType').innerText=isReturn?'Sales Return':'Sales Bill'
   document.getElementById('vInvoiceNo').innerText=sale.bill_number
   document.getElementById('vDate').innerText=new Date(sale.created_at).toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})
@@ -1543,7 +1588,6 @@ window.viewBill = async function(billNo, customerName, customerPhone){
     document.getElementById('vVehicleBlock').style.display='none'
   }
 
-  // FIX: Item rows with FULL detail — name + brand • category • size • unit subtitle
   let subtotal=0
   document.getElementById('vItems').innerHTML=(items||[]).map((item,i)=>{
     const name=item.item_name||`[Item #${item.item_id||'?'}]`
@@ -1588,7 +1632,6 @@ window.viewBill = async function(billNo, customerName, customerPhone){
     document.getElementById('vBalanceBox').style.display='none'
   }
 
-  // Generate QR code
   const qrDiv=document.getElementById('vQrCode')
   qrDiv.innerHTML=''
   if(window.QRCode){
@@ -1600,23 +1643,20 @@ window.viewBill = async function(billNo, customerName, customerPhone){
 
 window.closeViewBill = () => { document.getElementById('viewBillModal').style.display='none' }
 
-// FIX: Print from the viewBillModal — copies HTML into the hidden print area
-// WHY: We must force a reflow after writing innerHTML and before window.print()
-// so the browser layout engine renders the content before capture.
 window.printViewedBill = function(){
   const printSrc = document.getElementById('viewBillPrintArea').innerHTML
   document.getElementById('billPrintArea').innerHTML = printSrc
+  _clearPrintClasses()
   document.body.classList.add('print-bill')
   const ot = document.title
   document.title = document.getElementById('vInvoiceNo').innerText || 'Bill'
-  void document.getElementById('billPrintArea').offsetHeight // force reflow
+  void document.getElementById('billPrintArea').offsetHeight
   requestAnimationFrame(()=>requestAnimationFrame(()=>{
     window.print()
     setTimeout(()=>{ document.body.classList.remove('print-bill'); document.title=ot }, 1200)
   }))
 }
 
-// Direct print (from table row) — builds full HTML inline
 window.directPrintBill = async function(billNo, customerName, customerPhone){
   const{data:sale}=await supabase.from('sales').select('*').eq('bill_number',billNo).single()
   if(!sale){alert('Bill not found');return}
@@ -1656,7 +1696,7 @@ window.directPrintBill = async function(billNo, customerName, customerPhone){
   const html=`<div style="background:white;font-family:'DM Sans',sans-serif;">
     <div style="${hdrBg};color:white;padding:18px 28px;display:flex;justify-content:space-between;align-items:center;">
       <div style="display:flex;align-items:center;gap:12px;">
-        <div style="width:48px;height:48px;background:white;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:${logoColor};"">A</div>
+        <div style="width:48px;height:48px;background:white;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:${logoColor};">A</div>
         <div>
           <div style="font-size:18px;font-weight:700;color:white;">Abhinandan Auto Mobiles</div>
           <div style="font-size:10px;opacity:0.85;color:white;">Nr. Refaral Hospital, Kandla National Highway Road, SANTALPUR, Dit. PATAN.</div>
@@ -1727,6 +1767,7 @@ window.directPrintBill = async function(billNo, customerName, customerPhone){
   if(window.QRCode){
     try{new QRCode(document.getElementById('printQrHolder'),{text:PORTAL_URL,width:70,height:70,correctLevel:QRCode.CorrectLevel.M})}catch(e){}
   }
+  _clearPrintClasses()
   document.body.classList.add('print-bill')
   const ot=document.title; document.title=billNo
   void document.getElementById('billPrintArea').offsetHeight
@@ -1736,23 +1777,14 @@ window.directPrintBill = async function(billNo, customerName, customerPhone){
   }))
 }
 
-// ─── VIEW PAYMENT RECEIPT MODAL (NEW) ────────
-// WHY: Payment rows now have View/Print/WhatsApp buttons just like bills.
-// This function loads the payment data and displays it in the new viewPaymentModal.
+// ─── VIEW PAYMENT RECEIPT MODAL ──────────────
 window.viewPaymentReceipt = async function(paymentId){
   const{data:pay}=await supabase.from('payments').select('*').eq('id',paymentId).single()
   if(!pay||!currentCustomerData) return
   currentViewedPayment = pay
   const cust=currentCustomerData.cust
 
-  // Compute running balance at this payment (approximate with current overall balance)
-  const nc=Math.round(currentCustomerData.netCredit)
-  const prevBal=nc>0
-    ? `-₹${Math.abs(nc).toLocaleString('en-IN')} (Credit Due, approx)`
-    : nc<0
-      ? `+₹${Math.abs(nc).toLocaleString('en-IN')} (Advance)`
-      : '₹0 Clear'
-  const newBal = 'See full ledger for current balance'
+  const {prevBal,newBal} = computeBalanceAroundPayment(paymentId)
 
   document.getElementById('vpReceiptNoDisplay').innerText = pay.receipt_no
   document.getElementById('vpReceiptNo').innerText = pay.receipt_no
@@ -1764,8 +1796,8 @@ window.viewPaymentReceipt = async function(paymentId){
   document.getElementById('vpAmountTd').innerText    = '₹'+Math.round(pay.amount).toLocaleString('en-IN')
   document.getElementById('vpAmountTotal').innerText = '₹'+Math.round(pay.amount).toLocaleString('en-IN')
   document.getElementById('vpPaid').innerText   = fmt(pay.amount)
-  document.getElementById('vpPrevBal').innerText= prevBal
-  document.getElementById('vpNewBal').innerText = newBal
+  document.getElementById('vpPrevBal').innerText= balanceLabel(prevBal)
+  document.getElementById('vpNewBal').innerText = balanceLabel(newBal)
   if(pay.note){
     document.getElementById('vpNote').innerText=pay.note
     document.getElementById('vpNoteBox').style.display='block'
@@ -1780,10 +1812,10 @@ window.closeViewPayment = () => {
   currentViewedPayment=null
 }
 
-// Print from the View Payment modal
 window.printViewedPayment = function(){
   const src=document.getElementById('viewPaymentPrintArea').innerHTML
   document.getElementById('paymentReceiptPrintArea').innerHTML=src
+  _clearPrintClasses()
   document.body.classList.add('print-pay-receipt')
   const ot=document.title
   document.title=document.getElementById('vpReceiptNo').innerText||'Receipt'
@@ -1794,25 +1826,21 @@ window.printViewedPayment = function(){
   }))
 }
 
-// WhatsApp from View Payment modal
 window.whatsappViewedPayment = async function(){
   if(!currentViewedPayment||!currentCustomerData) return
   const pay=currentViewedPayment, cust=currentCustomerData.cust
-  const nc=Math.round(currentCustomerData.netCredit)
-  const prevBal=nc>0?('Due: Rs '+Math.abs(nc).toLocaleString('en-IN')):nc<0?('Advance: Rs '+Math.abs(nc).toLocaleString('en-IN')):'Clear'
-  const newBal='See ledger'
+  const {prevBal,newBal} = computeBalanceAroundPayment(pay.id)
   const msg=`*Abhinandan Auto Mobiles*\nPayment Receipt *${pay.receipt_no}*\nCustomer: *${cust.name}*\nAmount: Rs ${Math.round(pay.amount).toLocaleString('en-IN')}\nMode: ${pay.mode}\n\n+91 98700 37002`
-  await sendPDFToWhatsApp(buildPaymentReceiptPDF(pay,cust,prevBal,newBal),'Receipt-'+pay.receipt_no+'.pdf',cust.phone||'',msg)
+  await sendPDFToWhatsApp(buildPaymentReceiptPDF(pay,cust,balanceLabelPDF(prevBal),balanceLabelPDF(newBal)),'Receipt-'+pay.receipt_no+'.pdf',cust.phone||'',msg)
 }
 
-// Print payment by ID (from table row Print button)
 window.printPaymentById = async function(paymentId){
   const{data:pay}=await supabase.from('payments').select('*').eq('id',paymentId).single()
   if(!pay||!currentCustomerData) return
   const cust=currentCustomerData.cust
-  const nc=Math.round(currentCustomerData.netCredit)
-  const prevBal=nc>0?(`-₹${Math.abs(nc).toLocaleString('en-IN')} (Credit Due, approx)`):nc<0?(`+₹${Math.abs(nc).toLocaleString('en-IN')} (Advance)`):'₹0 Clear'
-  // Build HTML for receipt
+  const {prevBal,newBal} = computeBalanceAroundPayment(paymentId)
+  const prevBalText = balanceLabel(prevBal)
+  const newBalText  = balanceLabel(newBal)
   const noteHtml=pay.note?`<div style="margin:0 28px 8px;padding:10px 14px;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;font-size:12px;color:#92400e;">Note: ${pay.note}</div>`:''
   const html=`<div style="background:white;font-family:'DM Sans',sans-serif;">
     <div style="background:linear-gradient(135deg,#059669,#10b981);padding:18px 28px;display:flex;justify-content:space-between;align-items:center;gap:12px;">
@@ -1849,9 +1877,9 @@ window.printPaymentById = async function(paymentId){
       </div>
     </div>
     <div style="margin:12px 28px;padding:12px 16px;border-radius:8px;background:#f8fafc;border:1px solid #e5e7eb;font-size:13px;">
-      <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px dashed #e5e7eb;"><span style="color:#6b7280;">Previous Balance</span><span>${prevBal}</span></div>
+      <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px dashed #e5e7eb;"><span style="color:#6b7280;">Previous Balance</span><span>${prevBalText}</span></div>
       <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px dashed #e5e7eb;"><span style="color:#6b7280;">Amount Paid Now</span><span style="color:#059669;">₹${Math.round(pay.amount).toLocaleString('en-IN')}</span></div>
-      <div style="display:flex;justify-content:space-between;padding:8px 0 4px;font-weight:700;font-size:14px;"><span>New Balance</span><span>See full ledger</span></div>
+      <div style="display:flex;justify-content:space-between;padding:8px 0 4px;font-weight:700;font-size:14px;"><span>New Balance</span><span>${newBalText}</span></div>
     </div>
     <div style="display:flex;justify-content:space-between;align-items:flex-end;margin:12px 28px 20px;padding-top:12px;border-top:1px solid #e5e7eb;">
       <div><div style="border-top:1px solid #374151;width:120px;margin:24px 0 4px;"></div><div style="font-size:10px;color:#6b7280;">Customer Signature</div></div>
@@ -1865,6 +1893,7 @@ window.printPaymentById = async function(paymentId){
   </div>`
 
   document.getElementById('paymentReceiptPrintArea').innerHTML=html
+  _clearPrintClasses()
   document.body.classList.add('print-pay-receipt')
   const ot=document.title; document.title=pay.receipt_no
   void document.getElementById('paymentReceiptPrintArea').offsetHeight
@@ -1874,16 +1903,13 @@ window.printPaymentById = async function(paymentId){
   }))
 }
 
-// WhatsApp payment by ID (from table row WhatsApp button)
 window.whatsappPaymentById = async function(paymentId){
   const{data:pay}=await supabase.from('payments').select('*').eq('id',paymentId).single()
   if(!pay||!currentCustomerData) return
   const cust=currentCustomerData.cust
-  const nc=Math.round(currentCustomerData.netCredit)
-  const prevBal=nc>0?('Due: Rs '+Math.abs(nc).toLocaleString('en-IN')):nc<0?('Advance: Rs '+Math.abs(nc).toLocaleString('en-IN')):'Clear'
-  const newBal='See ledger'
+  const {prevBal,newBal} = computeBalanceAroundPayment(paymentId)
   const msg=`*Abhinandan Auto Mobiles*\nPayment Receipt *${pay.receipt_no}*\nCustomer: *${cust.name}*\nAmount: Rs ${Math.round(pay.amount).toLocaleString('en-IN')}\nMode: ${pay.mode}\n\n+91 98700 37002`
-  await sendPDFToWhatsApp(buildPaymentReceiptPDF(pay,cust,prevBal,newBal),'Receipt-'+pay.receipt_no+'.pdf',cust.phone||'',msg)
+  await sendPDFToWhatsApp(buildPaymentReceiptPDF(pay,cust,balanceLabelPDF(prevBal),balanceLabelPDF(newBal)),'Receipt-'+pay.receipt_no+'.pdf',cust.phone||'',msg)
 }
 
 // ─── WHATSAPP BILL ────────────────────────────
@@ -2021,6 +2047,7 @@ window.savePayment=async function(shouldPrint){
     document.getElementById('rcptDateVal').innerText=new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'})
     if(note){document.getElementById('rcptNote').innerText=note;document.getElementById('rcptNoteBox').style.display='block'}
     else document.getElementById('rcptNoteBox').style.display='none'
+    _clearPrintClasses()
     document.body.classList.add('print-receipt')
     const ot=document.title; document.title=receiptNo
     void document.getElementById('receiptArea').offsetHeight
@@ -2036,7 +2063,6 @@ window.savePayment=async function(shouldPrint){
 }
 
 // ─── PRINT STATEMENT ──────────────────────────
-// FIX: buildStatementDOM is async, and we await it fully before firing print.
 async function buildStatementDOM(){
   if(!currentCustomerData) return
   const{cust,sales,payments,totalPurchased,netCredit}=currentCustomerData
@@ -2087,10 +2113,9 @@ async function buildStatementDOM(){
 }
 
 window.printStatement=async function(){
-  // FIX: await the DOM population fully before printing
   await buildStatementDOM()
-  // Force a synchronous layout flush
   void document.getElementById('statementArea').offsetHeight
+  _clearPrintClasses()
   document.body.classList.add('print-statement')
   const ot=document.title; document.title=document.getElementById('stmtNo').innerText
   requestAnimationFrame(()=>requestAnimationFrame(()=>{
