@@ -8,7 +8,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<!-- QR Code library for bill footer -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -76,7 +75,6 @@ html.light-theme .ledger-toolbar select option { background:white; color:#0f172a
 .balance-banner.adv   { background:rgba(52,211,153,0.08);  color:#34d399; }
 .balance-banner.clear { background:rgba(52,211,153,0.05);  color:#34d399; }
 
-/* ── Modal inner filters bar ── */
 .modal-filters { display:flex; gap:10px; flex-wrap:wrap; padding:14px 28px; border-bottom:1px solid rgba(255,255,255,0.06); background:rgba(255,255,255,0.02); }
 .modal-filters select { padding:7px 12px; border-radius:8px; border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.06); color:white; font-size:12px; font-family:'DM Sans',sans-serif; outline:none; cursor:pointer; }
 .modal-filters select option { background:#1e293b; }
@@ -103,7 +101,6 @@ html.light-theme .modal-filters select option { background:white; color:#0f172a;
 .badge-payment { background:rgba(16,185,129,0.15);  color:#10b981; }
 .badge-return  { background:rgba(220,38,38,0.15);   color:#f87171; }
 
-/* Action buttons in table - no emoji style */
 .act-btn { padding:4px 10px; border-radius:6px; border:none; font-size:11px; font-weight:600; cursor:pointer; font-family:'DM Sans',sans-serif; transition:all 0.15s; margin:1px; white-space:nowrap; }
 .act-view   { background:rgba(37,99,235,0.2);  color:#60a5fa; border:1px solid rgba(37,99,235,0.3); }
 .act-print  { background:rgba(255,255,255,0.08); color:rgba(255,255,255,0.7); border:1px solid rgba(255,255,255,0.15); }
@@ -144,7 +141,7 @@ html.light-theme .act-delete { background:rgba(220,38,38,0.08); color:#dc2626; b
 .preview-box { background:rgba(255,255,255,0.04); border:1.5px solid transparent; border-radius:10px; padding:12px 14px; margin-bottom:14px; font-size:13px; color:rgba(255,255,255,0.55); }
 .preview-box span { color:white; font-weight:700; font-size:15px; }
 
-/* ── VIEW BILL MODAL — matches billing.html style exactly ── */
+/* VIEW BILL MODAL */
 #viewBillModal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.88); z-index:10000; overflow-y:auto; padding:20px; backdrop-filter:blur(8px); }
 .view-bill-box { background:white; max-width:820px; margin:20px auto; border-radius:16px; overflow:hidden; box-shadow:0 24px 80px rgba(0,0,0,0.6); }
 .view-bill-actions { background:#1e293b; padding:14px 24px; display:flex; gap:8px; justify-content:flex-end; align-items:center; flex-wrap:wrap; }
@@ -152,7 +149,12 @@ html.light-theme .act-delete { background:rgba(220,38,38,0.08); color:#dc2626; b
 html.light-theme .view-bill-actions { background:#1e293b !important; }
 html.light-theme .view-bill-actions .btn { color:white !important; }
 html.light-theme .view-bill-actions .btn-white { background:white !important; color:#1e3a5f !important; }
-html.light-theme .view-bill-actions .bill-no-display { color:rgba(255,255,255,0.5) !important; }
+
+/* VIEW PAYMENT RECEIPT MODAL */
+#viewPaymentModal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.88); z-index:10000; overflow-y:auto; padding:20px; backdrop-filter:blur(8px); }
+.view-pay-box { background:white; max-width:820px; margin:20px auto; border-radius:16px; overflow:hidden; box-shadow:0 24px 80px rgba(0,0,0,0.6); }
+.view-pay-actions { background:#1e293b; padding:14px 24px; display:flex; gap:8px; justify-content:flex-end; align-items:center; flex-wrap:wrap; }
+.view-pay-actions .bill-no-display { font-size:12px; color:rgba(255,255,255,0.4); margin-right:auto; font-family:monospace; }
 
 .pay-modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.88); z-index:11000; align-items:center; justify-content:center; backdrop-filter:blur(8px); }
 .pay-modal-box { background:linear-gradient(135deg,#0d1117,#1e293b); border:1px solid rgba(255,255,255,0.12); border-radius:18px; padding:28px; width:90%; max-width:440px; }
@@ -169,38 +171,37 @@ html.light-theme .view-bill-actions .bill-no-display { color:rgba(255,255,255,0.
 .wa-toast { position:fixed; bottom:30px; left:50%; transform:translateX(-50%); background:#25D366; color:white; padding:12px 24px; border-radius:12px; font-size:14px; font-weight:600; font-family:'DM Sans',sans-serif; z-index:99999; box-shadow:0 8px 24px rgba(37,211,102,0.4); display:none; align-items:center; gap:10px; }
 .wa-toast.show { display:flex; }
 
-/* ══════════════════════════════════════
-   INVOICE STYLES — matches billing.html
-   ══════════════════════════════════════ */
+/* INVOICE STYLES */
 .inv-header { background:linear-gradient(135deg,#1e3a5f 0%,#2563eb 60%,#06b6d4 100%); color:white; padding:20px 28px; display:flex; justify-content:space-between; align-items:center; gap:16px; }
 .inv-header.return-style { background:linear-gradient(135deg,#7f1d1d,#dc2626,#f87171) !important; }
-html.light-theme .inv-header *, html.light-theme .inv-header { color:white !important; }
-html.light-theme .inv-header.return-style * { color:white !important; }
+/* FIX: Force white text in all inv-header children for both themes */
+.inv-header *, .inv-header { color:white !important; }
+.inv-header.return-style * { color:white !important; }
+/* FIX: Logo box letter must stay dark against white background */
+.inv-logo-box { width:52px; height:52px; background:white; border-radius:10px; display:flex; align-items:center; justify-content:center; font-family:'Playfair Display',serif; font-size:24px; font-weight:700; color:#1e3a5f !important; flex-shrink:0; }
+.inv-logo-box.return-logo { color:#7f1d1d !important; }
 .inv-logo-area { display:flex; align-items:center; gap:14px; }
-.inv-logo-box { width:52px; height:52px; background:white; border-radius:10px; display:flex; align-items:center; justify-content:center; font-family:'Playfair Display',serif; font-size:24px; font-weight:700; color:#1e3a5f; flex-shrink:0; }
 .inv-company { font-family:'Playfair Display',serif; font-size:19px; font-weight:700; margin-bottom:2px; }
 .inv-sub { font-size:11px; opacity:0.85; margin:1px 0; }
 .inv-badge { display:inline-block; background:rgba(255,255,255,0.18); border:1px solid rgba(255,255,255,0.4); font-size:10px; font-weight:600; letter-spacing:2px; text-transform:uppercase; padding:3px 10px; border-radius:20px; margin-bottom:5px; }
 .inv-no  { font-size:14px; font-weight:700; }
 .inv-date{ font-size:11px; opacity:0.8; }
 .inv-meta { display:flex; gap:24px; padding:12px 28px; background:#f8fafc; border-bottom:1px solid #e5e7eb; flex-wrap:wrap; }
-.inv-meta-block label { font-size:9px; font-weight:600; letter-spacing:1px; text-transform:uppercase; color:#6b7280; display:block; margin-bottom:2px; }
-.inv-meta-block span  { font-size:13px; font-weight:600; color:#111; }
+.inv-meta-block label { font-size:9px; font-weight:600; letter-spacing:1px; text-transform:uppercase; color:#6b7280 !important; display:block; margin-bottom:2px; }
+.inv-meta-block span  { font-size:13px; font-weight:600; color:#111 !important; }
 .inv-table-wrap { padding:0 28px; margin-top:14px; }
 .inv-table { width:100%; border-collapse:collapse; font-size:13px; }
-.inv-table thead tr { background:#1e3a5f; color:white; }
-.inv-table thead th { padding:9px 10px; text-align:left; font-weight:600; font-size:11px; color:white !important; }
-html.light-theme .inv-table thead th { color:#ffffff !important; background:#1e3a5f !important; }
+.inv-table thead tr { background:#1e3a5f; }
+.inv-table thead th { padding:9px 10px; text-align:left; font-weight:600; font-size:11px; color:#ffffff !important; }
 .inv-table thead th:not(:first-child):not(:nth-child(2)) { text-align:center; }
 .inv-table thead th:last-child { text-align:right; }
 .inv-table tbody tr { border-bottom:1px solid #e5e7eb; }
 .inv-table tbody tr:nth-child(even) { background:#f8fafc; }
-.inv-table tbody td { padding:9px 10px; color:#374151; vertical-align:top; }
+.inv-table tbody td { padding:9px 10px; color:#374151 !important; vertical-align:top; }
 .inv-table tbody td:not(:first-child):not(:nth-child(2)) { text-align:center; vertical-align:middle; }
 .inv-table tbody td:last-child { text-align:right; font-weight:600; vertical-align:middle; }
-/* Item subtitle (brand • category • size • unit) */
-.item-name-main { font-weight:600; color:#111; font-size:13px; }
-.item-subtitle { font-size:11px; color:#6b7280; margin-top:2px; }
+.item-name-main { font-weight:600; color:#111 !important; font-size:13px; }
+.item-subtitle { font-size:11px; color:#6b7280 !important; margin-top:2px; }
 .inv-totals { display:flex; justify-content:flex-end; padding:14px 28px 0; }
 .inv-totals-inner { min-width:220px; }
 .inv-total-row { display:flex; justify-content:space-between; padding:5px 0; font-size:13px; color:#374151; border-bottom:1px dashed #e5e7eb; }
@@ -217,7 +218,6 @@ html.light-theme .inv-table thead th { color:#ffffff !important; background:#1e3
 .inv-balance-row { display:flex; justify-content:space-between; padding:3px 0; }
 .inv-balance-label { color:#6b7280; }
 .inv-balance-val { font-weight:700; }
-/* QR + Footer row — matches billing.html */
 .inv-footer-row { display:flex; justify-content:space-between; align-items:flex-end; margin:12px 28px 20px; padding-top:12px; border-top:1px solid #e5e7eb; gap:16px; }
 .inv-qr-section { display:flex; align-items:center; gap:12px; }
 .inv-qr-box { width:72px; height:72px; flex-shrink:0; }
@@ -228,22 +228,21 @@ html.light-theme .inv-table thead th { color:#ffffff !important; background:#1e3
 .inv-footer-right .thank-you { font-size:13px; font-weight:600; color:#1e3a5f; margin-bottom:3px; }
 .inv-sig-line { border-top:1px solid #374151; width:130px; margin:18px 0 4px auto; }
 
-/* ══════════════════════════════════════
-   RECEIPT PRINT STYLES — real bill style
-   ══════════════════════════════════════ */
+/* RECEIPT STYLES */
 .rcpt-wrap { background:white; font-family:'DM Sans',sans-serif; color:#111; }
 .rcpt-header-bar { background:linear-gradient(135deg,#059669,#10b981); color:white; padding:18px 28px; display:flex; justify-content:space-between; align-items:center; gap:12px; }
-.rcpt-company-name { font-family:'Playfair Display',serif; font-size:18px; font-weight:700; color:white; }
-.rcpt-company-sub { font-size:11px; opacity:0.85; margin-top:2px; color:white; }
-.rcpt-badge { background:rgba(255,255,255,0.2); border:1px solid rgba(255,255,255,0.4); font-size:10px; font-weight:600; letter-spacing:2px; padding:3px 10px; border-radius:20px; color:white; margin-bottom:4px; display:inline-block; }
-.rcpt-no-line { font-size:13px; font-weight:700; color:white; }
-.rcpt-date-line { font-size:11px; opacity:0.8; color:white; }
+.rcpt-company-name { font-family:'Playfair Display',serif; font-size:18px; font-weight:700; color:white !important; }
+.rcpt-company-sub { font-size:11px; opacity:0.85; margin-top:2px; color:white !important; }
+.rcpt-badge { background:rgba(255,255,255,0.2); border:1px solid rgba(255,255,255,0.4); font-size:10px; font-weight:600; letter-spacing:2px; padding:3px 10px; border-radius:20px; color:white !important; margin-bottom:4px; display:inline-block; }
+.rcpt-logo-box { width:48px; height:48px; background:white; border-radius:10px; display:flex; align-items:center; justify-content:center; font-family:'Playfair Display',serif; font-size:22px; font-weight:700; color:#059669 !important; flex-shrink:0; }
+.rcpt-no-line { font-size:13px; font-weight:700; color:white !important; }
+.rcpt-date-line { font-size:11px; opacity:0.8; color:white !important; }
 .rcpt-meta { display:flex; gap:24px; padding:12px 28px; background:#f8fafc; border-bottom:1px solid #e5e7eb; flex-wrap:wrap; }
 .rcpt-meta-block label { font-size:9px; font-weight:600; letter-spacing:1px; text-transform:uppercase; color:#6b7280; display:block; margin-bottom:2px; }
 .rcpt-meta-block span { font-size:13px; font-weight:600; color:#111; }
-.rcpt-body-table { width:100%; border-collapse:collapse; font-size:13px; margin:0 0 0 0; }
+.rcpt-body-table { width:100%; border-collapse:collapse; font-size:13px; margin:0; }
 .rcpt-body-table thead tr { background:#059669; }
-.rcpt-body-table thead th { padding:9px 14px; text-align:left; font-weight:600; font-size:11px; color:white; }
+.rcpt-body-table thead th { padding:9px 14px; text-align:left; font-weight:600; font-size:11px; color:white !important; }
 .rcpt-body-table thead th:last-child { text-align:right; }
 .rcpt-body-table thead th:not(:first-child):not(:nth-child(2)) { text-align:center; }
 .rcpt-body-table tbody tr { border-bottom:1px solid #e5e7eb; }
@@ -268,27 +267,28 @@ html.light-theme .inv-table thead th { color:#ffffff !important; background:#1e3
 #statementArea { display:none; }
 #receiptArea   { display:none; }
 #billPrintArea { display:none; }
+#paymentReceiptPrintArea { display:none; }
 
 @media print {
   body > * { display:none !important; }
   body.print-statement #statementArea { display:block !important; padding:28px; background:white; color:#111; font-family:'DM Sans',sans-serif; }
-  body.print-receipt #receiptArea { display:block !important; background:white; }
-  body.print-bill #billPrintArea { display:block !important; background:white; }
+  body.print-receipt   #receiptArea   { display:block !important; background:white; }
+  body.print-bill      #billPrintArea { display:block !important; background:white; }
+  body.print-pay-receipt #paymentReceiptPrintArea { display:block !important; background:white; }
   * { -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
 }
 
-/* Statement styles */
+/* STATEMENT STYLES */
 .stmt-header { display:flex; justify-content:space-between; align-items:flex-start; padding-bottom:16px; border-bottom:2px solid #1e3a5f; margin-bottom:20px; }
 .stmt-company { font-family:'Playfair Display',serif; font-size:20px; color:#1e3a5f; font-weight:700; }
 .stmt-sub  { font-size:12px; color:#6b7280; margin-top:2px; }
 .stmt-title{ font-size:18px; font-weight:700; color:#111; text-align:right; }
-.stmt-no   { font-size:12px; color:#2563eb; font-weight:600; text-align:right; margin-top:4px; }
+.stmt-no   { font-size:12px; color:#2563eb; font-weight:600; text-align:right; }
 .stmt-cust-box { background:#f8fafc; border:1px solid #e5e7eb; border-radius:8px; padding:14px 18px; margin-bottom:20px; display:flex; gap:40px; flex-wrap:wrap; }
 .stmt-cust-box .lbl { font-size:11px; color:#6b7280; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:3px; }
 .stmt-cust-box .val { font-size:14px; font-weight:600; color:#111; }
 .stmt-tbl { width:100%; border-collapse:collapse; font-size:13px; margin-bottom:16px; }
 .stmt-tbl thead tr { background:#1e3a5f; color:white; }
-/* WHY: jsPDF auto-generates statement from DOM. We force white text on dark header for print PDF */
 .stmt-tbl thead th { padding:9px 12px; text-align:left; font-weight:600; color:#ffffff !important; }
 .stmt-tbl tbody tr { border-bottom:1px solid #e5e7eb; }
 .stmt-tbl tbody tr:nth-child(even) { background:#f8fafc; }
@@ -307,7 +307,7 @@ html.light-theme .inv-table thead th { color:#ffffff !important; background:#1e3
 .empty-state { text-align:center; padding:50px 20px; color:rgba(255,255,255,0.25); font-size:14px; }
 .loading-row { text-align:center; padding:30px; color:rgba(255,255,255,0.3); font-size:13px; }
 
-/* Light theme fixes */
+/* LIGHT THEME FIXES */
 html.light-theme .ls-card { background:rgba(255,255,255,0.92); border:1px solid rgba(0,0,0,0.09); box-shadow:0 2px 12px rgba(0,0,0,0.08); }
 html.light-theme .ls-label { color:#475569 !important; }
 html.light-theme .ls-sub   { color:#64748b !important; }
@@ -404,7 +404,7 @@ html.light-theme .bal-green { color:#059669 !important; }
 </div>
 
 
-<!-- ══ LEDGER MODAL ══ -->
+<!-- LEDGER MODAL -->
 <div class="modal-overlay" id="ledgerModal">
   <div class="modal-box">
     <div class="modal-header">
@@ -428,7 +428,6 @@ html.light-theme .bal-green { color:#059669 !important; }
     <div class="balance-banner clear" id="balanceBanner">
       <span id="balanceBannerText">Account is clear</span>
     </div>
-    <!-- ── Transaction Filters ── -->
     <div class="modal-filters">
       <select id="txTypeFilter" onchange="applyTxFilters()">
         <option value="all">All Transactions</option>
@@ -466,7 +465,7 @@ html.light-theme .bal-green { color:#059669 !important; }
 </div>
 
 
-<!-- ══ EDIT PAYMENT SPLIT MODAL ══ -->
+<!-- EDIT PAYMENT SPLIT MODAL -->
 <div class="inner-modal-overlay" id="editModal">
   <div class="inner-modal-box">
     <h3>Edit Payment Split</h3>
@@ -487,20 +486,20 @@ html.light-theme .bal-green { color:#059669 !important; }
 </div>
 
 
-<!-- ══ VIEW BILL MODAL ══ -->
+<!-- VIEW BILL MODAL -->
 <div id="viewBillModal">
   <div class="view-bill-box">
     <div class="view-bill-actions">
       <span class="bill-no-display" id="vBillNoDisplay">—</span>
       <button class="btn btn-wa btn-sm"      onclick="whatsappBill()">WhatsApp</button>
       <button class="btn btn-white btn-sm"   onclick="printViewedBill()">Print</button>
-      <button class="btn btn-outline btn-sm" onclick="closeViewBill()">X Close</button>
+      <button class="btn btn-outline btn-sm" onclick="closeViewBill()" style="color:white;">X Close</button>
     </div>
-    <!-- This is the printable area for a bill -->
     <div id="viewBillPrintArea">
+      <!-- FIX: Logo box uses inline style to guarantee color not overridden -->
       <div class="inv-header" id="vHeader">
         <div class="inv-logo-area">
-          <div class="inv-logo-box" id="vLogoBox">A</div>
+          <div class="inv-logo-box" id="vLogoBox" style="color:#1e3a5f !important;">A</div>
           <div>
             <div class="inv-company">Abhinandan Auto Mobiles</div>
             <div class="inv-sub">Nr. Refaral Hospital, Kandla National Highway Road</div>
@@ -520,8 +519,17 @@ html.light-theme .bal-green { color:#059669 !important; }
         <div class="inv-meta-block"><label>Payment Mode</label><span id="vPayMode">—</span></div>
       </div>
       <div class="inv-table-wrap">
+        <!-- FIX: 5 columns: # / Item Description (with subtitle) / Qty / Unit Price / Amount -->
         <table class="inv-table">
-          <thead><tr><th>#</th><th>Item Description</th><th>Qty</th><th>Unit Price</th><th>Amount</th></tr></thead>
+          <thead>
+            <tr>
+              <th style="width:30px;">#</th>
+              <th>Item Description</th>
+              <th style="text-align:center;">Qty</th>
+              <th style="text-align:center;">Unit Price</th>
+              <th style="text-align:right;">Amount</th>
+            </tr>
+          </thead>
           <tbody id="vItems"></tbody>
         </table>
       </div>
@@ -546,12 +554,11 @@ html.light-theme .bal-green { color:#059669 !important; }
         <div class="inv-balance-row"><span class="inv-balance-label">Total payments received</span><span class="inv-balance-val" style="color:#059669;" id="vBalPaid">₹0</span></div>
         <div class="inv-balance-row" style="margin-top:6px;padding-top:6px;border-top:1px solid #e5e7eb;"><span class="inv-balance-label" style="font-weight:600;">Overall Balance</span><span class="inv-balance-val" id="vBalFinal">₹0</span></div>
       </div>
-      <!-- QR Code + Footer — exactly like billing.html -->
       <div class="inv-footer-row">
         <div class="inv-qr-section">
           <div class="inv-qr-box" id="vQrCode"></div>
           <div class="inv-qr-text">
-            <strong>Rate Us & Visit Our Store</strong>
+            <strong>Rate Us &amp; Visit Our Store</strong>
             <div class="inv-qr-link">abhinandan-auto-mobiles-erp.vercel.app/portal.html</div>
           </div>
         </div>
@@ -568,7 +575,80 @@ html.light-theme .bal-green { color:#059669 !important; }
 </div>
 
 
-<!-- ══ RECORD PAYMENT MODAL ══ -->
+<!-- VIEW PAYMENT RECEIPT MODAL (NEW) -->
+<!-- WHY: Payment rows now have a full View button. This modal shows a proper
+     formatted receipt that can be viewed, printed, and WhatsApped. -->
+<div id="viewPaymentModal">
+  <div class="view-pay-box">
+    <div class="view-pay-actions">
+      <span class="bill-no-display" id="vpReceiptNoDisplay">—</span>
+      <button class="btn btn-wa btn-sm"      onclick="whatsappViewedPayment()">WhatsApp</button>
+      <button class="btn btn-white btn-sm"   onclick="printViewedPayment()">Print</button>
+      <button class="btn btn-outline btn-sm" onclick="closeViewPayment()" style="color:white;">X Close</button>
+    </div>
+    <div id="viewPaymentPrintArea">
+      <div class="rcpt-header-bar">
+        <div class="inv-logo-area">
+          <div class="rcpt-logo-box">A</div>
+          <div>
+            <div class="rcpt-company-name">Abhinandan Auto Mobiles</div>
+            <div class="rcpt-company-sub">Nr. Refaral Hospital, Kandla National Highway Road, SANTALPUR, Dit. PATAN.</div>
+            <div class="rcpt-company-sub">+91 98700 37002</div>
+          </div>
+        </div>
+        <div style="text-align:right;">
+          <div class="rcpt-badge">Payment Receipt</div>
+          <div class="rcpt-no-line" id="vpReceiptNo">—</div>
+          <div class="rcpt-date-line" id="vpReceiptDate">—</div>
+        </div>
+      </div>
+      <div class="rcpt-meta">
+        <div class="rcpt-meta-block"><label>Received From</label><span id="vpName">—</span></div>
+        <div class="rcpt-meta-block"><label>Phone</label><span id="vpPhone">—</span></div>
+        <div class="rcpt-meta-block"><label>Payment Mode</label><span id="vpMode">—</span></div>
+        <div class="rcpt-meta-block"><label>Date</label><span id="vpDateVal">—</span></div>
+      </div>
+      <div style="padding:0 28px;margin-top:14px;">
+        <table class="rcpt-body-table">
+          <thead><tr><th>#</th><th>Description</th><th style="text-align:right;">Amount</th></tr></thead>
+          <tbody>
+            <tr>
+              <td style="color:#6b7280;">1</td>
+              <td>Payment received against outstanding credit balance</td>
+              <td style="text-align:right;font-weight:700;color:#059669;" id="vpAmountTd">₹0</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div id="vpNoteBox" style="display:none;" class="rcpt-note-box">Note: <span id="vpNote"></span></div>
+      <div class="rcpt-summary-box">
+        <div class="rcpt-summary-inner">
+          <div class="rcpt-sum-row total-row"><span>Amount Received</span><span id="vpAmountTotal" style="color:#059669;">₹0</span></div>
+        </div>
+      </div>
+      <div class="rcpt-bal-section" style="margin:12px 28px;">
+        <div class="rcpt-bal-row"><span style="color:#6b7280;">Previous Balance</span><span id="vpPrevBal">—</span></div>
+        <div class="rcpt-bal-row"><span style="color:#6b7280;">Amount Paid Now</span><span style="color:#059669;" id="vpPaid">₹0</span></div>
+        <div class="rcpt-bal-row"><span style="font-weight:600;">New Balance</span><span id="vpNewBal">—</span></div>
+      </div>
+      <div class="rcpt-footer-row" style="margin:12px 28px 20px;padding-top:12px;border-top:1px solid #e5e7eb;">
+        <div>
+          <div class="rcpt-sig-line"></div>
+          <div style="font-size:10px;color:#6b7280;">Customer Signature</div>
+        </div>
+        <div style="text-align:right;font-size:12px;color:#6b7280;">
+          <div style="font-size:13px;font-weight:600;color:#059669;margin-bottom:4px;">Thank you for your payment</div>
+          <div>Abhinandan Auto Mobiles</div>
+          <div style="border-top:1px solid #374151;width:130px;margin:18px 0 4px auto;"></div>
+          <div style="font-size:10px;">Authorised Signatory</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- RECORD PAYMENT MODAL -->
 <div class="pay-modal-overlay" id="paymentModal">
   <div class="pay-modal-box">
     <h3>Record Payment</h3>
@@ -588,18 +668,25 @@ html.light-theme .bal-green { color:#059669 !important; }
     <div class="pay-field"><label>Note (optional)</label><textarea id="payNote" placeholder="e.g. Partial payment..."></textarea></div>
     <div class="pay-actions">
       <button class="btn btn-green" style="flex:1;" onclick="savePayment(false)">Save</button>
-      <button class="btn btn-white" onclick="savePayment(true)">Save & Print Receipt</button>
+      <button class="btn btn-white" onclick="savePayment(true)">Save &amp; Print Receipt</button>
       <button class="btn btn-outline" onclick="closePaymentModal()">Cancel</button>
     </div>
   </div>
 </div>
 
 
-<!-- ══ STATEMENT PRINT AREA ══ -->
+<!-- STATEMENT PRINT AREA -->
 <div id="statementArea">
   <div class="stmt-header">
-    <div><div class="stmt-company">Abhinandan Auto Mobiles</div><div class="stmt-sub">Nr. Refaral Hospital, Kandla National Highway Road, SANTALPUR, Dit. PATAN. &nbsp;|&nbsp; +91 98700 37002</div></div>
-    <div><div class="stmt-title">Customer Statement</div><div class="stmt-no" id="stmtNo">—</div><div class="stmt-sub" id="stmtDate" style="text-align:right;margin-top:4px;"></div></div>
+    <div>
+      <div class="stmt-company">Abhinandan Auto Mobiles</div>
+      <div class="stmt-sub">Nr. Refaral Hospital, Kandla National Highway Road, SANTALPUR, Dit. PATAN. &nbsp;|&nbsp; +91 98700 37002</div>
+    </div>
+    <div>
+      <div class="stmt-title">Customer Statement</div>
+      <div class="stmt-no" id="stmtNo">—</div>
+      <div class="stmt-sub" id="stmtDate" style="text-align:right;margin-top:4px;"></div>
+    </div>
   </div>
   <div class="stmt-cust-box">
     <div><div class="lbl">Customer</div><div class="val" id="stmtName">—</div></div>
@@ -640,12 +727,12 @@ html.light-theme .bal-green { color:#059669 !important; }
 </div>
 
 
-<!-- ══ RECEIPT PRINT AREA — real bill style ══ -->
+<!-- RECEIPT PRINT AREA (for Save & Print from payment modal) -->
 <div id="receiptArea">
   <div class="rcpt-wrap">
     <div class="rcpt-header-bar">
       <div class="inv-logo-area">
-        <div style="width:48px;height:48px;background:white;border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:#059669;flex-shrink:0;">A</div>
+        <div class="rcpt-logo-box">A</div>
         <div>
           <div class="rcpt-company-name">Abhinandan Auto Mobiles</div>
           <div class="rcpt-company-sub">Nr. Refaral Hospital, Kandla National Highway Road, SANTALPUR, Dit. PATAN.</div>
@@ -666,9 +753,9 @@ html.light-theme .bal-green { color:#059669 !important; }
     </div>
     <div style="padding:0 28px;margin-top:14px;">
       <table class="rcpt-body-table">
-        <thead><tr><th>#</th><th>Description</th><th>Amount</th></tr></thead>
+        <thead><tr><th>#</th><th>Description</th><th style="text-align:right;">Amount</th></tr></thead>
         <tbody>
-          <tr><td>1</td><td>Payment received against credit balance</td><td id="rcptAmountTd" style="text-align:right;font-weight:600;color:#059669;">₹0</td></tr>
+          <tr><td style="color:#6b7280;">1</td><td>Payment received against credit balance</td><td id="rcptAmountTd" style="text-align:right;font-weight:600;color:#059669;">₹0</td></tr>
         </tbody>
       </table>
     </div>
@@ -681,7 +768,7 @@ html.light-theme .bal-green { color:#059669 !important; }
     <div class="rcpt-bal-section" style="margin:12px 28px;">
       <div class="rcpt-bal-row"><span style="color:#6b7280;">Previous Balance</span><span id="rcptPrevBal">—</span></div>
       <div class="rcpt-bal-row"><span style="color:#6b7280;">Amount Paid Now</span><span id="rcptPaid" style="color:#059669;">₹0</span></div>
-      <div class="rcpt-bal-row"><span>New Balance</span><span id="rcptNewBal">—</span></div>
+      <div class="rcpt-bal-row"><span style="font-weight:600;">New Balance</span><span id="rcptNewBal">—</span></div>
     </div>
     <div class="rcpt-footer-row">
       <div>
@@ -699,10 +786,11 @@ html.light-theme .bal-green { color:#059669 !important; }
 </div>
 
 
-<!-- ══ BILL PRINT AREA (separate from viewBillModal, used for direct print) ══ -->
-<div id="billPrintArea">
-  <!-- Populated dynamically when printing a bill directly -->
-</div>
+<!-- BILL PRINT AREA (populated dynamically) -->
+<div id="billPrintArea"></div>
+
+<!-- PAYMENT RECEIPT PRINT AREA (for printing from View Payment modal) -->
+<div id="paymentReceiptPrintArea"></div>
 
 
 <script type="module">
@@ -715,17 +803,17 @@ const supabase = createClient(supabaseUrl, supabaseKey)
 const PAGE_SIZE = 24
 let currentPage = 1
 let totalCount  = 0
-let currentCustomerData = null   // holds cust + sales + payments for open ledger
-let allTxEvents = []             // all transaction rows for current customer (unfiltered)
+let currentCustomerData = null
+let allTxEvents = []
 let editingSaleId = null
 let searchTimer   = null
+// Holds the payment object currently loaded in viewPaymentModal
+let currentViewedPayment = null
 
 const fmt = n => '₹' + (Math.round(Math.abs(n))||0).toLocaleString('en-IN')
 const PORTAL_URL = 'https://abhinandan-auto-mobiles-erp.vercel.app/portal.html'
 
-// ────────────────────────────────────────────
-// WHATSAPP HELPERS
-// ────────────────────────────────────────────
+// ─── WHATSAPP HELPERS ───────────────────────
 function showWaToast(msg) {
   const t = document.getElementById('waToast')
   document.getElementById('waToastMsg').innerText = msg
@@ -785,9 +873,8 @@ async function sendPDFToWhatsApp(doc, filename, phone, message) {
   }
 }
 
-// ────────────────────────────────────────────
-// PDF BUILDERS
-// ────────────────────────────────────────────
+// ─── PDF BUILDERS ────────────────────────────
+
 function buildStatementPDF(data) {
   const { jsPDF } = window.jspdf
   const doc = new jsPDF({ unit:'pt', format:'a4' })
@@ -800,7 +887,6 @@ function buildStatementPDF(data) {
   const totalPaid = (payments||[]).reduce((s,p) => s+(p.amount||0), 0)
   const balStr = nc===0 ? 'Rs 0 - Clear' : (nc>0?'Due: Rs ':'Advance: Rs ')+Math.abs(nc).toLocaleString('en-IN')
 
-  // Header
   doc.setFillColor(30,58,95); doc.rect(0,0,W,80,'F')
   doc.setTextColor(255,255,255)
   doc.setFont('helvetica','bold'); doc.setFontSize(18)
@@ -813,7 +899,6 @@ function buildStatementPDF(data) {
   doc.text('As of '+new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'}), W-mg, 44, {align:'right'})
   y = 80
 
-  // Customer info band
   doc.setFillColor(239,246,255); doc.rect(0,y,W,50,'F')
   doc.setDrawColor(199,219,255); doc.line(0,y+50,W,y+50)
   const ic = (lbl,val,x) => {
@@ -833,14 +918,12 @@ function buildStatementPDF(data) {
   const sh = (title) => {
     if(y>760){doc.addPage();y=36}
     doc.setFillColor(30,58,95); doc.rect(0,y,W,18,'F')
-    // WHY: White text on dark header — explicitly set after fill
     doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(9)
     doc.text(title, mg, y+12); y+=22
   }
   const th = (cols) => {
     if(y>760){doc.addPage();y=36}
     doc.setFillColor(240,245,255); doc.rect(0,y,W,17,'F')
-    // WHY: Dark text on light sub-header
     doc.setFont('helvetica','bold'); doc.setFontSize(8.5); doc.setTextColor(30,58,95)
     cols.forEach(c => doc.text(c.lbl, c.x, y+11, c.a||{})); y+=19
   }
@@ -886,7 +969,6 @@ function buildStatementPDF(data) {
     ],i%2===1)); y+=8
   }
 
-  // Summary box
   if(y>680){doc.addPage();y=36}; y+=10
   const SX = W-mg-230
   doc.setFillColor(248,250,252); doc.rect(SX,y,230,108,'F')
@@ -916,20 +998,16 @@ function buildSingleBillPDF(opts) {
   let y = 0
   const hc = opts.isReturn ? [127,29,29] : [30,58,95]
 
-  // Header
   doc.setFillColor(...hc); doc.rect(0,0,W,92,'F')
-  // Logo box
   doc.setFillColor(255,255,255); doc.roundedRect(mg,12,52,52,6,6,'F')
   doc.setFont('helvetica','bold'); doc.setFontSize(26); doc.setTextColor(...hc)
   doc.text('A', mg+26, 46, {align:'center'})
-  // Company name
   doc.setTextColor(255,255,255)
   doc.setFont('helvetica','bold'); doc.setFontSize(17)
   doc.text('Abhinandan Auto Mobiles', mg+62, 27)
   doc.setFont('helvetica','normal'); doc.setFontSize(8.5)
   doc.text('Nr. Refaral Hospital, Kandla National Highway Road, SANTALPUR, Dit. PATAN.', mg+62, 41)
   doc.text('+91 98700 37002', mg+62, 53)
-  // Right side
   const btype = opts.isReturn ? 'SALES RETURN' : 'SALES BILL'
   doc.setFont('helvetica','bold'); doc.setFontSize(10)
   doc.text(btype, W-mg, 22, {align:'right'})
@@ -939,7 +1017,6 @@ function buildSingleBillPDF(opts) {
   doc.text(opts.date||'', W-mg, 54, {align:'right'})
   y = 92
 
-  // Meta strip
   doc.setFillColor(248,250,252); doc.rect(0,y,W,50,'F')
   doc.setDrawColor(229,231,235); doc.line(0,y+50,W,y+50)
   const mc = (lbl,val,x) => {
@@ -954,7 +1031,6 @@ function buildSingleBillPDF(opts) {
   else { mc('PAYMENT MODE', opts.payMode||'—', 330) }
   y += 62
 
-  // Table header
   doc.setFillColor(...hc); doc.rect(0,y,W,22,'F')
   doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(9)
   doc.text('#',      mg+6,  y+14, {align:'center'})
@@ -964,7 +1040,6 @@ function buildSingleBillPDF(opts) {
   doc.text('AMOUNT', W-mg,  y+14, {align:'right'})
   y += 24
 
-  // Item rows — with subtitle (brand • category • size • unit)
   let sub = 0
   ;(opts.items||[]).forEach((item,i) => {
     if(y > 730){ doc.addPage(); y = 40 }
@@ -975,16 +1050,13 @@ function buildSingleBillPDF(opts) {
     if(i%2===1){ doc.setFillColor(249,250,251); doc.rect(0,y-12,W,rowH+6,'F') }
     doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(156,163,175)
     doc.text(String(i+1), mg+6, y, {align:'center'})
-    // Item name
     doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setTextColor(17,24,39)
     const nm = (item.name||'').length > 38 ? (item.name||'').slice(0,35)+'...' : (item.name||'')
     doc.text(nm, mg+18, y)
-    // Subtitle line
     if(item.subtitle){
       doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(107,114,128)
       doc.text(item.subtitle, mg+18, y+11)
     }
-    // Qty, Price, Amount
     doc.setFont('helvetica','normal'); doc.setFontSize(9.5); doc.setTextColor(55,65,81)
     doc.text(String(qty), 370, y, {align:'right'})
     doc.text('Rs '+price.toLocaleString('en-IN'), 460, y, {align:'right'})
@@ -994,7 +1066,6 @@ function buildSingleBillPDF(opts) {
     y += (item.subtitle ? 26 : 22)
   })
 
-  // Totals
   y += 6
   const trow = (lbl,val,bold,rgb) => {
     if(y>760){ doc.addPage(); y=40 }
@@ -1014,7 +1085,6 @@ function buildSingleBillPDF(opts) {
   doc.text('Rs '+Math.abs(opts.final||0).toLocaleString('en-IN'), W-mg, y+1, {align:'right'})
   y += 24
 
-  // Payment breakdown
   doc.setFillColor(248,250,252); doc.rect(mg,y,W-2*mg,52,'F')
   doc.setDrawColor(229,231,235); doc.rect(mg,y,W-2*mg,52)
   y += 13
@@ -1027,13 +1097,11 @@ function buildSingleBillPDF(opts) {
   doc.text('Credit: Rs '+Math.abs(opts.credit||0).toLocaleString('en-IN'), c3, y)
   y += 36
 
-  // QR + Footer
   doc.setDrawColor(229,231,235); doc.line(mg,y,W-mg,y); y += 14
   doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor(...hc)
   doc.text(opts.isReturn ? 'Return processed. Thank you.' : 'Thank you for your business!', mg+80, y)
   doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(107,114,128)
   doc.text('All disputes subject to local jurisdiction. Goods once sold will not be taken back.', mg+80, y+12)
-  // Signature lines
   y += 36
   doc.line(mg, y, mg+130, y)
   doc.line(W-mg-130, y, W-mg, y)
@@ -1044,9 +1112,122 @@ function buildSingleBillPDF(opts) {
   return doc
 }
 
-// ────────────────────────────────────────────
-// LOAD CUSTOMERS
-// ────────────────────────────────────────────
+// NEW: Build a PDF for a payment receipt
+function buildPaymentReceiptPDF(pay, cust, prevBal, newBal) {
+  const { jsPDF } = window.jspdf
+  const doc = new jsPDF({ unit:'pt', format:'a4' })
+  const W = 595.28, mg = 36
+  let y = 0
+
+  // Green header
+  doc.setFillColor(5,150,105); doc.rect(0,0,W,92,'F')
+  // Logo box
+  doc.setFillColor(255,255,255); doc.roundedRect(mg,20,48,48,6,6,'F')
+  doc.setFont('helvetica','bold'); doc.setFontSize(24); doc.setTextColor(5,150,105)
+  doc.text('A', mg+24, 51, {align:'center'})
+  // Company name
+  doc.setTextColor(255,255,255)
+  doc.setFont('helvetica','bold'); doc.setFontSize(17)
+  doc.text('Abhinandan Auto Mobiles', mg+58, 32)
+  doc.setFont('helvetica','normal'); doc.setFontSize(8.5)
+  doc.text('Nr. Refaral Hospital, Kandla National Highway Road, SANTALPUR, Dit. PATAN.', mg+58, 46)
+  doc.text('+91 98700 37002', mg+58, 58)
+  // Right side
+  doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setTextColor(255,255,255)
+  doc.text('PAYMENT RECEIPT', W-mg, 26, {align:'right'})
+  doc.setFontSize(13)
+  doc.text(pay.receipt_no, W-mg, 44, {align:'right'})
+  doc.setFont('helvetica','normal'); doc.setFontSize(9)
+  doc.text(new Date(pay.created_at).toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric'}), W-mg, 58, {align:'right'})
+  y = 92
+
+  // Meta strip
+  doc.setFillColor(248,250,252); doc.rect(0,y,W,50,'F')
+  doc.setDrawColor(229,231,235); doc.line(0,y+50,W,y+50)
+  const mc = (lbl,val,x) => {
+    doc.setFont('helvetica','bold'); doc.setFontSize(7.5); doc.setTextColor(107,114,128)
+    doc.text(lbl, x, y+14)
+    doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor(17,24,39)
+    doc.text(String(val||'—'), x, y+30)
+  }
+  mc('RECEIVED FROM', cust.name||'—', mg)
+  mc('PHONE', cust.phone||'—', 200)
+  mc('PAYMENT MODE', pay.mode||'—', 360)
+  mc('DATE', new Date(pay.created_at).toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'}), 460)
+  y += 62
+
+  // Table header
+  doc.setFillColor(5,150,105); doc.rect(0,y,W,22,'F')
+  doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(9)
+  doc.text('#', mg+6, y+14, {align:'center'})
+  doc.text('DESCRIPTION', mg+18, y+14)
+  doc.text('AMOUNT', W-mg, y+14, {align:'right'})
+  y += 24
+
+  // Single row
+  doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(55,65,81)
+  doc.text('1', mg+6, y, {align:'center'})
+  doc.text('Payment received against outstanding credit balance', mg+18, y)
+  doc.setFont('helvetica','bold'); doc.setTextColor(5,150,105)
+  doc.text('Rs '+Math.round(pay.amount).toLocaleString('en-IN'), W-mg, y, {align:'right'})
+  doc.setDrawColor(229,231,235); doc.line(0,y+6,W,y+6)
+  y += 24
+
+  // Note if exists
+  if(pay.note){
+    y += 8
+    doc.setFillColor(255,251,235); doc.rect(mg,y,W-2*mg,28,'F')
+    doc.setDrawColor(253,230,138); doc.rect(mg,y,W-2*mg,28)
+    doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(146,64,14)
+    doc.text('NOTE:', mg+8, y+12)
+    doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(146,64,14)
+    doc.text(pay.note, mg+40, y+12)
+    y += 36
+  }
+
+  // Total box
+  y += 8
+  doc.setFillColor(240,253,244); doc.rect(W-mg-200,y,200,32,'F')
+  doc.setDrawColor(134,239,172); doc.rect(W-mg-200,y,200,32)
+  doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor(5,150,105)
+  doc.text('Amount Received', W-mg-195, y+12)
+  doc.setFontSize(14)
+  doc.text('Rs '+Math.round(pay.amount).toLocaleString('en-IN'), W-mg-5, y+20, {align:'right'})
+  y += 48
+
+  // Balance summary
+  doc.setFillColor(248,250,252); doc.rect(mg,y,W-2*mg,72,'F')
+  doc.setDrawColor(229,231,235); doc.rect(mg,y,W-2*mg,72)
+  y += 14
+  const brow = (lbl,val,bold,rgb) => {
+    doc.setFont('helvetica',bold?'bold':'normal'); doc.setFontSize(bold?12:10)
+    doc.setTextColor(...(rgb||[107,114,128]))
+    doc.text(lbl, mg+10, y)
+    doc.setTextColor(...(bold?rgb||[55,65,81]:[55,65,81]))
+    doc.text(val, W-mg-10, y, {align:'right'})
+    if(!bold){doc.setDrawColor(229,231,235);doc.line(mg+10,y+4,W-mg-10,y+4)}
+    y += 18
+  }
+  brow('Previous Balance', prevBal)
+  brow('Amount Paid Now', 'Rs '+Math.round(pay.amount).toLocaleString('en-IN'), false, [5,150,105])
+  brow('New Balance', newBal, true, [55,65,81])
+  y += 20
+
+  // Signature row
+  doc.setDrawColor(55,65,81)
+  doc.line(mg, y+24, mg+130, y+24)
+  doc.line(W-mg-130, y+24, W-mg, y+24)
+  doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(107,114,128)
+  doc.text('Customer Signature', mg, y+34)
+  doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setTextColor(5,150,105)
+  doc.text('Thank you for your payment', W-mg, y+14, {align:'right'})
+  doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(107,114,128)
+  doc.text('For Abhinandan Auto Mobiles', W-mg, y+34, {align:'right'})
+
+  return doc
+}
+
+// ─── LOAD CUSTOMERS ──────────────────────────
 async function loadCustomers() {
   document.getElementById('customerGrid').innerHTML = '<div class="loading-row">Loading...</div>'
   const search = document.getElementById('searchInput').value.trim()
@@ -1146,9 +1327,7 @@ function renderPagination(){
 window.debounceSearch=function(){clearTimeout(searchTimer);searchTimer=setTimeout(()=>{currentPage=1;loadCustomers()},350)}
 window._clReload=function(){currentPage=1;loadCustomers()}
 
-// ────────────────────────────────────────────
-// OPEN LEDGER MODAL
-// ────────────────────────────────────────────
+// ─── OPEN LEDGER MODAL ───────────────────────
 window.openLedger = async function(customerId) {
   const{data:cust}=await supabase.from('customers').select('*').eq('id',customerId).single()
   if(!cust) return
@@ -1157,12 +1336,10 @@ window.openLedger = async function(customerId) {
   document.getElementById('ledgerModal').style.display='block'
   document.getElementById('txBody').innerHTML='<tr><td colspan="7" class="loading-row">Loading...</td></tr>'
 
-  // Reset filters
   document.getElementById('txTypeFilter').value='all'
   document.getElementById('txVehicleFilter').innerHTML='<option value="all">All Vehicles</option>'
 
   const [{data:sales},{data:payments}] = await Promise.all([
-    // FIX 1: ascending:false = latest first
     supabase.from('sales').select('*').eq('customer_id',customerId).order('created_at',{ascending:false}),
     supabase.from('payments').select('*').eq('customer_id',customerId).order('created_at',{ascending:false})
   ])
@@ -1186,17 +1363,14 @@ window.openLedger = async function(customerId) {
   banner.className='balance-banner '+(isOwed?'owe':isAdv?'adv':'clear')
   document.getElementById('balanceBannerText').innerText=isZero?'Account is fully settled':isOwed?`Customer owes ₹${Math.abs(nc).toLocaleString('en-IN')}`:`Customer has advance of ₹${Math.abs(nc).toLocaleString('en-IN')}`
 
-  // Build vehicle filter — only vehicles from this customer's bills
-  // FIX 3: populate vehicle filter with only this customer's vehicles
   const vehicles=[]
   ;(sales||[]).forEach(s=>{ if(s.vehicle_number && !vehicles.includes(s.vehicle_number)) vehicles.push(s.vehicle_number) })
   const vSel=document.getElementById('txVehicleFilter')
   vehicles.forEach(v=>{ const o=document.createElement('option'); o.value=v; o.textContent=v; vSel.appendChild(o) })
   if(vehicles.length>0){
-    const o=document.createElement('option'); o.value='__none__'; o.textContent='No Vehicle'; vSel.appendChild(o)
+    const o=document.createElement('option'); o.value='__none__'; o.textContent='No Vehicle (Bills Only)'; vSel.appendChild(o)
   }
 
-  // Merge all events, sorted latest first
   allTxEvents=[
     ...(sales||[]).map(s=>({...s,_type:'bill'})),
     ...(payments||[]).map(p=>({...p,_type:'payment'}))
@@ -1207,22 +1381,43 @@ window.openLedger = async function(customerId) {
   renderTxRows(allTxEvents)
 }
 
-// FIX 4: Transaction type + vehicle filters
+// ─── VEHICLE FILTER FIX ──────────────────────
+// WHY: The original code had `e._type==='payment' || e.vehicle_number===vehicle`
+// which passed ALL payments through when a vehicle was selected.
+// Fix: when a specific vehicle is chosen, bills are strictly filtered by that
+// vehicle. Payments are ALWAYS shown because they are account-level, not vehicle-level.
+// When "__none__" is chosen, only bills with no vehicle are shown (plus all payments).
 window.applyTxFilters = function(){
-  const type=document.getElementById('txTypeFilter').value
-  const vehicle=document.getElementById('txVehicleFilter').value
-  let filtered=allTxEvents
-  if(type==='sales')   filtered=filtered.filter(e=>e._type==='bill'&&e.bill_type!=='return')
-  if(type==='payment') filtered=filtered.filter(e=>e._type==='payment')
-  if(type==='return')  filtered=filtered.filter(e=>e._type==='bill'&&e.bill_type==='return')
-  if(vehicle==='__none__') filtered=filtered.filter(e=>e._type==='payment'||!e.vehicle_number)
-  else if(vehicle!=='all') filtered=filtered.filter(e=>e._type==='payment'||e.vehicle_number===vehicle)
+  const type    = document.getElementById('txTypeFilter').value
+  const vehicle = document.getElementById('txVehicleFilter').value
+
+  let filtered = allTxEvents
+
+  // Step 1: Filter by transaction type
+  if(type==='sales')   filtered = filtered.filter(e => e._type==='bill' && e.bill_type!=='return')
+  if(type==='payment') filtered = filtered.filter(e => e._type==='payment')
+  if(type==='return')  filtered = filtered.filter(e => e._type==='bill' && e.bill_type==='return')
+
+  // Step 2: Filter by vehicle
+  // Payments have no vehicle, so they always pass vehicle filter (they are account-level).
+  // Bills are strictly filtered by the selected vehicle number.
+  if(vehicle !== 'all') {
+    filtered = filtered.filter(e => {
+      if(e._type === 'payment') return true // payments always shown regardless of vehicle filter
+      if(vehicle === '__none__') return !e.vehicle_number // bills with no vehicle
+      return e.vehicle_number === vehicle   // bills with exactly this vehicle
+    })
+  }
+
   renderTxRows(filtered)
 }
 
 function renderTxRows(events){
   const cust = currentCustomerData?.cust || {}
-  if(!events.length){ document.getElementById('txBody').innerHTML='<tr><td colspan="7" class="empty-state" style="padding:30px;">No transactions match filter</td></tr>'; return }
+  if(!events.length){
+    document.getElementById('txBody').innerHTML='<tr><td colspan="7" class="empty-state" style="padding:30px;">No transactions match filter</td></tr>'
+    return
+  }
   const rows = events.map(ev=>{
     if(ev._type==='payment'){
       return `<tr class="row-payment">
@@ -1232,8 +1427,10 @@ function renderTxRows(events){
         <td style="color:rgba(255,255,255,0.3);">—</td>
         <td style="color:rgba(255,255,255,0.3);">—</td>
         <td style="color:#10b981;font-weight:600;">+${fmt(ev.amount)} <span style="font-size:11px;color:rgba(255,255,255,0.3);">(${ev.mode})</span></td>
-        <td>
-          <button class="act-btn act-print" onclick="printPaymentReceipt('${ev.id}')">Print</button>
+        <td style="white-space:nowrap;">
+          <button class="act-btn act-view"  onclick="viewPaymentReceipt('${ev.id}')">View</button>
+          <button class="act-btn act-print" onclick="printPaymentById('${ev.id}')">Print</button>
+          <button class="act-btn act-wa"    onclick="whatsappPaymentById('${ev.id}')">WhatsApp</button>
         </td>
       </tr>`
     }
@@ -1264,12 +1461,16 @@ function renderTxRows(events){
   document.getElementById('txBody').innerHTML=rows.join('')
 }
 
-window.closeModal=function(){document.getElementById('ledgerModal').style.display='none';currentCustomerData=null;allTxEvents=[]}
-document.getElementById('ledgerModal').addEventListener('click',e=>{if(e.target===document.getElementById('ledgerModal'))closeModal()})
+window.closeModal=function(){
+  document.getElementById('ledgerModal').style.display='none'
+  currentCustomerData=null
+  allTxEvents=[]
+}
+document.getElementById('ledgerModal').addEventListener('click',e=>{
+  if(e.target===document.getElementById('ledgerModal')) closeModal()
+})
 
-// ────────────────────────────────────────────
-// DELETE BILL
-// ────────────────────────────────────────────
+// ─── DELETE BILL ─────────────────────────────
 window.deleteBill = async function(saleId, billNo){
   if(!confirm(`DELETE bill ${billNo}?\n\nThis will permanently remove the bill and all its items. This cannot be undone.`)) return
   const{error:e1}=await supabase.from('bill_items').delete().eq('sale_id',saleId)
@@ -1281,41 +1482,40 @@ window.deleteBill = async function(saleId, billNo){
   loadCustomers()
 }
 
-// ────────────────────────────────────────────
-// FETCH BILL ITEMS (with full product details)
-// ────────────────────────────────────────────
+// ─── FETCH BILL ITEMS WITH PRODUCT DETAILS ───
+// WHY: We ALWAYS look up brand/category/size/unit from inventory
+// because bill_items may not store these fields at time of billing.
 async function fetchBillItemsFull(saleId){
   const{data:items}=await supabase.from('bill_items').select('*').eq('sale_id',saleId)
   if(!items||!items.length) return []
-  // Find items that need product detail lookup
-  const needLookup=items.filter(i=>i.item_id&&(!i.item_name||!i.brand))
-  if(needLookup.length){
-    const ids=needLookup.map(i=>i.item_id)
+  // Always look up product details from inventory for ALL items that have item_id
+  const itemsWithId = items.filter(i => i.item_id)
+  if(itemsWithId.length){
+    const ids = itemsWithId.map(i => i.item_id)
     const{data:prods}=await supabase.from('inventory').select('id,item_name,brand,category,size,unit').in('id',ids)
     const prodMap={}; (prods||[]).forEach(p=>prodMap[p.id]=p)
     items.forEach(item=>{
       if(item.item_id && prodMap[item.item_id]){
         const p=prodMap[item.item_id]
+        // Fill in any missing fields from inventory (don't overwrite if already stored on bill_item)
         if(!item.item_name) item.item_name=p.item_name
-        if(!item.brand) item.brand=p.brand
+        if(!item.brand)    item.brand=p.brand
         if(!item.category) item.category=p.category
-        if(!item.size) item.size=p.size
-        if(!item.unit) item.unit=p.unit
+        if(!item.size)     item.size=p.size
+        if(!item.unit)     item.unit=p.unit
       }
     })
   }
   return items
 }
 
-// Build subtitle string from item fields (brand • category • size • unit)
+// Build subtitle: "Brand • Category • Size • Unit"
 function buildSubtitle(item){
   const parts=[item.brand,item.category,item.size,item.unit].filter(Boolean)
   return parts.join(' • ')
 }
 
-// ────────────────────────────────────────────
-// VIEW BILL MODAL — with QR code and subtitles
-// ────────────────────────────────────────────
+// ─── VIEW BILL MODAL ─────────────────────────
 window.viewBill = async function(billNo, customerName, customerPhone){
   const{data:sale}=await supabase.from('sales').select('*').eq('bill_number',billNo).single()
   if(!sale){alert('Bill not found');return}
@@ -1323,8 +1523,11 @@ window.viewBill = async function(billNo, customerName, customerPhone){
   const modes=[sale.cash>0?'Cash':'',sale.upi>0?'UPI':'',sale.credit>0?'Credit':''].filter(Boolean)
   const isReturn=sale.bill_type==='return'
 
-  document.getElementById('vHeader').className='inv-header'+(isReturn?' return-style':'')
-  document.getElementById('vLogoBox').style.color=isReturn?'#7f1d1d':'#1e3a5f'
+  // FIX: Logo color set explicitly so it stays dark on white background
+  const vHeader=document.getElementById('vHeader')
+  vHeader.className='inv-header'+(isReturn?' return-style':'')
+  const logoBox=document.getElementById('vLogoBox')
+  logoBox.style.cssText=`color:${isReturn?'#7f1d1d':'#1e3a5f'} !important;`
   document.getElementById('vBillType').innerText=isReturn?'Sales Return':'Sales Bill'
   document.getElementById('vInvoiceNo').innerText=sale.bill_number
   document.getElementById('vDate').innerText=new Date(sale.created_at).toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})
@@ -1333,24 +1536,31 @@ window.viewBill = async function(billNo, customerName, customerPhone){
   document.getElementById('vPayMode').innerText=modes.join(' + ')||'—'
   document.getElementById('vFooterMsg').innerText=isReturn?'Return processed. Thank you.':'Thank you for your business'
   document.getElementById('vBillNoDisplay').innerText=sale.bill_number
-  if(sale.vehicle_number){document.getElementById('vVehicleBlock').style.display='block';document.getElementById('vVehicle').innerText=sale.vehicle_number}
-  else document.getElementById('vVehicleBlock').style.display='none'
+  if(sale.vehicle_number){
+    document.getElementById('vVehicleBlock').style.display='block'
+    document.getElementById('vVehicle').innerText=sale.vehicle_number
+  } else {
+    document.getElementById('vVehicleBlock').style.display='none'
+  }
 
-  // FIX 6: Item rows with subtitle (brand • category • size • unit) — matches billing.html
+  // FIX: Item rows with FULL detail — name + brand • category • size • unit subtitle
   let subtotal=0
   document.getElementById('vItems').innerHTML=(items||[]).map((item,i)=>{
-    const name=item.item_name||`[Deleted — #${item.item_id}]`
-    const qty=Math.abs(item.quantity), amt=Math.abs(item.total||0); subtotal+=amt
+    const name=item.item_name||`[Item #${item.item_id||'?'}]`
+    const qty=Math.abs(item.quantity||0)
+    const price=item.price||0
+    const amt=Math.abs(item.total||qty*price)
+    subtotal+=amt
     const subtitle=buildSubtitle(item)
     return `<tr>
-      <td style="color:#6b7280;vertical-align:top;">${i+1}</td>
-      <td>
+      <td style="color:#6b7280;vertical-align:top;font-size:12px;">${i+1}</td>
+      <td style="vertical-align:top;">
         <div class="item-name-main">${name}</div>
-        ${subtitle?`<div class="item-subtitle">${subtitle}</div>`:''}
+        ${subtitle ? `<div class="item-subtitle">${subtitle}</div>` : ''}
       </td>
-      <td>${qty}</td>
-      <td>₹${(item.price||0).toLocaleString('en-IN')}</td>
-      <td>₹${amt.toLocaleString('en-IN')}</td>
+      <td style="text-align:center;vertical-align:middle;color:#374151;">${qty}</td>
+      <td style="text-align:center;vertical-align:middle;color:#374151;">₹${price.toLocaleString('en-IN')}</td>
+      <td style="text-align:right;vertical-align:middle;font-weight:600;color:#111;">₹${amt.toLocaleString('en-IN')}</td>
     </tr>`
   }).join('')
 
@@ -1374,37 +1584,39 @@ window.viewBill = async function(billNo, customerName, customerPhone){
     document.getElementById('vBalPaid').innerText=fmt(currentCustomerData.totalPaid)
     const balText=nc===0?'₹0 — Settled':(nc<0?'+':'-')+fmt(nc)+(nc<0?' (Advance)':' (Credit Due)')
     const el=document.getElementById('vBalFinal'); el.innerText=balText; el.style.color=nc>0?'#dc2626':'#059669'
-  } else document.getElementById('vBalanceBox').style.display='none'
+  } else {
+    document.getElementById('vBalanceBox').style.display='none'
+  }
 
-  // FIX 6: Generate QR code — same as billing.html
+  // Generate QR code
   const qrDiv=document.getElementById('vQrCode')
   qrDiv.innerHTML=''
   if(window.QRCode){
-    try{
-      new QRCode(qrDiv,{text:PORTAL_URL,width:70,height:70,correctLevel:QRCode.CorrectLevel.M})
-    }catch(e){qrDiv.innerHTML=''}
+    try{ new QRCode(qrDiv,{text:PORTAL_URL,width:70,height:70,correctLevel:QRCode.CorrectLevel.M}) }catch(e){}
   }
 
   document.getElementById('viewBillModal').style.display='block'
 }
 
-window.closeViewBill=()=>{ document.getElementById('viewBillModal').style.display='none' }
+window.closeViewBill = () => { document.getElementById('viewBillModal').style.display='none' }
 
-// FIX: Print bill — uses #billPrintArea (separate from statement print) 
+// FIX: Print from the viewBillModal — copies HTML into the hidden print area
+// WHY: We must force a reflow after writing innerHTML and before window.print()
+// so the browser layout engine renders the content before capture.
 window.printViewedBill = function(){
-  const printSrc=document.getElementById('viewBillPrintArea').innerHTML
-  document.getElementById('billPrintArea').innerHTML=printSrc
+  const printSrc = document.getElementById('viewBillPrintArea').innerHTML
+  document.getElementById('billPrintArea').innerHTML = printSrc
   document.body.classList.add('print-bill')
-  const ot=document.title; document.title=document.getElementById('vInvoiceNo').innerText||'Bill'
-  // Force reflow before print so QR renders
-  void document.getElementById('billPrintArea').offsetHeight
+  const ot = document.title
+  document.title = document.getElementById('vInvoiceNo').innerText || 'Bill'
+  void document.getElementById('billPrintArea').offsetHeight // force reflow
   requestAnimationFrame(()=>requestAnimationFrame(()=>{
     window.print()
-    setTimeout(()=>{document.body.classList.remove('print-bill');document.title=ot},1200)
+    setTimeout(()=>{ document.body.classList.remove('print-bill'); document.title=ot }, 1200)
   }))
 }
 
-// Direct print bill without opening view modal
+// Direct print (from table row) — builds full HTML inline
 window.directPrintBill = async function(billNo, customerName, customerPhone){
   const{data:sale}=await supabase.from('sales').select('*').eq('bill_number',billNo).single()
   if(!sale){alert('Bill not found');return}
@@ -1416,18 +1628,21 @@ window.directPrintBill = async function(billNo, customerName, customerPhone){
 
   let subtotal=0
   const itemRows=(items||[]).map((item,i)=>{
-    const name=item.item_name||`[Deleted]`
-    const qty=Math.abs(item.quantity), amt=Math.abs(item.total||0); subtotal+=amt
+    const name=item.item_name||'[Deleted]'
+    const qty=Math.abs(item.quantity||0)
+    const price=item.price||0
+    const amt=Math.abs(item.total||qty*price)
+    subtotal+=amt
     const subtitle=buildSubtitle(item)
     return `<tr style="border-bottom:1px solid #e5e7eb;${i%2===1?'background:#f8fafc':''}">
-      <td style="padding:9px 10px;color:#6b7280;">${i+1}</td>
-      <td style="padding:9px 10px;">
+      <td style="padding:9px 10px;color:#6b7280;vertical-align:top;">${i+1}</td>
+      <td style="padding:9px 10px;vertical-align:top;">
         <div style="font-weight:600;color:#111;font-size:13px;">${name}</div>
         ${subtitle?`<div style="font-size:11px;color:#6b7280;margin-top:2px;">${subtitle}</div>`:''}
       </td>
-      <td style="padding:9px 10px;text-align:center;color:#374151;">${qty}</td>
-      <td style="padding:9px 10px;text-align:center;color:#374151;">₹${(item.price||0).toLocaleString('en-IN')}</td>
-      <td style="padding:9px 10px;text-align:right;font-weight:600;color:#111;">₹${amt.toLocaleString('en-IN')}</td>
+      <td style="padding:9px 10px;text-align:center;color:#374151;vertical-align:middle;">${qty}</td>
+      <td style="padding:9px 10px;text-align:center;color:#374151;vertical-align:middle;">₹${price.toLocaleString('en-IN')}</td>
+      <td style="padding:9px 10px;text-align:right;font-weight:600;color:#111;vertical-align:middle;">₹${amt.toLocaleString('en-IN')}</td>
     </tr>`
   }).join('')
 
@@ -1441,17 +1656,17 @@ window.directPrintBill = async function(billNo, customerName, customerPhone){
   const html=`<div style="background:white;font-family:'DM Sans',sans-serif;">
     <div style="${hdrBg};color:white;padding:18px 28px;display:flex;justify-content:space-between;align-items:center;">
       <div style="display:flex;align-items:center;gap:12px;">
-        <div style="width:48px;height:48px;background:white;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:${logoColor};">A</div>
+        <div style="width:48px;height:48px;background:white;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:${logoColor};"">A</div>
         <div>
-          <div style="font-size:18px;font-weight:700;">Abhinandan Auto Mobiles</div>
-          <div style="font-size:10px;opacity:0.85;">Nr. Refaral Hospital, Kandla National Highway Road, SANTALPUR, Dit. PATAN.</div>
-          <div style="font-size:10px;opacity:0.85;">+91 98700 37002</div>
+          <div style="font-size:18px;font-weight:700;color:white;">Abhinandan Auto Mobiles</div>
+          <div style="font-size:10px;opacity:0.85;color:white;">Nr. Refaral Hospital, Kandla National Highway Road, SANTALPUR, Dit. PATAN.</div>
+          <div style="font-size:10px;opacity:0.85;color:white;">+91 98700 37002</div>
         </div>
       </div>
       <div style="text-align:right;">
-        <div style="background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.4);font-size:10px;font-weight:700;letter-spacing:2px;padding:3px 10px;border-radius:20px;display:inline-block;margin-bottom:4px;">${isReturn?'SALES RETURN':'SALES BILL'}</div>
-        <div style="font-size:14px;font-weight:700;">Invoice #${sale.bill_number}</div>
-        <div style="font-size:10px;opacity:0.8;">${new Date(sale.created_at).toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})}</div>
+        <div style="background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.4);font-size:10px;font-weight:700;letter-spacing:2px;padding:3px 10px;border-radius:20px;display:inline-block;margin-bottom:4px;color:white;">${isReturn?'SALES RETURN':'SALES BILL'}</div>
+        <div style="font-size:14px;font-weight:700;color:white;">Invoice #${sale.bill_number}</div>
+        <div style="font-size:10px;opacity:0.8;color:white;">${new Date(sale.created_at).toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})}</div>
       </div>
     </div>
     <div style="display:flex;gap:20px;padding:12px 28px;background:#f8fafc;border-bottom:1px solid #e5e7eb;flex-wrap:wrap;">
@@ -1462,7 +1677,15 @@ window.directPrintBill = async function(billNo, customerName, customerPhone){
     </div>
     <div style="padding:0 28px;margin-top:14px;">
       <table style="width:100%;border-collapse:collapse;font-size:13px;">
-        <thead><tr style="${hdrBg};color:white;"><th style="padding:9px 10px;text-align:left;font-size:11px;">#</th><th style="padding:9px 10px;text-align:left;font-size:11px;">Item Description</th><th style="padding:9px 10px;text-align:center;font-size:11px;">Qty</th><th style="padding:9px 10px;text-align:center;font-size:11px;">Unit Price</th><th style="padding:9px 10px;text-align:right;font-size:11px;">Amount</th></tr></thead>
+        <thead>
+          <tr style="${hdrBg};">
+            <th style="padding:9px 10px;text-align:left;font-size:11px;color:white !important;">#</th>
+            <th style="padding:9px 10px;text-align:left;font-size:11px;color:white !important;">Item Description</th>
+            <th style="padding:9px 10px;text-align:center;font-size:11px;color:white !important;">Qty</th>
+            <th style="padding:9px 10px;text-align:center;font-size:11px;color:white !important;">Unit Price</th>
+            <th style="padding:9px 10px;text-align:right;font-size:11px;color:white !important;">Amount</th>
+          </tr>
+        </thead>
         <tbody>${itemRows}</tbody>
       </table>
     </div>
@@ -1486,7 +1709,7 @@ window.directPrintBill = async function(billNo, customerName, customerPhone){
       <div style="display:flex;align-items:center;gap:12px;">
         <div id="printQrHolder" style="width:72px;height:72px;"></div>
         <div style="font-size:11px;color:#6b7280;">
-          <strong style="display:block;font-size:12px;color:#1e3a5f;margin-bottom:3px;">Rate Us & Visit Our Store</strong>
+          <strong style="display:block;font-size:12px;color:#1e3a5f;margin-bottom:3px;">Rate Us &amp; Visit Our Store</strong>
           <div style="font-size:10px;color:#2563eb;">${PORTAL_URL}</div>
         </div>
       </div>
@@ -1501,8 +1724,9 @@ window.directPrintBill = async function(billNo, customerName, customerPhone){
   </div>`
 
   document.getElementById('billPrintArea').innerHTML=html
-  // Generate QR in print area
-  if(window.QRCode){try{new QRCode(document.getElementById('printQrHolder'),{text:PORTAL_URL,width:70,height:70,correctLevel:QRCode.CorrectLevel.M})}catch(e){}}
+  if(window.QRCode){
+    try{new QRCode(document.getElementById('printQrHolder'),{text:PORTAL_URL,width:70,height:70,correctLevel:QRCode.CorrectLevel.M})}catch(e){}
+  }
   document.body.classList.add('print-bill')
   const ot=document.title; document.title=billNo
   void document.getElementById('billPrintArea').offsetHeight
@@ -1512,9 +1736,157 @@ window.directPrintBill = async function(billNo, customerName, customerPhone){
   }))
 }
 
-// ────────────────────────────────────────────
-// WHATSAPP BILL — direct from table row
-// ────────────────────────────────────────────
+// ─── VIEW PAYMENT RECEIPT MODAL (NEW) ────────
+// WHY: Payment rows now have View/Print/WhatsApp buttons just like bills.
+// This function loads the payment data and displays it in the new viewPaymentModal.
+window.viewPaymentReceipt = async function(paymentId){
+  const{data:pay}=await supabase.from('payments').select('*').eq('id',paymentId).single()
+  if(!pay||!currentCustomerData) return
+  currentViewedPayment = pay
+  const cust=currentCustomerData.cust
+
+  // Compute running balance at this payment (approximate with current overall balance)
+  const nc=Math.round(currentCustomerData.netCredit)
+  const prevBal=nc>0
+    ? `-₹${Math.abs(nc).toLocaleString('en-IN')} (Credit Due, approx)`
+    : nc<0
+      ? `+₹${Math.abs(nc).toLocaleString('en-IN')} (Advance)`
+      : '₹0 Clear'
+  const newBal = 'See full ledger for current balance'
+
+  document.getElementById('vpReceiptNoDisplay').innerText = pay.receipt_no
+  document.getElementById('vpReceiptNo').innerText = pay.receipt_no
+  document.getElementById('vpReceiptDate').innerText = new Date(pay.created_at).toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})
+  document.getElementById('vpName').innerText   = cust.name
+  document.getElementById('vpPhone').innerText  = cust.phone||'—'
+  document.getElementById('vpMode').innerText   = pay.mode||'—'
+  document.getElementById('vpDateVal').innerText= new Date(pay.created_at).toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'})
+  document.getElementById('vpAmountTd').innerText    = '₹'+Math.round(pay.amount).toLocaleString('en-IN')
+  document.getElementById('vpAmountTotal').innerText = '₹'+Math.round(pay.amount).toLocaleString('en-IN')
+  document.getElementById('vpPaid').innerText   = fmt(pay.amount)
+  document.getElementById('vpPrevBal').innerText= prevBal
+  document.getElementById('vpNewBal').innerText = newBal
+  if(pay.note){
+    document.getElementById('vpNote').innerText=pay.note
+    document.getElementById('vpNoteBox').style.display='block'
+  } else {
+    document.getElementById('vpNoteBox').style.display='none'
+  }
+  document.getElementById('viewPaymentModal').style.display='block'
+}
+
+window.closeViewPayment = () => {
+  document.getElementById('viewPaymentModal').style.display='none'
+  currentViewedPayment=null
+}
+
+// Print from the View Payment modal
+window.printViewedPayment = function(){
+  const src=document.getElementById('viewPaymentPrintArea').innerHTML
+  document.getElementById('paymentReceiptPrintArea').innerHTML=src
+  document.body.classList.add('print-pay-receipt')
+  const ot=document.title
+  document.title=document.getElementById('vpReceiptNo').innerText||'Receipt'
+  void document.getElementById('paymentReceiptPrintArea').offsetHeight
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    window.print()
+    setTimeout(()=>{document.body.classList.remove('print-pay-receipt');document.title=ot},1200)
+  }))
+}
+
+// WhatsApp from View Payment modal
+window.whatsappViewedPayment = async function(){
+  if(!currentViewedPayment||!currentCustomerData) return
+  const pay=currentViewedPayment, cust=currentCustomerData.cust
+  const nc=Math.round(currentCustomerData.netCredit)
+  const prevBal=nc>0?('Due: Rs '+Math.abs(nc).toLocaleString('en-IN')):nc<0?('Advance: Rs '+Math.abs(nc).toLocaleString('en-IN')):'Clear'
+  const newBal='See ledger'
+  const msg=`*Abhinandan Auto Mobiles*\nPayment Receipt *${pay.receipt_no}*\nCustomer: *${cust.name}*\nAmount: Rs ${Math.round(pay.amount).toLocaleString('en-IN')}\nMode: ${pay.mode}\n\n+91 98700 37002`
+  await sendPDFToWhatsApp(buildPaymentReceiptPDF(pay,cust,prevBal,newBal),'Receipt-'+pay.receipt_no+'.pdf',cust.phone||'',msg)
+}
+
+// Print payment by ID (from table row Print button)
+window.printPaymentById = async function(paymentId){
+  const{data:pay}=await supabase.from('payments').select('*').eq('id',paymentId).single()
+  if(!pay||!currentCustomerData) return
+  const cust=currentCustomerData.cust
+  const nc=Math.round(currentCustomerData.netCredit)
+  const prevBal=nc>0?(`-₹${Math.abs(nc).toLocaleString('en-IN')} (Credit Due, approx)`):nc<0?(`+₹${Math.abs(nc).toLocaleString('en-IN')} (Advance)`):'₹0 Clear'
+  // Build HTML for receipt
+  const noteHtml=pay.note?`<div style="margin:0 28px 8px;padding:10px 14px;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;font-size:12px;color:#92400e;">Note: ${pay.note}</div>`:''
+  const html=`<div style="background:white;font-family:'DM Sans',sans-serif;">
+    <div style="background:linear-gradient(135deg,#059669,#10b981);padding:18px 28px;display:flex;justify-content:space-between;align-items:center;gap:12px;">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div style="width:48px;height:48px;background:white;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:#059669;">A</div>
+        <div>
+          <div style="font-size:18px;font-weight:700;color:white;">Abhinandan Auto Mobiles</div>
+          <div style="font-size:10px;opacity:0.85;color:white;">Nr. Refaral Hospital, Kandla National Highway Road, SANTALPUR, Dit. PATAN.</div>
+          <div style="font-size:10px;opacity:0.85;color:white;">+91 98700 37002</div>
+        </div>
+      </div>
+      <div style="text-align:right;">
+        <div style="background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.4);font-size:10px;font-weight:700;letter-spacing:2px;padding:3px 10px;border-radius:20px;display:inline-block;margin-bottom:4px;color:white;">PAYMENT RECEIPT</div>
+        <div style="font-size:14px;font-weight:700;color:white;">${pay.receipt_no}</div>
+        <div style="font-size:10px;opacity:0.8;color:white;">${new Date(pay.created_at).toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})}</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:20px;padding:12px 28px;background:#f8fafc;border-bottom:1px solid #e5e7eb;flex-wrap:wrap;">
+      <div><div style="font-size:9px;font-weight:600;text-transform:uppercase;color:#6b7280;">Received From</div><div style="font-size:13px;font-weight:600;color:#111;">${cust.name}</div></div>
+      <div><div style="font-size:9px;font-weight:600;text-transform:uppercase;color:#6b7280;">Phone</div><div style="font-size:13px;font-weight:600;color:#111;">${cust.phone||'—'}</div></div>
+      <div><div style="font-size:9px;font-weight:600;text-transform:uppercase;color:#6b7280;">Payment Mode</div><div style="font-size:13px;font-weight:600;color:#111;">${pay.mode}</div></div>
+      <div><div style="font-size:9px;font-weight:600;text-transform:uppercase;color:#6b7280;">Date</div><div style="font-size:13px;font-weight:600;color:#111;">${new Date(pay.created_at).toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'})}</div></div>
+    </div>
+    <div style="padding:0 28px;margin-top:14px;">
+      <table style="width:100%;border-collapse:collapse;font-size:13px;">
+        <thead><tr style="background:#059669;"><th style="padding:9px 14px;text-align:left;color:white !important;">#</th><th style="padding:9px 14px;text-align:left;color:white !important;">Description</th><th style="padding:9px 14px;text-align:right;color:white !important;">Amount</th></tr></thead>
+        <tbody><tr><td style="padding:9px 14px;color:#6b7280;">1</td><td style="padding:9px 14px;color:#374151;">Payment received against outstanding credit balance</td><td style="padding:9px 14px;text-align:right;font-weight:700;color:#059669;">₹${Math.round(pay.amount).toLocaleString('en-IN')}</td></tr></tbody>
+      </table>
+    </div>
+    ${noteHtml}
+    <div style="display:flex;justify-content:flex-end;padding:12px 28px 0;">
+      <div style="min-width:220px;">
+        <div style="display:flex;justify-content:space-between;padding:10px 0;font-size:15px;font-weight:700;border-top:2px solid #059669;color:#059669;"><span>Amount Received</span><span>₹${Math.round(pay.amount).toLocaleString('en-IN')}</span></div>
+      </div>
+    </div>
+    <div style="margin:12px 28px;padding:12px 16px;border-radius:8px;background:#f8fafc;border:1px solid #e5e7eb;font-size:13px;">
+      <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px dashed #e5e7eb;"><span style="color:#6b7280;">Previous Balance</span><span>${prevBal}</span></div>
+      <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px dashed #e5e7eb;"><span style="color:#6b7280;">Amount Paid Now</span><span style="color:#059669;">₹${Math.round(pay.amount).toLocaleString('en-IN')}</span></div>
+      <div style="display:flex;justify-content:space-between;padding:8px 0 4px;font-weight:700;font-size:14px;"><span>New Balance</span><span>See full ledger</span></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:flex-end;margin:12px 28px 20px;padding-top:12px;border-top:1px solid #e5e7eb;">
+      <div><div style="border-top:1px solid #374151;width:120px;margin:24px 0 4px;"></div><div style="font-size:10px;color:#6b7280;">Customer Signature</div></div>
+      <div style="text-align:right;font-size:12px;color:#6b7280;">
+        <div style="font-size:13px;font-weight:600;color:#059669;margin-bottom:4px;">Thank you for your payment</div>
+        <div>Abhinandan Auto Mobiles</div>
+        <div style="border-top:1px solid #374151;width:130px;margin:18px 0 4px auto;"></div>
+        <div style="font-size:10px;">Authorised Signatory</div>
+      </div>
+    </div>
+  </div>`
+
+  document.getElementById('paymentReceiptPrintArea').innerHTML=html
+  document.body.classList.add('print-pay-receipt')
+  const ot=document.title; document.title=pay.receipt_no
+  void document.getElementById('paymentReceiptPrintArea').offsetHeight
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    window.print()
+    setTimeout(()=>{document.body.classList.remove('print-pay-receipt');document.title=ot},1200)
+  }))
+}
+
+// WhatsApp payment by ID (from table row WhatsApp button)
+window.whatsappPaymentById = async function(paymentId){
+  const{data:pay}=await supabase.from('payments').select('*').eq('id',paymentId).single()
+  if(!pay||!currentCustomerData) return
+  const cust=currentCustomerData.cust
+  const nc=Math.round(currentCustomerData.netCredit)
+  const prevBal=nc>0?('Due: Rs '+Math.abs(nc).toLocaleString('en-IN')):nc<0?('Advance: Rs '+Math.abs(nc).toLocaleString('en-IN')):'Clear'
+  const newBal='See ledger'
+  const msg=`*Abhinandan Auto Mobiles*\nPayment Receipt *${pay.receipt_no}*\nCustomer: *${cust.name}*\nAmount: Rs ${Math.round(pay.amount).toLocaleString('en-IN')}\nMode: ${pay.mode}\n\n+91 98700 37002`
+  await sendPDFToWhatsApp(buildPaymentReceiptPDF(pay,cust,prevBal,newBal),'Receipt-'+pay.receipt_no+'.pdf',cust.phone||'',msg)
+}
+
+// ─── WHATSAPP BILL ────────────────────────────
 window.waBillDirect = async function(billNo, customerName, customerPhone){
   const{data:sale}=await supabase.from('sales').select('*').eq('bill_number',billNo).single()
   if(!sale){alert('Bill not found');return}
@@ -1542,9 +1914,7 @@ window.whatsappBill = async function(){
   await waBillDirect(billNo,custName,phone)
 }
 
-// ────────────────────────────────────────────
-// WHATSAPP STATEMENT
-// ────────────────────────────────────────────
+// ─── WHATSAPP STATEMENT ───────────────────────
 window.whatsappStatement = async function(){
   if(!currentCustomerData) return
   const{cust,netCredit}=currentCustomerData
@@ -1558,9 +1928,7 @@ window.whatsappStatement = async function(){
   await sendPDFToWhatsApp(buildStatementPDF(currentCustomerData),'Statement-'+cust.name+'.pdf',phone,msg)
 }
 
-// ────────────────────────────────────────────
-// EDIT PAYMENT SPLIT
-// ────────────────────────────────────────────
+// ─── EDIT PAYMENT SPLIT ───────────────────────
 window.openEditModal=function(saleId,billNo,total,cash,upi,credit){
   editingSaleId=saleId
   document.getElementById('editBillNoText').innerText='Bill: '+billNo
@@ -1599,9 +1967,7 @@ window.saveEditedBill=async function(){
   loadCustomers()
 }
 
-// ────────────────────────────────────────────
-// RECORD PAYMENT
-// ────────────────────────────────────────────
+// ─── RECORD PAYMENT ───────────────────────────
 window.openPaymentModal=function(){
   if(!currentCustomerData) return
   const{cust,netCredit}=currentCustomerData, nc=Math.round(netCredit)
@@ -1669,39 +2035,8 @@ window.savePayment=async function(shouldPrint){
   loadCustomers()
 }
 
-// Print a payment receipt from the transaction table
-window.printPaymentReceipt = async function(paymentId){
-  const{data:pay}=await supabase.from('payments').select('*').eq('id',paymentId).single()
-  if(!pay||!currentCustomerData) return
-  const cust=currentCustomerData.cust
-  const nc=Math.round(currentCustomerData.netCredit)
-  // Compute balance at time of this payment is complex; show current balance as approximate
-  const prevText=nc>0?'-'+fmt(nc)+' (Due, approx)':nc<0?'+'+fmt(Math.abs(nc))+' (Advance)':'Clear'
-  document.getElementById('rcptNo').innerText=pay.receipt_no
-  document.getElementById('rcptName').innerText=cust.name
-  document.getElementById('rcptPhone').innerText=cust.phone||'—'
-  document.getElementById('rcptMode').innerText=pay.mode
-  document.getElementById('rcptAmountTd').innerText='₹'+Math.round(pay.amount).toLocaleString('en-IN')
-  document.getElementById('rcptAmountTotal').innerText='₹'+Math.round(pay.amount).toLocaleString('en-IN')
-  document.getElementById('rcptPaid').innerText=fmt(pay.amount)
-  document.getElementById('rcptPrevBal').innerText=prevText
-  document.getElementById('rcptNewBal').innerText='See current ledger balance'
-  document.getElementById('rcptDate').innerText=new Date(pay.created_at).toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})
-  document.getElementById('rcptDateVal').innerText=new Date(pay.created_at).toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'})
-  if(pay.note){document.getElementById('rcptNote').innerText=pay.note;document.getElementById('rcptNoteBox').style.display='block'}
-  else document.getElementById('rcptNoteBox').style.display='none'
-  document.body.classList.add('print-receipt')
-  const ot=document.title; document.title=pay.receipt_no
-  void document.getElementById('receiptArea').offsetHeight
-  requestAnimationFrame(()=>requestAnimationFrame(()=>{
-    window.print()
-    setTimeout(()=>{document.body.classList.remove('print-receipt');document.title=ot},1200)
-  }))
-}
-
-// ────────────────────────────────────────────
-// PRINT STATEMENT
-// ────────────────────────────────────────────
+// ─── PRINT STATEMENT ──────────────────────────
+// FIX: buildStatementDOM is async, and we await it fully before firing print.
 async function buildStatementDOM(){
   if(!currentCustomerData) return
   const{cust,sales,payments,totalPurchased,netCredit}=currentCustomerData
@@ -1752,10 +2087,12 @@ async function buildStatementDOM(){
 }
 
 window.printStatement=async function(){
+  // FIX: await the DOM population fully before printing
   await buildStatementDOM()
+  // Force a synchronous layout flush
+  void document.getElementById('statementArea').offsetHeight
   document.body.classList.add('print-statement')
   const ot=document.title; document.title=document.getElementById('stmtNo').innerText
-  void document.getElementById('statementArea').offsetHeight
   requestAnimationFrame(()=>requestAnimationFrame(()=>{
     window.print()
     setTimeout(()=>{document.body.classList.remove('print-statement');document.title=ot},1200)
