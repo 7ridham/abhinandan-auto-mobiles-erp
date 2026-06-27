@@ -146,15 +146,36 @@ html.light-theme .act-delete { background:rgba(220,38,38,0.08); color:#dc2626; b
 .view-bill-box { background:white; max-width:820px; margin:20px auto; border-radius:16px; overflow:hidden; box-shadow:0 24px 80px rgba(0,0,0,0.6); }
 .view-bill-actions { background:#1e293b; padding:14px 24px; display:flex; gap:8px; justify-content:flex-end; align-items:center; flex-wrap:wrap; }
 .view-bill-actions .bill-no-display { font-size:12px; color:rgba(255,255,255,0.4); margin-right:auto; font-family:monospace; }
-html.light-theme .view-bill-actions { background:#1e293b !important; }
-html.light-theme .view-bill-actions .btn { color:white !important; }
-html.light-theme .view-bill-actions .btn-white { background:white !important; color:#1e3a5f !important; }
 
 /* VIEW PAYMENT RECEIPT MODAL */
 #viewPaymentModal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.88); z-index:10000; overflow-y:auto; padding:20px; backdrop-filter:blur(8px); }
 .view-pay-box { background:white; max-width:820px; margin:20px auto; border-radius:16px; overflow:hidden; box-shadow:0 24px 80px rgba(0,0,0,0.6); }
 .view-pay-actions { background:#1e293b; padding:14px 24px; display:flex; gap:8px; justify-content:flex-end; align-items:center; flex-wrap:wrap; }
 .view-pay-actions .bill-no-display { font-size:12px; color:rgba(255,255,255,0.4); margin-right:auto; font-family:monospace; }
+
+/* FIX (light-theme invisible buttons bug): .view-bill-actions and
+   .view-pay-actions are hardcoded dark bars in BOTH themes on purpose — they
+   sit above a white invoice/receipt preview. The old code only patched
+   .view-bill-actions for light theme and forgot .view-pay-actions entirely,
+   so the global light-theme button rules (in style.css) repainted its
+   buttons with light backgrounds, clashing with the white text and making
+   the receipt number + buttons disappear. We now pin BOTH bars — text color,
+   background, AND the .btn-outline Close button — so they always look
+   identical no matter which theme is active. */
+html.light-theme .view-bill-actions,
+html.light-theme .view-pay-actions { background:#1e293b !important; }
+html.light-theme .view-bill-actions .bill-no-display,
+html.light-theme .view-pay-actions .bill-no-display { color:rgba(255,255,255,0.5) !important; }
+html.light-theme .view-bill-actions .btn,
+html.light-theme .view-pay-actions .btn { color:white !important; }
+html.light-theme .view-bill-actions .btn-white,
+html.light-theme .view-pay-actions .btn-white { background:white !important; color:#1e3a5f !important; }
+html.light-theme .view-bill-actions .btn-outline,
+html.light-theme .view-pay-actions .btn-outline {
+  background:rgba(255,255,255,0.15) !important;
+  border-color:rgba(255,255,255,0.4) !important;
+  color:white !important;
+}
 
 .pay-modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.88); z-index:11000; align-items:center; justify-content:center; backdrop-filter:blur(8px); }
 .pay-modal-box { background:linear-gradient(135deg,#0d1117,#1e293b); border:1px solid rgba(255,255,255,0.12); border-radius:18px; padding:28px; width:90%; max-width:440px; }
@@ -174,10 +195,6 @@ html.light-theme .view-bill-actions .btn-white { background:white !important; co
 /* INVOICE STYLES */
 .inv-header { background:linear-gradient(135deg,#1e3a5f 0%,#2563eb 60%,#06b6d4 100%); color:white; padding:20px 28px; display:flex; justify-content:space-between; align-items:center; gap:16px; }
 .inv-header.return-style { background:linear-gradient(135deg,#7f1d1d,#dc2626,#f87171) !important; }
-/* FIX (logo visibility bug): the old rule was ".inv-header *" which ALSO matched
-   .inv-logo-box and forced it white-on-white. We exclude the logo box from the
-   white-text rule and give the logo box its own dedicated, non-conflicting rule
-   so there's no specificity fight (and no need for inline-style hacks). */
 .inv-header *:not(.inv-logo-box), .inv-header { color:white !important; }
 .inv-header.return-style *:not(.inv-logo-box) { color:white !important; }
 .inv-logo-box { width:52px; height:52px; background:white; border-radius:10px; display:flex; align-items:center; justify-content:center; font-family:'Playfair Display',serif; font-size:24px; font-weight:700; color:#1e3a5f !important; flex-shrink:0; }
@@ -811,16 +828,49 @@ const fmt = n => '₹' + (Math.round(Math.abs(n))||0).toLocaleString('en-IN')
 const PORTAL_URL = 'https://abhinandan-auto-mobiles-erp.vercel.app/portal.html'
 
 // ─── PRINT CLASS ISOLATION HELPER ────────────
-// WHY: Every print function adds a body class (print-bill, print-statement, etc.)
-// which the @media print CSS uses to decide which hidden area to reveal. If a
-// previous print was interrupted (dialog cancelled, fast double-clicking) its
-// class can still be sitting on <body>. With TWO classes active at once, BOTH
-// print areas become visible at print time, and the browser/PDF driver renders
-// whichever comes first in DOM order — this is exactly what produced a blank
-// "Customer Statement" PDF when trying to print a Bill. We strip every print
-// class before adding the one we actually want, every single time.
 function _clearPrintClasses(){
   document.body.classList.remove('print-statement','print-receipt','print-bill','print-pay-receipt')
+}
+
+// ─── ROBUST PRINT TRIGGER (fixes the "blank/wrong PDF" bug) ──────────────────
+// WHY: the old code removed the print-* body class with a fixed setTimeout
+// (1200ms) after calling window.print(). That assumes window.print() blocks
+// script execution until the print dialog closes — true in Chrome/Edge, but
+// NOT true in Safari (which the business uses on macOS). In Safari, print()
+// returns immediately and the page keeps running, so the 1200ms timer can
+// remove the print-bill / print-statement class BEFORE Safari has actually
+// rasterized the page for the PDF/print preview. Whatever class is on <body>
+// at THAT later moment is what gets printed — which is exactly how a bill
+// print could render as a blank statement instead.
+// FIX: use the real 'afterprint' browser event, which fires exactly when the
+// print UI actually closes, on every major browser including Safari. We only
+// remove the class then. A long fallback timeout (10s) exists purely as a
+// safety net for the rare case a browser doesn't fire it. A simple lock flag
+// also stops a double-click from starting a second print mid-flight, which
+// is the other common way these classes get stomped on each other.
+let _printLock = false
+function _doPrint(bodyClass, areaId, titleText){
+  if(_printLock) return
+  _printLock = true
+  _clearPrintClasses()
+  document.body.classList.add(bodyClass)
+  const originalTitle = document.title
+  document.title = titleText || originalTitle
+  void document.getElementById(areaId).offsetHeight
+  let done = false
+  const cleanup = () => {
+    if(done) return
+    done = true
+    document.body.classList.remove(bodyClass)
+    document.title = originalTitle
+    _printLock = false
+    window.removeEventListener('afterprint', cleanup)
+  }
+  window.addEventListener('afterprint', cleanup)
+  setTimeout(cleanup, 10000)
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    window.print()
+  }))
 }
 
 // ─── WHATSAPP HELPERS ───────────────────────
@@ -1380,13 +1430,6 @@ window.openLedger = async function(customerId) {
 }
 
 // ─── VEHICLE FILTER ──────────────────────────
-// WHY: Bills are filtered STRICTLY by the chosen vehicle number — a bill that
-// doesn't carry that exact vehicle number must never appear. Payments are
-// account-level (not tied to any single vehicle), so they always pass through
-// regardless of which vehicle is selected. We normalize (trim + uppercase)
-// before comparing so a hand-typed "gj24ac5124 " still matches "GJ24AC5124" —
-// without normalization, identical vehicles that differ only by stray spaces
-// or casing would wrongly look unrelated.
 function _normVehicle(v){ return (v||'').toString().trim().toUpperCase() }
 
 window.applyTxFilters = function(){
@@ -1399,10 +1442,16 @@ window.applyTxFilters = function(){
   if(type==='payment') filtered = filtered.filter(e => e._type==='payment')
   if(type==='return')  filtered = filtered.filter(e => e._type==='bill' && e.bill_type==='return')
 
+  // FIX: payments are account-level, not tied to any vehicle. The old code
+  // let them through UNCONDITIONALLY ("if payment, always show"), which is
+  // why two payment rows kept appearing even with "GJ24AC5124" selected in
+  // your screenshot. Now: payments only show when "All Vehicles" is picked.
+  // The moment a SPECIFIC vehicle is chosen, payments are excluded — they
+  // simply don't belong to that vehicle, so they shouldn't appear in that view.
   if(vehicle !== 'all') {
     const wantedVehicle = _normVehicle(vehicle)
     filtered = filtered.filter(e => {
-      if(e._type === 'payment') return true
+      if(e._type === 'payment') return false
       if(vehicle === '__none__') return !e.vehicle_number
       return _normVehicle(e.vehicle_number) === wantedVehicle
     })
@@ -1482,15 +1531,6 @@ window.deleteBill = async function(saleId, billNo){
 }
 
 // ─── FETCH BILL ITEMS WITH PRODUCT DETAILS ───
-// WHY: bill_items rows may not have brand/category/size/unit stored directly,
-// so we backfill them from the inventory table via item_id. FIX: the previous
-// version compared item_id straight from Supabase against inventory.id without
-// normalizing type — if one comes back as a number and the other as a string
-// (very common with Postgres uuid/int columns vs JS), the `.in()` filter or the
-// lookup map can silently miss every match, leaving brand/category/size/unit
-// undefined with NO error shown anywhere. We now key the lookup map by
-// String(id) on both sides so type differences can't cause a silent miss, and
-// we log a console.warn if the inventory query itself fails.
 async function fetchBillItemsFull(saleId){
   const{data:items}=await supabase.from('bill_items').select('*').eq('sale_id',saleId)
   if(!items||!items.length) return []
@@ -1522,13 +1562,6 @@ function buildSubtitle(item){
 }
 
 // ─── ACCURATE RUNNING BALANCE AROUND A PAYMENT ───────
-// WHY: A receipt is a historical document — it must freeze the balance as it
-// stood at THAT moment, not whatever the customer's balance happens to be
-// today. We replay every bill/return/payment in chronological (oldest-first)
-// order and capture the running balance right before and right after the
-// target payment was applied. This is also a good proactive practice for any
-// billing system: always be able to reconstruct "what did the books look like
-// on date X", not just "what do they look like now".
 function computeBalanceAroundPayment(paymentId){
   if(!currentCustomerData) return {prevBal:0,newBal:0}
   const {sales,payments}=currentCustomerData
@@ -1569,9 +1602,6 @@ window.viewBill = async function(billNo, customerName, customerPhone){
 
   const vHeader=document.getElementById('vHeader')
   vHeader.className='inv-header'+(isReturn?' return-style':'')
-  // Logo color is handled purely by CSS now (.inv-logo-box / .return-style .inv-logo-box).
-  // We don't fight it with inline styles anymore — that conflict was the root
-  // cause of the invisible logo bug.
   document.getElementById('vLogoBox').removeAttribute('style')
   document.getElementById('vBillType').innerText=isReturn?'Sales Return':'Sales Bill'
   document.getElementById('vInvoiceNo').innerText=sale.bill_number
@@ -1646,15 +1676,7 @@ window.closeViewBill = () => { document.getElementById('viewBillModal').style.di
 window.printViewedBill = function(){
   const printSrc = document.getElementById('viewBillPrintArea').innerHTML
   document.getElementById('billPrintArea').innerHTML = printSrc
-  _clearPrintClasses()
-  document.body.classList.add('print-bill')
-  const ot = document.title
-  document.title = document.getElementById('vInvoiceNo').innerText || 'Bill'
-  void document.getElementById('billPrintArea').offsetHeight
-  requestAnimationFrame(()=>requestAnimationFrame(()=>{
-    window.print()
-    setTimeout(()=>{ document.body.classList.remove('print-bill'); document.title=ot }, 1200)
-  }))
+  _doPrint('print-bill','billPrintArea', document.getElementById('vInvoiceNo').innerText || 'Bill')
 }
 
 window.directPrintBill = async function(billNo, customerName, customerPhone){
@@ -1767,14 +1789,7 @@ window.directPrintBill = async function(billNo, customerName, customerPhone){
   if(window.QRCode){
     try{new QRCode(document.getElementById('printQrHolder'),{text:PORTAL_URL,width:70,height:70,correctLevel:QRCode.CorrectLevel.M})}catch(e){}
   }
-  _clearPrintClasses()
-  document.body.classList.add('print-bill')
-  const ot=document.title; document.title=billNo
-  void document.getElementById('billPrintArea').offsetHeight
-  requestAnimationFrame(()=>requestAnimationFrame(()=>{
-    window.print()
-    setTimeout(()=>{document.body.classList.remove('print-bill');document.title=ot},1200)
-  }))
+  _doPrint('print-bill','billPrintArea', billNo)
 }
 
 // ─── VIEW PAYMENT RECEIPT MODAL ──────────────
@@ -1815,15 +1830,7 @@ window.closeViewPayment = () => {
 window.printViewedPayment = function(){
   const src=document.getElementById('viewPaymentPrintArea').innerHTML
   document.getElementById('paymentReceiptPrintArea').innerHTML=src
-  _clearPrintClasses()
-  document.body.classList.add('print-pay-receipt')
-  const ot=document.title
-  document.title=document.getElementById('vpReceiptNo').innerText||'Receipt'
-  void document.getElementById('paymentReceiptPrintArea').offsetHeight
-  requestAnimationFrame(()=>requestAnimationFrame(()=>{
-    window.print()
-    setTimeout(()=>{document.body.classList.remove('print-pay-receipt');document.title=ot},1200)
-  }))
+  _doPrint('print-pay-receipt','paymentReceiptPrintArea', document.getElementById('vpReceiptNo').innerText||'Receipt')
 }
 
 window.whatsappViewedPayment = async function(){
@@ -1893,14 +1900,7 @@ window.printPaymentById = async function(paymentId){
   </div>`
 
   document.getElementById('paymentReceiptPrintArea').innerHTML=html
-  _clearPrintClasses()
-  document.body.classList.add('print-pay-receipt')
-  const ot=document.title; document.title=pay.receipt_no
-  void document.getElementById('paymentReceiptPrintArea').offsetHeight
-  requestAnimationFrame(()=>requestAnimationFrame(()=>{
-    window.print()
-    setTimeout(()=>{document.body.classList.remove('print-pay-receipt');document.title=ot},1200)
-  }))
+  _doPrint('print-pay-receipt','paymentReceiptPrintArea', pay.receipt_no)
 }
 
 window.whatsappPaymentById = async function(paymentId){
@@ -2047,14 +2047,7 @@ window.savePayment=async function(shouldPrint){
     document.getElementById('rcptDateVal').innerText=new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'})
     if(note){document.getElementById('rcptNote').innerText=note;document.getElementById('rcptNoteBox').style.display='block'}
     else document.getElementById('rcptNoteBox').style.display='none'
-    _clearPrintClasses()
-    document.body.classList.add('print-receipt')
-    const ot=document.title; document.title=receiptNo
-    void document.getElementById('receiptArea').offsetHeight
-    requestAnimationFrame(()=>requestAnimationFrame(()=>{
-      window.print()
-      setTimeout(()=>{document.body.classList.remove('print-receipt');document.title=ot},1200)
-    }))
+    _doPrint('print-receipt','receiptArea', receiptNo)
   }
   closePaymentModal()
   alert('Payment of '+fmt(amount)+' recorded!\nReceipt: '+receiptNo)
@@ -2113,15 +2106,14 @@ async function buildStatementDOM(){
 }
 
 window.printStatement=async function(){
+  // GUARD: this is exactly what produced a totally blank "Customer Statement"
+  // PDF (every field reading "—" / ₹0) in your PDF — printStatement ran while
+  // no customer was loaded into currentCustomerData. We now refuse and tell
+  // you, instead of silently printing an empty template.
+  if(!currentCustomerData){ alert('Please open a customer ledger first.'); return }
   await buildStatementDOM()
   void document.getElementById('statementArea').offsetHeight
-  _clearPrintClasses()
-  document.body.classList.add('print-statement')
-  const ot=document.title; document.title=document.getElementById('stmtNo').innerText
-  requestAnimationFrame(()=>requestAnimationFrame(()=>{
-    window.print()
-    setTimeout(()=>{document.body.classList.remove('print-statement');document.title=ot},1200)
-  }))
+  _doPrint('print-statement','statementArea', document.getElementById('stmtNo').innerText)
 }
 
 // Prefill from customers.html
