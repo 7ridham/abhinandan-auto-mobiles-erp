@@ -62,6 +62,36 @@ html.light-theme .ledger-toolbar select option { background:white; color:#0f172a
 .modal-header-sub { font-size:13px; color:rgba(255,255,255,0.65); }
 .modal-header-right { display:flex; gap:8px; flex-wrap:wrap; }
 
+/* ──────────────────────────────────────────────────────────────────────────
+   FIX (light-theme invisible Close button bug): style.css applies a global
+   "html.light-theme .btn { color:#1e293b !important; }" rule to EVERY
+   element with the .btn class. Buttons like Record Payment / Print
+   Statement / WhatsApp Statement survive this because they ALSO carry a
+   specific class (.btn-green / .btn-white / .btn-wa) that style.css
+   re-overrides with its own !important color for that combination. The
+   Close button only had an inline color:white (no !important), so the
+   generic rule always won — making its text the same dark navy as the rest
+   of the light-theme page, invisible against this header's permanently
+   dark-blue background. Giving it a dedicated class + a light-theme
+   override of equal weight (!important) guarantees it always wins, exactly
+   like the existing .view-bill-actions / .view-pay-actions fix below.
+   ────────────────────────────────────────────────────────────────────────── */
+.modal-close-btn{
+  background:rgba(255,255,255,0.15);
+  border:1.5px solid rgba(255,255,255,0.5);
+  color:#ffffff;
+  font-weight:700;
+  padding:6px 16px;
+  border-radius:8px;
+  cursor:pointer;
+  font-family:'DM Sans',sans-serif;
+}
+html.light-theme .modal-close-btn{
+  color:#ffffff !important;
+  background:rgba(255,255,255,0.15) !important;
+  border-color:rgba(255,255,255,0.5) !important;
+}
+
 .summary-row { display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:rgba(255,255,255,0.06); border-bottom:1px solid rgba(255,255,255,0.06); }
 .summary-card { background:#0f172a; padding:16px 20px; text-align:center; }
 .summary-card .s-label { font-size:10px; color:rgba(255,255,255,0.4); text-transform:uppercase; letter-spacing:1px; margin-bottom:6px; }
@@ -435,7 +465,7 @@ html.light-theme .bal-green { color:#059669 !important; }
         <button class="btn btn-green btn-sm" onclick="openPaymentModal()">Record Payment</button>
         <button class="btn btn-white btn-sm" onclick="printStatement()">Print Statement</button>
         <button class="btn btn-wa btn-sm"    onclick="whatsappStatement()">WhatsApp Statement</button>
-        <button class="btn btn-sm" onclick="closeModal()" style="background:rgba(255,255,255,0.15);border:1.5px solid rgba(255,255,255,0.5);color:white;font-weight:700;padding:6px 16px;border-radius:8px;cursor:pointer;font-family:'DM Sans',sans-serif;">X Close</button>
+        <button class="btn btn-sm modal-close-btn" onclick="closeModal()">X Close</button>
       </div>
     </div>
     <div class="summary-row">
@@ -832,28 +862,49 @@ function _clearPrintClasses(){
   document.body.classList.remove('print-statement','print-receipt','print-bill','print-pay-receipt')
 }
 
+// ─── PRINT AREA IDS (used for bullet-proof visibility forcing) ──────────────
+const PRINT_AREA_IDS = ['statementArea','receiptArea','billPrintArea','paymentReceiptPrintArea']
+
+// WHY: relying ONLY on the body-class CSS rules in @media print is fragile,
+// because style.css is a known source of conflicting global rules in this
+// project. If style.css ever defines an equally-"important" rule touching
+// any of these same element IDs, it can win the cascade and the WRONG print
+// area stays visible — which is exactly how a bill print can render as a
+// blank "Customer Statement" PDF. The fix: directly set each element's
+// display property from JS using the 'important' priority flag. A JS-applied
+// inline "important" declaration always outranks any external/internal
+// stylesheet rule of the same importance tier — no matter how specific that
+// stylesheet's selector is. This makes the correct area visible (and every
+// other one hidden) no matter what style.css does, now or in the future.
+function _forcePrintAreaVisibility(targetId){
+  PRINT_AREA_IDS.forEach(id=>{
+    const el = document.getElementById(id)
+    if(!el) return
+    el.style.setProperty('display', id===targetId ? 'block' : 'none', 'important')
+  })
+}
+function _resetPrintAreaVisibility(){
+  PRINT_AREA_IDS.forEach(id=>{
+    const el = document.getElementById(id)
+    if(el) el.style.removeProperty('display')
+  })
+}
+
 // ─── ROBUST PRINT TRIGGER (fixes the "blank/wrong PDF" bug) ──────────────────
-// WHY: the old code removed the print-* body class with a fixed setTimeout
-// (1200ms) after calling window.print(). That assumes window.print() blocks
-// script execution until the print dialog closes — true in Chrome/Edge, but
-// NOT true in Safari (which the business uses on macOS). In Safari, print()
-// returns immediately and the page keeps running, so the 1200ms timer can
-// remove the print-bill / print-statement class BEFORE Safari has actually
-// rasterized the page for the PDF/print preview. Whatever class is on <body>
-// at THAT later moment is what gets printed — which is exactly how a bill
-// print could render as a blank statement instead.
-// FIX: use the real 'afterprint' browser event, which fires exactly when the
-// print UI actually closes, on every major browser including Safari. We only
-// remove the class then. A long fallback timeout (10s) exists purely as a
-// safety net for the rare case a browser doesn't fire it. A simple lock flag
-// also stops a double-click from starting a second print mid-flight, which
-// is the other common way these classes get stomped on each other.
+// WHY: window.print() is non-blocking in Safari (the business's primary
+// browser) — it returns immediately and the page keeps running, unlike
+// Chrome where it blocks until the dialog closes. We use the real
+// 'afterprint' event (fires on every major browser, including Safari) to
+// know exactly when it's safe to clean up, with a 10s fallback timeout as a
+// safety net, plus a lock flag so a double-click can't start a second print
+// mid-flight and stomp on the first one's classes.
 let _printLock = false
 function _doPrint(bodyClass, areaId, titleText){
   if(_printLock) return
   _printLock = true
   _clearPrintClasses()
   document.body.classList.add(bodyClass)
+  _forcePrintAreaVisibility(areaId)
   const originalTitle = document.title
   document.title = titleText || originalTitle
   void document.getElementById(areaId).offsetHeight
@@ -862,6 +913,7 @@ function _doPrint(bodyClass, areaId, titleText){
     if(done) return
     done = true
     document.body.classList.remove(bodyClass)
+    _resetPrintAreaVisibility()
     document.title = originalTitle
     _printLock = false
     window.removeEventListener('afterprint', cleanup)
@@ -1442,12 +1494,6 @@ window.applyTxFilters = function(){
   if(type==='payment') filtered = filtered.filter(e => e._type==='payment')
   if(type==='return')  filtered = filtered.filter(e => e._type==='bill' && e.bill_type==='return')
 
-  // FIX: payments are account-level, not tied to any vehicle. The old code
-  // let them through UNCONDITIONALLY ("if payment, always show"), which is
-  // why two payment rows kept appearing even with "GJ24AC5124" selected in
-  // your screenshot. Now: payments only show when "All Vehicles" is picked.
-  // The moment a SPECIFIC vehicle is chosen, payments are excluded — they
-  // simply don't belong to that vehicle, so they shouldn't appear in that view.
   if(vehicle !== 'all') {
     const wantedVehicle = _normVehicle(vehicle)
     filtered = filtered.filter(e => {
@@ -1531,14 +1577,29 @@ window.deleteBill = async function(saleId, billNo){
 }
 
 // ─── FETCH BILL ITEMS WITH PRODUCT DETAILS ───
+// FIX: this used to select inventory columns "size" and "unit", but your
+// actual inventory table (confirmed from billing.html, which writes to and
+// reads from the same table) uses the column names "product_size" and
+// "unit_type". Selecting columns that don't exist makes Supabase return an
+// error (code 42703); the old catch only logged a console.warn and silently
+// left prodMap empty — so brand/category/size/unit never made it onto the
+// bill, in the viewer OR the printed PDF, even though the data was sitting
+// right there in the inventory table the whole time. We now select the
+// correct column names, and keep an automatic fallback retry (same pattern
+// billing.html already uses) in case the schema ever changes again.
 async function fetchBillItemsFull(saleId){
   const{data:items}=await supabase.from('bill_items').select('*').eq('sale_id',saleId)
   if(!items||!items.length) return []
   const itemsWithId = items.filter(i => i.item_id !== null && i.item_id !== undefined && i.item_id !== '')
   if(itemsWithId.length){
     const ids = [...new Set(itemsWithId.map(i => i.item_id))]
-    const{data:prods, error}=await supabase.from('inventory').select('id,item_name,brand,category,size,unit').in('id',ids)
-    if(error) console.warn('Product detail lookup failed (brand/category/size/unit will be blank):', error)
+    let prodRes = await supabase.from('inventory').select('id,item_name,brand,category,product_size,unit_type').in('id',ids)
+    if(prodRes.error && prodRes.error.code === '42703'){
+      // Fallback in case the column names are ever renamed back
+      prodRes = await supabase.from('inventory').select('id,item_name,brand,category,size,unit').in('id',ids)
+    }
+    if(prodRes.error) console.warn('Product detail lookup failed (brand/category/size/unit will be blank):', prodRes.error)
+    const prods = prodRes.data
     const prodMap={}
     ;(prods||[]).forEach(p=>{ prodMap[String(p.id)]=p })
     items.forEach(item=>{
@@ -1547,8 +1608,8 @@ async function fetchBillItemsFull(saleId){
         if(!item.item_name) item.item_name=p.item_name
         if(!item.brand)    item.brand=p.brand
         if(!item.category) item.category=p.category
-        if(!item.size)     item.size=p.size
-        if(!item.unit)     item.unit=p.unit
+        if(!item.size)     item.size=p.product_size || p.size
+        if(!item.unit)     item.unit=p.unit_type || p.unit
       }
     })
   }
@@ -2106,10 +2167,6 @@ async function buildStatementDOM(){
 }
 
 window.printStatement=async function(){
-  // GUARD: this is exactly what produced a totally blank "Customer Statement"
-  // PDF (every field reading "—" / ₹0) in your PDF — printStatement ran while
-  // no customer was loaded into currentCustomerData. We now refuse and tell
-  // you, instead of silently printing an empty template.
   if(!currentCustomerData){ alert('Please open a customer ledger first.'); return }
   await buildStatementDOM()
   void document.getElementById('statementArea').offsetHeight
