@@ -62,31 +62,17 @@ html.light-theme .ledger-toolbar select option { background:white; color:#0f172a
 .modal-header-sub { font-size:13px; color:rgba(255,255,255,0.65); }
 .modal-header-right { display:flex; gap:8px; flex-wrap:wrap; }
 
-/* ──────────────────────────────────────────────────────────────────────────
-   FIX (light-theme invisible Close button bug): style.css applies a global
-   "html.light-theme .btn { color:#1e293b !important; }" rule to EVERY
-   element with the .btn class. Buttons like Record Payment / Print
-   Statement / WhatsApp Statement survive this because they ALSO carry a
-   specific class (.btn-green / .btn-white / .btn-wa) that style.css
-   re-overrides with its own !important color for that combination. The
-   Close button only had an inline color:white (no !important), so the
-   generic rule always won — making its text the same dark navy as the rest
-   of the light-theme page, invisible against this header's permanently
-   dark-blue background. Giving it a dedicated class + a light-theme
-   override of equal weight (!important) guarantees it always wins, exactly
-   like the existing .view-bill-actions / .view-pay-actions fix below.
-   ────────────────────────────────────────────────────────────────────────── */
-.modal-close-btn{
+.modal-close-btn {
   background:rgba(255,255,255,0.15);
   border:1.5px solid rgba(255,255,255,0.5);
-  color:#ffffff;
+  color:#ffffff !important;
   font-weight:700;
   padding:6px 16px;
   border-radius:8px;
   cursor:pointer;
   font-family:'DM Sans',sans-serif;
 }
-html.light-theme .modal-close-btn{
+html.light-theme .modal-close-btn {
   color:#ffffff !important;
   background:rgba(255,255,255,0.15) !important;
   border-color:rgba(255,255,255,0.5) !important;
@@ -183,15 +169,6 @@ html.light-theme .act-delete { background:rgba(220,38,38,0.08); color:#dc2626; b
 .view-pay-actions { background:#1e293b; padding:14px 24px; display:flex; gap:8px; justify-content:flex-end; align-items:center; flex-wrap:wrap; }
 .view-pay-actions .bill-no-display { font-size:12px; color:rgba(255,255,255,0.4); margin-right:auto; font-family:monospace; }
 
-/* FIX (light-theme invisible buttons bug): .view-bill-actions and
-   .view-pay-actions are hardcoded dark bars in BOTH themes on purpose — they
-   sit above a white invoice/receipt preview. The old code only patched
-   .view-bill-actions for light theme and forgot .view-pay-actions entirely,
-   so the global light-theme button rules (in style.css) repainted its
-   buttons with light backgrounds, clashing with the white text and making
-   the receipt number + buttons disappear. We now pin BOTH bars — text color,
-   background, AND the .btn-outline Close button — so they always look
-   identical no matter which theme is active. */
 html.light-theme .view-bill-actions,
 html.light-theme .view-pay-actions { background:#1e293b !important; }
 html.light-theme .view-bill-actions .bill-no-display,
@@ -312,18 +289,33 @@ html.light-theme .view-pay-actions .btn-outline {
 .rcpt-sig-line { border-top:1px solid #374151; width:120px; margin:18px 0 4px; }
 .rcpt-note-box { margin:0 28px 8px; padding:10px 14px; background:#fffbeb; border:1px solid #fde68a; border-radius:8px; font-size:12px; color:#92400e; }
 
-/* PRINT */
-#statementArea { display:none; }
-#receiptArea   { display:none; }
-#billPrintArea { display:none; }
+/* PRINT AREAS — hidden by default, shown only via @media print body-class rules */
+#statementArea         { display:none; }
+#receiptArea           { display:none; }
+#billPrintArea         { display:none; }
 #paymentReceiptPrintArea { display:none; }
 
 @media print {
+  /* Hide EVERYTHING on the page */
   body > * { display:none !important; }
-  body.print-statement #statementArea { display:block !important; padding:28px; background:white; color:#111; font-family:'DM Sans',sans-serif; }
-  body.print-receipt   #receiptArea   { display:block !important; background:white; }
-  body.print-bill      #billPrintArea { display:block !important; background:white; }
+
+  /* Then show ONLY the correct print area based on body class.
+     The !important here beats the "body > * { display:none !important }" above
+     because it is more specific (body.X #Y vs body > *). */
+  body.print-statement #statementArea        { display:block !important; padding:28px; background:white; color:#111; font-family:'DM Sans',sans-serif; }
+  body.print-receipt   #receiptArea          { display:block !important; background:white; }
+  body.print-bill      #billPrintArea        { display:block !important; background:white; }
   body.print-pay-receipt #paymentReceiptPrintArea { display:block !important; background:white; }
+
+  /* Force all fixed/absolute modals to be invisible during print
+     so they cannot "bleed" into the printed output. */
+  #viewBillModal,
+  #viewPaymentModal,
+  #ledgerModal,
+  .modal-overlay,
+  .inner-modal-overlay,
+  .pay-modal-overlay { display:none !important; }
+
   * { -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
 }
 
@@ -465,7 +457,7 @@ html.light-theme .bal-green { color:#059669 !important; }
         <button class="btn btn-green btn-sm" onclick="openPaymentModal()">Record Payment</button>
         <button class="btn btn-white btn-sm" onclick="printStatement()">Print Statement</button>
         <button class="btn btn-wa btn-sm"    onclick="whatsappStatement()">WhatsApp Statement</button>
-        <button class="btn btn-sm modal-close-btn" onclick="closeModal()">X Close</button>
+        <button class="btn btn-sm modal-close-btn" onclick="closeModal()">✕ Close</button>
       </div>
     </div>
     <div class="summary-row">
@@ -542,7 +534,7 @@ html.light-theme .bal-green { color:#059669 !important; }
       <span class="bill-no-display" id="vBillNoDisplay">—</span>
       <button class="btn btn-wa btn-sm"      onclick="whatsappBill()">WhatsApp</button>
       <button class="btn btn-white btn-sm"   onclick="printViewedBill()">Print</button>
-      <button class="btn btn-outline btn-sm" onclick="closeViewBill()" style="color:white;">X Close</button>
+      <button class="btn btn-outline btn-sm" onclick="closeViewBill()">✕ Close</button>
     </div>
     <div id="viewBillPrintArea">
       <div class="inv-header" id="vHeader">
@@ -629,7 +621,7 @@ html.light-theme .bal-green { color:#059669 !important; }
       <span class="bill-no-display" id="vpReceiptNoDisplay">—</span>
       <button class="btn btn-wa btn-sm"      onclick="whatsappViewedPayment()">WhatsApp</button>
       <button class="btn btn-white btn-sm"   onclick="printViewedPayment()">Print</button>
-      <button class="btn btn-outline btn-sm" onclick="closeViewPayment()" style="color:white;">X Close</button>
+      <button class="btn btn-outline btn-sm" onclick="closeViewPayment()">✕ Close</button>
     </div>
     <div id="viewPaymentPrintArea">
       <div class="rcpt-header-bar">
@@ -862,42 +854,68 @@ function _clearPrintClasses(){
   document.body.classList.remove('print-statement','print-receipt','print-bill','print-pay-receipt')
 }
 
-// ─── PRINT AREA IDS (used for bullet-proof visibility forcing) ──────────────
+// ─── ALL PRINT AREA IDS ──────────────────────
 const PRINT_AREA_IDS = ['statementArea','receiptArea','billPrintArea','paymentReceiptPrintArea']
 
-// WHY: relying ONLY on the body-class CSS rules in @media print is fragile,
-// because style.css is a known source of conflicting global rules in this
-// project. If style.css ever defines an equally-"important" rule touching
-// any of these same element IDs, it can win the cascade and the WRONG print
-// area stays visible — which is exactly how a bill print can render as a
-// blank "Customer Statement" PDF. The fix: directly set each element's
-// display property from JS using the 'important' priority flag. A JS-applied
-// inline "important" declaration always outranks any external/internal
-// stylesheet rule of the same importance tier — no matter how specific that
-// stylesheet's selector is. This makes the correct area visible (and every
-// other one hidden) no matter what style.css does, now or in the future.
+// ─── FORCE CORRECT PRINT AREA VISIBLE ────────
+// WHY: We use JS inline style with 'important' priority so no stylesheet
+// rule can override which area is shown. This beats even !important in CSS.
 function _forcePrintAreaVisibility(targetId){
-  PRINT_AREA_IDS.forEach(id=>{
+  PRINT_AREA_IDS.forEach(id => {
     const el = document.getElementById(id)
     if(!el) return
-    el.style.setProperty('display', id===targetId ? 'block' : 'none', 'important')
+    el.style.setProperty('display', id === targetId ? 'block' : 'none', 'important')
   })
 }
 function _resetPrintAreaVisibility(){
-  PRINT_AREA_IDS.forEach(id=>{
+  PRINT_AREA_IDS.forEach(id => {
     const el = document.getElementById(id)
     if(el) el.style.removeProperty('display')
   })
 }
 
-// ─── ROBUST PRINT TRIGGER (fixes the "blank/wrong PDF" bug) ──────────────────
-// WHY: window.print() is non-blocking in Safari (the business's primary
-// browser) — it returns immediately and the page keeps running, unlike
-// Chrome where it blocks until the dialog closes. We use the real
-// 'afterprint' event (fires on every major browser, including Safari) to
-// know exactly when it's safe to clean up, with a 10s fallback timeout as a
-// safety net, plus a lock flag so a double-click can't start a second print
-// mid-flight and stomp on the first one's classes.
+// ─── HIDE / RESTORE OVERLAY MODALS FOR PRINT ──────────────────────────────
+// WHY: This is THE critical fix for the blank PDF bug.
+//
+// When the user clicks "Print" from inside the View Bill modal or View Payment
+// modal, those modals are position:fixed with a high z-index and display:block.
+// Safari and Chrome's print engine captures ALL visible elements on the page
+// BEFORE @media print CSS is applied. So the dark modal overlay renders on top
+// of — or instead of — the billPrintArea content, producing a blank or
+// black-circle PDF (exactly as seen in AAM-250626-0001.pdf).
+//
+// The fix: before calling window.print(), hide every overlay modal with an
+// inline style that beats everything. After printing, restore them.
+function _hideModalsForPrint(){
+  const modals = [
+    'viewBillModal', 'viewPaymentModal', 'ledgerModal',
+    'editModal', 'paymentModal'
+  ]
+  modals.forEach(id => {
+    const el = document.getElementById(id)
+    if(el) el.dataset._prevDisplay = el.style.display || ''
+  })
+  modals.forEach(id => {
+    const el = document.getElementById(id)
+    if(el) el.style.setProperty('display','none','important')
+  })
+}
+function _restoreModalsAfterPrint(){
+  const modals = [
+    'viewBillModal', 'viewPaymentModal', 'ledgerModal',
+    'editModal', 'paymentModal'
+  ]
+  modals.forEach(id => {
+    const el = document.getElementById(id)
+    if(!el) return
+    const prev = el.dataset._prevDisplay || ''
+    el.style.removeProperty('display')
+    if(prev) el.style.display = prev
+    delete el.dataset._prevDisplay
+  })
+}
+
+// ─── ROBUST PRINT TRIGGER ────────────────────
 let _printLock = false
 function _doPrint(bodyClass, areaId, titleText){
   if(_printLock) return
@@ -905,13 +923,22 @@ function _doPrint(bodyClass, areaId, titleText){
   _clearPrintClasses()
   document.body.classList.add(bodyClass)
   _forcePrintAreaVisibility(areaId)
+
+  // CRITICAL: hide all modal overlays before print so they don't appear in PDF
+  _hideModalsForPrint()
+
   const originalTitle = document.title
   document.title = titleText || originalTitle
+
+  // Force layout recalc so browser sees the changes before printing
   void document.getElementById(areaId).offsetHeight
+  void document.getElementById(areaId).scrollHeight
+
   let done = false
   const cleanup = () => {
     if(done) return
     done = true
+    _restoreModalsAfterPrint()
     document.body.classList.remove(bodyClass)
     _resetPrintAreaVisibility()
     document.title = originalTitle
@@ -919,8 +946,9 @@ function _doPrint(bodyClass, areaId, titleText){
     window.removeEventListener('afterprint', cleanup)
   }
   window.addEventListener('afterprint', cleanup)
-  setTimeout(cleanup, 10000)
-  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+  setTimeout(cleanup, 10000) // safety net
+
+  requestAnimationFrame(() => requestAnimationFrame(() => {
     window.print()
   }))
 }
@@ -1487,13 +1515,10 @@ function _normVehicle(v){ return (v||'').toString().trim().toUpperCase() }
 window.applyTxFilters = function(){
   const type    = document.getElementById('txTypeFilter').value
   const vehicle = document.getElementById('txVehicleFilter').value
-
   let filtered = allTxEvents
-
   if(type==='sales')   filtered = filtered.filter(e => e._type==='bill' && e.bill_type!=='return')
   if(type==='payment') filtered = filtered.filter(e => e._type==='payment')
   if(type==='return')  filtered = filtered.filter(e => e._type==='bill' && e.bill_type==='return')
-
   if(vehicle !== 'all') {
     const wantedVehicle = _normVehicle(vehicle)
     filtered = filtered.filter(e => {
@@ -1502,7 +1527,6 @@ window.applyTxFilters = function(){
       return _normVehicle(e.vehicle_number) === wantedVehicle
     })
   }
-
   renderTxRows(filtered)
 }
 
@@ -1577,16 +1601,6 @@ window.deleteBill = async function(saleId, billNo){
 }
 
 // ─── FETCH BILL ITEMS WITH PRODUCT DETAILS ───
-// FIX: this used to select inventory columns "size" and "unit", but your
-// actual inventory table (confirmed from billing.html, which writes to and
-// reads from the same table) uses the column names "product_size" and
-// "unit_type". Selecting columns that don't exist makes Supabase return an
-// error (code 42703); the old catch only logged a console.warn and silently
-// left prodMap empty — so brand/category/size/unit never made it onto the
-// bill, in the viewer OR the printed PDF, even though the data was sitting
-// right there in the inventory table the whole time. We now select the
-// correct column names, and keep an automatic fallback retry (same pattern
-// billing.html already uses) in case the schema ever changes again.
 async function fetchBillItemsFull(saleId){
   const{data:items}=await supabase.from('bill_items').select('*').eq('sale_id',saleId)
   if(!items||!items.length) return []
@@ -1595,10 +1609,9 @@ async function fetchBillItemsFull(saleId){
     const ids = [...new Set(itemsWithId.map(i => i.item_id))]
     let prodRes = await supabase.from('inventory').select('id,item_name,brand,category,product_size,unit_type').in('id',ids)
     if(prodRes.error && prodRes.error.code === '42703'){
-      // Fallback in case the column names are ever renamed back
       prodRes = await supabase.from('inventory').select('id,item_name,brand,category,size,unit').in('id',ids)
     }
-    if(prodRes.error) console.warn('Product detail lookup failed (brand/category/size/unit will be blank):', prodRes.error)
+    if(prodRes.error) console.warn('Product detail lookup failed:', prodRes.error)
     const prods = prodRes.data
     const prodMap={}
     ;(prods||[]).forEach(p=>{ prodMap[String(p.id)]=p })
@@ -1616,7 +1629,6 @@ async function fetchBillItemsFull(saleId){
   return items
 }
 
-// Build subtitle: "Brand • Category • Size • Unit"
 function buildSubtitle(item){
   const parts=[item.brand,item.category,item.size,item.unit].filter(Boolean)
   return parts.join(' • ')
@@ -1734,9 +1746,19 @@ window.viewBill = async function(billNo, customerName, customerPhone){
 
 window.closeViewBill = () => { document.getElementById('viewBillModal').style.display='none' }
 
+// ─── PRINT FROM VIEW BILL MODAL ──────────────
+// CRITICAL FIX: Copy the inner content (without the dark modal wrapper)
+// into billPrintArea, then print. The modal itself is hidden via
+// _hideModalsForPrint() inside _doPrint() before window.print() fires.
 window.printViewedBill = function(){
   const printSrc = document.getElementById('viewBillPrintArea').innerHTML
   document.getElementById('billPrintArea').innerHTML = printSrc
+  // Generate QR in the copied area too
+  const qrHolder = document.getElementById('billPrintArea').querySelector('#vQrCode')
+  if(qrHolder && window.QRCode){
+    qrHolder.innerHTML = ''
+    try{ new QRCode(qrHolder,{text:PORTAL_URL,width:70,height:70,correctLevel:QRCode.CorrectLevel.M}) }catch(e){}
+  }
   _doPrint('print-bill','billPrintArea', document.getElementById('vInvoiceNo').innerText || 'Bill')
 }
 
@@ -1775,6 +1797,8 @@ window.directPrintBill = async function(billNo, customerName, customerPhone){
     <div style="display:flex;justify-content:space-between;padding:3px 0;"><span style="color:#6b7280;">Credit at billing</span><span style="font-weight:700;">₹${Math.abs(sale.credit||0).toLocaleString('en-IN')}</span></div>
     <div style="display:flex;justify-content:space-between;padding:3px 0;margin-top:6px;padding-top:6px;border-top:1px solid #e5e7eb;"><span style="font-weight:600;">Overall Balance</span><span style="font-weight:700;color:${nc>0?'#dc2626':'#059669'};">${nc===0?'Settled':(nc<0?'+':'-')+fmt(nc)+(nc<0?' (Advance)':' (Credit Due)')}</span></div>
   </div>`:''
+
+  const qrContainerId = 'directPrintQrHolder_'+Date.now()
 
   const html=`<div style="background:white;font-family:'DM Sans',sans-serif;">
     <div style="${hdrBg};color:white;padding:18px 28px;display:flex;justify-content:space-between;align-items:center;">
@@ -1830,7 +1854,7 @@ window.directPrintBill = async function(billNo, customerName, customerPhone){
     ${balHtml}
     <div style="display:flex;justify-content:space-between;align-items:flex-end;margin:12px 28px 20px;padding-top:12px;border-top:1px solid #e5e7eb;gap:16px;">
       <div style="display:flex;align-items:center;gap:12px;">
-        <div id="printQrHolder" style="width:72px;height:72px;"></div>
+        <div id="${qrContainerId}" style="width:72px;height:72px;"></div>
         <div style="font-size:11px;color:#6b7280;">
           <strong style="display:block;font-size:12px;color:#1e3a5f;margin-bottom:3px;">Rate Us &amp; Visit Our Store</strong>
           <div style="font-size:10px;color:#2563eb;">${PORTAL_URL}</div>
@@ -1848,7 +1872,7 @@ window.directPrintBill = async function(billNo, customerName, customerPhone){
 
   document.getElementById('billPrintArea').innerHTML=html
   if(window.QRCode){
-    try{new QRCode(document.getElementById('printQrHolder'),{text:PORTAL_URL,width:70,height:70,correctLevel:QRCode.CorrectLevel.M})}catch(e){}
+    try{new QRCode(document.getElementById(qrContainerId),{text:PORTAL_URL,width:70,height:70,correctLevel:QRCode.CorrectLevel.M})}catch(e){}
   }
   _doPrint('print-bill','billPrintArea', billNo)
 }
